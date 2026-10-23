@@ -2,8 +2,9 @@
 
 Prop 6.21 computes DP_X exactly on a finite abstraction. The abstraction here is made of:
 
-- the obligation: a target action, its guard conjunct kappa => rho (a facts guard `!kappa || rho` with a reason),
-  the agent who plays for the class X, and the representative state s* (a prefix from the initial state);
+- the obligation: a target action, its guard conjunct κ ⇒ ρ (a facts guard `!lhs || rho` with a reason; lhs is κ,
+  the guard's left side), the agent who plays for the class X, and the representative state s* (a prefix from the
+  initial state);
 - X's actions: those labelled with X's own principal, and the permissionless ones (Machine.permissionless: an M0 or
   M1 label starting with "anyone" or "environment"; an M2+ machine's permission classes);
 - the move alphabets, read from the target's search hints by holon/js/profile.mjs: X's moves (hints whose action X
@@ -13,8 +14,8 @@ Prop 6.21 computes DP_X exactly on a finite abstraction. The abstraction here is
   game reaches);
 - the time abstraction: a strategy waits only to the hints' deadlines at s*. pairs() lists, for every wait of dt
   seconds up to the horizon, its representative, the greatest deadline <= dt (0: no wait); the abstraction law
-  says every alphabet move's outcome after dt is its outcome after the representative, so a wait elsewhere never
-  reaches an outcome sooner.
+  says every alphabet move's outcome one step after a wait of dt from s* is its outcome after the representative.
+  At s*, then, a wait elsewhere reaches no outcome sooner; at later states the time abstraction is assumed.
 
 Exactness of a profile is relative to this abstraction and to H; the records say so (EXACT).
 """
@@ -26,8 +27,9 @@ from pathlib import Path
 from ..gen.machine import Machine
 
 EXACT = ("exact relative to the abstraction: the hints' move alphabets (X's, the schedule's E-closure, the dominance "
-         "closure and each point's game alphabet), the time abstraction at s* (waits to the hinted deadlines), at "
-         "most K strategy moves and at most H schedule events")
+         "closure and each point's game alphabet), at most K strategy moves and at most H schedule events, and the "
+         "time abstraction (waits only to the hinted deadlines), which the abstraction law checks one step from s* "
+         "for every move of every alphabet and which is assumed at later states")
 
 
 @dataclass(frozen=True)
@@ -68,11 +70,11 @@ def pairs(deadlines: list[int], horizon: int) -> list[list[int]]:
 
 
 def engine_request(ob: Obligation, module: Path, hints: Path, facts: dict, bounds: dict,
-                   kappa: dict | None) -> dict:
+                   lhs: dict | None) -> dict:
     """The request holon/js/profile.mjs answers for the obligation."""
     req = {"module": str(module), "hints": str(hints), "facts": facts, "task": "analyze",
            "obligation": {"target": ob.target, "agent": ob.agent, "x_actions": ob.x_actions, "prefix": ob.prefix},
            "schedule": {"H": ob.H, "principals": ob.schedule_principals}, "bounds": bounds}
-    if kappa:
-        req["kappa"] = kappa
+    if lhs:
+        req["lhs"] = lhs
     return req

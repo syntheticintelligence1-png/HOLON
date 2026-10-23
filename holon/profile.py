@@ -6,7 +6,7 @@ abstraction horizon; never edited here), then for its obligation:
 
 1. builds the facts' machine (holon.mpipeline.CompiledMachine, as M1 builds it) and writes its model text to
    gen/<M>/model/<model>.bend;
-2. compiles kappa (holon.gen.profile.kappa_module) to JS for the persistent search;
+2. compiles lhs (holon.gen.profile.lhs_module) to JS for the persistent search;
 3. asks holon/js/profile.mjs for the outcomes, frontier, persistent frontier, alphabets, each frontier point's game
    (priority list and table, or the adversary's answers), the robust frontier, the dominance check and the time
    abstraction (holon.analysis.abstraction.engine_request);
@@ -98,6 +98,34 @@ def classification(root: Path) -> dict:
             "entries": entries}
 
 
+def checked_by(doc: dict, status: dict[str, str]) -> dict:
+    """What Bend checked of the profile document's claims, and what only the engine found. A frontier point is
+    kernel-checked achievable when its §8.4 law is PROVED (its strategy wins every schedule, the empty one too); the
+    frontier's minimality is the dominance law's; a persistent point is kernel-checked when its law is PROVED, but no
+    law shows that the persistent frontier has no other point; the robust frontier beyond the PROVED point laws is
+    the engine's."""
+    ob = doc["obligation"]
+    k = lambda p: f"{p[0]}_{p[1]}"  # noqa: E731
+    pts = [(x["cost"], x["delay"]) for x in doc["frontier"]]
+    dom = status.get(f"L_dp_{ob}_dominance")
+    out = {"frontier": {}, "persistent": {}, "robust_frontier": {}}
+    for c, d in pts:
+        s = status.get(f"L_dp_{ob}_point_{c}_{d}")
+        out["frontier"][k((c, d))] = ("kernel: its §8.4 law is PROVED" if s == "PROVED"
+                                      else f"engine only (its §8.4 law is {s})")
+    out["frontier_minimality"] = "kernel: the dominance law is PROVED" if dom == "PROVED" else f"not checked ({dom})"
+    for x in doc["persistent"]["frontier"]:
+        s = status.get(f"L_dp_{ob}_persistent_{x['cost']}_{x['delay']}")
+        out["persistent"][k((x["cost"], x["delay"]))] = "kernel: its law is PROVED" if s == "PROVED" else f"not checked ({s})"
+    out["persistent_minimality"] = "engine only"
+    for x in doc["robust_frontier"]:
+        s = status.get(f"L_dp_{ob}_point_{x['cost']}_{x['delay']}")
+        out["robust_frontier"][k((x["cost"], x["delay"]))] = ("kernel: its §8.4 law is PROVED" if s == "PROVED"
+                                                              else "engine only (no law)")
+    out["class"] = "from the frontier as checked above"
+    return out
+
+
 def run(milestone: str, root: Path = ROOT, log=print) -> int:
     from .gen.machine import Machine
     from .mpipeline import CompiledMachine, model_name
@@ -127,18 +155,18 @@ def run(milestone: str, root: Path = ROOT, log=print) -> int:
     model_text = Path(cm.source).read_text()
     (gen / "model" / f"{mname}.bend").write_text(model_text)
     model_defs = set(records.model_defs(model_text))
-    if "ob_kappa" in model_defs:
-        log("holon profile: the model already defines ob_kappa")
+    if "ob_lhs" in model_defs:
+        log("holon profile: the model already defines ob_lhs")
         return 1
     model_import = f"../model/{mname}.bend"
 
-    # 2. the search's module: the model with kappa appended in its namespace, compiled to JS in the build dir
+    # 2. the search's module: the model with lhs appended in its namespace, compiled to JS in the build dir
     kdir = bend.build_dir(root) / "profile" / fsha[:16]
     kdir.mkdir(parents=True, exist_ok=True)
-    (kdir / f"{mname}.bend").write_text(model_text.rstrip("\n") + "\n\n" + G.kappa_inline(machine, ob.target, ob.reason, ob.src))
+    (kdir / f"{mname}.bend").write_text(model_text.rstrip("\n") + "\n\n" + G.lhs_inline(machine, ob.target, ob.reason, ob.src))
     r = bend.run([f"{mname}.bend", "-o", f"{mname}.mjs"], cwd=kdir, cfg=cfg)
     if r.code != 0:
-        log(f"holon profile: the model with kappa does not compile: {r.out[-2000:]}")
+        log(f"holon profile: the model with lhs does not compile: {r.out[-2000:]}")
         return 1
     search_module = kdir / f"{mname}.mjs"
 
@@ -146,7 +174,7 @@ def run(milestone: str, root: Path = ROOT, log=print) -> int:
     bounds = {"moves": int(side["search"]["strategy_moves"]), "dominance_moves": int(side["dominance"]["strategy_moves"]),
               "persistent_moves": int(side["persistent"]["strategy_moves"]), "horizon": int(side["abstraction"]["horizon_s"])}
     hints = root / side["candidates"]["source"]
-    req = A.engine_request(ob, search_module, hints, facts, bounds, {"module": str(search_module), "fn": "ob_kappa"})
+    req = A.engine_request(ob, search_module, hints, facts, bounds, {"module": str(search_module), "fn": "ob_lhs"})
     p = subprocess.run(["node", str(ENGINE)], input=json.dumps(req), capture_output=True, text=True, timeout=7200)
     if p.returncode != 0:
         log(f"holon profile: the engine failed: {p.stderr[-3000:]}")
@@ -164,9 +192,11 @@ def run(milestone: str, root: Path = ROOT, log=print) -> int:
     (gen / "profile" / f"{ob.id}.bend").write_text(G.profile_module(machine, model_defs, model_import, doc))
     profile_import = f"../profile/{ob.id}.bend"
 
-    # 5-6. the laws, their Bend files, the checks and the records
+    # 5. the laws and their Bend files; 6. the checks, then the records (each record says what Bend checked)
     gsha = generator_sha256(root, [side["candidates"]["source"]])
-    registry, summary = [], {"PROVED": 0, "REFUTED": 0, "UNKNOWN": 0}
+    key = lambda m: json.dumps(m, sort_keys=True)  # noqa: E731
+    axd_ix = {key(m): i for i, m in enumerate(doc["dominance"]["alphabet"])}
+    decided, registry = [], []
     for law in R.laws(doc):
         lid = law["law_id"]
         st = law["statement"]
@@ -175,7 +205,7 @@ def run(milestone: str, root: Path = ROOT, log=print) -> int:
         registry.append({"law_id": lid, "statement_hash": sh})
         name = lid.lower()
         header = f"# law_id: {lid}   statement_hash: {sh}"
-        counter, witness_lit, binders, claim, rec_witness = False, None, [], "", None
+        counter, witness_lit, binders, claim, rec_witness, proof_witness, why = False, None, [], "", None, None, None
         if law["subform"] == "profile_point":
             pt = next(x for x in doc["points"] if x["cost"] == st["cost"] and x["delay"] == st["delay"])
             ax = f"P.ax_{pt['cost']}_{pt['delay']}()"
@@ -184,6 +214,7 @@ def run(milestone: str, root: Path = ROOT, log=print) -> int:
                 claim = f"{{P.robust(ix, {ax}, {G.nat(pt['cost'])}, {G.nat(pt['delay'])}) == True{{}} : Bool}}"
                 witness_lit = G.nats(pt["policy"])
                 rec_witness = doc["tables"][f"{pt['cost']}_{pt['delay']}"]
+                proof_witness = {"policy": pt["policy"], "alphabet": f"ax_{pt['cost']}_{pt['delay']}"}
             elif pt.get("adversary"):
                 counter = True
                 binders = ["exs e: List<&2, P.Ans>"]
@@ -191,14 +222,23 @@ def run(milestone: str, root: Path = ROOT, log=print) -> int:
                 witness_lit = "[" + ", ".join(f"P.Ans{{{G.nats(a['xhist'])}, {G.nats(a['events'])}}}"
                                               for a in pt["adversary"]) + "]" if pt["adversary"] else "Nil{}"
                 rec_witness = {"adversary": pt["adversary"]}
+                proof_witness = {"adversary": pt["adversary"], "alphabet": f"ax_{pt['cost']}_{pt['delay']}"}
+            else:
+                why = pt.get("why") or "the engine found neither a priority list nor the adversary's answers"
         elif law["subform"] == "profile_dominance":
             claim = "{P.dominance() == True{} : Bool}"
         elif law["subform"] == "profile_persistent":
             f = next(x for x in doc["persistent"]["frontier"] if x["cost"] == st["cost"] and x["delay"] == st["delay"])
-            binders = [f"exs xs: List<&2, M.HAct>"]
-            claim = f"{{P.persistent_ok(xs, {G.nat(f['cost'])}, {G.nat(f['delay'])}) == True{{}} : Bool}}"
-            witness_lit = G.moves_literal(machine, f["strategy"])
-            rec_witness = f["strategy"]
+            ix = [axd_ix.get(key(m)) for m in f["strategy"]]
+            if None in ix:
+                why = "a move of the persistent strategy lies outside X's alphabet"
+            else:
+                binders = ["exs ix: List<&2, Nat>"]
+                claim = (f"{{P.persistent_ok(ix, P.axd(), {G.nat(st['moves'])}, {G.nat(f['cost'])}, "
+                         f"{G.nat(f['delay'])}) == True{{}} : Bool}}")
+                witness_lit = G.nats(ix)
+                rec_witness = f["strategy"]
+                proof_witness = {"strategy": ix, "alphabet": "axd"}
         elif law["subform"] == "profile_abstraction":
             claim = "{P.abstraction() == True{} : Bool}"
         lname = ("cl_" if counter else "") + name
@@ -213,6 +253,14 @@ def run(milestone: str, root: Path = ROOT, log=print) -> int:
         else:
             ok, checker = False, {"exit_code": None, "marker": "not_run", "seconds": 0.0}
         status = ("REFUTED" if counter else "PROVED") if ok else "UNKNOWN"
+        decided.append((law, sh, lname, status, ok, checker, counter, rec_witness, proof_witness, why))
+        log(f"  {lid}: {status} ({checker['marker']})")
+    st_of = {law["law_id"]: status for law, _sh, _n, status, *_ in decided}
+    checked = checked_by(doc, st_of)
+    summary = {"PROVED": 0, "REFUTED": 0, "UNKNOWN": 0}
+    for law, sh, lname, status, ok, checker, counter, rec_witness, proof_witness, why in decided:
+        lid = law["law_id"]
+        st = law["statement"]
         summary[status] += 1
         pt_info = None
         if law["subform"] == "profile_point":
@@ -229,22 +277,25 @@ def run(milestone: str, root: Path = ROOT, log=print) -> int:
                           "profile": f"gen/{milestone}/profile/{ob.id}.bend"},
             "attempts": [{"kind": "profile-search", "engine": "holon/js/profile.mjs", "outcomes": len(doc["outcomes"]),
                           "game": pt_info},
-                         {"kind": "counter-law" if counter else "proof", "generator": "evaluate", **checker}],
+                         {"kind": "counter-law" if counter else "proof", "generator": "evaluate", **checker}]
+                        + ([{"kind": "not attempted", "why": why}] if why else []),
             "witness": rec_witness,
-            "scope": {"kind": "bounded", "H": ob.H, "moves": bounds["moves"], "exact": A.EXACT},
+            "proof_witness": proof_witness,
+            "scope": {"kind": "bounded", "H": ob.H, "moves": st.get("moves", bounds["moves"]), "exact": A.EXACT},
             "disch_class": doc["class"],
             "disch_profile": {"frontier": [[x["cost"], x["delay"]] for x in doc["frontier"]],
                               "persistent": [[x["cost"], x["delay"]] for x in doc["persistent"]["frontier"]],
                               "persistent_class": doc["persistent"]["class"],
                               "robust_frontier": [[x["cost"], x["delay"]] for x in doc["robust_frontier"]],
-                              "H": ob.H, "exact": A.EXACT},
+                              "H": ob.H, "exact": A.EXACT, "checked": checked,
+                              "cost_model": facts.get("disch", {}).get("cost")},
             "generator_sha256": gsha,
         }
         (out_res / f"{lid}.json").write_text(dump(rec))
-        log(f"  {lid}: {status} ({checker['marker']})")
     (out_laws / "REGISTRY.json").write_text(dump({"milestone": milestone, "laws": sorted(registry, key=lambda e: e["law_id"])}))
     (out_res / "summary.json").write_text(dump({"milestone": milestone, "statuses": summary, "laws": len(registry),
-                                                "class": doc["class"], "persistent_class": doc["persistent"]["class"]}))
+                                                "class": doc["class"], "persistent_class": doc["persistent"]["class"],
+                                                "checked": checked}))
 
     # 7. the M3 classification
     (root / "gen" / "M3" / "disch").mkdir(parents=True, exist_ok=True)

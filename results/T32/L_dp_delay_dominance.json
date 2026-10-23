@@ -18,18 +18,38 @@
       "generator": "evaluate",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 9.653
+      "seconds": 12.883
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 9.653
+    "seconds": 12.883
   },
   "disch_class": "mixed",
   "disch_profile": {
     "H": 2,
-    "exact": "exact relative to the abstraction: the hints' move alphabets (X's, the schedule's E-closure, the dominance closure and each point's game alphabet), the time abstraction at s* (waits to the hinted deadlines), at most K strategy moves and at most H schedule events",
+    "checked": {
+      "class": "from the frontier as checked above",
+      "frontier": {
+        "0_19": "kernel: its §8.4 law is PROVED",
+        "1_0": "engine only (its §8.4 law is REFUTED)"
+      },
+      "frontier_minimality": "kernel: the dominance law is PROVED",
+      "persistent": {
+        "0_19": "kernel: its law is PROVED"
+      },
+      "persistent_minimality": "engine only",
+      "robust_frontier": {
+        "0_19": "kernel: its §8.4 law is PROVED",
+        "3_0": "engine only (no law)"
+      }
+    },
+    "cost_model": {
+      "commitBatchWithProof": 1000,
+      "sendMessage": 1
+    },
+    "exact": "exact relative to the abstraction: the hints' move alphabets (X's, the schedule's E-closure, the dominance closure and each point's game alphabet), at most K strategy moves and at most H schedule events, and the time abstraction (waits only to the hinted deadlines), which the abstraction law checks one step from s* for every move of every alphabet and which is assumed at later states",
     "frontier": [
       [
         0,
@@ -59,7 +79,7 @@
     ]
   },
   "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
-  "generator_sha256": "ce2e833d9e31982f0655e2c5bd5edec4e02b791ff729e1c5125e3345d1fd52fe",
+  "generator_sha256": "f043522b49e725da5271fa10c6daff57630589909f7484442b902708401dec96",
   "kernels": [
     {
       "kernel": "bend2",
@@ -72,10 +92,11 @@
   ],
   "law_id": "L_dp_delay_dominance",
   "milestone": "T32",
+  "proof_witness": null,
   "rule": "DISCH",
   "scope": {
     "H": 2,
-    "exact": "exact relative to the abstraction: the hints' move alphabets (X's, the schedule's E-closure, the dominance closure and each point's game alphabet), the time abstraction at s* (waits to the hinted deadlines), at most K strategy moves and at most H schedule events",
+    "exact": "exact relative to the abstraction: the hints' move alphabets (X's, the schedule's E-closure, the dominance closure and each point's game alphabet), at most K strategy moves and at most H schedule events, and the time abstraction (waits only to the hinted deadlines), which the abstraction law checks one step from s* for every move of every alphabet and which is assumed at later states",
     "kind": "bounded",
     "moves": 4
   },

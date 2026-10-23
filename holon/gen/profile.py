@@ -4,7 +4,7 @@ Untrusted, like every generator: a law holds only when Bend accepts its proof. E
 over finite, explicit objects that the profile document fixes (holon.rules.disch_profile):
 
 - profile_module(): the obligation's module, gen/<M>/profile/<id>.bend, importing the machine model as M:
-  s* (the prefix from M.s0), the target test, kappa (compiled from the facts' guard by holon.gen.machine's own
+  s* (the prefix from M.s0), the target test, lhs (compiled from the facts' guard by holon.gen.machine's own
   expression compiler, Machine.ex, with the model's defs qualified), the E-alphabet ae(), the game X-alphabet of
   every point ax_<c>_<d>(), the dominance alphabet axd(), every schedule of at most H events (scheds()), the greedy
   play of a priority list against a schedule (one def per turn, since Bend refuses mutual recursion), the
@@ -34,9 +34,9 @@ def qualify(code: str, model_defs: set[str]) -> str:
                                                            else m.group(0)), code)
 
 
-def kappa_parts(machine: Machine, target: str, reason: int) -> tuple[list[tuple[str, str]], str]:
-    """(lets, kappa) of the target's guard `!kappa || rho` with this reason: the lets before it that kappa needs (in
-    the facts' order), and kappa, compiled by Machine.ex; raises ValueError for another guard shape."""
+def lhs_parts(machine: Machine, target: str, reason: int) -> tuple[list[tuple[str, str]], str]:
+    """(lets, lhs) of the target's guard `!lhs || rho` with this reason: the lets before it that lhs needs (in
+    the facts' order), and lhs, compiled by Machine.ex; raises ValueError for another guard shape."""
     a = next(x for x in machine.actions if x["name"] == target)
     lets: list[tuple[str, list]] = []
     guard = None
@@ -47,9 +47,9 @@ def kappa_parts(machine: Machine, target: str, reason: int) -> tuple[list[tuple[
             guard = g["require"]
             break
     if not (isinstance(guard, list) and guard[0] == "||" and isinstance(guard[1], list) and guard[1][0] == "!"):
-        raise ValueError(f"{target} reason {reason}: not a guard of the form !kappa || rho: {guard!r}")
-    kappa = guard[1][1]
-    need = set(machine.fv(kappa))
+        raise ValueError(f"{target} reason {reason}: not a guard of the form !lhs || rho: {guard!r}")
+    lhs = guard[1][1]
+    need = set(machine.fv(lhs))
     keep = []
     for name, e in reversed(lets):
         if name in need:
@@ -62,9 +62,9 @@ def kappa_parts(machine: Machine, target: str, reason: int) -> tuple[list[tuple[
         code, ty = machine.ex(e, env)
         env[name] = ty
         out.append((name, code))
-    kc, kt = machine.ex(kappa, env)
+    kc, kt = machine.ex(lhs, env)
     if kt != "Bool":
-        raise ValueError(f"kappa has type {kt}")
+        raise ValueError(f"lhs has type {kt}")
     return out, kc
 
 
@@ -72,21 +72,21 @@ def state_pattern(machine: Machine) -> str:
     return "M.HSt{" + ", ".join("+" + bname(n) for n, _ in machine.state) + "}"
 
 
-def kappa_def(machine: Machine, target: str, reason: int, model_defs: set[str], src: str) -> list[str]:
-    lets, kc = kappa_parts(machine, target, reason)
-    out = [f"# kappa of {target}'s guard {reason} ({src}): the facts' expression, compiled by holon.gen.machine",
-           "def ob_kappa(s: M.HSt) -> Bool:", "  match s:", f"    case {state_pattern(machine)}:"]
+def lhs_def(machine: Machine, target: str, reason: int, model_defs: set[str], src: str) -> list[str]:
+    lets, kc = lhs_parts(machine, target, reason)
+    out = [f"# lhs of {target}'s guard {reason} ({src}): the facts' expression, compiled by holon.gen.machine",
+           "def ob_lhs(s: M.HSt) -> Bool:", "  match s:", f"    case {state_pattern(machine)}:"]
     for name, code in lets:
         out.append(f"      +{bname(name)} = {qualify(code, model_defs)}")
     out += [f"      {qualify(kc, model_defs)}", ""]
     return out
 
 
-def kappa_inline(machine: Machine, target: str, reason: int, src: str) -> str:
-    """kappa in the model's own namespace, to append to the model text: the search compiles the two as one module
+def lhs_inline(machine: Machine, target: str, reason: int, src: str) -> str:
+    """lhs in the model's own namespace, to append to the model text: the search compiles the two as one module
     (a compiled module's constructors are tagged by the file that loads them, so a state of one module cannot be
     passed to another)."""
-    lines = kappa_def(machine, target, reason, set(), src)
+    lines = lhs_def(machine, target, reason, set(), src)
     return "\n".join(line.replace("M.HSt", "HSt") for line in lines)
 
 
@@ -327,9 +327,9 @@ def adversary_defs(K: int) -> list[str]:
         if j > 1:
             cont = (f"xla_{j}(answer(e, List.append(&2, Nat, xh, Con{{i, Nil{{}}}})), ax, e, s2, "
                     f"List.append(&2, Nat, xh, Con{{i, Nil{{}}}}), h, Nat.add(c0, cost1(m)), Nat.add(d0, delay1(m)), c, d)")
-            out += [f"# the answer's events (at most h), then the strategy's turn with {j - 1} turns left",
+            out += [f"# the answer's events (at most h, each an index into ae()), then the strategy's turn with {j - 1} turns left",
                     f"def xla_{j}(+ev: List<&2, Nat>, +ax: List<&2, M.HAct>, +e: List<&2, Ans>, s2: M.HSt, +xh: List<&2, Nat>, +h: Nat, +c0: Nat, +d0: Nat, +c: Nat, +d: Nat) -> Bool:",
-                    f"  Bool.and(Nat.is_le(n_moves(ev), h), xl_{j - 1}(ax, 0n, ax, e, apply_all(ev, s2), xh, Nat.sub(h, n_moves(ev)), c0, d0, c, d))", ""]
+                    f"  Bool.and(Bool.and(Nat.is_le(n_moves(ev), h), ix_in(ev, n_moves_ae())), xl_{j - 1}(ax, 0n, ax, e, apply_all(ev, s2), xh, Nat.sub(h, n_moves(ev)), c0, d0, c, d))", ""]
         else:
             cont = "True{}"
         out += [f"def xlt_{j}(b: Bool, +m: M.HAct, +i: Nat, +ax: List<&2, M.HAct>, +e: List<&2, Ans>, s2: M.HSt, +xh: List<&2, Nat>, +h: Nat, +c0: Nat, +d0: Nat, +c: Nat, +d: Nat) -> Bool:",
@@ -376,9 +376,11 @@ def profile_module(machine: Machine, model_defs: set[str], model_import: str, do
     out = [HEADER, f"# obligation: {doc['obligation']}   facts: {doc['facts']}   facts_sha256: {doc['facts_sha256']}",
            "import Base", f"import {model_import} as M", ""]
     out += ["# s*: the obligation's representative state", "def sstar() -> M.HSt:",
-            f"  M.run({moves_literal(machine, ob['prefix'])}, M.s0())", ""]
+            f"  M.run({moves_literal(machine, ob['prefix'])}, M.s0())", "",
+            "# every step of the prefix succeeds (every law below asks it)", "def sstar_ok() -> Bool:",
+            f"  M.runs_ok({moves_literal(machine, ob['prefix'])}, M.s0())", ""]
     out += target_def(machine, ob["target"], ob["agent"])
-    out += kappa_def(machine, ob["target"], ob["guard"]["reason"], model_defs, ob["guard"]["src"])
+    out += lhs_def(machine, ob["target"], ob["guard"]["reason"], model_defs, ob["guard"]["src"])
     out += ["# the schedules' alphabet: the hints' E-moves at every state at most H E-moves reach from s*",
             "def ae() -> List<&2, M.HAct>:", f"  {moves_literal(machine, doc['schedule']['alphabet'])}", ""]
     out += ["# the dominance alphabet: the hints' X-moves at every state at most K - 1 X-moves reach from s*",
@@ -387,7 +389,7 @@ def profile_module(machine: Machine, model_defs: set[str], model_import: str, do
         out += [f"# the game X-alphabet of the point ({p['cost']}, {p['delay']})",
                 f"def ax_{p['cost']}_{p['delay']}() -> List<&2, M.HAct>:", f"  {moves_literal(machine, p['alphabet'])}", ""]
     out += GENERIC.splitlines() + [""]
-    out += ["def n_moves_ae() -> Nat:", f"  {nat(len(doc['schedule']['alphabet']))}", "",
+    out += ["def n_moves_ae() -> Nat:", "  List.length(&2, M.HAct, ae())", "",
             "# every schedule of at most H events over ae(), at turns 0 .. K - 1, in turn order",
             "def scheds() -> List<&2, List<&2, Ev>>:", f"  levels({nat(H)}, Con{{Nil{{}}, Nil{{}}}}, {nat(K)}, n_moves_ae(), Nil{{}})", ""]
     out += greedy_defs(K)
@@ -401,18 +403,23 @@ def profile_module(machine: Machine, model_defs: set[str], model_import: str, do
             "# §8.4: the priority list ix (indices into the point's game alphabet ax, every one in range) wins every",
             "# schedule within (c, d)",
             "def robust(+ix: List<&2, Nat>, +ax: List<&2, M.HAct>, +c: Nat, +d: Nat) -> Bool:",
-            "  Bool.and(ix_in(ix, List.length(&2, M.HAct, ax)), all_gp(scheds(), ix_moves(ix, ax), c, d))", ""]
+            "  Bool.and(Bool.and(sstar_ok(), ix_in(ix, List.length(&2, M.HAct, ax))), all_gp(scheds(), ix_moves(ix, ax), c, d))", ""]
     out += adversary_defs(K)
-    out += ["# the adversary's answers e beat every strategy over ax within (c, d), using at most H events",
+    out += ["# the adversary's answers e beat every strategy over ax within (c, d), using at most H events, each an index",
+            "# into ae()",
             "def beaten(+e: List<&2, Ans>, +ax: List<&2, M.HAct>, +c: Nat, +d: Nat) -> Bool:",
-            f"  Bool.and(Nat.is_le(n_moves(answer(e, Nil{{}})), {nat(H)}), xl_{K}(ax, 0n, ax, e, apply_all(answer(e, Nil{{}}), sstar()), Nil{{}}, Nat.sub({nat(H)}, n_moves(answer(e, Nil{{}}))), 0n, 0n, c, d))", ""]
+            f"  Bool.and(Bool.and(sstar_ok(), Bool.and(Nat.is_le(n_moves(answer(e, Nil{{}})), {nat(H)}), ix_in(answer(e, Nil{{}}), n_moves_ae()))), xl_{K}(ax, 0n, ax, e, apply_all(answer(e, Nil{{}}), sstar()), Nil{{}}, Nat.sub({nat(H)}, n_moves(answer(e, Nil{{}}))), 0n, 0n, c, d))", ""]
     out += dominance_defs(Kd, doc["dominance"]["gaps"])
     out += ["# the bounded dominance law: no sequence of at most K moves over axd() reaches a target below the staircase",
-            "def dominance() -> Bool:", f"  dl_{Kd}(axd(), sstar(), 0n, 0n)", ""]
-    out += ["# the persistent variant: xs from s* succeeds, ends with the target, within (c, d), and kappa is false after",
-            "def persistent_ok(+xs: List<&2, M.HAct>, +c: Nat, +d: Nat) -> Bool:",
+            "def dominance() -> Bool:", f"  Bool.and(sstar_ok(), dl_{Kd}(axd(), sstar(), 0n, 0n))", ""]
+    out += ["# the persistent variant: xs from s* succeeds, ends with the target, within (c, d), and lhs is false after",
+            "def persistent_xs(+xs: List<&2, M.HAct>, +c: Nat, +d: Nat) -> Bool:",
             "  Bool.and(Bool.and(M.runs_ok(xs, sstar()), last_target(xs)), Bool.and(Bool.and(Nat.is_le(M.cost(xs), c), "
-            "Nat.is_le(M.elapsed(xs), d)), Bool.not(ob_kappa(M.run(xs, sstar())))))", ""]
+            "Nat.is_le(M.elapsed(xs), d)), Bool.not(ob_lhs(M.run(xs, sstar())))))", "",
+            "# ... for a strategy of at most k moves of X's alphabet ax (ix: indices into ax, every one in range)",
+            "def persistent_ok(+ix: List<&2, Nat>, +ax: List<&2, M.HAct>, +k: Nat, +c: Nat, +d: Nat) -> Bool:",
+            "  Bool.and(Bool.and(sstar_ok(), Bool.and(ix_in(ix, List.length(&2, M.HAct, ax)), Nat.is_le(List.length(&2, Nat, ix), k))), "
+            "persistent_xs(ix_moves(ix, ax), c, d))", ""]
     out += ["def ab_moves(ms: List<&2, M.HAct>, +a: M.HSt, +b: M.HSt) -> Bool:", "  match ms:", "    case Nil{}:",
             "      True{}", "    case Con{+m, rest}:", "      Bool.and(Nat.is_eq(code_at(m, a), code_at(m, b)), ab_moves(rest, a, b))", "",
             "def ab_pairs(ps: List<&2, DtR>, +ms: List<&2, M.HAct>) -> Bool:", "  match ps:", "    case Nil{}:",
@@ -421,7 +428,7 @@ def profile_module(machine: Machine, model_defs: set[str], model_import: str, do
             "def abs_moves() -> List<&2, M.HAct>:", f"  {moves_literal(machine, doc['abstraction']['moves'])}", "",
             "# the time abstraction: every wait dt <= horizon has the outcomes of its representative",
             "def abstraction() -> Bool:",
-            "  ab_pairs(" + ("[" + ", ".join(f"DtR{{{nat(dt)}, {nat(r)}}}" for dt, r in doc["abstraction"]["pairs"]) + "]") + ", abs_moves())", ""]
+            "  Bool.and(sstar_ok(), ab_pairs(" + ("[" + ", ".join(f"DtR{{{nat(dt)}, {nat(r)}}}" for dt, r in doc["abstraction"]["pairs"]) + "]") + ", abs_moves()))", ""]
     return "\n".join(out)
 
 

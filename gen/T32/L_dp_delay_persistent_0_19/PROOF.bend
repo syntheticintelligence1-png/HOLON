@@ -5,4 +5,4 @@ import ../profile/delay.bend as P
 import ./LAWS.bend as Laws
 
 def Laws.l_dp_delay_persistent_0_19():
-  ([M.A_wait{19n}, M.A_finalizeBatch{2n, 1n}, M.A_commitBatch{2n, 1n, 1n, 0n, 2n, 101n, 125n, [27n]}], {==})
+  ([16n, 11n, 87n], {==})

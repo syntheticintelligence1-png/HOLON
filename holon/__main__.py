@@ -44,8 +44,8 @@
   python -m holon codecs --milestone M3 [--root DIR] [--adoption PATH] [--link PATH] [--out DIR] [--check]
                                                         (the linked codec documents gen/<M>/codec/<role>.json; I24)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
-  python -m holon profile --milestone T32 [--root DIR]   (discharge profiles, DISCH II, I32)
                                                         (the back-test across documents, results/M3/backtest.json; I24)
+  python -m holon profile --milestone T32 [--root DIR]   (discharge profiles, DISCH II, I32)
   python -m holon lossy --milestone M3 [--root DIR] [--out DIR] [--review PATH] [--records DIR] [--codec PATH ...]
                         [--gen-dir DIR] [--check]       (PAR-lossy and injective pushing: gen/<M>/par_lossy/,
                                                         spec/<M>/evidence_review.jsonl; I25)

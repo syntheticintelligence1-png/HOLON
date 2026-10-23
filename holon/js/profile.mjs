@@ -3,7 +3,7 @@
 //
 // stdin: {"module", "hints", "facts", "obligation", "schedule", "bounds", "task"}
 //   obligation: {"target", "agent", "x_actions": [the actions X may call], "prefix": [move]}
-//   kappa?:     {"module", "fn"} (the obligation's kappa, compiled by holon.gen.profile)
+//   lhs?:     {"module", "fn"} (the obligation's lhs, compiled by holon.gen.profile)
 //   schedule:   {"H", "principals": [who]}
 //   bounds:     {"moves", "dominance_moves", "persistent_moves", "horizon"}
 // stdout (task "analyze"): {
@@ -44,6 +44,8 @@ function dec(x) {
   if (x && typeof x === "object") { const o = {}; for (const [k, y] of Object.entries(x)) o[k] = k === "$" ? y : dec(y); return o; }
   throw new Error("dec " + String(x));
 }
+const cmpStr = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+const byPoint = (a, b) => { const [ca, da] = a.split("_").map(Number), [cb, db] = b.split("_").map(Number); return ca - cb || da - db; };
 const canon = (v) => (Array.isArray(v) ? v.map(canon)
   : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v);
 const key = (v) => JSON.stringify(canon(v));
@@ -63,9 +65,9 @@ const unitDelay = new Map();
 function delayOf1(m) { const k = key(m); if (!unitDelay.has(k)) unitDelay.set(k, Number(M.elapsed(toList([act(m)])))); return unitDelay.get(k); }
 function stateKey(s) { const d = dec(s); delete d.log; return key(d); }
 const isTarget = (m) => m.op === ob.target && m.who === ob.agent;
-// kappa, compiled by holon.gen.profile from the facts' guard into its own module (req.kappa), never written here
-const K = req.kappa ? (await import(pathToFileURL(req.kappa.module).href)).default : null;
-function kappa(s) { return K ? K[req.kappa.fn](s) === true : null; }
+// lhs, compiled by holon.gen.profile from the facts' guard into its own module (req.lhs), never written here
+const K = req.lhs ? (await import(pathToFileURL(req.lhs.module).href)).default : null;
+function lhs(s) { return K ? K[req.lhs.fn](s) === true : null; }
 
 // ---------------------------------------------------------------- moves
 function dedup(ms) { const seen = new Set(); return ms.filter((m) => { const k = key(m); if (seen.has(k)) return false; seen.add(k); return true; }); }
@@ -93,7 +95,7 @@ function pareto(pts) {
 
 // Prop 6.21: bi-criteria label-correcting search from s*, breadth first by moves; a state's labels are its
 // Pareto-minimal (cost, delay) pairs, a label dominated at the same state is dropped. done(s) decides whether a
-// successful target move completes the occurrence (the persistent variant asks kappa false there).
+// successful target move completes the occurrence (the persistent variant asks lhs false there).
 function labelSearch(moves, done) {
   const outcomes = [];
   const labels = new Map();
@@ -221,18 +223,18 @@ function solve(c, d, plan, ae, H, moves) {
   function xturn(s, turn, h, c0, d0) {
     const mk = `${stateKey(s)}|${turn}|${h}|${c0}|${d0}`;
     if (memo.has(mk)) return memo.get(mk);
-    let win = null;
+    let won = null;
     for (const m of dedup([...(turn < plan.length ? [plan[turn]] : []), ...xMoves(s)])) {
       nodes++;
       const c1 = c0 + costOf1(m), d1 = d0 + delayOf1(m);
       if (c1 > c || d1 > d) continue;
       const s2 = step(m, s);
       if (!ok(s2)) continue;
-      if (isTarget(m)) { win = m; break; }
-      if (turn + 1 < moves && envturn(s2, turn + 1, h, c1, d1)) { win = m; break; }
+      if (isTarget(m)) { won = m; break; }
+      if (turn + 1 < moves && envturn(s2, turn + 1, h, c1, d1)) { won = m; break; }
     }
-    memo.set(mk, win);
-    return win;
+    memo.set(mk, won);
+    return won;
   }
   function envturn(s, turn, h, c0, d0) {
     for (const q of seqs[h]) {
@@ -271,7 +273,7 @@ function solve(c, d, plan, ae, H, moves) {
     if (!all) continue;
     const rows = new Map();
     for (const sched of schedules(H, moves, ae.length)) greedyPlay(P, ae, sched, moves, c, d, rows);
-    const list = [...rows.values()].sort((a, b) => a.turn - b.turn || key(a.hist).localeCompare(key(b.hist)));
+    const list = [...rows.values()].sort((a, b) => a.turn - b.turn || cmpStr(key(a.hist), key(b.hist)));
     return { robust: true, policy: P, rows: list, nodes };
   }
   return { robust: true, policy: null, rows: [], nodes, why: "a winning table exists, but no priority list of its moves wins every schedule" };
@@ -334,7 +336,7 @@ function adversary(c, d, ae, ax, H, moves) {
     return true;
   }
   if (!envWins(sstar, 0, H, 0, 0, [])) return null;
-  return [...answers.values()].sort((a, b) => a.xhist.length - b.xhist.length || key(a.xhist).localeCompare(key(b.xhist)));
+  return [...answers.values()].sort((a, b) => a.xhist.length - b.xhist.length || cmpStr(key(a.xhist), key(b.xhist)));
 }
 
 // the robust frontier: the Pareto-minimal outcomes some priority list wins against every schedule (each outcome of
@@ -397,7 +399,7 @@ const out = { sstar_ok: sstarOk };
 if (req.task === "analyze") {
   const outcomes = labelSearch(B.moves, () => true);
   const frontier = pareto(outcomes.map(([c, d]) => [c, d]));
-  const persistent = labelSearch(B.persistent_moves, (s) => kappa(s) === false);
+  const persistent = labelSearch(B.persistent_moves, (s) => lhs(s) === false);
   const ae = eClosure(SCH.H);
   const ax = xClosure(B.dominance_moves - 1);
   const points = {};
@@ -432,9 +434,11 @@ if (req.task === "analyze") {
   out.robust_frontier = robustFrontier(outcomes, ae, SCH.H, B.moves);
   out.gaps = gaps;
   out.dominance = dominance(ax, gaps, B.dominance_moves);
-  const abs = abstraction([...ax.filter((m) => m.op !== "wait"), ...ae], B.horizon);
+  const absMoves = dedup([...ax, ...ae, ...Object.keys(points).sort(byPoint).flatMap((k) => points[k].ax)]
+    .filter((m) => m.op !== "wait"));
+  const abs = abstraction(absMoves, B.horizon);
   out.deadlines = abs.deadlines;
   out.abstraction = { checked: abs.checked, mismatches: abs.mismatches };
-  out.abs_moves = [...ax.filter((m) => m.op !== "wait"), ...ae];
+  out.abs_moves = absMoves;
 }
 process.stdout.write(JSON.stringify(out));

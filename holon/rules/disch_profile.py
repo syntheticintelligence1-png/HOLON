@@ -12,7 +12,7 @@ From the engine's answer (holon/js/profile.mjs) for one obligation (holon.analys
 - the laws, one statement each (the statement hash is the sha256 of its canonical JSON):
     L_dp_<ob>_point_<c>_<d>        every frontier point, the §8.4 form over the point's game alphabet;
     L_dp_<ob>_dominance            the bounded ∀ form: no strategy reaches a target outcome below the staircase;
-    L_dp_<ob>_persistent_<c>_<d>   every persistent frontier point: a strategy with that outcome after which kappa
+    L_dp_<ob>_persistent_<c>_<d>   every persistent frontier point: a strategy with that outcome after which lhs
                                    is false;
     L_dp_<ob>_abstraction          the time abstraction's soundness at s*;
 The rule is not registered in holon/rules/__init__.py nor in a rule catalog: it decides the test milestone T32, and
@@ -135,10 +135,11 @@ def laws(doc: dict) -> list[dict]:
     for f in doc["persistent"]["frontier"]:
         out.append({"law_id": f"L_dp_{ob}_persistent_{f['cost']}_{f['delay']}", "subform": "profile_persistent",
                     **common, "statement": {**base, "form": "profile_persistent", "cost": f["cost"],
-                                            "delay": f["delay"],
-                                            "claim": "there is a sequence of moves from s*, each succeeding, whose last "
-                                                     "move is the target, within cost and delay, after which kappa (the "
-                                                     "guard's left side) is false"}})
+                                            "delay": f["delay"], "alphabet": d["alphabet"],
+                                            "moves": doc["bounds"]["persistent_moves"],
+                                            "claim": "there is a sequence of at most moves moves of alphabet (X's moves) "
+                                                     "from s*, each succeeding, whose last move is the target, within cost "
+                                                     "and delay, after which the guard's left side (κ) is false"}})
     a = doc["abstraction"]
     out.append({"law_id": f"L_dp_{ob}_abstraction", "subform": "profile_abstraction", **common,
                 "statement": {**base, "form": "profile_abstraction", "horizon_s": a["horizon_s"],
