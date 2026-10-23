@@ -1,0 +1,228 @@
+# CI only (I65's baseline: the same modules at the base, without I65's own tests), not for merge: I65's tests (tests_m3/test_o12.py, one job per prediction or class), the earlier
+# tests it amends, and every tests_m1, tests_m2 and tests_m3 module (regressions),
+# one job per tests_m3 module and per tests_m2 group, at the commit .github/ci-ref names (else this one), each job's log
+# uploaded and a summary job collecting every job's last lines. The branch deletes holon-ci.yml, so nothing runs twice.
+name: holon-i65-suites
+
+on:
+  push:
+    branches: ['claude/brave-wright-2c5d0o-ci-i65-suites*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: holon-i65-suites-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  BEND_NO_TELEMETRY: '1'
+
+jobs:
+  toolchain:
+    name: toolchain (install + verify pins)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.key.outputs.key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Cache key from the pins
+        id: key
+        run: echo "key=holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}" >> "$GITHUB_OUTPUT"
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: restore
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Install the pinned toolchain
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: bash .github/ci/install_toolchain.sh
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: steps.restore.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+
+  run:
+    name: ${{ matrix.name }}
+    needs: toolchain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: m3-bend_imports
+            mods: tests_m3.test_bend_imports
+          - name: m3-binding_equivalence
+            mods: tests_m3.test_binding_equivalence
+          - name: m3-bmc_loop_havoc
+            mods: tests_m3.test_bmc_loop_havoc
+          - name: m3-catalog_rederivation
+            mods: tests_m3.test_catalog_rederivation
+          - name: m3-contracts
+            mods: tests_m3.test_contracts
+          - name: m3-derive_par
+            mods: tests_m3.test_derive_par
+          - name: m3-disch
+            mods: tests_m3.test_disch
+          - name: m3-eqchain
+            mods: tests_m3.test_eqchain
+          - name: m3-eqprove
+            mods: tests_m3.test_eqprove
+          - name: m3-eqsearch
+            mods: tests_m3.test_eqsearch
+          - name: m3-f38
+            mods: tests_m3.test_f38
+          - name: m3-fact
+            mods: tests_m3.test_fact
+          - name: m3-history
+            mods: tests_m3.test_history
+          - name: m3-intake
+            mods: tests_m3.test_intake
+          - name: m3-intake_typed
+            mods: tests_m3.test_intake_typed
+          - name: m3-lean_lexer
+            mods: tests_m3.test_lean_lexer
+          - name: m3-lean_promoted
+            mods: tests_m3.test_lean_promoted
+          - name: m3-par_lossy
+            mods: tests_m3.test_par_lossy
+          - name: m3-par_outcomes
+            mods: tests_m3.test_par_outcomes
+          - name: m3-refute
+            mods: tests_m3.test_refute
+          - name: m3-refute_round2
+            mods: tests_m3.test_refute_round2
+          - name: m3-sort_types
+            mods: tests_m3.test_sort_types
+          - name: m3-theory_core
+            mods: tests_m3.test_theory_core
+          - name: m3-theory_core2
+            mods: tests_m3.test_theory_core2
+          - name: m3-undo
+            mods: tests_m3.test_undo
+          - name: m2-group1
+            mods: tests_m2.test_audit tests_m2.test_audit_extraction tests_m2.test_bend_notes tests_m2.test_bindings tests_m2.test_canaries_m2 tests_m2.test_casestudy tests_m2.test_core_compose tests_m2.test_coverage tests_m2.test_cross_milestone tests_m2.test_diagram tests_m2.test_diagram_principal_guards
+          - name: m2-group2
+            mods: tests_m2.test_diagram_review tests_m2.test_evidence tests_m2.test_evidence_fixture tests_m2.test_evidence_gate tests_m2.test_evidence_honesty tests_m2.test_extract_go tests_m2.test_extract_go_honesty tests_m2.test_extract_go_toy tests_m2.test_extract_solidity_honesty tests_m2.test_extract_solidity_layout tests_m2.test_extract_solidity_toy
+          - name: m2-group3
+            mods: tests_m2.test_extract_toolchain tests_m2.test_extract_transitions tests_m2.test_extracted_refinement tests_m2.test_filter tests_m2.test_gate_g1_g6_g9 tests_m2.test_gate_ir03 tests_m2.test_gate_m2_outputs tests_m2.test_historical tests_m2.test_historical_exit tests_m2.test_historical_offline tests_m2.test_i19_followup
+          - name: m2-group4
+            mods: tests_m2.test_i1_review tests_m2.test_i20_derive_unit tests_m2.test_i20_model_unit tests_m2.test_i20_refine_unit tests_m2.test_i23_unit tests_m2.test_i2_review tests_m2.test_i3_review tests_m2.test_i4_review tests_m2.test_ir02_schema tests_m2.test_ir03 tests_m2.test_ir03_fixtures_m2
+          - name: m2-group5
+            mods: tests_m2.test_ir03_refs tests_m2.test_ir03_scope tests_m2.test_ir03_types_negation tests_m2.test_lean tests_m2.test_lean_differential tests_m2.test_lean_records tests_m2.test_lean_semantics tests_m2.test_ledger tests_m2.test_metrics tests_m2.test_mreplay_ops tests_m2.test_mutation_adequacy
+          - name: m2-group6
+            mods: tests_m2.test_mutation_adequacy_i60 tests_m2.test_mutation_adequacy_i61 tests_m2.test_mutation_adequacy_i62 tests_m2.test_native tests_m2.test_nonvacuity tests_m2.test_nonvacuity_reachable tests_m2.test_oracles tests_m2.test_oracles_m2_model tests_m2.test_pins tests_m2.test_predictions_schema tests_m2.test_prereg_order
+          - name: m2-group7
+            mods: tests_m2.test_reach tests_m2.test_records_v2 tests_m2.test_refinement tests_m2.test_regress tests_m2.test_regress_a3 tests_m2.test_replay_completion tests_m2.test_sort_site_ghost tests_m2.test_sort_site_outcomes tests_m2.test_sort_sites tests_m2.test_sorts_fixture tests_m2.test_sorts_honesty
+          - name: m2-group8
+            mods: tests_m2.test_sorts_morph tests_m2.test_sorts_rules tests_m2.test_sorts_unit tests_m2.test_statement_diff tests_m2.test_statement_lifecycle tests_m2.test_target_agnostic tests_m2.test_target_agnostic_exhaustive tests_m2.test_zero_blob
+          - name: m1-all
+            mods: tests_m1.test_m1_gate tests_m1.test_m1_mutations tests_m1.test_m1_replay tests_m1.test_m1_results
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: The commit under test
+        run: |
+          if [ -f .github/ci-ref ]; then REF=$(cat .github/ci-ref); git checkout -q "$REF"; fi
+          git log -1 --format='%H %s'
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: Run
+        env:
+          MODS: ${{ matrix.mods }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          set +e
+          python -u -m unittest $MODS -v > "$RUNNER_TEMP/out/log.txt" 2>&1
+          echo "exit $?" >> "$RUNNER_TEMP/out/log.txt"
+          tail -5 "$RUNNER_TEMP/out/log.txt"
+          exit 0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: log-${{ matrix.name }}
+          retention-days: 7
+          path: ${{ runner.temp }}/out/
+
+  summary:
+    name: summary
+    needs: run
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: 'log-*'
+          path: logs
+      - name: Summarize
+        run: |
+          mkdir -p sum
+          for d in logs/*/; do
+            n=$(basename "$d")
+            { echo "== $n"; grep -E '^(FAIL|ERROR): |^Ran [0-9]+ tests|^(OK|FAILED)|^exit ' "$d/log.txt" || echo "(no log)"; } >> sum/summary.txt
+          done
+          cat sum/summary.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: summary
+          retention-days: 7
+          path: sum/
