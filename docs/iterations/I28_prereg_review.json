@@ -1,0 +1,216 @@
+{
+ "review": "Independent prereg review of I28, the laws half: versioned machines, PAR-init (O9), D4 and F12.5 as gap records, and G11V's in-flight sets. Reviewed at b6a5318c on claude/brave-wright-2c5d0o-i28 (base fde1f819). In scope: the key I28 in spec/M3/predictions.json; the contract, i.e. the docstring of tests_m3/test_versions.py (V1-V9, PI1-PI6, S1-S3, G1-G3, shared files, commit rules); the instrument tests_m3/_i28.py; the sidecar spec/M3/lib/versions.json; the basis spec/M3/lib/versions_basis.json; prompts/I28_versions.md; the 9 new lines of spec/M3/amendments.jsonl; and the amended I24, I25 and I32 tests. Cross-checked against the remote lead e215fbf5 (read through the GitHub API, never fetched into the worktree) and the morph checkout /root/work/morph (git show only). The drafter's design note and the orchestrator's notes were read as context.",
+ "commit": "b6a5318ccdb4d0659eac277a58ca565aa9b98fa1",
+ "reviewer": "independent prereg review (fresh agent)",
+ "verdict": "no sign-off",
+ "verdict_note": "One blocking finding.\n- B1: the prereg was drafted on fde1f819, but the lead (e215fbf5, merged 18:59 UTC, 48 minutes before this commit) already holds I32's build. The I32-R2 amendment rests on 'I32 not yet built'. Its scope ends at the first commit that adds docs/iterations/I32.md (27d08ab8, a draft), so it drops I32's own review-fix commit e271fc06 and two report commits, which the original test covered (AGENTS rule 2).\nFive major findings:\n- M1: I28's catalog edit makes results/T32's generator_sha256 stale. That turns I32's C1 red, and neither I28's shared files nor R2 provide for it.\n- M2: own_commits() ends at the first report commit (I26 and I32 both drafted reports before 14 and 3 more build commits), and it assumes the build continues the prereg branch.\n- M3: the Bend checks are content-free: P6's INHABIT.bend, and P3's PROOF.bend, whose import of LAWS.bend is never checked.\n- M4: the refinement compares only the slots the model writes, and it replays no reverting step.\n- M5: P5, and the V11 parts of P1 and P4, hold by construction.\nThe mechanics are clean:\n- both prereg audits exit 0, and FROZEN OK;\n- the instrument imports no holon module and is deterministic, and the basis recomputes byte for byte;\n- the 6 tests that must be green at the prereg pass, and so do the 4 fast amended tests;\n- the 15 build-dependent test methods are red for the right reason.\nSource reads at the nine commits confirm the derivations, with one misstatement: the genesis index==0 check exists from V4, not only at V11. Storage claims are stated in real slots, but P2's test assumes one model location per real slot. D4 as a generated link gap is honest; F12.5's reading (a) is the weaker one, and P5 says nothing about it under (b).",
+ "findings": [
+  {
+   "id": "B1",
+   "severity": "blocking",
+   "where": "tests_m3/test_disch_profile.py:311-355 (amended TestRegressions.test_r2_no_closure_and_no_earlier_output_changes); spec/M3/amendments.jsonl (the I32 line); spec/M3/predictions.json:2242 (I32-R2); lead e215fbf5 = Merge I32 (parents fde1f819, 19dcde76)",
+   "what": "Before (fde1f819, test_disch_profile.py:326-336):\n- changed = `git diff --name-only <I32 prereg> HEAD`;\n- `assertEqual(sorted(f for f in changed if f in files), [])`;\n- `earlier = [f for f in changed if re.match(r'^(laws|results|gen)/M[0-3]/', f) and f != 'gen/M3/disch/classification.json']`, which must be [];\n- for each L_disch_delay_* record, `assertEqual(json.loads(git show <prereg>:results/M1/<lid>.json), load_json(results/M1/<lid>.json))`.\nAfter (b6a5318c, :336-355): the commits are the non-merge commits of `git log --first-parent <prereg>..<end>`. The end is added[0], the first commit that adds docs/iterations/I32.md, or HEAD. While no such commit exists, only commits writing an I32 outcome path count. Per commit the test checks no closure file, no M0-M3 laws/results/gen path except classification.json, and `sorted(delay & set(names)) == []`.\nThe amendment line argues 'while no commit adds it (I32 not yet built)' and 'At the prereg it checks what it checked before: no commit of I32's has changed anything'. Both are false on the lead this branch must merge. e215fbf5 holds I32's build: 476b02bc -> 6f1e076e, e543b66c, 4cfe2b15, 27d08ab8 (adds I32.md: 'report (draft, test summary and prediction table pending)'), 8dec55fc, e271fc06 ('I32 review fixes': holon/__main__.py, holon/analysis/abstraction.py, holon/gen/profile.py, holon/js/profile.mjs, holon/profile.py, holon/rules/disch_profile.py, plus T32 outputs), c164ba51. After the merge, the amended test walks only 6f1e076e..27d08ab8 (4 commits). e271fc06, 8dec55fc and c164ba51 are never checked again. The original test covered them, through the prereg..HEAD diff.",
+   "why": "AGENTS rule 2 forbids an amendment that narrows more than the conflict requires. I28 needs I28's (and F40's) commits kept out of I32-R2; it does not need I32's post-draft commits dropped. The delay-record clause is also weakened, from content equality to 'not touched by an I32 commit'. I checked the closures at the prereg (holon-ir/0.1-0.3 and the GEN3, GEN_DISCH, GEN_UNDO and GEN_FACT roots), and none of e271fc06's files is in them, so nothing is hidden today. The guarantee is still cut for a merged key, and the amendment's premise is factually stale. The prompt and design note also call I32 'unbuilt' or 'may land first'.",
+   "fix": "Merge or rebase the prereg onto e215fbf5 (or the then-current lead, with F40) and rewrite the amendment and its line:\n- I32's own commits are the non-merge commits of `git log --first-parent M^1..M^2`, where M is the lead's first-parent merge whose second-parent side adds docs/iterations/I32.md. For e215fbf5 that gives 7 commits, 6f1e076e..c164ba51. While no such merge exists, walk HEAD.\n- Keep the L_disch_delay_* clause as content equality with the I32 prereg modulo generator_sha256 and keys named seconds. I28-R2 applies the same rule to M1 records.\n- Reconcile with F40's amendment of the same function in the same way."
+  },
+  {
+   "id": "M1",
+   "severity": "major",
+   "where": "lead e215fbf5: holon/profile.py:39-58 (GEN_PROFILE and its generator_files), tests_m3/test_disch_profile.py:152-173 (TestRun.test_c1_runs_and_regenerates_byte_identically) and :68-73 (strip_seconds); I28: tests_m3/test_versions.py:209-222 (shared files), :902-930 (R2); spec/M3/predictions.json:2357 (I28-R2)",
+   "what": "GEN_PROFILE's closure contains holon/rules/__init__.py directly, through `from .rules import disch_profile` (records._holon_imports adds the package __init__). It also reaches holon/rules/sort.py, par.py, holon/ir.py, holon/gen/refs.py and holon/refute.py through holon/records.py -> sorts/sites.py -> mpipeline.py -> gen/refs.py -> rules/sort.py -> rules/__init__.py (traced with _holon_imports at the base).\nEvery results/T32 record carries generator_sha256: L_dp_delay_point_1_0.json has f043522b..., for example. I32's C1 runs `holon profile --milestone T32` in a copy and compares results/T32 with the committed records, stripping only keys named 'seconds'.\nI28 must edit holon/rules/__init__.py (CATALOGS gains holon-rules/1.6). It very likely also edits ir.py and gen/refs.py (the init term and the init: ref). C1 is therefore red from I28's first code commit on.",
+   "why": "The contract's shared-file list and R2 allow results/M1 and results/M2 to change in generator_sha256 and seconds only. They say nothing about results/T32, which did not exist on fde1f819. The build must either edit another key's outcome path outside its contract, or leave a predictable red in a merged key. The contract does call a failing earlier test 'a miss, reported', but this one is foreseeable now and belongs in the prereg. It is the generator-closure coupling the coordinator asked about.",
+   "fix": "Re-run the cross-key survey on the current lead. Then either:\n- add results/T32 records (generator_sha256 and keys named seconds only, in a commit of their own) to the shared files and to R2's record rule (regex `^results/(M1|M2|T32)/...`); or\n- state that the lead regenerates them at the merge (as for 'M1/M2 records regenerated on the I31 merge', 7ca380ee) and list I32's C1 among the expected reds."
+  },
+  {
+   "id": "M2",
+   "severity": "major",
+   "where": "tests_m3/test_versions.py:336-350 (own_commits); its callers R1 :875-900, R2 :902-930, test_model_reproduces_and_has_no_escape_hatch :571-572, test_new_code_names_no_target :870; spec/M3/predictions.json:2352-2360",
+   "what": "own_commits() takes `end = added[0]`, the FIRST commit adding docs/iterations/I28.md, and walks `--first-parent <prereg>..<end>`. Any I28 commit after a draft report escapes R1, R2 and the per-own-commit construction checks (holon/sorts/, gen/M3/sorts/, the 0.1 closure).\nThis is the house pattern:\n- I26 added its report as a draft (dafb9f1c, 'the report (draft, before the review and round 3)'), and 14 non-merge build commits followed on its first-parent chain: d01ca41d and 3d83a394 (code), 4784042b (round 3), eba8a8f4 (DISCH re-make), 5e4b64a5 (metrics), and others;\n- I32 did the same (27d08ab8, then e271fc06).\nSecond, the walk assumes the build branch continues b6a5318c along first parents. Suppose the build branch is created from the lead after the prereg PR merges. Then the walk crosses the lead's direct commits between fde1f819 and the branch point; the lead takes preregs as direct commits (476b02bc). R2 would count those as I28's, and a later key's sidecar under spec/M3/lib trips `^spec/M3/lib/(?!versions)` (:914).\nThird, nothing asserts that own_commits() is non-empty once the report exists.",
+   "why": "R1 and R2 are I28's only guards against weakening laws, records and frozen inputs. As scoped, a single early report commit silently disables them for the rest of the build, and the branch topology decides what they read.",
+   "fix": "Make the end the build branch's tip: the second parent of the lead's first-parent merge whose second-parent side adds docs/iterations/I28.md (own commits = non-merge `--first-parent M^1..M^2`), and HEAD before that merge.\nAlso:\n- assert that the prereg commit is on the walked first-parent chain;\n- assert that own_commits() is non-empty once docs/iterations/I28.md exists;\n- alternatively, add a commit rule that the report lands in the build's last commit."
+  },
+  {
+   "id": "M3",
+   "severity": "major",
+   "where": "tests_m3/test_versions.py:755-799 (P6; :780-787) and docstring V8 :92-108 (the G11V clause: 'whose INHABIT.bend Bend accepts'); tests_m3/test_versions.py:628-686 (P3; :670-676); docs/BEND_PRIMER.md:45 (hazard 1); holon/mpipeline.py:1278-1283 (law_import_problem); holon/inhabit.py:582-630 (G11V's current standard)",
+   "what": "P6's test checks that an INHABIT.bend:\n- declares no law;\n- holds no escape hatch;\n- has an `import ...morph_rollup.versions... as X` line;\n- makes bend print ALL PROOFS CHECK.\nNothing ties the file to inflight.json's trace, to the edge's migration, or to the legacy words. A file holding that import plus `def ok() -> U32:` returning 0 passes P6, and also passes V8's new G11V clause, which only requires that Bend accepts it.\nP3's test runs bend on PROOF.bend and checks that LAWS.bend names cl_<law>. It never checks that PROOF.bend imports that LAWS.bend. holon.mpipeline.law_import_problem's docstring says why that matters: 'a proof that imports no law checks vacuously' (audit F-M2-07). test_intake.py and test_contracts.py check that import.",
+   "why": "BEND_PRIMER hazard 1: 'A file with zero laws prints ALL PROOFS CHECK ... Gates must check that the expected law names are present.' The existing G11V standard is stricter: it regenerates the inhabitant from the IR and the witness, compares bodies, recomputes reachability and runs the BendTT verdict. The new clause does none of that. P6 is therefore unfalsifiable by its test, and P3's 'Bend accepts the counter-law' (AGENTS rule 6) is not established by the test alone.",
+   "fix": "Fix INHABIT.bend's shape in the contract, with named definitions:\n- the Reach chain, built from RStep constructors for exactly the trace's steps in order;\n- the commit's and the migration's success;\n- one legacy equality per legacy word, reading the real-slot literal and stating the word literal.\nHave P6 check those names and literals against inflight.json and _i28.inflight_words, or regenerate the expected text from the trace as G11V does. Require the BendTT verdict when it is available. In P3, assert that holon.mpipeline.law_import_problem(proof, laws) is None, or check the import line textually."
+  },
+  {
+   "id": "M4",
+   "severity": "major",
+   "where": "docstring V7 :82-91 and V9 :109-127 (':120 for every storage location the model's step writes'); tests_m3/test_versions.py:586-590; spec/M3/predictions.json:2320-2323 (P2); P3 :679-686 and P7 :801-829 use the same runs",
+   "what": "Each replay step lists only the locations the model's step writes, and the test requires model == real on that list. Two consequences:\n- A model step that omits a write passes with a shorter list (for example lastCommittedBatchIndex in V3's importGenesisBatch), and a step that writes nothing passes with an empty list. The real chain's other SSTOREs are never compared.\n- Every replayed step is successful: the 11 upgrade-path steps, the O9 trace and the cutover trace. No model guard is ever compared with a real revert.\nA guard-free or write-dropping versioned model therefore passes P2, P3's replay and P7.",
+   "why": "I20's refinement precedent compares 'the value of every storage slot that a write of the step touches on either side' (tests_m2/test_extracted_refinement.py:64-66). P2 claims that the model 'refines the real upgrade path', but checks it in one direction only. The versioned model is the basis of every later I28/I29 claim over old versions, so the refinement is its main validation.",
+   "fix": "- Compare at the union of the model's write set and the real step's SSTORE set (anvil debug_traceTransaction with prestateTracer diffMode, or struct logs), with one entry per real slot. Require a non-empty union for state-changing steps.\n- Add reverting steps to the upgrade-path run whose statuses must agree as 'revert': a second importGenesisBatch at V3, a second initialize, and initialize4 with a wrong expected index or from a non-admin caller."
+  },
+  {
+   "id": "M5",
+   "severity": "major",
+   "where": "spec/M3/predictions.json:2335-2338 (P5), tests_m3/test_versions.py:730-746; P1's V11 clause :556-560; P4's V11 sites :715-716 vs spec/M3/lib/versions_basis.json head.link_gaps",
+   "what": "Three parts of the scored predictions follow from committed inputs:\n- P5's downgrade gap is computed by the instrument from I63's committed layouts. It is already in the basis (downgrade_gaps), and the test compares the build's copy with the basis and checks that no law names 'downgrade'.\n- P1's V11 equality follows from identical sources: I verified that the 7 repository units of 5edbc693 and 3e44e795 are byte equal, with the sha256 values of the head document's extraction inputs. It also follows from the frontend reproducing the adopted document (tests_m2/test_extract_transitions.py:266).\n- P4's V11 sites are the basis's head-document sites.",
+   "why": "A prediction should be falsifiable by the target; the I66 prereg review (M3) set this precedent. P5 can only miss through a build bug, so scoring it inflates the hit count. Under Q64's reading (b) it is no evidence about F12.5 at all.",
+   "fix": "Move P5, and the V11 parts of P1 and P4, to construction checks, or mark them unscored ('construction') in the key. P1's old-version extraction and chain structure stay as the predictions, and so do P4's old-version sites."
+  },
+  {
+   "id": "m1",
+   "severity": "minor",
+   "where": "spec/M3/predictions.json:2326 (P3 derivation); the design note's 'V11 adds an index==0 check'",
+   "what": "The P3 claim says importGenesisBatch checks '... the zero versioned hash (and, at V11, index 0)'. In fact `require(_batchIndex == 0, \"invalid batch index\")` is present from V4 (e608d89e = v0.4.1) through V11, and only V3 (24b616b9 = v0.4.0) lacks it (git show at all nine commits). The prompt's source reads skipped V4-V6.\nA side observation: at V3, a genesis header with index k != 0 writes finalizedStateRoots[k] and leaves finalizedStateRoots[0] = 0. The 'genesis batch imported' guard therefore admits a second import (cf. I63 Finding 3 and G3).",
+   "why": "A frozen claim text should not misstate the source. The prediction itself is unaffected, since the witness has index 0.",
+   "fix": "Correct it to '(and, from V4 on, index 0)'. G3 could mention V3's nonzero-index re-import as an outside-scope observation."
+  },
+  {
+   "id": "m2",
+   "severity": "minor",
+   "where": "tests_m3/test_versions.py:656-667; thresholds witness_root_cells (spec/M3/predictions.json:2591); spec/M3/lib/versions.json:40-46 (search.par_init.root_input)",
+   "what": "P3's claim and thresholds fix the witness: the binding's genesis header with bytes 17..24 set to 1 (cell 17 = 1, cell 9 = 0), by the recorded caller. The test checks only that cell 9 == 0 and cell 17 != cell 9, and that the root equals the trace's last step. It never reads witness_root_cells, never compares the header with the deployment record's call 3 outside bytes 17..24, and never checks the caller.",
+   "why": "The test is weaker than the claim and the thresholds it pins.",
+   "fix": "Assert that bytes_arg(root) equals call 3's header with bytes 17..24 replaced by 1, that cell 17 == thresholds.witness_root_cells['17'], and that the caller is call 3's recorded caller."
+  },
+  {
+   "id": "m3",
+   "severity": "minor",
+   "where": "tests_m3/test_versions.py:543-545 (P1)",
+   "what": "Each document is tied only to the versioned document's own 'commit' field (`d['target']['commit'] == vd['documents'][v]['commit']`), never to I63's history (versions[v].commit). A document extracted at the wrong commit between versions with equal successor sets (V4/V5/V6, V7/V8, V9/V10) passes P1.",
+   "why": "V5 requires each version's commit to come from the history, and the test does not check it.",
+   "fix": "Assert that vd['documents'][v]['commit'] == the history's commit for v, and the same for the generated sidecar's target commit."
+  },
+  {
+   "id": "m4",
+   "severity": "minor",
+   "where": "tests_m3/test_versions.py:592-597 (`assertEqual(len(w), 1, ...)` at real slot 0); docstring V9 :120; prompts/I28_versions.md:64-70",
+   "what": "P2's test requires exactly one slot entry at real slot 0 for the steps that set _initialized. OZ 4.9.3's initializer/reinitializer writes both _initialized (offset 0) and _initializing (offset 1) in slot 0. Under a structural representation with byte offsets (the prompt's SK{base, offset, path}), these are two locations, and V9 lists one entry per location.",
+   "why": "The prereg promises storage-agnostic claims. This test depends on the representation's granularity, not on real slots. Today's model3 keys whole slot words, so the test passes now.",
+   "fix": "Make V9 report one entry per real slot (the full 32-byte word), or let the test accept several slot-0 entries that agree."
+  },
+  {
+   "id": "m5",
+   "severity": "minor",
+   "where": "tests_m3/test_versions.py:726-728 (P4: no M3 law names IL1MessageQueue, pendingQueueIndex or nextCrossDomainMessageIndex), :745-746 (P5: no law names a downgrade), :603-616 (test_catalog: CATALOG = 1.6, PREVIOUS = 1.5)",
+   "what": "Three checks will break on planned later work:\n- The P4 clause fails when I36 states D4, the very route Q63 proposes.\n- The P5 clause fails when I29 (NAT) names downgrades.\n- test_catalog hard-codes holon-rules/1.6 as I28's catalog and 1.5 as its predecessor, although the thresholds allow 'the next free version'.",
+   "why": "These checks state I28's own outcome but are evaluated against every later HEAD.",
+   "fix": "Scope P4 and P5 to laws of rule PAR, sub-form init_chain, or to laws present at I28's end commit. Make test_catalog use m3_catalog() and the version before it."
+  },
+  {
+   "id": "m6",
+   "severity": "minor",
+   "where": "tests_m3/test_derive_par.py:571-576 (_Morph.derived), :598-603 (test_catalogs), :854 (test_derivation_follows_the_rules); tests_m3/test_par_outcomes.py:78-83, :378; tests_m3/test_par_lossy.py:396-399",
+   "what": "AGENTS rule 2, before and after.\nderived():\n- before: `{k: v for k, v in self.r.law_docs().items() if v.get('rule') == 'PAR'}`;\n- after: the same with `and v.get('subform') in I.SUBFORMS`. The same filter is added to DERIVATION entries, par_records and test_every_m3_law_has_a_valid_record.\ntest_catalogs:\n- before: `assertEqual(CATALOGS[cv]['PAR'], CATALOGS['holon-rules/1.1']['PAR'])`;\n- after: 1.1's sub-forms map to the same objects.\nI25 (test_par_lossy.py): changed the same way, to `assertIs` per sub-form.\nAt the prereg each checks the same 80 laws and 10 producers; I ran test_catalogs and I25's test, and both are green. But filtering on `in I.SUBFORMS` makes test_law_ir's `assertIn(law['subform'], I.SUBFORMS)` and `facts == CODEC_DOC` (test_derive_par.py:809-810) vacuous for any unknown PAR sub-form, and the catalog checks accept any extra PAR sub-form.",
+   "why": "The conflict needs only init_chain left out. A misnamed or rogue PAR sub-form would now pass I24's and I25's checks.",
+   "fix": "Exclude exactly init_chain (`v.get('subform') != 'init_chain'`) and require `set(cat['PAR']) - set(base) <= {'init_chain'}`."
+  },
+  {
+   "id": "m7",
+   "severity": "minor",
+   "where": "spec/M3/lib/versions.json:32-38 (upgrade_path.arguments), :47-51 (search.inflight); tests_m3/test_versions.py:777",
+   "what": "The sidecar fixes reinitializer arguments only for the upgrade path. initialize4 there takes expected index 0, but an inhabitant at V10->V11 needs its state's lastCommittedBatchIndex (1). The inhabitants' initialize2, initialize3 and initialize4 arguments are left to the build. P6's test also takes x['key'] from holon without checking that it is the index the trace's last commit wrote (the parent's index + 1).",
+   "why": "This leaves a degree of freedom chosen after the model is seen, and an unchecked input to the legacy-word slots.",
+   "fix": "State the rule in the sidecar, for example initialize4(expected = the state's lastCommittedBatchIndex), with the upgrade path's words otherwise. Assert key == the index the last commit wrote, from its calldata."
+  },
+  {
+   "id": "m8",
+   "severity": "minor",
+   "where": "spec/M3/lib/versions.json:12 (inputs.deployment_record); spec/M3/predictions.json:2385-2390 (thresholds.inputs_sha256)",
+   "what": "gen/M3/sorts/models/morph_rollup.extracted.init.json supplies VR0's admin word (0xad), the upgrade path's calls 0, 1 and 3, and the witness's root input. Unlike four other inputs, it is not pinned. It is I30's output, which F40 (I30's caller-pool fix) or the Q21 re-model may regenerate.",
+   "why": "A silent change would move P2's and P3's inputs after the prereg.",
+   "fix": "Pin its sha256, or the sha256 of the used calls' calldata and the admin word, in thresholds.inputs_sha256."
+  },
+  {
+   "id": "m9",
+   "severity": "minor",
+   "where": "docstring G1 :198-202 ('D4's T <= L is what rules that out'); prompts/I28_versions.md:28",
+   "what": "T <= L does not exclude the 64-bit wrap; only a bound L < 2^64 does. At the head, the commit adds numL1Messages unchecked (head Rollup.sol:324-326, `unchecked { _totalL1MessagesPoppedOverall += batchDataInput.numL1Messages; }`) and stores the total with shl(192) (:345 storeTotalL1MessagePopped), so a commit taking the total from 2^64-1 to 2^64 stores 0. That breaks P <= T, while T <= L still holds.",
+   "why": "Q63 should name the premise D4 really needs, so that I36 states D4 with it.",
+   "fix": "Correct G1: D4 needs a queue-length bound (L < 2^64) besides initialization coherence. Say so in Q63."
+  },
+  {
+   "id": "m10",
+   "severity": "minor",
+   "where": "docstring PI5 :155-161 and V4 (gap formats); docs/BUILD_PLAN.md:1089-1113 (I28: 'D4 is PROVED by reach_invariant'), :314 (I36 row); tests_m3/test_derive_par.py:377 (I24's gap format)",
+   "what": "The link gap and the downgrade gap name neither the obligation they stand for (D4, F12.5) nor a status. I24's back-test gaps carry 'status': 'open'. Nothing the M3 exit reads lists them. BUILD_PLAN still predicts D4 PROVED in I28, and I36's row does not mention D4.",
+   "why": "D4 is moved to I36 only in I28's prompt, so it can fall through.",
+   "fix": "Add 'obligation' and 'status': 'open' to both gap formats. Record the D4 move in BUILD_PLAN (I28 and I36) once Q63 is answered."
+  },
+  {
+   "id": "m11",
+   "severity": "minor",
+   "where": "tests_m3/test_versions.py:844-870 (test_new_code_names_no_target; files :849)",
+   "what": "The target-name and law-id check covers only holon/rules/par_init.py and holon/versions/*.py. I28 must also edit holon/gate.py (the G11V clause and G6), holon refute (the filter for the new record), holon/gen/refs.py and holon/ir.py (the init term) and holon/bindings.py. None of these is checked.",
+   "why": "AGENTS rule 4 (no special-cased law ids or target names in generators) is unchecked where I28 changes shared code.",
+   "fix": "Also check the lines I28's own commits add under holon/ for the same names and ids."
+  },
+  {
+   "id": "m12",
+   "severity": "minor",
+   "where": "prompts/I28_versions.md:56-96 (Risks); tests_m3/_i43.py:1791-1809 (rendered); docstring PI4 (init: ref hashes the per-version documents)",
+   "what": "Two couplings are not disclosed in the prompt or contract.\n(a) A PROVED outcome of the PAR-init law (a P3 miss) makes I43's rendered() raise: its kind is 'other' and its rule is not DISCH or FACT, so Render raises Unsupported, and a PROVED law re-raises. No tree would then satisfy both I43 and I28. The drafter's note knows this; the prompt does not.\n(b) The per-version documents are frontend outputs, and the init ref hashes them. Any later frontend change (I35-I39 extend the extractors) therefore stales gen/M3/versions and re-versions the PAR-init law. The prompt discusses only the Q21 re-model.",
+   "why": "Readers of the frozen prompt should see these foreseeable cross-key effects.",
+   "fix": "List both under Risks, with the route (an I43 amendment if P3 misses; statement_diff lines for frontend-driven re-versioning)."
+  },
+  {
+   "id": "m13",
+   "severity": "minor",
+   "where": "prompts/I28_versions.md:64, :70 ('IQ21')",
+   "what": "The prompt names the Q21 key 'IQ21'. Prereg keys are plain numbers (BUILD_PLAN:341), and the coordinator calls it I68.",
+   "why": "A frozen prompt should name the key as it will exist.",
+   "fix": "Write 'I68 (the Q21 key)' or 'the Q21 key'."
+  },
+  {
+   "id": "n1",
+   "severity": "note",
+   "where": "the drafter's design note, 'Observation for the orchestrator'; holon/inhabit.py G11V; spec/M2/facts/morph_rollup.extracted.json initialize4 guard (caller == sload(EIP-1967 admin slot))",
+   "what": "The note observes that the admin cannot call initialize4 as a plain call behind OZ 4.9.3's TransparentUpgradeableProxy (the admin cannot fall back); it replays only inside upgradeToAndCall. The M3 typed model has no proxy layer, so a Q36 inhabitant that F40 finds that way would not replay. The observation is in no Question.",
+   "why": "It bears on F40's fix of G11V's other item, which P6 explicitly sets aside.",
+   "fix": "Hand it to the other session or raise it as a Question. I28's A-proxy already excludes such steps in the versioned model."
+  },
+  {
+   "id": "n2",
+   "severity": "note",
+   "where": "prompts/I28_versions.md:58 (risk 1)",
+   "what": "If V3 fails to extract, P1, P2, P3, P6 and P7 all miss together, because every trace starts at V3. The prompt discloses this.",
+   "why": "Five scored predictions are one dependent event, which matters when the hit rate is read.",
+   "fix": "Say in the report that they are dependent if V3 becomes debt."
+  }
+ ],
+ "verified": [
+  "Prereg mechanics:\n- python -m holon audit prereg --milestone M3 prints 'I28: OK prereg b6a5318ccdb4 (9 outcome paths, 1 test file, 4 helper modules, 22 tracked functions)' and PREREG OK, exit 0;\n- --milestone M2 prints PREREG OK, exit 0;\n- python tools/freeze.py check prints FROZEN OK;\n- the commit touches no frozen root (prompts/, spec/M3/, tests_m3/ only).",
+  "The 9 amendment lines are well-formed (iteration, kind, test, why), and every amended function has its line: I24 x7 (including the inherited TestDeriveM3.derived and TestPredictedMorph.derived), I25 x1, I32 x1. The audit lists each as 'amended (differs in source)'.",
+  "The instrument tests_m3/_i28.py imports no holon module (only tests_m3._i63, tests_m3._i26 and tests_m2._keccak, lazily). `python -m tests_m3._i28` printed byte-identical output twice (sha256 720a003c...).",
+  "Counts recomputed from I63's committed outputs:\n- 26 refs, 11 versions, 10 edges; 12 upgrades, whose matches give the path V3..V11 with V6's redeploy collapsed;\n- unmatched upgrades 20996846 and 21007191; V1 and V2 never deployed;\n- in-flight counts 24, 25, 25, 25, 26, 26, 27, 27 (= len(history edge in_flight)), consistent with layout sizes 27/28/28/28/29/29/30/30/31 less __gap entries and added entries;\n- the only non-unchanged in-flight entries are V10->V11's batchDataStore (retyped) and submitterContract (reinterpreted, reads l1StakingContract);\n- one incompatible reverse edge, V11->V10, with exactly the stated retyped, overlap, removed and added fields;\n- ten deployments, V6 once with immutables [1,1] and once with [2818,2818].",
+  "Source reads at the nine commits (24b616b9, e608d89e, af4158b3, a1e77833, 3f2350b3, 86cd1bb8, fef33f9d, 55272a51, 5edbc693), with git show only:\n- every Rollup.sol pins `pragma solidity =0.8.24`;\n- committedBatches is written with a memory-region hash in commitBatch (V3-V6), in _commitBatchWithBatchData reached from commitBatch and commitBatchWithProof (from V7 = v0.4.10), and also from commitState (from V9 = v0.5.4);\n- importGenesisBatch never reads the total at any version, and checks finalizedStateRoots[0]==0, a nonzero post root, popped==0, a nonzero data hash and ZERO_VERSIONED_HASH (the same constant 0x010657f3... at V3 and V11);\n- V3's loadAndValidate checks the length only against popped, so a 249-byte header with total=1 is accepted;\n- initialize has selector 0x728cdbca, and its first argument becomes l1StakingContract (nonzero) at V3;\n- reinitializer(2/3/4) are on initialize2/3/4; initialize4 requires _msgSender()==_getProxyAdmin() (sload of the EIP-1967 admin slot), a submitter with code, lastCommittedBatchIndex==expected, !inChallenge and revertReqIndex==0;\n- V10's commitBatch stores IL1Staking(l1StakingContract).getStakerBitmap(sender) as BatchData's 4th member; BatchData is four uint256 at V10 and (3 uint256, address submitter) at V11;\n- slot 151 holds l1StakingContract at V1-V10 and submitterContract at V11;\n- the queue calls are getCrossDomainMessage in the successors (through _loadL1MessageHashes) and popCrossDomainMessage in finalizeBatch (three arguments with a skip bitmap at V3-V4, two from V5).",
+  "V11 (5edbc693) equals the head (3e44e795) on the 7 repository extraction units: git diff is empty, and each file's sha256 equals the adopted document's extraction.inputs entry.",
+  "Deployment record (gen/M3/sorts/models/morph_rollup.extracted.init.json) decoded:\n- call 0 is initialize (0x728cdbca; submitter stand-in 0x5615deb7..., queue, verifier, 40, 10, 70);\n- call 1 is 0xc5553892(20), call 2 is 0x0ceb6780;\n- call 3 is importGenesisBatch with a 249-byte v0 header: index 0, popped 0, total 0, data hash 1, ZVH, post 0x64;\n- the admin slot holds 0xad; the harness 0x7fa9385b... is the caller of all calls.",
+  "_i28.inflight_words for V10->V11 at key 1 gives Rollup.batchDataStore.signedSequencersBitmap at keccak256(1 . 162)+3 and Rollup.l1StakingContract at slot 0x97 = 151. Every other edge has no legacy words.",
+  "The basis over the head document has one family, committedBatches: root importGenesisBatch writes[0]; successors commitBatch, commitBatchWithProof and commitState; pair (17, 9, 192). It has one link gap with sites commitBatch calls[2], commitBatchWithProof calls[1], commitState calls[2] and finalizeBatch calls[0].",
+  "No current M3 law statement (131 laws) names IL1MessageQueue, pendingQueueIndex, nextCrossDomainMessageIndex or a downgrade.",
+  "The holon-ir/0.1 closure is 6 files (holon/__init__.py, facts.py, gen/__init__.py, gen/laws.py, gen/model.py, gen/proofs.py), none of which I28 needs. holon/rules/__init__.py is in the 0.2 and 0.3 closures and in the transitive closures of GEN3 (122 files), GEN_DISCH (126), GEN_UNDO (124) and GEN_FACT (131).",
+  "P11 (holon/rules/__init__.py:548): M3's derivation reads laws/M0-M2 only. I28's R2 forbids laws/M0-M2, so M3's P11 inputs do not move. The only committed DERIVATION files are laws/M2 and laws/M3, and T32's laws pin no laws/M3 input.",
+  "R1 is feasible: I26's re-derivation commit cd1d8506 changed 126 existing M3 laws only in rule_catalog_version and added 5. The catalog_rederivation lines carry law_id and new_catalog, as R1 reads them.",
+  "R2's M1/M2 rule is feasible: the earlier regeneration commits 6101be5f and 272eb6ad touched only results/M1 (16 files) and results/M2 (12).",
+  "The catalog checks of I31, I26 and I27 (same-object producers of 1.4, 1.5 and 1.3; earlier-catalog regexes) are compatible with a 1.6 that keeps 1.5's objects. holon refute's codec stage iterates the frozen sidecar's codec_laws, so the new PAR law does not enter codec.json. I43's rendered() maps the versioned document to kind 'other', so a REFUTED PAR-init law gives unsupported_form and no raise.",
+  "The claims behind D4's deviation hold:\n- spec/M2/lib/window_rollup.json marks qpend and qlen external (IL1MessageQueue);\n- mproofs.reach_invariant (:954-971) needs a single Reach binder and no oracle tables;\n- holon/fact/product.py says its PROVED kernel route uses no Reach premise and that a Reach induction generator is not built.\nSo 'no Reach-inductive proof has been checked over the M3 typed model' is accurate.",
+  "The sidecars refute.json (210 of 251 inputs stale), theory_core.json (154 of 230) and lean_promoted.json (103 of 143) are already stale at the base. I28's bump moves pins that are already red.",
+  "The lead moved to e215fbf5 at 18:59 UTC. Against fde1f819:\n- the lead's tests_m3/test_disch_profile.py is identical, so the amendment applies without a textual conflict;\n- spec/M3/amendments.jsonl gained 2 I32 lines (an append conflict only);\n- spec/M3/predictions.json is unchanged.\nF40 is not visible locally or on the remote (git ls-remote), so its version of I32-R2 and of G11V could not be compared.",
+  "P6's G11V substring check reads checks.G11V.detail from the gate report (holon/gate.py:209, :1513). It holds whatever the other items say, as long as I28 appends its clause, so F40's change to G11V's other item does not break it.",
+  "The storage claims of P2, P3, P6 and P7 are stated in real slots (EVM addresses computed with the real keccak256), and the init ref hashes documents, not the model. Apart from m4, no prediction depends on model3's hashed-slot encoding."
+ ],
+ "reproduced": [
+  "BEND_NO_TELEMETRY=1 python -m holon audit prereg --milestone M3 -> exit 0, 'I28: OK prereg b6a5318ccdb4 ...', PREREG OK",
+  "BEND_NO_TELEMETRY=1 python -m holon audit prereg --milestone M2 -> exit 0, PREREG OK",
+  "python tools/freeze.py check -> FROZEN OK",
+  "python -m unittest -v tests_m3.test_versions.TestInstrument tests_m3.test_versions.TestRegressions -> Ran 6 tests in 0.590s, OK. R1 and R2 are vacuously green: there is no own commit after the prereg.",
+  "python -m unittest -v tests_m3.test_derive_par.TestRegistry.test_catalogs tests_m3.test_par_lossy.TestPreregInstruments.test_i25_adds_no_law_and_no_catalog tests_m3.test_par_outcomes.TestM3Construction.test_every_m3_law_has_a_valid_record tests_m3.test_disch_profile.TestRegressions.test_r2_no_closure_and_no_earlier_output_changes -> Ran 4 tests in 3.959s, OK",
+  "python -m unittest on TestVersions, TestModel, TestParInit (test_catalog, test_analysis_is_the_instruments, test_p3), TestGaps, TestInflight and TestGenericCode -> Ran 15 tests, FAILED (failures=16 including 3 S1-S3 subtests, errors=1). All are red for the right reason:\n- 'holon versions ...: usage: holon [-h]' (exit 2);\n- '<output> is missing (I28 builds it)';\n- P3: 'Lists differ: [] != [L_pinit_...]';\n- test_catalog: ModuleNotFoundError holon.rules.par_init.\ntest_derive_reproduces_laws_m3 was not run (holon derive on M3).",
+  "python -m tests_m3._i28 | sha256sum, twice -> 720a003c8f48789313c8caae609bda2d82524525940fb97f9b74ea0079a796a1 both times",
+  "git -C /root/work/morph show <c>:contracts/contracts/l1/rollup/Rollup.sol over the nine commits: importGenesisBatch has the index==0 guard at e608d89e..5edbc693 and not at 24b616b9 (count 0 at V3, 1 elsewhere), and reads the total at none of them (0 at all).",
+  "git -C /root/work/morph diff --stat 5edbc693 3e44e795 -- <the 7 repository units> -> empty",
+  "GitHub API reads of e215fbf5, 19dcde76, 27d08ab8, 8dec55fc, e271fc06, c164ba51, 6f1e076e, e543b66c and 4cfe2b15 (parents and files) -> the I32 chain and file lists cited in B1. Compare fde1f819...e215fbf5 -> 36 files, 25 of them under T32.",
+  "holon.records._holon_imports traced at the base: holon/records.py -> holon/sorts/sites.py -> holon/mpipeline.py -> holon/gen/refs.py -> holon/rules/sort.py -> holon/rules/__init__.py (the M1 coupling)."
+ ],
+ "open_questions": {
+  "Q63": "D4 as a generated link gap is honest. Its registers P and L live in IL1MessageQueue, which no adopted M3 document extracts (window_rollup.json marks qpend and qlen external), and Q19 forbids hand-written queue facts. No Reach-inductive generator exists for the M3 typed model either, as holon/fact/product.py itself states. Deferring D4 to the key that extracts the queue (I36) is right. The Rollup-only order under a no-wrap premise is not D4, and it would invite a weakened claim.\nTwo corrections to the question:\n(1) T <= L does not exclude the 64-bit wrap (m9). D4 as stated needs a queue-length bound (L < 2^64) besides initialization coherence, so I36 should state it with that bound explicit.\n(2) 'Given initialization' is exactly the PAR-init law, which I28 predicts REFUTED (O9). D4 is therefore conditional on a premise the code does not enforce, and I36's statement should carry it as a named premise.\nBefore freezing, the gap record should name D4 and stay open (m10), and BUILD_PLAN's I28 and I36 entries should record the move once the human answers.",
+  "Q64": "Q64 is the right question, but reading (b) is the more likely one, and I28 should not count F12.5 as covered under (a).\nWhitepaper App. A's F12 groups codec matters: codec domains, the v2 encoder, the cache, the genesis cursor, 'downgrade', the legacy hash, uint16 accumulators and documentation drift. F12.1-F12.4 and F12.6-F12.8 map to O1, O2, O37, O9, O6, O28 and O10, all header or codec obligations. The earlier gap map (docs/build_plan/gap_map.json) already guessed 'a version downgrade on recommit, which would overlap O26' (F6, O26). At the head, `_commitBatchWithBatchData` requires only `version <= 2` (Rollup.sol:293) and never compares the child's version with the parent's, so (b) describes a real, checkable behaviour.\nReading (a) yields only a gap computed from I63's layouts (P5, true by construction, M5). V11->V10 is not an operation of the deployed system's history.\nUntil the human answers, record P5 as a construction check, and do not call F12.5 'covered' in I28's report or the case-study mapping. Under (b), a later key needs a chain-order sub-form or a rule-gap record."
+ }
+}
