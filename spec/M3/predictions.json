@@ -2200,6 +2200,111 @@
         "base_gate_M3_partial": "fails only G11V, on L_disch_rev_initializable_120_d9a34b48 (Q36): runs 39650731101 (ec1e939) and 39690030135 (6784640, I64's final head)",
         "deferred_to_I33": "the O12 contract on M3: word-level (eight-limb) lemmas for trace_bound over the extracted model, the UNDO analogue of L_undo_cancel (a cancellation criterion in the UNDO rule, a catalog bump after I26), ghost terms in the typed runners, and a per-batch ghost"
       }
+    },
+    "I32": {
+      "title": "DISCH II: discharge profiles in the §8.4 form, Pareto search, bounded dominance and classification (test milestone T32: the delay guard on M1's machine; M3: the classification of I31's basis)",
+      "plan": "docs/BUILD_PLAN.md#i32",
+      "prompt": "prompts/I32_disch_profile.md",
+      "predictions": [
+        {
+          "id": "I32-P1",
+          "claim": "The pay point (1, 0) of the delay guard (T32, the agent submitter 2 at s*) in the §8.4 form, ∃ strategy table ∀ schedule of at most H = 2 moves over the challenger (4) and anyone (5) at the turns' block time, is PROVED: L_dp_delay_point_1_0, its table surviving every schedule over the E-closure alphabet (the instrument replays every schedule).",
+          "check": "tests_m3/test_disch_profile.py::TestOutcomes::test_p1_pay_point_robust"
+        },
+        {
+          "id": "I32-P2",
+          "claim": "The wait point (0, 19) in the same form, H and principals, is PROVED: L_dp_delay_point_0_19, its table surviving every schedule.",
+          "check": "tests_m3/test_disch_profile.py::TestOutcomes::test_p2_wait_point_robust"
+        },
+        {
+          "id": "I32-P3",
+          "claim": "The bounded dominance law L_dp_delay_dominance is PROVED: every strategy of at most 4 moves from s* ending in a successful commitBatch by the agent has cost >= 1 or delay >= 19; the instrument's exhaustive enumeration finds no outcome with cost < 1 and delay < 19.",
+          "check": "tests_m3/test_disch_profile.py::TestOutcomes::test_p3_bounded_dominance"
+        },
+        {
+          "id": "I32-P4",
+          "claim": "The persistent profile (Def 6.20's text: kappa false after the target move) is {(0, 19)}, class delay, and its law L_dp_delay_persistent_0_19 is PROVED; the one-occurrence class is mixed, and every T32 record carries disch_class mixed. BUILD_PLAN's I32 row expected {(c_msg per trigger, 0), (0, Δ_fin per trigger)}, class mixed, counting each batch as a trigger; this key predicts from Def 6.20's text, under which paying never falsifies kappa.",
+          "check": "tests_m3/test_disch_profile.py::TestOutcomes::test_p4_persistent_profile_and_classes"
+        },
+        {
+          "id": "I32-P5",
+          "claim": "The time abstraction is sound at s* within 60 s: L_dp_delay_abstraction is PROVED, and for every dt in 0..60 each alphabet move's outcome after a wait of dt equals its outcome after the wait to the greatest hinted deadline <= dt.",
+          "check": "tests_m3/test_disch_profile.py::TestOutcomes::test_p5_abstraction_sound"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I32-R1",
+          "claim": "The one-occurrence frontier at s* within 4 moves is {(1, 0), (0, 19)}, and (1000, 0) (commitBatchWithProof) is an outcome dominated by (1, 0), as docs/M1_REPORT.md §2.1 and laws/M1/L_disch_delay_prove.json record.",
+          "check": "tests_m3/test_disch_profile.py::TestInstrument::test_r1_frontier_and_the_dominated_proof_point"
+        },
+        {
+          "id": "I32-R2",
+          "claim": "No file of the holon-ir/0.1-0.3 closures or of the typed, DISCH, UNDO and FACT runners changes; no M0-M3 law, record or Bend file changes except gen/M3/disch/classification.json; M1's L_disch_delay_* records are unchanged.",
+          "check": "tests_m3/test_disch_profile.py::TestRegressions::test_r2_no_closure_and_no_earlier_output_changes"
+        }
+      ],
+      "outcome_paths": [
+        "laws/T32/",
+        "results/T32/",
+        "gen/T32/",
+        "gen/M3/disch/classification.json",
+        "docs/iterations/I32.md"
+      ],
+      "tests": [
+        "tests_m3/test_disch_profile.py"
+      ],
+      "thresholds": {
+        "milestone": "T32",
+        "sidecar": "spec/M3/lib/disch_profile.json",
+        "facts": "spec/M1/facts/morph_rollup.json",
+        "obligation": "delay",
+        "H": 2,
+        "schedule_principals": [
+          4,
+          5
+        ],
+        "strategy_moves": 4,
+        "frontier": [
+          [
+            0,
+            19
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "dominated": [
+          [
+            1000,
+            0
+          ]
+        ],
+        "persistent_frontier": [
+          [
+            0,
+            19
+          ]
+        ],
+        "classes": {
+          "one_occurrence": "mixed",
+          "persistent": "delay"
+        },
+        "laws": [
+          "L_dp_delay_point_0_19",
+          "L_dp_delay_point_1_0",
+          "L_dp_delay_dominance",
+          "L_dp_delay_persistent_0_19",
+          "L_dp_delay_abstraction"
+        ],
+        "statuses": {
+          "PROVED": 5,
+          "REFUTED": 0,
+          "UNKNOWN": 0
+        },
+        "abstraction_horizon_s": 60
+      }
     }
   }
 }
