@@ -20,7 +20,8 @@
   python -m holon diagram --milestone M2 [--out DIR] [--root DIR]   (one diagram per fact document)
   python -m holon sorts [--milestone M2] [--root DIR] [--out DIR] [--facts PATH ...]   (refined sorts, I13)
   python -m holon derive --milestone M2 [--root DIR] [--out DIR] [--obstructions PATH] [--facts PATH ...]
-                         [--assignment PATH] [--against DIR --diff PATH]   (rules registry: laws/<M>/, I15)
+                         [--assignment PATH] [--against DIR --diff PATH]   (rules registry: laws/<M>/, I15; then
+                                                        the milestone's contract laws, listed in its registry: I65)
   python -m holon native --milestone M0 [--out PATH]    (native C model, results/M2/native.json, I16)
   python -m holon evidence [--milestone M2] [--root DIR] [--out PATH]   (evidence set E1-E6, gen/M2/evidence.json, I14)
   python -m holon refine --milestone M0 [--edges E1,E2] [--out DIR] [--morph PATH] [--work DIR] [--fix C ..]
@@ -178,9 +179,12 @@ def _main(argv: list) -> int:
     if argv[:1] == ["sorts"]:  # likewise for holon.sorts
         from . import sorts
         return sorts.main(argv[1:])
-    if argv[:1] == ["derive"]:  # likewise for holon.rules (the rules registry, I15)
-        from . import rules
-        return rules.main(argv[1:])
+    if argv[:1] == ["derive"]:  # likewise for holon.rules (the rules registry, I15), then the milestone's contract laws
+        from . import contracts, rules   # (I65 rule O4: holon.contracts, which no generator closure imports)
+        rc = contracts.before_derive(argv)
+        if rc == 0:
+            rc = rules.main(argv[1:])
+        return contracts.after_derive(argv) if rc == 0 else rc
     if argv[:1] == ["native"]:  # likewise for holon.model_native
         from . import model_native
         return model_native.main(argv[1:])

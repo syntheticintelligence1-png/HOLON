@@ -20,8 +20,16 @@ scope law with a record in both is ambiguous: apply refuses and G10 fails. A REF
 when its facts_sha256 is the sha256 of the contract's facts file now (the L_weak and the law it bounds are statements
 about one model). A record is named by its path relative to results/<M>: "L_x", or "extracted_m1/L_x".
 
+The derive step (I65, rule O4): a contract law is a law of its milestone. `holon derive --milestone M` writes
+holon.rules' laws as before, then the laws K3 derives for M (contract_laws), into --out's directory when given, and
+lists them in that directory's REGISTRY.json (registry_with): each law's statement hash, and its facts file with its
+sha256 in facts_files. The registry's primary facts (facts, facts_sha256) and DERIVATION.json stay the rules' own. G1's
+regeneration of laws/<M> (holon.gate) reads the same documents (with_contracts). holon.rules does not change, and no
+module of a generator closure imports this one (K5): holon/__main__.py and holon/gate.py call it.
+
   python -m holon contracts derive --milestone M [--check]   K3
   python -m holon contracts apply --milestone M [--check]    K5 without deciding (holon run's last step applies it too)
+  python -m holon derive --milestone M [...]                 the rules' laws, then K3's (before_derive, after_derive)
   Exit codes: 0 done (or --check reproduced); 1 --check differs; 2 refused, nothing written.
 """
 from __future__ import annotations
@@ -224,19 +232,25 @@ def derived_law(c: dict, root: Path = ROOT) -> dict:
             "notes": f"L_weak of intent contract {c['id']} (laws/CONTRACTS/{c['id']}.json), derived by holon contracts"}
 
 
+def contract_laws(milestone: str, root: Path = ROOT) -> list:
+    """K3's laws of the milestone: derived_law of every intended contract of M, by law id. Refused when any contract
+    file is invalid (K1, K9), whatever its milestone, so that every caller refuses before it writes anything."""
+    root = Path(root)
+    docs = _contracts(root)
+    found = [(p.name, problems(c, root, p.stem)) for p, c in docs]
+    bad = [f"{name}: {'; '.join(why)}" for name, why in found if why]
+    if bad:
+        raise Refused("invalid contracts: " + " | ".join(bad))
+    return sorted((derived_law(c, root) for _, c in docs if c["kind"] == "intended" and c["milestone"] == milestone),
+                  key=lambda law: law["law_id"])
+
+
 def derive(milestone: str, root: Path = ROOT, check: bool = False) -> int:
     """K3: laws/<M>/L_contract_<id>.json for every intended contract of M, and no other L_contract_* file. Any invalid
     contract file refuses (2) before anything is written."""
     root = Path(root)
-    found = [(p.name, problems(c, root, p.stem)) for p, c in _contracts(root)]
-    bad = [f"{name}: {'; '.join(why)}" for name, why in found if why]
-    if bad:
-        raise Refused("invalid contracts: " + " | ".join(bad))
     d = root / "laws" / milestone
-    want = {}
-    for _, c in _contracts(root):
-        if c["kind"] == "intended" and c["milestone"] == milestone:
-            want[f"{law_id(c['id'])}.json"] = _text(derived_law(c, root))
+    want = {f"{law['law_id']}.json": _text(law) for law in contract_laws(milestone, root)}
     have = {p.name: p.read_text(encoding="utf-8") for p in sorted(d.glob("L_contract_*.json"))} if d.is_dir() else {}
     if check:
         diff = sorted(k for k in set(want) | set(have) if want.get(k) != have.get(k))
@@ -252,6 +266,101 @@ def derive(milestone: str, root: Path = ROOT, check: bool = False) -> int:
         (d / name).unlink()
     print(f"derived {len(want)} contract law(s) for {milestone}" +
           (f"; removed {', '.join(sorted(set(have) - set(want)))}" if set(have) - set(want) else ""))
+    return 0
+
+
+# ---------------------------------------------------------------------------------------------------- the derive step
+def registry_with(reg: dict, laws: list, root: Path = ROOT) -> dict:
+    """The rules' registry (holon.rules.compute's REGISTRY.json) listing the contract laws too (I65 rule O4):
+    statements gains each law's statement hash (statement_hash: holon.gen.refs.law_hash, the hash `holon run` checks
+    and gives its record), facts_files each law's facts file with its sha256 now. facts, facts_sha256,
+    derivation_sha256 and every other key stay the rules' own. Refused when the rules derive a law of the same id."""
+    root = Path(root)
+    statements = dict(reg.get("statements") or {})
+    files = dict(reg.get("facts_files") or {})
+    for law in laws:
+        lid = law["law_id"]
+        if lid in statements:
+            raise Refused(f"{lid}: a rule derives a law with the id of the contract law")
+        statements[lid] = statement_hash(law, root)
+        files[law["facts"]] = law["facts_sha256"]
+    return dict(reg, statements=dict(sorted(statements.items())), facts_files=dict(sorted(files.items())))
+
+
+def with_contracts(milestone: str, root: Path, res: dict) -> dict:
+    """holon.rules.compute's documents for the milestone with its contract laws (contract_laws, registry_with), as
+    `holon derive` writes them (after_derive): what G1 regenerates laws/<M> into (holon.gate). The derivation, its
+    text and the obstructions stay the rules'. Refused when a contract file is invalid."""
+    laws = contract_laws(milestone, root)
+    if not laws:
+        return res
+    have = dict(res["laws"])
+    for law in laws:
+        if law["law_id"] in have:
+            raise Refused(f"{law['law_id']}: a rule derives a law with the id of the contract law")
+        have[law["law_id"]] = law
+    return dict(res, laws=have, registry=registry_with(res["registry"], laws, root))
+
+
+def _derive_args(argv: list):
+    """`holon derive`'s --milestone, --root and --out (holon.rules.main parses the rest)."""
+    ap = argparse.ArgumentParser(add_help=False)
+    ap.add_argument("--milestone")
+    ap.add_argument("--root")
+    ap.add_argument("--out")
+    a, _ = ap.parse_known_args(argv[1:])
+    return a
+
+
+def _derive_root(a, root: Path) -> Path:
+    return Path(a.root).resolve() if a.root else Path(root)   # holon.rules.derive's root
+
+
+def before_derive(argv: list, root: Path = ROOT) -> int:
+    """The first step of `holon derive` (O4): 2, with nothing written, when a contract file is invalid (K3's rule,
+    before the rules write their laws); else 0."""
+    a = _derive_args(argv)
+    if not a.milestone:
+        return 0   # holon.rules.main reports the missing --milestone
+    try:
+        contract_laws(a.milestone, _derive_root(a, root))
+    except Refused as e:
+        print(f"holon derive: refused: {e}", file=sys.stderr)
+        return 2
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        print(f"holon derive: refused: the contract laws cannot be derived ({type(e).__name__}: {e})",
+              file=sys.stderr)
+        return 2
+    return 0
+
+
+def after_derive(argv: list, root: Path = ROOT) -> int:
+    """The last step of `holon derive` (O4), once holon.rules has written the milestone's laws, with the derive's own
+    --milestone, --root and --out: the milestone's contract laws written into the laws directory the rules wrote
+    (<root>/laws/<M>, or --out), and its REGISTRY.json rewritten as registry_with lists them. A milestone without an
+    intended contract keeps the rules' files as they wrote them."""
+    a = _derive_args(argv)
+    if not a.milestone:
+        return 0
+    root = _derive_root(a, root)
+    d = Path(a.out) if a.out else root / "laws" / a.milestone
+    try:
+        laws = contract_laws(a.milestone, root)
+        if not laws:
+            return 0
+        reg = registry_with(_load(d / "REGISTRY.json"), laws, root)
+    except Refused as e:
+        print(f"holon derive: the contract laws: refused: {e}", file=sys.stderr)
+        return 2
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        print(f"holon derive: the contract laws: refused ({type(e).__name__}: {e})", file=sys.stderr)
+        return 2
+    for law in laws:
+        (d / f"{law['law_id']}.json").write_text(_text(law), encoding="utf-8")
+    (d / "REGISTRY.json").write_text(_text(reg), encoding="utf-8")
+    print(f"holon derive: {len(laws)} contract law(s) of laws/CONTRACTS -> {d}")
+    for law in laws:
+        print(f"  {law['law_id']:58s} {law['facts']}")
     return 0
 
 
