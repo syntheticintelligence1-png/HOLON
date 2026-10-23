@@ -458,7 +458,7 @@ class TraceBound:
         lets = {g["let"]: g["expr"] for g in a["guards"] if "let" in g}
         env = {**self.m.stypes, **dict(a["inputs"])}
         cond = self.r(_inline(top["cond_expr"], lets), env)
-        return f"{first}({cond}, {self.FA}{''.join(', ' + i for i in ins)}, {self.G}, {', '.join(self.hname)})"
+        return f"{first}({cond}, {self.FA}{''.join(', ' + i for i in ins)}, {self.G}, {', '.join(self.hname)}, {{==}})"
 
     def hyp_params(self) -> str:
         out = []
@@ -505,7 +505,10 @@ class TraceBound:
         return name
 
     def chain_lemmas(self, a: dict) -> str:
-        """tb_w_<a>_<i>: the invariant down the decide chain of <a>, its lets inlined. Returns the first lemma."""
+        """tb_w_<a>_<i>: the invariant down the decide chain of <a>, its lets inlined, each guard's equation kept (Bend's
+        convoy: node i takes {C_i == c} and matches c, which refines it to {C_i == True} on the way on, and passes the
+        equations of the guards before it). On the Ok branch every guard's equation is a fact the transport may use.
+        Returns the first lemma."""
         an, A, m = a["name"], ALIAS, self.m
         info = m.chains[an]
         lets = {g["let"]: g["expr"] for g in a["guards"] if "let" in g}
@@ -513,31 +516,36 @@ class TraceBound:
         ins = [(bname(n), t) for n, t in a["inputs"]]
         IP = "".join(f", +{n}: {self.ty(t)}" for n, t in ins)
         IA = "".join(", " + n for n, _ in ins)
-        carried = _carried(m, a)
         effects = {f: _inline(e, lets) for f, e in a["effects"].items()}
-        ok = self.ok_proof(a, effects, env)
-        path, rec = [], info["top"]
+        path, conds, rec = [], [], info["top"]
         while rec is not None:
             path.append(rec["call"])
+            conds.append(_inline(rec["cond_expr"], lets))
             rec = info["helpers"][rec["call"]]["next"]
+        c = self.fresh_name("c")   # each lemma's own scrutinee (the names are local to each lemma)
+        qs = [self.fresh_name(f"q{i}") for i in range(len(path))]
+        guards = list(zip(conds, qs))
+        ok = self.ok_proof(a, effects, env, guards)
         names = [f"tb_w_{an}_{i}" for i in range(len(path))]
         blocks = []
         for i, hname in enumerate(path):
             h = info["helpers"][hname]
             args = [self.r(_inline(v, lets), env) for v, _ in h["params"]]
-            c = self.fresh_name("c")
             dec = f"{A}.{hname}({', '.join([c] + args)})"
             ex = f"{A}.exec_{an}({dec}, {self.FA}{IA})"
             code_rev = f"{A}.exec_{an}({A}.{hname}(False{{}}{''.join(', ' + x for x in args)}), {self.FA}{IA})"
-            lines = [f"def {names[i]}({c}: Bool, {self.FP}{IP}, +{self.G}: Nat, {self.hyp_params()}) -> "
+            qp = "".join(f", +{q}: {{{self.r(cj, env)} == True{{}} : Bool}}" for cj, q in guards[:i])
+            qp += f", +{qs[i]}: {{{self.r(conds[i], env)} == {c} : Bool}}"
+            lines = [f"def {names[i]}({c}: Bool, {self.FP}{IP}, +{self.G}: Nat, {self.hyp_params()}{qp}) -> "
                      f"tb_I({ex}, {self.gnew(a, ex)}):",
                      f"  match {c}:", "    case False{}:"]
             lines += ["      " + x for x in self.rev_value(a, code_rev)]
             lines.append("    case True{}:")
             nxt = h["next"]
             if nxt is not None:
-                cond = self.r(_inline(nxt["cond_expr"], lets), env)
-                lines.append(f"      {names[i + 1]}({cond}, {self.FA}{IA}, {self.G}, {', '.join(self.hname)})")
+                cond = self.r(conds[i + 1], env)
+                lines.append(f"      {names[i + 1]}({cond}, {self.FA}{IA}, {self.G}, {', '.join(self.hname)}, "
+                             f"{', '.join(qs[:i + 1])}, {{==}})")
             else:
                 lines += ["      " + x for x in ok]
             blocks.append(lines + [""])
@@ -546,12 +554,12 @@ class TraceBound:
         return names[0]
 
     # ------------------------------------------------------------ the Ok branch: each conjunct carried
-    def ok_proof(self, a: dict, effects: dict, env: dict) -> list[str]:
+    def ok_proof(self, a: dict, effects: dict, env: dict, guards: list | None = None) -> list[str]:
         ghost_act = self.ghost is not None and a is self.gact
         delta = self.ghost["add"] if ghost_act else None
         parts = []
         for c, h in zip(self.conj, self.hname):
-            parts.append(_Carry(self, a, effects, env, delta).component(c, h))
+            parts.append(_Carry(self, a, effects, env, delta, guards or []).component(c, h))
         return [self.tuple_val(parts)]
 
     # ------------------------------------------------------------ the pointwise sidecar, proved here
@@ -752,8 +760,9 @@ def _is(e, op: str) -> bool:
 class _Carry:
     """One action's Ok branch: each conjunct of the invariant carried through the effects (old state -> new)."""
 
-    def __init__(self, tb: TraceBound, a: dict, effects: dict, env: dict, delta):
+    def __init__(self, tb: TraceBound, a: dict, effects: dict, env: dict, delta, guards: list):
         self.tb, self.m, self.a = tb, tb.m, a
+        self.guards = guards   # [(the inlined guard, the name of its equation {guard == True})] on a chain's Ok branch
         self.new = effects
         self.env = {**env, **tb.env_base()}
         self.delta = delta
@@ -878,6 +887,14 @@ class _Carry:
             + ["  " + x for x in rewrites] + [f"  {proof}", ""]
         return f"(+{kv} => {name}({', '.join([kv] + [bname(v) for v in free] + [f'{h}({kv})'])}))"
 
+    def has_cmp(self, e) -> bool:
+        """A guard worth carrying as a fact: it compares Nats somewhere in its Bool structure."""
+        if isinstance(e, list) and e and e[0] in ("<=", "<"):
+            return True
+        if isinstance(e, list) and e and e[0] in ("&&", "||", "!"):
+            return any(self.has_cmp(z) for z in e[1:])
+        return False
+
     # ---------------------------------------------------------------- Bool structure: split the atoms
     def atoms(self, e, out: dict, arith: bool):
         if isinstance(e, bool) or isinstance(e, int):
@@ -980,6 +997,7 @@ class _Carry:
         self.atoms(goal, found, True)
         for H, _ in hyps:
             self.atoms(H, found, True)
+        hyps = list(hyps) + [g for g in self.guards if self.has_cmp(g[0])]   # facts, never split
         alist = sorted(found.items())
         names, absd = {}, {}
         for key, e in alist:
