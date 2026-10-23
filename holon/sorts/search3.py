@@ -152,8 +152,13 @@ class Model:
         self.base_env = {"this": self.init.get("target") or "0x" + "00" * 19 + "ab",
                          "immutable": dict(self.init.get("immutables") or {}),
                          "block.number": self.init.get("number") or 1, "block.chainid": self.init.get("chainid") or 1}
-        if self.init.get("code"):
-            self.base_env["code"] = {self.base_env["this"]: self.init["code"]}
+        # (F40) the runtime code the deployment holds (its target's and its implementation's, holon.sorts.deploy3): the
+        # environment's code table at every step whose action reads an account's code (only there: the table is large)
+        codes = self.init.get("code")
+        if isinstance(codes, str):
+            codes = {self.base_env["this"]: codes}
+        self.codes = {k.lower(): v for k, v in sorted((codes or {}).items()) if isinstance(v, str) and len(v) > 2}
+        self._reads_code: dict = {}
         for p in self.init.get("preimages") or []:
             self.add_key(p)
 
@@ -254,8 +259,19 @@ class Model:
         env = self.full_env(st)
         return {"$r": f"A_{bname(st.action)}", "f": {"ar": self._enc(st)[1], "en": self.ev.env_in(env)}}
 
+    def reads_code(self, a: str) -> bool:
+        """Whether action a reads an account's code (a ["code", X] term anywhere in its document entry)."""
+        hit = self._reads_code.get(a)
+        if hit is None:
+            out: list = []
+            _code_reads(self.doc.actions[a], out)
+            hit = self._reads_code[a] = bool(out)
+        return hit
+
     def full_env(self, st: Step) -> dict:
         env = dict(self.base_env)
+        if self.codes and self.reads_code(st.action):
+            env["code"] = dict(self.codes)
         env.update(st.env)
         env["msg.data.length"] = (len(self.calldata(st)) - 2) // 2
         return env
@@ -418,6 +434,21 @@ def _leaves(t, out: list) -> None:
         _leaves(x, out)
 
 
+def _code_reads(t, out: list) -> None:
+    """The terms X of the ["code", X] subterms of a term, or of every term a document entry holds (the addresses whose
+    code it reads)."""
+    if isinstance(t, dict):
+        for k in sorted(t):
+            _code_reads(t[k], out)
+        return
+    if not isinstance(t, list) or not t:
+        return
+    if t[0] == "code" and len(t) == 2:
+        out.append(t[1])
+    for x in t[1:] if isinstance(t[0], str) else t:
+        _code_reads(x, out)
+
+
 def _comparisons(t, out: list) -> None:
     if not isinstance(t, list) or not t:
         return
@@ -564,6 +595,19 @@ class Synth:
                         for w in ((v + 1) & MASK,):
                             if w not in vals:
                                 vals.append(w)
+        # (F40) a leaf whose code the check reads: the addresses whose code the environment holds (the deployed target;
+        # an address the comparisons offer, 0 or 1, holds none)
+        reads: list = []
+        _code_reads(c.expr, reads)
+        held = sorted(int(k, 16) for k in (env.get("code") or {}) if isinstance(k, str))
+        for x in reads:
+            lv = []
+            _leaves(x, lv)
+            for leaf in lv:
+                vals = out.setdefault(leaf, [])
+                for w in held:
+                    if w not in vals:
+                        vals.append(w)
         return out
 
     def score(self, code: int, target) -> tuple:
