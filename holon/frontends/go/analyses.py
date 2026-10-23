@@ -110,10 +110,37 @@ class Analysis:
         if not isinstance(r, str):
             for pos, what in r.unsupported:
                 self.ctx.debt_entry(fid, "unsupported", pos, what)
-        return {"span": fn_span(fn), "package": fn.package,
-                "params": [{"name": n, "type": t} for n, t in fn.params], "results": list(fn.results),
-                "loop_free": self.ctx.loop_free(fid) if fn.has_body else True,
-                "paths": paths, "paths_reason": reason, "sites": self.sites(fid)}
+        entry = {"span": fn_span(fn), "package": fn.package,
+                 "params": [{"name": n, "type": t} for n, t in fn.params], "results": list(fn.results),
+                 "loop_free": self.ctx.loop_free(fid) if fn.has_body else True,
+                 "paths": paths, "paths_reason": reason, "sites": self.sites(fid)}
+        if self.ctx.config_version == "holon-go-frontend/0.2":   # I67: additive loop-body paths over the iv
+            lb = self.loop_bodies(fid)
+            if lb is not None:
+                entry["loop_bodies"] = lb
+        return entry
+
+    def loop_bodies(self, fid: str) -> list | None:
+        """The body of each counted / range loop (step 1) as loop-free paths over its symbolic induction variable
+        (holon.frontends.go.paths.Enumerator.run_loop); None when the function has no such loop. One entry per loop,
+        in header order. Each carries the loop summary and the body paths (end panic | return | continue, the panic
+        site, and the path condition over ('iv', name))."""
+        fn = self.prog.funcs[fid]
+        if not fn.has_body or not self.codec_shaped(fn):
+            return None
+        fl = self.flow(fid)
+        out = []
+        for L in fl.loops():
+            if L.kind not in ("counted", "range") or L.phi is None or L.fuel is None:
+                continue
+            res = Enumerator(self.ctx, self.flows, fn).run_loop(L)
+            paths = [{"cond": [to_json(a) for a in p["cond"]], "end": p["end"],
+                      "returns": [to_json(t) for t in p["returns"]] if p["returns"] else None,
+                      "site": p["site"]} for p in res.paths]
+            out.append({"span": L.span, "iv": L.iv, "init": to_json(L.init) if L.init else None, "step": L.step,
+                        "cmp": L.cmp, "limit": to_json(L.limit) if L.limit else None, "fuel": to_json(L.fuel),
+                        "exits": list(L.exits), "paths": paths})
+        return out or None
 
     def sites(self, fid: str) -> list:
         fn = self.prog.funcs[fid]

@@ -42,7 +42,11 @@ from .ctx import Ctx
 from .ssaload import DumpError, Program
 
 FRONTEND_VERSION = "holon-go/0.1"
+# I67: 0.2 is a superset of 0.1 — it adds the additive `loop_bodies` section (loop-free paths over a counted loop's
+# induction variable) and leaves every 0.1 section byte-identical, so a 0.1 config re-extracts unchanged.
 CONFIG_VERSION = "holon-go-frontend/0.1"
+CONFIG_VERSIONS = ("holon-go-frontend/0.1", "holon-go-frontend/0.2")
+FRONTEND_VERSION_OF = {"holon-go-frontend/0.1": "holon-go/0.1", "holon-go-frontend/0.2": "holon-go/0.2"}
 PRIMITIVE_KINDS = ("to_array", "hash", "array_bytes", "hex_to_array")
 FACTS_VERSION = "holon-facts/0.3"
 HERE = Path(__file__).resolve().parent
@@ -79,8 +83,8 @@ def _load_json(p: Path, what: str):
 
 def load_config(path: Path) -> dict:
     cfg = _load_json(path, "config")
-    if not isinstance(cfg, dict) or cfg.get("config_version") != CONFIG_VERSION:
-        raise Refused(f"config {path}: config_version must be {CONFIG_VERSION!r}")
+    if not isinstance(cfg, dict) or cfg.get("config_version") not in CONFIG_VERSIONS:
+        raise Refused(f"config {path}: config_version must be one of {CONFIG_VERSIONS}")
     t = cfg.get("target")
     if not isinstance(t, dict) or not isinstance(t.get("repo"), str) or not isinstance(t.get("commit"), str):
         raise Refused(f"config {path}: target needs repo and commit")
@@ -330,7 +334,8 @@ def extract(config_path, src=None, root=None) -> dict:
             "facts_version": FACTS_VERSION,
             "target": {"repo": cfg["target"]["repo"], "commit": cfg["target"]["commit"],
                        "scope": "go packages: " + ", ".join(pks)},
-            "extraction": {"method": "extracted", "frontend": "go", "frontend_version": FRONTEND_VERSION,
+            "extraction": {"method": "extracted", "frontend": "go",
+                           "frontend_version": FRONTEND_VERSION_OF[cfg["config_version"]],
                            "tool": {"go": go_ver, "x_tools": xt, "ssadump_sha256": digest},
                            "config": {"path": rel_to(config_path, root), "sha256": cfg_sha},
                            "inputs": [{"path": f, "sha256": hashes[f]} for f in files]},

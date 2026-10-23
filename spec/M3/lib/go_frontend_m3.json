@@ -1,0 +1,36 @@
+{
+  "config_version": "holon-go-frontend/0.2",
+  "doc": "I67 (= I38a) M3 Go frontend sidecar, config_version holon-go-frontend/0.2 (a superset of M2's 0.1: it adds the loop_bodies section). A DISTINCT name from spec/M3/lib/go_frontend.json so M3's G1 (which regenerates spec/<m>/lib/go_frontend.json docs) does not expect Go documents before this build. Extracts common/batch and common/blob together into one document so the two RetrieveBlobBytes / MakeBlobCanonical clones share a carrier (O4). Source and primitives follow spec/M2/lib/go_frontend.json.",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "source": {
+    "config": "config/holon.json",
+    "key": ["replay", "morph"]
+  },
+  "documents": {
+    "morph_blob_go": ["morph-l2/common/batch", "morph-l2/common/blob"]
+  },
+  "primitives": {
+    "github.com/morph-l2/go-ethereum/common.BytesToHash": {
+      "kind": "to_array",
+      "width": 32,
+      "text": "BytesToHash(b) is the 32-byte array holding b right-aligned (common/types.go: SetBytes crops b to its last 32 bytes, then copies it to h[32-len(b):]); for len(b) == 32 element k is b[k]."
+    },
+    "github.com/morph-l2/go-ethereum/crypto.Keccak256Hash": {
+      "kind": "hash",
+      "text": "Keccak256Hash(data...) is the keccak-256 digest of the concatenated arguments: an opaque HASH sink; it reads its arguments and retains none of them."
+    },
+    "(github.com/morph-l2/go-ethereum/common.Hash).Bytes": {
+      "kind": "array_bytes",
+      "width": 32,
+      "text": "Hash.Bytes() has a value receiver and returns h[:], a 32-byte slice over the receiver's copy: a fresh backing array whose element k is h[k]."
+    }
+  },
+  "limits": {
+    "max_paths": 512,
+    "inline_depth": 4,
+    "flow_depth": 3
+  }
+}
