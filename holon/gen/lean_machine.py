@@ -113,7 +113,9 @@ def lean_base(t: str) -> str:
 
 class Ctx:
     """One facts document compiled for Lean: kind (machine | machine_oracle), the oracle parameters {name: Fn type}
-    in sidecar order, the library twin and the Bend model's stem."""
+    in sidecar order, the library twin and the Bend model's stem. A machine_oracle document may have no oracle
+    parameter (one no oracle sidecar names, such as a window view, whose Bend model takes no oracle table: I65): its
+    model is the M2+ reading (permissions from the permission guards, Reach) with no parameter anywhere."""
 
     def __init__(self, facts: dict, kind: str, params: dict[str, str], lib: dict, stem: str):
         if kind not in ("machine", "machine_oracle"):
@@ -122,8 +124,6 @@ class Ctx:
             raise Unsupported(f"facts version {facts.get('facts_version')}")
         self.facts, self.kind, self.lib, self.stem = facts, kind, lib, stem
         self.params = dict(params or {}) if kind == "machine_oracle" else {}
-        if kind == "machine_oracle" and not self.params:
-            raise Unsupported("a machine_oracle model without a modelled oracle parameter")
         self.ptypes = {p: fn_type(t) for p, t in self.params.items()}
         for p in self.params:
             ident("p_", p)
@@ -597,14 +597,48 @@ class Ctx:
 
 
 # ---------------------------------------------------------------------- the library twin
+WINDOW_VERSION = "holon-window/0.1"   # a window declaration's format (read as a document)
+
+
+def _rel_path(x) -> bool:
+    return isinstance(x, str) and bool(x) and not Path(x).is_absolute() and ".." not in Path(x).parts
+
+
+def window_abstraction(facts: Path, root: Path) -> Path | None:
+    """The abstraction a window view stands for: when the document at facts is a window view (its extraction block
+    names a window declaration under root, {"window_version": "holon-window/0.1", "abstraction": a repository path,
+    ...}), the declaration's abstraction under root; else None. Documents only (rule L1), as the Bend side anchors the
+    view (I65 = I33b, tests_m3/test_o12.py rule O4)."""
+    try:
+        raw = Path(facts).read_bytes() if Path(facts).suffix == ".json" else b""
+        doc = json.loads(raw) if b'"declaration"' in raw else None   # most documents name none: no parse
+    except (OSError, ValueError):
+        return None
+    ex = doc.get("extraction") if isinstance(doc, dict) else None
+    rel = ex.get("declaration") if isinstance(ex, dict) else None
+    if not _rel_path(rel):
+        return None
+    try:
+        decl = json.loads((Path(root) / rel).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(decl, dict) or decl.get("window_version") != WINDOW_VERSION \
+            or not _rel_path(decl.get("abstraction")) or not (Path(root) / decl["abstraction"]).is_file():
+        return None
+    return Path(root) / decl["abstraction"]
+
+
 def lib_twin(anchor_facts: Path, root: Path) -> dict:
     """The Lean twin of the target libraries that apply to a facts document: <anchor's dir>/../lib/*.lean.json and
     spec/lib/*.lean.json, merged in that order. anchor_facts: the document the libraries are found from (a law's
-    facts; for an extracted view, the law's own facts document, not the view)."""
+    facts; for an extracted view, the law's own facts document, not the view). A window view itself (a law over the
+    view: an intent contract's L_weak, I65) takes its abstraction's twin (window_abstraction), as its Bend model takes
+    the abstraction's libraries."""
     root = Path(root)
     anchor = Path(anchor_facts)
     if not anchor.is_absolute():
         anchor = root / anchor
+    anchor = window_abstraction(anchor, root) or anchor
     mine = anchor.parent.parent / "lib"
     files = sorted(mine.glob("*.lean.json"))
     glob = root / "spec" / "lib"
@@ -658,9 +692,11 @@ def view_decls(ctx: Ctx, v: str) -> list[str]:
 
 
 def reach_decl(ctx: Ctx) -> str:
-    """Reach, indexed by the oracle parameters (machine_oracle): the interface's frozen text."""
+    """Reach, indexed by the oracle parameters (machine_oracle): the interface's frozen text; over a model without
+    oracle parameters (Ctx), the reachable states alone, as the Bend model's Reach<s> is then."""
     if not ctx.params:
-        raise Unsupported("Reach over a model without oracle parameters")
+        return ("inductive Reach : St → Prop where\n  | r0 : Reach s0\n"
+                "  | rstep (a : Act) (s : St) : Reach s → Reach (step a s)")
     pa = " ".join(f"p_{p}" for p in ctx.params)
     return (f"inductive Reach {ctx.pbinders()} : St → Prop where\n  | r0 : Reach {pa} s0\n"
             f"  | rstep (a : Act) (s : St) : Reach {pa} s → Reach {pa} (step {pa} a s)")

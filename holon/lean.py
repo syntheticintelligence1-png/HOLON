@@ -889,9 +889,12 @@ def lean_dir_of(key: str) -> LeanDir:
 
 
 def dir_key_for(milestone: str, facts_path, root: Path | str = ROOT) -> str | None:
-    """The key of the milestone's Lean directory whose facts document has facts_path's sha256 (matched by content, so
-    a regeneration into a scratch directory keeps its key), else the milestone's own; None when no Lean directory
-    covers the milestone."""
+    """The key of the Lean directory of a law of laws/<milestone> over facts_path: the milestone's directory whose
+    laws are laws/<milestone> and whose facts document has facts_path's sha256 (matched by content, so a regeneration
+    into a scratch directory keeps its key), else the milestone's own; None when no Lean directory covers the
+    milestone. The window view's directory holds the abstraction's laws (laws/M1, rebound to the view), so a law of the
+    milestone's own laws over the view itself (an intent contract's L_weak, I65 rule O4) is its own directory's
+    (gen/<M>/lean, the report of results/<M>), never the view's: holon.differential names the view's key itself."""
     root = Path(root)
     ds = lean_dirs(milestone, root)
     if not ds:
@@ -899,7 +902,8 @@ def dir_key_for(milestone: str, facts_path, root: Path | str = ROOT) -> str | No
     p = Path(facts_path)
     sha = _file_sha256(p) if p.is_file() else None
     for d in ds:
-        if d.facts and sha and (root / d.facts).is_file() and _file_sha256(root / d.facts) == sha:
+        if d.facts and d.laws == f"laws/{milestone}" and sha and (root / d.facts).is_file() \
+                and _file_sha256(root / d.facts) == sha:
             return d.key
     return ds[0].key
 
@@ -1088,6 +1092,9 @@ def _law_file(d: LeanDir, law: dict, record: dict, facts_path: Path, facts: dict
     status = record.get("status")
     kind = LC.model_kind(facts, law)
     model, ctx, entries = _model_of(d, law, facts_path, facts, kind, root)
+    if kind != "linked":   # a ghost term (I65) has no Lean twin, whatever class decided the law
+        from .gen import lean_mlaws
+        lean_mlaws.no_ghost(law)
     cls = LC.lean_class(record)
     lid = law["law_id"]
     if kind == "linked":

@@ -16,6 +16,10 @@ migration whose body reaches them) gets the law's parameter binders first. One p
 whole application is dropped at the top of each side of a relation and in a trace's elements; an empty list carries
 its type ascription.
 
+A ghost term (I65 = I33b, tests_m3/test_o12.py rule O1: {"ghost", "add", "over", "from"}, a history variable over a
+run) has no Lean twin: a statement holding one anywhere raises Unsupported (no_ghost), so its law's lean4 entry is
+not_run with reason unsupported_form.
+
 Imports neither holon.gen.mlaws nor holon.gen.machine (rule L1).
 """
 from __future__ import annotations
@@ -27,6 +31,8 @@ import re
 from .lean_common import Unsupported, ident
 from .lean_machine import Ctx, fn_type, lean_base
 
+GHOST_WHY = ("a ghost term (a history variable summed over the steps of a run, I65): the Lean interface has no twin "
+             "of it")
 _SCALAR = {"State": "Model.St", "Trace": "List Model.Act", "Act": "Model.Act", "Nat": "Nat", "Bool": "Bool",
            "List<Nat>": "List Nat"}
 
@@ -211,6 +217,8 @@ class Render:
             n = site_name(t["site"])
             self.sites.add(n)
             return self.call(n, [self.expect(t["on"], "Act", env), self.expect(t["from"], "State", env)], env), "Bool"
+        if "ghost" in t:
+            raise Unsupported(GHOST_WHY)
         raise Unsupported(f"term {sorted(t)}")
 
     def fn(self, name: str, args: list, env: dict) -> tuple[str, str]:
@@ -286,10 +294,26 @@ def law_id(law: dict) -> str:
     return ident("", lid)
 
 
+def no_ghost(law: dict) -> None:
+    """Unsupported when the law's statement holds a ghost term anywhere ({"ghost": A, "over": T, ..}, I65 rule O1;
+    in a claim, a premise or an expr term's bind): no Lean twin of it exists, so no Lean file states the law."""
+    stack = [law.get("statement")]
+    while stack:
+        x = stack.pop()
+        if isinstance(x, dict):
+            if isinstance(x.get("ghost"), str) and "over" in x:
+                raise Unsupported(GHOST_WHY)
+            stack.extend(x.values())
+        elif isinstance(x, list):
+            stack.extend(x)
+
+
 def statements(law: dict, status: str, ctx: Ctx, flip: bool = False) -> list[tuple[str, str]]:
     """[(theorem name, statement text)]: the law's theorem (PROVED), or its counter-law and refutation (REFUTED).
-    flip=True renders a REFUTED law's counter-law with its claim's relation flipped (G7's flip canary)."""
+    flip=True renders a REFUTED law's counter-law with its claim's relation flipped (G7's flip canary). Unsupported on
+    a statement with a ghost term (no_ghost)."""
     lid = law_id(law)
+    no_ghost(law)
     r = Render(ctx)
     if status == "PROVED":
         if flip:

@@ -648,8 +648,9 @@ def clean_gen(gen: Path, only: list[str] | None = None) -> None:
 def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str | None, no_registry: bool, log=print,
            core: str = "import", only: list[str] | None = None, lean_key: str | None = None) -> dict:
     """lean_key (I43): the Lean directory whose committed report the records read (holon.lean.kernel_entry_v2), e.g.
-    "M2/extracted_m1" for the M1 laws on M2's window view (holon.differential); by default the milestone's directory
-    whose facts document has the law's facts' content (holon.lean.dir_key_for), never one under gen_dir or out."""
+    "M2/extracted_m1" for the M1 laws on M2's window view (holon.differential); by default the directory of a law of
+    laws/<milestone> over the law's facts (holon.lean.dir_key_for: the milestone's own, so a law of M2 over the view
+    itself, an intent contract's L_weak, reads gen/M2/lean's report; I65 rule O4), never one under gen_dir or out."""
     cfg = bend.config(ROOT)
     laws = ir.load_laws_any(milestone, ROOT)
     reg = ir.load_registry(milestone, ROOT)
