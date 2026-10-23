@@ -622,8 +622,11 @@ class TestPreregInstruments(unittest.TestCase):
                                 + [("REFUTED", "M3", "DISCH", T.DISCH_NOT_ATTEMPTED)] * 7))
         self.assertEqual({e["kind"] for e in out}, {"other"})
         self.assertEqual([e["law_id"] for e in out if e["status"] == "PROVED" and e["rule"] != "DISCH"], [])
+        # I26's FACT laws, merged after the prereg, are carved out as I31's DISCH laws are (amendment): not in the
+        # prereg's sidecar, and never attempted
         live = {(d, p.stem) for d, r, ldir, *_ in T.DIRS for p in (ROOT / r).glob("L*.json")
-                if load_json(p).get("status") == "PROVED" and p.stem not in intended_weak(ldir)}
+                if load_json(p).get("status") == "PROVED" and load_json(p).get("rule") != "FACT"
+                and p.stem not in intended_weak(ldir)}
         self.assertEqual(live, {(e["dir"], e["law_id"]) for e in side()["laws"] if e["status"] == "PROVED"})
         self.assertEqual([u["path"] for u in side()["unregenerated_records"] if "L_sort_" in u["path"]],
                          ["results/M3/L_sort_realize_rollup_363_4a64383b.json",

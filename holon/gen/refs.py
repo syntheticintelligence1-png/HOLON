@@ -388,6 +388,10 @@ class _Closure:
             for k in ("on", "from", "at", "env"):
                 self.term(t.get(k))
             return
+        if isinstance(t.get("fact"), str) and isinstance(t.get("on"), list):   # a FACT term (I26)
+            self.fact(t["fact"])
+            self.term(t["on"])
+            return
         if isinstance(t.get("undo"), str) and isinstance(t.get("on"), list):   # an UNDO term (I27)
             self.undo(t["undo"])
             self.term(t["on"])
@@ -428,6 +432,20 @@ class _Closure:
             return
         from ..analysis.closure import disch_ref
         self.out["disch:" + did] = disch_ref(did, self.law, self.root)
+
+    def fact(self, fid: str) -> None:
+        """fact:<ID>: the sha256 of the canonical {template, template_version, subform, basis, premises} of the kernel or
+        attribution basis ID (holon.rules.fact.fact_ref), recomputed from the law's document and the FACT sidecar of its
+        milestone; and every action of the document as it states it (A_<name>): the claim runs steps of any action (a
+        kernel law two calls of its action from reachable states, an attribution law a whole trace)."""
+        if "fact:" + fid in self.out:
+            return
+        from ..rules.fact import fact_ref
+        self.out["fact:" + fid] = fact_ref(fid, self.law, self.root)
+        self.acts_sig()
+        self.tmpl("step")
+        for n in sorted(self.acts):
+            self.action(n)
 
     def undo(self, uid: str) -> None:
         """undo:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the pair or residue

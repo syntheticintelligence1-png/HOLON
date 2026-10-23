@@ -1,0 +1,90 @@
+{
+  "disch_profile_version": "holon-disch-profile/0.1",
+  "iteration": "I32",
+  "doc": "I32 prereg instrument (the contract is the docstring of tests_m3/test_disch_profile.py). Frozen at the I32 prereg; the build reads it and never edits it. I32 realizes discharge profiles (whitepaper Def 6.20, Prop 6.21, §8.4's DISCH row, §10.7) on the test milestone T32, whose one obligation is the delay guard of §2.4 and §11.5 on M1's machine (spec/M1/facts/morph_rollup.json): commitBatch's conjunct kappa => rho with kappa = enq[P] + D < t and rho = n > 0 (reason 5, 'l1msg delay', Rollup.sol:262-266), obligated class the active submitters. Why T32 and not M3: the guard reads the L1 message queue, which only M1's machine models; on M3 the queue is an external component (I31's analysis, gen/M3/disch/conjuncts.json, external IL1MessageQueue) until I36 extracts it, and Q19 forbids hand-written facts on M3, so the delay guard's M3 profile follows I36. T32 is the M1 machine under the I32 rule, its outputs under laws/T32, gen/T32 and results/T32; M1's own laws, records and Bend files are untouched. On M3, I32 writes the classification of I31's DISCH basis from I31's decided laws (gen/M3/disch/classification.json), a construction, no prediction.",
+  "milestone": "T32",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "candidates": {
+    "source": "spec/M1/policy_hints.mjs",
+    "doc": "The moves of every search are the M1 search hints' candidates (policyOf(state, facts)), the same untrusted dictionary M1's refutation search uses: a candidate only proposes a move, every outcome is the model's. X-moves: the candidates whose op X's principal may call (the facts' principal 'active submitter' or 'anyone'), with who set to the agent; waits: the candidates of op wait (the next relevant deadlines). E-moves (the schedule's): the candidates whose who is one of the schedule's principals, as the hints give them, never a wait. A move that reverts in a play is a step without effect on the state (the model's step); a strategy move that reverts fails the play."
+  },
+  "obligations": [
+    {
+      "id": "delay",
+      "target": "commitBatch",
+      "guard": {
+        "reason": 5,
+        "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266",
+        "kappa": "enq_first(qpend, qlen, enq, t) + D < t",
+        "rho": "n > 0"
+      },
+      "class": {
+        "name": "submitter",
+        "principal": "active submitter",
+        "principals": [
+          2,
+          3
+        ]
+      },
+      "agent": 2,
+      "prefix": [
+        {
+          "op": "sendMessage",
+          "who": 5
+        },
+        {
+          "op": "commitBatch",
+          "who": 2,
+          "ver": 1,
+          "parent": 0,
+          "n": 1,
+          "lbn": 1,
+          "prev": 100,
+          "post": 101,
+          "blobs": [
+            7
+          ]
+        },
+        {
+          "op": "wait",
+          "dt": 21
+        }
+      ],
+      "prefix_doc": "s*, the representative state of M1's delay laws (laws/M1/L_disch_delay_*.json): one message sent and included, then 21 s, so kappa holds (enq 10 + D 20 < t 31) and no message is unincluded; there commitBatch reverts with reason 5 for n = 0 and with reason 15 for every n > 0."
+    }
+  ],
+  "cost": {
+    "doc": "The facts' disch section (spec/M1/facts/morph_rollup.json disch): cost(trace) and elapsed(trace) of the model (M.cost, M.elapsed): sendMessage 1, commitBatchWithProof 1000, every other action 0; delay is the waits' dt. A strategy's outcome is (cost, delay) of its own moves; the schedule's moves cost the strategy nothing.",
+    "source": "facts.disch"
+  },
+  "search": {
+    "strategy_moves": 4,
+    "doc": "DP_X(s*): every sequence of at most strategy_moves X-moves from s*, each succeeding, the last a successful target move by the agent; its outcome (cost, delay); the Pareto-minimal outcomes. Bi-criteria label-correcting search over the states the moves reach (a state's labels are its Pareto-minimal (cost, delay) pairs; a label dominated at the same state is dropped)."
+  },
+  "schedule": {
+    "H": 2,
+    "principals": [
+      4,
+      5
+    ],
+    "excluded": {
+      "1": "the owner: setPause halts every action, so no strategy survives an adversarial owner (by design, the class table's 'only an upgrade discharges it'); the owner is the protocol's governance and is not scheduled"
+    },
+    "doc": "A schedule is at most H E-moves, each before one of the strategy's turns (several before the same turn allowed, in order), at the block time of that turn: a schedule never waits. The E-alphabet is fixed per obligation: the E-moves the hints propose at s* and at every state reachable from s* by at most H E-moves (breadth first, in the hints' order, first seen first; a reverting E-move leaves the state as it is). A profile point (c, d) in the form of §8.4 is: there is a strategy table T (the X-move at each turn, a function of the E-moves played so far) such that for every schedule the play from s* succeeds: every X-move succeeds, the last is a successful target move, at most strategy_moves X-moves, own cost <= c, own delay <= d."
+  },
+  "dominance": {
+    "strategy_moves": 4,
+    "doc": "The bounded dominance law (∀ form): every sequence of at most strategy_moves X-moves from s* that ends with a successful target move has cost >= c or delay >= d for every frontier gap, i.e. no outcome strictly below the frontier's staircase; with the frontier {(1, 0), (0, 19)}: every such strategy has cost >= 1 or delay >= 19."
+  },
+  "persistent": {
+    "strategy_moves": 4,
+    "doc": "Def 6.20's persistent variant, read literally: a strategy counts only if kappa is false after its successful target move, so that kappa stays false until its next trigger (a message enqueued and left unfinalized for D); satisfying rho alone (n > 0) does not count. The outcome is (cost, delay) as for one occurrence; the search is the one-occurrence search restricted to such completions. kappa is the facts' own: enq_first(qpend, qlen, enq, t) + D < t. BUILD_PLAN's I32 row reads the persistent profile as {(c_msg per trigger, 0), (0, Δ_fin per trigger)}, counting each batch as a trigger; under Def 6.20's text paying never falsifies kappa (only finalization moves the queue's cursor P), and the key I32 predicts from that text."
+  },
+  "abstraction": {
+    "doc": "The finite abstraction of Prop 6.21 is the move alphabets above and the time abstraction: a strategy waits only to the hints' deadlines. Its soundness law, on T32: from s*, for every dt in 0..horizon_s, each alphabet move's outcome (success, or the revert reason) after a wait of dt equals its outcome after the wait to the greatest hinted deadline <= dt (no wait if none): outcomes change only at hinted deadlines, so a wait of dt is never better than the wait to that deadline, which is no longer, and the abstraction misses no Pareto point within the horizon.",
+    "horizon_s": 60
+  },
+  "classes": {
+    "doc": "Whitepaper §5.7's table: immediate if (0, 0) is a point; cost-bearing if every point is (c, 0) with c > 0; delay if every point is (0, d) with d > 0; mixed if points of both kinds; external-dependent if DP_X is empty and DP of X with a named Y is not; non-dischargeable if empty for every principal. On M3 (gen/M3/disch/classification.json), from I31's decided laws per basis element and class: blk PROVED and an ext law PROVED for a class Y -> external-dependent (Y); blk PROVED and no ext law PROVED -> non-dischargeable; blk REFUTED -> dischargeable by X (no cost model on M3, so no profile); otherwise undecided, naming the UNKNOWN laws."
+  }
+}

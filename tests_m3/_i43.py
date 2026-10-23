@@ -1776,6 +1776,8 @@ class Render:
 
 DISCH_NOT_ATTEMPTED = ("not_attempted: rule DISCH over a holon-facts/0.3 document, outside every Lean emitter's model kind "
                        "(I31's laws, merged after the prereg 84c185f; carved out at the move onto be95d6d)")
+FACT_NOT_ATTEMPTED = ("not_attempted: rule FACT over a holon-facts/0.3 document, outside every Lean emitter's model kind "
+                      "(I26's laws, merged after the prereg; carved out as I31's DISCH laws are: spec/M3/amendments.jsonl)")
 
 
 def rendered(root: Path = ROOT) -> tuple[list[dict], dict]:
@@ -1786,11 +1788,12 @@ def rendered(root: Path = ROOT) -> tuple[list[dict], dict]:
     for e in scope(root):
         e = dict(e)
         law = load_json(root / e["law_file"])
-        if e["kind"] == "other" and law.get("rule") == "DISCH":
+        if e["kind"] == "other" and law.get("rule") in ("DISCH", "FACT"):
             # I31's DISCH laws (merged at be95d6d, after the prereg 84c185f) state their claims over a holon-facts/0.3
             # document, which no Lean emitter reads: not attempted, PROVED or REFUTED (the human's answer at the move
-            # onto be95d6d). Any other PROVED law outside the emitters' kinds still raises below.
-            e["statements"], e["attempt"] = [], DISCH_NOT_ATTEMPTED
+            # onto be95d6d). I26's FACT laws (merged later) state theirs over the same document and are carved out the
+            # same way (amendment). Any other PROVED law outside the emitters' kinds still raises below.
+            e["statements"], e["attempt"] = [], DISCH_NOT_ATTEMPTED if law["rule"] == "DISCH" else FACT_NOT_ATTEMPTED
             entries.append(e)
             continue
         facts = load_json(root / e["facts"])

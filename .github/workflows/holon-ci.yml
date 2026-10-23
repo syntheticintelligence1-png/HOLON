@@ -125,6 +125,11 @@ jobs:
             timeout: 90
             run: python -m holon gate --milestone M3 --checks G2 --report "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
             report: "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
+          - name: tests-m3-catalog
+            # F39: the catalog re-derivation bookkeeping on the real history (the registry tie, the lines the tool
+            # generates, the typed bindings, and gate3's G2 on a clone); it re-runs M3's binding_change proofs once
+            timeout: 120
+            run: python -m unittest tests_m3.test_catalog_rederivation -v
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -162,9 +167,9 @@ jobs:
           set -o pipefail
           ${{ matrix.run }} 2>&1 | tee "$RUNNER_TEMP/ci-out/${{ matrix.name }}.log"
       - name: Test summary
-        if: always() && matrix.name == 'frozen-suite'
+        if: always() && (matrix.name == 'frozen-suite' || matrix.name == 'tests-m3-catalog')
         run: |
-          grep -E '^(Ran [0-9]+ tests|OK|FAILED)' "$RUNNER_TEMP/ci-out/frozen-suite.log" | tee -a "$GITHUB_STEP_SUMMARY"
+          grep -E '^(Ran [0-9]+ tests|OK|FAILED)' "$RUNNER_TEMP/ci-out/${{ matrix.name }}.log" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Gate summary
         if: always() && matrix.report
         # the report is written by this run only (never the committed results/<m>/gate_report.json), so a
