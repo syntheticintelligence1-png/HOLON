@@ -128,6 +128,66 @@ def point_id(c: int, d: int) -> str:
     return f"L_dp_{OB}_point_{c}_{d}"
 
 
+def _git(*args: str) -> str:
+    p = subprocess.run(["git", "-C", str(ROOT), "-c", "core.quotepath=false", *args], capture_output=True, text=True)
+    if p.returncode != 0:
+        raise AssertionError(f"git {' '.join(args)}: {p.stderr.strip()}")
+    return p.stdout
+
+
+def _is_ancestor(a: str, b: str) -> bool:
+    p = subprocess.run(["git", "-C", str(ROOT), "merge-base", "--is-ancestor", a, b], capture_output=True, text=True)
+    if p.returncode not in (0, 1):
+        raise AssertionError(f"git merge-base --is-ancestor {a} {b}: {p.stderr.strip()}")
+    return p.returncode == 0
+
+
+def i32_merge() -> tuple[str | None, str | None]:
+    """(R, M), found by ancestry whatever the topology (I66 amendment, spec/M3/amendments.jsonl). R: the oldest commit
+    reachable from HEAD that adds docs/iterations/I32.md (None when none does). M: the oldest merge commit of
+    `git rev-list --ancestry-path --merges R..HEAD` whose second parent reaches R and whose first parent does not, the
+    merge that brought I32's branch into the history HEAD stands on (e215fbf5 on the lead, and on every branch that
+    holds it, whether it was based before or after it); None on I32's own branch before that merge."""
+    added = _git("log", "--full-history", "--diff-filter=A", "--format=%H", "--reverse", "HEAD", "--",
+                 "docs/iterations/I32.md").split()
+    if not added:
+        return None, None
+    r = added[0]
+    for line in _git("rev-list", "--ancestry-path", "--merges", "--reverse", "--parents", f"{r}..HEAD").splitlines():
+        c, *parents = line.split()
+        if len(parents) > 1 and _is_ancestor(r, parents[1]) and not _is_ancestor(r, parents[0]):
+            return r, c
+    return r, None
+
+
+def own_commits(prereg: str) -> tuple[dict[str, list[str]], str]:
+    """I32's own commits, each with the paths it changes against its first parent, and the commit they end at (I66
+    amendment): with M = i32_merge(), the non-merge commits of `git log --first-parent M^2 ^M^1 ^<prereg>` (I32's
+    branch along its first-parent line back to where it left the lead), ending at M^2; on I32's own branch before M,
+    the non-merge commits of `git log --first-parent <prereg>..HEAD`, ending at HEAD."""
+    r, m = i32_merge()
+    if m is not None:
+        first, second = _git("rev-parse", f"{m}^1", f"{m}^2").split()
+        revs, end = [second, f"^{first}", f"^{prereg}"], second
+    else:
+        revs, end = [f"{prereg}..HEAD"], "HEAD"
+    out: dict[str, list[str]] = {}
+    for c in _git("log", "--first-parent", "--no-merges", "--format=%H", *revs).split():
+        out[c] = _git("diff-tree", "--no-commit-id", "--name-only", "-r", "--no-renames", c).split()
+    return out, end
+
+
+def _unstamped(x):
+    """A record without generator_sha256 (at the top) and without any key named "seconds" (anywhere)."""
+    def walk(v):
+        if isinstance(v, dict):
+            return {k: walk(w) for k, w in v.items() if k != "seconds"}
+        if isinstance(v, list):
+            return [walk(w) for w in v]
+        return v
+    return {k: v for k, v in walk(x).items() if k != "generator_sha256"}
+
+
 # ------------------------------------------------------------------------------------------------ instrument
 class TestInstrument(unittest.TestCase):
     """Constructions on the sidecar and the instrument alone (no holon profile code)."""
@@ -309,9 +369,13 @@ class TestClassification(unittest.TestCase):
 # ------------------------------------------------------------------------------------------------ regressions
 class TestRegressions(unittest.TestCase):
     def test_r2_no_closure_and_no_earlier_output_changes(self):
-        """I32-R2 and C2: between the I32 prereg commit and HEAD, no file of the holon-ir/0.1-0.3 closures or of the
-        typed, DISCH, UNDO and FACT runners' closures changes, and no file under laws/M0-M3, results/M0-M3 or
-        gen/M0-M3 changes except gen/M3/disch/classification.json; M1's L_disch_delay_* records are unchanged."""
+        """I32-R2 and C2: I32's own commits (own_commits) change no file of the holon-ir/0.1-0.3 closures or of the
+        typed, DISCH, UNDO and FACT runners' closures and no file under laws/M0-M3, results/M0-M3 or gen/M0-M3 but
+        gen/M3/disch/classification.json; and M1's L_disch_delay_* records at the end of I32's own commits equal their
+        versions at the I32 prereg, but for generator_sha256 and keys named seconds. Amended at the I66 prereg
+        (spec/M3/amendments.jsonl): the test diffed the I32 prereg against HEAD, so it counted every later key's
+        commits as I32's; it now judges the commits I32 made, found by ancestry (i32_merge), which is what I32-R2
+        claims."""
         item("I32", "I32-R2")
         R = holon_module("holon.records")
         files = set()
@@ -323,17 +387,20 @@ class TestRegressions(unittest.TestCase):
         prereg = subprocess.run(["git", "-C", str(ROOT), "log", "--format=%H", "-1", "--grep", "^I32 prereg"],
                                 capture_output=True, text=True).stdout.strip()
         self.assertTrue(prereg, "no I32 prereg commit")
-        changed = subprocess.run(["git", "-C", str(ROOT), "diff", "--name-only", prereg, "HEAD"],
-                                 capture_output=True, text=True).stdout.split()
+        r, _ = i32_merge()
+        self.assertIsNotNone(r, "docs/iterations/I32.md is reachable from no commit of HEAD's history")
+        own, end = own_commits(prereg)
+        self.assertTrue(own, "no commit of I32's found between its prereg and its merge")
+        changed = sorted({f for paths in own.values() for f in paths})
         self.assertEqual(sorted(f for f in changed if f in files), [])
         earlier = [f for f in changed if re.match(r"^(laws|results|gen)/M[0-3]/", f)
                    and f != "gen/M3/disch/classification.json"]
         self.assertEqual(earlier, [])
         for lid in ("L_disch_delay_nofree", "L_disch_delay_pay", "L_disch_delay_wait", "L_disch_delay_prove"):
             with self.subTest(record=lid):
-                old = subprocess.run(["git", "-C", str(ROOT), "show", f"{prereg}:results/M1/{lid}.json"],
-                                     capture_output=True, text=True).stdout
-                self.assertEqual(json.loads(old), load_json(ROOT / "results" / "M1" / f"{lid}.json"))
+                old = json.loads(_git("show", f"{prereg}:results/M1/{lid}.json"))
+                new = json.loads(_git("show", f"{end}:results/M1/{lid}.json"))
+                self.assertEqual(_unstamped(new), _unstamped(old))
 
 
 if __name__ == "__main__":

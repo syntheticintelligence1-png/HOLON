@@ -331,6 +331,7 @@ from tests_m2 import _i15 as I15
 from tests_m3 import _i24x as X
 from tests_m3 import _i43 as T
 from tests_m3._m3 import ROOT, SCHEMAS, canonical_json, copy_repo, file_sha256, holon_module, load_json, run_holon
+from tests_m3._m3 import predictions, sha256_json
 
 SIDECAR = ROOT / T.PROMOTED_SIDECAR
 BUDGET_S = 120
@@ -417,6 +418,28 @@ def without_intended_weak() -> tuple:
         reg["facts_files"] = {k: v for k, v in reg["facts_files"].items() if k in named}
         rp.write_text(json.dumps(reg, indent=2, sort_keys=True) + "\n")
     return repo, repo.parent
+
+
+def pinned_sha256(root: Path, rel: str) -> str:
+    """The sha256 an input file is compared with its pin by: the file's own, but for laws/M2/REGISTRY.json when its
+    evidence_sha256 is the one the committed evidence set gen/M2/evidence.json of the tree under test holds, that value
+    is the set's own body hash (the set without evidence_sha256 and inputs, as canonical JSON: I14) and it is not the
+    value the I66 key records (thresholds.registry_at_prereg): then the registry's text as holon derive writes it with
+    the recorded value set back. I66 models holon.differential's window view in M2's evidence set, which moves that one
+    field of the registry (I66 amendment, spec/M3/amendments.jsonl; tests_m3/test_view_evidence.py rule V8)."""
+    p = Path(root) / rel
+    sha = file_sha256(p)
+    if rel != "laws/M2/REGISTRY.json":
+        return sha
+    reg = load_json(p)
+    ev = load_json(Path(root) / "gen" / "M2" / "evidence.json")
+    now = ev.get("evidence_sha256")
+    then = predictions("I66")["thresholds"]["registry_at_prereg"]["evidence_sha256"]
+    body = {k: v for k, v in ev.items() if k not in ("evidence_sha256", "inputs")}
+    if reg.get("evidence_sha256") != now or now == then or now != sha256_json(body):
+        return sha
+    text = json.dumps(dict(reg, evidence_sha256=then), indent=2, sort_keys=True) + "\n"
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def lean_run(text: str, timeout: int = 900) -> tuple[str, float]:
@@ -571,14 +594,18 @@ class TestPreregInstruments(unittest.TestCase):
         inputs: every input file's sha256 and every record's status and witnesses match, and recomputing the document
         (the differential values and the canaries' evidence by bend on the committed models) gives the same JSON.
         Amended at the I65 prereg (spec/M3/amendments.jsonl; tests_m3/test_o12.py rule O8): both run over the tree
-        without the laws an intent contract derives (without_intended_weak), which are outside the promoted set."""
+        without the laws an intent contract derives (without_intended_weak), which are outside the promoted set.
+        Amended at the I66 prereg (spec/M3/amendments.jsonl; tests_m3/test_view_evidence.py rule V8): the registry
+        laws/M2/REGISTRY.json may differ from its pin in evidence_sha256 alone, and only by holding the evidence_sha256
+        of the committed gen/M2/evidence.json of the tree under test, which must be that set's own body hash
+        (pinned_sha256)."""
         s = side()
         root, scratch = without_intended_weak()
         try:
             for i in s["inputs"]:
                 with self.subTest(input=i["path"]):
                     if "sha256" in i:
-                        self.assertEqual(file_sha256(root / i["path"]), i["sha256"],
+                        self.assertEqual(pinned_sha256(root, i["path"]), i["sha256"],
                                          f"{i['path']} changed since the prereg")
                     else:
                         rec = load_json(root / i["path"])

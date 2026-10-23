@@ -1,0 +1,65 @@
+{
+  "evidence": [
+    "E2"
+  ],
+  "facts": "gen/M2/extracted/m1_view.json",
+  "facts_sha256": "2de8ab0d421dfb9d2fbcf027d5fb3d3b7f69df84580b4d0e8bb289a062d94b9d",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_probe_view_challenge",
+  "milestone": "M2",
+  "notes": "I66 probe (tests_m3/test_view_evidence.py, I66-P3): a law over holon.differential's window view, never registered, run or proved, read only by holon.diagram.evidence.law_evidence. It ranges over traces (L3) and names challengeState by an act term (L2), as I65's derived law L_contract_C_o12 will through its ghost term once I65's build adds that term to L2. Its claim need not hold; it carries E2 as the derived law does.",
+  "rule": "UNDO",
+  "rule_catalog_version": "holon-rules/1.0",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "p",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "j",
+        "q": "forall",
+        "type": "Nat"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "var": "p"
+                }
+              },
+              "step": {
+                "act": "challengeState",
+                "args": {
+                  "idx": {
+                    "var": "j"
+                  },
+                  "value": {
+                    "nat": 1
+                  },
+                  "who": {
+                    "nat": 4
+                  }
+                }
+              }
+            }
+          ],
+          "fn": "last_ok"
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "probe"
+}
