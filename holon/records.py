@@ -386,8 +386,9 @@ def generator_files(ir_version: str, root: Path | str = ROOT) -> list[str]:
             todo.extend(sorted(_holon_imports(rel, root) - seen))
     if ir_version in ("holon-ir/0.2", "holon-ir/0.3"):
         # the pointwise sidecars beside the target libraries (I65: holon.gen.trace_bound reads them) too
+        # and the window declarations, which anchor a view to its abstraction's libraries (I65: holon.gen.targetlib)
         for pat in ("spec/lib/*.lib.json", "spec/*/lib/*.lib.json", "spec/*/policy_hints.mjs",
-                    "spec/lib/*.pointwise.json", "spec/*/lib/*.pointwise.json"):
+                    "spec/lib/*.pointwise.json", "spec/*/lib/*.pointwise.json", "spec/*/lib/window_*.json"):
             seen |= {p.relative_to(root).as_posix() for p in root.glob(pat)}
     if ir_version == "holon-ir/0.3":   # oracle sidecars shape the M2+ models (I12); M0 and M1 never read one
         seen |= {p.relative_to(root).as_posix() for p in root.glob("spec/*/lib/oracles.json")}
