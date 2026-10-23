@@ -763,6 +763,21 @@ class TestClosure(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------------------------- derivation
+
+def m3_catalog() -> str:
+    """The catalog M3 derives with: holon-rules/1.4, or a later catalog that holds every rule and producer of 1.4 as the
+    same objects (I26 moved M3 to holon-rules/1.5, which adds FACT: spec/M3/amendments.jsonl), so that a later rule does
+    not turn these tests red, as tests_m3/test_undo.py::m3_catalog does for I27; any other catalog fails."""
+    rules = holon_module("holon.rules")
+    v = rules.catalog_version("M3")
+    if v != CATALOG:
+        base, cat = rules.CATALOGS[CATALOG], rules.CATALOGS[v]
+        for rule, subs in base.items():
+            for sub, prod in subs.items():
+                if (cat.get(rule) or {}).get(sub) is not prod:
+                    raise AssertionError(f"M3 derives with {v}, which drops {rule}/{sub} of {CATALOG}")
+    return v
+
 class TestDerivation(unittest.TestCase):
     def test_catalog_keeps_every_earlier_m3_rule_and_adds_disch(self):
         """Construction (D12): holon-rules/1.4 holds every producer (the same objects) of each earlier M3 catalog
@@ -772,7 +787,7 @@ class TestDerivation(unittest.TestCase):
         rules = holon_module("holon.rules")
         disch = holon_module("holon.rules.disch")
         self.assertEqual(tuple(disch.SUBFORMS), SUBFORMS)
-        self.assertEqual(rules.catalog_version("M3"), CATALOG)
+        self.assertEqual(rules.catalog_version("M3"), m3_catalog())
         self.assertEqual(rules.catalog_version("M2"), "holon-rules/1.0")
         cat = rules.CATALOGS[CATALOG]
         self.assertEqual(dict(cat["DISCH"]), dict(disch.PRODUCERS))
@@ -819,7 +834,7 @@ class TestDerivation(unittest.TestCase):
                 self.assertEqual(validate(law, IR03), [])
                 self.assertEqual((law["ir_version"], law["milestone"], law["rule"], law["rule_catalog_version"],
                                   law["facts"], law["facts_sha256"]),
-                                 ("holon-ir/0.3", M3, "DISCH", CATALOG, DOC_REL,
+                                 ("holon-ir/0.3", M3, "DISCH", m3_catalog(), DOC_REL,
                                   D.hashlib.sha256((ROOT / DOC_REL).read_bytes()).hexdigest()))
                 self.assertFalse({"evidence", "predicted", "maps_to"} & set(law))
                 st = law["statement"]
@@ -854,7 +869,7 @@ class TestDerivation(unittest.TestCase):
             for n, data in first.items():
                 law = json.loads(data)
                 if n.startswith("L") and law.get("rule") != "DISCH":
-                    self.assertEqual(law["rule_catalog_version"], CATALOG, n)
+                    self.assertEqual(law["rule_catalog_version"], m3_catalog(), n)
             clo = c.repo / "gen" / "M3" / "disch" / "closure.json"
             clo.write_text(clo.read_text().replace('"rounds": 2', '"rounds": 3', 1))
             for p in out.glob("*.json"):

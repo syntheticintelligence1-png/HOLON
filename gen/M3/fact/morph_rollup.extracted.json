@@ -1,0 +1,509 @@
+{
+  "attribution": [
+    {
+      "action": "commitBatchWithProof",
+      "commitment": "committedBatches",
+      "consumer": {
+        "action": "proveState",
+        "at": "calls[1]",
+        "family": "batchDataStore",
+        "fn": "ISubmitter.slash",
+        "member": "submitter"
+      },
+      "content": "batchBlobVersionedHashes",
+      "pin": "writes[2]",
+      "recorded": 0
+    },
+    {
+      "action": "commitState",
+      "commitment": "committedBatches",
+      "consumer": {
+        "action": "proveState",
+        "at": "calls[1]",
+        "family": "batchDataStore",
+        "fn": "ISubmitter.slash",
+        "member": "submitter"
+      },
+      "content": "batchBlobVersionedHashes",
+      "pin": "writes[2]",
+      "recorded": [
+        "caller"
+      ]
+    }
+  ],
+  "attribution_consumers": [
+    {
+      "action": "proveState",
+      "at": "calls[1]",
+      "commitment": "committedBatches",
+      "family": "batchDataStore",
+      "fn": "ISubmitter.slash",
+      "member": "submitter"
+    }
+  ],
+  "commitments": [
+    {
+      "authenticated_by": [
+        {
+          "action": "commitBatch",
+          "at": "guards[16]"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "guards[16]"
+        },
+        {
+          "action": "commitState",
+          "at": "guards[15]"
+        },
+        {
+          "action": "finalizeBatch",
+          "at": "guards[6]"
+        },
+        {
+          "action": "proveCommittedBatchState",
+          "at": "guards[4]"
+        },
+        {
+          "action": "proveState",
+          "at": "guards[7]"
+        },
+        {
+          "action": "revertBatch",
+          "at": "guards[6]"
+        }
+      ],
+      "family": "committedBatches",
+      "sites": [
+        {
+          "action": "commitBatch",
+          "at": "writes[0]",
+          "key": [
+            "+",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            1
+          ]
+        },
+        {
+          "action": "commitBatchWithProof",
+          "at": "writes[0]",
+          "key": [
+            "+",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            1
+          ]
+        },
+        {
+          "action": "commitState",
+          "at": "writes[0]",
+          "key": [
+            "+",
+            [
+              ">>",
+              [
+                "word",
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "parentBatchHeader"
+                ],
+                1
+              ],
+              192
+            ],
+            1
+          ]
+        },
+        {
+          "action": "importGenesisBatch",
+          "at": "writes[0]",
+          "key": [
+            ">>",
+            [
+              "word",
+              [
+                "param",
+                "_batchHeader"
+              ],
+              1
+            ],
+            192
+          ]
+        }
+      ]
+    }
+  ],
+  "contract": "Rollup",
+  "document": "fact",
+  "fact_version": "holon-fact/0.1",
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "inputs": [
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "path": "spec/M3/lib/fact.json",
+      "sha256": "651e15ed10a826aef6d8c11a1f00545436fd359283f05de2c0a7473f1e999557"
+    }
+  ],
+  "kernel": [
+    {
+      "action": "commitBatch",
+      "at": "writes[0]",
+      "commitment": "committedBatches",
+      "consumer": "blobhash"
+    },
+    {
+      "action": "commitBatchWithProof",
+      "at": "writes[0]",
+      "commitment": "committedBatches",
+      "consumer": "blobhash"
+    },
+    {
+      "action": "commitState",
+      "at": "writes[0]",
+      "commitment": "committedBatches",
+      "consumer": "blobhash"
+    }
+  ],
+  "laws": {
+    "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter": {
+      "basis": {
+        "action": "commitBatchWithProof",
+        "commitment": "committedBatches",
+        "consumer": {
+          "action": "proveState",
+          "at": "calls[1]",
+          "family": "batchDataStore",
+          "fn": "ISubmitter.slash",
+          "member": "submitter"
+        },
+        "content": "batchBlobVersionedHashes",
+        "contract": "Rollup",
+        "kind": "fact_attribution",
+        "model": "morph_rollup.extracted",
+        "pin": "writes[2]",
+        "recorded": 0
+      },
+      "fact_id": "morph_rollup.extracted:attribution:commitBatchWithProof:batchBlobVersionedHashes:batchDataStore.submitter",
+      "measure": null,
+      "premises": [
+        "blobs_wf",
+        "cf:keccak256",
+        "nz:keccak256"
+      ],
+      "subform": "attribution"
+    },
+    "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter": {
+      "basis": {
+        "action": "commitState",
+        "commitment": "committedBatches",
+        "consumer": {
+          "action": "proveState",
+          "at": "calls[1]",
+          "family": "batchDataStore",
+          "fn": "ISubmitter.slash",
+          "member": "submitter"
+        },
+        "content": "batchBlobVersionedHashes",
+        "contract": "Rollup",
+        "kind": "fact_attribution",
+        "model": "morph_rollup.extracted",
+        "pin": "writes[2]",
+        "recorded": [
+          "caller"
+        ]
+      },
+      "fact_id": "morph_rollup.extracted:attribution:commitState:batchBlobVersionedHashes:batchDataStore.submitter",
+      "measure": null,
+      "premises": [
+        "blobs_wf",
+        "cf:keccak256",
+        "nz:keccak256"
+      ],
+      "subform": "attribution"
+    },
+    "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash": {
+      "basis": {
+        "action": "commitBatchWithProof",
+        "at": "writes[0]",
+        "commitment": "committedBatches",
+        "consumer": "blobhash",
+        "contract": "Rollup",
+        "kind": "fact_kernel",
+        "model": "morph_rollup.extracted"
+      },
+      "fact_id": "morph_rollup.extracted:kernel:commitBatchWithProof:committedBatches:blobhash",
+      "measure": {
+        "bits": 1.0,
+        "domain": {
+          "alphabet": [
+            "0x0100000000000000000000000000000000000000000000000000000000000001",
+            "0x0100000000000000000000000000000000000000000000000000000000000002",
+            "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+          ],
+          "atoms": {
+            "[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]]": [
+              0,
+              1
+            ],
+            "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]": [
+              0,
+              1,
+              2,
+              3,
+              255,
+              256,
+              257
+            ]
+          },
+          "max_length": 3
+        },
+        "max_fiber": 2,
+        "max_fibers": [
+          {
+            "context": [
+              [
+                "[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]]",
+                0
+              ],
+              [
+                "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]",
+                0
+              ]
+            ],
+            "lists": [
+              [],
+              [
+                "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+              ]
+            ]
+          },
+          {
+            "context": [
+              [
+                "[\"map\",[\"storage\",\"batchBlobVersionedHashes\"],[\"+\",[\">>\",[\"word\",[\"member\",[\"param\",\"batchDataInput\"],\"parentBatchHeader\"],1],192],1]]",
+                0
+              ],
+              [
+                "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]",
+                1
+              ]
+            ],
+            "lists": [
+              [],
+              [
+                "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+              ]
+            ]
+          }
+        ],
+        "unevaluated": [
+          "guards[19].reaches[0]"
+        ]
+      },
+      "premises": [
+        "blobs_wf",
+        "cf:keccak256",
+        "hyp:Hyp-Z0-kzg",
+        "nz:keccak256"
+      ],
+      "subform": "kernel"
+    },
+    "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash": {
+      "basis": {
+        "action": "commitBatch",
+        "at": "writes[0]",
+        "commitment": "committedBatches",
+        "consumer": "blobhash",
+        "contract": "Rollup",
+        "kind": "fact_kernel",
+        "model": "morph_rollup.extracted"
+      },
+      "fact_id": "morph_rollup.extracted:kernel:commitBatch:committedBatches:blobhash",
+      "measure": {
+        "bits": 1.0,
+        "domain": {
+          "alphabet": [
+            "0x0100000000000000000000000000000000000000000000000000000000000001",
+            "0x0100000000000000000000000000000000000000000000000000000000000002",
+            "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+          ],
+          "atoms": {
+            "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]": [
+              0,
+              1,
+              2,
+              3,
+              255,
+              256,
+              257
+            ]
+          },
+          "max_length": 3
+        },
+        "max_fiber": 2,
+        "max_fibers": [
+          {
+            "context": [
+              [
+                "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]",
+                0
+              ]
+            ],
+            "lists": [
+              [],
+              [
+                "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+              ]
+            ]
+          },
+          {
+            "context": [
+              [
+                "[\"member\",[\"param\",\"batchDataInput\"],\"version\"]",
+                1
+              ]
+            ],
+            "lists": [
+              [],
+              [
+                "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+              ]
+            ]
+          }
+        ],
+        "unevaluated": []
+      },
+      "premises": [
+        "blobs_wf",
+        "cf:keccak256",
+        "hyp:Hyp-Z0-kzg",
+        "nz:keccak256"
+      ],
+      "subform": "kernel"
+    },
+    "L_fact_kernel_Rollup_commitState_committedBatches_blobhash": {
+      "basis": {
+        "action": "commitState",
+        "at": "writes[0]",
+        "commitment": "committedBatches",
+        "consumer": "blobhash",
+        "contract": "Rollup",
+        "kind": "fact_kernel",
+        "model": "morph_rollup.extracted"
+      },
+      "fact_id": "morph_rollup.extracted:kernel:commitState:committedBatches:blobhash",
+      "measure": {
+        "bits": 0.0,
+        "domain": {
+          "alphabet": [
+            "0x0100000000000000000000000000000000000000000000000000000000000001",
+            "0x0100000000000000000000000000000000000000000000000000000000000002",
+            "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014"
+          ],
+          "atoms": {},
+          "max_length": 3
+        },
+        "max_fiber": 1,
+        "max_fibers": [
+          {
+            "context": [],
+            "lists": [
+              []
+            ]
+          }
+        ],
+        "unevaluated": []
+      },
+      "premises": [
+        "blobs_wf",
+        "cf:keccak256",
+        "nz:keccak256"
+      ],
+      "subform": "kernel"
+    }
+  },
+  "milestone": "M3",
+  "model": "morph_rollup.extracted",
+  "pins": [
+    {
+      "action": "commitBatchWithProof",
+      "at": "writes[2]",
+      "commitment": "committedBatches",
+      "family": "batchBlobVersionedHashes",
+      "how": "branch"
+    },
+    {
+      "action": "commitState",
+      "at": "writes[2]",
+      "commitment": "committedBatches",
+      "family": "batchBlobVersionedHashes",
+      "how": "copy"
+    }
+  ],
+  "writers": {
+    "batchBlobVersionedHashes": [
+      {
+        "action": "commitBatch",
+        "at": "writes[2]",
+        "kind": "fresh"
+      },
+      {
+        "action": "commitBatchWithProof",
+        "at": "writes[2]",
+        "kind": "branch"
+      },
+      {
+        "action": "commitState",
+        "at": "writes[2]",
+        "kind": "copy"
+      },
+      {
+        "action": "finalizeBatch",
+        "at": "writes[5]",
+        "kind": "clear"
+      },
+      {
+        "action": "importGenesisBatch",
+        "at": "writes[2]",
+        "kind": "fresh"
+      }
+    ]
+  }
+}
