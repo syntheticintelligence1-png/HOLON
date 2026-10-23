@@ -44,6 +44,7 @@
   python -m holon codecs --milestone M3 [--root DIR] [--adoption PATH] [--link PATH] [--out DIR] [--check]
                                                         (the linked codec documents gen/<M>/codec/<role>.json; I24)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
+  python -m holon profile --milestone T32 [--root DIR]   (discharge profiles, DISCH II, I32)
                                                         (the back-test across documents, results/M3/backtest.json; I24)
   python -m holon lossy --milestone M3 [--root DIR] [--out DIR] [--review PATH] [--records DIR] [--codec PATH ...]
                         [--gen-dir DIR] [--check]       (PAR-lossy and injective pushing: gen/<M>/par_lossy/,
@@ -220,6 +221,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["codecs"]:  # likewise for holon.diagram.linked (the linked codec layer, I24)
         from .diagram import linked
         return linked.main(argv[1:])
+    if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
+        from . import profile
+        return profile.main(argv[1:])
     if argv[:1] == ["backtest"]:  # likewise for holon.backtest (the back-test across documents, I24)
         from . import backtest
         return backtest.main(argv[1:])
