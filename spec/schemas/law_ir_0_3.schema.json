@@ -388,6 +388,9 @@
     },
     {
      "$ref": "#/$defs/t_undo"
+    },
+    {
+     "$ref": "#/$defs/t_ghost"
     }
    ]
   },
@@ -934,6 +937,29 @@
      "items": {
       "$ref": "#/$defs/term"
      }
+    }
+   }
+  },
+  "t_ghost": {
+   "type": "object",
+   "required": [
+    "ghost",
+    "add",
+    "over",
+    "from"
+   ],
+   "additionalProperties": false,
+   "description": "I65 (= I33b, tests_m3/test_o12.py rule O1): a ghost counter, a history variable. The sum, over the steps of trace T (over) run from state S (from) whose action is A (ghost) and that succeed (the model's last_ok after the step), of the holon-facts/0.2 Nat expression E (add) in the state before the step with that step's inputs; 0 for every other step. It reads the run and never changes it.",
+   "properties": {
+    "ghost": {
+     "$ref": "#/$defs/ident"
+    },
+    "add": {},
+    "over": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
     }
    }
   }

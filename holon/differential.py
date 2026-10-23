@@ -411,7 +411,10 @@ def run(milestone: str = "M2", root=None, log=print, out=None, reuse_view: bool 
     toolchain) and reuse the deltas of the committed gen/<M>/abstraction_diff.json; recompute the view from them and
     refuse (ReuseRefused, before writing anything) unless it is the committed gen/<M>/extracted/m1_view.json byte for
     byte; then run the rest as usual (the M1 laws on the view, the not-run stubs, summary.json with every law,
-    differential.json and abstraction_diff.json)."""
+    differential.json and abstraction_diff.json).
+
+    When it writes the tree under root itself, it ends with the intent contracts' last step for the milestone
+    (holon.contracts.apply; I65 rule O6), which marks the view records the contracts license."""
     from . import ir
     from .mpipeline import run_m1
     root = Path(root or ROOT)
@@ -476,6 +479,16 @@ def run(milestone: str = "M2", root=None, log=print, out=None, reuse_view: bool 
     unexplained = sorted(l for l, x in laws_out.items() if x["m1"] != x["extracted"] and not x["deltas"])
     log(f"holon differential: {len(diffs)} deltas, {len(laws_out)} laws, {n} status differences"
         + (f", unexplained: {unexplained}" if unexplained else ""))
+    if out.resolve() == root.resolve():
+        # the last step (I65 = I33b, tests_m3/test_o12.py rule O6): the records just rewritten under
+        # results/<M>/extracted_m1 get the marks the milestone's intent contracts license. A scratch tree (G1's
+        # regeneration, which compares no record of the view) holds no derived law record, so it gets no last step.
+        from . import contracts
+        try:
+            contracts.apply(milestone, root)
+        except contracts.Refused as e:
+            log(f"holon differential's last step (intent contracts) refused: {e}")
+            return 2
     return 0
 
 

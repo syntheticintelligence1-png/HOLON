@@ -206,6 +206,15 @@ def laws_in_proofs(gen_dir: Path) -> list[Path]:
         if d.is_dir() else []
 
 
+def unmarked_bin(rec: dict):
+    """A record's filter bin as the filters compute it: the bin an intent contract's mark replaces when the record is
+    marked (I65 = I33b, tests_m3/test_o12.py rule O6; holon.contracts), else its filter_bin. G10 checks the mark."""
+    i = rec.get("intended")
+    if rec.get("filter_bin") == "intended_bounded" and isinstance(i, dict) and "replaces" in i:
+        return i["replaces"]
+    return rec.get("filter_bin")
+
+
 def _res(passed: bool, detail: str) -> dict:
     return {"passed": bool(passed), "detail": detail}
 
@@ -695,7 +704,11 @@ class Gate:
             entry = (rep.get("laws") or {}).get(k)
             ss = FL.sides(entry) if isinstance(entry, dict) else {}
             r2 = dict(r, concretization=c)
-            r2["filter_bin"] = self.want_bin(k, r2, ss)
+            if r2.get("filter_bin") == "intended_bounded" and isinstance(r2.get("intended"), dict):
+                # a mark (I65 = I33b, rule O6): the recomputed bin is the one the mark replaces
+                r2["intended"] = dict(r2["intended"], replaces=self.want_bin(k, r2, ss))
+            else:
+                r2["filter_bin"] = self.want_bin(k, r2, ss)
             out[k] = r2
         return out
 
@@ -810,8 +823,8 @@ class Gate:
         want_wp, want_bin = FL.provenance_of(ss), self.want_bin(lid, rec, ss)
         if rec.get("witness_provenance") != want_wp:
             bad.append(f"{lid}: record witness_provenance {rec.get('witness_provenance')!r} != {want_wp!r} from the report")
-        if rec.get("filter_bin") != want_bin:
-            bad.append(f"{lid}: record filter_bin {rec.get('filter_bin')!r} != {want_bin!r} recomputed from the report")
+        if unmarked_bin(rec) != want_bin:
+            bad.append(f"{lid}: record filter_bin {unmarked_bin(rec)!r} != {want_bin!r} recomputed from the report")
         return bad
 
     def g6_site(self, lid: str, rec: dict, entry: dict, report: dict, claimed: set | None, law: dict) -> list[str]:
@@ -883,7 +896,7 @@ class Gate:
                 bad.append(f"{lid}: {side} side records no observation or command")
         if rec.get("witness_provenance") != FL.provenance_of(ss):
             bad.append(f"{lid}: record witness_provenance differs from the report's sides")
-        if rec.get("filter_bin") != self.want_bin(lid, rec, ss):
+        if unmarked_bin(rec) != self.want_bin(lid, rec, ss):
             bad.append(f"{lid}: record filter_bin differs from the filter recomputed from the report")
         return bad
 

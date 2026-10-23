@@ -14,6 +14,12 @@ record is PROVED over the same file, for the same statement hash. Every REFUTED 
 contract is then marked: filter_bin "intended_bounded" and intended {contract, l_weak, replaces}, replaces holding the
 bin the mark replaced, so that `apply` can take the mark off again. A contract whose L_weak is not proved marks nothing.
 
+Record directories (I65 = I33b, tests_m3/test_o12.py rules O5-O7): a milestone's records are results/<M> and, when it is a
+directory, results/<M>/extracted_m1 (holon.differential's records of the M1 laws over the milestone's window view). A
+scope law with a record in both is ambiguous: apply refuses and G10 fails. A REFUTED record is licensed for a mark only
+when its facts_sha256 is the sha256 of the contract's facts file now (the L_weak and the law it bounds are statements
+about one model). A record is named by its path relative to results/<M>: "L_x", or "extracted_m1/L_x".
+
   python -m holon contracts derive --milestone M [--check]   K3
   python -m holon contracts apply --milestone M [--check]    K5 without deciding (holon run's last step applies it too)
   Exit codes: 0 done (or --check reproduced); 1 --check differs; 2 refused, nothing written.
@@ -38,6 +44,7 @@ COMMON = {"contract_version", "id", "kind", "milestone", "rule", "facts", "maps_
 EXTRA = {"intended": {"scope", "l_weak"}, "volatile_view": {"view"}}
 NOT_APPLICABLE = ("M0", "M1")
 MARK = "intended_bounded"
+VIEW = "extracted_m1"   # holon.differential's records of the M1 laws over a milestone's window view (I65)
 NOT_APPLICABLE_WHY = ("{m} holds no intent contracts: they start at M2 (BUILD_PLAN §2 invariant 10 and §4 I33; "
                       "whitepaper 5.9; Q15 is still open)")
 
@@ -307,33 +314,83 @@ def _intended_state(c: dict, milestone: str, root: Path, rdir: Path) -> str:
     return "proved"
 
 
-def _refuted(rdir: Path, lid: str) -> bool:
-    rp = rdir / f"{lid}.json"
+def record_dirs(rdir: Path, root: Path | None = None, milestone: str | None = None) -> list:
+    """[(key, directory)] of a milestone's records (O5): the results directory ("") and its extracted_m1 subdirectory
+    ("extracted_m1") when that is a directory. When rdir is another tree than root's results/<milestone> (a run's --out)
+    and has no extracted_m1 of its own, the committed one under root is read in its place: it is read, never written
+    (apply writes only under rdir)."""
+    rdir = Path(rdir)
+    out = [("", rdir)]
+    if (rdir / VIEW).is_dir():
+        out.append((VIEW, rdir / VIEW))
+    elif root is not None and milestone is not None and (Path(root) / "results" / milestone / VIEW).is_dir():
+        out.append((VIEW, Path(root) / "results" / milestone / VIEW))
+    return out
+
+
+def _rel(key: str, lid: str) -> str:
+    return f"{key}/{lid}" if key else lid
+
+
+def _locate(dirs: list, lid: str) -> list:
+    return [(k, d) for k, d in dirs if (d / f"{lid}.json").is_file()]
+
+
+def ambiguous(rows: list, dirs: list) -> list:
+    """The sorted scope laws of the intended contracts (rows) with a record in more than one directory (O5)."""
+    lids = {lid for s in rows if s["kind"] == "intended" for lid in s["scope"]}
+    return sorted(lid for lid in lids if len(_locate(dirs, lid)) > 1)
+
+
+def _licensed(dirs: list, lid: str, facts_now: str | None) -> str | None:
+    """The record path of lid a contract over facts with sha256 facts_now may mark (O5): the law's one record, REFUTED and
+    decided over those facts; else None."""
+    hits = _locate(dirs, lid)
+    if len(hits) != 1 or facts_now is None:
+        return None
+    k, d = hits[0]
     try:
-        r = _load(rp) if rp.is_file() else None
+        r = _load(d / f"{lid}.json")
     except ValueError:
-        return False
-    return isinstance(r, dict) and r.get("status") == "REFUTED"
+        return None
+    if not isinstance(r, dict) or r.get("status") != "REFUTED" or r.get("facts_sha256") != facts_now:
+        return None
+    return _rel(k, lid)
 
 
-def expected_marks(rows: list, rdir: Path) -> dict:
-    """{law id: {"contract", "l_weak"}}: every REFUTED record of a law in a proved contract's scope, naming the least
-    id among the proved contracts whose scope holds it."""
+def _facts_now(root: Path, rows: list) -> dict:
+    """{contract id: the sha256 of its facts file now} for the intended contracts among rows (None when unreadable)."""
+    docs = {c.get("id"): c for _, c in _contracts(root) if isinstance(c, dict)}
+    out = {}
+    for s in rows:
+        c = docs.get(s["id"])
+        try:
+            out[s["id"]] = _sha256((root / c["facts"]).read_bytes()) if isinstance(c, dict) else None
+        except (OSError, KeyError, TypeError):
+            out[s["id"]] = None
+    return out
+
+
+def expected_marks(rows: list, dirs: list, facts: dict) -> dict:
+    """{record path: {"contract", "l_weak"}}: every record a proved contract licenses (O5), naming the least id among the
+    proved contracts that license it."""
     out = {}
     for s in rows:   # by id
         if s["kind"] != "intended" or s["state"] != "proved":
             continue
         for lid in s["scope"]:
-            if lid not in out and _refuted(rdir, lid):
-                out[lid] = {"contract": s["id"], "l_weak": law_id(s["id"])}
+            r = _licensed(dirs, lid, facts.get(s["id"]))
+            if r is not None and r not in out:
+                out[r] = {"contract": s["id"], "l_weak": law_id(s["id"])}
     return dict(sorted(out.items()))
 
 
-def status_doc(milestone: str, rows: list, rdir: Path):
-    """results/<M>/contracts.json, or None when the milestone has no contract."""
+def status_doc(milestone: str, rows: list, dirs: list, facts: dict):
+    """results/<M>/contracts.json, or None when the milestone has no contract. marked: under every proved intended
+    contract, the law ids of its scope whose records it licenses (O5)."""
     if not rows:
         return None
-    rows = [dict(s, marked=(sorted(l for l in s["scope"] if _refuted(rdir, l))
+    rows = [dict(s, marked=(sorted(l for l in s["scope"] if _licensed(dirs, l, facts.get(s["id"])) is not None)
                             if s["kind"] == "intended" and s["state"] == "proved" else [])) for s in rows]
     return {"contracts_version": STATUS_VERSION, "milestone": milestone, "contracts": rows}
 
@@ -355,10 +412,15 @@ def marked(rec: dict, mark: dict) -> dict:
     return dict(rec, filter_bin=MARK, intended={**mark, "replaces": rec.get("filter_bin")})
 
 
+def _within(d: Path, top: Path) -> bool:
+    return Path(d).resolve().is_relative_to(Path(top).resolve())
+
+
 def apply(milestone: str, root: Path = ROOT, results: Path | None = None, check: bool = False) -> int:
-    """K5: unmark every record, mark the ones the proved contracts license, write results/<M>/contracts.json (removed
-    when the milestone has no contract). Only a record whose content changes is written, in its file's formatting.
-    M0 and M1: nothing."""
+    """K5 over the milestone's record directories (O5): unmark every record, mark the ones the proved contracts license,
+    write results/<M>/contracts.json (removed when the milestone has no contract). Only a record whose content changes
+    is written, in its file's formatting, and only under the results directory (a committed extracted_m1 read for an
+    --out tree is never written). A scope law with a record in two directories refuses. M0 and M1: nothing."""
     root = Path(root)
     if milestone in NOT_APPLICABLE:
         return 0
@@ -367,23 +429,33 @@ def apply(milestone: str, root: Path = ROOT, results: Path | None = None, check:
     if not rdir.is_dir():
         raise Refused(f"{rdir} is not a directory")
     rows = states(milestone, root, rdir)
-    marks = expected_marks(rows, rdir)
+    dirs = record_dirs(rdir, root, milestone)
+    amb = ambiguous(rows, dirs)
+    if amb:
+        raise Refused(f"scope laws with a record in more than one of results/{milestone} and "
+                      f"results/{milestone}/{VIEW}: {', '.join(amb)}")
+    facts = _facts_now(root, rows)
+    marks = expected_marks(rows, dirs, facts)
     writes = {}
-    for p in record_files(rdir):
-        old = p.read_text(encoding="utf-8")
-        try:
-            cur = json.loads(old)
-        except ValueError as e:
-            raise Refused(f"{p.name} is not JSON ({e})") from None
-        if not isinstance(cur, dict):
-            raise Refused(f"{p.name} is not a record")
-        rec = unmarked(cur, p.name)
-        if p.stem in marks and rec.get("status") == "REFUTED":
-            rec = marked(rec, marks[p.stem])
-        if rec != cur:
-            writes[p] = _as_found(old, rec)
+    for key, d in dirs:
+        if not _within(d, rdir):
+            continue
+        for p in record_files(d):
+            name = _rel(key, p.stem)
+            old = p.read_text(encoding="utf-8")
+            try:
+                cur = json.loads(old)
+            except ValueError as e:
+                raise Refused(f"{name}.json is not JSON ({e})") from None
+            if not isinstance(cur, dict):
+                raise Refused(f"{name}.json is not a record")
+            rec = unmarked(cur, f"{name}.json")
+            if name in marks and rec.get("status") == "REFUTED":
+                rec = marked(rec, marks[name])
+            if rec != cur:
+                writes[p] = _as_found(old, rec)
     sp = rdir / "contracts.json"
-    doc = status_doc(milestone, rows, rdir)
+    doc = status_doc(milestone, rows, dirs, facts)
     now = sp.read_text(encoding="utf-8") if sp.is_file() else None
     want = _text(doc) if doc is not None else None
     if check:
@@ -425,7 +497,9 @@ def g10(milestone: str, root: Path = ROOT) -> tuple:
     sha256} of strings; a contract file or entry that belongs to no milestone G10 applies to; a contract of the
     milestone not registered with its current sha256, milestone and kind; an entry for the milestone without its
     contract file; an intended contract not proved or a volatile view not valid; a record that is not a JSON object;
-    and a record whose mark is not the one the proved contracts license."""
+    and a record whose mark is not the one the proved contracts license. Since I65 (O7) the records are those of both
+    record directories (results/<M> and results/<M>/extracted_m1), a scope law with a record in both fails it, and a
+    record is licensed only over its contract's facts as they are now."""
     root = Path(root)
     if milestone in NOT_APPLICABLE:
         return None, NOT_APPLICABLE_WHY.format(m=milestone)
@@ -460,30 +534,37 @@ def g10(milestone: str, root: Path = ROOT) -> tuple:
         if s["state"] not in ("proved", "valid"):
             reasons.append(f"{s['id']}: {s['state']}")
     rdir = root / "results" / milestone
-    want = {k: {"filter_bin": MARK, **v} for k, v in expected_marks(rows, rdir).items()}
+    dirs = record_dirs(rdir) if rdir.is_dir() else []
+    for lid in ambiguous(rows, dirs):
+        reasons.append(f"{lid}: a scope law with a record in more than one of results/{milestone} and "
+                       f"results/{milestone}/{VIEW}")
+    want = {k: {"filter_bin": MARK, **v} for k, v in expected_marks(rows, dirs, _facts_now(root, rows)).items()}
     have = {}
     from .ir import record_files
-    for p in record_files(rdir) if rdir.is_dir() else []:
-        try:
-            r = _load(p)
-        except ValueError:
-            r = None
-        if not isinstance(r, dict):
-            reasons.append(f"{p.stem}: the record is not a JSON object")
-            continue
-        if r.get("filter_bin") == MARK or "intended" in r:
-            i = r.get("intended") if isinstance(r.get("intended"), dict) else {}
-            have[p.stem] = {"filter_bin": r.get("filter_bin"), "contract": i.get("contract"), "l_weak": i.get("l_weak")}
-    for lid in sorted(set(have) | set(want)):
-        if have.get(lid) != want.get(lid):
-            reasons.append(f"{lid}: the record's mark {have.get(lid)} is not the contracts' {want.get(lid)}")
+    for key, d in dirs:
+        for p in record_files(d):
+            name = _rel(key, p.stem)
+            try:
+                r = _load(p)
+            except ValueError:
+                r = None
+            if not isinstance(r, dict):
+                reasons.append(f"{name}: the record is not a JSON object")
+                continue
+            if r.get("filter_bin") == MARK or "intended" in r:
+                i = r.get("intended") if isinstance(r.get("intended"), dict) else {}
+                have[name] = {"filter_bin": r.get("filter_bin"), "contract": i.get("contract"),
+                              "l_weak": i.get("l_weak")}
+    for name in sorted(set(have) | set(want)):
+        if have.get(name) != want.get(name):
+            reasons.append(f"{name}: the record's mark {have.get(name)} is not the contracts' {want.get(name)}")
     if reasons:
         return False, "; ".join(reasons)
     if not rows:
         return True, f"no intent contract on {milestone} (laws/CONTRACTS/ holds none for it)"
     parts = []
     for s in rows:
-        licensed = sorted(lid for lid, v in want.items() if v["contract"] == s["id"])
+        licensed = sorted(r.rpartition("/")[2] for r, v in want.items() if v["contract"] == s["id"])   # law ids
         parts.append(f"{s['id']} {s['state']}" + (f", marks {', '.join(licensed)}" if licensed else ""))
     return True, "; ".join(parts)
 

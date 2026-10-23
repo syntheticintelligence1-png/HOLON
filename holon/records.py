@@ -148,6 +148,8 @@ def ir_roots_text(law: dict) -> str:
             for k in ("run", "step", "obs", "s0"):
                 if k in t:
                     names.add(k)
+            if isinstance(t.get("ghost"), str):   # a ghost term (I65) runs the trace: step and last_ok
+                names.update({"step", "last_ok"})
             for v in t.values():
                 walk(v)
         elif isinstance(t, list):

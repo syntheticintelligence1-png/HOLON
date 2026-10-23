@@ -247,6 +247,10 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I27): an UNDO term, the undo law of the pair or residue ID over the law's binders (holon.rules.undo)
     if "undo" in t and isinstance(t.get("on"), list):
         return f"undo_ok[{t['undo']}]({', '.join(render_term(a) for a in t['on'])})"
+    # holon-ir/0.3 (I65): a ghost counter, the sum of E over the successful A steps of T run from S
+    if isinstance(t.get("ghost"), str) and "over" in t:
+        from .diagram.access import render as render_expr
+        return f"ghost[{t['ghost']}, {render_expr(t.get('add'))}]({render_term(t['over'])}, {render_term(t['from'])})"
     # holon-ir/0.3 (I24): a facts expression in a state, with an action's inputs ({"expr": E, "from": S, ..})
     if "expr" in t and "from" in t:
         from .diagram.access import render as render_expr

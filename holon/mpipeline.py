@@ -163,17 +163,20 @@ class CompiledMachine:
         self._inst = (art, [{"id": e["id"], "param": e["parameter"]["name"], "fn": n} for e, n in items], notes)
         return self._inst
 
-    def expr_module(self, law: dict, terms: list) -> tuple[Path, list[dict]]:
-        """I24: (compiled module, [{term, fn, binds}]) for the expr terms of a statement: the model with their statement
-        helpers (holon.gen.mlaws.Emitter.expr_term) appended unqualified, compiled for the refuter (untrusted: Bend
-        decides every status through the LAWS.bend helpers)."""
+    def expr_module(self, law: dict, terms: list, ghosts: list | None = None) -> tuple[Path, list[dict], list[dict]]:
+        """I24: (compiled module, [{term, fn, binds}], [{term, fn}]) for the expr terms of a statement and (I65) its ghost
+        terms: the model with their statement helpers (holon.gen.mlaws.Emitter.expr_term, ghost_term) appended
+        unqualified, compiled for the refuter (untrusted: Bend decides every status through the LAWS.bend helpers)."""
         E = mlaws.Emitter(self.m)
         types = {b["name"]: ("State" if b["type"] == "Reach" else b["type"]) for b in law["statement"].get("binders", [])}
         env = {n: bname(n) for n in types}
-        specs = []
+        specs, gspecs = [], []
         for t in terms:
             text, _ = E.expr_term(t, env, types)
             specs.append({"term": t, "fn": text.split("(", 1)[0], "binds": sorted(t.get("bind") or {})})
+        for t in ghosts or []:
+            text, _ = E.ghost_term(t, env, types)
+            gspecs.append({"term": t, "fn": text.split("(", 1)[0]})
         text = self.source.read_text() + "\n" + "\n".join(E.expr_defs(qualified=False))
         h = hashlib.sha256(text.encode()).hexdigest()
         src = self.source.parent / f"{self.source.stem}.expr-{h[:12]}.bend"
@@ -183,7 +186,7 @@ class CompiledMachine:
             r = bend.run([src.name, "-o", art.name], cwd=src.parent, cfg=self.cfg)
             if r.code != 0 or not art.exists():
                 raise RuntimeError(f"bend failed to compile the expr helpers {src}: {r.out[:2000]}")
-        return art, specs
+        return art, specs, gspecs
 
     def oracle_req(self) -> dict | None:
         """What the refuter needs to know of the oracle parameters (holon/js/explore.mjs)."""
@@ -200,11 +203,13 @@ class CompiledMachine:
         if O.hyp_names(law):
             law = O.expand_hyps(law, self.m.orc)
         r = {"module": str(self.artifact), "facts": self.facts, "hints": self.hints(), "law": law, **kw}
-        exprs = expr_terms(law)
-        if exprs:   # I24: the model with the statement's expr helpers appended, and the actions the terms name
-            art, specs = self.expr_module(law, exprs)
+        exprs, ghosts = expr_terms(law), ghost_terms(law)
+        if exprs or ghosts:   # I24: the model with the statement's expr helpers appended, and the actions the terms
+            art, specs, gspecs = self.expr_module(law, exprs, ghosts)   # name; I65: and its ghost helpers
             r.update({"module": str(art), "exprs": specs,
                       "parAct": sorted({t["action"] for t in exprs if isinstance(t.get("action"), str)})})
+            if gspecs:
+                r["ghosts"] = gspecs
         orc = self.oracle_req()
         if orc is not None:
             r["oracles"] = orc
@@ -276,6 +281,26 @@ class CompiledMachine:
         if p.returncode != 0:
             raise RuntimeError(p.stderr[-2000:])
         return json.loads(p.stdout)["results"]
+
+
+def ghost_terms(law: dict) -> list[dict]:
+    """I65: the distinct ghost terms ({"ghost": A, "add": E, "over": T, "from": S}) a statement uses, wherever they occur
+    (an expr term's bind included), in statement order."""
+    out: list[dict] = []
+
+    def walk(x):
+        if isinstance(x, dict):
+            if "ghost" in x and "over" in x:
+                if x not in out:
+                    out.append(x)
+                return
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(law.get("statement", {}))
+    return out
 
 
 def expr_terms(law: dict) -> list[dict]:

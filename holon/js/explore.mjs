@@ -123,6 +123,8 @@ const FN = (name) => { const f = M[name]; if (typeof f !== "function") throw new
 // I24: the expr terms of the statement and their helpers (req.exprs: [{term, fn, binds}], req.module then being the
 // model with the helpers appended, holon.mpipeline.CompiledMachine.expr_module)
 const EXPRS = new Map((req.exprs || []).map((x) => [key(x.term), x]));
+// I65: the ghost terms of the statement and their helpers (req.ghosts: [{term, fn}], compiled with the model)
+const GHOSTS = new Map((req.ghosts || []).map((x) => [key(x.term), x]));
 // holon-ir/0.3 builtins (holon.gen.mlaws.BUILTINS): eq_nat is Nat.is_eq, the others are model functions
 const BUILTIN = { eq_nat: (x, y) => x === y, eq_bool: (x, y) => FN("eq_bool")(x, y), eq_nats: (x, y) => FN("eq_list_nat")(x, y) };
 const LAMS = { id: (x) => x, zero: (x) => 0n, succ: (x) => x + 1n };
@@ -195,6 +197,11 @@ function evalT(t, env) {
   if ("bool" in t) return { ty: "Bool", v: t.bool };
   if ("nats" in t) return { ty: "List<Nat>", v: enc(t.nats) };
   if ("s0" in t) return { ty: "State", v: s0 };
+  if ("ghost" in t && "over" in t) {   // a ghost term (I65): its statement helper, compiled with the model (req.ghosts)
+    const spec = GHOSTS.get(key(t));
+    if (!spec) throw new Error("no compiled helper for the ghost term " + JSON.stringify(t));
+    return { ty: "Nat", v: FN(spec.fn)(evalT(t.over, env).v, evalT(t.from, env).v) };
+  }
   if ("run" in t) return { ty: "State", v: M.run(evalT(t.run, env).v, evalT(t.from, env).v, ...tabArgs("run")) };
   if ("step" in t) return { ty: "State", v: M.step(evalT(t.step, env).v, evalT(t.from, env).v, ...tabArgs("step")) };
   if ("obs" in t) return { ty: "Obs", v: M.obs(evalT(t.obs, env).v, evalT(t.from, env).v, ...tabArgs("obs")) };

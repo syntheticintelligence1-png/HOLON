@@ -93,6 +93,7 @@ TEMPLATES = {
     "migration": ("holon.gen.machine.gen_observers:migration", 1), "s0": ("holon.gen.machine.gen_initial:s0", 1),
     "reach": ("holon.gen.machine.gen_reach:Reach", 1), "action": ("holon.gen.machine.gen_action", 1),
     "proj": ("holon.gen.mlaws.Emitter.view_defs:proj", 1),
+    "ghost": ("holon.gen.mlaws.Emitter.ghost_helper:gh", 1),   # I65: a ghost term's statement helpers
 }
 # DSL functions holon.gen.machine.Machine.builtin renders itself (after facts defs, oracle parameters and the
 # target library, in that order, exactly as the generator resolves a call)
@@ -351,6 +352,16 @@ class _Closure:
             self.sig()
             self.reach(t["on"])
             self.term(t["on"])
+            self.term(t["from"])
+            return
+        if isinstance(t.get("ghost"), str) and "add" in t and "over" in t and "from" in t:   # a ghost term (I65): the
+            self.tmpl("ghost")              # helpers' shape, the counted action as the facts state it, what E names,
+            self.tmpl("last_ok")            # and the run of the trace it reads (step and last_ok over every action
+            self.action(t["ghost"])         # the trace can reach)
+            self.expr(t["add"])
+            self.sig()
+            self.reach(t["over"])
+            self.term(t["over"])
             self.term(t["from"])
             return
         if "expr" in t and "from" in t:   # a facts expression in a state (I24, holon-facts/0.2): what E names,
