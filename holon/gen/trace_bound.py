@@ -35,6 +35,7 @@ from .machine import Machine, bname, bt, fresh
 from .mlaws import ALIAS, EmittedM, q, qualify_model
 
 NAT_CMP = {"<=": "le", "<": "lt"}
+MAX_SPLIT = 8   # Bool atoms one helper splits at most (2^8 cases); C_o12 and C_o12_open split at most 2
 BOOL_OPS = ("&&", "||", "!")
 CMP_OPS = ("<", "<=", ">", ">=", "==", "!=")
 
@@ -999,6 +1000,8 @@ class _Carry:
             self.atoms(H, found, True)
         hyps = list(hyps) + [g for g in self.guards if self.has_cmp(g[0])]   # facts, never split
         alist = sorted(found.items())
+        if len(alist) > MAX_SPLIT:
+            raise Fail(f"{len(alist)} Bool atoms to split (at most {MAX_SPLIT})")
         names, absd = {}, {}
         for key, e in alist:
             if isinstance(e, str) and e in env:
@@ -1359,3 +1362,5 @@ def trace_bound(em: EmittedM, m: Machine, model_import: str) -> str | None:
         return TraceBound(em, m, model_import, law, pointwise_for(m)).render()
     except Fail:
         return None
+    except (AssertionError, AttributeError, IndexError, KeyError, RecursionError, TypeError, ValueError):
+        return None   # a shape the parser did not foresee: no proof from this class, as the other classes' parsers do
