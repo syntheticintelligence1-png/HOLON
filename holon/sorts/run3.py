@@ -42,6 +42,7 @@ from ..machine_bend import bname
 from . import evaluate3 as E3
 from . import proofs3 as P3
 from . import search3 as S3
+from .envcode3 import with_code
 from .model3 import generate, importable, init_of, model_name, write_model_file
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -156,7 +157,9 @@ class Ctx:
             init, mm, doc, mp = self.shared[doc_rel]
         else:
             from ..machine import load_extracted
-            init = init_of(self.m, self.root, self.sidecar_arg, doc_rel)
+            # (F40) with the deployment's code table (holon.sorts.envcode3): the environment's code at the target and
+            # its implementation, which a step that reads an account's code sees (the model's text does not hold it)
+            init = with_code(init_of(self.m, self.root, self.sidecar_arg, doc_rel), self.root, doc_rel)
             text, mm = generate(self.m, self.root, doc_rel, typed=True, sidecar=self.sidecar_arg, init=init)
             mp = write_model_file(self.model_path(doc_rel).parent, model_name(doc_rel), text)
             ip = mp.parent / f"{model_name(doc_rel)}.init.json"
