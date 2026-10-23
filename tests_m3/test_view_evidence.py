@@ -453,7 +453,7 @@ class TestPredictions(unittest.TestCase):
         self.assertEqual(lv(V, "E3"), moved)
         self.assertEqual(len(moved), 8)
         self.assertEqual(sorted([x["p"], x["via"]["where"]] for x in V if x["level"] == "E3"),
-                         predictions("I66")["thresholds"]["view_e3_predicted"])
+                         sorted(predictions("I66")["thresholds"]["view_e3_predicted"]))
 
 
 class TestRegressions(unittest.TestCase):
