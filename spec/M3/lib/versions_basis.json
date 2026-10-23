@@ -1,0 +1,2992 @@
+{
+  "basis_version": "holon-versions-basis/0.1",
+  "deployments": [
+    {
+      "block": 20998835,
+      "config": "hardhat",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0xcffddbcb5b9ea2ee45aba121e0849adc87c38326",
+      "version": "V3"
+    },
+    {
+      "block": 21283676,
+      "config": "hardhat",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0xad900db30bcdf84c38df0067ea327bbecccf071a",
+      "version": "V4"
+    },
+    {
+      "block": 21614093,
+      "config": "hardhat",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0x43190dfd1f572cb56b1942b44482d1774151d77a",
+      "version": "V5"
+    },
+    {
+      "block": 22465639,
+      "config": "hardhat",
+      "immutables": [
+        1,
+        1
+      ],
+      "implementation": "0x9c79e8f5d0fe910d84a6a0d4a03e8136d036ebec",
+      "version": "V6"
+    },
+    {
+      "block": 23874746,
+      "config": "hardhat",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0xdf0749e688ae74508d84699ba2405ed610aaf8c5",
+      "version": "V6"
+    },
+    {
+      "block": 24575030,
+      "config": "hardhat",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0x1320d6a438d268044c8eeff0ee6b24e5ec9584e3",
+      "version": "V7"
+    },
+    {
+      "block": 24745644,
+      "config": "hardhat",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf",
+      "version": "V8"
+    },
+    {
+      "block": 24769565,
+      "config": "hardhat",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0x9e2fb684935a32ced121972f23bd0e4634377ca2",
+      "version": "V9"
+    },
+    {
+      "block": 25236554,
+      "config": "hardhat",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0xac3c379d772f3520b34690d32ba14510ab36c3fb",
+      "version": "V10"
+    },
+    {
+      "block": 26031669,
+      "config": "deployed",
+      "immutables": [
+        2818,
+        2818
+      ],
+      "implementation": "0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d",
+      "version": "V11"
+    }
+  ],
+  "doc": "I28's basis (= tests_m3/_i28.py::versions_basis_doc at the I28 prereg; recompute with python -m tests_m3._i28 --write only at the prereg): rules V1-V4 of tests_m3/test_versions.py over I63's committed history and timeline (the deployed path, the never-deployed versions, the unmatched upgrades, the deployments keyed by (version, immutable words), the entry edge, the MIG edges along the path with their in-flight sets, the in-flight types, the reverse edges and the downgrade gaps), and rules PI1-PI5 over the adopted head document (the code of the path's last version): its commitment chains and their chained pairs and its link gaps. The inputs are listed with their sha256; a changed input makes the basis stale (a Question, never a silent recompute).",
+  "downgrade_gaps": [
+    {
+      "added": [
+        "Rollup.l1StakingContract"
+      ],
+      "from": "V11",
+      "id": "gap:M3:downgrade:V11->V10",
+      "kind": "downgrade",
+      "obligation": "F12.5, under reading (a) of Question 64 only (a reverse implementation transition); not covered under reading (b)",
+      "overlap": [
+        "Rollup.l1StakingContract meets Rollup.submitterContract"
+      ],
+      "question": "Q64",
+      "removed": [
+        "Rollup.legacyCutoverBatchIndex",
+        "Rollup.submitterContract"
+      ],
+      "retyped": [
+        "Rollup.batchDataStore"
+      ],
+      "status": "open",
+      "to": "V10"
+    }
+  ],
+  "edges": [
+    {
+      "compatible": true,
+      "from": "V3",
+      "in_flight": [
+        {
+          "entry": "Initializable._initialized",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initialized"
+          ]
+        },
+        {
+          "entry": "Initializable._initializing",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initializing"
+          ]
+        },
+        {
+          "entry": "OwnableUpgradeable._owner",
+          "kind": "unchanged",
+          "reads": [
+            "OwnableUpgradeable._owner"
+          ]
+        },
+        {
+          "entry": "PausableUpgradeable._paused",
+          "kind": "unchanged",
+          "reads": [
+            "PausableUpgradeable._paused"
+          ]
+        },
+        {
+          "entry": "Rollup.__maxNumTxInChunk",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.__maxNumTxInChunk"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallengeReward",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallengeReward"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallenged",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallenged"
+          ]
+        },
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.challenges",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.challenges"
+          ]
+        },
+        {
+          "entry": "Rollup.committedBatches",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedBatches"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizationPeriodSeconds",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizationPeriodSeconds"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.inChallenge",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.inChallenge"
+          ]
+        },
+        {
+          "entry": "Rollup.isChallenger",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.isChallenger"
+          ]
+        },
+        {
+          "entry": "Rollup.l1StakingContract",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.l1StakingContract"
+          ]
+        },
+        {
+          "entry": "Rollup.lastCommittedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastCommittedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.lastFinalizedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastFinalizedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.messageQueue",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.messageQueue"
+          ]
+        },
+        {
+          "entry": "Rollup.proofRewardPercent",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofRewardPercent"
+          ]
+        },
+        {
+          "entry": "Rollup.proofWindow",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofWindow"
+          ]
+        },
+        {
+          "entry": "Rollup.proveRemaining",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proveRemaining"
+          ]
+        },
+        {
+          "entry": "Rollup.revertReqIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.revertReqIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.verifier",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.verifier"
+          ]
+        },
+        {
+          "entry": "Rollup.withdrawalRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.withdrawalRoots"
+          ]
+        }
+      ],
+      "in_flight_count": 24,
+      "introduced": [
+        {
+          "name": "initialize2",
+          "version": 2
+        }
+      ],
+      "to": "V4"
+    },
+    {
+      "compatible": true,
+      "from": "V4",
+      "in_flight": [
+        {
+          "entry": "Initializable._initialized",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initialized"
+          ]
+        },
+        {
+          "entry": "Initializable._initializing",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initializing"
+          ]
+        },
+        {
+          "entry": "OwnableUpgradeable._owner",
+          "kind": "unchanged",
+          "reads": [
+            "OwnableUpgradeable._owner"
+          ]
+        },
+        {
+          "entry": "PausableUpgradeable._paused",
+          "kind": "unchanged",
+          "reads": [
+            "PausableUpgradeable._paused"
+          ]
+        },
+        {
+          "entry": "Rollup.__maxNumTxInChunk",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.__maxNumTxInChunk"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallengeReward",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallengeReward"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallenged",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallenged"
+          ]
+        },
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.challenges",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.challenges"
+          ]
+        },
+        {
+          "entry": "Rollup.committedBatches",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedBatches"
+          ]
+        },
+        {
+          "entry": "Rollup.committedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizationPeriodSeconds",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizationPeriodSeconds"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.inChallenge",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.inChallenge"
+          ]
+        },
+        {
+          "entry": "Rollup.isChallenger",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.isChallenger"
+          ]
+        },
+        {
+          "entry": "Rollup.l1StakingContract",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.l1StakingContract"
+          ]
+        },
+        {
+          "entry": "Rollup.lastCommittedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastCommittedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.lastFinalizedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastFinalizedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.messageQueue",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.messageQueue"
+          ]
+        },
+        {
+          "entry": "Rollup.proofRewardPercent",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofRewardPercent"
+          ]
+        },
+        {
+          "entry": "Rollup.proofWindow",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofWindow"
+          ]
+        },
+        {
+          "entry": "Rollup.proveRemaining",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proveRemaining"
+          ]
+        },
+        {
+          "entry": "Rollup.revertReqIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.revertReqIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.verifier",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.verifier"
+          ]
+        },
+        {
+          "entry": "Rollup.withdrawalRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.withdrawalRoots"
+          ]
+        }
+      ],
+      "in_flight_count": 25,
+      "introduced": [],
+      "to": "V5"
+    },
+    {
+      "compatible": true,
+      "from": "V5",
+      "in_flight": [
+        {
+          "entry": "Initializable._initialized",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initialized"
+          ]
+        },
+        {
+          "entry": "Initializable._initializing",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initializing"
+          ]
+        },
+        {
+          "entry": "OwnableUpgradeable._owner",
+          "kind": "unchanged",
+          "reads": [
+            "OwnableUpgradeable._owner"
+          ]
+        },
+        {
+          "entry": "PausableUpgradeable._paused",
+          "kind": "unchanged",
+          "reads": [
+            "PausableUpgradeable._paused"
+          ]
+        },
+        {
+          "entry": "Rollup.__maxNumTxInChunk",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.__maxNumTxInChunk"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallengeReward",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallengeReward"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallenged",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallenged"
+          ]
+        },
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.challenges",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.challenges"
+          ]
+        },
+        {
+          "entry": "Rollup.committedBatches",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedBatches"
+          ]
+        },
+        {
+          "entry": "Rollup.committedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizationPeriodSeconds",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizationPeriodSeconds"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.inChallenge",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.inChallenge"
+          ]
+        },
+        {
+          "entry": "Rollup.isChallenger",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.isChallenger"
+          ]
+        },
+        {
+          "entry": "Rollup.l1StakingContract",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.l1StakingContract"
+          ]
+        },
+        {
+          "entry": "Rollup.lastCommittedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastCommittedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.lastFinalizedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastFinalizedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.messageQueue",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.messageQueue"
+          ]
+        },
+        {
+          "entry": "Rollup.proofRewardPercent",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofRewardPercent"
+          ]
+        },
+        {
+          "entry": "Rollup.proofWindow",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofWindow"
+          ]
+        },
+        {
+          "entry": "Rollup.proveRemaining",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proveRemaining"
+          ]
+        },
+        {
+          "entry": "Rollup.revertReqIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.revertReqIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.verifier",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.verifier"
+          ]
+        },
+        {
+          "entry": "Rollup.withdrawalRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.withdrawalRoots"
+          ]
+        }
+      ],
+      "in_flight_count": 25,
+      "introduced": [],
+      "to": "V6"
+    },
+    {
+      "compatible": true,
+      "from": "V6",
+      "in_flight": [
+        {
+          "entry": "Initializable._initialized",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initialized"
+          ]
+        },
+        {
+          "entry": "Initializable._initializing",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initializing"
+          ]
+        },
+        {
+          "entry": "OwnableUpgradeable._owner",
+          "kind": "unchanged",
+          "reads": [
+            "OwnableUpgradeable._owner"
+          ]
+        },
+        {
+          "entry": "PausableUpgradeable._paused",
+          "kind": "unchanged",
+          "reads": [
+            "PausableUpgradeable._paused"
+          ]
+        },
+        {
+          "entry": "Rollup.__maxNumTxInChunk",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.__maxNumTxInChunk"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallengeReward",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallengeReward"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallenged",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallenged"
+          ]
+        },
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.challenges",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.challenges"
+          ]
+        },
+        {
+          "entry": "Rollup.committedBatches",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedBatches"
+          ]
+        },
+        {
+          "entry": "Rollup.committedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizationPeriodSeconds",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizationPeriodSeconds"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.inChallenge",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.inChallenge"
+          ]
+        },
+        {
+          "entry": "Rollup.isChallenger",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.isChallenger"
+          ]
+        },
+        {
+          "entry": "Rollup.l1StakingContract",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.l1StakingContract"
+          ]
+        },
+        {
+          "entry": "Rollup.lastCommittedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastCommittedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.lastFinalizedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastFinalizedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.messageQueue",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.messageQueue"
+          ]
+        },
+        {
+          "entry": "Rollup.proofRewardPercent",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofRewardPercent"
+          ]
+        },
+        {
+          "entry": "Rollup.proofWindow",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofWindow"
+          ]
+        },
+        {
+          "entry": "Rollup.proveRemaining",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proveRemaining"
+          ]
+        },
+        {
+          "entry": "Rollup.revertReqIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.revertReqIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.verifier",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.verifier"
+          ]
+        },
+        {
+          "entry": "Rollup.withdrawalRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.withdrawalRoots"
+          ]
+        }
+      ],
+      "in_flight_count": 25,
+      "introduced": [
+        {
+          "name": "initialize3",
+          "version": 3
+        }
+      ],
+      "to": "V7"
+    },
+    {
+      "compatible": true,
+      "from": "V7",
+      "in_flight": [
+        {
+          "entry": "Initializable._initialized",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initialized"
+          ]
+        },
+        {
+          "entry": "Initializable._initializing",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initializing"
+          ]
+        },
+        {
+          "entry": "OwnableUpgradeable._owner",
+          "kind": "unchanged",
+          "reads": [
+            "OwnableUpgradeable._owner"
+          ]
+        },
+        {
+          "entry": "PausableUpgradeable._paused",
+          "kind": "unchanged",
+          "reads": [
+            "PausableUpgradeable._paused"
+          ]
+        },
+        {
+          "entry": "Rollup.__maxNumTxInChunk",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.__maxNumTxInChunk"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallengeReward",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallengeReward"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallenged",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallenged"
+          ]
+        },
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.challenges",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.challenges"
+          ]
+        },
+        {
+          "entry": "Rollup.committedBatches",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedBatches"
+          ]
+        },
+        {
+          "entry": "Rollup.committedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizationPeriodSeconds",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizationPeriodSeconds"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.inChallenge",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.inChallenge"
+          ]
+        },
+        {
+          "entry": "Rollup.isChallenger",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.isChallenger"
+          ]
+        },
+        {
+          "entry": "Rollup.l1StakingContract",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.l1StakingContract"
+          ]
+        },
+        {
+          "entry": "Rollup.lastCommittedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastCommittedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.lastFinalizedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastFinalizedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.messageQueue",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.messageQueue"
+          ]
+        },
+        {
+          "entry": "Rollup.proofRewardPercent",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofRewardPercent"
+          ]
+        },
+        {
+          "entry": "Rollup.proofWindow",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofWindow"
+          ]
+        },
+        {
+          "entry": "Rollup.proveRemaining",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proveRemaining"
+          ]
+        },
+        {
+          "entry": "Rollup.revertReqIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.revertReqIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.rollupDelayPeriod",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.rollupDelayPeriod"
+          ]
+        },
+        {
+          "entry": "Rollup.verifier",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.verifier"
+          ]
+        },
+        {
+          "entry": "Rollup.withdrawalRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.withdrawalRoots"
+          ]
+        }
+      ],
+      "in_flight_count": 26,
+      "introduced": [],
+      "to": "V8"
+    },
+    {
+      "compatible": true,
+      "from": "V8",
+      "in_flight": [
+        {
+          "entry": "Initializable._initialized",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initialized"
+          ]
+        },
+        {
+          "entry": "Initializable._initializing",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initializing"
+          ]
+        },
+        {
+          "entry": "OwnableUpgradeable._owner",
+          "kind": "unchanged",
+          "reads": [
+            "OwnableUpgradeable._owner"
+          ]
+        },
+        {
+          "entry": "PausableUpgradeable._paused",
+          "kind": "unchanged",
+          "reads": [
+            "PausableUpgradeable._paused"
+          ]
+        },
+        {
+          "entry": "Rollup.__maxNumTxInChunk",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.__maxNumTxInChunk"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallengeReward",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallengeReward"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallenged",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallenged"
+          ]
+        },
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.challenges",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.challenges"
+          ]
+        },
+        {
+          "entry": "Rollup.committedBatches",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedBatches"
+          ]
+        },
+        {
+          "entry": "Rollup.committedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizationPeriodSeconds",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizationPeriodSeconds"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.inChallenge",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.inChallenge"
+          ]
+        },
+        {
+          "entry": "Rollup.isChallenger",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.isChallenger"
+          ]
+        },
+        {
+          "entry": "Rollup.l1StakingContract",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.l1StakingContract"
+          ]
+        },
+        {
+          "entry": "Rollup.lastCommittedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastCommittedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.lastFinalizedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastFinalizedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.messageQueue",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.messageQueue"
+          ]
+        },
+        {
+          "entry": "Rollup.proofRewardPercent",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofRewardPercent"
+          ]
+        },
+        {
+          "entry": "Rollup.proofWindow",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofWindow"
+          ]
+        },
+        {
+          "entry": "Rollup.proveRemaining",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proveRemaining"
+          ]
+        },
+        {
+          "entry": "Rollup.revertReqIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.revertReqIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.rollupDelayPeriod",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.rollupDelayPeriod"
+          ]
+        },
+        {
+          "entry": "Rollup.verifier",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.verifier"
+          ]
+        },
+        {
+          "entry": "Rollup.withdrawalRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.withdrawalRoots"
+          ]
+        }
+      ],
+      "in_flight_count": 26,
+      "introduced": [],
+      "to": "V9"
+    },
+    {
+      "compatible": true,
+      "from": "V9",
+      "in_flight": [
+        {
+          "entry": "Initializable._initialized",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initialized"
+          ]
+        },
+        {
+          "entry": "Initializable._initializing",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initializing"
+          ]
+        },
+        {
+          "entry": "OwnableUpgradeable._owner",
+          "kind": "unchanged",
+          "reads": [
+            "OwnableUpgradeable._owner"
+          ]
+        },
+        {
+          "entry": "PausableUpgradeable._paused",
+          "kind": "unchanged",
+          "reads": [
+            "PausableUpgradeable._paused"
+          ]
+        },
+        {
+          "entry": "Rollup.__maxNumTxInChunk",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.__maxNumTxInChunk"
+          ]
+        },
+        {
+          "entry": "Rollup.batchBlobVersionedHashes",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchBlobVersionedHashes"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallengeReward",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallengeReward"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallenged",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallenged"
+          ]
+        },
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.challenges",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.challenges"
+          ]
+        },
+        {
+          "entry": "Rollup.committedBatches",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedBatches"
+          ]
+        },
+        {
+          "entry": "Rollup.committedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizationPeriodSeconds",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizationPeriodSeconds"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.inChallenge",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.inChallenge"
+          ]
+        },
+        {
+          "entry": "Rollup.isChallenger",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.isChallenger"
+          ]
+        },
+        {
+          "entry": "Rollup.l1StakingContract",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.l1StakingContract"
+          ]
+        },
+        {
+          "entry": "Rollup.lastCommittedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastCommittedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.lastFinalizedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastFinalizedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.messageQueue",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.messageQueue"
+          ]
+        },
+        {
+          "entry": "Rollup.proofRewardPercent",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofRewardPercent"
+          ]
+        },
+        {
+          "entry": "Rollup.proofWindow",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofWindow"
+          ]
+        },
+        {
+          "entry": "Rollup.proveRemaining",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proveRemaining"
+          ]
+        },
+        {
+          "entry": "Rollup.revertReqIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.revertReqIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.rollupDelayPeriod",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.rollupDelayPeriod"
+          ]
+        },
+        {
+          "entry": "Rollup.verifier",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.verifier"
+          ]
+        },
+        {
+          "entry": "Rollup.withdrawalRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.withdrawalRoots"
+          ]
+        }
+      ],
+      "in_flight_count": 27,
+      "introduced": [],
+      "to": "V10"
+    },
+    {
+      "compatible": false,
+      "from": "V10",
+      "in_flight": [
+        {
+          "entry": "Initializable._initialized",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initialized"
+          ]
+        },
+        {
+          "entry": "Initializable._initializing",
+          "kind": "unchanged",
+          "reads": [
+            "Initializable._initializing"
+          ]
+        },
+        {
+          "entry": "OwnableUpgradeable._owner",
+          "kind": "unchanged",
+          "reads": [
+            "OwnableUpgradeable._owner"
+          ]
+        },
+        {
+          "entry": "PausableUpgradeable._paused",
+          "kind": "unchanged",
+          "reads": [
+            "PausableUpgradeable._paused"
+          ]
+        },
+        {
+          "entry": "Rollup.__maxNumTxInChunk",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.__maxNumTxInChunk"
+          ]
+        },
+        {
+          "entry": "Rollup.batchBlobVersionedHashes",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchBlobVersionedHashes"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallengeReward",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallengeReward"
+          ]
+        },
+        {
+          "entry": "Rollup.batchChallenged",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.batchChallenged"
+          ]
+        },
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "retyped",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.challenges",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.challenges"
+          ]
+        },
+        {
+          "entry": "Rollup.committedBatches",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedBatches"
+          ]
+        },
+        {
+          "entry": "Rollup.committedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.committedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizationPeriodSeconds",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizationPeriodSeconds"
+          ]
+        },
+        {
+          "entry": "Rollup.finalizedStateRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.finalizedStateRoots"
+          ]
+        },
+        {
+          "entry": "Rollup.inChallenge",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.inChallenge"
+          ]
+        },
+        {
+          "entry": "Rollup.isChallenger",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.isChallenger"
+          ]
+        },
+        {
+          "entry": "Rollup.lastCommittedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastCommittedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.lastFinalizedBatchIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.lastFinalizedBatchIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.messageQueue",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.messageQueue"
+          ]
+        },
+        {
+          "entry": "Rollup.proofRewardPercent",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofRewardPercent"
+          ]
+        },
+        {
+          "entry": "Rollup.proofWindow",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proofWindow"
+          ]
+        },
+        {
+          "entry": "Rollup.proveRemaining",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.proveRemaining"
+          ]
+        },
+        {
+          "entry": "Rollup.revertReqIndex",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.revertReqIndex"
+          ]
+        },
+        {
+          "entry": "Rollup.rollupDelayPeriod",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.rollupDelayPeriod"
+          ]
+        },
+        {
+          "entry": "Rollup.submitterContract",
+          "kind": "reinterpreted",
+          "reads": [
+            "Rollup.l1StakingContract"
+          ]
+        },
+        {
+          "entry": "Rollup.verifier",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.verifier"
+          ]
+        },
+        {
+          "entry": "Rollup.withdrawalRoots",
+          "kind": "unchanged",
+          "reads": [
+            "Rollup.withdrawalRoots"
+          ]
+        }
+      ],
+      "in_flight_count": 27,
+      "introduced": [
+        {
+          "name": "initialize4",
+          "version": 4
+        }
+      ],
+      "to": "V11"
+    }
+  ],
+  "entry": {
+    "from": "placeholder",
+    "introduced": [
+      {
+        "name": "initialize",
+        "version": 1
+      }
+    ],
+    "to": "V3"
+  },
+  "head": {
+    "chains": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[16].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[0]",
+              "auth": "guards[16].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitState",
+              "at": "writes[0]",
+              "auth": "guards[15].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "link_gaps": [
+      {
+        "cell": 17,
+        "family": "committedBatches",
+        "id": "gap:M3:link:committedBatches:17:IL1MessageQueue",
+        "incr": 9,
+        "interface": "IL1MessageQueue",
+        "kind": "link",
+        "obligation": "D4",
+        "question": "Q63",
+        "sites": [
+          {
+            "action": "commitBatch",
+            "at": "calls[2]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "calls[1]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitState",
+            "at": "calls[2]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "status": "open"
+      }
+    ]
+  },
+  "in_flight_types": [
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.batchDataStore",
+      "kind": "retyped",
+      "reads": [
+        "Rollup.batchDataStore"
+      ]
+    },
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.submitterContract",
+      "kind": "reinterpreted",
+      "reads": [
+        "Rollup.l1StakingContract"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "path": "gen/M3/history/morph_rollup.json",
+      "sha256": "a971bd42ed47ca8fa320384bab0b51f5832edf52c350582edc7ed008369427bc"
+    },
+    {
+      "path": "results/M3/history/code/0x1320d6a438d268044c8eeff0ee6b24e5ec9584e3.hex",
+      "sha256": "6106996be09b131a0bf62bb288e9fdb37ca7927355110e2ca9fbcb407601af7f"
+    },
+    {
+      "path": "results/M3/history/code/0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d.hex",
+      "sha256": "53ea8adc401cbde0238911da5d246eff887702ce22d0964208609ebd20bdf806"
+    },
+    {
+      "path": "results/M3/history/code/0x43190dfd1f572cb56b1942b44482d1774151d77a.hex",
+      "sha256": "a6e6ed913225a203bbaa144ed6c5c2527352391ab75982c0d19940087af308c0"
+    },
+    {
+      "path": "results/M3/history/code/0x9c79e8f5d0fe910d84a6a0d4a03e8136d036ebec.hex",
+      "sha256": "bdb5ccdc566324ee858b0732403258720fd7c87b696e88e2bf941bf0993b4346"
+    },
+    {
+      "path": "results/M3/history/code/0x9e2fb684935a32ced121972f23bd0e4634377ca2.hex",
+      "sha256": "602952b52d9ad8cb0b073a6db2b235ada7774fd9b353417ed8959571eb9804bc"
+    },
+    {
+      "path": "results/M3/history/code/0xac3c379d772f3520b34690d32ba14510ab36c3fb.hex",
+      "sha256": "1ad47cc29e41f7bf4710c04fe40101b1e92b1fa809af3f86ef3bc46a11595417"
+    },
+    {
+      "path": "results/M3/history/code/0xad900db30bcdf84c38df0067ea327bbecccf071a.hex",
+      "sha256": "d87b613e8213d76dadf019cced85dcb56f278396308fd6aaa67c4c7204507538"
+    },
+    {
+      "path": "results/M3/history/code/0xb2f539aede77df4cd1d427d046bbbbd8db4cbaaf.hex",
+      "sha256": "040837f6b3da15e806e9552dd20b1a232abf7b1716dcf87c71be1d587a1815e7"
+    },
+    {
+      "path": "results/M3/history/code/0xcffddbcb5b9ea2ee45aba121e0849adc87c38326.hex",
+      "sha256": "8d03c22aeedd2e8392a36fd4a496cd32183cafef236e3573be4c0fded972a3e5"
+    },
+    {
+      "path": "results/M3/history/code/0xdf0749e688ae74508d84699ba2405ed610aaf8c5.hex",
+      "sha256": "fc8d1d54ee0395f07708b956e7c4d862c5ed15e1a8f3b6056cb2afc5f9db0f50"
+    },
+    {
+      "path": "results/M3/history/timeline.json",
+      "sha256": "7d2d67c63dd834b6acdfb8e838f380419ee653762ec1847179f12677987eac72"
+    },
+    {
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "path": "spec/M3/lib/versions.json",
+      "sha256": "aa6ea949281bef01a33d052ab6c2fe1ad810a5074c0046ec53e3e63899097ac7"
+    },
+    {
+      "path": "tests_m3/_i26.py",
+      "sha256": "093a0180c316bb82d8f5e74636f5900ce76fe7b1a8d31b1f059e3463db6cbd48"
+    },
+    {
+      "path": "tests_m3/_i63.py",
+      "sha256": "64b8c1115e2604cf986a61f353613a5a6cfc26834fc822b224abdc7d7aa3acb5"
+    }
+  ],
+  "never_deployed": [
+    "V1",
+    "V2"
+  ],
+  "path": [
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7",
+    "V8",
+    "V9",
+    "V10",
+    "V11"
+  ],
+  "reverse": [
+    {
+      "compatible": true,
+      "diff": {
+        "added": [],
+        "compatible": true,
+        "gap_resized": [],
+        "moved": [],
+        "overlap": [],
+        "persisted": [
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused"
+          },
+          {
+            "contract": "Rollup",
+            "label": "__maxNumTxInChunk"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallengeReward"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallenged"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchDataStore"
+          },
+          {
+            "contract": "Rollup",
+            "label": "challenges"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedBatches"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizationPeriodSeconds"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "inChallenge"
+          },
+          {
+            "contract": "Rollup",
+            "label": "isChallenger"
+          },
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastCommittedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastFinalizedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "messageQueue"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofRewardPercent"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofWindow"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proveRemaining"
+          },
+          {
+            "contract": "Rollup",
+            "label": "revertReqIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "verifier"
+          },
+          {
+            "contract": "Rollup",
+            "label": "withdrawalRoots"
+          }
+        ],
+        "removed": [
+          {
+            "contract": "Rollup",
+            "label": "committedStateRoots",
+            "offset": 0,
+            "slot": 171
+          }
+        ],
+        "retyped": []
+      },
+      "from": "V4",
+      "in_flight_changed": [],
+      "to": "V3"
+    },
+    {
+      "compatible": true,
+      "diff": {
+        "added": [],
+        "compatible": true,
+        "gap_resized": [],
+        "moved": [],
+        "overlap": [],
+        "persisted": [
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused"
+          },
+          {
+            "contract": "Rollup",
+            "label": "__maxNumTxInChunk"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallengeReward"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallenged"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchDataStore"
+          },
+          {
+            "contract": "Rollup",
+            "label": "challenges"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedBatches"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizationPeriodSeconds"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "inChallenge"
+          },
+          {
+            "contract": "Rollup",
+            "label": "isChallenger"
+          },
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastCommittedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastFinalizedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "messageQueue"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofRewardPercent"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofWindow"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proveRemaining"
+          },
+          {
+            "contract": "Rollup",
+            "label": "revertReqIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "verifier"
+          },
+          {
+            "contract": "Rollup",
+            "label": "withdrawalRoots"
+          }
+        ],
+        "removed": [],
+        "retyped": []
+      },
+      "from": "V5",
+      "in_flight_changed": [],
+      "to": "V4"
+    },
+    {
+      "compatible": true,
+      "diff": {
+        "added": [],
+        "compatible": true,
+        "gap_resized": [],
+        "moved": [],
+        "overlap": [],
+        "persisted": [
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused"
+          },
+          {
+            "contract": "Rollup",
+            "label": "__maxNumTxInChunk"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallengeReward"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallenged"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchDataStore"
+          },
+          {
+            "contract": "Rollup",
+            "label": "challenges"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedBatches"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizationPeriodSeconds"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "inChallenge"
+          },
+          {
+            "contract": "Rollup",
+            "label": "isChallenger"
+          },
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastCommittedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastFinalizedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "messageQueue"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofRewardPercent"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofWindow"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proveRemaining"
+          },
+          {
+            "contract": "Rollup",
+            "label": "revertReqIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "verifier"
+          },
+          {
+            "contract": "Rollup",
+            "label": "withdrawalRoots"
+          }
+        ],
+        "removed": [],
+        "retyped": []
+      },
+      "from": "V6",
+      "in_flight_changed": [],
+      "to": "V5"
+    },
+    {
+      "compatible": true,
+      "diff": {
+        "added": [],
+        "compatible": true,
+        "gap_resized": [],
+        "moved": [],
+        "overlap": [],
+        "persisted": [
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused"
+          },
+          {
+            "contract": "Rollup",
+            "label": "__maxNumTxInChunk"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallengeReward"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallenged"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchDataStore"
+          },
+          {
+            "contract": "Rollup",
+            "label": "challenges"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedBatches"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizationPeriodSeconds"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "inChallenge"
+          },
+          {
+            "contract": "Rollup",
+            "label": "isChallenger"
+          },
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastCommittedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastFinalizedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "messageQueue"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofRewardPercent"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofWindow"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proveRemaining"
+          },
+          {
+            "contract": "Rollup",
+            "label": "revertReqIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "verifier"
+          },
+          {
+            "contract": "Rollup",
+            "label": "withdrawalRoots"
+          }
+        ],
+        "removed": [
+          {
+            "contract": "Rollup",
+            "label": "rollupDelayPeriod",
+            "offset": 0,
+            "slot": 172
+          }
+        ],
+        "retyped": []
+      },
+      "from": "V7",
+      "in_flight_changed": [],
+      "to": "V6"
+    },
+    {
+      "compatible": true,
+      "diff": {
+        "added": [],
+        "compatible": true,
+        "gap_resized": [],
+        "moved": [],
+        "overlap": [],
+        "persisted": [
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused"
+          },
+          {
+            "contract": "Rollup",
+            "label": "__maxNumTxInChunk"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallengeReward"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallenged"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchDataStore"
+          },
+          {
+            "contract": "Rollup",
+            "label": "challenges"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedBatches"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizationPeriodSeconds"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "inChallenge"
+          },
+          {
+            "contract": "Rollup",
+            "label": "isChallenger"
+          },
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastCommittedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastFinalizedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "messageQueue"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofRewardPercent"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofWindow"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proveRemaining"
+          },
+          {
+            "contract": "Rollup",
+            "label": "revertReqIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "rollupDelayPeriod"
+          },
+          {
+            "contract": "Rollup",
+            "label": "verifier"
+          },
+          {
+            "contract": "Rollup",
+            "label": "withdrawalRoots"
+          }
+        ],
+        "removed": [],
+        "retyped": []
+      },
+      "from": "V8",
+      "in_flight_changed": [],
+      "to": "V7"
+    },
+    {
+      "compatible": true,
+      "diff": {
+        "added": [],
+        "compatible": true,
+        "gap_resized": [],
+        "moved": [],
+        "overlap": [],
+        "persisted": [
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused"
+          },
+          {
+            "contract": "Rollup",
+            "label": "__maxNumTxInChunk"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallengeReward"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallenged"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchDataStore"
+          },
+          {
+            "contract": "Rollup",
+            "label": "challenges"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedBatches"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizationPeriodSeconds"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "inChallenge"
+          },
+          {
+            "contract": "Rollup",
+            "label": "isChallenger"
+          },
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastCommittedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastFinalizedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "messageQueue"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofRewardPercent"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofWindow"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proveRemaining"
+          },
+          {
+            "contract": "Rollup",
+            "label": "revertReqIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "rollupDelayPeriod"
+          },
+          {
+            "contract": "Rollup",
+            "label": "verifier"
+          },
+          {
+            "contract": "Rollup",
+            "label": "withdrawalRoots"
+          }
+        ],
+        "removed": [
+          {
+            "contract": "Rollup",
+            "label": "batchBlobVersionedHashes",
+            "offset": 0,
+            "slot": 173
+          }
+        ],
+        "retyped": []
+      },
+      "from": "V9",
+      "in_flight_changed": [],
+      "to": "V8"
+    },
+    {
+      "compatible": true,
+      "diff": {
+        "added": [],
+        "compatible": true,
+        "gap_resized": [],
+        "moved": [],
+        "overlap": [],
+        "persisted": [
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused"
+          },
+          {
+            "contract": "Rollup",
+            "label": "__maxNumTxInChunk"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchBlobVersionedHashes"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallengeReward"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallenged"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchDataStore"
+          },
+          {
+            "contract": "Rollup",
+            "label": "challenges"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedBatches"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizationPeriodSeconds"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "inChallenge"
+          },
+          {
+            "contract": "Rollup",
+            "label": "isChallenger"
+          },
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastCommittedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastFinalizedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "messageQueue"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofRewardPercent"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofWindow"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proveRemaining"
+          },
+          {
+            "contract": "Rollup",
+            "label": "revertReqIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "rollupDelayPeriod"
+          },
+          {
+            "contract": "Rollup",
+            "label": "verifier"
+          },
+          {
+            "contract": "Rollup",
+            "label": "withdrawalRoots"
+          }
+        ],
+        "removed": [],
+        "retyped": []
+      },
+      "from": "V10",
+      "in_flight_changed": [],
+      "to": "V9"
+    },
+    {
+      "compatible": false,
+      "diff": {
+        "added": [
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract",
+            "offset": 0,
+            "slot": 151
+          }
+        ],
+        "compatible": false,
+        "gap_resized": [],
+        "moved": [],
+        "overlap": [
+          {
+            "contract": "Rollup",
+            "label": "l1StakingContract",
+            "meets": {
+              "contract": "Rollup",
+              "label": "submitterContract"
+            }
+          }
+        ],
+        "persisted": [
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initialized"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused"
+          },
+          {
+            "contract": "Rollup",
+            "label": "__maxNumTxInChunk"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchBlobVersionedHashes"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallengeReward"
+          },
+          {
+            "contract": "Rollup",
+            "label": "batchChallenged"
+          },
+          {
+            "contract": "Rollup",
+            "label": "challenges"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedBatches"
+          },
+          {
+            "contract": "Rollup",
+            "label": "committedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizationPeriodSeconds"
+          },
+          {
+            "contract": "Rollup",
+            "label": "finalizedStateRoots"
+          },
+          {
+            "contract": "Rollup",
+            "label": "inChallenge"
+          },
+          {
+            "contract": "Rollup",
+            "label": "isChallenger"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastCommittedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "lastFinalizedBatchIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "messageQueue"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofRewardPercent"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proofWindow"
+          },
+          {
+            "contract": "Rollup",
+            "label": "proveRemaining"
+          },
+          {
+            "contract": "Rollup",
+            "label": "revertReqIndex"
+          },
+          {
+            "contract": "Rollup",
+            "label": "rollupDelayPeriod"
+          },
+          {
+            "contract": "Rollup",
+            "label": "verifier"
+          },
+          {
+            "contract": "Rollup",
+            "label": "withdrawalRoots"
+          }
+        ],
+        "removed": [
+          {
+            "contract": "Rollup",
+            "label": "legacyCutoverBatchIndex",
+            "offset": 0,
+            "slot": 174
+          },
+          {
+            "contract": "Rollup",
+            "label": "submitterContract",
+            "offset": 0,
+            "slot": 151
+          }
+        ],
+        "retyped": [
+          {
+            "contract": "Rollup",
+            "kind": "changed",
+            "label": "batchDataStore"
+          }
+        ]
+      },
+      "from": "V11",
+      "in_flight_changed": [
+        {
+          "entry": "Rollup.batchDataStore",
+          "kind": "retyped",
+          "reads": [
+            "Rollup.batchDataStore"
+          ]
+        },
+        {
+          "entry": "Rollup.l1StakingContract",
+          "kind": "reinterpreted",
+          "reads": [
+            "Rollup.submitterContract"
+          ]
+        }
+      ],
+      "to": "V10"
+    }
+  ],
+  "unmatched": [
+    {
+      "block": 20996846,
+      "implementation": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+      "reason": "no version's build matches"
+    },
+    {
+      "block": 21007191,
+      "implementation": "0x073403e147a8e607b80985fe458c0b527287278f",
+      "reason": "no version's build matches"
+    }
+  ]
+}

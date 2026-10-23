@@ -2611,6 +2611,369 @@
         "coordination": "I65's build rebases onto I66's merge: holon/gen/targetlib.py then differs from I65's 85d91d70 only in hints_for (I66 takes window_declaration, anchor and lib_files verbatim), and I65 adds hints_for's anchor, holon.audit.regress.lib_docs_at, the ledger bundle, the closures' window_*.json entry, the Lean twin library (its O4) and rule L2's reading of the ghost term; its ledger anchor rewrites gen/M2/diagram/m1_view.json and so gen/M2/evidence.json's input entry for it, but not the view's model, atoms or unresolved entries (R5's ledger check), so neither evidence_sha256 nor the registry. The pull request merges with a merge commit (guaranteed by the coordinator), so that I66's commits stay out of I65's own commits (I65-R2). I26 (merged at 9bb2eac7), I32 (prereg at 476b02bc; build merged at e215fbf5) and PR #44 (an I43 follow-up at fde1f819) touch no input of M2's evidence set: between 25303315 and e215fbf5, gen/M2, laws/M2, the view and holon/diagram are unchanged and the M1 and M2 records moved only in generator_sha256 and seconds (not at all between fde1f819 and e215fbf5), and every pin of this key holds at e215fbf5. I65's build, merged after I66, changes the same closures, so it re-makes the M1, M2 and T32 records again. The M3 records' re-make that refreshes their generator_sha256 is planned with I28's build (holon-rules/1.6) and the F40 and I67 re-makes.",
         "deferred": "the ghost term's reading in rule L2 (I65's build; it changes I14's contract text, whose L2 says every other term names nothing); hints_for, holon.audit.regress.lib_docs_at, the ledger bundle, the generator closures' spec/*/lib/window_*.json entry and the Lean twin library of the view (I65's O4; 85d91d70, e57fa11d; harmless at I66, since no committed law names the view and holon.differential's runs already take the abstraction as their anchor); E5 for window views (a sorts assignment of the view, I13's pass over it or inheritance from the abstraction, a calculus change for the human); covering the M1 laws' records over the view (a change of L1); atoms for I20's adopted 0.3 documents (a 0.3 diagram adapter, I20's Question 5); refreshing the M3 records' generator_sha256 (the next M3 re-make)"
       }
+    },
+    "I28": {
+      "title": "I28 (the laws half; I63 = I28a holds the history half): versioned machines over the extracted deployment history (one extracted document per deployed version, step_k/run_k and the migration steps under the transparent-proxy assumption, VReach from the proxy's creation), PAR-init as rule PAR's sub-form init_chain (catalog holon-rules/1.6) with O9 decided on the machine and replayed on the real code, D4 as a generated gap record, and G11V's in-flight inhabitants for every MIG edge of the deployed path; F12.5 only under reading (a) of Question 64, as a construction-checked gap record",
+      "plan": "docs/BUILD_PLAN.md#i28",
+      "prompt": "prompts/I28_versions.md",
+      "predictions": [
+        {
+          "id": "I28-P1",
+          "claim": "Every version of the deployed path before the head's code, V3..V10 (the instrument's V1 over I63's timeline: spec/M3/lib/versions_basis.json), extracts: holon versions extract writes a transitions document for each, none is debt, and each document and its generated extraction sidecar are at the history's commit of the version. Over each, rules PI1-PI3 (tests_m3/_i28.py::chains) find exactly one commitment family, committedBatches, with the one root site importGenesisBatch, the successor sites commitBatch (V3-V6), commitBatch and commitBatchWithProof (V7, V8) and commitBatch, commitBatchWithProof and commitState (V9, V10), and the one chained pair (17, 9, 192): header cell 17 (the total of popped L1 messages) is the parent's cell 17 plus cell 9 (the batch's count). Derivation: the successor sets were read from each version's Rollup.sol at its commit (commitBatchWithProof first at v0.4.10 = V7, commitState first at v0.5.4 = V9); every version pins solidity =0.8.24, the pinned solc; the pair is the instrument's over the head document, and every version builds its headers with BatchHeaderCodecV0's stores (source reads). V11, whose repository units are the head's, is a construction check.",
+          "check": "tests_m3/test_versions.py::TestVersions::test_p1_every_old_version_extracts"
+        },
+        {
+          "id": "I28-P2",
+          "claim": "The versioned model refines the real upgrade path, in both directions (rule V7, the sidecar's upgrade_path, 14 steps): from VR0 (only the EIP-1967 admin slot set, to the binding's admin), the entry edge by upgradeTo; the deployment record's initialize and importGenesisBatch by the binding's harness; the same two calls again, each reverting (the initializer guard, 'genesis batch imported'); the MIG edges V3->V4 .. V9->V10 (upgradeToAndCall with initialize2(0x64) into V4 and initialize3(20) into V7, upgradeTo elsewhere); the cutover by upgradeToAndCall with initialize4(the submitter stand-in, 1), reverting ('cutover batch mismatch': the version stays V10); and the cutover with initialize4(the submitter stand-in, 0). Every step's status is the stated one in the model and on the real code behind an OpenZeppelin 4.9.3 TransparentUpgradeableProxy, and so is its revert data: none after a successful step, and on both sides of the three reverting steps Error(string) with the reason named here ('Initializable: contract is already initialized', OpenZeppelin 4.9.3's initializer guard; 'genesis batch imported'; 'cutover batch mismatch'), never another guard's; after each step, at every real slot in the union of the model's and the real step's writes (the proxy's EIP-1967 slots aside), the 32-byte words agree; the reverting steps write nothing and each successful call writes; and Initializable._initialized (the low byte of real slot 0) is 1, 2, 3 and 4 after initialize and the edges into V4, V7 and V11. Derivation (source reads): V3's initialize (v0.4.0 Rollup.sol:146) has the head's ABI (selector 0x728cdbca), its first argument becoming l1StakingContract (nonzero required); every version decodes the 249-byte version-0 genesis header with BatchHeaderCodecV0 (popped 0, data hash 1, the zero versioned hash, post-state root 0x64), and V3 has no index check; initialize2 needs a nonzero root, initialize3 a nonzero delay; initialize4 (head Rollup.sol:209) needs the proxy admin as caller (true inside upgradeToAndCall), a submitter with code, lastCommittedBatchIndex = the expected index (0: no commit after the genesis import), no challenge and no revert request.",
+          "check": "tests_m3/test_versions.py::TestModel::test_p2_the_machine_refines_the_real_upgrade_path"
+        },
+        {
+          "id": "I28-P3",
+          "claim": "O9 is REFUTED. holon derive --milestone M3 under holon-rules/1.6 writes exactly one PAR law of sub-form init_chain, L_pinit_Rollup_importGenesisBatch_committedBatches_17_9 (init term morph_rollup.versions:chain:committedBatches:17:9: a successful importGenesisBatch commits a header whose cell 17 equals its cell 9); holon run decides it REFUTED by a witness at the first path version, V3: the trace [entry, initialize, importGenesisBatch] from VR0, whose root step is the deployment record's genesis call by its recorded caller with the header's bytes 17..24 set to 1 (cell 17 = 1, cell 9 = 0), all other bytes the record's; the counter-law's PROOF.bend imports its LAWS.bend as Laws and Bend accepts it (BendTT too when the verdict is enabled); the witness replays on V3's real code (committedBatches[0] is keccak256 of that header, in the model and on the chain); the record has no lean4 entry. Derivation: importGenesisBatch at every path version checks finalizedStateRoots[0] = 0, a nonzero post-state root, popped = 0, a nonzero data hash and the zero versioned hash (and, from V4 on, index 0), and never reads bytes 17..24 (v0.4.0 Rollup.sol:179, head :226); the search takes versions in path order; initialize by the harness makes it the owner that onlyOwner needs, so the trace is the shortest.",
+          "check": "tests_m3/test_versions.py::TestParInit::test_p3_the_o9_law_is_refuted_and_replays"
+        },
+        {
+          "id": "I28-P4",
+          "claim": "D4 is not stated as a law (contract G1, Question 63): the analysis holds exactly one link gap, gap:M3:link:committedBatches:17:IL1MessageQueue, and at every version before the head's code, V3..V10, its sites are the successor sites' actions calling IL1MessageQueue.getCrossDomainMessage with the parent's cursor and finalizeBatch calling IL1MessageQueue.popCrossDomainMessage, and no other function. Derivation: at every version _loadL1MessageHashes reads the queue at _totalL1MessagesPoppedOverall, the parent header's cell 17, and finalizeBatch pops from the finalized header's cursor (with a skip bitmap at V3 and V4; source reads, v0.4.0 to v0.6.1). The V11 sites are the basis's (a construction check).",
+          "check": "tests_m3/test_versions.py::TestGaps::test_p4_the_d4_link_gap_at_the_old_versions"
+        },
+        {
+          "id": "I28-P5",
+          "claim": "G11V's in-flight sets are inhabited: for each of the 8 MIG edges of the path, holon versions inhabit finds a trace of at most 12 steps from VR0 ending in a successful commit (a successor site's action) at the edge's source version, with key the batch index it writes (tests_m3/_i28.py::commit_key), and the successful migration along the edge (upgradeToAndCall with its reinitializer when it introduces one; at V10->V11 initialize4(the submitter stand-in, the key)); its INHABIT.bend has V8's shape for that trace and the edge's legacy words (s_0 exactly vr0(); each step x_i the trace step's constructor carrying the step's arguments decoded from the trace's calldata and, for a call, its caller, every migration the proxy admin's; one vstep equation per step; the last two steps' success; one vread equation per legacy word at its layout coordinate; and reach, the VReach of s_n built from those steps and states in order down to VR0) and is accepted by Bend (and BendTT when the verdict is enabled); at V10->V11 the legacy words are batchDataStore[k].signedSequencersBitmap and l1StakingContract (real slots keccak256(k . 162) + 3 and 151), both nonzero; holon gate --milestone M3 --checks G11V reports 'in-flight: 8 of 8 edges inhabited' whatever its other items say (among them Q36's DISCH law, the other session's and unrelated to I28's in-flight sets; so the clause holds with or without F40). Derivation: in-flight counts 24, 25, 25, 25, 26, 26, 27, 27 and the two in-flight types are I63's (the basis); V10's commitBatch stores IL1Staking(l1StakingContract).getStakerBitmap(sender) as the bitmap (nonzero when the staking answer is); initialize4 then holds on a state one commit leaves (no challenge, no revert request, the expected index the last committed one); 12 steps reach V10->V11 (entry, initialize, importGenesisBatch, 7 migrations, the commit, the cutover).",
+          "check": "tests_m3/test_versions.py::TestInflight::test_p5_every_mig_edge_of_the_path_is_inhabited"
+        },
+        {
+          "id": "I28-P6",
+          "claim": "The cutover's inhabitant replays on the real code: the run inflight:V10->V11 of replay/M3/versions/report.json passes over the inhabitant's trace; the legacy words read on the real chain before the upgrade are the inhabitant's; after the real upgradeToAndCall(V11, initialize4(..)) the getter batchDataStore(k) returns the legacy bitmap's low 160 bits as its submitter, and submitterContract() returns initialize4's first argument. Derivation: IRollup.BatchData at V10 (four uint256) and at V11 (three uint256, address submitter) share member slots 0-3 (I63 H5: batchDataStore retyped), and slot 151 is l1StakingContract at V10 and submitterContract at V11 (the history's layouts).",
+          "check": "tests_m3/test_versions.py::TestInflight::test_p6_the_cutover_inhabitant_replays"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I28-R1",
+          "claim": "No commit of I28's own (the contract's 'Own commits and the build branch': the first-parent commits of the build merge's second-parent side, the merge chosen by ancestry from the commit that adds docs/iterations/I28.md, so the same on every branch that holds it and never a merge inside the build branch; before it, the first-parent commits from the prereg on the build branch) deletes an M3 law or record, changes an M3 law file that exists at its parent in anything but rule_catalog_version (each such law then named by a catalog_rederivation line into that catalog), or changes the status of an M3 record that exists at its parent.",
+          "check": "tests_m3/test_versions.py::TestRegressions::test_r1_earlier_m3_laws_change_only_in_the_catalog"
+        },
+        {
+          "id": "I28-R2",
+          "claim": "No commit of I28's own touches a frozen root, I63's outputs or instrument, spec/M1/, spec/M2/, an earlier M3 sidecar (spec/M3/lib/lean_promoted.json only alone in its commit), holon/sorts/, gen/M3/sorts/, gen/M3/theory/, laws/T32/, gen/T32/, results/T32/summary.json, gen/M3/disch/classification.json, laws/M0-M2, gen/M0-M2, replay/M0-M2 or results/M0/; the results/M1, results/M2 and results/T32 records it changes differ from their parents only in generator_sha256 and keys named seconds.",
+          "check": "tests_m3/test_versions.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/versions/",
+        "results/M3/versions/",
+        "replay/M3/versions/",
+        "laws/M3/L_pinit_",
+        "results/M3/L_pinit_",
+        "gen/M3/laws/L_pinit_",
+        "gen/M3/proofs/L_pinit_",
+        "gen/M3/L_pinit_",
+        "docs/iterations/I28.md"
+      ],
+      "tests": [
+        "tests_m3/test_versions.py"
+      ],
+      "thresholds": {
+        "base": "f5534775 (the lead after I65's build merge, PR #45; the key moved there from a0bfc521, the lead after I66's prereg merge, PR #46)",
+        "instrument": "tests_m3/_i28.py",
+        "instrument_sha256": "cf179cefb496b66a523bf83b691146f6f5e5b59bcd74ce665ff4adb306cb4286",
+        "contract_docstring_sha256": "d5bd316a02d1a5a8bb140cadf63d433a24c516764f0b8b65926980542c18fcb9",
+        "sidecar": "spec/M3/lib/versions.json",
+        "sidecar_sha256": "aa6ea949281bef01a33d052ab6c2fe1ad810a5074c0046ec53e3e63899097ac7",
+        "basis": "spec/M3/lib/versions_basis.json",
+        "basis_sha256": "57730ee51a779d5f586ed3fc23203d70f63d5158c6c4f0b9224cc530f2fab9fb",
+        "inputs_sha256": {
+          "spec/M2/lib/extract_rollup.json": "73c1242801c3781193f744d14f7f67a5c96ef1d29c5574bf94bdc1208d6affef",
+          "spec/M3/lib/history.json": "1e51846f539d5042d2c42e8a6c465b62a4b5252f6ce7c43106c00c9851b364a9",
+          "replay/M2/fragments.json": "ec501c2be31737cb3ceffe910384e316b9ced7f1b2ccc58efb9c57b16fc10c9d",
+          "spec/M3/lib/derive_extracted.json": "87749c82c2e790561357e5d99b22ff1aa895774e3064a39e8e80f98e30466a6f",
+          "gen/M3/sorts/models/morph_rollup.extracted.init.json": "814b34cefb89cd73e2ad265d3473220e6e36115d00e84738a85a0e2691da2014"
+        },
+        "rule_catalog_version": "holon-rules/1.6 (if another key holds it at I28's merge, the next free version; whoever merges second regenerates)",
+        "rule_and_subform": [
+          "PAR",
+          "init_chain"
+        ],
+        "path": [
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "V7",
+          "V8",
+          "V9",
+          "V10",
+          "V11"
+        ],
+        "never_deployed": [
+          "V1",
+          "V2"
+        ],
+        "unmatched_upgrades": [
+          20996846,
+          21007191
+        ],
+        "mig_edges": [
+          "V3->V4",
+          "V4->V5",
+          "V5->V6",
+          "V6->V7",
+          "V7->V8",
+          "V8->V9",
+          "V9->V10",
+          "V10->V11"
+        ],
+        "in_flight_counts": {
+          "V3->V4": 24,
+          "V4->V5": 25,
+          "V5->V6": 25,
+          "V6->V7": 25,
+          "V7->V8": 26,
+          "V8->V9": 26,
+          "V9->V10": 27,
+          "V10->V11": 27
+        },
+        "introduced": {
+          "V3->V4": [
+            "initialize2"
+          ],
+          "V6->V7": [
+            "initialize3"
+          ],
+          "V10->V11": [
+            "initialize4"
+          ]
+        },
+        "in_flight_types": [
+          [
+            "V10->V11",
+            "Rollup.batchDataStore",
+            "retyped"
+          ],
+          [
+            "V10->V11",
+            "Rollup.submitterContract",
+            "reinterpreted"
+          ]
+        ],
+        "deployments": [
+          [
+            "V3",
+            [
+              2818,
+              2818
+            ]
+          ],
+          [
+            "V4",
+            [
+              2818,
+              2818
+            ]
+          ],
+          [
+            "V5",
+            [
+              2818,
+              2818
+            ]
+          ],
+          [
+            "V6",
+            [
+              1,
+              1
+            ]
+          ],
+          [
+            "V6",
+            [
+              2818,
+              2818
+            ]
+          ],
+          [
+            "V7",
+            [
+              2818,
+              2818
+            ]
+          ],
+          [
+            "V8",
+            [
+              2818,
+              2818
+            ]
+          ],
+          [
+            "V9",
+            [
+              2818,
+              2818
+            ]
+          ],
+          [
+            "V10",
+            [
+              2818,
+              2818
+            ]
+          ],
+          [
+            "V11",
+            [
+              2818,
+              2818
+            ]
+          ]
+        ],
+        "successor_sites": {
+          "V3": [
+            "commitBatch"
+          ],
+          "V4": [
+            "commitBatch"
+          ],
+          "V5": [
+            "commitBatch"
+          ],
+          "V6": [
+            "commitBatch"
+          ],
+          "V7": [
+            "commitBatch",
+            "commitBatchWithProof"
+          ],
+          "V8": [
+            "commitBatch",
+            "commitBatchWithProof"
+          ],
+          "V9": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ],
+          "V10": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ],
+          "V11": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ]
+        },
+        "chain": {
+          "family": "committedBatches",
+          "root": "importGenesisBatch",
+          "cell": 17,
+          "incr": 9,
+          "shift": 192
+        },
+        "upgrade_path_labels": [
+          "entry",
+          "initialize",
+          "importGenesisBatch",
+          "initialize",
+          "importGenesisBatch",
+          "V3->V4",
+          "V4->V5",
+          "V5->V6",
+          "V6->V7",
+          "V7->V8",
+          "V8->V9",
+          "V9->V10",
+          "V10->V11",
+          "V10->V11"
+        ],
+        "upgrade_path_status": [
+          "ok",
+          "ok",
+          "ok",
+          "revert",
+          "revert",
+          "ok",
+          "ok",
+          "ok",
+          "ok",
+          "ok",
+          "ok",
+          "ok",
+          "revert",
+          "ok"
+        ],
+        "upgrade_path_reverts": {
+          "3": "Initializable: contract is already initialized",
+          "4": "genesis batch imported",
+          "12": "cutover batch mismatch"
+        },
+        "initialized_after_step": {
+          "1": 1,
+          "5": 2,
+          "8": 3,
+          "13": 4
+        },
+        "laws": 1,
+        "law_id": "L_pinit_Rollup_importGenesisBatch_committedBatches_17_9",
+        "init_id": "morph_rollup.versions:chain:committedBatches:17:9",
+        "status": "REFUTED",
+        "witness_version": "V3",
+        "witness_trace": [
+          "entry",
+          "initialize",
+          "importGenesisBatch"
+        ],
+        "witness_root_cells": {
+          "17": 1,
+          "9": 0
+        },
+        "link_gaps": [
+          "gap:M3:link:committedBatches:17:IL1MessageQueue"
+        ],
+        "link_gap_sites_V11": [
+          [
+            "commitBatch",
+            "calls[2]",
+            "IL1MessageQueue.getCrossDomainMessage"
+          ],
+          [
+            "commitBatchWithProof",
+            "calls[1]",
+            "IL1MessageQueue.getCrossDomainMessage"
+          ],
+          [
+            "commitState",
+            "calls[2]",
+            "IL1MessageQueue.getCrossDomainMessage"
+          ],
+          [
+            "finalizeBatch",
+            "calls[0]",
+            "IL1MessageQueue.popCrossDomainMessage"
+          ]
+        ],
+        "downgrade_gaps": [
+          "gap:M3:downgrade:V11->V10"
+        ],
+        "inhabitants": 8,
+        "inflight_max_trace": 12,
+        "cutover_legacy_reads": [
+          "Rollup.batchDataStore.signedSequencersBitmap",
+          "Rollup.l1StakingContract"
+        ],
+        "construction_not_scored": [
+          "the downgrade gap (V4; F12.5 only under reading (a) of Q64)",
+          "V11's document equal to the adopted head document",
+          "the link gap's V11 sites, obligation, question and status"
+        ],
+        "amendments": {
+          "I24": 7,
+          "I25": 1
+        }
+      }
     }
   }
 }

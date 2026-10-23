@@ -568,9 +568,12 @@ class _Morph(unittest.TestCase):
         return _Morph.d
 
     def derived(self) -> dict:
-        """The PAR laws derive wrote (later M3 iterations add laws of other rules; I24's checks are about PAR's)."""
+        """The PAR laws derive wrote but those of sub-form init_chain (later M3 iterations add laws of other rules, and I28
+        a PAR law of the sub-form init_chain over the versioned document; I24's checks are about I24's PAR laws. Amended
+        at the I28 prereg, spec/M3/amendments.jsonl)."""
         self.assertEqual(self.r.code, 0, self.r.log)
-        return {k: v for k, v in self.r.law_docs().items() if v.get("rule") == "PAR"}
+        return {k: v for k, v in self.r.law_docs().items()
+                if v.get("rule") == "PAR" and v.get("subform") != "init_chain"}
 
 
 # ---------------------------------------------------------------------------------------------- the registry
@@ -591,9 +594,15 @@ class TestRegistry(unittest.TestCase):
         if not sort:   # I24: M3 is holon-rules/1.1 and there is no other catalog
             self.assertEqual(cv, "holon-rules/1.1")
             self.assertEqual(sorted(rules.CATALOGS), ["holon-rules/1.0", "holon-rules/1.1"])
-        else:          # from I30 on: a later catalog for M3 that keeps holon-rules/1.1's PAR producers unchanged
+        else:          # from I30 on: a later catalog for M3 that keeps holon-rules/1.1's PAR producers unchanged (the
+            #            same objects; I28 adds PAR's sub-form init_chain, and only it, beside them: amended at the I28
+            #            prereg, spec/M3/amendments.jsonl)
             self.assertNotIn(cv, ("holon-rules/1.0", "holon-rules/1.1"))
-            self.assertEqual(rules.CATALOGS[cv]["PAR"], rules.CATALOGS["holon-rules/1.1"]["PAR"])
+            base = rules.CATALOGS["holon-rules/1.1"]["PAR"]
+            self.assertEqual({s: p for s, p in rules.CATALOGS[cv]["PAR"].items() if s in base}, base)
+            for s, p in base.items():
+                self.assertIs(rules.CATALOGS[cv]["PAR"][s], p, s)
+            self.assertLessEqual(set(rules.CATALOGS[cv]["PAR"]) - set(base), {"init_chain"})
 
     def test_m2_derivation_is_unchanged(self):
         """I24-R2: PAR is not in M2's catalog; derive --milestone M2 reproduces laws/M2 and gen/M2/sorts/obstructions.json
@@ -828,7 +837,8 @@ class TestDeriveM3(_Morph):
 
     def test_derivation_follows_the_rules(self):
         """Construction: every law, basis element, reason and duplicate of DERIVATION.json is the one rules X8 and
-        P0-P12 give over the component, as tests_m3/_i24x.py writes them out; statements exactly (canonical JSON)."""
+        P0-P12 give over the component, as tests_m3/_i24x.py writes them out; statements exactly (canonical JSON).
+        Amended at the I28 prereg (spec/M3/amendments.jsonl): the entries of sub-form init_chain (I28's) are left out."""
         comp, diag, ats, exp = morph_component()
         dv = self.r.doc("DERIVATION")
         ls = self.derived()
@@ -843,7 +853,7 @@ class TestDeriveM3(_Morph):
                 self.assertEqual(ls[lid]["subform"], want["subform"])
                 self.assertEqual(canonical_json(ls[lid]["statement"]), canonical_json(want["statement"]))
         self.assertEqual(I.basis_rows(dv["par_basis"]), I.basis_rows(exp["basis"]))
-        entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR"}
+        entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR" and e.get("subform") != "init_chain"}
         self.assertEqual(sorted(entries), sorted(ls))
         for lid, e in entries.items():
             with self.subTest(entry=lid):
