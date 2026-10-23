@@ -786,6 +786,54 @@ def _doc_literals(doc: dict) -> list[int]:
     return sorted(x for x in out if x < (1 << 64))
 
 
+_CALLER_READS: dict = {}
+
+
+def caller_reads(doc: dict) -> list:
+    """The storage the document compares with the caller (an owner's family, an admin's slot): every operand X of a
+    guard or check ["==", X, ["caller"]] or ["==", ["caller"], X] with X = ["sload", slot] or ["storage", family], in
+    document order, each once."""
+    key = id(doc)
+    if key in _CALLER_READS and _CALLER_READS[key][0] is doc:
+        return _CALLER_READS[key][1]
+    out: list = []
+
+    def walk(e):
+        if isinstance(e, list):
+            if len(e) == 3 and e[0] == "==" and ["caller"] in (e[1], e[2]):
+                x = e[2] if e[1] == ["caller"] else e[1]
+                if isinstance(x, list) and len(x) == 2 and x[0] in ("sload", "storage") and x not in out:
+                    out.append(x)
+            for y in e:
+                walk(y)
+        elif isinstance(e, dict):
+            for y in e.values():
+                walk(y)
+    for a in doc.get("actions") or []:
+        walk([a.get(k) for k in ("guards", "checks")])
+    _CALLER_READS[key] = (doc, out)
+    return out
+
+
+def caller_values(model: Model, state: dict, doc: dict) -> list[int]:
+    """The nonzero address-sized values stored where the document compares the caller, in caller_reads order."""
+    out = []
+    for x in caller_reads(doc):
+        v = 0
+        if x[0] == "sload" and isinstance(x[1], int):
+            v = state.get(x[1], 0)
+        elif x[0] == "storage" and isinstance(x[1], str):
+            try:
+                fam = model.doc.family(x[1])
+                nb = int(model.doc.type_of(fam.type).get("numberOfBytes", 32))
+            except Exception:  # noqa: BLE001  (a family the layout does not place)
+                continue
+            v = (state.get(fam.slot, 0) >> (8 * fam.offset)) & ((1 << (8 * nb)) - 1)
+        if 0 < v < (1 << 160) and v not in out:
+            out.append(v)
+    return out
+
+
 def pools_of(model: Model, trace: list, state: dict, doc: dict, sorts: dict) -> dict:
     nums: set = {0, 1, 2}
     nums |= set(doc_literals(doc)[:200])
@@ -821,7 +869,10 @@ def pools_of(model: Model, trace: list, state: dict, doc: dict, sorts: dict) -> 
     small = sorted(x for x in nums if x < (1 << 64))
     big = sorted(x for x in nums if x >= (1 << 64))
     stored = {v for v in state.values() if 0xff < v < (1 << 160)} | set(model.hints.addresses())
-    callers = sorted(stored) + sorted({x for x in nums if 0xff < x < (1 << 160)} - stored)
+    # (F40) the values stored where the document compares the caller, whatever their size (the binding harness's
+    # proxy admin is 0xad), after the stored addresses, so the earlier callers keep their order
+    compared = [v for v in caller_values(model, state, doc) if v not in stored]
+    callers = sorted(stored) + compared + sorted({x for x in nums if 0xff < x < (1 << 160)} - stored - set(compared))
     # durations and times the state holds (the families the frozen assignment sorts Dur / Time)
     durs, times = [], []
     for f, s in sorts.items():
