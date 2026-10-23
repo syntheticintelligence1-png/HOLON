@@ -20,7 +20,10 @@ const facts = req.facts;
 const side = req.sidecar;
 const ob = side.obligations[0];
 const ACT = Object.fromEntries(facts.actions.map((a) => [a.name, a]));
-const XP = new Set([ob.class.principal, "anyone"]);
+// X may call an action labelled with its class's principal, or a permissionless one: a label starting with "anyone"
+// or "environment", the rule holon.gen.machine.permissionless applies to M0 and M1 machines (sendMessage's label is
+// "anyone (through the messenger; ...)")
+const xCallable = (label) => label === ob.class.principal || label.startsWith("anyone") || label.startsWith("environment");
 const EP = new Set(side.schedule.principals);
 
 const toList = (xs) => xs.reduceRight((t, h) => ({ $: "Con", head: h, tail: t }), { $: "Nil" });
@@ -66,7 +69,7 @@ function xMoves(s) {
   const out = [];
   for (const c of policyOf(dec(s), facts)) {
     if (c.op === "wait") out.push({ op: "wait", dt: c.dt });
-    else if (ACT[c.op] && XP.has(ACT[c.op].principal)) out.push({ ...c, who: ob.agent });
+    else if (ACT[c.op] && xCallable(ACT[c.op].principal)) out.push({ ...c, who: ob.agent });
   }
   return dedup(out);
 }
@@ -125,7 +128,7 @@ function play(table, ax, ae, sched, moves) {
     for (const [t, mv] of sched) if (t === turn) { s = step(ae[mv], s); hist.push([t, mv]); }
     const row = table.find((r) => r.turn === turn && key(r.hist) === key(hist));
     if (!row) return { ok: false, why: `no row at turn ${turn} for ${key(hist)}` };
-    const m = ax[row.move];
+    const m = row.move;   // the contract's row: {"turn", "hist", "move"}, the move itself
     s = step(m, s);
     if (!ok(s)) return { ok: false, why: `turn ${turn}: ${key(m)} reverts (${lastReason(s)})` };
     xs.push(m);

@@ -1182,6 +1182,10 @@ The human answered §6 on 2026-10-12; `docs/HUMAN_ANSWERS.md` is the record:
   - Regressions: the frontier {(c_msg, 0), (0, Δ_fin)}; (1000, 0) dominated, as already recorded in `docs/M1_REPORT.md` §2.1.
 - **Exit.** Profile laws regenerate byte-identically.
 - **Risks and fallback.** Exactness holds relative to the abstraction and H, and the records say so.
+- **As built (`docs/iterations/I32.md`).** The predictions ran on the test milestone T32, M1's machine: the delay guard
+  reads the L1 message queue, external on M3 until I36, and Q19 forbids hand-written facts there. The wait point is
+  PROVED in the §8.4 form; the pay point is REFUTED (a permissionless commitBatchWithProof front-runs the submitter);
+  the robust frontier is {(0, Δ_fin), (3 c_msg, 0)} at H = 2. The delay guard's M3 profile follows I36.
 
 #### I33. Intent contracts and G10 (about 2 days)
 
