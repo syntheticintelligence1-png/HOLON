@@ -67,6 +67,7 @@ class Library:
         self.record_blocks: list[dict] = []
         self.shadow_values: dict[str, str] = {}
         self.names: list[str] = []
+        self.sources: list[Path] = []
         for d in docs:
             if d.get("lib_version") != LIB_VERSION:
                 raise LibError(f"{d.get('name')}: lib_version {d.get('lib_version')!r} is not {LIB_VERSION}")
@@ -85,7 +86,10 @@ class Library:
     @classmethod
     def for_facts(cls, facts_path: Path | str | None, params: dict | None = None,
                   root: Path | str = ROOT) -> "Library":
-        return cls([json.loads(p.read_text(encoding="utf-8")) for p in lib_files(facts_path, root)], params)
+        files = lib_files(facts_path, root)
+        lib = cls([json.loads(p.read_text(encoding="utf-8")) for p in files], params)
+        lib.sources = files   # where they live (I65: holon.gen.trace_bound reads the pointwise sidecars beside them)
+        return lib
 
     def render(self, name: str, args: list[str]) -> tuple[str, str]:
         b = self.builtins[name]

@@ -100,6 +100,7 @@ class EmittedM:
     assume: list             # [(lhs, rhs, type)] Bend texts
     claims: list             # [(lhs, rhs, type)]
     views: dict = field(default_factory=dict)   # view name -> erased fields
+    law: dict | None = None   # the law IR it was emitted from (I65: holon.gen.trace_bound reads the claim)
 
 
 def reach_name(n: str) -> str:
@@ -624,7 +625,7 @@ class Emitter:
             a, b, t = claims[-1]
             body.append(f"  {{{a} == {b} : {self.bend_ty(t)}}}")
         lines += body
-        return EmittedM(name, "\n".join(lines) + "\n", binders, assume, claims, dict(self.views))
+        return EmittedM(name, "\n".join(lines) + "\n", binders, assume, claims, dict(self.views), law)
 
     def negation_ir(self, law: dict) -> dict:
         """The negation of a purely existential law as IR: the same binders made universal, and the

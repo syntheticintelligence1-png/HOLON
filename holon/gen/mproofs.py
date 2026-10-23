@@ -894,6 +894,10 @@ GENERATORS = [("evaluate", evaluate), ("nat_split", nat_split), ("noninterferenc
               ("deadline", deadline), ("chain_revert", chain_revert), ("act_split", act_split), ("hyp", hyp),
               ("expr_open", expr_open)]
 
+# I65 (= I33b, tests_m3/test_o12.py rule O2): linear bounds over the runs of a trace, appended after every earlier class
+from .trace_bound import trace_bound   # noqa: E402
+GENERATORS.append(("trace_bound", trace_bound))
+
 
 # ---------------------------------------------------------------- I15: coercion_guard
 def law_params(em: EmittedM) -> list[str]:
