@@ -152,8 +152,13 @@ class Model:
         self.base_env = {"this": self.init.get("target") or "0x" + "00" * 19 + "ab",
                          "immutable": dict(self.init.get("immutables") or {}),
                          "block.number": self.init.get("number") or 1, "block.chainid": self.init.get("chainid") or 1}
-        if self.init.get("code"):
-            self.base_env["code"] = {self.base_env["this"]: self.init["code"]}
+        # (F40) the runtime code the deployment holds (its target's and its implementation's, holon.sorts.deploy3): the
+        # environment's code table at every step whose action reads an account's code (only there: the table is large)
+        codes = self.init.get("code")
+        if isinstance(codes, str):
+            codes = {self.base_env["this"]: codes}
+        self.codes = {k.lower(): v for k, v in sorted((codes or {}).items()) if isinstance(v, str) and len(v) > 2}
+        self._reads_code: dict = {}
         for p in self.init.get("preimages") or []:
             self.add_key(p)
 
@@ -254,8 +259,19 @@ class Model:
         env = self.full_env(st)
         return {"$r": f"A_{bname(st.action)}", "f": {"ar": self._enc(st)[1], "en": self.ev.env_in(env)}}
 
+    def reads_code(self, a: str) -> bool:
+        """Whether action a reads an account's code (a ["code", X] term anywhere in its document entry)."""
+        hit = self._reads_code.get(a)
+        if hit is None:
+            out: list = []
+            _code_reads(self.doc.actions[a], out)
+            hit = self._reads_code[a] = bool(out)
+        return hit
+
     def full_env(self, st: Step) -> dict:
         env = dict(self.base_env)
+        if self.codes and self.reads_code(st.action):
+            env["code"] = dict(self.codes)
         env.update(st.env)
         env["msg.data.length"] = (len(self.calldata(st)) - 2) // 2
         return env
@@ -418,6 +434,21 @@ def _leaves(t, out: list) -> None:
         _leaves(x, out)
 
 
+def _code_reads(t, out: list) -> None:
+    """The terms X of the ["code", X] subterms of a term, or of every term a document entry holds (the addresses whose
+    code it reads)."""
+    if isinstance(t, dict):
+        for k in sorted(t):
+            _code_reads(t[k], out)
+        return
+    if not isinstance(t, list) or not t:
+        return
+    if t[0] == "code" and len(t) == 2:
+        out.append(t[1])
+    for x in t[1:] if isinstance(t[0], str) else t:
+        _code_reads(x, out)
+
+
 def _comparisons(t, out: list) -> None:
     if not isinstance(t, list) or not t:
         return
@@ -564,6 +595,19 @@ class Synth:
                         for w in ((v + 1) & MASK,):
                             if w not in vals:
                                 vals.append(w)
+        # (F40) a leaf whose code the check reads: the addresses whose code the environment holds (the deployed target;
+        # an address the comparisons offer, 0 or 1, holds none)
+        reads: list = []
+        _code_reads(c.expr, reads)
+        held = sorted(int(k, 16) for k in (env.get("code") or {}) if isinstance(k, str))
+        for x in reads:
+            lv = []
+            _leaves(x, lv)
+            for leaf in lv:
+                vals = out.setdefault(leaf, [])
+                for w in held:
+                    if w not in vals:
+                        vals.append(w)
         return out
 
     def score(self, code: int, target) -> tuple:
@@ -786,6 +830,54 @@ def _doc_literals(doc: dict) -> list[int]:
     return sorted(x for x in out if x < (1 << 64))
 
 
+_CALLER_READS: dict = {}
+
+
+def caller_reads(doc: dict) -> list:
+    """The storage the document compares with the caller (an owner's family, an admin's slot): every operand X of a
+    guard or check ["==", X, ["caller"]] or ["==", ["caller"], X] with X = ["sload", slot] or ["storage", family], in
+    document order, each once."""
+    key = id(doc)
+    if key in _CALLER_READS and _CALLER_READS[key][0] is doc:
+        return _CALLER_READS[key][1]
+    out: list = []
+
+    def walk(e):
+        if isinstance(e, list):
+            if len(e) == 3 and e[0] == "==" and ["caller"] in (e[1], e[2]):
+                x = e[2] if e[1] == ["caller"] else e[1]
+                if isinstance(x, list) and len(x) == 2 and x[0] in ("sload", "storage") and x not in out:
+                    out.append(x)
+            for y in e:
+                walk(y)
+        elif isinstance(e, dict):
+            for y in e.values():
+                walk(y)
+    for a in doc.get("actions") or []:
+        walk([a.get(k) for k in ("guards", "checks")])
+    _CALLER_READS[key] = (doc, out)
+    return out
+
+
+def caller_values(model: Model, state: dict, doc: dict) -> list[int]:
+    """The nonzero address-sized values stored where the document compares the caller, in caller_reads order."""
+    out = []
+    for x in caller_reads(doc):
+        v = 0
+        if x[0] == "sload" and isinstance(x[1], int):
+            v = state.get(x[1], 0)
+        elif x[0] == "storage" and isinstance(x[1], str):
+            try:
+                fam = model.doc.family(x[1])
+                nb = int(model.doc.type_of(fam.type).get("numberOfBytes", 32))
+            except Exception:  # noqa: BLE001  (a family the layout does not place)
+                continue
+            v = (state.get(fam.slot, 0) >> (8 * fam.offset)) & ((1 << (8 * nb)) - 1)
+        if 0 < v < (1 << 160) and v not in out:
+            out.append(v)
+    return out
+
+
 def pools_of(model: Model, trace: list, state: dict, doc: dict, sorts: dict) -> dict:
     nums: set = {0, 1, 2}
     nums |= set(doc_literals(doc)[:200])
@@ -821,7 +913,10 @@ def pools_of(model: Model, trace: list, state: dict, doc: dict, sorts: dict) -> 
     small = sorted(x for x in nums if x < (1 << 64))
     big = sorted(x for x in nums if x >= (1 << 64))
     stored = {v for v in state.values() if 0xff < v < (1 << 160)} | set(model.hints.addresses())
-    callers = sorted(stored) + sorted({x for x in nums if 0xff < x < (1 << 160)} - stored)
+    # (F40) the values stored where the document compares the caller, whatever their size (the binding harness's
+    # proxy admin is 0xad), after the stored addresses, so the earlier callers keep their order
+    compared = [v for v in caller_values(model, state, doc) if v not in stored]
+    callers = sorted(stored) + compared + sorted({x for x in nums if 0xff < x < (1 << 160)} - stored - set(compared))
     # durations and times the state holds (the families the frozen assignment sorts Dur / Time)
     durs, times = [], []
     for f, s in sorts.items():
