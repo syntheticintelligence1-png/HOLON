@@ -1,0 +1,115 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_dp_delay_point_1_0",
+    "laws": "gen/T32/L_dp_delay_point_1_0/LAWS.bend",
+    "model": "gen/T32/model/morph_rollup.bend",
+    "profile": "gen/T32/profile/delay.bend",
+    "proof": "gen/T32/L_dp_delay_point_1_0/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "engine": "holon/js/profile.mjs",
+      "game": {
+        "game_alphabet": 295,
+        "policy": null,
+        "robust": false,
+        "why": null
+      },
+      "kind": "profile-search",
+      "outcomes": 62
+    },
+    {
+      "exit_code": 0,
+      "generator": "evaluate",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.494
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.494
+  },
+  "disch_class": "mixed",
+  "disch_profile": {
+    "H": 2,
+    "exact": "exact relative to the abstraction: the hints' move alphabets (X's, the schedule's E-closure, the dominance closure and each point's game alphabet), the time abstraction at s* (waits to the hinted deadlines), at most K strategy moves and at most H schedule events",
+    "frontier": [
+      [
+        0,
+        19
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "persistent": [
+      [
+        0,
+        19
+      ]
+    ],
+    "persistent_class": "delay",
+    "robust_frontier": [
+      [
+        0,
+        19
+      ],
+      [
+        3,
+        0
+      ]
+    ]
+  },
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "generator_sha256": "ce2e833d9e31982f0655e2c5bd5edec4e02b791ff729e1c5125e3345d1fd52fe",
+  "kernels": [
+    {
+      "kernel": "bend2",
+      "result": "checked"
+    },
+    {
+      "kernel": "bendtt",
+      "result": "not_run"
+    }
+  ],
+  "law_id": "L_dp_delay_point_1_0",
+  "milestone": "T32",
+  "rule": "DISCH",
+  "scope": {
+    "H": 2,
+    "exact": "exact relative to the abstraction: the hints' move alphabets (X's, the schedule's E-closure, the dominance closure and each point's game alphabet), the time abstraction at s* (waits to the hinted deadlines), at most K strategy moves and at most H schedule events",
+    "kind": "bounded",
+    "moves": 4
+  },
+  "statement_hash": "sha256:944276aab225fc2ad4a0b81481e11dde611c197792eb92bc2980b08e08d7847c",
+  "status": "REFUTED",
+  "subform": "profile_point",
+  "witness": {
+    "adversary": [
+      {
+        "events": [],
+        "xhist": []
+      },
+      {
+        "events": [
+          7
+        ],
+        "xhist": [
+          12
+        ]
+      },
+      {
+        "events": [
+          7
+        ],
+        "xhist": [
+          12,
+          40
+        ]
+      }
+    ]
+  }
+}

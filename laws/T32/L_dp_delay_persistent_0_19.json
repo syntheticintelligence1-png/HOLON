@@ -1,0 +1,46 @@
+{
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "ir_version": "holon-disch-profile/0.1",
+  "law_id": "L_dp_delay_persistent_0_19",
+  "milestone": "T32",
+  "rule": "DISCH",
+  "statement": {
+    "agent": 2,
+    "claim": "there is a sequence of moves from s*, each succeeding, whose last move is the target, within cost and delay, after which kappa (the guard's left side) is false",
+    "class": "submitter",
+    "cost": 0,
+    "delay": 19,
+    "form": "profile_persistent",
+    "guard": {
+      "reason": 5,
+      "src": "contracts/contracts/l1/rollup/Rollup.sol:262-266"
+    },
+    "obligation": "delay",
+    "prefix": [
+      {
+        "op": "sendMessage",
+        "who": 5
+      },
+      {
+        "blobs": [
+          7
+        ],
+        "lbn": 1,
+        "n": 1,
+        "op": "commitBatch",
+        "parent": 0,
+        "post": 101,
+        "prev": 100,
+        "ver": 1,
+        "who": 2
+      },
+      {
+        "dt": 21,
+        "op": "wait"
+      }
+    ],
+    "target": "commitBatch"
+  },
+  "subform": "profile_persistent"
+}
