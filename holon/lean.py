@@ -1425,9 +1425,11 @@ def _check_dir(d: LeanDir, root: Path, texts: dict[str, str]) -> list[str]:
 def run_dirs(milestone: str, root: Path | str = ROOT, jobs: int = 1, log=print, mode: str = "run",
              out: dict | None = None) -> int:
     """`holon lean --milestone <M>` for M1 onward. mode "run": emit, check every model and law file in Lean, then
-    rewrite each Lean directory and its report (exit 0 iff every file is checked); "check": compare the committed
-    .lean files with the re-emission (exit 0 iff equal, no Lean); "emit-only": write the .lean files, no report, no
-    Lean (exit 0). out, when given, receives the printed report (with timings; never committed)."""
+    rewrite each Lean directory and its report (exit 0 iff every file is checked, and every attempted law without a
+    file, one no emitter can express, is PROVED: G7 allows unsupported_form for a PROVED law only; I65's ghost term);
+    "check": compare the committed .lean files with the re-emission (exit 0 iff equal, no Lean); "emit-only": write the
+    .lean files, no report, no Lean (exit 0). out, when given, receives the printed report (with timings; never
+    committed)."""
     root = Path(root).resolve()
     out = out if out is not None else {}
     out.update({"milestone": milestone, "mode": mode, "dirs": {}})
@@ -1522,7 +1524,8 @@ def run_dirs(milestone: str, root: Path | str = ROOT, jobs: int = 1, log=print, 
             cli["laws"][it.law_id] = {"result": r["result"], "lean4": r["kernel_result"], "axioms": r["axioms"],
                                       "seconds": r["seconds"], "verdict": it.status,
                                       **{k: r[k] for k in ("reason", "detail") if r.get(k)}}
-            rc = rc or (0 if r["kernel_result"] == "checked" else 1)
+            fileless = lf is None and it.status == "PROVED" and r.get("reason") == "unsupported_form"
+            rc = rc or (0 if r["kernel_result"] == "checked" or fileless else 1)
             log(f"{d.key:18s} {it.law_id:46s} {str(it.status):8s} lean4 {r['kernel_result']:8s} "
                 f"{r.get('reason') or '':16s} {r['seconds']:7.2f} s  axioms {r['axioms']}")
         # written only now, after every check, so an interrupted run never leaves files without their report
