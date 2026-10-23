@@ -8,6 +8,11 @@ library files next to its facts and is read as input, like the facts themselves:
   <facts dir>/../lib/*.lib.json libraries for the facts of that milestone (e.g. spec/M1/lib/)
   <facts dir>/../policy_hints.mjs  untrusted search hints for the explorer (optional)
 
+A window view (holon.differential: a facts document whose extraction block names a window declaration of holon.window)
+is anchored to the declaration's abstraction (anchor; I65 = I33b, tests_m3/test_o12.py rule O4): it takes the
+abstraction's libraries and hints, as the differential's runs of the abstraction's laws over the view do. Every other
+document takes its own.
+
 A library holds:
   builtins       DSL function name -> {"arity": n | null, "bend": template, "type": DSL type,
                  "kind": "nth_default" | "set_default" | "default" (optional), "default": name}
@@ -27,10 +32,12 @@ from __future__ import annotations
 
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 LIB_VERSION = "holon-lib/0.1"
+WINDOW_VERSION = "holon-window/0.1"   # a window declaration (holon.window: spec/<M>/lib/window_*.json)
 _TOKEN = re.compile(r"\$\{(\w+):([^{}]*)\}|\$(args|\d)")
 
 
@@ -38,22 +45,80 @@ class LibError(Exception):
     pass
 
 
+def _repo_path(x) -> bool:
+    return isinstance(x, str) and bool(x) and not Path(x).is_absolute() and ".." not in Path(x).parts
+
+
+@lru_cache(maxsize=None)
+def _named_declaration(path: str, mtime_ns: int, size: int) -> str | None:
+    """The "declaration" of the extraction block of the JSON document at path (cached per file state), or None."""
+    try:
+        raw = Path(path).read_bytes()
+    except OSError:
+        return None
+    if b'"declaration"' not in raw:   # most documents name none: no parse
+        return None
+    try:
+        doc = json.loads(raw)
+    except ValueError:
+        return None
+    ex = doc.get("extraction") if isinstance(doc, dict) else None
+    d = ex.get("declaration") if isinstance(ex, dict) else None
+    return d if _repo_path(d) else None
+
+
+def window_declaration(facts_path: Path | str | None, root: Path | str = ROOT) -> tuple[str, dict] | None:
+    """(its repository path, the declaration) when the facts document at facts_path is a window view: a document whose
+    extraction block names a window declaration under root (holon.window: {"window_version": "holon-window/0.1",
+    "abstraction": the abstraction's repository path, ...}; holon.differential writes the view); else None."""
+    if facts_path is None:
+        return None
+    p = Path(facts_path)
+    try:
+        if p.suffix != ".json" or not p.is_file():
+            return None
+        st = p.stat()
+    except OSError:
+        return None
+    rel = _named_declaration(str(p.resolve()), st.st_mtime_ns, st.st_size)
+    if rel is None:
+        return None
+    try:
+        decl = json.loads((Path(root) / rel).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(decl, dict) or decl.get("window_version") != WINDOW_VERSION \
+            or not _repo_path(decl.get("abstraction")) or not (Path(root) / decl["abstraction"]).is_file():
+        return None
+    return rel, decl
+
+
+def anchor(facts_path: Path | str | None, root: Path | str = ROOT) -> Path | str | None:
+    """The facts file whose target libraries and search hints apply to facts_path: for a window view
+    (window_declaration), its declaration's abstraction, as holon.differential's runs of the abstraction's laws over the
+    view take them (the run's anchor, holon.mpipeline); for any other document, facts_path itself."""
+    w = window_declaration(facts_path, root)
+    return Path(root) / w[1]["abstraction"] if w is not None else facts_path
+
+
 def lib_files(facts_path: Path | str | None, root: Path | str = ROOT) -> list[Path]:
-    """Library files applying to a facts file: the global ones, then the milestone's, each sorted."""
+    """Library files applying to a facts file: the global ones, then the milestone's (a window view: its abstraction's,
+    anchor), each sorted."""
     root = Path(root)
     out = sorted((root / "spec" / "lib").glob("*.lib.json"))
     if facts_path is not None:
-        mine = Path(facts_path).resolve().parent.parent / "lib"
+        mine = Path(anchor(facts_path, root)).resolve().parent.parent / "lib"
         if mine.resolve() != (root / "spec" / "lib").resolve():
             out += sorted(mine.glob("*.lib.json"))
     return out
 
 
-def hints_for(facts_path: Path | str | None) -> Path | None:
-    """The untrusted search-hints module for a facts file, if its milestone has one."""
+def hints_for(facts_path: Path | str | None, root: Path | str = ROOT) -> Path | None:
+    """The untrusted search-hints module for a facts file (a window view: its abstraction's, anchor), if its milestone
+    has one."""
     if facts_path is None:
         return None
-    p = Path(facts_path).resolve().parent.parent / "policy_hints.mjs"
+    p = Path(anchor(facts_path, root)).resolve().parent.parent / "policy_hints.mjs"
     return p if p.exists() else None
 
 
