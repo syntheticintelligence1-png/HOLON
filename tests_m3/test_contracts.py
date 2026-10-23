@@ -707,11 +707,16 @@ class TestRegressions(unittest.TestCase):
 
     def test_no_contract_on_the_real_milestones(self):
         """I64-R1 (part): no committed contract names M0-M3, and no M0-M3 record is marked intended_bounded or carries
-        intended."""
+        intended. Amended by I65 (tests_m3/test_o12.py rule O8; spec/M3/amendments.jsonl): a contract may name a real
+        milestone exactly when the I65 key registers its id for that milestone (C_o12 on M2); the record check over
+        results/M0-M3 is unchanged."""
         item("I64", "I64-R1")
         I = instrument()
+        later = predictions("I65")["thresholds"]["registered_contracts"]   # {id: milestone}, I65's O8
         for p, c in I.contract_docs(ROOT):
-            self.assertNotIn(c.get("milestone") if isinstance(c, dict) else None, ("M0", "M1", "M2", "M3"), p.name)
+            m = c.get("milestone") if isinstance(c, dict) else None
+            if m in ("M0", "M1", "M2", "M3"):
+                self.assertEqual(later.get(c.get("id")), m, p.name)
         for m in ("M0", "M1", "M2", "M3"):
             for p in sorted((ROOT / "results" / m).glob("L*.json")):
                 r = load_json(p)

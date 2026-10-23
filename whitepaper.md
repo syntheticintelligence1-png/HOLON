@@ -2,25 +2,9 @@
 
 *Specifications derived from system shape, finite-basis completeness theorems, a proof-carrying executable substrate, a factory that turns untrusted generators into checked results, and a case study on a production rollup.*
 
-Draft v2, October 2026. Authors withheld. Supersedes the v1 draft of the same month.
 
----
 
-### Changes from v1
 
-**New material**
-- **§8:** every protocol diagram compiles to a Bend 2 program. Obligations become laws, and outcomes are kernel-checked in both directions: proofs and counterexamples.
-- **§9:** the HOLON factory. Untrusted generators and agents, frozen statements, fresh-context auditors, and a gate.
-- **§12:** every known limitation, each paired with a remedy mechanism, its residual risk and a metric.
-- **§15:** an executable roadmap with exit criteria, starting with a two-day experiment.
-- **New theory:** rule OWN (aliasing and lost writes), intent contracts, an intent lane, discharge profiles, and Theorems 6.15–6.21.
-
-**Corrections**
-1. **DISCH ignored guards and time.** v1 computed the write closure over *callable* actions. The correct closure ranges over actions the obligated class can *enable*, by its own actions or by waiting. As a result, O33 is neither a halt (the manual analysis) nor purely a cost (v1). It is a discharge profile: pay one L1 message per batch, or wait for finalization (§5.7, §11.5).
-2. **A global hash-injectivity axiom is inconsistent** (Thm 6.15). v1's Appendix D stated one, universally quantified. v2 uses only local collision-freedom premises, written visibly in each statement, plus ground instances in solver queries.
-3. **SYM no longer promotes majority behaviour to specification** without independent evidence (§5.4).
-
----
 
 ## Abstract
 

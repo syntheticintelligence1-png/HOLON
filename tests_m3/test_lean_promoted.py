@@ -371,6 +371,54 @@ def need(p: Path) -> Path:
     return p
 
 
+def intended_weak(ldir: str, root: Path = ROOT) -> set:
+    """The ids of the laws of a laws directory that an intent contract derives (subform intended_weak, I64 K3): a
+    contract's L_weak, outside I43's promoted set (I65 amendment, spec/M3/amendments.jsonl; tests_m3/test_o12.py rule
+    O8). Empty at the I65 prereg."""
+    out = set()
+    for p in sorted((Path(root) / ldir).glob("L*.json")):
+        law = load_json(p)
+        if isinstance(law, dict) and law.get("subform") == "intended_weak":
+            out.add(p.stem)
+    return out
+
+
+def intended_weak_models(d: dict) -> set:
+    """The Lean model files a Lean directory (a sidecar "dirs" entry) may hold for its intended_weak laws: models/<stem
+    of the record's Bend model>.lean of each such law's record in the directory, as rule L4 names a model file (I65
+    amendment, spec/M3/amendments.jsonl; tests_m3/test_o12.py rules O4 and O8). Empty at the I65 prereg."""
+    out = set()
+    for lid in sorted(intended_weak(d["laws"])):
+        rp = ROOT / d["records"] / f"{lid}.json"
+        model = ((load_json(rp).get("artifacts") or {}).get("model")) if rp.is_file() else None
+        if model:
+            out.add(f"{d['lean_dir']}/models/{Path(model).stem}.lean")
+    return out
+
+
+def without_intended_weak() -> tuple:
+    """(root, scratch or None): ROOT when no law is intended_weak; else a copy of the repository without those laws, their
+    records and their entries in their laws/<M>/REGISTRY.json (the statement, and a facts_files entry that no remaining
+    law and not the registry's primary facts names), the registry written as holon derive writes it (I65 amendment,
+    spec/M3/amendments.jsonl)."""
+    weak = {(ldir, lid) for _, _, ldir, *_ in T.DIRS for lid in intended_weak(ldir)}
+    if not weak:
+        return ROOT, None
+    repo = copy_repo()
+    for ldir in sorted({ldir for ldir, _ in weak}):
+        gone = {lid for x, lid in weak if x == ldir}
+        for lid in sorted(gone):
+            (repo / ldir / f"{lid}.json").unlink()
+            (repo / "results" / Path(ldir).name / f"{lid}.json").unlink(missing_ok=True)
+        rp = repo / ldir / "REGISTRY.json"
+        reg = load_json(rp)
+        named = {load_json(q).get("facts") for q in (repo / ldir).glob("L*.json")} | {reg.get("facts")}
+        reg["statements"] = {k: v for k, v in reg["statements"].items() if k not in gone}
+        reg["facts_files"] = {k: v for k, v in reg["facts_files"].items() if k in named}
+        rp.write_text(json.dumps(reg, indent=2, sort_keys=True) + "\n")
+    return repo, repo.parent
+
+
 def lean_run(text: str, timeout: int = 900) -> tuple[str, float]:
     """Elaborate one Lean text with the pinned lean the instrument resolves (tests_m3/_i43.py::run_lean)."""
     r = T.run_lean(text, timeout)
@@ -521,21 +569,28 @@ class TestPreregInstruments(unittest.TestCase):
     def test_sidecar_is_the_computation(self):
         """Construction (I43-R2): spec/M3/lib/lean_promoted.json is tests_m3/_i43.py::promoted_doc over unchanged
         inputs: every input file's sha256 and every record's status and witnesses match, and recomputing the document
-        (the differential values and the canaries' evidence by bend on the committed models) gives the same JSON."""
+        (the differential values and the canaries' evidence by bend on the committed models) gives the same JSON.
+        Amended at the I65 prereg (spec/M3/amendments.jsonl; tests_m3/test_o12.py rule O8): both run over the tree
+        without the laws an intent contract derives (without_intended_weak), which are outside the promoted set."""
         s = side()
-        for i in s["inputs"]:
-            with self.subTest(input=i["path"]):
-                if "sha256" in i:
-                    self.assertEqual(file_sha256(ROOT / i["path"]), i["sha256"],
-                                     f"{i['path']} changed since the prereg")
-                else:
-                    rec = load_json(ROOT / i["path"])
-                    self.assertEqual(rec.get("status"), i["status"], i["path"])
-                    self.assertEqual(T._sha_json(rec.get("witness")), i["witness_sha256"], i["path"])
-                    self.assertEqual(T._sha_json((rec.get("non_vacuity") or {}).get("witness")),
-                                     i["non_vacuity_witness_sha256"], i["path"])
-                    self.assertEqual(T._sha_json(rec.get("witnesses")), i["witnesses_sha256"], i["path"])
-        doc = T.promoted_doc(ROOT)
+        root, scratch = without_intended_weak()
+        try:
+            for i in s["inputs"]:
+                with self.subTest(input=i["path"]):
+                    if "sha256" in i:
+                        self.assertEqual(file_sha256(root / i["path"]), i["sha256"],
+                                         f"{i['path']} changed since the prereg")
+                    else:
+                        rec = load_json(root / i["path"])
+                        self.assertEqual(rec.get("status"), i["status"], i["path"])
+                        self.assertEqual(T._sha_json(rec.get("witness")), i["witness_sha256"], i["path"])
+                        self.assertEqual(T._sha_json((rec.get("non_vacuity") or {}).get("witness")),
+                                         i["non_vacuity_witness_sha256"], i["path"])
+                        self.assertEqual(T._sha_json(rec.get("witnesses")), i["witnesses_sha256"], i["path"])
+            doc = T.promoted_doc(root)
+        finally:
+            if scratch is not None:
+                shutil.rmtree(scratch, ignore_errors=True)
         moving = ("bend_files", "lean_m0", "statuses", "inputs", "unregenerated_records")   # R1/R7's baselines
         for k in moving:
             doc.pop(k)
@@ -547,7 +602,8 @@ class TestPreregInstruments(unittest.TestCase):
         8, 2, 7 and 4 (21); not attempted, M3's typed and UNDO REFUTED laws (5) and I31's DISCH laws (13 PROVED and 7
         REFUTED: rule DISCH over a holon-facts/0.3 document, which no Lean emitter reads; carved out at the move onto
         be95d6d, the human's answer). Every other PROVED law is attempted. All PROVED: 8, 6, 7 and 86; all REFUTED:
-        8, 2, 7 and 16."""
+        8, 2, 7 and 16. Amended at the I65 prereg (spec/M3/amendments.jsonl): the live PROVED set leaves out the laws an
+        intent contract derives (intended_weak), which are outside the promoted set."""
         c = side()["counts"]
         self.assertEqual(c["proved"], {"M1": 8, "M2": 6, "M2/extracted_m1": 7, "M3": 86})
         self.assertEqual(c["refuted"], {"M1": 8, "M2": 2, "M2/extracted_m1": 7, "M3": 16})
@@ -568,8 +624,9 @@ class TestPreregInstruments(unittest.TestCase):
         self.assertEqual([e["law_id"] for e in out if e["status"] == "PROVED" and e["rule"] != "DISCH"], [])
         # I26's FACT laws, merged after the prereg, are carved out as I31's DISCH laws are (amendment): not in the
         # prereg's sidecar, and never attempted
-        live = {(d, p.stem) for d, r, *_ in T.DIRS for p in (ROOT / r).glob("L*.json")
-                if load_json(p).get("status") == "PROVED" and load_json(p).get("rule") != "FACT"}
+        live = {(d, p.stem) for d, r, ldir, *_ in T.DIRS for p in (ROOT / r).glob("L*.json")
+                if load_json(p).get("status") == "PROVED" and load_json(p).get("rule") != "FACT"
+                and p.stem not in intended_weak(ldir)}
         self.assertEqual(live, {(e["dir"], e["law_id"]) for e in side()["laws"] if e["status"] == "PROVED"})
         self.assertEqual([u["path"] for u in side()["unregenerated_records"] if "L_sort_" in u["path"]],
                          ["results/M3/L_sort_realize_rollup_363_4a64383b.json",
@@ -951,7 +1008,8 @@ class TestRegressions(unittest.TestCase):
         80 stale PAR hashes are brought to holon-rules/1.3); I30's 3 typed and I27's 8 UNDO M3 records, which I43
         does not regenerate (gap LP-G9; review 2, B3), keep their status, statement hash, generator hash, witnesses
         and kernels as at the prereg (sidecar unregenerated_records); records outside the attempted laws gain no
-        lean4 entry."""
+        lean4 entry, but those of the laws an intent contract derives (intended_weak; amended at the I65 prereg,
+        spec/M3/amendments.jsonl: their lean4 entry is G7's and tests_m3/test_o12.py's)."""
         for path, st in side()["statuses"].items():
             with self.subTest(record=path):
                 self.assertEqual(load_json(ROOT / path).get("status"), st)
@@ -983,10 +1041,11 @@ class TestRegressions(unittest.TestCase):
                         "kernels_sha256": T._sha_json(r.get("kernels"))}
                 self.assertEqual(have, u)
         attempted = {e["record"] for e in entries()}
-        for d, r, *_ in T.DIRS:
+        for d, r, ldir, *_ in T.DIRS:
+            weak = intended_weak(ldir)
             for p in sorted((ROOT / r).glob("L*.json")):
                 rel = p.relative_to(ROOT).as_posix()
-                if rel not in attempted:
+                if rel not in attempted and p.stem not in weak:
                     self.assertEqual(lean4_entry(load_json(p)), [], f"{rel} gained a lean4 entry")
 
     def test_m0_lean_files_are_unchanged(self):
@@ -1040,7 +1099,9 @@ class TestCode(unittest.TestCase):
     def test_lean_check_is_deterministic_on_the_committed_tree(self):
         """I43-R3 (the CLI): holon lean --milestone M --check exits 0 for M1, M2 and M3, twice (the committed
         Lean files and model files are their re-emission), and the Lean directories hold exactly the model files,
-        report.json and the file of every attempted law whose record does not say unsupported_form."""
+        report.json and the file of every attempted law whose record does not say unsupported_form. Amended at the I65
+        prereg (spec/M3/amendments.jsonl): a directory may also hold the model file of each of its intended_weak laws
+        (intended_weak_models), the Bend model its law uses (rule L4)."""
         for m in ("M1", "M2", "M3"):
             for n in (1, 2):
                 with self.subTest(milestone=m, run=n):
@@ -1054,7 +1115,7 @@ class TestCode(unittest.TestCase):
                     if not (ks and ks[0].get("result") == "not_run" and ks[0].get("reason") == "unsupported_form"):
                         want.add(e["lean_source"])
                 have = {p.relative_to(ROOT).as_posix() for p in (ROOT / d["lean_dir"]).rglob("*") if p.is_file()}
-                self.assertEqual(have, want)
+                self.assertEqual(have, want | (intended_weak_models(d) & have))   # (I65 amendment)
 
     def test_the_outputs_never_need_the_sidecars(self):
         """I43-R3 (review M4; review 2, m3): in a copy of the tree without spec/M3/lib/lean_promoted.json,
@@ -1151,19 +1212,24 @@ class TestDifferential(unittest.TestCase):
     def test_every_emitted_lean_file_obeys_the_file_rules(self):
         """I43-R9 (L4, review m6): every .lean file under gen/M1/lean, gen/M2/lean, gen/M2/extracted/m1/lean and
         gen/M3/lean, models/ included, is the law file of an attempted law or the model file of one of its models, and
-        obeys the file rules of its kind (tests_m3/_i43.py::file_check)."""
+        obeys the file rules of its kind (tests_m3/_i43.py::file_check). Amended at the I65 prereg
+        (spec/M3/amendments.jsonl): the model file of an intended_weak law (intended_weak_models), which the sidecar
+        does not list, obeys the model file rules without the sidecar's interface."""
         bad = {}
         for d in side()["dirs"]:
             laws = {e["lean_source"]: e for e in entries(d["dir"])}
             models = {m["lean_model"]: m for m in side()["models"].values()
                       if m["lean_model"].startswith(d["lean_dir"] + "/")}
             files = sorted(p.relative_to(ROOT).as_posix() for p in need(ROOT / d["lean_dir"]).rglob("*.lean"))
+            weak = intended_weak_models(d)
             for f in files:
                 src = (ROOT / f).read_text(encoding="utf-8")
                 if f in laws:
                     v = T.file_check(src, "law", side()["models"][laws[f]["model_key"]])
                 elif f in models:
                     v = T.file_check(src, "model", models[f])
+                elif f in weak:   # (I65 amendment)
+                    v = T.file_check(src, "model")
                 else:
                     v = ["neither an attempted law's file nor a model file"]
                 if v:
@@ -1243,7 +1309,9 @@ class TestGates(unittest.TestCase):
 
     def test_metrics_report_cross_kernel_coverage(self):
         """Construction (L10): results/<M>/metrics.json of M1, M2 and M3 carries cross_kernel_coverage with the PROVED
-        count of its directory (and M2's an extracted_m1 entry), lean4_checked, rate, not_run_by_reason and failed."""
+        count of its directory (and M2's an extracted_m1 entry), lean4_checked, rate, not_run_by_reason and failed.
+        Amended at the I65 prereg (spec/M3/amendments.jsonl): the count less the PROVED records of the laws an intent
+        contract derives (intended_weak), which are outside the promoted set."""
         for m, dkeys in (("M1", ["M1"]), ("M2", ["M2", "M2/extracted_m1"]), ("M3", ["M3"])):
             with self.subTest(milestone=m):
                 cov = load_json(ROOT / "results" / m / "metrics.json").get("cross_kernel_coverage")
@@ -1251,7 +1319,10 @@ class TestGates(unittest.TestCase):
                 for dk in dkeys:
                     c = cov if dk == m else cov.get("extracted_m1")
                     self.assertIsNotNone(c, dk)
-                    self.assertEqual(c["proved"], side()["counts"]["proved"][dk])
+                    rdir, ldir = next((r, ldir) for d, r, ldir, *_ in T.DIRS if d == dk)
+                    weak = sum(1 for lid in intended_weak(ldir) if (ROOT / rdir / f"{lid}.json").is_file()
+                               and load_json(ROOT / rdir / f"{lid}.json").get("status") == "PROVED")
+                    self.assertEqual(c["proved"] - weak, side()["counts"]["proved"][dk])
                     self.assertLessEqual({"proved", "lean4_checked", "rate", "not_run_by_reason", "failed"}, set(c))
 
     def test_lean_g3_scans_every_lean_directory(self):

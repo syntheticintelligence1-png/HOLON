@@ -164,6 +164,8 @@ class TestRecords(unittest.TestCase):
                 self.assertEqual(validate(r, V2), [])
                 self.assertEqual(r["statement_hash"], reg["statements"][lid])
                 self.assertIn(r["status"], ("PROVED", "REFUTED", "UNKNOWN"))
+                if law(lid).get("subform") == "intended_weak":   # amended (I65, spec/M2/amendments.jsonl): a contract's
+                    continue                                     # L_weak (I64 K3) is in no DERIVATION.json
                 if dv[lid].get("subform") != "site":   # amended (I20, spec/M2/amendments.jsonl): a SORT-width law
                     continue                          # has no site and no per-entry witnesses (I20's contract)
                 self.assertEqual(r["site"], dv[lid]["basis"]["site_id"])
@@ -187,7 +189,9 @@ class TestRecords(unittest.TestCase):
 
     def test_proved_site_laws_are_not_vacuous(self):
         """Construction (non-vacuity, I3 G11V, §12.3 L21): every PROVED SORT-site law carries a Bend-checked inhabitant of
-        its at_site premise (exs s: Reach, a. hit_<x>(a, s)), not merely of Reach; REFUTED ones point at a counter-law."""
+        its at_site premise (exs s: Reach, a. hit_<x>(a, s)), not merely of Reach; REFUTED ones point at a counter-law.
+        Amended at the I65 prereg (spec/M2/amendments.jsonl): a contract's L_weak (subform intended_weak, I64 K3) is
+        no SORT-site law and is held to the parent hash alone here."""
         recs = records("M2")
         self.assertTrue(recs, "results/M2 holds no law record")
         for lid, r in recs.items():
@@ -197,7 +201,7 @@ class TestRecords(unittest.TestCase):
                 self.assertEqual(nv["parent_statement_hash"], r["statement_hash"])
                 if r["status"] == "REFUTED":
                     self.assertEqual(nv["status"], "counter_witness")
-                if r["status"] != "PROVED":
+                if r["status"] != "PROVED" or law(lid).get("subform") == "intended_weak":   # (I65 amendment)
                     continue
                 self.assertEqual((nv["status"], nv["reachable"]), ("inhabited", True), nv.get("bound"))
                 lp = resolve(nv["law"])

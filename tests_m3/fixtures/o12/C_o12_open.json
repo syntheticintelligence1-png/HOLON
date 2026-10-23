@@ -1,0 +1,110 @@
+{
+  "contract_version": "holon-contract/0.1",
+  "evidence": [
+    "E2"
+  ],
+  "facts": "gen/M2/extracted/m1_view.json",
+  "id": "C_o12_open",
+  "kind": "intended",
+  "l_weak": {
+    "binders": [
+      {
+        "name": "p",
+        "q": "forall",
+        "type": "Trace"
+      }
+    ],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "bind": {
+                "g": {
+                  "add": "W",
+                  "from": {
+                    "s0": {}
+                  },
+                  "ghost": "challengeState",
+                  "over": {
+                    "var": "p"
+                  }
+                }
+              },
+              "expr": [
+                "||",
+                [
+                  "!",
+                  "inch"
+                ],
+                [
+                  "<=",
+                  "W",
+                  "g"
+                ]
+              ],
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "var": "p"
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  "inch"
+                ],
+                [
+                  "<=",
+                  [
+                    "get",
+                    [
+                      "call",
+                      "nth_ch",
+                      "chs",
+                      "bc"
+                    ],
+                    "s"
+                  ],
+                  "t"
+                ]
+              ],
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "var": "p"
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "maps_to": "O12 (N2)",
+  "milestone": "M2",
+  "rationale": "A second true claim for the class trace_bound (tests_m3/test_o12.py rules O2 and O3; a construction check, not a prediction, never registered in the tree): C_o12's conjuncts (b) and (c) over the trace alone, with no window position. (b) a challenge is open only after one succeeded, so W is at most the ghost sum of W over the successful challengeState steps; (c) the open challenge started at or before the current time. Both are inductive by themselves: only challengeState opens a challenge (it adds W to the ghost and records start t), proveState and setPause(true) close it, revertBatch and finalizeBatch only clear challenges, and only wait moves t, upward.",
+  "rule": "UNDO",
+  "scope": {
+    "laws": [
+      "L_undo_cancel"
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "contract_version": "holon-contract/0.1",
+  "evidence": [
+    "E2"
+  ],
+  "facts": "gen/M2/extracted/m1_view.json",
+  "id": "C_o12_tight",
+  "kind": "intended",
+  "l_weak": {
+    "binders": [
+      {
+        "name": "p",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "k",
+        "q": "forall",
+        "type": "Nat"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "bind": {
+            "g": {
+              "add": 1,
+              "from": {
+                "s0": {}
+              },
+              "ghost": "challengeState",
+              "over": {
+                "var": "p"
+              }
+            },
+            "k": {
+              "var": "k"
+            }
+          },
+          "expr": [
+            "<=",
+            [
+              "get",
+              [
+                "call",
+                "win_at",
+                "win",
+                "k"
+              ],
+              "bdf"
+            ],
+            [
+              "+",
+              [
+                "+",
+                [
+                  "get",
+                  [
+                    "call",
+                    "win_at",
+                    "win",
+                    "k"
+                  ],
+                  "bdo"
+                ],
+                "F"
+              ],
+              "g"
+            ]
+          ],
+          "from": {
+            "from": {
+              "s0": {}
+            },
+            "run": {
+              "var": "p"
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "maps_to": "O12 (N2)",
+  "milestone": "M2",
+  "rationale": "Planted false (I65-P3): the bound of C_o12 with one second per successful challenge instead of W. A challenge that extends another batch by W = 10 breaks it.",
+  "rule": "UNDO",
+  "scope": {
+    "laws": [
+      "L_undo_cancel"
+    ]
+  }
+}

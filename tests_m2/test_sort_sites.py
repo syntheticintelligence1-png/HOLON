@@ -347,8 +347,11 @@ class TestDeriveContract(_Shared):
         self.assertEqual(sorted(reg["statements"]), sorted(laws))
         named = sorted({l["facts"] for l in laws.values()})
         self.assertEqual(reg["facts_files"], {p: file_sha(ROOT / p) for p in named})
-        self.assertEqual(reg["facts"], named[0])
-        self.assertEqual(reg["facts_sha256"], file_sha(ROOT / named[0]))
+        # amended (I65, spec/M2/amendments.jsonl): the primary facts are the rules' laws'; a contract's L_weak (subform
+        # intended_weak, I64 K3) adds its facts to facts_files alone and is in no DERIVATION.json
+        ruled = sorted({l["facts"] for l in laws.values() if l.get("subform") != "intended_weak"})
+        self.assertEqual(reg["facts"], ruled[0])
+        self.assertEqual(reg["facts_sha256"], file_sha(ROOT / ruled[0]))
         self.assertEqual(reg["derivation_sha256"], hashlib.sha256((self.r.laws / "DERIVATION.json").read_bytes()).hexdigest())
         ev = ROOT / "gen" / "M2" / "evidence.json"
         if ev.exists():   # I14's frozen evidence set, merged later: its identity is copied, never recomputed here
@@ -362,7 +365,8 @@ class TestDeriveContract(_Shared):
                 h = refs.law_hash(law, facts_of(law["facts"]))
                 self.assertRegex(h, r"^sha256:[0-9a-f]{64}$")
                 self.assertEqual(reg["statements"][lid], h)
-                self.assertEqual(by_id[lid]["statement_hash"], h)
+                if law.get("subform") != "intended_weak":   # (I65 amendment)
+                    self.assertEqual(by_id[lid]["statement_hash"], h)
 
     def test_derivation_follows_the_rules(self):
         """R8-R10 (construction): every law's basis, entry points and hits are those tests_m2/_i15.py computes from the
@@ -727,6 +731,9 @@ class TestPredictedDerivation(_Shared):
         are commitBatch, commitBatchWithProof and commitState, each hit at its realization check (the facts' require
         !inch || t <= W + cstart, reason panic:0x11, span :363): guards[23], guards[27] and guards[22]."""
         laws = self.r.law_docs()
+        # amended (I65, spec/M2/amendments.jsonl): a contract's L_weak (subform intended_weak, I64 K3), whose claim may be
+        # a conjunction ({"all": ...}), is no site law
+        laws = {l: d for l, d in laws.items() if d.get("subform") != "intended_weak"}
         # amended (I20, spec/M2/amendments.jsonl): .get, since a SORT-width law's term is "width_site", not "site"
         self.assertEqual([l for l, d in laws.items() if d["statement"]["claim"]["eq"][0].get("site") == SITE_363],
                          [LAW_363])

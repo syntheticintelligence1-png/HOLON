@@ -104,3 +104,9 @@ These answers are the lead's, made under that delegation, not the human's own. T
   - the Morph L2 RPC.
 - **Historical state needs a token.** Public RPC archive *state* requests return "Archive requests require a personal token". Transactions, receipts and logs at any height work without one. A keyed archive endpoint in `ETH_RPC_URL` would add historical state; it is optional.
 - **No credentials set yet:** `ETHERSCAN_API_KEY`, `ETH_RPC_URL` and BigQuery are absent. I23a works without them; each one adds a source.
+
+## The scope of I33's O12 contract (the human, 2026-10-22)
+
+Asked in the build session which part of BUILD_PLAN I33 to take first, the human chose the recommended option, "O12 on M2's view first":
+- **I65 (= I33b)** puts O12's intent contract on M2's window view of the extracted Rollup (`gen/M2/extracted/m1_view.json`), where `L_undo_cancel` is already REFUTED. It brings the ghost counter, the proof class `trace_bound` for linear bounds over traces, and the integration of a contract-derived law and its mark into a real milestone. Prereg: `prompts/I65_o12_view.md` and `tests_m3/test_o12.py`.
+- **I33 keeps its number for the O12 contract on M3:** the word-level lemmas over the extracted model, and the UNDO analogue of `L_undo_cancel` after I26's catalog.
