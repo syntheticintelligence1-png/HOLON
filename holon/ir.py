@@ -247,6 +247,10 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I26): a FACT term, the kernel or attribution law of the fact ID over the law's binders (holon.rules.fact)
     if "fact" in t and isinstance(t.get("on"), list):
         return f"fact_ok[{t['fact']}]({', '.join(render_term(a) for a in t['on'])})"
+    # holon-ir/0.3 (I28): a PAR-init term, init_ok[ID](A, S, E) over the versioned machine (holon.rules.par_init)
+    if isinstance(t.get("init"), str) and "on" in t and "from" in t:
+        return (f"init_ok[{t['init']}]({render_term(t['on'])}, {render_term(t['from'])}, "
+                f"{render_term(t.get('env'))})")
     # holon-ir/0.3 (I27): an UNDO term, the undo law of the pair or residue ID over the law's binders (holon.rules.undo)
     if "undo" in t and isinstance(t.get("on"), list):
         return f"undo_ok[{t['undo']}]({', '.join(render_term(a) for a in t['on'])})"

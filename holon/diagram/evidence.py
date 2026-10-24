@@ -733,6 +733,44 @@ def adopted_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, by
     return out
 
 
+def versioned_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, bytes, dict, dict]]:
+    """(path, bytes, document, anchors) of the versioned document spec/<gm>/lib/versions.json writes (I28,
+    holon.versions), anchors only: the transitions anchors of its versions' documents (each one the sidecar's
+    documents entry names, read with its sha256 checked), merged (an action of every version is the one edge
+    TRANS.<name>, a family carried by the writers and readers of any version)."""
+    side = root / "spec" / gm / "lib" / "versions.json"
+    if not side.exists():
+        return []
+    sc = inp.read_json(side)
+    rel = ((sc.get("outputs") or {}).get("versions") if isinstance(sc, dict) else None)
+    if not isinstance(rel, str) or not (root / rel).is_file():
+        return []
+    raw = inp.read_bytes(root / rel)
+    try:
+        d = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as e:
+        raise EvidenceError(f"{rel}: not JSON ({e})") from e
+    if not isinstance(d, dict) or not isinstance(d.get("documents"), dict):
+        raise EvidenceError(f"{rel}: not a versioned document (no documents)")
+    an = {"codec": {}, "domains": {}, "actions": {}, "reasons": {}, "permissionless": [], "observers": {},
+          "migrations": {}, "consumers": {}, "carriers": {}, "trans": [], "sites": {}}
+    for vid in sorted(d["documents"]):
+        e = d["documents"][vid]
+        vraw = inp.read_bytes(root / e["path"])
+        if hashlib.sha256(vraw).hexdigest() != e.get("sha256"):
+            raise EvidenceError(f"{rel}: version {vid}'s document {e['path']} is not the one it records")
+        va = transitions_anchors(json.loads(vraw.decode("utf-8")))
+        an["actions"].update(va["actions"])
+        for f, c in va["carriers"].items():
+            have = an["carriers"].setdefault(f, {"writers": [], "readers": []})
+            for k in ("writers", "readers"):
+                have[k] = sorted(set(have[k]) | set(c[k]))
+    an["actions"] = dict(sorted(an["actions"].items()))
+    an["carriers"] = dict(sorted(an["carriers"].items()))
+    an["trans"] = sorted(set(an["actions"].values()))
+    return [(rel, raw, d, an)]
+
+
 def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, assignment: dict | None = None,
           milestone: str | None = None, components: list | None = None, adopted: bool = True) -> dict:
     """The evidence document of the given fact documents (paths inside root); see the module docstring. diagrams:
@@ -857,6 +895,13 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
         models[key] = {"facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(), "facts_version": FACTS03,
                        "diagram": None, "anchors": an}
+    # I28: the milestone's versioned document, no diagram, anchors only (versioned_documents)
+    for rel, raw, d, an in (versioned_documents(gm, root, inp) if adopted and milestone is not None else []):
+        key = Path(rel).name[:-len(".json")]
+        if key in models:
+            raise EvidenceError(f"two documents share the model name {key}")
+        models[key] = {"facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(),
+                       "facts_version": d.get("versions_version"), "diagram": None, "anchors": an}
     doc = {"document": "evidence", "evidence_version": EVIDENCE_VERSION, "milestone": milestone,
            "inputs": inp.listing(), "levels": dict(STRENGTH), "sorts_sha256": assignment.get("sorts_sha256"),
            "models": models, "atoms": _unique(atoms), "unresolved": _unique(unresolved)}

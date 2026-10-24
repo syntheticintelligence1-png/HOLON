@@ -85,15 +85,20 @@ class BindingError(Exception):
 
 
 # ---------------------------------------------------------------- kernel form
-def bendtt_text(model: Path, cfg: dict | None = None, shown: str | None = None) -> str:
+def bendtt_text(model: Path, cfg: dict | None = None, shown: str | None = None, keep_dir: bool = False) -> str:
+    """The BendTT translation of a model file, copied alone to a fresh directory (keep_dir: translated where it is,
+    beside the modules it imports)."""
     model = Path(model)
     shown = shown or model.name
     tmp = Path(tempfile.mkdtemp(prefix="holon-bendtt-"))
     try:
         src = tmp / model.name
-        shutil.copy(model, src)
-        r = bend.run([src.name, "-o", src.with_suffix(".bendtt").name], cwd=tmp, cfg=cfg)
-        out = src.with_suffix(".bendtt")
+        if keep_dir:
+            src = model
+        else:
+            shutil.copy(model, src)
+        out = tmp / (model.stem + ".bendtt")
+        r = bend.run([src.name, "-o", str(out) if keep_dir else out.name], cwd=src.parent, cfg=cfg)
         if r.code != 0 or not out.exists():
             raise BindingError(f"bend could not translate {shown} to BendTT: {r.out[:1500]}")
         if "out of scope" in r.out:
@@ -302,6 +307,61 @@ def _fact_section(law: dict, m: str, root: Path, importable: bool = False) -> Pa
     return Path(root) / "gen" / m / "fact" / "models" / (plain(name) if importable else f"{name}.bend")
 
 
+def _pinit(law: dict) -> bool:
+    """A PAR-init law (I28): a holon-ir/0.3 law of rule PAR, sub-form init_chain, over a versioned document.
+    holon.versions.run decides it over the versioned layer, and holon.versions.proofs.law_file emits its law file."""
+    from .rules.par_init import RULE, SUBFORM
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == RULE and law.get("subform") == SUBFORM
+
+
+def _versions(name: str):
+    """A holon.versions module, imported by name (as holon.fact.proofs is) so that the versioned layer's generator
+    stays out of the M1-M3 records' closure."""
+    import importlib
+    return importlib.import_module(f"holon.versions.{name}")
+
+
+_LOCAL_IMPORT = re.compile(r"(?m)^import\s+\./([A-Za-z0-9_]+\.bend)\s+as\s+[A-Za-z0-9_]+\s*$")
+
+
+@lru_cache(maxsize=None)
+def _layer_entries_cached(files: tuple, top: str, cfg_json: str, shown: str) -> tuple:
+    tmp = Path(tempfile.mkdtemp(prefix="holon-bendtt-layer-"))
+    try:
+        for name, text in files:
+            (tmp / name).write_text(text)
+        text = bendtt_text(tmp / top, json.loads(cfg_json) if cfg_json else None, shown, keep_dir=True)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    entries = parse_entries(text, shown)
+    bad = sorted(n for n in entries if _LOCAL.match(n))
+    if bad:
+        raise BindingError(f"{shown}: definitions named like BendTT locals ({bad}) would rename every local of "
+                           "the translation and change every binding")
+    return tuple(sorted(entries.items()))
+
+
+def layer_entries(model: Path, cfg: dict | None = None) -> dict[str, str]:
+    """BendTT entry name -> its full text, for a module with the modules of its directory it imports (`import ./x.bend
+    as X`, transitively): the versioned layer (I28) and its version modules, translated together (an imported
+    module's entries are named by its file's stem)."""
+    model = Path(model).resolve()
+    files, todo = {}, [model.name]
+    while todo:
+        name = todo.pop()
+        if name in files:
+            continue
+        text = (model.parent / name).read_text()
+        files[name] = text
+        todo.extend(_LOCAL_IMPORT.findall(text))
+    try:
+        shown = model.relative_to(ROOT).as_posix()
+    except ValueError:
+        shown = model.name
+    return dict(_layer_entries_cached(tuple(sorted(files.items())), model.name,
+                                      json.dumps(cfg, sort_keys=True) if cfg else "", shown))
+
+
 _IMPORT_LINE = re.compile(r"(?m)^import [^\n]*\n")
 _M_QUAL = re.compile(r"(?<![\w.])M\.")
 _U_QUAL = re.compile(r"(?<![\w.])U\.")
@@ -331,6 +391,8 @@ def _undo_kernel_text(law: dict, m: str, root: Path) -> str:
 
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
+    if _pinit(law):   # I28: the versioned model gen/<m>/versions/models/<model>.bend (a link to the layer)
+        return _versions("proofs").model_paths(m, root)[0]
     if _undo(law):   # I27: the trace section gen/<m>/undo/models/<model>.bend
         return _trace_model(law, m, root)
     if _fact(law):   # I26: the FACT section gen/<m>/fact/models/<model>.fact.bend
@@ -353,6 +415,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
+    if _pinit(law):   # I28: emitted as holon.versions.run writes it (holon.versions.proofs.law_file)
+        return _versions("proofs").law_file(law, m, root, statement_hash(law, m, root), counter)
     if _disch(law):   # I31: as holon.disch.run writes it (holon.disch.proofs.laws_text); an external law (an
         from .disch import proofs as DP   # existential law, never REFUTED) has no counter-law
         from .disch.section import tables
@@ -495,6 +559,9 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
         entries = dict(_entries_cached(_undo_kernel_text(law, m, root), json.dumps(cfg, sort_keys=True) if cfg else "",
                                        mp.relative_to(root).as_posix()))
         c = kernel_cone((_F_QUAL if _fact(law) else _U_QUAL).sub("M.", statement_text(law, m, root)), entries)
+    elif _pinit(law):   # I28: the layer translated with the version modules it imports
+        entries = layer_entries(mp, cfg or bend.config(root))
+        c = kernel_cone(statement_text(law, m, root), entries)
     else:
         entries = kernel_entries(mp, cfg or bend.config(root))
         c = kernel_cone(statement_text(law, m, root), entries)

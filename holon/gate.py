@@ -616,7 +616,12 @@ class Gate:
             if rec is not None and not isinstance(rec, dict):
                 bad.append(f"{lid}: the result record is not an object")
         recs = {lid: rec for lid, rec in recs.items() if isinstance(rec, dict)}
-        refuted = {lid: rec for lid, rec in recs.items() if rec.get("status") == "REFUTED"}
+        try:      # I28 (V9): the PAR-init records are bound to the versions replay report (below), not this one
+            from .versions.run import init_entries
+            versioned = set(init_entries(self.m, self.root))
+        except Exception:  # noqa: BLE001  (no PAR-init laws: none set aside)
+            versioned = set()
+        refuted = {lid: rec for lid, rec in recs.items() if rec.get("status") == "REFUTED" and lid not in versioned}
         claimed = self.claimed_sides()
         laws_ir = {law["law_id"]: law for law in ir.load_laws_any(self.m, self.root)}
         if report is None:
@@ -683,9 +688,16 @@ class Gate:
             if rec.get("status") != "REFUTED" and (rec.get("witness_provenance") is not None
                                                           or rec.get("filter_bin") is not None):
                 bad.append(f"{lid}: a {rec.get('status')} record carries witness_provenance / filter_bin")
+        try:      # I28 (V9): the REFUTED PAR-init records are bound to the versions replay report instead
+            from .versions.replay import g6 as versions_g6
+            pinit = versions_g6(self.m, self.root)
+        except Exception as e:  # noqa: BLE001  (a crash is a failed clause)
+            pinit = (False, f"PAR-init laws: the binding could not be checked: {type(e).__name__}: {e}")
         self.checks["G6"] = _res(not bad, f"{n} REFUTED records bound to passed replays with strict sides, provenance "
                                           f"and recomputed filter bins; {MODEL_ONLY}: {', '.join(model_only) or 'none'}"
                                  if not bad else "; ".join(bad))
+        if pinit is not None:
+            self.checks["G6"] = _res(self.checks["G6"]["passed"] and pinit[0], f"{self.checks['G6']['detail']}; {pinit[1]}")
 
     def final_overlay(self, committed: dict, regen: dict) -> dict:
         """I40: a REFUTED record's concretization is holon refute's (checked by `holon refute --check`), and its bin the
@@ -1525,6 +1537,14 @@ class Gate:
     def g11v(self) -> None:
         from . import inhabit
         ok, detail = inhabit.g11v(self)
+        try:      # I28 (V8): a milestone with a versions sidecar has in-flight inhabitants of its path's MIG edges
+            from .versions.inhabit import clause
+            inflight = clause(self.m, self.root, self.cfg)
+        except Exception as e:  # noqa: BLE001  (a crash is a failed clause)
+            inflight = (False, f"in-flight: the clause could not be checked: {type(e).__name__}: {e}")
+        if inflight is not None:
+            ok = ok and inflight[0]
+            detail = f"{detail}; {inflight[1]}"
         self.checks["G11V"] = _res(ok, detail)
 
     def g7(self) -> None:
