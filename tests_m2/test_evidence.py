@@ -289,7 +289,9 @@ class TestEvidenceFile(_Shared):
             with self.subTest(model=m):
                 self.assertEqual((d["models"][m]["facts"], d["models"][m]["diagram"],
                                   d["models"][m]["facts_version"]), (rel, None, "holon-facts/0.3"))
-                self.assertEqual([a for a in d["atoms"] if a["model"] == m], [])
+                # amended (I72, spec/M2/amendments.jsonl; tests_m3/test_e2_transitions.py rule Z7): an adopted
+                # transitions document's model holds E2 atoms over its own terms, and no atom of another level
+                self.assertEqual([a["id"] for a in d["atoms"] if a["model"] == m and a["level"] != "E2"], [])
         for m, rel in views.items():
             with self.subTest(model=m):
                 mo = d["models"][m]
@@ -344,18 +346,28 @@ class TestEvidenceFile(_Shared):
         ids = [a["id"] for a in d["atoms"]]
         self.assertEqual(ids, sorted(ids))
         self.assertEqual(len(ids), len(set(ids)))
+        # amended (I72, spec/M2/amendments.jsonl; tests_m3/test_e2_transitions.py rule Z7): an adopted transitions
+        # document's model key has a dot (its file name without ".json"), so its atoms' ids are matched by a local
+        # pattern whose model group admits one; ID_RE still matches every other atom
+        adopted_id = re.compile(ID_RE.pattern.replace("(?P<model>[A-Za-z0-9_]+)", "(?P<model>[A-Za-z0-9_][A-Za-z0-9_.]*)"))
         for a in d["atoms"]:
             with self.subTest(atom=a["id"]):
-                m = ID_RE.match(a["id"])
+                m = (adopted_id if d["models"][a["model"]]["diagram"] is None else ID_RE).match(a["id"])
                 self.assertIsNotNone(m, a["id"])
                 self.assertEqual((m["model"], m["level"], m["p"], m["q"]), (a["model"], a["level"], a["p"], a["q"]))
                 self.assertEqual(m["h"], canonical_sha256(a["via"])[:8])
-                es = edges(a["model"])
-                for end in (a["p"], a["q"]):
-                    self.assertIn(end, es)
-                    e = es[end]
-                    self.assertTrue(e["kind"] in ENDPOINT_KINDS or (e["kind"] == "LOAD" and e.get("observer")),
-                                    f"{end} is not an endpoint (STORE/LOAD aggregates never are)")
+                if d["models"][a["model"]]["diagram"] is None:
+                    # amended (I72, spec/M2/amendments.jsonl; tests_m3/test_e2_transitions.py rule Z7): an adopted
+                    # transitions document's model has no diagram; its endpoints are its anchors' TRANS edges
+                    for end in (a["p"], a["q"]):
+                        self.assertIn(end, d["models"][a["model"]]["anchors"]["trans"])
+                else:
+                    es = edges(a["model"])
+                    for end in (a["p"], a["q"]):
+                        self.assertIn(end, es)
+                        e = es[end]
+                        self.assertTrue(e["kind"] in ENDPOINT_KINDS or (e["kind"] == "LOAD" and e.get("observer")),
+                                        f"{end} is not an endpoint (STORE/LOAD aggregates never are)")
                 if a["level"] in ("E3", "E5"):
                     self.assertEqual(a["p"], a["q"], "located levels have p == q")
                 if a["level"] in ("E4", "E6") or (a["level"] == "E1" and a["via"]["kind"] == "common_decoder"):
@@ -456,7 +468,9 @@ class TestSoundness(_Shared):
             self.assertEqual(atoms(d, "E1", m), [], f"{m} has no CODEC edge")
 
     def test_e2_atoms_use_terms_of_the_diagram(self):
-        for a in atoms(self.doc, "E2"):
+        # amended (I72, spec/M2/amendments.jsonl; tests_m3/test_e2_transitions.py rule Z7): the atoms of the models with
+        # a diagram; an adopted transitions document's E2 atoms are checked against its own terms by I72-P1
+        for a in [x for x in atoms(self.doc, "E2") if self.doc["models"][x["model"]]["diagram"] is not None]:
             with self.subTest(atom=a["id"]):
                 es = edges(a["model"])
                 c = a["via"]["carrier"]
