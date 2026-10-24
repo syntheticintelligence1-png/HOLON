@@ -3167,6 +3167,241 @@
         "known_red_at_base": "Two checks are red at the base 089b43a4, and I67 changes neither cause. (1) tests_m3/test_lean_promoted.py::TestRegressions.test_statuses_and_bend_files_are_unchanged, on the 6 DISCH nonvac LAWS.bend files F40's re-made inhabitants (5b369d4) changed beyond their statement hash, the first being gen/M3/L_disch_rev_initializable_120_b8d46c45/nonvac/LAWS.bend: its amendment here touches only the count of M3 PAR records, and the F40 follow-up that brings I43's baselines for those 6 files up to date is the lead's. (2) tests_m3/test_refute.py::TestRecordsAndShared.test_outcome_commits_touch_no_earlier_milestone, 9 failures on I26's commits e122e7a and 4784042: I67's commits are grouped (rule Y11) so that none of them adds a failure.",
         "disclosure": "What was observed before this commit (the prereg review's finding M6; the verification's N1 and N4). (1) On the draft branch claude/ci-i67-wip, 2026-10-23: 3f17e71 and f87fdaa ran the opt-in frontend on common/batch and common/blob (I67-R4 a); 959ef04's draft model checked the batch clone's counter-law {ok(W) == False} in bend and BendTT --verdict at W the 3969-cell sequence of 3968 zeros and then a 1, and the blob clone's counter-law failed at the all-zero 4096-cell sequence (I67-R4 b). (2) The prereg review ran I67-P5's derivation (holon.rules.par.derive_document on the Y4 diagram; its verified[2]). (3) After the review was folded (2026-10-24, 13:37-13:44 UTC), the build code was smoke-run on this key's base 089b43a4 in a scratch worktree, 13:50-13:58: holon extract go, codecs, diagram, evidence, derive and lossy for M3, holon run on the four laws alone, holon replay-go and this key's contract tests (holon bind was started too). It observed every prediction's outcome as predicted: the four laws and statements of I67-P5; I67-P1-P3 REFUTED at cell 3968 = 1 with kernel verdict checked and their replays passed; I67-P4 UNKNOWN with its bound. It also found two contract gaps, both closed before this commit: test_y1_loop_bodies_shape required an error class on a return from a function without an error result, where the paths section writes null (Y1 now says so, and the test was narrowed at 13:58, after it failed); and Y9's stamp must write witness_provenance for Y8 to hold in Y11's order (Y9 and Y11 now say so). The smoke run's code and outputs are backed up, never to be merged, at 42c54af on claude/ci-i67-build-wip, as the draft build's are at ad274fe; neither commit enters the lead's history. So no prediction of this key is counted (counted_predictions is empty; observed_before_prereg names what was seen of each). The predicted values were fixed before the smoke run and not changed by it: the statuses, witness and differences are the draft key's at ad274fe (pushed 2026-10-24T13:09Z) and the reviewed key's."
       }
+    },
+    "I72": {
+      "title": "E2 over the adopted holon-facts/0.3 transitions documents (I33's evidence key): written-via-p, read-via-q atoms from the document's own write records and storage terms, key- and member-aware, in M2's and M3's evidence sets, so that a law over the adopted Rollup document that names an edge (I33's M3 contract law first) has computed evidence",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I72)",
+      "prompt": "prompts/I72_e2_transitions.md",
+      "predictions": [
+        {
+          "id": "I72-P1",
+          "claim": "In gen/M2/evidence.json and gen/M3/evidence.json the adopted Rollup document's model morph_rollup.extracted holds exactly the instrument's E2 atoms (rule Z3: ids, p, q, via and src): 421 atoms, 55 of them relating an action to itself, over 25 families, among them the five pinned examples (challengeState to setPause on inChallenge, whole; challengeState to setPause on challenges, [*] against [*].challengeDeposit and [*].challenger; challengeState to finalizeBatch on batchDataStore, [*].finalizeTimestamp; commitBatch to challengeState on batchDataStore, [*] against [*].finalizeTimestamp and [*].originTimestamp; finalizeBatch to importGenesisBatch on finalizedStateRoots, [*] against the literal key [0]); no atom of another level and no unresolved entry. Recorded, not counted (thresholds.counted_predictions is empty): I72-R3's equality of holon.diagram.evidence.transitions_atoms with the instrument and I72-R4's counts entail it, the instrument's inventory is known at the prereg, and the prereg review's simulated build observed it (thresholds.disclosure).",
+          "check": "tests_m3/test_e2_transitions.py::TestPredictions::test_p1_the_e2_inventory"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I72-R1",
+          "claim": "No law's evidence moves: for every law of laws/M0-M3 at the prereg, law_evidence over the set at I72's end commit (the merge's second parent once merged) equals law_evidence over the prereg's set (levels, max, named, atoms), and no such law over an adopted document names an edge (2 laws of laws/M2 and 51 of laws/M3); the records I72's own commits change keep their evidence fields (R2's stamp-only check); on the tree under test GEVID passes on M0, M1 (report-only) and M2, M3 (enforcing) with no problem and no uncovered law, the prereg's laws' mismatches the prereg's (M0's and M1's two each); each of laws/M2 and laws/M3's registries records its set's evidence_sha256.",
+          "check": "tests_m3/test_e2_transitions.py::TestRegressions::test_r1_no_laws_evidence_moves"
+        },
+        {
+          "id": "I72-R2",
+          "claim": "I72's own commits (judged one by one against their first parents, along the first-parent line of the merge's second parent; another key's commits merged into the branch never count) change, outside holon/, docs/ (but the frozen docs), tests_m2/test_evidence.py and the two amendment files, only the two evidence sets, spec/schemas/evidence.schema.json (its atom model pattern and the model group of its atom id pattern, admitting a dot after the first character, and their descriptions, alone: rule Z4), laws/M2/REGISTRY.json (evidence_sha256 alone), laws/M3/REGISTRY.json and DERIVATION.json (evidence_sha256, derivation_sha256 and DERIVATION's gen/M3/evidence.json input entry alone), gen/M3/par_lossy/header_length.json (its gen/M3/evidence.json input entry alone, in a commit that changes nothing under laws/, gen/M0-M2, results/M0-M2 or replay/ and not gen/M3/evidence.json), results/M3/metrics.json (evidenced_pair_coverage's evidence_sha256 alone), results/M3/metrics_timing.json, and the records directly under results/M1, results/M2 and results/T32, each in generator_sha256 and keys named seconds alone (rule Z6); the holon/ files they change name no family or action of an adopted transitions document and not the probe's id (only names a commit adds are counted); no law or record is added or deleted, no M3 record is re-made (every M3 record's generator_sha256 trails I72's closures until the next M3 re-make), and nothing else changes: no frozen root, fact document, other spec/ file, replay/, audit/, law file, results/M0, other results/M3 file, results/T32/summary.json, gen/M0, gen/M1, gen/T32 or other gen/M2 or gen/M3 file.",
+          "check": "tests_m3/test_e2_transitions.py::TestRegressions::test_r2_own_commits_change_only_what_z6_allows"
+        },
+        {
+          "id": "I72-R3",
+          "claim": "Rule Z4 where and not elsewhere: holon.diagram.evidence.transitions_atoms (holon/diagram/transitions.py's, re-exported) equals the instrument on the Rollup document and raises EvidenceError on a planted whole-mapping read, on an accessed family two declarations share (a second scalar declaration of inChallenge) and on a raw sload at a family's slot; a build for a test milestone (T24), with diagrams passed in, or with adopted off gives the adopted model no atom (so the four in-memory and toy sets I66's key pins render as at the prereg); holon evidence --milestone M2 and --milestone M3 reproduce the committed sets byte for byte; each own commit that changes a set (judged against its first parent) keeps the parent's models, every other model's atoms, every unresolved entry, the header fields and the inputs, adds only E2 atoms to the adopted models, and leaves an evidence_sha256 that is its body's hash, and own commits change both sets; CI's gate-M0, gate-M1, gate-M2, gate-M3-partial, gate-M3-G2, tests-m3-catalog, frozen-suite, freeze-check and both prereg audits pass on the build head as on the base.",
+          "check": "tests_m3/test_e2_transitions.py::TestRegressions::test_r3_the_rule_where_and_not_elsewhere and tests_m3/test_e2_transitions.py::TestRegressions::test_r3_every_other_model_and_the_header_as_at_the_parent"
+        },
+        {
+          "id": "I72-R4",
+          "claim": "Construction checks, not counted: the key pins the instrument, the probe and the contract docstring; the instrument maps every adopted transitions document of M2 and M3 (the Rollup document alone) with no unmapped construct, every atom's p a writer and q a reader of its carrier in the committed anchors (I20's rule, unchanged), its writes and reads non-empty and sorted; the probe is a valid holon-ir/0.3 law over the Rollup document with its sha256, covered by the prereg's sets, naming TRANS.challengeState and TRANS.setPause with the 33 TRANS edges as context and levels [].",
+          "check": "tests_m3/test_e2_transitions.py::TestPrereg::test_r4_the_instrument_on_the_documents and tests_m3/test_e2_transitions.py::TestPrereg::test_r4_the_probe_at_the_prereg"
+        },
+        {
+          "id": "I72-R5",
+          "claim": "Construction and a recorded observation, not counted: over each committed set the probe has levels [E2] (max E2), its relevant atoms, by I66's instrument and by holon's law_evidence alike, exactly the instrument's 92 atoms with an endpoint at challengeState or setPause (rule Z5); and, observed before the prereg, the hand abstraction morph_rollup's 60 E2 pairs between the 8 actions it shares with the Rollup document are all pairs of the document's atoms, which relate exactly one pair more among those actions: finalizeBatch to setPause, on challenges.",
+          "check": "tests_m3/test_e2_transitions.py::TestRegressions::test_r5_the_probe_and_the_hand_abstraction"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M2/evidence.json",
+        "docs/iterations/I72.md"
+      ],
+      "tests": [
+        "tests_m3/test_e2_transitions.py"
+      ],
+      "thresholds": {
+        "base": "2d173e3b5cdfcd3ce20327a9a39790760ca845dd (the lead after I67's merge; CI run 40110690800 on it), with BUILD_PLAN's row I72 committed before this commit",
+        "instrument": "tests_m3/_i72.py",
+        "instrument_sha256": "8903b87b2917b8da15c514a5997f517570e22ebbaaff7d9f5f3cedcc624b51f0",
+        "contract_docstring_sha256": "675397a04094df429f89abf2cf643eeb3f1008da267bd8178e2fffa2da7bf56d",
+        "fixture_sha256": {
+          "tests_m3/fixtures/e2_transitions/L_probe_e2_challenge_pause.json": "7ed355e6bca0610759fe2464c8fb694c7bce098f88472809c4ea9765dda92f9b"
+        },
+        "document": {
+          "path": "spec/M2/facts/morph_rollup.extracted.json",
+          "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+          "model": "morph_rollup.extracted",
+          "actions": 33
+        },
+        "atoms": {
+          "total": 421,
+          "self": 55,
+          "carriers": 25,
+          "examples": [
+            {
+              "p": "TRANS.challengeState",
+              "q": "TRANS.setPause",
+              "carrier": "inChallenge",
+              "writes": [
+                "*"
+              ],
+              "reads": [
+                "*"
+              ]
+            },
+            {
+              "p": "TRANS.challengeState",
+              "q": "TRANS.setPause",
+              "carrier": "challenges",
+              "writes": [
+                "[*]"
+              ],
+              "reads": [
+                "[*].challengeDeposit",
+                "[*].challenger"
+              ]
+            },
+            {
+              "p": "TRANS.challengeState",
+              "q": "TRANS.finalizeBatch",
+              "carrier": "batchDataStore",
+              "writes": [
+                "[*].finalizeTimestamp"
+              ],
+              "reads": [
+                "[*].finalizeTimestamp"
+              ]
+            },
+            {
+              "p": "TRANS.commitBatch",
+              "q": "TRANS.challengeState",
+              "carrier": "batchDataStore",
+              "writes": [
+                "[*]"
+              ],
+              "reads": [
+                "[*].finalizeTimestamp",
+                "[*].originTimestamp"
+              ]
+            },
+            {
+              "p": "TRANS.finalizeBatch",
+              "q": "TRANS.importGenesisBatch",
+              "carrier": "finalizedStateRoots",
+              "writes": [
+                "[*]"
+              ],
+              "reads": [
+                "[0]"
+              ]
+            }
+          ]
+        },
+        "probe": {
+          "law_id": "L_probe_e2_challenge_pause",
+          "levels_at_prereg": [],
+          "levels_expected": [
+            "E2"
+          ],
+          "relevant_atoms": 92
+        },
+        "hand": {
+          "model": "morph_rollup",
+          "common_actions": [
+            "challengeState",
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState",
+            "finalizeBatch",
+            "proveState",
+            "revertBatch",
+            "setPause"
+          ],
+          "pairs": 60,
+          "extracted_only": [
+            [
+              "TRANS.finalizeBatch",
+              "TRANS.setPause"
+            ]
+          ]
+        },
+        "laws_over_adopted_at_prereg": {
+          "M2": 2,
+          "M3": 51
+        },
+        "gevid_mismatches_at_prereg": {
+          "M0": [
+            {
+              "law": "L_dom_hdr",
+              "missing": [
+                "E2"
+              ]
+            },
+            {
+              "law": "L_par_hdr_v2",
+              "missing": [
+                "E1"
+              ]
+            }
+          ],
+          "M1": [
+            {
+              "law": "L_nat_eta2",
+              "missing": [
+                "E2"
+              ]
+            },
+            {
+              "law": "L_tag_BVH",
+              "missing": [
+                "E2",
+                "E5"
+              ]
+            }
+          ]
+        },
+        "evidence_at_prereg": {
+          "M2": {
+            "path": "gen/M2/evidence.json",
+            "sha256": "bcaac20427a0b0f0426edbfe4f2f33f2ac4df4c7bb3028c95ce4f588e7cb90eb",
+            "evidence_sha256": "f8cfe2d4c4e50db3f12b78fab896bae0b4b2980615b0f664f582e12a460ab6d1",
+            "models": [
+              "m1_view",
+              "morph_batchdata",
+              "morph_header",
+              "morph_rollup",
+              "morph_rollup.extracted"
+            ],
+            "atoms": 423,
+            "unresolved": 142,
+            "inputs": 16,
+            "adopted_model_atoms": 0
+          },
+          "M3": {
+            "path": "gen/M3/evidence.json",
+            "sha256": "cfc751720160995c1086d14810b2e9d93fc2eb76426fb7c3bb6857c0095e37b9",
+            "evidence_sha256": "dc92dd52246cac342c4e3003123190dae803c7e72c60374bbae60f78c1f616cf",
+            "models": [
+              "blob_ops",
+              "header_length",
+              "morph_rollup.extracted"
+            ],
+            "atoms": 162,
+            "unresolved": 0,
+            "inputs": 10,
+            "adopted_model_atoms": 0
+          }
+        },
+        "counted_predictions": [],
+        "not_counted_why": "I72-P1 is entailed by I72-R3 (transitions_atoms equals the instrument) and I72-R4 (the instrument's counts), the instrument's inventory is known at the prereg, a draft of the build's walker predates the prereg, and the prereg review's simulated build observed P1, R3 and R5 hold (the review's M1; thresholds.disclosure). As for I67, nothing is counted.",
+        "outcome_paths_note": "gen/M3/evidence.json is not an outcome path. I28's build branch, parallel to this prereg, writes it (01ebde0, its versioned document's anchors) and the evidence schema (3be1bfd), so audit rule 4 would count I28's commits against I72 (the prereg review's M6). I72's M3 set is held to rules Z3 and Z4 by I72-P1 and I72-R3 instead, and I72's build is regenerated on the lead after I28's build lands. A later branch that writes gen/M2/evidence.json is created from, or merges, a lead that holds this prereg.",
+        "schema": {
+          "path": "spec/schemas/evidence.schema.json",
+          "atom_model_pattern": "^[A-Za-z0-9_][A-Za-z0-9_.]*$",
+          "atom_id_pattern": "^[A-Za-z0-9_][A-Za-z0-9_.]*:E[1-6]:[^:]+:[^:]+:[0-9a-f]{8}$",
+          "at_prereg": {
+            "atom_model_pattern": "^[A-Za-z0-9_]+$",
+            "atom_id_pattern": "^[A-Za-z0-9_]+:E[1-6]:[^:]+:[^:]+:[0-9a-f]{8}$"
+          }
+        },
+        "review": "The prereg review (independent; docs/iterations/I72_prereg_review.json, committed after this commit with the author's fold) gave no sign-off: 3 blocking (the schema's atom patterns; I66's light-copy test; I14's ID_RE), 6 major (P1 not countable; the disclosure of the draft; I25's red test and the lossy commit; R1 and R3 judged at HEAD; I14's name bans; the outcome path shared with I28) and 7 minor findings. All are folded into this commit.",
+        "disclosure": "What was known before this commit. (1) The rule was probed on the committed Rollup document in scratch in three steps (family level: 479 pairs; with paths and the post section read as reads: 474 atoms; with the threading positions: 421 atoms, the rule written here), then the instrument ran on the documents of M2 and M3. (2) law_evidence and I66's instrument on the probe over the committed sets (covered, both edges named, levels []); law_evidence over every law of laws/M2 and laws/M3 whose facts is the Rollup document (none names an edge); GEVID on M0-M3 (passing; the mismatches pinned here); the hand abstraction's E2 pairs against the instrument's (R5's observation: 60 of 60 covered, one extracted-only pair). (3) A draft of the build's walker (transitions_atoms and its build hook) was written in scratch before this commit and is backed up, never merged, at f962efe on claude/ci-i72-wip (wip/I72_transitions_atoms_draft.py.txt); it was never applied to the tree, never run and never compared with the instrument. (4) The independent prereg review simulated a build in a scratch clone from the contract text: its own walker equals the instrument atom for atom (421), and with the schema's two patterns widened I72-P1, R3 and R5 passed there and GEVID passed on M0-M3 with the pinned mismatches (docs/iterations/I72_prereg_review.json). So I72-P1's outcome was observed before this commit, and it is recorded, not counted.",
+        "known_red_at_base": "Red at the base 2d173e3 and not caused or hidden by I72: tests_m3/test_par_lossy.py::TestGateAndRegressions.test_i25_outcome_commits_touch_no_frozen_or_earlier_output, on I67's commits 1ebec02 and d106a83 (each changes gen/M3/par_lossy/ together with laws/M3/DERIVATION.json, gen/M3/evidence.json and gen/M3/diagram/blob_ops.json; found by the prereg review, M3; I72 commits holon lossy's output alone, rule Z6); tests_m3/test_lean_promoted.py's sidecar and baseline checks (I26's Question 5: 107 laws/M3 input pins, the typed records' baselines and the F40 bend files; I43's re-baseline is planned after the M3 keys in flight land); and tests_m3/test_refute.py::TestRecordsAndShared.test_outcome_commits_touch_no_earlier_milestone on I26's commits e122e7a and 4784042. Locally, without the pinned checker, every gate check is skipped (GENV); CI runs them with the pinned checker."
+      }
     }
   }
 }
