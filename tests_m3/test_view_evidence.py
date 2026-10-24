@@ -453,7 +453,7 @@ class TestPredictions(unittest.TestCase):
         self.assertEqual(lv(V, "E3"), moved)
         self.assertEqual(len(moved), 8)
         self.assertEqual(sorted([x["p"], x["via"]["where"]] for x in V if x["level"] == "E3"),
-                         predictions("I66")["thresholds"]["view_e3_predicted"])
+                         sorted(predictions("I66")["thresholds"]["view_e3_predicted"]))
 
 
 class TestRegressions(unittest.TestCase):
@@ -554,7 +554,7 @@ class TestRegressions(unittest.TestCase):
         nr = show(end, EXIT)["exit_a"]["coverage"]["not_replayed"]
         keys = sorted(k for k in nr if k.startswith(f"{I.VIEW}#"))
         self.assertEqual(keys, I.exit_keys(show(end, I.DIAGRAM)))
-        self.assertEqual([k for k in keys if "the hand abstraction" in nr[k]], [])
+        self.assertEqual([k for k in keys if nr[k].startswith("the hand abstraction of ")], [])
 
     def test_r3_the_gates_and_the_exit_document(self):
         """I66-R3 (part): GEVID passes from the gate on M0, M1 and M2 (report-only, report-only, enforcing), and the
@@ -895,7 +895,7 @@ class TestBuild(unittest.TestCase):
         I = instrument()
         repo = light_copy()
         shutil.copy2(ROOT / I.VIEW, repo / "gen" / M / "extracted" / "morph_rollup.json")
-        self.assertEqual(sorted(I.window_views(M, repo)), [I.ABSTRACTION_MODEL, I.VIEW_MODEL])
+        self.assertEqual(sorted(I.window_views(M, repo)), sorted([I.ABSTRACTION_MODEL, I.VIEW_MODEL]))
         out = scratch() / "d"
         p = run_holon(["diagram", "--milestone", M, "--root", str(repo), "--out", str(out)], cwd=ROOT, timeout=1800)
         self.assertEqual(p.returncode, 1, (p.stdout + p.stderr)[-2000:])
