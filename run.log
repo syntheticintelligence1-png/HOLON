@@ -1,0 +1,41 @@
+2026-10-24T15:33:32Z start
+L_pinit_Rollup_importGenesisBatch_committedBatches_17_9: REFUTED (24.436 s)
+2026-10-24T15:33:57Z versions extract --check
+holon versions extract: V3: gen/M3/versions/documents/V3.json (26 actions)
+holon versions extract: V4: gen/M3/versions/documents/V4.json (27 actions)
+holon versions extract: V5: gen/M3/versions/documents/V5.json (27 actions)
+holon versions extract: V6: gen/M3/versions/documents/V6.json (27 actions)
+holon versions extract: V7: gen/M3/versions/documents/V7.json (30 actions)
+holon versions extract: V8: gen/M3/versions/documents/V8.json (31 actions)
+holon versions extract: V9: gen/M3/versions/documents/V9.json (32 actions)
+holon versions extract: V10: gen/M3/versions/documents/V10.json (32 actions)
+holon versions extract: V11: gen/M3/versions/documents/V11.json (33 actions)
+holon versions extract: 19 of 19 files reproduce
+2026-10-24T15:34:06Z versions model --check
+holon versions model: V3: 25 actions, 1 model debt (commitBatch)
+holon versions model: V4: 26 actions, 1 model debt (commitBatch)
+holon versions model: V5: 26 actions, 1 model debt (commitBatch)
+holon versions model: V6: 26 actions, 1 model debt (commitBatch)
+holon versions model: V7: 28 actions, 2 model debt (commitBatch, commitBatchWithProof)
+holon versions model: V8: 29 actions, 2 model debt (commitBatch, commitBatchWithProof)
+holon versions model: V9: 29 actions, 3 model debt (commitBatch, commitBatchWithProof, commitState)
+holon versions model: V10: 29 actions, 3 model debt (commitBatch, commitBatchWithProof, commitState)
+holon versions model: V11: 33 actions, 0 model debt
+holon versions model: 12 of 12 files reproduce
+2026-10-24T15:34:09Z versions analyze --check
+holon versions analyze: /home/runner/work/HOLON/HOLON/gen/M3/versions/par_init.json is up to date
+2026-10-24T15:34:09Z versions inhabit --check
+holon versions inhabit: V3->V4: not inhabited: no successor site action of V3 is in the versioned model (model debt): commitBatch: commitBatch: an unknown term ["unknown","contracts/contracts/libraries/codec
+holon versions inhabit: V4->V5: not inhabited: no successor site action of V4 is in the versioned model (model debt): commitBatch: commitBatch: an unknown term ["unknown","contracts/contracts/libraries/codec
+holon versions inhabit: V5->V6: not inhabited: no successor site action of V5 is in the versioned model (model debt): commitBatch: commitBatch: an unknown term ["unknown","contracts/contracts/libraries/codec
+holon versions inhabit: V6->V7: not inhabited: no successor site action of V6 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: ["abi
+holon versions inhabit: V7->V8: not inhabited: no successor site action of V7 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: ["abi
+holon versions inhabit: V8->V9: not inhabited: no successor site action of V8 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: ["abi
+holon versions inhabit: V9->V10: not inhabited: no successor site action of V9 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: ["abi
+holon versions inhabit: V10->V11: not inhabited: no successor site action of V10 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: ["ab
+holon versions inhabit: reproduces
+2026-10-24T15:34:09Z versions replay --check
+holon versions replay: upgrade_path: passed (14 steps)
+holon versions replay: L_pinit_Rollup_importGenesisBatch_committedBatches_17_9: passed (3 steps)
+holon versions replay: replay/M3/versions/report.json reproduces
+2026-10-24T15:34:18Z end
