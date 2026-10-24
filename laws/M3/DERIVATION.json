@@ -1,5 +1,17 @@
 {
   "cycle_rank": {
+    "blob_ops": {
+      "E": 2,
+      "V": 2,
+      "kappa": 1,
+      "non_tree": [
+        "CODEC.blob_RetrieveBlobBytes"
+      ],
+      "rank": 1,
+      "tree": [
+        "CODEC.batch_RetrieveBlobBytes"
+      ]
+    },
     "header_length": {
       "E": 20,
       "V": 17,
@@ -302,6 +314,26 @@
     {
       "path": "spec/M3/lib/versions.json",
       "sha256": "aa6ea949281bef01a33d052ab6c2fe1ad810a5074c0046ec53e3e63899097ac7"
+    },
+    {
+      "path": "gen/M3/diagram/blob_ops.json",
+      "sha256": "df40195370900ebcc26f780ed6f737b8c3a3db8732ece4df853205f284156440"
+    },
+    {
+      "path": "gen/M3/evidence.json",
+      "sha256": "cfc751720160995c1086d14810b2e9d93fc2eb76426fb7c3bb6857c0095e37b9"
+    },
+    {
+      "path": "gen/M3/goops/blob_ops.json",
+      "sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06"
+    },
+    {
+      "path": "spec/M3/facts/morph_blob.go.extracted.json",
+      "sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e"
+    },
+    {
+      "path": "spec/M3/lib/go_ops.json",
+      "sha256": "f96c9ea8e652f00369dfcbcc2ab4cb37fac51aa9f14ab5b145eca3407306849d"
     }
   ],
   "laws": [
@@ -2759,6 +2791,24 @@
     {
       "basis": {
         "key": {
+          "carrier": "Blob",
+          "p": "ok_batch_RetrieveBlobBytes",
+          "q": "ok_blob_RetrieveBlobBytes"
+        },
+        "model": "blob_ops",
+        "subform": "domain_coherence",
+        "version": null
+      },
+      "entry_points": [],
+      "facts": "gen/M3/goops/blob_ops.json",
+      "law_id": "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes",
+      "rule": "PAR",
+      "statement_hash": "sha256:bc0a299ff88e02688cd0c07e79a5672d0e99cbd563df9160cdd0b38afbad083d",
+      "subform": "domain_coherence"
+    },
+    {
+      "basis": {
+        "key": {
           "atom": "header_length:E1:CODEC.BatchCache_createBatchHeaderWithSequencerSetHash:CODEC.BatchHeaderBytes_BatchIndex:b02939d5"
         },
         "model": "header_length",
@@ -3879,6 +3929,38 @@
     {
       "basis": {
         "key": {
+          "edge": "CODEC.batch_RetrieveBlobBytes"
+        },
+        "model": "blob_ops",
+        "subform": "totality",
+        "version": null
+      },
+      "entry_points": [],
+      "facts": "gen/M3/goops/blob_ops.json",
+      "law_id": "L_par_tot_batch_RetrieveBlobBytes",
+      "rule": "PAR",
+      "statement_hash": "sha256:7277f562e1225c5523d2c3f8f875e7c12eb20f4d07d884b1e90300659dcfcdca",
+      "subform": "totality"
+    },
+    {
+      "basis": {
+        "key": {
+          "edge": "CODEC.blob_RetrieveBlobBytes"
+        },
+        "model": "blob_ops",
+        "subform": "totality",
+        "version": null
+      },
+      "entry_points": [],
+      "facts": "gen/M3/goops/blob_ops.json",
+      "law_id": "L_par_tot_blob_RetrieveBlobBytes",
+      "rule": "PAR",
+      "statement_hash": "sha256:7b97acdecc9687fc6550b3a7eeec7aafc97b9d4dfeaf5ffc0dbe3eb7e6ea48dd",
+      "subform": "totality"
+    },
+    {
+      "basis": {
+        "key": {
           "atom": "header_length:E6:CODEC.BatchHeaderBytes_BlobCommitHash:CODEC.BatchHeaderBytes_BlobHashesHash:daeab334"
         },
         "model": "header_length",
@@ -3922,6 +4004,22 @@
       "law_id": "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1",
       "rule": "PAR",
       "statement_hash": "sha256:da68e4f3cf2f8654f9e686ebd79b56355949f45aef407b3848c7464f9a454628",
+      "subform": "weak"
+    },
+    {
+      "basis": {
+        "key": {
+          "atom": "blob_ops:E6:CODEC.batch_RetrieveBlobBytes:CODEC.blob_RetrieveBlobBytes:f6e8978d"
+        },
+        "model": "blob_ops",
+        "subform": "weak",
+        "version": null
+      },
+      "entry_points": [],
+      "facts": "gen/M3/goops/blob_ops.json",
+      "law_id": "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes",
+      "rule": "PAR",
+      "statement_hash": "sha256:dc5aee36691855df3489fa687b4cb7db419946bc55be3581d81bace671b66156",
       "subform": "weak"
     },
     {
@@ -5954,6 +6052,73 @@
       "laws": [],
       "model": "header_length",
       "reason": "not_a_parallel_pair",
+      "subform": "cycle",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
+        "atom": "blob_ops:E6:CODEC.batch_RetrieveBlobBytes:CODEC.blob_RetrieveBlobBytes:f6e8978d"
+      },
+      "laws": [
+        "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
+      ],
+      "model": "blob_ops",
+      "reason": null,
+      "subform": "weak",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
+        "carrier": "Blob",
+        "p": "ok_batch_RetrieveBlobBytes",
+        "q": "ok_blob_RetrieveBlobBytes"
+      },
+      "laws": [
+        "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes"
+      ],
+      "model": "blob_ops",
+      "reason": null,
+      "subform": "domain_coherence",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
+        "edge": "CODEC.batch_RetrieveBlobBytes"
+      },
+      "laws": [
+        "L_par_tot_batch_RetrieveBlobBytes"
+      ],
+      "model": "blob_ops",
+      "reason": null,
+      "subform": "totality",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
+        "edge": "CODEC.blob_RetrieveBlobBytes"
+      },
+      "laws": [
+        "L_par_tot_blob_RetrieveBlobBytes"
+      ],
+      "model": "blob_ops",
+      "reason": null,
+      "subform": "totality",
+      "version": null
+    },
+    {
+      "duplicates": {
+        "L_par_cy_blob_RetrieveBlobBytes": "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
+      },
+      "key": {
+        "edge": "CODEC.blob_RetrieveBlobBytes"
+      },
+      "laws": [],
+      "model": "blob_ops",
+      "reason": null,
       "subform": "cycle",
       "version": null
     }

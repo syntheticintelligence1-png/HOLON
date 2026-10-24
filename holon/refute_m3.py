@@ -304,6 +304,15 @@ def i4_sides(root: Path) -> dict:
             continue
         for lid, entry in (load(p).get("laws") or {}).items():
             out[f"{m}/{lid}"] = {k: v for k, v in sides_of(entry).items() if isinstance(v, dict)}
+    # I67 (rule Y10 of tests_m3/test_go_loop.py): the Go-op laws' replay, a side only at the record's own witness
+    p = root / "replay" / "M3" / "goops" / "report.json"
+    if p.is_file():
+        from .replay import witness_sha256
+        rep = load(p)
+        for lid, entry in (rep.get("laws") or {}).items():
+            rp = root / "results" / "M3" / f"{lid}.json"
+            if rp.is_file() and (rep.get("witness_sha256") or {}).get(lid) == witness_sha256(load(rp).get("witness")):
+                out[f"M3/{lid}"] = {k: v for k, v in sides_of(entry).items() if isinstance(v, dict)}
     return out
 
 
@@ -335,15 +344,17 @@ def witness_kind(rec: dict) -> str:
 
 
 def kind_of(rec: dict, law: dict, ss: dict) -> str:
-    """Rules K1-K4: bmc (a blocking side, a migration in the statement, or a definedness witness), go_only (every
-    side a Go library call), commit_class (a codec witness), direct (a schedule of public calls)."""
+    """Rules K1-K4: bmc (a blocking side, a migration in the statement, or a definedness witness), go_only (every side
+    a Go library call; tested before K1's definedness clause, I67 rule Y10), commit_class (a codec witness), direct (a
+    schedule of public calls)."""
     provs = [s.get("provenance") for s in ss.values()]
     wk = witness_kind(rec)
-    if any(p in ("internal_harness", "emulated_storage") for p in provs) or _has_key(law.get("statement"), "mig") \
-            or wk == "domain":
+    if any(p in ("internal_harness", "emulated_storage") for p in provs) or _has_key(law.get("statement"), "mig"):
         return "bmc"
     if provs and all(p == "library_api" for p in provs):
         return "go_only"
+    if wk == "domain":
+        return "bmc"
     if wk == "codec":
         return "commit_class"
     return "direct"

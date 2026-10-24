@@ -854,7 +854,8 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
                             "diagram": drel, "anchors": an}
             atoms += a
             unresolved += u
-    for cp, cdg in components or []:   # I24: linked codec documents (rule X7)
+    for cp, cdg in components or []:   # I24: linked codec documents (rule X7); I67: Go-op documents (rule Y4)
+        from . import goops as GO
         from . import linked as L
         rel = inp.rel(Path(cp))
         raw = inp.read_bytes(root / rel)
@@ -862,7 +863,8 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             doc = json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, ValueError) as e:
             raise EvidenceError(f"{rel}: not JSON ({e})") from e
-        if not L.is_linked(doc):
+        layer, version = (GO, GO.GOOPS_VERSION) if GO.is_goops(doc) else (L, L.LINKED_VERSION)
+        if layer is L and not L.is_linked(doc):
             raise EvidenceError(f"{rel}: not a linked codec document")
         key = doc["component"]
         if key in models:
@@ -873,16 +875,16 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             cdg = inp.read_json(root / drel)
         else:
             drel = None
-        for k, want in (("model", key), ("facts", rel), ("facts_sha256", sha), ("facts_version", L.LINKED_VERSION)):
+        for k, want in (("model", key), ("facts", rel), ("facts_sha256", sha), ("facts_version", version)):
             if cdg.get(k) != want:
                 raise EvidenceError(f"{key}: the diagram's {k} is {cdg.get(k)!r}, not {want!r} (a stale diagram: "
                                     "regenerate it with `holon diagram`)")
         try:
-            atoms += L.atoms(doc, cdg, lex)
+            atoms += layer.atoms(doc, cdg, lex)
         except (KeyError, TypeError, L.LinkedError) as e:
             raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
-        models[key] = {"facts": rel, "facts_sha256": sha, "facts_version": L.LINKED_VERSION, "diagram": drel,
-                       "anchors": L.anchors(cdg)}
+        models[key] = {"facts": rel, "facts_sha256": sha, "facts_version": version, "diagram": drel,
+                       "anchors": layer.anchors(cdg)}
     # I20: the milestone's adopted transitions documents, no diagram, anchors only; a build for no milestone (a
     # fixture's own documents) adopts nothing, else gen_milestone's default M2 would add M2's adoption to it
     for rel, raw, d in (adopted_documents(gm, root, inp) if adopted and milestone is not None else []):
@@ -914,10 +916,12 @@ def build_milestone(milestone: str, root: Path | str = ROOT) -> dict:
     (holon.diagram.fact_documents); from M3 on (I24) over the linked codec documents gen/<M>/codec/*.json and their
     committed diagrams, never a hand-written document (Q19), plus the adopted transitions documents (anchors only)."""
     from . import fact_documents
+    from . import goops as GO
     from .linked import committed_codecs, linked_milestone
     root = Path(root).resolve()
     if linked_milestone(milestone):
         comps = [(p, None) for p in committed_codecs(milestone, root)]
+        comps += [(p, None) for p in GO.committed(milestone, root)]   # I67: the Go-op components (rule Y4)
         if not comps:
             raise EvidenceError(f"no linked codec documents under gen/{milestone}/codec (run `holon codecs "
                                 f"--milestone {milestone}`)")

@@ -1,0 +1,69 @@
+{
+  "go_version": "go1.24.7",
+  "laws": {
+    "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": {
+      "go": {
+        "command": "(cd common && go test ./holongoopsreplay -run ^TestHolonGoops$ -count=1 -v)",
+        "detail": {
+          "batch_RetrieveBlobBytes": "panic:runtime error: index out of range [126976] with length 126976",
+          "blob_RetrieveBlobBytes": "err:invalid blob, found non-zero high order byte 1 of field element 3968"
+        },
+        "expected": {
+          "batch_RetrieveBlobBytes": "OPanic",
+          "blob_RetrieveBlobBytes": "OErr"
+        },
+        "observed": {
+          "batch_RetrieveBlobBytes": "OPanic",
+          "blob_RetrieveBlobBytes": "OErr"
+        },
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    },
+    "L_par_tot_batch_RetrieveBlobBytes": {
+      "go": {
+        "command": "(cd common && go test ./holongoopsreplay -run ^TestHolonGoops$ -count=1 -v)",
+        "detail": {
+          "batch_RetrieveBlobBytes": "panic:runtime error: index out of range [126976] with length 126976"
+        },
+        "expected": {
+          "batch_RetrieveBlobBytes": "OPanic"
+        },
+        "observed": {
+          "batch_RetrieveBlobBytes": "OPanic"
+        },
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    },
+    "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": {
+      "go": {
+        "command": "(cd common && go test ./holongoopsreplay -run ^TestHolonGoops$ -count=1 -v)",
+        "detail": {
+          "batch_RetrieveBlobBytes": "panic:runtime error: index out of range [126976] with length 126976",
+          "blob_RetrieveBlobBytes": "err:invalid blob, found non-zero high order byte 1 of field element 3968"
+        },
+        "expected": {
+          "batch_RetrieveBlobBytes": "OPanic",
+          "blob_RetrieveBlobBytes": "OErr"
+        },
+        "observed": {
+          "batch_RetrieveBlobBytes": "OPanic",
+          "blob_RetrieveBlobBytes": "OErr"
+        },
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    }
+  },
+  "milestone": "M3",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "witness_sha256": {
+    "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": "947f44254be43a9fa018c316d18a9441e989c9a60a66840c091281287b8dc8f8",
+    "L_par_tot_batch_RetrieveBlobBytes": "947f44254be43a9fa018c316d18a9441e989c9a60a66840c091281287b8dc8f8",
+    "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": "947f44254be43a9fa018c316d18a9441e989c9a60a66840c091281287b8dc8f8"
+  }
+}

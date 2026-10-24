@@ -26,6 +26,7 @@ class Ctx:
         self.prog = prog
         self.types = prog.types
         self.prims: dict = dict(config.get("primitives") or {})
+        self.config_version = config.get("config_version")   # I67: the loop_bodies section is emitted only for 0.2
         lim = config.get("limits") or {}
         self.max_paths = int(lim.get("max_paths", 512))
         self.inline_depth = int(lim.get("inline_depth", 4))

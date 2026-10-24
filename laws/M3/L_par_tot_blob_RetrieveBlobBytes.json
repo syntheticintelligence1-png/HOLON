@@ -1,0 +1,39 @@
+{
+  "facts": "gen/M3/goops/blob_ops.json",
+  "facts_sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_tot_blob_RetrieveBlobBytes",
+  "milestone": "M3",
+  "notes": "PAR totality (holon.rules.par): blob_RetrieveBlobBytes is defined on all of R^ext of Blob (its domain ok_blob_RetrieveBlobBytes)",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.5",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "b",
+        "q": "forall",
+        "type": "Blob"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "ok_blob_RetrieveBlobBytes"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "totality"
+}
