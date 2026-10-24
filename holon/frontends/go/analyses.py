@@ -6,7 +6,7 @@ import json
 
 from .ctx import Ctx, binary_op, fn_span, site_pos
 from .flow import Flow
-from .paths import Enumerator, PathLimit
+from .paths import Enumerator, OtherLoop, PathLimit
 from .ssaload import Func, Instr, span_of
 from .terms import (C0, NIL, Reasoner, atom_vars, const, is_const, key, lin, op, plus, to_json, witness_range)
 
@@ -126,7 +126,8 @@ class Analysis:
         (holon.frontends.go.paths.Enumerator.run_loop), in header order; None when the function has no such loop. An
         entry is the loop's go.loops fields and its paths, each written as the paths section writes one (end panic,
         return or continue). A body over the path limit has paths null and a path_limit debt entry; an unsupported
-        construct is a debt entry, as in a path enumeration."""
+        construct is a debt entry, as in a path enumeration; a path that meets another loop's header (that loop is not
+        enumerated) gives the body paths null and an unsupported debt entry."""
         fn = self.prog.funcs[fid]
         if not fn.has_body or not self.codec_shaped(fn):
             return None
@@ -141,6 +142,10 @@ class Analysis:
                 paths = None
                 self.ctx.debt_entry(fid, "path_limit", L.span,
                                     f"more than {self.ctx.max_paths} paths in one iteration of the loop: no loop body")
+            except OtherLoop:
+                paths = None
+                self.ctx.debt_entry(fid, "unsupported", L.span,
+                                    "another loop on a path of one iteration (nested or after the exit): no loop body")
             else:
                 paths = [to_json(p) for p in res.paths]
                 for pos, what in res.unsupported:

@@ -20,6 +20,11 @@ class PathLimit(Exception):
     pass
 
 
+class OtherLoop(Exception):
+    """Loop-body mode (I67): a path of one iteration met the header of another loop of the function (nested in the body
+    or after its exit). That loop is not enumerated, so the iteration has no loop-free paths."""
+
+
 class Ptr:
     __slots__ = ("oid", "path", "typ")
 
@@ -171,7 +176,7 @@ class Enumerator:
         tracked, so a consumer of these paths reads conditions over the induction variable and the parameters only."""
         fn = self.fn
         self._loop = {"header": L.header, "phi": L.phi.name if L.phi else None, "iv": ("iv", L.iv or "i"),
-                      "init": L.init}
+                      "init": L.init, "others": {x.header for x in self.flow(fn).loops() if x.header != L.header}}
         top = Frame()
         top.fn, top.flow, top.env, top.bidx, top.pc, top.depth, top.ret = fn, self.flow(fn), {}, 0, 0, 0, None
         top.args = []
@@ -507,6 +512,8 @@ class Enumerator:
     def enter(self, fr: Frame, st: PState, b: int, pred: int):
         # I67 loop-body mode (run_loop): the header's first entry on a path binds the induction phi symbolically and
         # every other phi to an opaque term; its second entry is the jump back that ends the iteration "continue"
+        if self._loop is not None and fr.depth == 0 and b in self._loop["others"]:
+            raise OtherLoop(b)                       # unrolled or forked it might never end: no loop body here
         if self._loop is not None and b == self._loop["header"] and fr.depth == 0:
             if st.looped:
                 return "continue"
