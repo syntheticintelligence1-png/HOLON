@@ -43,7 +43,10 @@
   python -m holon intake [--milestone M] [--root DIR] [--inbox DIR] [--law ID ...] [--budget-s S] [--json]
   python -m holon intake --list [--milestone M] [--root DIR] [--json]   (the untrusted prover intake, I41)
   python -m holon codecs --milestone M3 [--root DIR] [--adoption PATH] [--link PATH] [--out DIR] [--check]
-                                                        (the linked codec documents gen/<M>/codec/<role>.json; I24)
+                                                        (the linked codec documents gen/<M>/codec/<role>.json; I24;
+                                                         and the Go-op documents gen/<M>/goops/<component>.json; I67)
+  python -m holon replay-go --milestone M3 [--root DIR]  (the Go-op laws' witnesses on the real code,
+                                                         replay/<M>/goops/report.json; I67)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
                                                         (the back-test across documents, results/M3/backtest.json; I24)
   python -m holon profile --milestone T32 [--root DIR]   (discharge profiles, DISCH II, I32)
@@ -225,6 +228,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["codecs"]:  # likewise for holon.diagram.linked (the linked codec layer, I24)
         from .diagram import linked
         return linked.main(argv[1:])
+    if argv[:1] == ["replay-go"]:  # likewise for holon.goreplay (the Go-op laws' replay on the real code, I67)
+        from . import goreplay
+        return goreplay.main(argv[1:])
     if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
         from . import profile
         return profile.main(argv[1:])

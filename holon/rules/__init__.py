@@ -437,8 +437,9 @@ def _json_text(p: Path) -> str | None:
 
 
 def _committed_par_inputs(milestone: str, root: Path, inputs: Inputs):
-    """M3 on: the linked codec documents, their diagrams and the evidence set, each byte for byte what holon codecs,
-    diagram and evidence write now (else Refused: a stale input). Returns ([(path, diagram)], evidence, uncovered)."""
+    """M3 on: the linked codec documents and (I67) the Go-op documents, their diagrams and the evidence set, each byte
+    for byte what holon codecs, diagram and evidence write now (else Refused: a stale input). Returns ([(path,
+    diagram)], evidence, uncovered)."""
     from ..diagram import DiagramError, linked_diagrams
     from ..diagram import evidence as EV
     from ..diagram import linked as L
@@ -452,6 +453,15 @@ def _committed_par_inputs(milestone: str, root: Path, inputs: Inputs):
     have = {p.name: p.read_text(encoding="utf-8") for p in L.committed_codecs(milestone, root)}
     if have != fresh:
         raise Refused(f"gen/{milestone}/codec is stale: it is not what `holon codecs --milestone {milestone}` writes now")
+    from ..diagram import goops as GO   # I67 (rule Y5 of tests_m3/test_go_loop.py): the Go-op components
+    try:
+        gfresh = GO.render_all(root, milestone)
+    except L.SidecarError as e:
+        raise Refused(f"the Go-op components cannot be rebuilt: {e}") from e
+    except L.LinkedError as e:
+        raise DeriveError(str(e)) from e
+    if {p.name: p.read_text(encoding="utf-8") for p in GO.committed(milestone, root)} != gfresh:
+        raise Refused(f"gen/{milestone}/goops is stale: it is not what `holon codecs --milestone {milestone}` writes now")
     try:
         dtexts = linked_diagrams(milestone, root)
     except DiagramError as e:
@@ -478,6 +488,12 @@ def _committed_par_inputs(milestone: str, root: Path, inputs: Inputs):
     for p in L.committed_codecs(milestone, root):
         dg = inputs.json(root / "gen" / milestone / "diagram" / p.name)
         comps.append((p, dg))
+    gsc, _ = GO.load_sidecar(root, milestone)
+    if gsc is not None:
+        inputs.read(root / GO.sidecar_rel(milestone))
+        inputs.read(root / gsc["document"])
+    for p in GO.committed(milestone, root):
+        comps.append((p, inputs.json(root / "gen" / milestone / "diagram" / p.name)))
     try:
         unc = L.uncovered(root, ad_rel, link_rel)
     except L.SidecarError as e:

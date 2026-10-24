@@ -765,11 +765,14 @@ def main(argv=None) -> int:
     ap.add_argument("--link", help="the link sidecar (default spec/<M>/lib/link.json)")
     ap.add_argument("--out", help="output directory (default <root>/gen/<M>/codec)")
     ap.add_argument("--check", action="store_true", help="compare a fresh build with the files, writing nothing")
+    ap.add_argument("--goops-out", help="output directory of the Go-op documents (default <root>/gen/<M>/goops; I67)")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else ROOT
     da, dl = default_sidecars(a.milestone)
+    from . import goops as GO
     try:
         texts = render_all(root, a.milestone, _rel(root, a.adoption or da), _rel(root, a.link or dl))
+        gtexts = GO.render_all(root, a.milestone)   # I67 (rule Y3 of tests_m3/test_go_loop.py): the Go-op components
     except SidecarError as e:
         print(f"holon codecs: refused: {e}", file=sys.stderr)
         return 2
@@ -781,18 +784,23 @@ def main(argv=None) -> int:
               file=sys.stderr)
         return 2
     out = Path(a.out) if a.out else codec_dir(a.milestone, root)
+    gout = Path(a.goops_out) if a.goops_out else GO.goops_dir(a.milestone, root)
     if a.check:
-        have = {p.name: p.read_text(encoding="utf-8") for p in sorted(out.glob("*.json"))} if out.is_dir() else {}
-        if have != texts:
-            print(f"holon codecs: {out} differs from a fresh build", file=sys.stderr)
-            return 1
-        print(f"holon codecs: {out} reproduces ({len(texts)} components)")
+        for d, want in ((out, texts), (gout, gtexts)):
+            have = {p.name: p.read_text(encoding="utf-8") for p in sorted(d.glob("*.json"))} if d.is_dir() else {}
+            if have != want:
+                print(f"holon codecs: {d} differs from a fresh build", file=sys.stderr)
+                return 1
+        print(f"holon codecs: {out} reproduces ({len(texts)} components), {gout} too ({len(gtexts)} Go-op components)")
         return 0
-    out.mkdir(parents=True, exist_ok=True)
-    for p in sorted(out.glob("*.json")):
-        if p.name not in texts:
-            p.unlink()
-    for name, text in sorted(texts.items()):
-        (out / name).write_text(text, encoding="utf-8")
-        print(f"{name[:-5]}: {out / name}")
+    for d, want in ((out, texts), (gout, gtexts)):
+        if not want and not d.is_dir():
+            continue
+        d.mkdir(parents=True, exist_ok=True)
+        for p in sorted(d.glob("*.json")):
+            if p.name not in want:
+                p.unlink()
+        for name, text in sorted(want.items()):
+            (d / name).write_text(text, encoding="utf-8")
+            print(f"{name[:-5]}: {d / name}")
     return 0

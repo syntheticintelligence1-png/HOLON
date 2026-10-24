@@ -2974,6 +2974,173 @@
           "I25": 1
         }
       }
+    },
+    "I67": {
+      "title": "I67 (= I38a): Go codecs at loop granularity (holon-go-frontend/0.2 loop bodies), Go-op components over interface carriers decided by rule PAR's existing producers, and O4 at the real blob size (4096 field elements) in both kernels, replayed on the real Go code",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I67)",
+      "prompt": "prompts/I67_go_loop.md",
+      "predictions": [
+        {
+          "id": "I67-P1",
+          "claim": "O4 (PAR-totality): L_par_tot_batch_RetrieveBlobBytes, forall b: Blob. ok_batch_RetrieveBlobBytes(b) == true, is REFUTED at the real size: its witness is the 4096-cell sequence whose cell 3968 is 1 and every other cell 0 (the first field element whose index i*32 runs off the 126976-byte output), the counter-law accepted by bend and checked by BendTT --verdict with no reduced N, its difference false against true; replayed on the real code at the pinned commit, morph-l2/common/batch.RetrieveBlobBytes panics with a runtime index error at data[126976] (length 126976) on the blob whose byte 126976 is 1 and every other byte 0.",
+          "check": "tests_m3/test_go_loop.py::TestOutcomes::test_p1_o4_totality_refuted_at_real_size"
+        },
+        {
+          "id": "I67-P2",
+          "claim": "PAR-weak over the clone pair (the E6 atom of their shared name tokens): L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes is REFUTED at the same witness, its difference OPanic against OErr; replayed: the batch clone panics and the blob clone returns a non-nil error.",
+          "check": "tests_m3/test_go_loop.py::TestOutcomes::test_p2_clone_pair_refuted"
+        },
+        {
+          "id": "I67-P3",
+          "claim": "PAR domain coherence over the interface carrier Blob: L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes is REFUTED at the same witness, its difference false against true; replayed as I67-P2.",
+          "check": "tests_m3/test_go_loop.py::TestOutcomes::test_p3_domain_coherence_refuted"
+        },
+        {
+          "id": "I67-P4",
+          "claim": "The fixed copy: L_par_tot_blob_RetrieveBlobBytes is UNKNOWN. Its model has no panic path, so no candidate refutes it, and a forall law over cell sequences has no proof route here (gap G6); its record's bound names the candidates and G6. The instrument sees the real blob clone panic on none of its 4101 probes.",
+          "check": "tests_m3/test_go_loop.py::TestOutcomes::test_p4_fixed_copy_unknown"
+        },
+        {
+          "id": "I67-P5",
+          "claim": "holon derive --milestone M3 derives over gen/M3/goops/blob_ops.json exactly four laws with the current catalog's PAR producers unchanged: L_par_tot_batch_RetrieveBlobBytes and L_par_tot_blob_RetrieveBlobBytes (totality), L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes (weak) and L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes (domain_coherence), with the instrument's statements; the cycle element of CODEC.blob_RetrieveBlobBytes (the component's one non-tree edge) is recorded as a duplicate of the weak law, and the rule catalog version does not change.",
+          "check": "tests_m3/test_go_loop.py::TestDerivation::test_p5_four_laws_and_the_duplicate"
+        },
+        {
+          "id": "I67-P6",
+          "claim": "The 0.2 extraction of morph_blob: the loop body of morph-l2/common/batch.RetrieveBlobBytes (4096 iterations from 0, step 1) has exactly one panic path, at the site its 0.1 sites section holds open (I18's index data[i*32] at common/batch/blob.go:49); the loop body of morph-l2/common/blob.RetrieveBlobBytes has no panic path and all its sites are safe.",
+          "check": "tests_m3/test_go_loop.py::TestFrontend::test_p6_the_two_loop_bodies"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I67-R1",
+          "claim": "holon-go-frontend/0.1 is unchanged: the six M2 Go documents (spec/M2/facts/*.go.extracted.json) re-extract byte for byte from spec/M2/lib/go_frontend.json, I18's O4 localization included.",
+          "check": "tests_m3/test_go_loop.py::TestFrontend::test_r1_m2_documents_reextract_byte_identical"
+        },
+        {
+          "id": "I67-R2",
+          "claim": "I67's own commits change, under laws/M3, results/M3 and gen/M3, only the four laws and their records, their law and proof directories, gen/M3/goops/, gen/M3/diagram/blob_ops.json, gen/M3/model/blob_ops.bend, gen/M3/evidence.json (blob_ops's model and atom added, every other model and atom as before), laws/M3/REGISTRY.json and laws/M3/DERIVATION.json; every other law's DERIVATION entry, statement hash included, is unchanged.",
+          "check": "tests_m3/test_go_loop.py::TestRegressions::test_r2_nothing_else_changes"
+        },
+        {
+          "id": "I67-R3",
+          "claim": "Construction honesty: holon/diagram/goops.py, holon/gen/goloop.py and holon/frontends/go hold no target name, span or blob constant and import no test oracle; the Go-op documents and the model come from the sidecar and the Go document alone; the witness comes from the compiled model.",
+          "check": "tests_m3/test_go_loop.py::TestComponent::test_y3_y6_no_target_vocabulary"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M3/facts/morph_blob.go.extracted.json",
+        "gen/M3/goops/",
+        "gen/M3/diagram/blob_ops.json",
+        "gen/M3/model/blob_ops.bend",
+        "laws/M3/L_par_tot_batch_RetrieveBlobBytes.json",
+        "laws/M3/L_par_tot_blob_RetrieveBlobBytes.json",
+        "laws/M3/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes.json",
+        "laws/M3/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes.json",
+        "results/M3/L_par_tot_batch_RetrieveBlobBytes.json",
+        "results/M3/L_par_tot_blob_RetrieveBlobBytes.json",
+        "results/M3/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes.json",
+        "results/M3/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes.json",
+        "gen/M3/laws/L_par_tot_batch_RetrieveBlobBytes/",
+        "gen/M3/laws/L_par_tot_blob_RetrieveBlobBytes/",
+        "gen/M3/laws/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes/",
+        "gen/M3/laws/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes/",
+        "gen/M3/proofs/L_par_tot_batch_RetrieveBlobBytes/",
+        "gen/M3/proofs/L_par_tot_blob_RetrieveBlobBytes/",
+        "gen/M3/proofs/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes/",
+        "gen/M3/proofs/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes/",
+        "replay/M3/goops/",
+        "docs/iterations/I67.md"
+      ],
+      "tests": [
+        "tests_m3/test_go_loop.py"
+      ],
+      "thresholds": {
+        "base": "089b43a4 (the lead after I28's prereg merge, PR #47), with BUILD_PLAN's row I67 (7c9997d3)",
+        "instrument": "tests_m3/_i67.py",
+        "instrument_sha256": "30e33054d1ef24ee25f4772e00b7b5d92b998d7e65895fe115894be598b1a44a",
+        "go_instrument": "tests_m3/fixtures/go_loop/holon_i67_instrument.go.txt",
+        "go_instrument_sha256": "6beb894e31f2ee68d4fd99a7ca4b1b09ed1a0fef35b4de8d46a27025dc5646cb",
+        "contract_docstring_sha256": "fa0f1e6d28f8a5e7a540d48b2d26c64d877e5aebf7a9f04dbd698f17b6e1ff56",
+        "frontend_config": {
+          "path": "spec/M3/lib/go_frontend.json",
+          "sha256": "95aadbadb5c01bb823987c10d86f51229e95d91d7d5bef82f38fb3db799c1aa3"
+        },
+        "sidecar": {
+          "path": "spec/M3/lib/go_ops.json",
+          "sha256": "f96c9ea8e652f00369dfcbcc2ab4cb37fac51aa9f14ab5b145eca3407306849d"
+        },
+        "document": "spec/M3/facts/morph_blob.go.extracted.json",
+        "component": "blob_ops",
+        "carrier": {
+          "id": "Blob",
+          "type": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+        },
+        "ops": {
+          "batch_RetrieveBlobBytes": "morph-l2/common/batch.RetrieveBlobBytes",
+          "blob_RetrieveBlobBytes": "morph-l2/common/blob.RetrieveBlobBytes"
+        },
+        "laws": {
+          "L_par_tot_batch_RetrieveBlobBytes": "REFUTED",
+          "L_par_tot_blob_RetrieveBlobBytes": "UNKNOWN",
+          "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": "REFUTED",
+          "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": "REFUTED"
+        },
+        "duplicate": {
+          "L_par_cy_blob_RetrieveBlobBytes": "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
+        },
+        "statuses": {
+          "PROVED": 0,
+          "REFUTED": 3,
+          "UNKNOWN": 1
+        },
+        "witness": {
+          "cells": 4096,
+          "trip_cell": 3968,
+          "trip_value": 1,
+          "other_cells": 0,
+          "stride": 32,
+          "concretized": "the 131072-byte blob whose byte 126976 is 1 and every other byte 0"
+        },
+        "differences": {
+          "L_par_tot_batch_RetrieveBlobBytes": {
+            "lhs": false,
+            "rhs": true
+          },
+          "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": {
+            "lhs": "OPanic",
+            "rhs": "OErr"
+          },
+          "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": {
+            "lhs": false,
+            "rhs": true
+          }
+        },
+        "replay": {
+          "provenance": "library_api",
+          "status": "passed",
+          "observed": {
+            "batch_RetrieveBlobBytes": "OPanic",
+            "blob_RetrieveBlobBytes": "OErr"
+          }
+        },
+        "filter": {
+          "kind": "go_only",
+          "filter_bin": "pending",
+          "why": "holon.filter.final_bin F4: a Go-only witness has no public path in the Solidity system; the node-level path is I39's"
+        },
+        "rule_catalog_version": "unchanged (holon-rules/1.5 at the base; I28's build holds 1.6)",
+        "other_m3_records": "not re-made: they trail I67's generator closures until the next M3 re-make (as I66's did)",
+        "instrument_probes": 4101,
+        "real_code_at_prereg": "the batch clone errs below element 3968 and panics with a runtime index error from 3968 to 4095 (128 elements); the blob clone errs on every element and never panics; both return the same bytes on the zero blob (I18's O4, re-observed by this key's instrument)",
+        "feasibility_disclosed": "a hand-written spike of the model's shape checked {ok(W) == False} at 4096 cells in bend (0.84 s) and BendTT --verdict (2.75 s); a flat U32-indexed array ran out of fuel at 2048 iterations (scratchpad, prompts/I67_go_loop.md)",
+        "coordination": "I28 (brave-wright) holds holon-rules/1.6 and the PAR init_chain sub-form; whichever of I67 and I28 merges second re-derives laws/M3 and re-makes what changes",
+        "deferred": [
+          "I38: HypZ, HypZ_len, O5, O6, O28, D3",
+          "I39: the node-level path that would make O4's bin a finding",
+          "a proof route for forall laws over cell sequences (gap G6)"
+        ]
+      }
     }
   }
 }

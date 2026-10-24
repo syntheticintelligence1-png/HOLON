@@ -304,6 +304,15 @@ def i4_sides(root: Path) -> dict:
             continue
         for lid, entry in (load(p).get("laws") or {}).items():
             out[f"{m}/{lid}"] = {k: v for k, v in sides_of(entry).items() if isinstance(v, dict)}
+    # I67 (rule Y10 of tests_m3/test_go_loop.py): the Go-op laws' replay, a side only at the record's own witness
+    p = root / "replay" / "M3" / "goops" / "report.json"
+    if p.is_file():
+        from .replay import witness_sha256
+        rep = load(p)
+        for lid, entry in (rep.get("laws") or {}).items():
+            rp = root / "results" / "M3" / f"{lid}.json"
+            if rp.is_file() and (rep.get("witness_sha256") or {}).get(lid) == witness_sha256(load(rp).get("witness")):
+                out[f"M3/{lid}"] = {k: v for k, v in sides_of(entry).items() if isinstance(v, dict)}
     return out
 
 

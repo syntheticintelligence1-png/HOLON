@@ -23,6 +23,13 @@ tests_m2/test_extract_go.py):
   primitive kind "hex_to_array" (width n): the n-byte array of a string argument's hexadecimal digits (an optional
               0x or 0X prefix removed, an odd count left-padded with "0"), right-aligned (zero bytes before it) and
               cropped to its last n bytes; a string that is not hexadecimal leaves the cells unknown.
+  loop_bodies (config holon-go-frontend/0.2 only, I67; contract: rule Y1 of the docstring of tests_m3/test_go_loop.py)
+              in the entry of a codec-shaped function with a counted or range loop of step 1 that has an induction phi
+              and a fuel: [{"span", "iv", "init", "step", "cmp", "limit", "fuel", "exits", "paths"}] in header order,
+              the first eight the loop's go.loops fields and "paths" one iteration as loop-free paths over the symbolic
+              induction variable ["iv", <iv>] (paths.Enumerator.run_loop), each written as the paths section writes a
+              path, a jump back to the header ending it "continue"; null paths and a path_limit debt entry past the
+              path limit. extraction.frontend_version is holon-go/0.2; a 0.1 config writes what it wrote before.
 """
 from __future__ import annotations
 
@@ -42,7 +49,11 @@ from .ctx import Ctx
 from .ssaload import DumpError, Program
 
 FRONTEND_VERSION = "holon-go/0.1"
+# I67: 0.2 is a superset of 0.1 — it adds the additive `loop_bodies` section (loop-free paths over a counted loop's
+# induction variable) and leaves every 0.1 section byte-identical, so a 0.1 config re-extracts unchanged.
 CONFIG_VERSION = "holon-go-frontend/0.1"
+CONFIG_VERSIONS = ("holon-go-frontend/0.1", "holon-go-frontend/0.2")
+FRONTEND_VERSION_OF = {"holon-go-frontend/0.1": "holon-go/0.1", "holon-go-frontend/0.2": "holon-go/0.2"}
 PRIMITIVE_KINDS = ("to_array", "hash", "array_bytes", "hex_to_array")
 FACTS_VERSION = "holon-facts/0.3"
 HERE = Path(__file__).resolve().parent
@@ -79,8 +90,8 @@ def _load_json(p: Path, what: str):
 
 def load_config(path: Path) -> dict:
     cfg = _load_json(path, "config")
-    if not isinstance(cfg, dict) or cfg.get("config_version") != CONFIG_VERSION:
-        raise Refused(f"config {path}: config_version must be {CONFIG_VERSION!r}")
+    if not isinstance(cfg, dict) or cfg.get("config_version") not in CONFIG_VERSIONS:
+        raise Refused(f"config {path}: config_version must be one of {CONFIG_VERSIONS}")
     t = cfg.get("target")
     if not isinstance(t, dict) or not isinstance(t.get("repo"), str) or not isinstance(t.get("commit"), str):
         raise Refused(f"config {path}: target needs repo and commit")
@@ -330,7 +341,8 @@ def extract(config_path, src=None, root=None) -> dict:
             "facts_version": FACTS_VERSION,
             "target": {"repo": cfg["target"]["repo"], "commit": cfg["target"]["commit"],
                        "scope": "go packages: " + ", ".join(pks)},
-            "extraction": {"method": "extracted", "frontend": "go", "frontend_version": FRONTEND_VERSION,
+            "extraction": {"method": "extracted", "frontend": "go",
+                           "frontend_version": FRONTEND_VERSION_OF[cfg["config_version"]],
                            "tool": {"go": go_ver, "x_tools": xt, "ssadump_sha256": digest},
                            "config": {"path": rel_to(config_path, root), "sha256": cfg_sha},
                            "inputs": [{"path": f, "sha256": hashes[f]} for f in files]},

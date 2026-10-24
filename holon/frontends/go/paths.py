@@ -97,13 +97,16 @@ class Frame:
 
 
 class PState:
-    __slots__ = ("frames", "cond", "mem", "_r")
+    __slots__ = ("frames", "cond", "mem", "_r", "looped")
 
     def __init__(self, frames, cond, mem):
         self.frames, self.cond, self.mem, self._r = frames, cond, mem, None
+        self.looped = False      # loop-body mode (I67): this path has entered the loop header once
 
     def fork(self) -> "PState":
-        return PState([f.copy() for f in self.frames], list(self.cond), dict(self.mem))
+        p = PState([f.copy() for f in self.frames], list(self.cond), dict(self.mem))
+        p.looped = self.looped
+        return p
 
 
 class Result:
@@ -126,10 +129,49 @@ class Enumerator:
         self.res = Result()
         self.reasoner_nonnil = self.nonnil
         self.array_bytes_calls: set = set()
+        # loop-body mode (I67, holon-go-frontend/0.2): set by run_loop, which enumerates one iteration of a counted
+        # loop as loop-free paths over the symbolic induction variable; a path's second entry of the header (a jump
+        # back) ends it "continue", and the exit successor flows on to the function's return.
+        self._loop = None
 
     # ------------------------------------------------------------------ public
     def run(self) -> Result:
         fn = self.fn
+        top = Frame()
+        top.fn, top.flow, top.env, top.bidx, top.pc, top.depth, top.ret = fn, self.flow(fn), {}, 0, 0, 0, None
+        top.args = []
+        for name, typ in fn.params:
+            t = ("param", name)
+            self.ctx.note_len(self.lengths, t, typ)
+            top.args.append(t)
+        top.free = [("param", n) for n, _ in fn.freevars]
+        work = [PState([top], [], {})]
+        while work:
+            st = work.pop()
+            out = self.step(st)
+            nxt = []
+            for kind, x in out:
+                if kind == "done":
+                    self.finish(*x)
+                else:
+                    nxt.append(x)
+            work.extend(reversed(nxt))
+            if len(self.res.paths) + len(work) > self.ctx.max_paths:
+                raise PathLimit()
+        return self.res
+
+    def run_loop(self, L) -> Result:
+        """I67 (holon-go-frontend/0.2): one iteration of a counted loop as loop-free paths over its symbolic induction
+        variable. The blocks before the loop run as in run() (the function's own allocations are in scope, with their
+        lengths); the header's first entry on a path binds the induction phi to ("iv", <name>), assumes init <= iv, and
+        binds every other phi of the header to an opaque term of its own (a loop-carried value is unknown in a later
+        iteration); the header's own test then forks the body from the exit. A path's second entry of the header ends
+        it "continue"; the exit flows on to the function's return. A bound site the reasoner cannot prove safe forks a
+        "panic" path, as in run(). Memory the loop writes is read as at the loop's entry: per-iteration writes are not
+        tracked, so a consumer of these paths reads conditions over the induction variable and the parameters only."""
+        fn = self.fn
+        self._loop = {"header": L.header, "phi": L.phi.name if L.phi else None, "iv": ("iv", L.iv or "i"),
+                      "init": L.init}
         top = Frame()
         top.fn, top.flow, top.env, top.bidx, top.pc, top.depth, top.ret = fn, self.flow(fn), {}, 0, 0, 0, None
         top.args = []
@@ -180,6 +222,11 @@ class Enumerator:
                                    "error": None})
             self.res.layouts.append([])
             self.res.ends.add(site)
+            return
+        if end == "continue":                 # I67 loop-body mode: the iteration completed, control goes to the header
+            self.res.paths.append({"cond": list(st.cond), "end": "continue", "returns": None, "site": None,
+                                   "error": None})
+            self.res.layouts.append([])
             return
         rets = [self.render(st, v) for v in vals]
         err = None
@@ -457,7 +504,22 @@ class Enumerator:
         return UNKNOWN_CELL
 
     # ------------------------------------------------------------------ stepping
-    def enter(self, fr: Frame, st: PState, b: int, pred: int) -> None:
+    def enter(self, fr: Frame, st: PState, b: int, pred: int):
+        # I67 loop-body mode (run_loop): the header's first entry on a path binds the induction phi symbolically and
+        # every other phi to an opaque term; its second entry is the jump back that ends the iteration "continue"
+        if self._loop is not None and b == self._loop["header"] and fr.depth == 0:
+            if st.looped:
+                return "continue"
+            st.looped = True
+            blk = fr.fn.blocks[b]
+            fr.bidx, fr.pc = b, 0
+            while fr.pc < len(blk.instrs) and blk.instrs[fr.pc].op == "Phi":
+                ins = blk.instrs[fr.pc]
+                fr.env[ins.name] = self._loop["iv"] if ins.name == self._loop["phi"] else ("unknown", f"loop:{ins.name}")
+                fr.pc += 1
+            if self._loop["init"] is not None:                 # the induction variable is at least its initial value
+                self.assume(st, ("<=", self._loop["init"], self._loop["iv"]))
+            return None
         blk = fr.fn.blocks[b]
         fr.bidx, fr.pc = b, 0
         phis = []
@@ -468,6 +530,7 @@ class Enumerator:
             fr.pc += 1
         for name, v in phis:
             fr.env[name] = v
+        return None
 
     def site_of(self, fr: Frame, ins: Instr, kind: str, bound):
         s = fr.flow.site_ids().get(ins.uid)
@@ -514,25 +577,35 @@ class Enumerator:
                 continue
             kind = r[0]
             if kind == "jump":
-                self.enter(fr, st, r[1], fr.bidx)
+                if self.enter(fr, st, r[1], fr.bidx) == "continue":
+                    out.append(("done", (st, "continue", None, None)))
+                    return out
                 continue
             if kind == "branch":
                 atom, tb, fb = r[1], r[2], r[3]
                 s = self.reasoner(st).status(atom)
                 if s is True:
-                    self.enter(fr, st, tb, fr.bidx)
+                    if self.enter(fr, st, tb, fr.bidx) == "continue":
+                        out.append(("done", (st, "continue", None, None)))
+                        return out
                     continue
                 if s is False:
-                    self.enter(fr, st, fb, fr.bidx)
+                    if self.enter(fr, st, fb, fr.bidx) == "continue":
+                        out.append(("done", (st, "continue", None, None)))
+                        return out
                     continue
                 p = st.fork()
                 cur = fr.bidx
                 self.assume(st, atom)
-                self.enter(st.frames[-1], st, tb, cur)
+                if self.enter(st.frames[-1], st, tb, cur) == "continue":
+                    out.append(("done", (st, "continue", None, None)))
+                else:
+                    out.append(("work", st))
                 self.assume(p, negate(atom))
-                self.enter(p.frames[-1], p, fb, cur)
-                out.append(("work", st))
-                out.append(("work", p))
+                if self.enter(p.frames[-1], p, fb, cur) == "continue":
+                    out.append(("done", (p, "continue", None, None)))
+                else:
+                    out.append(("work", p))
                 return out
             if kind == "return":
                 vals = r[1]
