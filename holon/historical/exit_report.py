@@ -16,8 +16,9 @@ diagrams under gen/<M>/diagram/; exit (b)'s threshold, while its metric is not a
           with why it was not replayed on historical inputs, from the diagram's own fields:
             CONS       a consumer edge: its consumer runs off chain (the L2 node's derivation);
             TRANS env  an environment edge (time): not a transaction;
-            TRANS      the hand abstraction of an action whose extracted counterpart was replayed, or an action no
-                       in-scope transaction of the trans window calls;
+            TRANS      the hand abstraction of an action whose extracted counterpart was replayed (for a diagram whose
+                       provenance.extraction names a window declaration, the window view's action: I66, rule V7 of
+                       tests_m3/test_view_evidence.py), or an action no in-scope transaction of the trans window calls;
             CODEC      an edge with no historical record.
   exit_b  read from metrics mutation_adequacy (its rate_non_equivalent and meets_threshold): "pending" while that
           metric is not_applicable (I22's replacement I60 has not run); I23 never computes it.
@@ -72,6 +73,7 @@ def coverage(milestone: str, root: Path, inst: dict, recs: list[dict]) -> dict:
     for p in sorted((Path(root) / "gen" / milestone / "diagram").glob("*.json")):
         d = _load(p)
         how = ((d.get("provenance") or {}).get("extraction") or {}).get("method")
+        view = ((d.get("provenance") or {}).get("extraction") or {}).get("declaration") is not None   # a window view
         for e in d.get("edges") or []:
             kind = e.get("kind")
             if kind not in ("CODEC", "CONS", "TRANS"):
@@ -89,7 +91,8 @@ def coverage(milestone: str, root: Path, inst: dict, recs: list[dict]) -> dict:
                        "input")
             elif kind == "TRANS" and comp in trans:
                 r = trans[comp]
-                why = (f"the hand abstraction of {comp} ({d['facts']}" + (f", {how}" if how else "") + "); its "
+                who = f"the window view's {comp}" if view else f"the hand abstraction of {comp}"
+                why = (f"{who} ({d['facts']}" + (f", {how}" if how else "") + "); its "
                        f"extracted counterpart {r['facts']}#{r['diagram_edge']} was replayed on the trans window's "
                        f"{r['compared']} {comp} transactions")
             elif kind == "TRANS":

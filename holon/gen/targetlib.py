@@ -9,9 +9,9 @@ library files next to its facts and is read as input, like the facts themselves:
   <facts dir>/../policy_hints.mjs  untrusted search hints for the explorer (optional)
 
 A window view (holon.differential: a facts document whose extraction block names a window declaration of holon.window)
-is anchored to the declaration's abstraction (anchor; I65 = I33b, tests_m3/test_o12.py rule O4): it takes the
-abstraction's libraries and hints, as the differential's runs of the abstraction's laws over the view do. Every other
-document takes its own.
+is anchored to the declaration's abstraction (anchor; I65 = I33b, tests_m3/test_o12.py rule O4, whose library half is
+I66's rule V3, tests_m3/test_view_evidence.py): it takes the abstraction's libraries and hints, as the differential's
+runs of the abstraction's laws over the view do. Every other document takes its own.
 
 A library holds:
   builtins       DSL function name -> {"arity": n | null, "bend": template, "type": DSL type,

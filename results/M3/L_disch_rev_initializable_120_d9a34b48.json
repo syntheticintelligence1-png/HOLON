@@ -12,11 +12,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 3.013
+          "seconds": 2.421
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 1.399
+        "seconds": 1.132
       },
       "generator": "holon.disch.proofs",
       "kind": "proof",
@@ -33,11 +33,11 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 3.013
+      "seconds": 2.421
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.399
+    "seconds": 1.132
   },
   "compiled_sha256": "37562c1fcace527b4db860dbb0449e2d521f48134ac358a7529291a77bf0316d",
   "cone": [
@@ -1861,7 +1861,7 @@
   "evidence_triage": "none",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": null,
-  "generator_sha256": "7ed988d0536a8d38a86fb9c35b145a316f7a8ff70f862622ca19724160776172",
+  "generator_sha256": "81a06b9c8e646862ceae6336dd9acff4f49cfd2282909c247f7a063c2c778106",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -1892,13 +1892,50 @@
   ],
   "model_sha256": "5102c459bfde59a2ccc5d2c5c3ae78ee72a5d2dc95cc093a185a0f88aff545d7",
   "non_vacuity": {
-    "bound": "no reachable state where the premises hold: S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: 20000 neighbourhood prefixes of the witnesses of L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_ext_rollup_213_f2e7faf8_onlyOwner, L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_rollup_363_e11d8bb2_onlyOwner, L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_noext_rollup_213_f2e7faf8_onlyOwner, L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_noext_rollup_363_e11d8bb2_onlyOwner (one to 2 successful steps inserted at every position; max 20000 per entry point); B held at a candidate time in 0 of 20000 neighbourhood states; 0 S3 last-step syntheses (budget exhausted); B held at a candidate time in 0 of 3000 states; 0 last-step syntheses (initialize4)",
-    "degenerate": null,
-    "law": null,
+    "bound": "a reachable state of 1 steps where B holds at t, and initialize4",
+    "degenerate": false,
+    "law": "gen/M3/L_disch_rev_initializable_120_d9a34b48/nonvac/LAWS.bend",
     "parent_statement_hash": "sha256:dc544fccc213aa4ccc0aeb53f96558e528217c97ececbb2ac9698a79cb920166",
-    "reachable": null,
-    "status": "unknown",
-    "witness": null
+    "reachable": true,
+    "status": "inhabited",
+    "witness": {
+      "hashes": {
+        "keccak256": []
+      },
+      "steps": [
+        {
+          "action": "initialize4",
+          "args": {
+            "_expectedLegacyCutoverBatchIndex": 0,
+            "_newSubmitter": 511347974759188522659820409854212399244223280809
+          },
+          "calldata": "0x843bc9a10000000000000000000000005991a2df15a8f6a256d3ec51e99254cd3fb576a90000000000000000000000000000000000000000000000000000000000000000",
+          "env": {
+            "blobhash": [],
+            "block.timestamp": 1700000010,
+            "caller": "0x00000000000000000000000000000000000000ad",
+            "calls": [],
+            "msg.value": 0
+          }
+        },
+        {
+          "action": "initialize4",
+          "args": {
+            "_expectedLegacyCutoverBatchIndex": 0,
+            "_newSubmitter": 0
+          },
+          "calldata": "0x843bc9a100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "env": {
+            "blobhash": [],
+            "block.timestamp": 1700000010,
+            "caller": "0x0000000000000000000000000000000000001002",
+            "calls": [],
+            "msg.value": 0
+          }
+        }
+      ],
+      "t": 1700000010
+    }
   },
   "premises": [],
   "prover": "generator",

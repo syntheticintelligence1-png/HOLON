@@ -210,6 +210,45 @@ def minus(fields, *drop):
     return [f for f in fields if f not in drop]
 
 
+def window_views() -> dict:
+    """{stem: repo path} of M2's window views (I66, tests_m3/test_view_evidence.py rule V2), read here without holon/:
+    every holon-facts/0.2 document directly under gen/M2/extracted/ whose extraction block names, in "declaration", a
+    window declaration spec/M2/lib/window_*.json with window_version holon-window/0.1 and an existing abstraction."""
+    decls = set()
+    for p in sorted((ROOT / "spec" / "M2" / "lib").glob("window_*.json")):
+        x = load_json(p)
+        if (isinstance(x, dict) and x.get("window_version") == "holon-window/0.1"
+                and isinstance(x.get("abstraction"), str) and (ROOT / x["abstraction"]).is_file()):
+            decls.add(p.relative_to(ROOT).as_posix())
+    out = {}
+    for p in sorted((ROOT / "gen" / "M2" / "extracted").glob("*.json")):
+        x = load_json(p)
+        if (isinstance(x, dict) and x.get("facts_version") == "holon-facts/0.2"
+                and (x.get("extraction") or {}).get("declaration") in decls):
+            out[p.stem] = p.relative_to(ROOT).as_posix()
+    return out
+
+
+def at_where_in(doc: dict, model: str, edge: str, where: str):
+    """at_where for any model of the document: the facts of a fact document from DOCS, of any other model (a window
+    view, I66) from the document's own model entry."""
+    if model in DOCS:
+        return at_where(model, edge, where)
+    f = load_json(ROOT / doc["models"][model]["facts"])
+    if edge.startswith("LOAD.obs."):
+        assert where == "body", where
+        return f["observers"][edge[len("LOAD.obs."):]]["body"]
+    kind, name = edge.split(".", 1)
+    owner = next(a for a in f["actions"] if a["name"] == name) if kind == "TRANS" else f["migrations"][name]
+    m = re.fullmatch(r"guards\[(\d+)\]\.(require|expr)", where)
+    if m:
+        return owner["guards"][int(m.group(1))][m.group(2)]
+    m = re.fullmatch(r"effects\.(.+)", where)
+    if m:
+        return owner["effects"][m.group(1)]
+    raise AssertionError(f"unknown position {where!r}")
+
+
 class _Shared(unittest.TestCase):
     run_: Run = None
 
@@ -242,12 +281,21 @@ class TestEvidenceFile(_Shared):
             x = load_json(ROOT / rel)
             if x.get("facts_version") == "holon-facts/0.3" and (x.get("extraction") or {}).get("kind") == "transitions":
                 adopted[rel.rsplit("/", 1)[-1][:-len(".json")]] = rel
-        self.assertEqual(sorted(d["models"]), sorted([*DOCS, *adopted]))
+        # amended (I66, spec/M2/amendments.jsonl; tests_m3/test_view_evidence.py rule V8): a window view of the
+        # milestone (rule V2) may also have a model, keyed by its file stem, over its own diagram gen/M2/diagram/<stem>
+        views = {m: rel for m, rel in window_views().items() if m in d["models"]}
+        self.assertEqual(sorted(d["models"]), sorted([*DOCS, *adopted, *views]))
         for m, rel in adopted.items():
             with self.subTest(model=m):
                 self.assertEqual((d["models"][m]["facts"], d["models"][m]["diagram"],
                                   d["models"][m]["facts_version"]), (rel, None, "holon-facts/0.3"))
                 self.assertEqual([a for a in d["atoms"] if a["model"] == m], [])
+        for m, rel in views.items():
+            with self.subTest(model=m):
+                mo = d["models"][m]
+                self.assertEqual((mo["facts"], mo["facts_sha256"], mo["facts_version"], mo["diagram"]),
+                                 (rel, hashlib.sha256((ROOT / rel).read_bytes()).hexdigest(), "holon-facts/0.2",
+                                  f"gen/M2/diagram/{m}.json"))
         for m, rel in DOCS.items():
             with self.subTest(model=m):
                 mo = d["models"][m]
@@ -270,7 +318,12 @@ class TestEvidenceFile(_Shared):
                              r"gen/M2/sorts/assignment\.json|spec/(M[0-9]+/)?lib/[^/]+\.lib\.json|"
                              r"spec/M2/lib/evidence_lexical\.json|spec/M2/lib/derive_extracted\.json|"
                              r"spec/M2/facts/[^/]+\.extracted\.json)$")
-        self.assertEqual([p for p in paths if not allowed.match(p)], [], "an input outside the frozen set")
+        # amended (I66, spec/M2/amendments.jsonl; tests_m3/test_view_evidence.py rule V8): a window view the document
+        # models, and its window declaration, which names the abstraction whose libraries it takes (rule V3)
+        views = [rel for m, rel in window_views().items() if m in d["models"]]
+        extra = set(views) | {load_json(ROOT / rel)["extraction"]["declaration"] for rel in views}
+        self.assertEqual([p for p in paths if not allowed.match(p) and p not in extra], [],
+                         "an input outside the frozen set")
 
     def test_evidence_and_sorts_hashes(self):
         d = self.doc
@@ -415,10 +468,12 @@ class TestSoundness(_Shared):
                 self.assertEqual(a["via"]["reads"], sorted(a["via"]["reads"]))
 
     def test_e3_and_e5_atoms_point_at_their_nodes(self):
+        """Amended (I66, spec/M2/amendments.jsonl; tests_m3/test_view_evidence.py rule V8): an atom's facts are read
+        through the document's model (at_where_in), so a window view's atoms are checked against the view too."""
         for a in atoms(self.doc, "E3") + atoms(self.doc, "E5"):
             with self.subTest(atom=a["id"]):
                 v = a["via"]
-                expr = at_where(a["model"], a["p"], v["where"])
+                expr = at_where_in(self.doc, a["model"], a["p"], v["where"])
                 op = "==" if a["level"] == "E3" else v["op"]
                 self.assertTrue(has_node(expr, op, *v["operands"]), f"no {op} node {v['operands']} at {v['where']}")
                 if a["level"] == "E3":
@@ -429,9 +484,11 @@ class TestSoundness(_Shared):
                     self.assertFalse(v["sort"].startswith("Mach("))
 
     def test_e6_atoms_equal_the_frozen_tokenizer(self):
+        """Amended (I66, spec/M2/amendments.jsonl; tests_m3/test_view_evidence.py rule V8): the window views the
+        document models are recomputed too, from their diagrams gen/M2/diagram/<stem>.json."""
         lex = load_json(LEXICAL)
         want = set()
-        for m in DOCS:
+        for m in [*DOCS, *(v for v in window_views() if v in self.doc["models"])]:
             es = edges(m)
             ids = sorted(i for i, e in es.items() if e["kind"] in ("CODEC", "TRANS"))
             for i, p in enumerate(ids):
@@ -528,8 +585,12 @@ class TestPredictions(_Shared):
     def test_the_e3_inventory(self):
         """I14-P5: exactly 9 E3 atoms, all in morph_rollup: the 4 of I14-P4; parent == lci at Rollup.sol:312 in the
         three commits; lfi + 1 == idx at :643 and qpend == btot - bn at L1MessageQueueWithGasPriceOracle.sol:325 in
-        finalizeBatch. Comparisons with a literal or a parameter give none."""
-        got = sorted((a["p"], a["via"]["where"], json.dumps(a["via"]["operands"]), a["src"]) for a in atoms(self.doc, "E3"))
+        finalizeBatch. Comparisons with a literal or a parameter give none. Amended (I66, spec/M2/amendments.jsonl;
+        tests_m3/test_view_evidence.py rule V8): the inventory is the fact documents' (DOCS), so "exactly 9" counts the
+        fact documents' E3 atoms; once I66 models the window view the set holds 17 (I66-P2 predicts the view's 8 and
+        checks them exactly)."""
+        e3 = [a for a in atoms(self.doc, "E3") if a["model"] in DOCS]
+        got = sorted((a["p"], a["via"]["where"], json.dumps(a["via"]["operands"]), a["src"]) for a in e3)
         r = "contracts/contracts/l1/rollup/Rollup.sol"
         prev314 = json.dumps([["get", ["call", "w", "lfi", "win", "parent"], "csr"], "prev"])
         want = sorted([
@@ -546,12 +607,16 @@ class TestPredictions(_Shared):
             ("TRANS.finalizeBatch", "guards[14].require", json.dumps(["qpend", ["-", "btot", "bn"]]),
              "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:325")])
         self.assertEqual(got, want)
-        self.assertTrue(all(a["model"] == ROLLUP for a in atoms(self.doc, "E3")))
+        self.assertTrue(all(a["model"] == ROLLUP for a in e3))
 
     def test_the_e4_inventory(self):
         """I14-P6: exactly 2 E4 atoms: commitBatch and commitBatchWithProof each recompute blob_hash(ver, blobs), a
-        value the other stores in its new window entry (effects.win)."""
-        got = sorted((a["model"], a["p"], a["q"], a["via"]["fn"], tuple(a["via"]["stored"])) for a in atoms(self.doc, "E4"))
+        value the other stores in its new window entry (effects.win). Amended (I66, spec/M2/amendments.jsonl;
+        tests_m3/test_view_evidence.py rule V8): the inventory is the fact documents' (DOCS), so "exactly 2" counts the
+        fact documents' E4 atoms; once I66 models the window view the set holds 4 (I66-P2 predicts the view's 2 and
+        checks them exactly)."""
+        got = sorted((a["model"], a["p"], a["q"], a["via"]["fn"], tuple(a["via"]["stored"])) for a in atoms(self.doc, "E4")
+                     if a["model"] in DOCS)
         self.assertEqual(got, [(ROLLUP, "TRANS.commitBatch", "TRANS.commitBatchWithProof", "blob_hash", ("effects.win",)),
                                (ROLLUP, "TRANS.commitBatchWithProof", "TRANS.commitBatch", "blob_hash", ("effects.win",))])
 

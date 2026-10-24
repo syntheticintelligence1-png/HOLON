@@ -41,6 +41,16 @@ is a carrier whose writers are the actions with a write to it and whose readers 
 (holon.diagram.build has no 0.3 adapter), so such a model contributes no atoms: a law over it that names an edge has
 no evidence (levels []), and its triage is the computed default.
 
+Window views (I66, rule V5 of tests_m3/test_view_evidence.py). A build that reads the committed diagrams (diagrams
+None) for a target milestone (M<k>) also models every window view of gen_milestone(M) (holon.diagram.window_views:
+holon.differential's views, gen/<M>/extracted/*.json naming a window declaration spec/<M>/lib/window_*.json): one model
+each, keyed by the view's stem, over its committed diagram gen/<gm>/diagram/<stem>.json, with I14's atoms for a
+facts-0.2 document over the view and its libraries (holon.gen.targetlib anchors them to its abstraction's). A view is
+never a fact document: E5 reads the frozen assignment's model of its stem when there is one and otherwise gives no
+operand a sort (no E5 atom). Its inputs are the view, its diagram and its window declaration; the files read only to
+find the views are not inputs. A build given its own diagrams, a build for a test milestone and a build for no
+milestone model no view, and a view whose stem is another model's is an EvidenceError.
+
 Pure Python, standard library and holon imports only; the document is a deterministic function of its inputs
 (sorted keys, ids derived from content, no timestamps). Unresolved pairs are results, not errors; an input that is
 missing, unreadable, stale or holds a construct the pass cannot map is an EvidenceError and nothing is written.
@@ -777,6 +787,35 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
                         "diagram": drel, "anchors": an}
         atoms += a
         unresolved += u
+    # I66: a target milestone's window views over their committed diagrams (module docstring, "Window views"); a build
+    # given its own diagrams, for a test milestone or for no milestone models none
+    if diagrams is None and re.fullmatch(r"M\d+", milestone or ""):
+        from . import window_views
+        from ..gen.targetlib import window_declaration
+        for vp in window_views(gm, root):
+            rel, stem = inp.rel(vp), vp.stem
+            if stem in models:
+                raise EvidenceError(f"{rel}: a window view shares the model name {stem} with a fact document")
+            raw = inp.read_bytes(root / rel)
+            sha = hashlib.sha256(raw).hexdigest()
+            try:
+                facts = json.loads(raw.decode("utf-8"))
+            except (UnicodeDecodeError, ValueError) as e:
+                raise EvidenceError(f"{rel}: not JSON ({e})") from e
+            drel = f"gen/{gm}/diagram/{stem}.json"
+            dg = inp.read_json(root / drel)
+            inp.read_bytes(root / window_declaration(root / rel, root)[0])
+            amodel = assignment["models"].get(stem)
+            if amodel is not None and (not isinstance(amodel, dict) or not isinstance(amodel.get("assignment"), dict)):
+                raise EvidenceError(f"{stem}: the sorts assignment's model {stem} has no assignment")
+            try:
+                an, a, u = _model(rel, facts, sha, dg, amodel["assignment"] if amodel else {}, sites, lex, root, inp)
+            except (KeyError, TypeError, IndexError, AttributeError, DiagramError, LibError) as e:
+                raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
+            models[stem] = {"facts": rel, "facts_sha256": sha, "facts_version": facts.get("facts_version"),
+                            "diagram": drel, "anchors": an}
+            atoms += a
+            unresolved += u
     for cp, cdg in components or []:   # I24: linked codec documents (rule X7)
         from . import linked as L
         rel = inp.rel(Path(cp))
