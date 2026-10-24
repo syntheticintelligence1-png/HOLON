@@ -758,7 +758,12 @@ class TestBuild(unittest.TestCase):
         for m in old["models"]:
             with self.subTest(model=m):
                 self.assertEqual(doc["models"][m], old["models"][m])
-        self.assertEqual([x for x in doc["atoms"] if x["model"] != I.VIEW_MODEL], old["atoms"])
+        # amended (I72, spec/M3/amendments.jsonl; tests_m3/test_e2_transitions.py rule Z7): an adopted transitions
+        # document's model (holon-facts/0.3, no diagram) gains I72's E2 atoms, which I72-P1 checks exactly
+        adopted = {m for m, mo in old["models"].items()
+                   if mo.get("facts_version") == "holon-facts/0.3" and mo.get("diagram") is None}
+        self.assertEqual([x for x in doc["atoms"] if x["model"] != I.VIEW_MODEL
+                          and not (x["model"] in adopted and x["level"] == "E2")], old["atoms"])
         self.assertEqual([x for x in doc["unresolved"] if x["model"] != I.VIEW_MODEL], old["unresolved"])
         for k in ("document", "evidence_version", "milestone", "levels", "sorts_sha256"):
             self.assertEqual(doc[k], old[k], k)

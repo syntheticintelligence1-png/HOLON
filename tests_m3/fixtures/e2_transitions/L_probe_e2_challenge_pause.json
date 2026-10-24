@@ -1,0 +1,82 @@
+{
+  "evidence": [
+    "E2"
+  ],
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_probe_e2_challenge_pause",
+  "milestone": "M3",
+  "notes": "I72 probe (tests_m3/test_e2_transitions.py, I72-R5): a law over the adopted transitions document spec/M2/facts/morph_rollup.extracted.json, never registered, run or proved, read only by holon.diagram.evidence.law_evidence and the instrument. It ranges over reachable states, actions and traces (L3) and names challengeState and setPause by is_<action> terms (L2), the two actions I33's M3 contract (C_o12_m3, its L_weak L2) is about. Its claim need not hold; it carries E2 as that contract's derived law will.",
+  "rule": "UNDO",
+  "rule_catalog_version": "holon-rules/1.5",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "args": [
+              {
+                "var": "x"
+              }
+            ],
+            "fn": "is_challengeState"
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "args": [
+              {
+                "var": "y"
+              }
+            ],
+            "fn": "is_setPause"
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "y",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "t",
+        "q": "forall",
+        "type": "Trace"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "bool": true
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  }
+}
