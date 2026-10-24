@@ -1,0 +1,627 @@
+{
+  "analysis_version": "holon-par-init/0.1",
+  "basis": [
+    {
+      "cell": 17,
+      "family": "committedBatches",
+      "incr": 9,
+      "init_id": "morph_rollup.versions:chain:committedBatches:17:9",
+      "law_id": "L_pinit_Rollup_importGenesisBatch_committedBatches_17_9",
+      "root_action": "importGenesisBatch",
+      "shift": 192,
+      "versions": [
+        "V3",
+        "V4",
+        "V5",
+        "V6",
+        "V7",
+        "V8",
+        "V9",
+        "V10",
+        "V11"
+      ]
+    }
+  ],
+  "downgrade_gaps": [
+    {
+      "added": [
+        "Rollup.l1StakingContract"
+      ],
+      "from": "V11",
+      "id": "gap:M3:downgrade:V11->V10",
+      "kind": "downgrade",
+      "obligation": "F12.5, under reading (a) of Question 64 only (a reverse implementation transition); not covered under reading (b)",
+      "overlap": [
+        "Rollup.l1StakingContract meets Rollup.submitterContract"
+      ],
+      "question": "Q64",
+      "removed": [
+        "Rollup.legacyCutoverBatchIndex",
+        "Rollup.submitterContract"
+      ],
+      "retyped": [
+        "Rollup.batchDataStore"
+      ],
+      "status": "open",
+      "to": "V10"
+    }
+  ],
+  "link_gaps": [
+    {
+      "cell": 17,
+      "family": "committedBatches",
+      "id": "gap:M3:link:committedBatches:17:IL1MessageQueue",
+      "incr": 9,
+      "interface": "IL1MessageQueue",
+      "kind": "link",
+      "obligation": "D4",
+      "question": "Q63",
+      "sites": {
+        "V10": [
+          {
+            "action": "commitBatch",
+            "at": "calls[3]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "calls[1]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitState",
+            "at": "calls[3]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "V11": [
+          {
+            "action": "commitBatch",
+            "at": "calls[2]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "calls[1]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitState",
+            "at": "calls[2]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "V3": [
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "V4": [
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "V5": [
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "V6": [
+          {
+            "action": "commitBatch",
+            "at": "calls[1]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "V7": [
+          {
+            "action": "commitBatch",
+            "at": "calls[2]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "calls[1]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "V8": [
+          {
+            "action": "commitBatch",
+            "at": "calls[3]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "calls[1]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ],
+        "V9": [
+          {
+            "action": "commitBatch",
+            "at": "calls[3]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitBatchWithProof",
+            "at": "calls[1]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "commitState",
+            "at": "calls[3]",
+            "fn": "IL1MessageQueue.getCrossDomainMessage"
+          },
+          {
+            "action": "finalizeBatch",
+            "at": "calls[0]",
+            "fn": "IL1MessageQueue.popCrossDomainMessage"
+          }
+        ]
+      },
+      "status": "open"
+    }
+  ],
+  "versions": {
+    "V10": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[16].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[0]",
+              "auth": "guards[16].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitState",
+              "at": "writes[0]",
+              "auth": "guards[15].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "V11": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[16].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[0]",
+              "auth": "guards[16].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitState",
+              "at": "writes[0]",
+              "auth": "guards[15].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "V3": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[9].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "V4": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[11].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "V5": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[10].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "V6": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[12].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "V7": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[13].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[0]",
+              "auth": "guards[13].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "V8": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[13].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[0]",
+              "auth": "guards[13].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "V9": {
+      "contract": "Rollup",
+      "families": [
+        {
+          "family": "committedBatches",
+          "pairs": [
+            {
+              "cell": 17,
+              "incr": 9,
+              "shift": 192
+            }
+          ],
+          "root_sites": [
+            {
+              "action": "importGenesisBatch",
+              "at": "writes[0]"
+            }
+          ],
+          "successor_sites": [
+            {
+              "action": "commitBatch",
+              "at": "writes[0]",
+              "auth": "guards[14].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitBatchWithProof",
+              "at": "writes[0]",
+              "auth": "guards[14].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            },
+            {
+              "action": "commitState",
+              "at": "writes[0]",
+              "auth": "guards[15].reaches[0]",
+              "parent": [
+                "member",
+                [
+                  "param",
+                  "batchDataInput"
+                ],
+                "parentBatchHeader"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
