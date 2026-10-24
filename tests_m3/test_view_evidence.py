@@ -602,7 +602,15 @@ class TestConstruction(unittest.TestCase):
         (repo / I.DIAGRAM).unlink()
         f = scratch() / "evidence.json"
         holon_ok(self, ["evidence", "--milestone", M, "--root", str(repo), "--out", str(f)])
-        self.assertEqual(f.read_bytes(), show_bytes(prereg_commit(), I.EVIDENCE))
+        # amended (I72, spec/M3/amendments.jsonl; tests_m3/test_e2_transitions.py rule Z7): an adopted transitions
+        # document's model (holon-facts/0.3, no diagram) gains I72's E2 atoms, so the two sets are compared as JSON with
+        # those atoms and the evidence_sha256 left out on both sides, where they were compared byte for byte
+        def bare(d):
+            adopted = {k for k, mo in d["models"].items()
+                       if mo.get("facts_version") == "holon-facts/0.3" and mo.get("diagram") is None}
+            return {**{k: v for k, v in d.items() if k != "evidence_sha256"},
+                    "atoms": [a for a in d["atoms"] if not (a["model"] in adopted and a["level"] == "E2")]}
+        self.assertEqual(bare(json.loads(f.read_bytes())), bare(json.loads(show_bytes(prereg_commit(), I.EVIDENCE))))
 
     def test_the_view_takes_its_abstractions_libraries(self):
         """V3: holon.gen.targetlib's window_declaration, anchor and lib_files give what the instrument's anchor rule
@@ -758,7 +766,12 @@ class TestBuild(unittest.TestCase):
         for m in old["models"]:
             with self.subTest(model=m):
                 self.assertEqual(doc["models"][m], old["models"][m])
-        self.assertEqual([x for x in doc["atoms"] if x["model"] != I.VIEW_MODEL], old["atoms"])
+        # amended (I72, spec/M3/amendments.jsonl; tests_m3/test_e2_transitions.py rule Z7): an adopted transitions
+        # document's model (holon-facts/0.3, no diagram) gains I72's E2 atoms, which I72-P1 checks exactly
+        adopted = {m for m, mo in old["models"].items()
+                   if mo.get("facts_version") == "holon-facts/0.3" and mo.get("diagram") is None}
+        self.assertEqual([x for x in doc["atoms"] if x["model"] != I.VIEW_MODEL
+                          and not (x["model"] in adopted and x["level"] == "E2")], old["atoms"])
         self.assertEqual([x for x in doc["unresolved"] if x["model"] != I.VIEW_MODEL], old["unresolved"])
         for k in ("document", "evidence_version", "milestone", "levels", "sorts_sha256"):
             self.assertEqual(doc[k], old[k], k)
