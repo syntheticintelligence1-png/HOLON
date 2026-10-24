@@ -490,6 +490,45 @@ def _load(p: Path):
     return json.loads(Path(p).read_text())
 
 
+def _versioned_document(fp: Path, cache: dict) -> bool:
+    """Is fp a versioned document (I28, holon.versions: a document with versions_version)? Its model is the versioned
+    layer over model3's modules, which take no oracle parameter (as an extracted model's), so holon.gen.oracles.
+    ledger_problems has no Machine for it (versioned_ledger_problems)."""
+    if fp not in cache:
+        try:
+            d = json.loads(Path(fp).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            d = None
+        cache[fp] = isinstance(d, dict) and isinstance(d.get("versions_version"), str)
+    return cache[fp]
+
+
+def versioned_ledger_problems(root: Path, laws: list[dict], records: dict) -> list[str]:
+    """G9's ledger check (F-M2-12) for the laws over a versioned document (I28): every record carries
+    ledger_assumptions, the entries of the document's ledger bundle (holon.records: the adopted document's bundle with
+    A-proxy) that its cone meets; as holon.gen.oracles.ledger_problems for an extracted model, no oracle parameter
+    replacing a ledger entry."""
+    from . import records as R
+    bad = []
+    for law in laws:
+        rec = records.get(law["law_id"])
+        if rec is None:
+            continue
+        if not isinstance(rec.get("ledger_assumptions"), list):
+            bad.append(f"{law['law_id']}: an M2+ record lists no ledger_assumptions")
+            continue
+        try:
+            b, _ = R.resolve_bundle(rec["facts_sha256"], law["facts"], root)
+        except R.LedgerError as e:
+            bad.append(f"{law['law_id']}: {e}")
+            continue
+        want = sorted(e["id"] for e in b["entries"] if R._meets(e, set(rec.get("cone") or [])))
+        if rec["ledger_assumptions"] != want:
+            what = "lists no ledger assumption" if not rec["ledger_assumptions"] else f"lists {rec['ledger_assumptions']}"
+            bad.append(f"{law['law_id']}: {what}, but its cone meets the ledger stand-ins and abstractions {want}")
+    return bad
+
+
 def _resolve(root: Path, p: str | None) -> Path | None:
     if p is None:
         return None
@@ -990,8 +1029,12 @@ class Gate:
         from .mpipeline import m2plus
         if m2plus(self.m):   # F-M2-12: an M2+ record keeps its ledger cone (holon.gen.oracles.ledger_problems)
             from .gen.oracles import ledger_problems
-            bad += ledger_problems(self.m, self.root, ir.load_laws_any(self.m, self.root),
-                                   {k: v for k, v in self.records().items() if v})
+            laws = ir.load_laws_any(self.m, self.root)
+            recs = {k: v for k, v in self.records().items() if v}
+            cache: dict = {}   # I28: the laws over a versioned document have no Machine (versioned_ledger_problems)
+            versioned = {law["law_id"] for law in laws if _versioned_document(self.root / law["facts"], cache)}
+            bad += ledger_problems(self.m, self.root, [law for law in laws if law["law_id"] not in versioned], recs)
+            bad += versioned_ledger_problems(self.root, [law for law in laws if law["law_id"] in versioned], recs)
         self.checks["G9"] = _res(not bad and n > 0, f"{n} records valid against v1 and v2"
                                  + ("; ledger_assumptions recomputed" if m2plus(self.m) else "") if not bad and n
                                  else "; ".join(bad) or "no records")
