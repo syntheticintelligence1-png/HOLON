@@ -45,7 +45,7 @@
   },
   "derive_version": "holon-derive/0.1",
   "document": "derivation",
-  "evidence_sha256": "aca8864c4a2112978029d0b2252c2b3ffbabbebb82acfc4d8d42ccdc1c987bf9",
+  "evidence_sha256": "f0ba5b9817074d31d4eb2186b6afa675516087de4a8ee99777a86c5719e76c47",
   "inputs": [
     {
       "path": "audit/rounds/M2/round2/a4.json",
@@ -54,6 +54,10 @@
     {
       "path": "gen/M3/codec/header_length.json",
       "sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315"
+    },
+    {
+      "path": "gen/M3/diagram/blob_ops.json",
+      "sha256": "df40195370900ebcc26f780ed6f737b8c3a3db8732ece4df853205f284156440"
     },
     {
       "path": "gen/M3/diagram/header_length.json",
@@ -69,7 +73,11 @@
     },
     {
       "path": "gen/M3/evidence.json",
-      "sha256": "dbadfa957ed98de249427b9b326cafd78a30a17e9de90e26b6883febfc6ca603"
+      "sha256": "0a8eb6abeaee5b4e94c7f62e522fc0a75bf06548aa309345397f0ba500bb26e2"
+    },
+    {
+      "path": "gen/M3/goops/blob_ops.json",
+      "sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06"
     },
     {
       "path": "gen/M3/sorts/assignment.json",
@@ -284,6 +292,10 @@
       "sha256": "0c1b71a550906dd674c31dbf757a1b364a6806af06b3ebfc80ec38c12c869e0e"
     },
     {
+      "path": "spec/M3/facts/morph_blob.go.extracted.json",
+      "sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e"
+    },
+    {
       "path": "spec/M3/lib/derive_extracted.json",
       "sha256": "87749c82c2e790561357e5d99b22ff1aa895774e3064a39e8e80f98e30466a6f"
     },
@@ -294,6 +306,10 @@
     {
       "path": "spec/M3/lib/fact.json",
       "sha256": "651e15ed10a826aef6d8c11a1f00545436fd359283f05de2c0a7473f1e999557"
+    },
+    {
+      "path": "spec/M3/lib/go_ops.json",
+      "sha256": "f96c9ea8e652f00369dfcbcc2ab4cb37fac51aa9f14ab5b145eca3407306849d"
     },
     {
       "path": "spec/M3/lib/link.json",
@@ -314,26 +330,6 @@
     {
       "path": "spec/M3/lib/versions.json",
       "sha256": "aa6ea949281bef01a33d052ab6c2fe1ad810a5074c0046ec53e3e63899097ac7"
-    },
-    {
-      "path": "gen/M3/diagram/blob_ops.json",
-      "sha256": "df40195370900ebcc26f780ed6f737b8c3a3db8732ece4df853205f284156440"
-    },
-    {
-      "path": "gen/M3/evidence.json",
-      "sha256": "cfc751720160995c1086d14810b2e9d93fc2eb76426fb7c3bb6857c0095e37b9"
-    },
-    {
-      "path": "gen/M3/goops/blob_ops.json",
-      "sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06"
-    },
-    {
-      "path": "spec/M3/facts/morph_blob.go.extracted.json",
-      "sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e"
-    },
-    {
-      "path": "spec/M3/lib/go_ops.json",
-      "sha256": "f96c9ea8e652f00369dfcbcc2ab4cb37fac51aa9f14ab5b145eca3407306849d"
     }
   ],
   "laws": [
@@ -2803,7 +2799,7 @@
       "facts": "gen/M3/goops/blob_ops.json",
       "law_id": "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes",
       "rule": "PAR",
-      "statement_hash": "sha256:bc0a299ff88e02688cd0c07e79a5672d0e99cbd563df9160cdd0b38afbad083d",
+      "statement_hash": "sha256:c8adf9b7d24710f3923a909d729ba77c1a718fee9f2c5b6be565b42f1f795ab8",
       "subform": "domain_coherence"
     },
     {
@@ -3939,7 +3935,7 @@
       "facts": "gen/M3/goops/blob_ops.json",
       "law_id": "L_par_tot_batch_RetrieveBlobBytes",
       "rule": "PAR",
-      "statement_hash": "sha256:7277f562e1225c5523d2c3f8f875e7c12eb20f4d07d884b1e90300659dcfcdca",
+      "statement_hash": "sha256:fe8cfebbac9c048070f245713a0a12c5cee92ae0836fb6f69f914da8d4dabfec",
       "subform": "totality"
     },
     {
@@ -3955,7 +3951,7 @@
       "facts": "gen/M3/goops/blob_ops.json",
       "law_id": "L_par_tot_blob_RetrieveBlobBytes",
       "rule": "PAR",
-      "statement_hash": "sha256:7b97acdecc9687fc6550b3a7eeec7aafc97b9d4dfeaf5ffc0dbe3eb7e6ea48dd",
+      "statement_hash": "sha256:9b4fbc513b5f6b413860a670c8808b63137268391d99d7441e6d9e926886b061",
       "subform": "totality"
     },
     {
@@ -4019,7 +4015,7 @@
       "facts": "gen/M3/goops/blob_ops.json",
       "law_id": "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes",
       "rule": "PAR",
-      "statement_hash": "sha256:dc5aee36691855df3489fa687b4cb7db419946bc55be3581d81bace671b66156",
+      "statement_hash": "sha256:4249fdd3b08001ef475bada872e7e83b4c881c1837b24731c66745bea2a0efdf",
       "subform": "weak"
     },
     {
@@ -5756,6 +5752,19 @@
     {
       "duplicates": {},
       "key": {
+        "atom": "blob_ops:E6:CODEC.batch_RetrieveBlobBytes:CODEC.blob_RetrieveBlobBytes:f6e8978d"
+      },
+      "laws": [
+        "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
+      ],
+      "model": "blob_ops",
+      "reason": null,
+      "subform": "weak",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
         "atom": "header_length:E6:CODEC.BatchCache_createBatchHeaderWithSequencerSetHash:CODEC.BatchHeaderV1_Bytes:bd724a71"
       },
       "laws": [],
@@ -5812,6 +5821,21 @@
       "model": "header_length",
       "reason": "no_common_version",
       "subform": "weak",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
+        "carrier": "Blob",
+        "p": "ok_batch_RetrieveBlobBytes",
+        "q": "ok_blob_RetrieveBlobBytes"
+      },
+      "laws": [
+        "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes"
+      ],
+      "model": "blob_ops",
+      "reason": null,
+      "subform": "domain_coherence",
       "version": null
     },
     {
@@ -5986,6 +6010,32 @@
     {
       "duplicates": {},
       "key": {
+        "edge": "CODEC.batch_RetrieveBlobBytes"
+      },
+      "laws": [
+        "L_par_tot_batch_RetrieveBlobBytes"
+      ],
+      "model": "blob_ops",
+      "reason": null,
+      "subform": "totality",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
+        "edge": "CODEC.blob_RetrieveBlobBytes"
+      },
+      "laws": [
+        "L_par_tot_blob_RetrieveBlobBytes"
+      ],
+      "model": "blob_ops",
+      "reason": null,
+      "subform": "totality",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
         "edge": "CODEC.load_sol"
       },
       "laws": [],
@@ -6045,71 +6095,6 @@
       "version": null
     },
     {
-      "duplicates": {},
-      "key": {
-        "edge": "CODEC.load_sol"
-      },
-      "laws": [],
-      "model": "header_length",
-      "reason": "not_a_parallel_pair",
-      "subform": "cycle",
-      "version": null
-    },
-    {
-      "duplicates": {},
-      "key": {
-        "atom": "blob_ops:E6:CODEC.batch_RetrieveBlobBytes:CODEC.blob_RetrieveBlobBytes:f6e8978d"
-      },
-      "laws": [
-        "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
-      ],
-      "model": "blob_ops",
-      "reason": null,
-      "subform": "weak",
-      "version": null
-    },
-    {
-      "duplicates": {},
-      "key": {
-        "carrier": "Blob",
-        "p": "ok_batch_RetrieveBlobBytes",
-        "q": "ok_blob_RetrieveBlobBytes"
-      },
-      "laws": [
-        "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes"
-      ],
-      "model": "blob_ops",
-      "reason": null,
-      "subform": "domain_coherence",
-      "version": null
-    },
-    {
-      "duplicates": {},
-      "key": {
-        "edge": "CODEC.batch_RetrieveBlobBytes"
-      },
-      "laws": [
-        "L_par_tot_batch_RetrieveBlobBytes"
-      ],
-      "model": "blob_ops",
-      "reason": null,
-      "subform": "totality",
-      "version": null
-    },
-    {
-      "duplicates": {},
-      "key": {
-        "edge": "CODEC.blob_RetrieveBlobBytes"
-      },
-      "laws": [
-        "L_par_tot_blob_RetrieveBlobBytes"
-      ],
-      "model": "blob_ops",
-      "reason": null,
-      "subform": "totality",
-      "version": null
-    },
-    {
       "duplicates": {
         "L_par_cy_blob_RetrieveBlobBytes": "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
       },
@@ -6119,6 +6104,17 @@
       "laws": [],
       "model": "blob_ops",
       "reason": null,
+      "subform": "cycle",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
+        "edge": "CODEC.load_sol"
+      },
+      "laws": [],
+      "model": "header_length",
+      "reason": "not_a_parallel_pair",
       "subform": "cycle",
       "version": null
     }
