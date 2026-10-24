@@ -1,0 +1,11 @@
+{
+  "go_ops_version": "holon-go-ops/0.1",
+  "doc": "Go-op components of M3 (I67 = I38a; fixed at the I67 prereg; contract: rules Y3-Y5 of the docstring of tests_m3/test_go_loop.py). A component is named here with one interface carrier, a Go type whose values the environment supplies (R^ext, whitepaper §5.1 and A2), and holds every function of the Go document whose one parameter has that type and whose last result is error (an op). PAR's producers derive over its diagram as they stand. This file is the only target vocabulary of holon.diagram.goops.",
+  "document": "spec/M3/facts/morph_blob.go.extracted.json",
+  "components": {
+    "blob_ops": {
+      "carrier": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob",
+      "reach": "external: a blob's bytes are what the batch submitter posted to L1 in an EIP-4844 blob transaction; a derivation node fetches them from the beacon API and hands them to the decoder (whitepaper §11.3 O4: the caller is node/derivation). Within the document's two packages no other type carries L1-posted data: calldata is parsed in node/derivation, which I39 extracts."
+    }
+  }
+}
