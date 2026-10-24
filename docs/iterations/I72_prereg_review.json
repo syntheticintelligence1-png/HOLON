@@ -1,0 +1,181 @@
+{
+ "reviewer": "i72-prereg-reviewer (independent)",
+ "commit": "4cebbc2 + uncommitted I72 prereg",
+ "verdict": "no_sign_off",
+ "verdict_note": "No sign-off. Rule Z1-Z3 is sound and precise on the Rollup document: an implementation written from the contract text equals the instrument atom for atom, and I found no counted non-read, missed read or missed write. But the package can't be built as preregistered. Every I72 atom violates spec/schemas/evidence.schema.json's model and id patterns, so GEVID fails unless the schema changes, which I72-R2 forbids; and Z7 misses earlier tests that fail on a correct build (I66's light-copy check, I14's ID_RE, and I14's 'post' ban unless the walker moves out of evidence.py). P1 is entailed by R3 and R4, so it is not a counted prediction under I66's criterion; the key's disclosure contradicts the prompt about the pre-prereg draft; and the reviewed files are byte-identical to the WIP commit ef6835f, now on top of 2d173e3 (I67's merge).",
+ "findings": [
+  {
+   "id": "B1",
+   "severity": "blocking",
+   "where": "spec/schemas/evidence.schema.json:82-83 (atom.id and atom.model patterns); test_e2_transitions.py Z4/Z6 and I72-R2 (lines 407-416); key iterations.I72.regressions I72-R2",
+   "what": "The evidence schema admits only [A-Za-z0-9_]+ as an atom's model and as the model part of its id. I20 keys the adopted model by its file name without .json (morph_rollup.extracted), and Z3/P1 fix that model and id, so every I72 atom is schema-invalid. GEVID validates the committed set; an invalid set is unusable, every law becomes uncovered, and GEVID fails on M0-M3. The only way out is a schema change. Z4/Z6 don't mention one, and I72-R2 forbids it ('no ... other spec/ file'; the schema is not in R2's fixed set). So no correct build can pass both R1 (and R3's CI gates) and R2.",
+   "evidence": "holon.schema.errors on gen/M2/evidence.json plus the instrument's 421 atoms: 842 errors, e.g. \"$.atoms[213].model: 'morph_rollup.extracted' does not match '^[A-Za-z0-9_]+$'\", plus the id pattern. Simulated build in a scratch clone (lead 2d173e3; prereg; my transitions_atoms written from Z1-Z4, equal to the instrument atom for atom; holon evidence/derive/lossy/metrics run; merged --no-ff). With the committed schema, E.gevid fails on M0 (10 problems, 8 uncovered), M1 (17, 16), M2 (27, 13) and M3 (273, 135). With the two patterns widened to [A-Za-z0-9_.], GEVID passes on M0-M3 with exactly the pinned mismatches, and then every I72 test passes except I72-R2: \"Lists differ: ['spec/schemas/evidence.schema.json'] != []\". Also schema-dependent: I14 test_document_validates_against_the_evidence_schema, I24 test_m3_evidence (tests_m3/test_derive_par.py:747), I66 test_the_set_gains_the_view_model_alone (tests_m3/test_view_evidence.py:784). spec/schemas/evidence.schema.json is not in FROZEN.sha256.",
+   "fix": "State in Z4 that the atom 'model' and 'id' patterns of spec/schemas/evidence.schema.json admit the adopted model key (e.g. model ^[A-Za-z0-9_][A-Za-z0-9_.]*$, the same group in id), with its description. List the change in Z6 as a build commit. Add the file to R2's fixed set and claim, checked to differ from its parent in those two patterns alone. Mention it in the prompt and the BUILD_PLAN row. Precedent: I67's rule Y4 (c) changed the same schema's facts_version enum."
+  },
+  {
+   "id": "B2",
+   "severity": "blocking",
+   "where": "tests_m3/test_view_evidence.py:584-605 (I66 TestConstruction.test_window_views_are_found_by_their_declaration); test_e2_transitions.py Z7",
+   "what": "The test runs `holon evidence --milestone M2 --root <light copy without the view>` and requires the bytes of I66's prereg gen/M2/evidence.json. LIGHT includes spec/M2 and gen/M2/diagram, so this is a target-milestone build from committed diagrams that adopts the Rollup document. After I72 it carries the 421 adopted E2 atoms and cannot match. It is not in Z7's amendment list. R2 admits no later change under tests_m3/, so the only place to amend it is the prereg commit.",
+   "evidence": "Differential runs. At the prereg the test passes (only the three unpinned-checker GEVID gate subtests fail, on both sides). On the simulated build it fails at line 605: \"AssertionError: b'{\\n[10955 chars]ollup.extracted:E2:TRANS.addChallenger:TRANS.a[322208 chars]n}\\n' != b'{\\n[10955 chars]ollup:E2:TRANS.challengeState:LOAD.obs.kappa:2[142471 chars]n}\\n'\".",
+   "fix": "Amend it in the prereg commit, with a spec/M3/amendments.jsonl line (iteration I66). Compare the light-copy set with I66's prereg set as JSON after removing the adopted models' E2 atoms and evidence_sha256, or compare it with the committed set minus the view's model, atoms and three inputs. Add it to Z7."
+  },
+  {
+   "id": "B3",
+   "severity": "blocking",
+   "where": "tests_m2/_evidence.py:37 (ID_RE); tests_m2/test_evidence.py:351 in the drafted amendment (WIP ef6835f); Z7's I14 item; R2's fixed set",
+   "what": "ID_RE's model group [A-Za-z0-9_]+ rejects every adopted atom id. The drafted amendment of TestEvidenceFile.test_atom_ids_endpoints_and_order still asserts ID_RE.match(a['id']) for every atom before the new diagram-null branch. Z7 (pinned by contract_docstring_sha256) describes that amendment only as taking endpoints from the anchors, so it does not cover the change the test needs. R2's fixed set holds tests_m2/test_evidence.py but not tests_m2/_evidence.py.",
+   "evidence": "tests_m2.test_evidence with ef6835f's three amendments on the simulated build: 421 failures 'AssertionError: unexpectedly None : morph_rollup.extracted:E2:TRANS.addChallenger:TRANS.addChallenger:3f0e05c9', ... On a git archive of the prereg commit the module passes (Ran 23, OK). The M2 prereg audit accepts the three drafted amendment lines.",
+   "fix": "Say in Z7 how the test matches an adopted model's atom ids with a model group that admits '.'. Either widen ID_RE in tests_m2/_evidence.py (then add that file to R2's fixed set, plus an M2 amendment line naming tests_m2/_evidence.py::ID_RE), or use a local pattern inside the test."
+  },
+  {
+   "id": "M1",
+   "severity": "major",
+   "where": "key iterations.I72.thresholds.counted_predictions (predictions.json:3390); I72-P1; prompts/I72_e2_transitions.md:40,51",
+   "what": "Under the project's practice I72-P1 is not a genuine counted prediction. I66's prompt (prompts/I66_view_evidence.md:53) counts only claims 'that could fail other than by implementing V2-V5 as written, and that no construction check entails'. I66-P2 qualified because the build's unchanged I14 code computed the inventory independently of the instrument. Here the inventory is the instrument's output, known before the prereg. I72-R3, a construction check filed as a regression, asserts transitions_atoms(MODEL, doc) == I.e2_atoms(MODEL, doc) (test_e2_transitions.py:458), and R4 pins the counts. So P1 adds only Z4's placement, and it can fail only if holon's new code doesn't implement Z1-Z4 as written. A draft of that code also predates the prereg (prompt line 34).",
+   "evidence": "The key's own disclosure: 'The instrument's atom count is therefore known (it is what an instrument computes)'. P1 = R3's function equality + R4's counts + Z4's placement. In the simulation P1 passed exactly when R3 passed.",
+   "fix": "Set counted_predictions to [] (as I67 did), keep P1 as a check labelled construction (or fold it into R3), and give the reason in the disclosure and prompt. Alternatively, name a claim that no construction check entails."
+  },
+  {
+   "id": "M2",
+   "severity": "major",
+   "where": "key iterations.I72.thresholds.disclosure (predictions.json:3393) vs prompts/I72_e2_transitions.md:34 and :40",
+   "what": "The key says '(no build code for I72 exists at the prereg)' and 'what P1 risks is holon's code, written after this commit'. The prompt, edited during this review (16:04 UTC), says 'A draft of transitions_atoms and its build hook was written in scratch before this commit, never applied to the tree or run', yet its line 40 still says 'holon's code (written after this commit)'. The key is immutable after the prereg commit. Its disclosure must name the draft now: where it is kept, and that it was never run or compared with the instrument. I67's disclosure named its drafts (ad274fe, 42c54af) the same way.",
+   "evidence": "Read both files at the WIP commit ef6835f, which holds the same bytes I reviewed.",
+   "fix": "Update the key's disclosure (and prompt line 40): a draft exists, where it is backed up, and that it never ran. Drop 'written after this commit'."
+  },
+  {
+   "id": "M3",
+   "severity": "major",
+   "where": "key iterations.I72.thresholds.known_red_at_base (predictions.json:3394); tests_m3/test_par_lossy.py:944-961 (I25 test_i25_outcome_commits_touch_no_frozen_or_earlier_output); Z6",
+   "what": "I25's test is red at the base and the known-red list omits it. I67's 1ebec02 and d106a83 change gen/M3/par_lossy together with laws/M3/DERIVATION.json, gen/M3/evidence.json and gen/M3/diagram/blob_ops.json. Z6 doesn't say that holon lossy's output must be committed apart from the evidence sets, laws/ and records. Committed together, as Z6's list invites, I72 adds a violating commit of its own, and the existing red hides it.",
+   "evidence": "Replaying the test's git logic on the worktree: violations only at 1ebec02 and d106a83; no review or amendment mentions them. Simulation 1 (evidence, derive, lossy and metrics in one commit): the test reports the I72 commit ['gen/M2/evidence.json', 'gen/M3/evidence.json', ...]. Simulation 2 (lossy alone): the first violation reported is I67's (['gen/M3/diagram/blob_ops.json', ...]).",
+   "fix": "Add the test, with its two commits, to known_red_at_base. In Z6, require holon lossy's output (gen/M3/par_lossy/, spec/M3/evidence_review.jsonl) in a commit that touches nothing under laws/, gen/M0-M2, gen/M3/evidence.json, results/M0-M2 or replay/."
+  },
+  {
+   "id": "M4",
+   "severity": "major",
+   "where": "tests_m3/test_e2_transitions.py:363 (R1 iterates laws/M0-M3 at HEAD); :490 and :494 (R3 requires models and inputs equal to the prereg's)",
+   "what": "R1 and R3 compare HEAD with the prereg, not I72's end with its build base. If I28's build lands before I72's build (the prompt's Risks allow it), gen/M3/evidence.json gains I28's versioned-document model and inputs (tests_m3/test_versions.py:283) and laws/M3 gains its law. R3 then fails at I72's own build head. R1, which compares every law at HEAD, fails too if I28's law names an edge of the versioned model (uncovered at the prereg, covered at HEAD). R1 also fails as soon as I33's contract law over the adopted document lands, the law I72 exists for: named != [] and levels go from [] to [E2]. I66's R1 iterated the prereg's laws (tests_m3/test_view_evidence.py:474), and its set test the prereg's models.",
+   "evidence": "Read from the code paths. law_evidence returns named [] for an uncovered law, and the anchors of the prereg's adopted model already name the TRANS edges, so an I33 law naming challengeState gets named non-empty at both commits, with levels [] vs [E2].",
+   "fix": "Iterate the laws present at the prereg (git ls-tree at the prereg commit), compare each prereg model and its atoms (models a superset), and require inputs to be a superset with the prereg's entries unchanged. Or judge at I72's end commit (M^2, as I28's end_commit) against the build's first parent."
+  },
+  {
+   "id": "M5",
+   "severity": "major",
+   "where": "tests_m2/test_evidence.py:423 (test_the_pass_quotes_no_target_name) and :416 (test_the_pass_holds_no_target_name); Z4 ('holon.diagram.evidence gains transitions_atoms', and the docstring paragraph)",
+   "what": "I14 bans from holon/diagram/evidence.py every quoted target name, and 'post' is a state field of spec/M1/facts/morph_rollup.json. It also bans compound target names anywhere in the file, docstrings included: challengeState, setPause, commitBatch, commitBatchWithProof, commitState, finalizeBatch, proveState, revertBatch (and quoted 'paused'). The natural Z1 implementation reads action['post'], and Z4 asks for a docstring paragraph stating the rule. Neither test is in Z7.",
+   "evidence": "My implementation in evidence.py fails it: \"AssertionError: Lists differ: ['post'] != []\" (it passes at the prereg). The banned lists were computed with tests_m2/_evidence.py's quoted_target_names(CONTRACT) and morph_identifiers().",
+   "fix": "Say in Z4 where the 0.3 walker lives, e.g. a module of its own imported by evidence.py, which keeps it in the 0.2/0.3/T32/M3 closures and under R2's holon/. Or add the test to Z7 with a narrowing for the 0.3 section keys. Warn in the prompt that the docstring paragraph must not cite action names."
+  },
+  {
+   "id": "M6",
+   "severity": "major",
+   "where": "key iterations.I72.outcome_paths; holon/audit/prereg.py:564-575 (rule 4); prompts/I72_e2_transitions.md (Risks: merge order with I28)",
+   "what": "I72 is the first key whose outcome_paths include gen/M3/evidence.json (only I14 and I66 list gen/M2/evidence.json). Audit rule 4 then requires every later commit that changes gen/M3/evidence.json, whichever key makes it, to descend from I72's prereg commit. I28's build writes gen/M3/evidence.json for its versioned document's anchors. If that branch doesn't contain I72's prereg when it writes the set, and merges after it, `holon audit prereg --milestone M3` (a CI job) fails for I72. The Risks section discusses regeneration order only.",
+   "evidence": "audit code read: commits in `head ^C_K` that are not on C_K's ancestry path and change an outcome path are problems. `git for-each-ref` shows no I28 build branch yet, so the constraint can still be met.",
+   "fix": "State the coordination in the prompt or contract, as I67's Y12 did: a later branch that writes gen/M2/evidence.json or gen/M3/evidence.json is created from, or merges, a lead that holds I72's prereg first. Or land I72's prereg after I28's build."
+  },
+  {
+   "id": "m1",
+   "severity": "minor",
+   "where": "tests_m3/test_e2_transitions.py:465-468 (R3's duplicate-family plant)",
+   "what": "The plant copies the __gap entry (kind array) under the name inChallenge, so it is caught by the whole-array-read rule, not by Z3's duplicate rule. An implementation without the duplicate check but with last-wins kinds passes.",
+   "evidence": "Instrument on the plant: Unmapped('a whole array family 'inChallenge' read as a value'), raised already in reads(). With the _owner (scalar) entry renamed inChallenge instead: Unmapped(\"family 'inChallenge' is declared twice and accessed\").",
+   "fix": "Plant a scalar duplicate (copy _owner, rename it inChallenge, declared_in 'Planted')."
+  },
+  {
+   "id": "m2",
+   "severity": "minor",
+   "where": "tests_m3/test_e2_transitions.py:415 (R2: f.startswith(('holon/', 'docs/')))",
+   "what": "R2 admits every docs/ path, including the frozen docs/M0_SPEC.md and docs/BEND_PRIMER.md, though the claim says 'no frozen root' changes. freeze-check would catch it, but R2 states the claim.",
+   "evidence": "Read.",
+   "fix": "Exclude the frozen roots explicitly, as I28-R2's forbidden tuple does."
+  },
+  {
+   "id": "m3",
+   "severity": "minor",
+   "where": "spec/M2/facts/morph_rollup.extracted.json actions[initialize4].guards[1].expr[2] and .reaches[0].expr[2]; Z1",
+   "what": "['sload', 81955473079516046949633743016697847541294818689821282749996681496272635257091] (the EIP-1967 admin slot, constants.EIP1967_PROXY_ADMIN_SLOT) reads storage outside any family. Z1 silently counts nothing. That is correct here, since no declared family has that slot, but neither Z1 nor the instrument says so. A later document's raw sload of a declared family's slot would be a silent miss.",
+   "evidence": "Head census of every term in the 33 actions: 2 sload terms, both at that slot. Every ['storage', X] names a declared family; effects and write-record families agree in every action; every store path in post or loops has a matching write record.",
+   "fix": "Say in Z1 that an sload of a slot no family declares is no read, and that one of a declared family's slot is a construct Z1 doesn't map (EvidenceError)."
+  },
+  {
+   "id": "m4",
+   "severity": "minor",
+   "where": "branch i72: WIP commit ef6835f ('backup, not for merge')",
+   "what": "ef6835f already holds the key, together with docs/BUILD_PLAN.md and tests_m2/test_evidence.py. If it ever becomes reachable from the lead, the audit takes it as C_K, and rule 3 fails because those two files are not prereg inputs.",
+   "evidence": "git show --stat ef6835f; audit rule 3's allowed set (holon/audit/prereg.py _ALWAYS_ALLOWED and the key's tests package).",
+   "fix": "Make the prereg on a branch from 2d173e3 that doesn't contain ef6835f: BUILD_PLAN row first, then the prereg without tests_m2/."
+  },
+  {
+   "id": "m5",
+   "severity": "minor",
+   "where": "key iterations.I72.thresholds.base ('PENDING: the lead after I67's merge')",
+   "what": "The lead after I67's merge now exists: 2d173e3 (Merge I67 build; the tree differs from 4cebbc2 only by docs/iterations/I67.md). The field is immutable once committed.",
+   "evidence": "git log --graph on the worktree.",
+   "fix": "Set base to 2d173e3 before the prereg commit, and re-check the at-prereg pins: they are unchanged, since the trees differ only by I67.md."
+  },
+  {
+   "id": "m6",
+   "severity": "minor",
+   "where": "test_e2_transitions.py (no analogue of I66's V9 test_holon_names_no_i66_id)",
+   "what": "Nothing checks that holon/ names none of the document's families or actions, or the probe id. I14's bans cover only evidence.py and only names from the hand facts (the extracted family names such as batchDataStore and finalizedStateRoots are not among them), and M5 may push the walker into a new module.",
+   "evidence": "quoted_target_names/morph_identifiers derive from spec/M1/facts and facts/ only.",
+   "fix": "Add a check deriving names from the adopted document, as I66's V9 did."
+  },
+  {
+   "id": "m7",
+   "severity": "minor",
+   "where": "tests_m3/test_derive_par.py:36-40,86,727 (I24 gap G1, 'anchors only, as I20 made it'); tests_m3/test_par_lossy.py:17-18 ('no diagram, no atom: I24 gap G1')",
+   "what": "Earlier contracts' text becomes stale after I72: no assertion fails, but the docstrings now misdescribe the set.",
+   "evidence": "On the simulated build test_derive_par passes (with the schema widened).",
+   "fix": "Note in docs/iterations/I72.md that I72 closes the 'no atom' half of I24's G1 for E2."
+  }
+ ],
+ "checked_fine": [
+  "Instrument reproduces the key on the committed document: 421 atoms, 55 self-pairs, 25 families, the five pinned examples, 92 atoms with an endpoint at challengeState or setPause.",
+  "An independent implementation written from Z1-Z4's text equals the instrument atom for atom (421), and holon.diagram.evidence.transitions_atoms placed via build gives P1, R3 and R5 passing on the simulated build.",
+  "Z1 on the real document. Every ['storage', X] names a declared family; only __gap is declared twice, and it is never accessed. Effects families equal write-record families in all 33 actions. Every store path in post or loop records has a matching write record, so no write is visible only as threading. Store path segments are map/member only. Post keys and loop ['storage', f] names are all declared families.",
+  "Reads with non-storage bases are genuine: revertBatch reads committedBatches[_batchIndex+1] through a store base in next/break; challengeState reads batchDataStore[i].finalizeTimestamp through a carried base (+= proofWindow); revertBatch reads revertReqIndex through carried in the write cond. The threading exclusion hides no read: '?' conditions, store keys and values, and other families' terms in threading positions are all counted. For example, revertBatch writes inChallenge but never reads it, and the instrument gives no read.",
+  "Every section is walked (guards with reaches, principal, checks, events, calls, mstores, panics, returns, cost, loop head/cond/bound/count/break/regions); event, return and cost reads are pre-state reads of the action.",
+  "Z2/Z3 vs I14: same symbolic-overlaps-all rule. Member separation and the threading exclusion are refinements: I14's walker likewise doesn't count f := set_at(f, ...) or '?' branches as reads of f, but does count a 'with' record update as a whole read. No atom beyond I14's semantics; via/id scheme as I14's _atom.",
+  "Z4's exclusions hold in holon: both in-memory builds (holon/rules/__init__.py:551, holon/codecrun.py:171) pass diagrams and adopted=False; GEVID and `holon evidence` go through build_milestone; gate G1 doesn't regenerate the set.",
+  "Z6's light steps on the simulated build change exactly what R2 allows: laws/M2/REGISTRY.json in evidence_sha256 alone; laws/M3 REGISTRY/DERIVATION in evidence_sha256, derivation_sha256 and one input entry; header_length.json in one input entry; metrics.json in one line. laws/M2/DERIVATION.json is byte-identical, spec/M3/evidence_review.jsonl stays empty, and results/M3/refute/*.json embed no record hashes.",
+  "holon/diagram/evidence.py is in the holon-ir/0.2 (127 files) and 0.3 (128) record closures, in I32's T32 closure (127), and in every M3 runner closure (GEN3 126, GEN_FACT 135, GEN_UNDO 128, GEN_DISCH 130), but not in the 0.1 closure (6 files). T32 records are current at the base, so Z6's re-make is needed; I32's C1 passed with T32 records re-stamped by generator_sha256 alone.",
+  "R2's own_commits finds exactly I72's commits under a --no-ff merge into the lead (simulated); I67's own-commit tests then pass, since its merge 2d173e3 bounds them.",
+  "The prereg audit (M3) passes on a simulated prereg commit on 2d173e3 (plan row committed first); the M2 audit accepts the drafted I14 amendment lines; the I66 amendment is narrow (adopted E2 atoms only).",
+  "Pins verified: document sha256 and 33 actions; laws over the document 2 (M2) and 51 (M3), none naming an edge; evidence_at_prereg sha256, evidence_sha256, models, atoms and unresolved counts; GEVID mismatches M0 and M1 as pinned.",
+  "Earlier modules on the simulated build (schema widened): I24 test_derive_par, I67 test_go_loop, I14 test_evidence_fixture and test_evidence_honesty all pass. Failures in test_par_lossy (inj_push, partial gate), test_par_outcomes, test_disch_profile, test_i4_review, test_evidence_gate, test_metrics and test_target_agnostic_exhaustive are identical at the prereg (unpinned local checker, or holon/mutate).",
+  "No frozen file is touched; the instrument imports no holon module; the probe is never registered.",
+  "25 targeted test methods from 10 more modules that read I72-changed outputs (I43 test_lean_promoted, I65 test_o12, I30 test_sort_types, theory_core, I40 test_refute, I26 test_intake, I13/I15 test_sort_sites and test_sort_site_outcomes, test_extract_go, I23 test_historical_exit) have identical failure sets at the prereg and on the simulated build. I43's sidecar test reports 107 failures on both sides, matching the disclosure.",
+  "Read-only toward the repository: worktree git status is clean at ef6835f. Early in-worktree Python probes, run before I set PYTHONDONTWRITEBYTECODE, may have written gitignored __pycache__/*.pyc files; no tracked file changed. Simulation artifacts are in /tmp/claude-0/-home-user-HOLON/13f9caff-002b-57ac-9895-57449b3592cb/scratchpad/i72_review/ (repo: branch lead = simulated merge 92a1a5d4, branch i72b; evidence_build.py = my Z1-Z4 implementation; evidence_schema_patched.json)."
+ ],
+ "questions": [
+  "B1: accept a pattern change to spec/schemas/evidence.schema.json (not frozen; I67 changed the same file) inside I72's build, or rename the adopted model keys (which would move I20's anchors and every law_evidence 'model')?",
+  "I25's test_i25_outcome_commits_touch_no_frozen_or_earlier_output has been red since I67's 1ebec02 and d106a83, with no disclosure or amendment. Should it be narrowed to I25's own commits, as I66 did for I32-R2, and who owns that?",
+  "Is a key with counted_predictions [] acceptable for I72, as for I67, given that P1 is entailed by R3 and R4?"
+ ],
+ "author_fold": {
+  "summary": "Every finding is folded into the prereg commit; nothing was deferred. The rule (Z1-Z3) is unchanged but for m3's raw-slot clause. The fold moves the walker into a module of its own, widens the evidence schema's two atom patterns in the build, narrows two more earlier tests, makes nothing counted, names the pre-prereg draft and the review's simulation in the disclosure, drops gen/M3/evidence.json from the outcome paths, judges R1 at I72's end commit and R3 at its own commits, and commits holon lossy's output alone.",
+  "findings": {
+   "B1": "Folded. Z4: the evidence schema's atom model pattern and the model group of its atom id pattern admit a dot after the first character (^[A-Za-z0-9_][A-Za-z0-9_.]*$), with their descriptions; Z6: a build commit with the code. R2's fixed set holds spec/schemas/evidence.schema.json, checked to differ from its parent in those two properties alone, with the new patterns pinned (thresholds.schema). The prompt and BUILD_PLAN row say so.",
+   "B2": "Folded. I66's TestConstruction.test_window_views_are_found_by_their_declaration is amended in the prereg commit: the light copy's set and I66's prereg set are compared as JSON with the adopted models' E2 atoms and the evidence_sha256 left out on both sides. One spec/M3/amendments.jsonl line (iteration I66); Z7 lists it.",
+   "B3": "Folded. I14's test_atom_ids_endpoints_and_order matches an adopted model's atom ids with a local pattern whose model group admits a dot (derived from ID_RE's pattern); tests_m2/_evidence.py and ID_RE are unchanged and still match every other atom. Z7 and the amendment line say so.",
+   "M1": "Folded. counted_predictions is [] (thresholds.not_counted_why); I72-P1 stays as a recorded check, its claim and docstring saying it is entailed by R3 and R4 and was observed before the prereg.",
+   "M2": "Folded. The disclosure names the draft (f962efe on claude/ci-i72-wip, wip/I72_transitions_atoms_draft.py.txt; never applied, run or compared with the instrument) and this review's simulated build; the prompt drops 'written after this commit'.",
+   "M3": "Folded. known_red_at_base lists I25's test_i25_outcome_commits_touch_no_frozen_or_earlier_output on I67's 1ebec02 and d106a83. Z6 and R2 put holon lossy's output in a commit that touches nothing under laws/, gen/M0-M2, results/M0-M2 or replay/ and not gen/M3/evidence.json. Narrowing I25's test is a Question for the human (I67 caused the red; it is mine to fix once ruled).",
+   "M4": "Folded. R1 iterates the laws at the prereg (git ls-tree) and compares law_evidence over the set at I72's end commit with the prereg's; record fields are covered by R2's per-commit stamp-only check; GEVID's mismatch pin is restricted to the prereg's laws. R3's second test is judged at each own commit that changes a set, against its first parent, so another key's models merged in never count.",
+   "M5": "Folded. Z4: the walker lives in holon/diagram/transitions.py, imported by evidence.py (which re-exports transitions_atoms), and evidence.py's docstring names no action or family. I14's two scans keep holding without amendment.",
+   "M6": "Folded. outcome_paths is [gen/M2/evidence.json, docs/iterations/I72.md]; thresholds.outcome_paths_note and Z6 explain why gen/M3/evidence.json is not one (I28's parallel 01ebde0 and 3be1bfd) and that a later branch writing gen/M2/evidence.json starts from a lead holding this prereg. I28's branch does not touch gen/M2/evidence.json (git log 2d173e3..origin/claude/brave-wright-2c5d0o-i28-build).",
+   "m1": "Folded. The duplicate plant copies _owner (scalar) under the name inChallenge.",
+   "m2": "Folded. R2 excludes docs/M0_SPEC.md and docs/BEND_PRIMER.md from its docs/ allowance.",
+   "m3": "Folded. Z1 and the instrument: a raw sload or sstore at a literal slot no family declares accesses no family; at a family's slot, or at a non-literal slot, it is a construct Z1 does not map. R3 plants a raw sload at inChallenge's slot.",
+   "m4": "Folded. The prereg is made on branch i72p from 2d173e3, which does not contain ef6835f or f962efe: BUILD_PLAN's row first, then the prereg commit without tests_m2/.",
+   "m5": "Folded. thresholds.base is 2d173e3; the at-prereg pins were recomputed on it (the trees differ from 4cebbc2 only by docs/iterations/I67.md).",
+   "m6": "Folded. R2 checks that the holon/ files I72's own commits change add no name of a family or action of an adopted transitions document, nor the probe's id (target_names).",
+   "m7": "Accepted for the report: docs/iterations/I72.md will note that I72 closes the 'no atom' half of I24's gap G1 for E2."
+  },
+  "questions_answered": "The three questions go to the human in the report: the schema widening (taken as the conservative choice, after I67's precedent), narrowing I25's commit test (mine to fix, as I67 caused it), and a key with nothing counted (as I67)."
+ }
+}
