@@ -906,6 +906,10 @@ def _named(st: dict, irv: str, an: dict) -> set[str]:
                 a = t.get("act")
                 if isinstance(a, str) and a in an["actions"]:
                     out.add(an["actions"][a])
+                # I65 (tests_m3/test_o12.py rule O4): a ghost term names its action's edge, as an act term does
+                gh = t.get("ghost") if irv == IR03 and "over" in t else None
+                if isinstance(gh, str) and gh in an["actions"]:
+                    out.add(an["actions"][gh])
                 fn = t.get("fn")
                 if isinstance(fn, str):
                     if fn.startswith("is_") and fn[3:] in an["actions"]:

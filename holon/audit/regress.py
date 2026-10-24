@@ -97,11 +97,36 @@ class History:
         return a != b and self.git.run("merge-base", "--is-ancestor", a, b).returncode == 0
 
 
-def lib_docs_at(hist: History, commit: str, facts_rel: str) -> list[dict]:
-    """The target-library documents of a facts file as they were at a commit (holon.gen.targetlib.lib_files: the
-    global spec/lib/*.lib.json, then those of the facts' milestone, each sorted)."""
+def anchor_at(hist: History, commit: str, facts_rel: str, blob: bytes | None = None) -> str:
+    """The facts file whose libraries apply to facts_rel at a commit (holon.gen.targetlib.anchor): a window view's
+    declaration's abstraction (the view's extraction block names a window declaration, holon-window/0.1, whose
+    abstraction is a file at that commit; I65), else facts_rel itself. blob: facts_rel's bytes at the commit, when the
+    caller has read them."""
     from pathlib import PurePosixPath
-    mine = (PurePosixPath(facts_rel).parent.parent / "lib").as_posix()
+    from ..gen.targetlib import WINDOW_VERSION
+
+    def rel_ok(x) -> bool:
+        p = PurePosixPath(x) if isinstance(x, str) and x else None
+        return p is not None and not p.is_absolute() and ".." not in p.parts
+    try:
+        b = blob if blob is not None else hist.blob(commit, facts_rel) if rel_ok(facts_rel) else None
+        doc = parse_json(b) if b is not None and b'"declaration"' in b else None
+        ex = doc.get("extraction") if isinstance(doc, dict) else None
+        drel = ex.get("declaration") if isinstance(ex, dict) else None
+        db = hist.blob(commit, drel) if rel_ok(drel) else None
+        decl = parse_json(db) if db is not None else None
+    except ValueError:
+        return facts_rel
+    ab = decl.get("abstraction") if isinstance(decl, dict) and decl.get("window_version") == WINDOW_VERSION else None
+    return ab if rel_ok(ab) and hist.blob(commit, ab) is not None else facts_rel
+
+
+def lib_docs_at(hist: History, commit: str, facts_rel: str, blob: bytes | None = None) -> list[dict]:
+    """The target-library documents of a facts file as they were at a commit (holon.gen.targetlib.lib_files: the
+    global spec/lib/*.lib.json, then those of the facts' milestone, each sorted; a window view: its abstraction's,
+    anchor_at). blob: the facts file's bytes at the commit, when the caller has read them."""
+    from pathlib import PurePosixPath
+    mine = (PurePosixPath(anchor_at(hist, commit, facts_rel, blob)).parent.parent / "lib").as_posix()
     out = []
     for d in ["spec/lib"] + ([mine] if mine != "spec/lib" else []):
         names = sorted(p for p in hist.git.out("ls-tree", "--name-only", commit, "--", d + "/").splitlines()
@@ -125,7 +150,7 @@ def law_hash(hist: History, commit: str, path: str, data: bytes) -> str:
         if law.get("ir_version") == "holon-ir/0.3":
             fb = hist.blob(commit, law.get("facts", ""))
             facts = parse_json(fb) if fb is not None else {}
-            lib = lib_docs_at(hist, commit, law.get("facts", ""))
+            lib = lib_docs_at(hist, commit, law.get("facts", ""), fb)
             if law.get("milestone") not in ("M0", "M1"):   # I12: the sidecar of an M2+ model (hyp refs, parameters)
                 from pathlib import PurePosixPath
                 sb = hist.blob(commit, (PurePosixPath(law["facts"]).parent.parent / "lib" / "oracles.json").as_posix())

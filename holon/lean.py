@@ -889,9 +889,12 @@ def lean_dir_of(key: str) -> LeanDir:
 
 
 def dir_key_for(milestone: str, facts_path, root: Path | str = ROOT) -> str | None:
-    """The key of the milestone's Lean directory whose facts document has facts_path's sha256 (matched by content, so
-    a regeneration into a scratch directory keeps its key), else the milestone's own; None when no Lean directory
-    covers the milestone."""
+    """The key of the Lean directory of a law of laws/<milestone> over facts_path: the milestone's directory whose
+    laws are laws/<milestone> and whose facts document has facts_path's sha256 (matched by content, so a regeneration
+    into a scratch directory keeps its key), else the milestone's own; None when no Lean directory covers the
+    milestone. The window view's directory holds the abstraction's laws (laws/M1, rebound to the view), so a law of the
+    milestone's own laws over the view itself (an intent contract's L_weak, I65 rule O4) is its own directory's
+    (gen/<M>/lean, the report of results/<M>), never the view's: holon.differential names the view's key itself."""
     root = Path(root)
     ds = lean_dirs(milestone, root)
     if not ds:
@@ -899,7 +902,8 @@ def dir_key_for(milestone: str, facts_path, root: Path | str = ROOT) -> str | No
     p = Path(facts_path)
     sha = _file_sha256(p) if p.is_file() else None
     for d in ds:
-        if d.facts and sha and (root / d.facts).is_file() and _file_sha256(root / d.facts) == sha:
+        if d.facts and d.laws == f"laws/{milestone}" and sha and (root / d.facts).is_file() \
+                and _file_sha256(root / d.facts) == sha:
             return d.key
     return ds[0].key
 
@@ -1088,6 +1092,9 @@ def _law_file(d: LeanDir, law: dict, record: dict, facts_path: Path, facts: dict
     status = record.get("status")
     kind = LC.model_kind(facts, law)
     model, ctx, entries = _model_of(d, law, facts_path, facts, kind, root)
+    if kind != "linked":   # a ghost term (I65) has no Lean twin, whatever class decided the law
+        from .gen import lean_mlaws
+        lean_mlaws.no_ghost(law)
     cls = LC.lean_class(record)
     lid = law["law_id"]
     if kind == "linked":
@@ -1418,9 +1425,11 @@ def _check_dir(d: LeanDir, root: Path, texts: dict[str, str]) -> list[str]:
 def run_dirs(milestone: str, root: Path | str = ROOT, jobs: int = 1, log=print, mode: str = "run",
              out: dict | None = None) -> int:
     """`holon lean --milestone <M>` for M1 onward. mode "run": emit, check every model and law file in Lean, then
-    rewrite each Lean directory and its report (exit 0 iff every file is checked); "check": compare the committed
-    .lean files with the re-emission (exit 0 iff equal, no Lean); "emit-only": write the .lean files, no report, no
-    Lean (exit 0). out, when given, receives the printed report (with timings; never committed)."""
+    rewrite each Lean directory and its report (exit 0 iff every file is checked, and every attempted law without a
+    file, one no emitter can express, is PROVED: G7 allows unsupported_form for a PROVED law only; I65's ghost term);
+    "check": compare the committed .lean files with the re-emission (exit 0 iff equal, no Lean); "emit-only": write the
+    .lean files, no report, no Lean (exit 0). out, when given, receives the printed report (with timings; never
+    committed)."""
     root = Path(root).resolve()
     out = out if out is not None else {}
     out.update({"milestone": milestone, "mode": mode, "dirs": {}})
@@ -1515,7 +1524,8 @@ def run_dirs(milestone: str, root: Path | str = ROOT, jobs: int = 1, log=print, 
             cli["laws"][it.law_id] = {"result": r["result"], "lean4": r["kernel_result"], "axioms": r["axioms"],
                                       "seconds": r["seconds"], "verdict": it.status,
                                       **{k: r[k] for k in ("reason", "detail") if r.get(k)}}
-            rc = rc or (0 if r["kernel_result"] == "checked" else 1)
+            fileless = lf is None and it.status == "PROVED" and r.get("reason") == "unsupported_form"
+            rc = rc or (0 if r["kernel_result"] == "checked" or fileless else 1)
             log(f"{d.key:18s} {it.law_id:46s} {str(it.status):8s} lean4 {r['kernel_result']:8s} "
                 f"{r.get('reason') or '':16s} {r['seconds']:7.2f} s  axioms {r['axioms']}")
         # written only now, after every check, so an interrupted run never leaves files without their report

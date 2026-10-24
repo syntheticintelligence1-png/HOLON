@@ -148,6 +148,8 @@ def ir_roots_text(law: dict) -> str:
             for k in ("run", "step", "obs", "s0"):
                 if k in t:
                     names.add(k)
+            if isinstance(t.get("ghost"), str):   # a ghost term (I65) runs the trace: step and last_ok
+                names.update({"step", "last_ok"})
             for v in t.values():
                 walk(v)
         elif isinstance(t, list):
@@ -197,8 +199,9 @@ def load_ledger(root: Path | str = ROOT) -> dict:
 def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, milestone: str | None = None) -> list[dict]:
     """The ledger's bundles, the "bundles" of every milestone ledger spec/M<n>/ledger.json (a document first
     modelled at that milestone, I20: the extracted model's), plus the bundles of a sidecar ledger.json next to a
-    facts file (a fixture or a target outside spec/ may carry its own ledger; I6). With a milestone, a bundle extended
-    by spec/<milestone>/ledger.json (milestone_extensions) carries the extension's no_assumption groups too."""
+    facts file (a fixture or a target outside spec/ may carry its own ledger; I6), and the generated bundle of a facts
+    file that is a linked codec document (I24) or a window view (I65). With a milestone, a bundle extended by
+    spec/<milestone>/ledger.json (milestone_extensions) carries the extension's no_assumption groups too."""
     out = list(load_ledger(root)["bundles"])
     for p in sorted(Path(root).glob("spec/M*/ledger.json")):   # the bundles a milestone registers (I20: a document
         out += list(json.loads(p.read_text(encoding="utf-8")).get("bundles") or [])   # first modelled there)
@@ -207,6 +210,7 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
         if side.exists():
             out += json.loads(side.read_text(encoding="utf-8"))["bundles"]
         out += _linked_bundles(Path(root), facts_path)
+        out += _window_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
     for i, b in enumerate(out):
         for x in exts:
@@ -238,6 +242,38 @@ def _linked_bundles(root: Path, facts_path) -> list[dict]:
         return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
     except Unsupported:
         return []
+
+
+def _window_bundles(root: Path, facts_path) -> list[dict]:
+    """I65 (= I33b, tests_m3/test_o12.py rule O4): the bundle of a window view (holon.differential's view of an
+    abstraction; holon.gen.targetlib.window_declaration), generated, never hand-written: the bundle of the declaration's
+    abstraction (its facts file as it is now), with the extension of the declaration's milestone (milestone_extensions:
+    what that milestone's model generator adds), re-keyed to the view's path and sha256. A record whose facts are the
+    view itself is then exact; a record of an abstraction law run over the view (results/<M>/extracted_m1, whose law's
+    facts are the abstraction) still finds no bundle for its facts and keeps the derived one. [] for any other
+    document, and when the ledger has no bundle for the abstraction as it is now."""
+    from .gen.targetlib import window_declaration
+    p = Path(root) / facts_path
+    got = window_declaration(p, root)
+    if got is None:
+        return []
+    decl_rel, decl = got
+    try:
+        raw = p.read_bytes()
+        abs_sha = hashlib.sha256((Path(root) / decl["abstraction"]).read_bytes()).hexdigest()
+    except OSError:
+        return []
+    base = [b for b in all_bundles(root) if b.get("facts") == decl["abstraction"] and b.get("facts_sha256") == abs_sha]
+    if len(base) != 1:
+        return []
+    b = base[0]
+    parts = Path(decl_rel).parts   # spec/<M>/lib/window_*.json: the declaration's milestone
+    for x in (milestone_extensions(root, parts[1]) if len(parts) > 2 and parts[0] == "spec" else []):
+        if x.get("facts") == b.get("facts") and x.get("facts_sha256") == b.get("facts_sha256"):
+            b = {**b, "no_assumption": list(b["no_assumption"]) + list(x.get("no_assumption") or [])}
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
+        else str(facts_path)
+    return [{**b, "facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest()}]
 
 
 def milestone_extensions(root: Path | str, milestone: str) -> list[dict]:
@@ -349,7 +385,10 @@ def generator_files(ir_version: str, root: Path | str = ROOT) -> list[str]:
             seen.add(rel)
             todo.extend(sorted(_holon_imports(rel, root) - seen))
     if ir_version in ("holon-ir/0.2", "holon-ir/0.3"):
-        for pat in ("spec/lib/*.lib.json", "spec/*/lib/*.lib.json", "spec/*/policy_hints.mjs"):
+        # the pointwise sidecars beside the target libraries (I65: holon.gen.trace_bound reads them) too
+        # and the window declarations, which anchor a view to its abstraction's libraries (I65: holon.gen.targetlib)
+        for pat in ("spec/lib/*.lib.json", "spec/*/lib/*.lib.json", "spec/*/policy_hints.mjs",
+                    "spec/lib/*.pointwise.json", "spec/*/lib/*.pointwise.json", "spec/*/lib/window_*.json"):
             seen |= {p.relative_to(root).as_posix() for p in root.glob(pat)}
     if ir_version == "holon-ir/0.3":   # oracle sidecars shape the M2+ models (I12); M0 and M1 never read one
         seen |= {p.relative_to(root).as_posix() for p in root.glob("spec/*/lib/oracles.json")}

@@ -14,8 +14,22 @@ record is PROVED over the same file, for the same statement hash. Every REFUTED 
 contract is then marked: filter_bin "intended_bounded" and intended {contract, l_weak, replaces}, replaces holding the
 bin the mark replaced, so that `apply` can take the mark off again. A contract whose L_weak is not proved marks nothing.
 
+Record directories (I65 = I33b, tests_m3/test_o12.py rules O5-O7): a milestone's records are results/<M> and, when it is a
+directory, results/<M>/extracted_m1 (holon.differential's records of the M1 laws over the milestone's window view). A
+scope law with a record in both is ambiguous: apply refuses and G10 fails. A REFUTED record is licensed for a mark only
+when its facts_sha256 is the sha256 of the contract's facts file now (the L_weak and the law it bounds are statements
+about one model). A record is named by its path relative to results/<M>: "L_x", or "extracted_m1/L_x".
+
+The derive step (I65, rule O4): a contract law is a law of its milestone. `holon derive --milestone M` writes
+holon.rules' laws as before, then the laws K3 derives for M (contract_laws), into --out's directory when given, and
+lists them in that directory's REGISTRY.json (registry_with): each law's statement hash, and its facts file with its
+sha256 in facts_files. The registry's primary facts (facts, facts_sha256) and DERIVATION.json stay the rules' own. G1's
+regeneration of laws/<M> (holon.gate) reads the same documents (with_contracts). holon.rules does not change, and no
+module of a generator closure imports this one (K5): holon/__main__.py and holon/gate.py call it.
+
   python -m holon contracts derive --milestone M [--check]   K3
   python -m holon contracts apply --milestone M [--check]    K5 without deciding (holon run's last step applies it too)
+  python -m holon derive --milestone M [...]                 the rules' laws, then K3's (before_derive, after_derive)
   Exit codes: 0 done (or --check reproduced); 1 --check differs; 2 refused, nothing written.
 """
 from __future__ import annotations
@@ -38,6 +52,7 @@ COMMON = {"contract_version", "id", "kind", "milestone", "rule", "facts", "maps_
 EXTRA = {"intended": {"scope", "l_weak"}, "volatile_view": {"view"}}
 NOT_APPLICABLE = ("M0", "M1")
 MARK = "intended_bounded"
+VIEW = "extracted_m1"   # holon.differential's records of the M1 laws over a milestone's window view (I65)
 NOT_APPLICABLE_WHY = ("{m} holds no intent contracts: they start at M2 (BUILD_PLAN §2 invariant 10 and §4 I33; "
                       "whitepaper 5.9; Q15 is still open)")
 
@@ -217,19 +232,25 @@ def derived_law(c: dict, root: Path = ROOT) -> dict:
             "notes": f"L_weak of intent contract {c['id']} (laws/CONTRACTS/{c['id']}.json), derived by holon contracts"}
 
 
+def contract_laws(milestone: str, root: Path = ROOT) -> list:
+    """K3's laws of the milestone: derived_law of every intended contract of M, by law id. Refused when any contract
+    file is invalid (K1, K9), whatever its milestone, so that every caller refuses before it writes anything."""
+    root = Path(root)
+    docs = _contracts(root)
+    found = [(p.name, problems(c, root, p.stem)) for p, c in docs]
+    bad = [f"{name}: {'; '.join(why)}" for name, why in found if why]
+    if bad:
+        raise Refused("invalid contracts: " + " | ".join(bad))
+    return sorted((derived_law(c, root) for _, c in docs if c["kind"] == "intended" and c["milestone"] == milestone),
+                  key=lambda law: law["law_id"])
+
+
 def derive(milestone: str, root: Path = ROOT, check: bool = False) -> int:
     """K3: laws/<M>/L_contract_<id>.json for every intended contract of M, and no other L_contract_* file. Any invalid
     contract file refuses (2) before anything is written."""
     root = Path(root)
-    found = [(p.name, problems(c, root, p.stem)) for p, c in _contracts(root)]
-    bad = [f"{name}: {'; '.join(why)}" for name, why in found if why]
-    if bad:
-        raise Refused("invalid contracts: " + " | ".join(bad))
     d = root / "laws" / milestone
-    want = {}
-    for _, c in _contracts(root):
-        if c["kind"] == "intended" and c["milestone"] == milestone:
-            want[f"{law_id(c['id'])}.json"] = _text(derived_law(c, root))
+    want = {f"{law['law_id']}.json": _text(law) for law in contract_laws(milestone, root)}
     have = {p.name: p.read_text(encoding="utf-8") for p in sorted(d.glob("L_contract_*.json"))} if d.is_dir() else {}
     if check:
         diff = sorted(k for k in set(want) | set(have) if want.get(k) != have.get(k))
@@ -245,6 +266,101 @@ def derive(milestone: str, root: Path = ROOT, check: bool = False) -> int:
         (d / name).unlink()
     print(f"derived {len(want)} contract law(s) for {milestone}" +
           (f"; removed {', '.join(sorted(set(have) - set(want)))}" if set(have) - set(want) else ""))
+    return 0
+
+
+# ---------------------------------------------------------------------------------------------------- the derive step
+def registry_with(reg: dict, laws: list, root: Path = ROOT) -> dict:
+    """The rules' registry (holon.rules.compute's REGISTRY.json) listing the contract laws too (I65 rule O4):
+    statements gains each law's statement hash (statement_hash: holon.gen.refs.law_hash, the hash `holon run` checks
+    and gives its record), facts_files each law's facts file with its sha256 now. facts, facts_sha256,
+    derivation_sha256 and every other key stay the rules' own. Refused when the rules derive a law of the same id."""
+    root = Path(root)
+    statements = dict(reg.get("statements") or {})
+    files = dict(reg.get("facts_files") or {})
+    for law in laws:
+        lid = law["law_id"]
+        if lid in statements:
+            raise Refused(f"{lid}: a rule derives a law with the id of the contract law")
+        statements[lid] = statement_hash(law, root)
+        files[law["facts"]] = law["facts_sha256"]
+    return dict(reg, statements=dict(sorted(statements.items())), facts_files=dict(sorted(files.items())))
+
+
+def with_contracts(milestone: str, root: Path, res: dict) -> dict:
+    """holon.rules.compute's documents for the milestone with its contract laws (contract_laws, registry_with), as
+    `holon derive` writes them (after_derive): what G1 regenerates laws/<M> into (holon.gate). The derivation, its
+    text and the obstructions stay the rules'. Refused when a contract file is invalid."""
+    laws = contract_laws(milestone, root)
+    if not laws:
+        return res
+    have = dict(res["laws"])
+    for law in laws:
+        if law["law_id"] in have:
+            raise Refused(f"{law['law_id']}: a rule derives a law with the id of the contract law")
+        have[law["law_id"]] = law
+    return dict(res, laws=have, registry=registry_with(res["registry"], laws, root))
+
+
+def _derive_args(argv: list):
+    """`holon derive`'s --milestone, --root and --out (holon.rules.main parses the rest)."""
+    ap = argparse.ArgumentParser(add_help=False)
+    ap.add_argument("--milestone")
+    ap.add_argument("--root")
+    ap.add_argument("--out")
+    a, _ = ap.parse_known_args(argv[1:])
+    return a
+
+
+def _derive_root(a, root: Path) -> Path:
+    return Path(a.root).resolve() if a.root else Path(root)   # holon.rules.derive's root
+
+
+def before_derive(argv: list, root: Path = ROOT) -> int:
+    """The first step of `holon derive` (O4): 2, with nothing written, when a contract file is invalid (K3's rule,
+    before the rules write their laws); else 0."""
+    a = _derive_args(argv)
+    if not a.milestone:
+        return 0   # holon.rules.main reports the missing --milestone
+    try:
+        contract_laws(a.milestone, _derive_root(a, root))
+    except Refused as e:
+        print(f"holon derive: refused: {e}", file=sys.stderr)
+        return 2
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        print(f"holon derive: refused: the contract laws cannot be derived ({type(e).__name__}: {e})",
+              file=sys.stderr)
+        return 2
+    return 0
+
+
+def after_derive(argv: list, root: Path = ROOT) -> int:
+    """The last step of `holon derive` (O4), once holon.rules has written the milestone's laws, with the derive's own
+    --milestone, --root and --out: the milestone's contract laws written into the laws directory the rules wrote
+    (<root>/laws/<M>, or --out), and its REGISTRY.json rewritten as registry_with lists them. A milestone without an
+    intended contract keeps the rules' files as they wrote them."""
+    a = _derive_args(argv)
+    if not a.milestone:
+        return 0
+    root = _derive_root(a, root)
+    d = Path(a.out) if a.out else root / "laws" / a.milestone
+    try:
+        laws = contract_laws(a.milestone, root)
+        if not laws:
+            return 0
+        reg = registry_with(_load(d / "REGISTRY.json"), laws, root)
+    except Refused as e:
+        print(f"holon derive: the contract laws: refused: {e}", file=sys.stderr)
+        return 2
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        print(f"holon derive: the contract laws: refused ({type(e).__name__}: {e})", file=sys.stderr)
+        return 2
+    for law in laws:
+        (d / f"{law['law_id']}.json").write_text(_text(law), encoding="utf-8")
+    (d / "REGISTRY.json").write_text(_text(reg), encoding="utf-8")
+    print(f"holon derive: {len(laws)} contract law(s) of laws/CONTRACTS -> {d}")
+    for law in laws:
+        print(f"  {law['law_id']:58s} {law['facts']}")
     return 0
 
 
@@ -307,33 +423,83 @@ def _intended_state(c: dict, milestone: str, root: Path, rdir: Path) -> str:
     return "proved"
 
 
-def _refuted(rdir: Path, lid: str) -> bool:
-    rp = rdir / f"{lid}.json"
+def record_dirs(rdir: Path, root: Path | None = None, milestone: str | None = None) -> list:
+    """[(key, directory)] of a milestone's records (O5): the results directory ("") and its extracted_m1 subdirectory
+    ("extracted_m1") when that is a directory. When rdir is another tree than root's results/<milestone> (a run's --out)
+    and has no extracted_m1 of its own, the committed one under root is read in its place: it is read, never written
+    (apply writes only under rdir)."""
+    rdir = Path(rdir)
+    out = [("", rdir)]
+    if (rdir / VIEW).is_dir():
+        out.append((VIEW, rdir / VIEW))
+    elif root is not None and milestone is not None and (Path(root) / "results" / milestone / VIEW).is_dir():
+        out.append((VIEW, Path(root) / "results" / milestone / VIEW))
+    return out
+
+
+def _rel(key: str, lid: str) -> str:
+    return f"{key}/{lid}" if key else lid
+
+
+def _locate(dirs: list, lid: str) -> list:
+    return [(k, d) for k, d in dirs if (d / f"{lid}.json").is_file()]
+
+
+def ambiguous(rows: list, dirs: list) -> list:
+    """The sorted scope laws of the intended contracts (rows) with a record in more than one directory (O5)."""
+    lids = {lid for s in rows if s["kind"] == "intended" for lid in s["scope"]}
+    return sorted(lid for lid in lids if len(_locate(dirs, lid)) > 1)
+
+
+def _licensed(dirs: list, lid: str, facts_now: str | None) -> str | None:
+    """The record path of lid a contract over facts with sha256 facts_now may mark (O5): the law's one record, REFUTED and
+    decided over those facts; else None."""
+    hits = _locate(dirs, lid)
+    if len(hits) != 1 or facts_now is None:
+        return None
+    k, d = hits[0]
     try:
-        r = _load(rp) if rp.is_file() else None
+        r = _load(d / f"{lid}.json")
     except ValueError:
-        return False
-    return isinstance(r, dict) and r.get("status") == "REFUTED"
+        return None
+    if not isinstance(r, dict) or r.get("status") != "REFUTED" or r.get("facts_sha256") != facts_now:
+        return None
+    return _rel(k, lid)
 
 
-def expected_marks(rows: list, rdir: Path) -> dict:
-    """{law id: {"contract", "l_weak"}}: every REFUTED record of a law in a proved contract's scope, naming the least
-    id among the proved contracts whose scope holds it."""
+def _facts_now(root: Path, rows: list) -> dict:
+    """{contract id: the sha256 of its facts file now} for the intended contracts among rows (None when unreadable)."""
+    docs = {c.get("id"): c for _, c in _contracts(root) if isinstance(c, dict)}
+    out = {}
+    for s in rows:
+        c = docs.get(s["id"])
+        try:
+            out[s["id"]] = _sha256((root / c["facts"]).read_bytes()) if isinstance(c, dict) else None
+        except (OSError, KeyError, TypeError):
+            out[s["id"]] = None
+    return out
+
+
+def expected_marks(rows: list, dirs: list, facts: dict) -> dict:
+    """{record path: {"contract", "l_weak"}}: every record a proved contract licenses (O5), naming the least id among the
+    proved contracts that license it."""
     out = {}
     for s in rows:   # by id
         if s["kind"] != "intended" or s["state"] != "proved":
             continue
         for lid in s["scope"]:
-            if lid not in out and _refuted(rdir, lid):
-                out[lid] = {"contract": s["id"], "l_weak": law_id(s["id"])}
+            r = _licensed(dirs, lid, facts.get(s["id"]))
+            if r is not None and r not in out:
+                out[r] = {"contract": s["id"], "l_weak": law_id(s["id"])}
     return dict(sorted(out.items()))
 
 
-def status_doc(milestone: str, rows: list, rdir: Path):
-    """results/<M>/contracts.json, or None when the milestone has no contract."""
+def status_doc(milestone: str, rows: list, dirs: list, facts: dict):
+    """results/<M>/contracts.json, or None when the milestone has no contract. marked: under every proved intended
+    contract, the law ids of its scope whose records it licenses (O5)."""
     if not rows:
         return None
-    rows = [dict(s, marked=(sorted(l for l in s["scope"] if _refuted(rdir, l))
+    rows = [dict(s, marked=(sorted(l for l in s["scope"] if _licensed(dirs, l, facts.get(s["id"])) is not None)
                             if s["kind"] == "intended" and s["state"] == "proved" else [])) for s in rows]
     return {"contracts_version": STATUS_VERSION, "milestone": milestone, "contracts": rows}
 
@@ -355,10 +521,15 @@ def marked(rec: dict, mark: dict) -> dict:
     return dict(rec, filter_bin=MARK, intended={**mark, "replaces": rec.get("filter_bin")})
 
 
+def _within(d: Path, top: Path) -> bool:
+    return Path(d).resolve().is_relative_to(Path(top).resolve())
+
+
 def apply(milestone: str, root: Path = ROOT, results: Path | None = None, check: bool = False) -> int:
-    """K5: unmark every record, mark the ones the proved contracts license, write results/<M>/contracts.json (removed
-    when the milestone has no contract). Only a record whose content changes is written, in its file's formatting.
-    M0 and M1: nothing."""
+    """K5 over the milestone's record directories (O5): unmark every record, mark the ones the proved contracts license,
+    write results/<M>/contracts.json (removed when the milestone has no contract). Only a record whose content changes
+    is written, in its file's formatting, and only under the results directory (a committed extracted_m1 read for an
+    --out tree is never written). A scope law with a record in two directories refuses. M0 and M1: nothing."""
     root = Path(root)
     if milestone in NOT_APPLICABLE:
         return 0
@@ -367,23 +538,33 @@ def apply(milestone: str, root: Path = ROOT, results: Path | None = None, check:
     if not rdir.is_dir():
         raise Refused(f"{rdir} is not a directory")
     rows = states(milestone, root, rdir)
-    marks = expected_marks(rows, rdir)
+    dirs = record_dirs(rdir, root, milestone)
+    amb = ambiguous(rows, dirs)
+    if amb:
+        raise Refused(f"scope laws with a record in more than one of results/{milestone} and "
+                      f"results/{milestone}/{VIEW}: {', '.join(amb)}")
+    facts = _facts_now(root, rows)
+    marks = expected_marks(rows, dirs, facts)
     writes = {}
-    for p in record_files(rdir):
-        old = p.read_text(encoding="utf-8")
-        try:
-            cur = json.loads(old)
-        except ValueError as e:
-            raise Refused(f"{p.name} is not JSON ({e})") from None
-        if not isinstance(cur, dict):
-            raise Refused(f"{p.name} is not a record")
-        rec = unmarked(cur, p.name)
-        if p.stem in marks and rec.get("status") == "REFUTED":
-            rec = marked(rec, marks[p.stem])
-        if rec != cur:
-            writes[p] = _as_found(old, rec)
+    for key, d in dirs:
+        if not _within(d, rdir):
+            continue
+        for p in record_files(d):
+            name = _rel(key, p.stem)
+            old = p.read_text(encoding="utf-8")
+            try:
+                cur = json.loads(old)
+            except ValueError as e:
+                raise Refused(f"{name}.json is not JSON ({e})") from None
+            if not isinstance(cur, dict):
+                raise Refused(f"{name}.json is not a record")
+            rec = unmarked(cur, f"{name}.json")
+            if name in marks and rec.get("status") == "REFUTED":
+                rec = marked(rec, marks[name])
+            if rec != cur:
+                writes[p] = _as_found(old, rec)
     sp = rdir / "contracts.json"
-    doc = status_doc(milestone, rows, rdir)
+    doc = status_doc(milestone, rows, dirs, facts)
     now = sp.read_text(encoding="utf-8") if sp.is_file() else None
     want = _text(doc) if doc is not None else None
     if check:
@@ -425,7 +606,9 @@ def g10(milestone: str, root: Path = ROOT) -> tuple:
     sha256} of strings; a contract file or entry that belongs to no milestone G10 applies to; a contract of the
     milestone not registered with its current sha256, milestone and kind; an entry for the milestone without its
     contract file; an intended contract not proved or a volatile view not valid; a record that is not a JSON object;
-    and a record whose mark is not the one the proved contracts license."""
+    and a record whose mark is not the one the proved contracts license. Since I65 (O7) the records are those of both
+    record directories (results/<M> and results/<M>/extracted_m1), a scope law with a record in both fails it, and a
+    record is licensed only over its contract's facts as they are now."""
     root = Path(root)
     if milestone in NOT_APPLICABLE:
         return None, NOT_APPLICABLE_WHY.format(m=milestone)
@@ -460,30 +643,37 @@ def g10(milestone: str, root: Path = ROOT) -> tuple:
         if s["state"] not in ("proved", "valid"):
             reasons.append(f"{s['id']}: {s['state']}")
     rdir = root / "results" / milestone
-    want = {k: {"filter_bin": MARK, **v} for k, v in expected_marks(rows, rdir).items()}
+    dirs = record_dirs(rdir) if rdir.is_dir() else []
+    for lid in ambiguous(rows, dirs):
+        reasons.append(f"{lid}: a scope law with a record in more than one of results/{milestone} and "
+                       f"results/{milestone}/{VIEW}")
+    want = {k: {"filter_bin": MARK, **v} for k, v in expected_marks(rows, dirs, _facts_now(root, rows)).items()}
     have = {}
     from .ir import record_files
-    for p in record_files(rdir) if rdir.is_dir() else []:
-        try:
-            r = _load(p)
-        except ValueError:
-            r = None
-        if not isinstance(r, dict):
-            reasons.append(f"{p.stem}: the record is not a JSON object")
-            continue
-        if r.get("filter_bin") == MARK or "intended" in r:
-            i = r.get("intended") if isinstance(r.get("intended"), dict) else {}
-            have[p.stem] = {"filter_bin": r.get("filter_bin"), "contract": i.get("contract"), "l_weak": i.get("l_weak")}
-    for lid in sorted(set(have) | set(want)):
-        if have.get(lid) != want.get(lid):
-            reasons.append(f"{lid}: the record's mark {have.get(lid)} is not the contracts' {want.get(lid)}")
+    for key, d in dirs:
+        for p in record_files(d):
+            name = _rel(key, p.stem)
+            try:
+                r = _load(p)
+            except ValueError:
+                r = None
+            if not isinstance(r, dict):
+                reasons.append(f"{name}: the record is not a JSON object")
+                continue
+            if r.get("filter_bin") == MARK or "intended" in r:
+                i = r.get("intended") if isinstance(r.get("intended"), dict) else {}
+                have[name] = {"filter_bin": r.get("filter_bin"), "contract": i.get("contract"),
+                              "l_weak": i.get("l_weak")}
+    for name in sorted(set(have) | set(want)):
+        if have.get(name) != want.get(name):
+            reasons.append(f"{name}: the record's mark {have.get(name)} is not the contracts' {want.get(name)}")
     if reasons:
         return False, "; ".join(reasons)
     if not rows:
         return True, f"no intent contract on {milestone} (laws/CONTRACTS/ holds none for it)"
     parts = []
     for s in rows:
-        licensed = sorted(lid for lid, v in want.items() if v["contract"] == s["id"])
+        licensed = sorted(r.rpartition("/")[2] for r, v in want.items() if v["contract"] == s["id"])   # law ids
         parts.append(f"{s['id']} {s['state']}" + (f", marks {', '.join(licensed)}" if licensed else ""))
     return True, "; ".join(parts)
 

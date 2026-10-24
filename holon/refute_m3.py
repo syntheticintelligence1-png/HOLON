@@ -465,7 +465,12 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
         out[key] = dict(conc, path=path, clock=ck)
         before = (side["records"].get(key) or {}).get("filter_bin") if key in side["records"] else None
         filt[key] = {"before": before, "after": fb, "kind": kind, "result": conc["result"]}
-        new = dict(rec, filter_bin=fb, concretization=conc)
+        if rec.get("filter_bin") == "intended_bounded" and isinstance(rec.get("intended"), dict):
+            # a record an intent contract marks (I65 = I33b, tests_m3/test_o12.py rule O6): the final rule's bin is
+            # the one the mark replaces, and the mark stays (holon.contracts owns it)
+            new = dict(rec, intended=dict(rec["intended"], replaces=fb), concretization=conc)
+        else:
+            new = dict(rec, filter_bin=fb, concretization=conc)
         if new != rec:
             stale.append(key)
             if write:

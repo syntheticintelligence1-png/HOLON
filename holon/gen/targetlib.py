@@ -9,9 +9,9 @@ library files next to its facts and is read as input, like the facts themselves:
   <facts dir>/../policy_hints.mjs  untrusted search hints for the explorer (optional)
 
 A window view (holon.differential: a facts document whose extraction block names a window declaration of holon.window)
-is anchored to the declaration's abstraction (anchor; I66, rule V3 of tests_m3/test_view_evidence.py, the library half
-of I65's anchor, tests_m3/test_o12.py rule O4): it takes the abstraction's libraries, as the differential's runs of the
-abstraction's laws over the view do. Every other document takes its own.
+is anchored to the declaration's abstraction (anchor; I65 = I33b, tests_m3/test_o12.py rule O4, whose library half is
+I66's rule V3, tests_m3/test_view_evidence.py): it takes the abstraction's libraries and hints, as the differential's
+runs of the abstraction's laws over the view do. Every other document takes its own.
 
 A library holds:
   builtins       DSL function name -> {"arity": n | null, "bend": template, "type": DSL type,
@@ -94,9 +94,9 @@ def window_declaration(facts_path: Path | str | None, root: Path | str = ROOT) -
 
 
 def anchor(facts_path: Path | str | None, root: Path | str = ROOT) -> Path | str | None:
-    """The facts file whose target libraries apply to facts_path: for a window view (window_declaration), its
-    declaration's abstraction, as holon.differential's runs of the abstraction's laws over the view take them (the run's
-    anchor, holon.mpipeline); for any other document, facts_path itself."""
+    """The facts file whose target libraries and search hints apply to facts_path: for a window view
+    (window_declaration), its declaration's abstraction, as holon.differential's runs of the abstraction's laws over the
+    view take them (the run's anchor, holon.mpipeline); for any other document, facts_path itself."""
     w = window_declaration(facts_path, root)
     return Path(root) / w[1]["abstraction"] if w is not None else facts_path
 
@@ -113,11 +113,12 @@ def lib_files(facts_path: Path | str | None, root: Path | str = ROOT) -> list[Pa
     return out
 
 
-def hints_for(facts_path: Path | str | None) -> Path | None:
-    """The untrusted search-hints module for a facts file, if its milestone has one."""
+def hints_for(facts_path: Path | str | None, root: Path | str = ROOT) -> Path | None:
+    """The untrusted search-hints module for a facts file (a window view: its abstraction's, anchor), if its milestone
+    has one."""
     if facts_path is None:
         return None
-    p = Path(facts_path).resolve().parent.parent / "policy_hints.mjs"
+    p = Path(anchor(facts_path, root)).resolve().parent.parent / "policy_hints.mjs"
     return p if p.exists() else None
 
 
@@ -131,6 +132,7 @@ class Library:
         self.record_blocks: list[dict] = []
         self.shadow_values: dict[str, str] = {}
         self.names: list[str] = []
+        self.sources: list[Path] = []
         for d in docs:
             if d.get("lib_version") != LIB_VERSION:
                 raise LibError(f"{d.get('name')}: lib_version {d.get('lib_version')!r} is not {LIB_VERSION}")
@@ -149,7 +151,10 @@ class Library:
     @classmethod
     def for_facts(cls, facts_path: Path | str | None, params: dict | None = None,
                   root: Path | str = ROOT) -> "Library":
-        return cls([json.loads(p.read_text(encoding="utf-8")) for p in lib_files(facts_path, root)], params)
+        files = lib_files(facts_path, root)
+        lib = cls([json.loads(p.read_text(encoding="utf-8")) for p in files], params)
+        lib.sources = files   # where they live (I65: holon.gen.trace_bound reads the pointwise sidecars beside them)
+        return lib
 
     def render(self, name: str, args: list[str]) -> tuple[str, str]:
         b = self.builtins[name]

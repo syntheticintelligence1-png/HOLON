@@ -100,6 +100,21 @@ def typed_laws(milestone: str | None, root: Path | str = ROOT) -> dict[str, dict
             and e.get("rule") == "SORT" and e.get("subform") in TYPED_SUBFORMS}
 
 
+def undo_laws(milestone: str | None, root: Path | str = ROOT) -> dict[str, dict]:
+    """The DERIVATION.json entries of rule UNDO: I27's typed UNDO laws (holon.rules.undo's derivation), the laws
+    holon.undo.run decides on the typed model (holon.undo.run.undo_laws reads the same entries); {} without a
+    derivation. A law of rule UNDO the rules did not derive (an intent contract's L_weak, subform intended_weak: I64 K3,
+    I65) is in no DERIVATION.json, and holon run decides it with its own generators like any law (review finding N7)."""
+    if not milestone:
+        return {}
+    try:
+        dv = json.loads((Path(root) / "laws" / milestone / "DERIVATION.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return {e["law_id"]: e for e in dv.get("laws") or [] if isinstance(e, dict) and e.get("law_id")
+            and e.get("rule") == "UNDO"}
+
+
 def typed_milestone(milestone: str | None, root: Path | str = ROOT) -> bool:
     """A milestone typed by I30's rules: M3 and later, or a test milestone T<n> (n >= 30) whose derivation holds I30
     laws (a test milestone without them, I41's T41 among them, is a state-machine milestone)."""
@@ -347,16 +362,18 @@ class Regeneration:
         laws = sorted(self.tree.laws(self.m).values(), key=lambda l: (not l.get("negation_of"), l["law_id"]))
         machines: dict[Path, tuple] = {}
         typed = typed_laws(self.m, self.root)
+        undo = undo_laws(self.m, self.root)
         for law in laws:
             lid = law["law_id"]
             up = self._layout(lid)
             if lid in typed:
                 self._regen_typed(law, typed[lid])
                 continue
-            if law.get("rule") == "UNDO":
+            if lid in undo:
                 # I27's UNDO laws (holon.undo.run): their law files import the trace section holon.undo.trace writes
                 # over the typed model, which the intake does not regenerate; holon run takes no agent proof for them
-                # (it runs its own proof generators), so G1 leaves them out, as it does the codec laws
+                # (it runs its own proof generators), so G1 leaves them out, as it does the codec laws. Keyed on the
+                # derivation, not the rule: a contract's L_weak of rule UNDO (I65) is decided like any other law
                 self.no_statement[lid] = ("holon run decides this UNDO law with holon.undo.run, which takes no agent "
                                           "proof: the intake regenerates no trace section and no law file for it")
                 self.unregenerated.add(lid)

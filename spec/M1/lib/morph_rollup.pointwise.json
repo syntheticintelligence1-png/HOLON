@@ -1,0 +1,19 @@
+{
+  "builtins": {
+    "bump_f": {
+      "doc": "element k of bump_f(es, skip, w): its bdf at most the old element's bdf + w, every other field the old element's",
+      "elem": "Entry",
+      "else": "eq",
+      "fields": {"bdf": {"le_add": 2}},
+      "go": "b_bump_go"
+    },
+    "clear_chs": {
+      "doc": "element k of clear_chs(cs, lo, hi): the old element or the default (empty) challenge",
+      "elem": "Ch",
+      "else": "eq_or_default",
+      "go": "b_clear_go"
+    }
+  },
+  "doc": "Pointwise statements of the target library's builtins without a kind (spec/M1/lib/morph_rollup.lib.json), for holon.gen.trace_bound (I65, tests_m3/test_o12.py rule O2). Each statement is about element k of the builtin's result against element k of its list argument; the class proves every statement it uses in the law's PROOF.bend, by induction on the list through the builtin's go function: nothing here is assumed.",
+  "pointwise_version": "holon-pointwise/0.1"
+}

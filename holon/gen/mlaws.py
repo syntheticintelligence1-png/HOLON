@@ -100,6 +100,7 @@ class EmittedM:
     assume: list             # [(lhs, rhs, type)] Bend texts
     claims: list             # [(lhs, rhs, type)]
     views: dict = field(default_factory=dict)   # view name -> erased fields
+    law: dict | None = None   # the law IR it was emitted from (I65: holon.gen.trace_bound reads the claim)
 
 
 def reach_name(n: str) -> str:
@@ -124,6 +125,7 @@ class Emitter:
             fn_types[f"perm_{c}"] = "Bool"
         self.fn_types = fn_types
         self.exprs: dict[str, tuple[str, str]] = {}   # I24 expr terms: helper name -> (unqualified def text, type)
+        self.ghosts: dict[str, tuple[str, str]] = {}  # I65 ghost terms: helper name -> (unqualified, qualified)
 
     # ------------------------------------------------------------ oracle parameters (I12)
     def is_param(self, n: str, types: dict) -> bool:
@@ -201,6 +203,8 @@ class Emitter:
     def term(self, t: dict, env: dict, types: dict) -> tuple[str, str]:
         if "var" in t:
             return env[t["var"]], types[t["var"]]
+        if "ghost" in t and "over" in t:
+            return self.ghost_term(t, env, types)
         if "expr" in t:
             return self.expr_term(t, env, types)
         if "nat" in t:
@@ -430,6 +434,62 @@ class Emitter:
         self.exprs[name] = ("\n".join(lines) + "\n", ety)
         return name, ety
 
+    # ------------------------------------------------------------ I65: ghost terms
+    def ghost_term(self, t: dict, env: dict, types: dict) -> tuple[str, str]:
+        """{"ghost": A, "add": E, "over": T, "from": S} (I65 = I33b, tests_m3/test_o12.py rule O1): the sum, over the
+        steps of trace T run from state S whose action is A and that succeed (last_ok after the step), of the Nat
+        expression E in the state before the step with that step's inputs; 0 for every other step. Emitted as a call
+        of a statement helper gh_<hash>(T, S) defined in LAWS.bend (expr_defs), like an expr term's: part of the
+        statement, so a proof file can neither define nor change it."""
+        if set(t) != {"ghost", "add", "over", "from"}:
+            raise Unsupported(f"ghost term {sorted(t)}")
+        act = next((x for x in self.m.actions if x["name"] == t["ghost"]), None)
+        if act is None:
+            raise Unsupported(f"ghost term: unknown action {t['ghost']}")
+        if self.m.threaded:
+            raise Unsupported("a ghost term over a model that threads oracle tables is not generated")
+        tr, tt = self.term(t["over"], env, types)
+        s, ts = self.term(t["from"], env, types)
+        self.expect(tt, "Trace", t)
+        self.expect(ts, "State", t)
+        return f"{self.ghost_helper(act, t['add'])}({tr}, {s})", "Nat"
+
+    def ghost_helper(self, act: dict, e) -> str:
+        """The name of the statement helper of the ghost (act, e): gh_<hash>(tr, st), over gh1_<hash>(a, st), one step's
+        share, which reads e through the expr helper of e with act's inputs (expr_helper)."""
+        import hashlib
+        import json as _json
+        key = _json.dumps({"ghost": act["name"], "add": e}, sort_keys=True, separators=(",", ":"))
+        h = hashlib.sha256(key.encode()).hexdigest()[:12]
+        name, one = f"gh_{h}", f"gh1_{h}"
+        if name in self.ghosts:
+            return name
+        ex, ety = self.expr_helper(e, act, [])
+        if ety != "Nat":
+            raise Unsupported(f"ghost term: add {e} is {ety}, not Nat")
+        m = self.m
+        an = act["name"]
+        ins = [bname(n) for n, _ in act["inputs"]]
+        ctor = f"A_{an}{{{', '.join(ins)}}}"
+
+        def text(mq: str) -> str:   # mq: the model alias prefix of step and last_ok ("" in the model itself)
+            lines = [f"# the ghost term {key}: one step's share, {_json.dumps(e, separators=(',', ':'))} in the state "
+                     f"before the step when the step is {an} and succeeds, else 0",
+                     f"def {one}(+a: HAct, +st: HSt) -> Nat:", "  match a:"]
+            for x in m.actions:
+                xs = [bname(n) for n, _ in x["inputs"]]
+                if x is act:
+                    lines += [f"    case A_{an}{{{', '.join('+' + i for i in ins)}}}:",
+                              f"      ite(Nat, {mq}last_ok({mq}step({ctor}, st)), {ex}(st, {ctor}), 0n)"]
+                else:
+                    lines += [f"    case A_{x['name']}{{{', '.join('_' for _ in xs)}}}:", "      0n"]
+            lines += ["", f"# the ghost term {key}: the sum of the shares over the steps of the trace",
+                      f"def {name}(tr: List<&2, HAct>, +st: HSt) -> Nat:", "  match tr:", "    case Nil{}:", "      0n",
+                      "    case Con{+a, rest}:", f"      Nat.add({one}(a, st), {name}(rest, {mq}step(a, st)))"]
+            return "\n".join(lines) + "\n"
+        self.ghosts[name] = (text(""), qualify_model(m, text(f"{ALIAS}.")))
+        return name
+
     def expr_defs(self, qualified: bool = True) -> list[str]:
         """The statement helpers of the expr terms emitted so far (qualified for a LAWS.bend importing the model as
         M; unqualified to append to the model itself, for the refuter)."""
@@ -437,6 +497,9 @@ class Emitter:
         for name in sorted(self.exprs):
             text = self.exprs[name][0]
             out += (qualify_model(self.m, text) if qualified else text).rstrip("\n").split("\n") + [""]
+        for name in sorted(self.ghosts):   # I65: after the expr helpers their shares read
+            text = self.ghosts[name][1 if qualified else 0]
+            out += text.rstrip("\n").split("\n") + [""]
         return out
 
     @staticmethod
@@ -562,7 +625,7 @@ class Emitter:
             a, b, t = claims[-1]
             body.append(f"  {{{a} == {b} : {self.bend_ty(t)}}}")
         lines += body
-        return EmittedM(name, "\n".join(lines) + "\n", binders, assume, claims, dict(self.views))
+        return EmittedM(name, "\n".join(lines) + "\n", binders, assume, claims, dict(self.views), law)
 
     def negation_ir(self, law: dict) -> dict:
         """The negation of a purely existential law as IR: the same binders made universal, and the
