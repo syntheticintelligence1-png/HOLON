@@ -56,6 +56,13 @@ def tree(ctx: Ctx, repo_name: str, commit: str, paths: list) -> Path:
         if head.returncode == 0 and head.stdout.strip() == commit and clean.returncode == 0 and not clean.stdout.strip():
             return t
     import shutil
+    # a partial clone (--filter=blob:none, as CI's checkout of the source repository) holds the blobs of the commits it
+    # has read only: reading the paths at the commit in the source repository itself lets git fetch the missing ones
+    # there (its promisor remote), before the checkout below reads them through the alternates, which fetch nothing
+    pre = subprocess.run(["git", "-C", repo, "archive", "--format=tar", commit, "--", *[x.strip("/") for x in paths]],
+                         capture_output=True, timeout=3600)
+    if pre.returncode != 0:
+        raise VersionsError(f"reading {commit} in {repo}: {pre.stderr.decode('utf-8', 'replace').strip()[:300]}")
     shutil.rmtree(t, ignore_errors=True)
     t.parent.mkdir(parents=True, exist_ok=True)
     tmp = t.with_name(t.name + f".{os.getpid()}.part")
