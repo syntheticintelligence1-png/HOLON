@@ -673,7 +673,10 @@ def hash_only_change(x: dict, y: dict) -> bool:
 
 
 def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_defs: dict):
-    """({law: STATEMENT_DIFF line}, [(law, why)]) for the changed laws."""
+    """({law: STATEMENT_DIFF line}, [(law, why)]) for the changed laws. With none (laws only added or removed) there is
+    nothing to cover, so the accepted entries' proofs are not re-checked (I67: that re-check takes most of an hour)."""
+    if not changed:
+        return {}, []
     entries = _accepted_entries(root, m)
     current = {l["law_id"]: l for l in ir.load_laws_any(m, root)}
     covered, missing = {}, []
