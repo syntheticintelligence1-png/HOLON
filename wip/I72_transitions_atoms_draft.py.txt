@@ -1,0 +1,176 @@
+# ====================================================================== E2 over adopted transitions documents (I72)
+_SEL = ("map", "member")
+_WRAP03 = ("carried", "exit")
+_THREADS03 = ("carried", "next", "at_break", "exit")
+
+
+def _t_seg(tag: str, x):
+    """A path segment of a transitions document: ("map", k) with k a literal integer key or None, ("member", name)."""
+    if tag == "map":
+        return ("map", x if isinstance(x, int) and not isinstance(x, bool) else None)
+    if tag == "member" and isinstance(x, str):
+        return ("member", x)
+    raise EvidenceError(f"a path segment {[tag, x]!r} the E2 rule over transitions documents does not map")
+
+
+def _t_family(t):
+    """The family of a state term: ["storage", f], ["carried"|"exit", L, s] or ["store", s, P, v] over one."""
+    if isinstance(t, list) and len(t) == 2 and t[0] == "storage" and isinstance(t[1], str):
+        return t[1]
+    if isinstance(t, list) and len(t) == 3 and t[0] in _WRAP03 and isinstance(t[1], str):
+        return _t_family(t[2])
+    if isinstance(t, list) and len(t) == 4 and t[0] == "store" and isinstance(t[2], list):
+        return _t_family(t[1])
+    return None
+
+
+def _t_chain(t):
+    """(family, path, base, keys) of a chain of map and member selections over a state term, else None."""
+    if isinstance(t, list) and len(t) == 3 and t[0] in _SEL:
+        keys = [t[2]] if t[0] == "map" else []
+        f = _t_family(t[1])
+        if f is not None:
+            return f, (_t_seg(t[0], t[2]),), t[1], keys
+        c = _t_chain(t[1])
+        if c is not None:
+            return c[0], c[1] + (_t_seg(t[0], t[2]),), c[2], c[3] + keys
+    return None
+
+
+class _TReads:
+    """The reads of one action of a transitions document (module docstring, "Adopted transitions documents")."""
+
+    def __init__(self, kinds: dict[str, str]):
+        self.kinds, self.out = kinds, set()
+
+    def value(self, t) -> None:
+        if isinstance(t, list) and t:
+            c = _t_chain(t)
+            if c is not None:
+                self.out.add((c[0], c[1]))
+                self.thread(c[2], c[0])
+                for k in c[3]:
+                    self.value(k)
+                return
+            f = _t_family(t)
+            if f is not None:
+                if self.kinds.get(f) != "scalar":
+                    raise EvidenceError(f"a whole {self.kinds.get(f)} family {f!r} read as a value: a construct the E2 "
+                                        "rule over transitions documents does not map")
+                self.out.add((f, ()))
+                self.thread(t, f)
+                return
+            for x in t:
+                self.value(x)
+        elif isinstance(t, dict):
+            for k in sorted(t):
+                self.value(t[k])
+
+    def thread(self, t, fam: str) -> None:
+        """A position that holds fam's state: a state term of fam there is no read; its store paths and values are."""
+        if isinstance(t, list) and len(t) == 2 and t[0] == "storage" and t[1] == fam:
+            return
+        if isinstance(t, list) and len(t) == 3 and t[0] in _WRAP03 and _t_family(t) == fam:
+            self.thread(t[2], fam)
+            return
+        if isinstance(t, list) and len(t) == 4 and t[0] == "store" and _t_family(t) == fam:
+            self.thread(t[1], fam)
+            for s in t[2]:
+                if isinstance(s, list) and len(s) == 2 and s[0] == "map":
+                    self.value(s[1])
+            self.value(t[3])
+            return
+        if isinstance(t, list) and len(t) == 4 and t[0] == "?":
+            self.value(t[1])
+            self.thread(t[2], fam)
+            self.thread(t[3], fam)
+            return
+        self.value(t)
+
+
+def _t_thread_name(n):
+    return n[1] if isinstance(n, list) and len(n) == 2 and n[0] == "storage" and isinstance(n[1], str) else None
+
+
+def _t_reads(action: dict, kinds: dict[str, str]) -> set:
+    r = _TReads(kinds)
+    for k in sorted(action):
+        v = action[k]
+        if isinstance(v, dict) and v and all(f in kinds for f in v):
+            for f in sorted(v):                 # the post-state section: every key a family of the document
+                r.thread(v[f], f)
+        elif isinstance(v, list) and all(isinstance(x, dict) and set(_THREADS03) <= set(x) for x in v) and v:
+            for loop in v:                      # loop records: their family threads are no reads
+                for kk in sorted(loop):
+                    vv = loop[kk]
+                    if kk in _THREADS03 and isinstance(vv, list):
+                        for e in vv:
+                            f = _t_thread_name(e.get("name")) if isinstance(e, dict) else None
+                            for slot in ("entry", "value"):
+                                if isinstance(e, dict) and slot in e:
+                                    (r.thread(e[slot], f) if f is not None else r.value(e[slot]))
+                    else:
+                        r.value(vv)
+        else:
+            r.value(v)
+    return r.out
+
+
+def _t_writes(action: dict) -> set:
+    out: set = set()
+
+    def walk(t):
+        if isinstance(t, dict):
+            if isinstance(t.get("family"), str) and "path" in t and "value" in t:
+                out.add((t["family"], tuple(_t_seg(s[0], s[1]) for s in t["path"])))
+            for k in sorted(t):
+                walk(t[k])
+        elif isinstance(t, list):
+            for x in t:
+                walk(x)
+    walk(action)
+    return out
+
+
+def _t_overlap(p: tuple, q: tuple) -> bool:
+    for a, b in zip(p, q):
+        if a[0] == b[0] and a[0] == "member" and a[1] != b[1]:
+            return False
+        if a[0] == b[0] and a[0] == "map" and None not in (a[1], b[1]) and a[1] != b[1]:
+            return False
+    return True
+
+
+def _t_render(path: tuple) -> str:
+    return "".join(f"[{'*' if x is None else x}]" if t == "map" else f".{x}" for t, x in path) or A.WHOLE
+
+
+def transitions_atoms(model: str, doc: dict) -> list[dict]:
+    """The E2 atoms of an adopted transitions document's model (module docstring, "Adopted transitions documents"),
+    sorted by id; EvidenceError on a construct the rule does not map."""
+    entries = [s for s in (doc.get("storage") or []) + (doc.get("inherited_storage") or []) if isinstance(s, dict)]
+    names = [s.get("name") for s in entries]
+    kinds = {s["name"]: s.get("kind") for s in entries if isinstance(s.get("name"), str)}
+    shared = {n for n in names if names.count(n) > 1}
+    acts = sorted((a for a in doc.get("actions") or [] if isinstance(a, dict) and isinstance(a.get("name"), str)),
+                  key=lambda a: a["name"])
+    try:
+        W = {a["name"]: _t_writes(a) for a in acts}
+        R = {a["name"]: _t_reads(a, kinds) for a in acts}
+    except (KeyError, TypeError, IndexError) as e:
+        raise EvidenceError(f"{model}: a construct the E2 rule over transitions documents does not map "
+                            f"({type(e).__name__}: {e})") from e
+    atoms = []
+    for p in acts:
+        for q in acts:
+            for f in sorted({g for g, _ in W[p["name"]]} & {g for g, _ in R[q["name"]]}):
+                if f in shared:
+                    raise EvidenceError(f"{model}: the family {f!r}, declared twice, is accessed")
+                pw = [w for g, w in W[p["name"]] if g == f]
+                qr = [r for g, r in R[q["name"]] if g == f]
+                ws = sorted({_t_render(w) for w in pw if any(_t_overlap(w, r) for r in qr)})
+                if ws:
+                    rs = sorted({_t_render(r) for r in qr if any(_t_overlap(w, r) for w in pw)})
+                    atoms.append(_atom(model, "E2", f"TRANS.{p['name']}", f"TRANS.{q['name']}",
+                                       {"carrier": f, "writes": ws, "reads": rs}, None))
+    return sorted(atoms, key=lambda a: a["id"])
