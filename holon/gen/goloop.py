@@ -5,7 +5,8 @@ The model gen/<M>/model/<component>.bend, generated from the Go-op document alon
 
   * Out: OPanic (the op panics), OErr (it returns a non-nil error), ORet (it returns a nil error);
   * the carrier is the sequence of the array cells an op's loop body reads, List<&2, U32>, one node per iteration: cell
-    k is the cell the body reads at iteration k (its affine read a*k + c of the op's one parameter);
+    k is the cell the body reads at iteration k, its affine read a*iv + c of the op's one parameter at iv = init + k, so
+    the parameter's byte a*(init + k) + c (Shape.cell_map); a law over several ops needs one cell map for all of them;
   * an op is its one loop body (holon.frontends.go's loop_bodies), compiled to a structural recursion: step_<op> takes
     one node and the iteration index, a Nat, and body_<op> picks the body path the cell and the index satisfy (a
     comparison of the cell with a constant; an index bound a*iv + c REL C as a Nat threshold on the index), no U32
@@ -17,10 +18,14 @@ An op outside this class (no loop body, more than one loop, a path reading a sec
 induction variable and the parameter's cells, a non-affine index, an outcome that is not one of the three, body paths
 that do not partition the cell and index values) is Unsupported, and the laws naming it are UNKNOWN with the reason.
 
-Deciding (decide): the candidates are, per op by model name, the smallest panic witness its shape gives, then the
-sequence of continue values; a law is REFUTED at the first candidate whose counter-law Bend accepts, else UNKNOWN (no
-proof route for a forall law over cell sequences here: gap G6). Nothing here names a target: every constant (the trip
-count, the stride, the thresholds, the cell values) is read from the document.
+Deciding (decide): the ops a law names must share one cell map (stride, base, cell count): one cell sequence is then
+one carrier value for all of them, else the law is UNKNOWN unsearched. The candidates are, per op of the component by
+model name, the smallest panic witness its shape gives (cells after the panic iteration are never read), then the
+continue values of the first named op; candidates of another length are left out. A law is REFUTED at the first
+candidate, n byte cells, whose counter-law Bend accepts; the record's difference is the compiled model's evaluation at
+it (holon/js/linked.mjs), the shapes' own evaluation a cross-check. Else UNKNOWN (no proof route for a forall law over
+cell sequences here: gap G6). Nothing here names a target: every constant (the trip count, the stride, the thresholds,
+the cell values) is read from the document.
 """
 from __future__ import annotations
 
@@ -28,6 +33,7 @@ import hashlib
 import json
 import re
 import shutil
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -35,6 +41,7 @@ from .. import bend
 
 ALIAS = "M"
 ROOT = Path(__file__).resolve().parents[2]
+DRIVER = ROOT / "holon" / "js" / "linked.mjs"   # evaluates calls on a compiled model (shared with holon.gen.linked)
 OUTS = ("OPanic", "OErr", "ORet")
 FLIP = {"==": "==", "!=": "!=", "<": ">", ">": "<", "<=": ">=", ">=": "<="}
 U32_CMP = {"==": "U32.is_eq", "!=": "U32.is_ne", "<": "U32.is_lt", "<=": "U32.is_le", ">": "U32.is_gt",
@@ -138,10 +145,14 @@ class Shape:
     iv: str
     init: int
     n: int                 # the trip count: iterations from init while iv < limit
-    read: tuple            # (a, c): cell k is param[a*k + c]
+    read: tuple            # (a, c): the body reads param[a*iv + c]; cell k is param[a*(init + k) + c]
     paths: list            # [Path_], continue paths first, then by outcome and site
     exit: str              # the loop's exit outcome
     samples: list = field(default_factory=list)   # cell values that represent every class of the cell's atoms
+
+    def cell_map(self) -> tuple:
+        """(stride, base, cells): cell k is the parameter's byte stride*k + base, for k < cells."""
+        return (self.read[0], self.read[0] * self.init + self.read[1], self.n)
 
     def pick(self, h: int, i: int) -> Path_:
         hits = [p for p in self.paths if all(holds_cell(o, h, v) for o, v in p.cells)
@@ -243,27 +254,36 @@ def shape(name: str, op: dict) -> Shape:
     return sh
 
 
-def continue_value(sh: Shape, i: int) -> int:
+def continue_value(sh: Shape, i: int) -> int | None:
+    """The smallest byte value that keeps iteration i on a continue path, or None when no value does."""
     for h in sh.samples:
         if sh.pick(h, i).outcome == "continue":
             return h
-    raise Unsupported(f"{sh.op}: no cell value continues the loop at index {i}")
-
-
-def panic_witness(sh: Shape) -> list[int] | None:
-    """The smallest panic witness (rule Y7): the first iteration k at which a panic path holds for some cell value;
-    cells before k at a continue value, cell k at the smallest such value, cells after k at a continue value."""
-    for k in range(sh.init, sh.init + sh.n):
-        for h in sh.samples:
-            if sh.pick(h, k).outcome == "OPanic":
-                cells = [continue_value(sh, sh.init + j) for j in range(sh.n)]
-                cells[k - sh.init] = h
-                return cells
     return None
 
 
-def all_continue(sh: Shape) -> list[int]:
-    return [continue_value(sh, sh.init + j) for j in range(sh.n)]
+def panic_witness(sh: Shape) -> list[int] | None:
+    """The smallest panic witness (rule Y7): the first iteration k at which a panic path holds for some cell value, k
+    reachable (every earlier iteration has a continue value); cells before k at their smallest continue value, cell k
+    at the smallest value that panics, the cells after k (never read: the op panics at k) at their smallest continue
+    value where one exists, else 0."""
+    stuck = next((i for i in range(sh.init, sh.init + sh.n) if continue_value(sh, i) is None), None)
+    for k in range(sh.init, sh.init + sh.n if stuck is None else stuck + 1):
+        h = next((v for v in sh.samples if sh.pick(v, k).outcome == "OPanic"), None)
+        if h is not None:
+            return [h if sh.init + j == k else (continue_value(sh, sh.init + j) or 0) for j in range(sh.n)]
+    return None
+
+
+def all_continue(sh: Shape) -> list[int] | None:
+    """The continue values of every iteration, or None when some iteration has none."""
+    out = []
+    for j in range(sh.n):
+        v = continue_value(sh, sh.init + j)
+        if v is None:
+            return None
+        out.append(v)
+    return out
 
 
 def evaluate(sh: Shape, cells: list[int]) -> str:
@@ -368,8 +388,8 @@ def op_text(sh: Shape) -> str:
     argument of a selector sel_<op>_<k>, whose False branch tries the next path; the last path needs no test (the
     paths partition the cell and index values, checked in shape()). Definitions precede their use."""
     op, ps = sh.op, sh.paths
-    lines = [f"# {op}: cell k is {sh.param}[{sh.read[0]}*k + {sh.read[1]}], {sh.n} iterations from {sh.init}; exit "
-             f"outcome {sh.exit}"]
+    lines = [f"# {op}: cell k is {sh.param}[{sh.read[0]}*({sh.init} + k) + {sh.read[1]}], {sh.n} iterations from "
+             f"{sh.init}; exit outcome {sh.exit}"]
     for k in range(len(ps) - 2, -1, -1):
         nxt = _result(ps[-1]) if k == len(ps) - 2 else f"sel_{op}_{k + 1}({_test(ps[k + 1])}, h, i, nx)"
         lines += [f"def sel_{op}_{k}(t: Bool, +h: U32, +i: Nat, +nx: St) -> Res:", "  match t:", "    case True{}:",
@@ -441,9 +461,9 @@ def declared_bundle(doc: dict, rel: str, sha: str, root: Path) -> dict:
                         "text": a.get("text", ""), "introduced_by": ops})
     texts = {
         "A-goloop-cells": "An op's argument is the sequence of the array cells its loop body reads, one per iteration "
-                          "(cell k is the parameter's cell a*k + c), and the loop runs its trip count; every other byte "
-                          "of the carrier is not modelled (rule Y6), and replay concretizes a witness with those bytes 0 "
-                          "(rule Y9).",
+                          "(cell k is the parameter's byte a*(init + k) + c), and the loop runs its trip count; every "
+                          "other byte of the carrier is not modelled (rule Y6), and replay concretizes a witness with "
+                          "those bytes 0 (rule Y9).",
         "A-goloop-outcome": "An op's outcome is whether it panics, returns a non-nil error or returns a nil one (OPanic, "
                             "OErr, ORet); the error's value and the returned bytes are not modelled (rule Y6).",
         "A-goloop-sites": "An op panics only at the bound sites the Go frontend cannot prove safe, by its path "
@@ -496,6 +516,28 @@ class CompiledModel:
                 raise RuntimeError(f"bend failed to compile {src}: {r.out[:2000]}")
             stamp.write_text(h)
         return cls(src, art, doc, cfg)
+
+    def calls(self, exprs: list) -> list:
+        """The compiled model's values of calls (holon/js/linked.mjs): untrusted, like every evaluation; Bend decides."""
+        if not exprs:
+            return []
+        node = (self.cfg or bend.config()).get("node", "node")
+        p = subprocess.run([node, f"--stack-size={max(bend.js_stack_bytes(self.cfg) // 1024, 984)}", str(DRIVER)],
+                           input=json.dumps({"module": str(self.artifact), "calls": exprs}), capture_output=True,
+                           text=True, timeout=1800)
+        if p.returncode != 0:
+            raise RuntimeError(f"node evaluation failed: {p.stderr[-2000:]}")
+        return json.loads(p.stdout)["results"]
+
+    def outcomes(self, ops: list[str], cells: list[int]) -> dict:
+        """{op: "OPanic" | "OErr" | "ORet"} of each op at a cell sequence, by the compiled model."""
+        res = self.calls([{"fn": o, "args": [{"val": list(cells)}]} for o in ops])
+        out = {}
+        for o, r in zip(ops, res):
+            if not (isinstance(r, dict) and r.get("$") in OUTS):
+                raise RuntimeError(f"the compiled model's {o} gave {str(r)[:200]}")
+            out[o] = r["$"]
+        return out
 
 
 # ====================================================================== laws
@@ -582,14 +624,14 @@ def counter_proof(em: Emitted, model_import: str, cells: list[int]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def side_value(sh_of: dict, term, binder: str, cells: list[int]):
-    """A claim side's value at a cell sequence by the shapes' semantics (for the record's difference)."""
+def side_value(outcome: dict, term):
+    """A claim side's value from the ops' outcomes at a cell sequence (for the record's difference)."""
     if isinstance(term, dict) and "bool" in term:
         return term["bool"]
     f = term["call"]
-    if f.startswith("ok_") and f[3:] in sh_of:
-        return evaluate(sh_of[f[3:]], cells) != "OPanic"
-    return evaluate(sh_of[f], cells)
+    if f.startswith("ok_") and f[3:] in outcome:
+        return outcome[f[3:]] != "OPanic"
+    return outcome[f]
 
 
 @dataclass
@@ -604,19 +646,21 @@ class Decision:
     attempts: list = field(default_factory=list)
 
 
-def candidates(cm: CompiledModel) -> list[tuple[str, list[int]]]:
-    """Rule Y7's candidates: per op by model name, its smallest panic witness; then the continue values (of the first
-    op the class covers)."""
-    out, first = [], None
+def candidates(cm: CompiledModel, named: list[str], n: int) -> list[tuple[str, list[int]]]:
+    """Rule Y7's candidates for a law over the ops `named` (one cell map, n cells): per op of the component by model
+    name, its smallest panic witness; then the continue values of the first named op. A list of another length is not
+    a cell sequence of these ops and is left out."""
+    out = []
     for name, sh in sorted(cm.shapes.items()):
         if isinstance(sh, Unsupported):
             continue
-        first = first or sh
         w = panic_witness(sh)
-        if w is not None:
+        if w is not None and len(w) == n:
             out.append((f"the smallest panic witness of {name}", w))
-    if first is not None:
-        out.append((f"the continue values of {first.op}", all_continue(first)))
+    first = cm.shapes[sorted(named)[0]]
+    c = all_continue(first)
+    if c is not None and len(c) == n:
+        out.append((f"the continue values of {first.op}", c))
     return out
 
 
@@ -634,13 +678,22 @@ def decide(law: dict, cm: CompiledModel, ld: Path, pd: Path, model_import_l: str
     if bad:
         return Decision("UNKNOWN", statement=stmt, attempts=[{"kind": "model", "error": f"unsupported op: {bad}"}],
                         bound=f"not searched: the model class does not cover {sorted(bad)} (rule Y6)")
-    sh_of = {o: s for o, s in cm.shapes.items() if not isinstance(s, Unsupported)}
+    maps = {o: cm.shapes[o].cell_map() for o in cem.ops}
+    if len(set(maps.values())) != 1:   # one cell sequence must be one carrier value for every op the law names
+        return Decision("UNKNOWN", statement=stmt, attempts=[{"kind": "model", "error": f"cell maps differ: {maps}"}],
+                        bound="not searched: the ops the law names read different cells of the carrier (stride, base "
+                              "or count), so no cell sequence is one carrier value for all of them (rule Y6)")
+    n = next(iter(maps.values()))[2]
     attempts, tried = [], []
-    n_cells = {s.n for s in sh_of.values()}
-    for what, cells in candidates(cm):
+    try:
+        cands = candidates(cm, cem.ops, n)
+    except Unsupported as e:
+        return Decision("UNKNOWN", statement=stmt, attempts=[{"kind": "model", "error": str(e)}],
+                        bound=f"not searched: no candidate could be built ({e})")
+    for what, cells in cands:
         tried.append(what)
-        if len(n_cells) != 1:
-            attempts.append({"kind": "refute", "candidate": what, "error": "the ops' loops differ in trip count"})
+        if len(cells) != n or any(not (0 <= v <= 255) for v in cells):   # a witness is n byte cells
+            attempts.append({"kind": "refute", "candidate": what, "error": f"not {n} byte cells"})
             continue
         for x in {ld, pd}:
             shutil.rmtree(x, ignore_errors=True)
@@ -653,11 +706,16 @@ def decide(law: dict, cm: CompiledModel, ld: Path, pd: Path, model_import_l: str
         if ok:
             b = cem.binder
             lhs_t, rhs_t = law["statement"]["claim"]["eq"]
-            diff = {"lhs": side_value(sh_of, lhs_t, b, cells), "rhs": side_value(sh_of, rhs_t, b, cells)}
+            out = cm.outcomes(cem.ops, cells)   # the record's difference is the compiled model's (m5)
+            mirror = {o: evaluate(cm.shapes[o], cells) for o in cem.ops}
+            if mirror != out:
+                attempts.append({"kind": "mirror", "error": f"the shapes' evaluation {mirror} differs from the "
+                                                             f"compiled model's {out}"})
+            diff = {"lhs": side_value(out, lhs_t), "rhs": side_value(out, rhs_t)}
             return Decision("REFUTED", em=cem, statement=stmt, check=rr,
                             witness={b: "0x" + bytes(cells).hex()}, difference=diff, attempts=attempts)
     for x in {ld, pd}:
         shutil.rmtree(x, ignore_errors=True)
     return Decision("UNKNOWN", statement=stmt, attempts=attempts,
-                    bound=(f"no candidate refutes it in the compiled model (candidates: {'; '.join(tried)}); a forall "
-                           "law over cell sequences has no proof route here (gap G6)"))
+                    bound=(f"no candidate refutes it in the compiled model (candidates: {'; '.join(tried) or 'none'}); "
+                           "a forall law over cell sequences has no proof route here (gap G6)"))

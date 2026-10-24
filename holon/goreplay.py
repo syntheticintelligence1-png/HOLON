@@ -2,8 +2,8 @@
 whitepaper §8.7, §9.6; the contract is rule Y9 of the docstring of tests_m3/test_go_loop.py).
 
 For every REFUTED record whose law's facts is a Go-op document (holon.diagram.goops), the witness's cell sequence is
-concretized to the carrier value whose array cell param[a*k + c] (the op's loop-body read, holon.gen.goloop) holds
-cell k and whose every other byte is 0. Each op the law names runs on that value under recover(), from a Go test
+concretized to the one carrier value whose byte a*(init + k) + c (the ops' shared cell map, holon.gen.goloop's
+Shape.cell_map; a law whose ops read different cells is not run) holds cell k and whose every other byte is 0. Each op the law names runs on that value under recover(), from a Go test
 generated from the Go-op document alone (the ops' function ids, the carrier's type), on a scratch copy of the pinned
 checkout (config replay.<key> as the Go document's extraction config names it), and replay/<M>/goops/report.json
 records one side per law:
@@ -29,13 +29,17 @@ import sys
 import tempfile
 from pathlib import Path
 
-from . import ir
+from . import bend, ir
 from .diagram import goops as GO
 from .gen import goloop as GG
 
 ROOT = Path(__file__).resolve().parents[1]
 CLASS = {"ok": "ORet", "err": "OErr", "panic": "OPanic"}
 TEST_PKG = "holongoopsreplay"
+# what a generated test may contain from a Go-op document (re-checked here: the document is an input)
+NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+GO_PATH = re.compile(r"^[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*$")
+GO_EXPORTED = re.compile(r"^[A-Z][A-Za-z0-9_]*$")
 
 
 class Refused(Exception):
@@ -72,29 +76,48 @@ def named_ops(law: dict, doc: dict) -> list[str]:
     return sorted(o for o in out if o in doc["ops"])
 
 
-def concretize(sh: GG.Shape, cells: list[int]) -> list[list[int]]:
-    """[[byte index, value]] of the carrier value: cell k at a*k + c, every other byte 0."""
-    a, c = sh.read
-    return [[a * k + c, v] for k, v in enumerate(cells) if v]
+def concretize(cmap: tuple, cells: list[int]) -> list[list[int]]:
+    """[[byte index, value]] of the carrier value of a witness: cell k at stride*k + base (holon.gen.goloop's
+    Shape.cell_map, the byte a*(init + k) + c), every other byte 0."""
+    stride, base, _ = cmap
+    return [[stride * k + base, v] for k, v in enumerate(cells) if v]
 
 
 def _go_ident(fid: str):
-    """(import path, function name) of a package-level function id "<path>.<F>"; None for a method."""
-    if fid.startswith("("):
+    """(import path, function name) of a package-level function id "<path>.<F>" whose path and name a generated test
+    may hold; None for a method or anything else."""
+    if not isinstance(fid, str) or fid.startswith("(") or "." not in fid:
         return None
     path, fn = fid.rsplit(".", 1)
+    if not GO_PATH.match(path) or ".." in path.split("/") or not GO_EXPORTED.match(fn):
+        return None
     return path, fn
+
+
+def _carrier(carrier_type: str):
+    """(pointer?, import path, type name) of a carrier type a generated test may hold, else None."""
+    t = carrier_type[1:] if isinstance(carrier_type, str) and carrier_type.startswith("*") else carrier_type
+    if not isinstance(t, str) or "." not in t:
+        return None
+    path, name = t.rsplit(".", 1)
+    if not GO_PATH.match(path) or ".." in path.split("/") or not GO_EXPORTED.match(name):
+        return None
+    return carrier_type.startswith("*"), path, name
 
 
 def test_text(carrier_type: str, ops: dict[str, tuple[str, int]]) -> str:
     """The generated Go test: it reads {"cases": [{"key", "op", "set": [[i, v], ...]}]} from $HOLON_GOOPS_IN, runs
     each op on a fresh carrier value with those bytes set, under recover(), and writes {key: outcome} to
     $HOLON_GOOPS_OUT ("ok", "err:<text>", "panic:<value>")."""
-    ptr = carrier_type.startswith("*")
-    cpath, cname = carrier_type.lstrip("*").rsplit(".", 1)
+    car = _carrier(carrier_type)
+    if car is None:
+        raise Refused(f"carrier type {str(carrier_type)[:80]!r} cannot be named in a generated test")
+    ptr, cpath, cname = car
     imports = {cpath: "holoncarrier"}
     calls = []
     for i, (op, (fid, nres)) in enumerate(sorted(ops.items())):
+        if not NAME.match(op) or _go_ident(fid) is None or not (isinstance(nres, int) and nres >= 1):
+            raise Refused(f"op {op!r} ({str(fid)[:80]}) cannot be named in a generated test")
         path, fn = _go_ident(fid)
         alias = imports.setdefault(path, f"holonop{i}")
         arg = "&x" if ptr else "x"
@@ -170,12 +193,17 @@ func TestHolonGoops(t *testing.T) {{
 
 
 def _module_dir(ws: Path, pkg_dir: str) -> Path:
+    """The directory of the go.mod that holds a package directory of the workspace (relative, inside it)."""
+    parts = Path(pkg_dir).parts if isinstance(pkg_dir, str) else ()
+    if not parts or Path(pkg_dir).is_absolute() or ".." in parts:
+        raise Refused(f"package directory {str(pkg_dir)[:80]!r} is not a relative path inside the workspace")
     d = ws / pkg_dir
-    while d != ws and not (d / "go.mod").is_file():
+    while True:
+        if (d / "go.mod").is_file():
+            return d
+        if d == ws or d == d.parent:
+            raise Refused(f"no go.mod above {pkg_dir}")
         d = d.parent
-    if not (d / "go.mod").is_file():
-        raise Refused(f"no go.mod above {pkg_dir}")
-    return d
 
 
 def run_cases(root: Path, go_doc: dict, carrier_type: str, ops: dict[str, tuple[str, int]],
@@ -187,6 +215,10 @@ def run_cases(root: Path, go_doc: dict, carrier_type: str, ops: dict[str, tuple[
     head = subprocess.run(["git", "-C", str(src), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
     if head != go_doc["target"]["commit"]:
         raise Refused(f"{src} is at {head!r}, not at the Go document's commit {go_doc['target']['commit']}")
+    dirty = subprocess.run(["git", "-C", str(src), "status", "--porcelain", "--untracked-files=no"],
+                           capture_output=True, text=True).stdout.strip()
+    if dirty:   # the report attests the commit, and the workspace copies the working tree
+        raise Refused(f"{src} has local changes: {dirty[:500]}")
     go, _ = check_go(root)
     pkgs = {p["path"]: p["dir"] for p in go_doc["go"]["packages"]}
     first = _go_ident(sorted(fid for fid, _ in ops.values())[0])[0]
@@ -237,7 +269,9 @@ def build(root: Path, milestone: str) -> dict:
     for rel, lids in sorted(by_doc.items()):
         doc = laws[lids[0]][1]
         go_doc = _load(root / doc["document"])
-        shapes = GG.shapes(doc)
+        raw = (root / rel).read_bytes()
+        cm = GG.CompiledModel.build(doc, hashlib.sha256(raw).hexdigest(), doc["component"], bend.config(root))
+        shapes = cm.shapes
         ops = {}
         cases, plan = [], {}
         for lid in lids:
@@ -246,15 +280,20 @@ def build(root: Path, milestone: str) -> dict:
             cells = list(bytes.fromhex(next(iter(w.values()))[2:])) if len(w) == 1 else None
             names = named_ops(law, doc)
             bad = [o for o in names if isinstance(shapes.get(o), GG.Unsupported)
-                   or _go_ident(doc["ops"][o]["source"]) is None
-                   or not _go_ident(doc["ops"][o]["source"])[1][:1].isupper()]
+                   or _go_ident(doc["ops"][o]["source"]) is None]
             if cells is None or not names or bad:
                 plan[lid] = {"not_run": f"the witness or the ops {bad or names} cannot be run from a generated test"}
                 continue
-            expected = {o: GG.evaluate(shapes[o], cells) for o in names}
+            maps = {o: shapes[o].cell_map() for o in names}
+            cmap = next(iter(maps.values()))
+            if len(set(maps.values())) != 1 or len(cells) != cmap[2]:
+                plan[lid] = {"not_run": f"the witness is no one carrier value of the ops {names} (cell maps {maps}, "
+                                        f"{len(cells)} cells)"}
+                continue
+            expected = cm.outcomes(names, cells)   # the compiled model's outcomes at the witness
             for o in names:
                 ops[o] = (doc["ops"][o]["source"], len(doc["ops"][o]["results"]))
-                cases.append({"key": f"{lid}/{o}", "op": o, "set": concretize(shapes[o], cells)})
+                cases.append({"key": f"{lid}/{o}", "op": o, "set": concretize(cmap, cells)})
             plan[lid] = {"expected": expected, "witness": w}
         outcomes, command = run_cases(root, go_doc, doc["carrier"]["type"], ops, cases) if cases else ({}, "")
         report["morph_commit"] = go_doc["target"]["commit"]

@@ -25,6 +25,11 @@ class OtherLoop(Exception):
     or after its exit). That loop is not enumerated, so the iteration has no loop-free paths."""
 
 
+class LoopStore(Exception):
+    """Loop-body mode (I67): a store the memory model does not track (through a parameter or a pointer to memory it
+    does not hold). A later read would see the old value, so the iteration has no faithful loop-free paths."""
+
+
 class Ptr:
     __slots__ = ("oid", "path", "typ")
 
@@ -138,6 +143,7 @@ class Enumerator:
         # loop as loop-free paths over the symbolic induction variable; a path's second entry of the header (a jump
         # back) ends it "continue", and the exit successor flows on to the function's return.
         self._loop = None
+        self.loop_stored: set = set()   # allocation sites of the memory this iteration stores to (run_loop's fixpoint)
 
     # ------------------------------------------------------------------ public
     def run(self) -> Result:
@@ -165,7 +171,7 @@ class Enumerator:
                 raise PathLimit()
         return self.res
 
-    def run_loop(self, L) -> Result:
+    def run_loop(self, L, havoc=frozenset()) -> Result:
         """I67 (holon-go-frontend/0.2): one iteration of a counted loop as loop-free paths over its symbolic induction
         variable. The blocks before the loop run as in run() (the function's own allocations are in scope, with their
         lengths); the header's first entry on a path binds the induction phi to ("iv", <name>), assumes init <= iv, and
@@ -173,10 +179,21 @@ class Enumerator:
         iteration); the header's own test then forks the body from the exit. A path's second entry of the header ends
         it "continue"; the exit flows on to the function's return. A bound site the reasoner cannot prove safe forks a
         "panic" path, as in run(). Memory the loop writes is read as at the loop's entry: per-iteration writes are not
-        tracked, so a consumer of these paths reads conditions over the induction variable and the parameters only."""
+        tracked, so a consumer of these paths reads conditions over the induction variable and the parameters only.
+
+        Soundness (the I67 build review): ["iv", <name>] is the header's compared term x = phi + k, which init, limit
+        and cmp describe, so the phi is bound to iv - k. Memory allocated before the loop that the iteration stores to
+        (havoc: allocation sites, found by the caller's fixpoint over loop_stored) reads as opaque, since a later
+        iteration sees what earlier ones wrote. A store the memory model does not track raises LoopStore. Narrow
+        integer arithmetic on symbolic values is wrapped ("narrow", bits, unsigned, term), because it wraps in Go and so
+        is not affine. A read of a non-byte element through an index is wrapped ("elem", type, term), because the
+        consumer's cells are bytes."""
         fn = self.fn
-        self._loop = {"header": L.header, "phi": L.phi.name if L.phi else None, "iv": ("iv", L.iv or "i"),
-                      "init": L.init, "others": {x.header for x in self.flow(fn).loops() if x.header != L.header}}
+        k = getattr(L, "k", 0) or 0
+        iv = ("iv", L.iv or "i")
+        self._loop = {"header": L.header, "phi": L.phi.name if L.phi else None, "iv": iv,
+                      "phi_value": iv if k == 0 else op("-", iv, const(k)), "init": L.init, "havoc": frozenset(havoc),
+                      "others": {x.header for x in self.flow(fn).loops() if x.header != L.header}}
         top = Frame()
         top.fn, top.flow, top.env, top.bidx, top.pc, top.depth, top.ret = fn, self.flow(fn), {}, 0, 0, 0, None
         top.args = []
@@ -394,7 +411,11 @@ class Enumerator:
     def store(self, st: PState, ptr: Ptr, v) -> None:
         old = st.mem.get(ptr.oid)
         if old is None:
+            if self._loop is not None:
+                raise LoopStore("a store into memory the path does not hold")
             return
+        if self._loop is not None and st.looped:
+            self.loop_stored.add(self.objs[ptr.oid].pos)
         path = ptr.path
         if any(s[0] == "index" and not isinstance(s[1], int) for s in path):
             j = next(i for i, s in enumerate(path) if s[0] == "index" and not isinstance(s[1], int))
@@ -522,8 +543,12 @@ class Enumerator:
             fr.bidx, fr.pc = b, 0
             while fr.pc < len(blk.instrs) and blk.instrs[fr.pc].op == "Phi":
                 ins = blk.instrs[fr.pc]
-                fr.env[ins.name] = self._loop["iv"] if ins.name == self._loop["phi"] else ("unknown", f"loop:{ins.name}")
+                fr.env[ins.name] = (self._loop["phi_value"] if ins.name == self._loop["phi"]
+                                    else ("unknown", f"loop:{ins.name}"))
                 fr.pc += 1
+            for oid, ob in self.objs.items():   # memory an iteration writes is unknown in a later one
+                if ob.pos in self._loop["havoc"] and oid in st.mem:
+                    st.mem[oid] = OState(None, {}, frozenset({()}))
             if self._loop["init"] is not None:                 # the induction variable is at least its initial value
                 self.assume(st, ("<=", self._loop["init"], self._loop["iv"]))
             return None
@@ -538,6 +563,16 @@ class Enumerator:
         for name, v in phis:
             fr.env[name] = v
         return None
+
+    def narrow(self, t, typ: str):
+        """Loop-body mode (I67): symbolic arithmetic of an integer type narrower than 64 bits wraps in Go, so it is
+        wrapped ("narrow", bits, unsigned, term) and is never read as affine. Elsewhere, and on constants, t as it is."""
+        if self._loop is None or not (isinstance(t, tuple) and t[:1] in (("op",), ("unop",))):
+            return t
+        info = self.ctx.int_info(typ)
+        if info and info[0] < 64:
+            return ("narrow", info[0], bool(info[1]), t)
+        return t
 
     def site_of(self, fr: Frame, ins: Instr, kind: str, bound):
         s = fr.flow.site_ids().get(ins.uid)
@@ -665,6 +700,8 @@ class Enumerator:
             a, v = V(ops[0]), V(ops[1])
             if isinstance(a, Ptr):
                 self.store(st, a, v)
+            elif self._loop is not None:
+                raise LoopStore(f"a store through {str(R(a))[:80]}")
             elif isinstance(v, (Ptr, SliceVal, LVal)):
                 pass  # a local address escapes into other memory; its contents stay modelled
             return None
@@ -676,7 +713,10 @@ class Enumerator:
                     env[ins.name] = self.load(st, x, ins.type)
                 elif isinstance(x, tuple):
                     self.ctx.note_len(self.lengths, x, ins.type)
-                    env[ins.name] = x
+                    if self._loop is not None and x[:1] == ("index",) and not ty.is_byte(ins.type):
+                        env[ins.name] = ("elem", ins.type, x)   # loop-body mode: a cell is a byte
+                    else:
+                        env[ins.name] = x
                 else:
                     env[ins.name] = ("unknown", "load")
             elif u == "!":
@@ -687,7 +727,7 @@ class Enumerator:
             elif u == "<-":
                 env[ins.name] = ("unknown", "recv")
             else:
-                env[ins.name] = unop(u, R(x), self.ctx.int_info(ins.type))
+                env[ins.name] = self.narrow(unop(u, R(x), self.ctx.int_info(ins.type)), ins.type)
             return None
         if o == "BinOp":
             b = ins.get("binop")
@@ -704,7 +744,7 @@ class Enumerator:
                 f = fold_atom(atom, self.nonnil)
                 env[ins.name] = ("bool", f) if f is not None else Cmp(atom)
             else:
-                env[ins.name] = op(b, R(xa), R(xb), self.ctx.int_info(ins.type))
+                env[ins.name] = self.narrow(op(b, R(xa), R(xb), self.ctx.int_info(ins.type)), ins.type)
             return None
         if o == "If":
             c = V(ops[0])
