@@ -1,0 +1,73 @@
+{
+  "versions_version": "holon-versions/0.1",
+  "doc": "I28's sidecar (the laws half of BUILD_PLAN I28: versioned machines, PAR-init, O9, D4 and G11V's in-flight sets; F12.5 under reading (a) of Question 64 only), fixed at the I28 prereg. The contract is the docstring of tests_m3/test_versions.py (rules V1-V9, PI1-PI6, G1-G3). It names inputs, outputs, the binding the versioned machine is deployed as, the proxy standard its migration steps follow, the upgrade path's calls and probes, the reinitializer arguments, the obligations the gap records stand for and the search budgets; it holds no version, edge, site, cell, law id or outcome (those are computed: spec/M3/lib/versions_basis.json is the instrument's computation, and the key I28 states the predictions).",
+  "inputs": {
+    "history": "gen/M3/history/morph_rollup.json",
+    "timeline": "results/M3/history/timeline.json",
+    "history_sidecar": "spec/M3/lib/history.json",
+    "code_dir": "results/M3/history/code",
+    "extract_sidecar": "spec/M2/lib/extract_rollup.json",
+    "adopted_document": "spec/M2/facts/morph_rollup.extracted.json",
+    "binding": "replay/M2/fragments.json",
+    "deployment_record": "gen/M3/sorts/models/morph_rollup.extracted.init.json"
+  },
+  "outputs": {
+    "sidecars": "gen/M3/versions/sidecars",
+    "documents": "gen/M3/versions/documents",
+    "versions": "gen/M3/versions/morph_rollup.versions.json",
+    "model_dir": "gen/M3/versions/models",
+    "analysis": "gen/M3/versions/par_init.json",
+    "inflight_dir": "gen/M3/versions/inflight",
+    "inflight_results": "results/M3/versions/inflight.json",
+    "replay": "replay/M3/versions/report.json"
+  },
+  "model": "morph_rollup.versions",
+  "proxy": {
+    "standard": "EIP-1967 storage slots and OpenZeppelin 4.9.3 TransparentUpgradeableProxy (the pinned dependency tree, config/holon.json replay.sol_deps), which the target's deploy scripts use (I63-P1)",
+    "admin_slot": "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
+    "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+    "admin_from": "the deployment record's storage word at admin_slot (the I20 binding's proxy admin)",
+    "assumption": "A-proxy: a migration step is the admin's upgradeTo(implementation) or upgradeToAndCall(implementation, call), which keeps every storage slot and runs the call (if any) as a delegatecall of the new implementation with the admin as caller, reverting the whole step when the call reverts; every other step is a call from a caller other than the admin (the transparent proxy dispatches the admin's calls to its own functions only); no step changes the admin. The proxy's own EIP-1967 slots (admin_slot, implementation_slot) are the proxy's state: the model reads the admin slot and writes neither, and the refinement compares neither"
+  },
+  "upgrade_path": {
+    "doc": "Rule V7's upgrade path, fixed at the prereg. After the entry edge (the admin's upgradeTo), the deployment record's calls at the indexes first_calls, each by its recorded caller with its recorded calldata; then the calls at the indexes reverting_calls again, each of which must revert in the model and on the real code; then every MIG edge of the deployed path in order, by the admin's upgradeToAndCall with the reinitializer the edge introduces called with the arguments listed under its name in arguments, or by upgradeTo when the edge introduces none; the path's last MIG edge is first tried with the arguments listed under its reinitializer's name in reverting_last_edge, which must revert (the whole migration step, so the version stays the edge's source), and then run with its arguments. An argument is {\"word\": a hex word} or {\"deployment_call\": i, \"argument\": j}, the j-th ABI word of the deployment record's call i. The values: the genesis header's post-state root (0x64, bytes 121..152 of the recorded genesis header); the recorded rollup delay (the argument of the recorded call at index 1); the binding's submitter stand-in, which has code (the first argument of the recorded call at index 0), and the cutover index 0 (the path commits no batch after the genesis import; 1 is a wrong index).",
+    "first_calls": [0, 3],
+    "reverting_calls": [0, 3],
+    "arguments": {
+      "initialize2": [{"word": "0x64"}],
+      "initialize3": [{"deployment_call": 1, "argument": 0}],
+      "initialize4": [{"deployment_call": 0, "argument": 0}, {"word": "0x0"}]
+    },
+    "reverting_last_edge": {
+      "initialize4": [{"deployment_call": 0, "argument": 0}, {"word": "0x1"}]
+    }
+  },
+  "inflight_arguments": {
+    "doc": "Rule V8: the arguments of a reinitializer an in-flight inhabitant's migration step calls: upgrade_path.arguments, except that initialize4's expected cutover index is the lastCommittedBatchIndex of the state the step runs at (the key of the trace's last commit). An inhabitant's other migration steps run by upgradeTo, or by upgradeToAndCall with the same arguments.",
+    "initialize4": [{"deployment_call": 0, "argument": 0}, {"storage": "lastCommittedBatchIndex"}]
+  },
+  "gaps": {
+    "doc": "The obligation and the Question each generated gap record stands for (rules V4 and PI5): the gap code copies these fields and names no case-study item itself. status is 'open' until a later key states the obligation.",
+    "link": {"obligation": "D4", "question": "Q63"},
+    "downgrade": {"obligation": "F12.5, under reading (a) of Question 64 only (a reverse implementation transition); not covered under reading (b)", "question": "Q64"}
+  },
+  "search": {
+    "par_init": {
+      "order": "path versions in path order, then traces by length",
+      "max_trace": 4,
+      "callers": "action steps by the deployment record's recorded callers; migration steps by the proxy admin",
+      "root_input": "the binding's recorded call of the root site's action (the deployment record's calls), with the chained cell's bytes set to the increment cell's value plus one"
+    },
+    "inflight": {
+      "max_trace": 12,
+      "commit_input": "the successor-site call candidates of holon.sorts' search over the source version's document",
+      "max_trace_note": "12 is the shortest trace that reaches the path's last edge with a commit before it: the entry edge, the two first calls, the seven MIG edges before the last, the commit and the last migration step"
+    }
+  },
+  "replay": {
+    "configurations": "per version, the compiler configuration of its matched upgrades in the timeline (gen/M3/history/morph_rollup.json versions[].code), the same one for every upgrade of the version",
+    "placeholder": "a contract with no function and no storage (the first upgrade's implementation is such a placeholder, I63-P1)",
+    "writes": "per step, the real slots in the union of those the model's step writes (each location mapped to its real slot) and those whose word the real step changes (the harness's state diff of the step), the proxy's EIP-1967 slots aside; one entry per real slot, with both 32-byte words after the step",
+    "inflight_reads": "for an in-flight inhabitant's run: before the migration step, each legacy word (rule V8) read on the real chain at its slot; after it, each retyped or reinterpreted entry's public getter (named by the entry's label) called on the real chain, with the trace's key for a mapping"
+  }
+}

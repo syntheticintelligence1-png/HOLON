@@ -393,7 +393,12 @@ class TestPreregInstruments(unittest.TestCase):
                 self.assertNotIn("lossy", rule.lower(), v)
                 self.assertFalse([s for s in subs if "lossy" in s.lower()], f"{v}: {rule}")
         cv = rules.catalog_version("M3")
-        self.assertEqual(rules.CATALOGS[cv]["PAR"], rules.CATALOGS["holon-rules/1.1"]["PAR"])
+        # I24's PAR producers, the same objects (I28 adds PAR's sub-form init_chain, and only it, beside them: amended
+        # at the I28 prereg, spec/M3/amendments.jsonl)
+        base = rules.CATALOGS["holon-rules/1.1"]["PAR"]
+        for sub, prod in base.items():
+            self.assertIs(rules.CATALOGS[cv]["PAR"].get(sub), prod, sub)
+        self.assertLessEqual(set(rules.CATALOGS[cv]["PAR"]) - set(base), {"init_chain"})
 
 
 # ---------------------------------------------------------------------------------------------- Morph (the build)

@@ -1,0 +1,265 @@
+{
+ "review": "Verification pass of the fold of the independent I28 prereg review into the new prereg commit 11c1c932 on claude/brave-wright-2c5d0o-i28, rebased onto the lead e215fbf5. Each finding of docs/iterations/I28_prereg_review.json (B1, M1-M5, m1-m13, n1, n2 and the Q64 view) was checked against the new text and tests. I32-R2's replacement in I66's prereg (PR #46, head 8e6e2f50), on which B1's fix relies, was also checked. The pass then looked for problems the fold introduced. It is not a fresh full review.",
+ "commit": "11c1c9322a82e6e82293bf7c9b23d520ca372e7d",
+ "reviewer": "independent prereg review (fresh agent), verification pass",
+ "verdict": "no sign-off",
+ "verdict_note": "No sign-off, because of one new major finding in I28's own contract (N1); the fix is small. The fold is otherwise thorough. Of the 22 checked items, 21 are fixed and 1 (M2) is only partly fixed.\n- N1 (major): the new own-commit rule picks the wrong commits outside the lead and the build branch. build_merge() takes the first first-parent merge of HEAD whose second-parent side adds docs/iterations/I28.md. On any branch that merges the lead after I28's build has landed, that merge is the branch's own 'Merge the lead' commit. R1, R2 and the per-own-commit construction checks then judge the lead's direct commits, and TestReMake reads the wrong end. Separately, if the prereg is pushed directly onto the lead, as I32's was, every later branch's commits count as I28's. Both cases were reproduced with the fold's own functions on a toy repository.\n- N2 (major): this one is in I66's PR #46, on which B1's fix now relies. I66's re-scope of I32-R2 finds an empty commit list on branches based before e215fbf5 once they merge the lead, so the test fails there. Reproduced on real objects in a scratch clone, with this lane's I65 build branch as the case. It must be fixed in I66's PR before I28's build depends on it.\n- Two minor residues: N3, the INHABIT.bend shape check leaves s_0, reach and the steps' arguments loose; N4, the reverting probes compare status but not reason. One note: N5, ordering and base drift.\nThe mechanics are clean:\n- both prereg audits exit 0 ('I28: OK prereg 11c1c9322a82 ... 25 tracked functions'), and FROZEN OK;\n- the 10 green-at-prereg tests pass: the 4 instrument tests, R1, R2, the 3 amended I24/I25 tests and I32's unamended R2;\n- the 18 build-dependent test methods are red for the right reason, TestReMake included;\n- the instrument imports no holon module and prints byte-identical output twice.\nAll 8 amendment lines narrow by exactly sub-form init_chain (AGENTS rule 2 holds), and the renumbered P1-P6 are each falsifiable.",
+ "folded": {
+  "B1": "fixed",
+  "M1": "fixed",
+  "M2": "partly fixed: the end is now the build merge's second parent, the list must be non-empty once the report exists, and the topology is checked. But the merge is chosen as the first first-parent merge of HEAD whose second-parent side adds the report, which on a later lane's branch is that branch's merge of the lead. The pre-merge case also trusts that the prereg is not on the lead's first-parent chain (N1).",
+  "M3": "fixed",
+  "M4": "fixed",
+  "M5": "fixed",
+  "m1": "fixed",
+  "m2": "fixed",
+  "m3": "fixed",
+  "m4": "fixed",
+  "m5": "fixed",
+  "m6": "fixed",
+  "m7": "fixed",
+  "m8": "fixed",
+  "m9": "fixed",
+  "m10": "fixed",
+  "m11": "fixed",
+  "m12": "fixed",
+  "m13": "fixed",
+  "n1": "fixed",
+  "n2": "fixed",
+  "Q64": "fixed"
+ },
+ "fold_evidence": {
+  "B1": "I28 no longer amends I32-R2:\n- `git diff e215fbf5 11c1c932 --stat` lists no tests_m3/test_disch_profile.py;\n- spec/M3/amendments.jsonl gains 8 lines (I24 x7, I25 x1), and thresholds.amendments is {'I24': 7, 'I25': 1};\n- the docstring says: 'I32-R2 ... is re-scoped to I32's own commits by I66's prereg (PR #46), which merges before I28's build; I28 does not amend it.'\nThe unamended I32-R2 passes at 11c1c932.\nIts replacement at 8e6e2f50 (I66's tests_m3/test_disch_profile.py:138-153 and :353-362) finds tip 19dcde76 and I32's seven commits 6f1e076e..c164ba51 on the lead, so the commits my B1 found dropped (e271fc06 and the two report commits) are covered. Before and after:\n- before: `changed = git diff --name-only <prereg> HEAD` and `self.assertEqual(json.loads(old), load_json(ROOT / 'results' / 'M1' / f'{lid}.json'))`;\n- after: `own = own_commits(prereg); self.assertTrue(own, ...)`, the three checks applied to the paths of own commits, and `self.assertEqual([c[:12] for c, paths in own.items() if f'results/M1/{lid}.json' in paths], [])`.\nThe content check of the delay records becomes a touch check, which I66's line discloses. Residual defect: N2 (I66's).",
+  "M1": "The shared files now include 'results/T32/ (`holon profile --milestone T32`, in a commit of its own: the five records of results/T32 in generator_sha256 and keys named seconds alone ... laws/T32, gen/T32, results/T32/summary.json and gen/M3/disch/classification.json stay byte-identical ...)'.\nR2 reads records with `rec = re.compile(r'^results/(M1|M2|T32)/(?:extracted_m1/)?L[^/]*\\.json$')` and forbids 'laws/T32/', 'gen/T32/', 'results/T32/summary.json' and 'gen/M3/disch/classification.json'. TestReMake (:1189) is new, and step 4 of the commit sequence covers T32.\nChecked: classification.json holds only statuses (no hash), and T32's statement hashes are sha256 of the canonical statement (holon/rules/disch_profile.py:35). So only generator_sha256 and seconds move.",
+  "M2": "own_commits (:399-433): `rng = [f'{m}^2', f'^{m}^1', f'^{c}']` when build_merge finds a merge; `elif c in git('rev-list', '--first-parent', 'HEAD')` → `[f'{c}..HEAD']`; otherwise [] or a raise when the report exists; `if (ROOT / REPORT).exists() and not out: raise`. build_merge (:391-397) returns the first merge in `git log --first-parent --merges HEAD` whose `{m}^1..{m}^2` adds the report. That choice is the defect in N1.",
+  "M3": "inhabit_shape_problems (:590-626) checks:\n- `import .. as VM`, s_0..s_n and x_i's constructor;\n- r_i `{s_i() == VM.vstep(x_i(), s_{i-1}() ...` proved by `{==}`;\n- ok_{n-1} and ok_n `{True{} == VM.vok(...)`;\n- lg_j `{VM.w_of_limbs([...]) == VM.vread(s_{n-1}(), ...` with the coordinate literals;\n- reach: VReach at s_n, with one VR0 and n VRStep.\nThe P5 test compares legacy (entry, reads, slot, base, offset, path) with _i28.inflight_words. bend_accepts (:518-528) runs --verdict when holon.bend.verdict_enabled(). P3 runs `self.assertIsNone(holon_module('holon.mpipeline').law_import_problem(proof, lawsf))` (:879). The shape check is independent of holon/: text and regexes only, plus _i28.limbs; holon's names are fixed by V6/V8. Residual: N3.",
+  "M4": "V7/V9 compare at 'every real slot in the union of the model's writes and the real step's writes (the proxy's EIP-1967 slots aside)', with one entry per real slot and full words (sidecar replay.writes). The upgrade path has 14 steps, with reverting_calls [0, 3] and reverting_last_edge initialize4(stand-in, 1). The test (:769-803) checks:\n- the statuses against UPGRADE_STATUS;\n- `len(slots) == len(set(slots))`;\n- no EIP-1967 slot;\n- model and real words equal;\n- `st['slots'] == []` on a revert, and slots non-empty for the successful calls {1, 2, 5, 8, 13}.\nReverting steps are compared fairly on status and writes: the model's vstep returns s, and a reverted transaction has no state diff. Residual: N4, revert reasons are not compared.",
+  "M5": "P1 is test_p1_every_old_version_extracts (V3..V10). V11 moves to the construction test test_v11_is_the_adopted_document. The link gap's V11 sites and the downgrade gap are test_the_link_gap_record and test_the_downgrade_gap. thresholds.construction_not_scored names the three. The predictions are renumbered P1-P6, and each can miss on the target, the model or the checker: extraction of old code; the two-sided refinement with probes; O9 decided on the model and the real code; old versions' call terms; the inhabitant search and Bend; the cutover replay.",
+  "m1": "P3's claim: '(and, from V4 on, index 0)'. G3 adds the observation that at V3 a nonzero genesis index lets the guard admit a second import.",
+  "m2": "P3 test: `num(w['root']['caller']) == num(genesis['caller'])`, `h == recorded[:17] + th['17'].to_bytes(8, 'big') + recorded[25:]`, and the cells == (th['17'], th['9']).",
+  "m3": "versioned_documents raises when `d['commit'] != history_commit(v)`. check_document checks the document's and the generated sidecar's target commit against the history.",
+  "m4": "V9: 'one entry per real slot ... full 32-byte word'. Test: `self.assertEqual(len(slots), len(set(slots)), 'one entry per real slot')`.",
+  "m5": "The law-name checks run over i28_added_laws() (laws added by I28's own commits). test_catalog uses i28_catalog() (the lowest catalog holding PAR/init_chain and the version below it) and m3_catalog() relative to it. These inherit N1 through own_commits.",
+  "m6": "Filters are now `v.get('subform') != 'init_chain'` and `e.get('subform') != 'init_chain'`, and the catalog checks add `assertLessEqual(set(CATALOGS[cv]['PAR']) - set(base), {'init_chain'})`. See verified for before and after.",
+  "m7": "The sidecar's inflight_arguments sets initialize4 to [stand-in, {'storage': 'lastCommittedBatchIndex'}]. P5 asserts `num(x['key']) == I.commit_key(last['calldata'])` and initialize4's words == (stand_in, key). commit_key decodes a synthetic V3 calldata correctly (parent index 7 gives 8).",
+  "m8": "thresholds.inputs_sha256 pins gen/M3/sorts/models/morph_rollup.extracted.init.json (4c64d542...), and test_the_key_pins_the_instruments asserts it is listed. The test passes.",
+  "m9": "G1: 'a total carried past 2^64 - 1 is stored wrapped, which breaks P <= T while T <= L can still hold. The key that states D4 names both as premises'. Q63 names initialization coherence and L < 2^64.",
+  "m10": "Gap records carry obligation, question and status 'open' from the sidecar's gaps (gap_meta), checked by test_the_basis_states_the_predicted_counts and the construction tests. The BUILD_PLAN change waits for Q63's answer, as the fix proposed.",
+  "m11": "test_new_code_names_no_target checks every line I28's own commits add under holon/ (`git show --unified=0 c -- holon/`). It inherits N1.",
+  "m12": "Prompt risk 10 states both couplings: I43's rendered() if P3 misses PROVED, and frontend changes re-versioning the law through statement_diff.",
+  "m13": "'The Q21 key (I68, from the human's Q21 answer)'.",
+  "n1": "Handed back to the orchestrator (the drafter's fix map). It is not I28's to claim.",
+  "n2": "Prompt risk 1: 'If V3 becomes debt, P1, P2, P3, P5 and P6 miss together, as one dependent event. The report must say so when it gives the hit rate.'",
+  "Q64": "Q64 now calls (b) the more likely reading. G2 says the gap is no evidence about F12.5 under (b). thresholds.construction_not_scored lists the downgrade gap. The casestudy shared-file line notes 'where the downgrade gap is not F12.5's coverage'. The question ends 'Until you answer, I28 does not count F12.5 as covered.'"
+ },
+ "findings": [
+  {
+   "id": "N1",
+   "severity": "major",
+   "where": "tests_m3/test_versions.py:391-433 (build_merge, own_commits) and the docstring 'Own commits and the build branch' (:240-246). Used by R1 (:1128), R2 (:1155), test_model_reproduces_and_has_no_escape_hatch, test_new_code_names_no_target, i28_added_laws (:914; the link-gap and downgrade-gap construction tests) and TestReMake (:1189).",
+   "what": "(a) build_merge returns the first first-parent merge of HEAD whose `m^1..m^2` adds docs/iterations/I28.md, and the contract defines M the same way. Take any branch created before I28's build merge that later merges the lead, such as another lane's build or prereg branch. On it, the first such merge is the branch's own merge of the lead, L, not I28's merge M. own_commits then returns `--first-parent L^2 ^L^1 ^<prereg>`, which is the lead's direct non-merge commits since the branch point; I28's own commits are never examined there, and TestReMake's end becomes the lead tip.\nReproduced with the fold's own functions on a toy repository (T.git and T.ROOT redirected):\n- on the lead: own = ['I28 build code', 'I28 report'], which is right;\n- on the other branch: build_merge = 'Merge the lead into i29', and own = ['other key prereg (direct on lead)' (spec/M3/lib/other_key.json), 'M1 records regenerated on the I28 merge (lead)']. R2's `^spec/M3/lib/(?!versions)` fails on the first.\n(b) Before the build merge, the elif case takes `--first-parent <prereg>..HEAD` whenever the prereg is on HEAD's first-parent chain. If the prereg reaches the lead as a direct commit, every later branch from the lead has it there. I32's prereg 476b02bc did reach the lead that way, and the contract cites I32 as precedent. Simulated: own = ['I29 prereg sidecar' (spec/M3/lib/i29_sidecar.json), 'I29 build work'].",
+   "why": "Other lanes' CI runs tests_m3, so I28-R1, I28-R2 and the per-own-commit construction checks would go red there on another key's or the lead's commits, or pass vacuously over the wrong set. The other session pushes preregs and fixes straight onto the lead, which makes this likely. It is the same class of cross-key hazard as I65's missed regressions. The contract text itself encodes rule (a), so the build cannot fix it without an amendment.",
+   "fix": "Select M by ancestry, not by HEAD's first-parent merges:\n- R = the commit that adds docs/iterations/I28.md;\n- M = the oldest merge of `git rev-list --ancestry-path --merges --reverse R..HEAD` such that R is an ancestor of M^2 and not of M^1;\n- own = non-merge commits of `--first-parent M^2 ^M^1 ^<prereg>`.\nOn the toy this picks 'Merge I28 build' both on the lead and on the other lane's branch. Use the same selection in TestReMake.\nKeep the pre-merge case, but add a commit rule that the prereg reaches the lead only through a merge commit (no direct push, no fast-forward), so that it lies on no other branch's first-parent chain. State both in the docstring before the freeze."
+  },
+  {
+   "id": "N2",
+   "severity": "major",
+   "where": "I66's PR #46, head 8e6e2f50 (outside I28's commit; I28's B1 fix delegates to it): tests_m3/test_disch_profile.py :138-153 (own_commits) and :353-354 (`own = own_commits(prereg)`, `self.assertTrue(own, ...)`); I66's I32 line in spec/M3/amendments.jsonl",
+   "what": "own_commits takes the oldest commit on HEAD's first-parent line that changes docs/iterations/I32.md. If that commit is a merge, it takes its second parent as the tip. On a branch based before e215fbf5 that merges the lead, that oldest commit is the branch's merge of the lead, so the tip is the lead's tip. `git log --first-parent --no-merges 476b02bc..<lead tip>` then holds only the lead's direct commits since the I32 prereg; there are none today (`476b02bc..e215fbf5` gives 0).\nReproduced on real objects in a scratch clone with shared objects: a simulated 'Merge PR #46' (e215fbf5 + 8e6e2f50) merged into the I65 build branch (d4e9a960) gives own_commits = 0 commits, so `assertTrue(own, \"no commit of I32's after its prereg\")` fails. On the simulated lead it finds tip 19dcde76 and 7 commits.\nBranches based before e215fbf5 today: the I65 build (d4e9a960), I33 (703c5ea3) and I36 (fde1f819).",
+   "why": "I28 now relies on this re-scope: its build edits closure files only after the re-scope lands. As written, the re-scope makes I32-R2 fail on this lane's own I65 build branch as soon as that branch merges the lead. I66's verification signed off without seeing it.",
+   "fix": "In I66's PR, select the I32 merge by ancestry from the commit that adds docs/iterations/I32.md (27d08ab8), as in N1. That gives e215fbf5 on every branch that contains it, tip 19dcde76 and 7 commits; verified on the toy. While there, consider keeping the L_disch_delay_* clause as content equality with the I32 prereg, modulo generator_sha256 and keys named seconds, instead of a touch check."
+  },
+  {
+   "id": "N3",
+   "severity": "minor",
+   "where": "tests_m3/test_versions.py:590-626 (inhabit_shape_problems); docstring V8 (:92-129)",
+   "what": "Three things stay loose:\n- s_0 only has to contain the substring 'VM.vr0(';\n- reach only has to contain one 'VM.VR0{' and n 'VM.VRStep{'; it need not be built from the x_i, s_i and r_i;\n- x_i only has to start with the constructor's name; its inputs, caller and environment are not compared with the trace's calldata and caller.\nProbe: a text with `s_0 = VM.vstep(VM.C_V3_evil{}, VM.vr0())`, arbitrary x_i arguments and a reach over unrelated steps returns [].",
+   "why": "Each slack lets the legacy-word equations stand on a chain not anchored at VR0. P5's Bend-checked trace may also not be the trace P6 replays. Only a buggy or adversarial generator would exploit it, but the check exists to rule that out.",
+   "fix": "Require:\n- s_0's body to be exactly `VM.vr0()`;\n- reach's body to be the canonical nesting VM.VRStep{x_i(), s_{i-1}(), <inner>, r_i()} down to VM.VR0{..}, which can be regenerated from n;\n- x_i to carry the trace step's calldata and caller as literals, or the replay to run INHABIT.bend's steps."
+  },
+  {
+   "id": "N4",
+   "severity": "minor",
+   "where": "tests_m3/test_versions.py:769-803 (P2); spec/M3/predictions.json I28-P2 (the probes' reasons); docstring V7/V9",
+   "what": "P2's claim names each probe's reason: the initializer guard, 'genesis batch imported' and 'cutover batch mismatch'. The report and the test record only 'ok' or 'revert', so a model that reverts a probe at another guard passes.",
+   "why": "The probes exist to test guard fidelity. I20's refinement also compared the revert observable.",
+   "fix": "Have V9 record the real revert data (Error(string)) and the model's revert guard or code per step, and have P2 require them to agree on the three probes."
+  },
+  {
+   "id": "N5",
+   "severity": "note",
+   "where": "prompts/I28_versions.md risk 11; thresholds.base; the coordinator's 'I28 takes that version on its next rebase'",
+   "what": "The unamended I32-R2 stays in force at 11c1c932. It turns red at I28's first commit that changes a closure file, unless I66's PR #46 (with N2 fixed) is on the lead and the I28 build branch has merged the lead before that commit. Rebasing the prereg again changes its commit, so thresholds.base ('e215fbf5... the lead after I32's merge') and the prompt's base line must change in the same commit.",
+   "why": "This is an ordering dependency on another key's PR.",
+   "fix": "State in the commit sequence: merge the lead with I66 before step 1. Refresh base, the audit evidence and the design note on any rebase."
+  }
+ ],
+ "verified": [
+  "AGENTS rule 2, before and after, for the 8 amendment lines (all minimal, narrowed by exactly init_chain):\n- _Morph.derived: `if v.get('rule') == 'PAR'` became `if v.get('rule') == 'PAR' and v.get('subform') != 'init_chain'`. So test_law_ir's `assertIn(law['subform'], I.SUBFORMS)` and its facts check still bind every other PAR sub-form.\n- TestDeriveM3.test_derivation_follows_the_rules: the entries filter `e['rule'] == 'PAR'` gains `and e.get('subform') != 'init_chain'`.\n- par_records and test_every_m3_law_has_a_valid_record: the same `!= 'init_chain'`.\n- TestRegistry.test_catalogs: `assertEqual(CATALOGS[cv]['PAR'], CATALOGS['holon-rules/1.1']['PAR'])` became equality on 1.1's sub-forms, `assertIs` per producer, and `assertLessEqual(set(CATALOGS[cv]['PAR']) - set(base), {'init_chain'})`.\n- I25 test_i25_adds_no_law_and_no_catalog: the same equality became `assertIs` per 1.1 producer plus the same subset check.\nEach passes at the prereg.",
+  "The renumbered P1-P6 are each falsifiable by the target, the model or the checker. The by-construction parts are named in thresholds.construction_not_scored and live in unscored tests.",
+  "inhabit_shape_problems is independent of holon/: text and regexes over the generated file, the trace and legacy words from inflight.json, legacy coordinates already compared with _i28.inflight_words, and _i28.limbs. It depends only on the names V6 and V8 fix. Bend then checks the stated words by computation.",
+  "Reverting probes are compared fairly on status and writes. On a revert the model's vstep returns s, and the real transaction has no state diff, so the union is empty on both sides. The EIP-1967 slots are excluded on both sides, and a model write with an unchanged real word is still compared, because the union includes the model's writes.",
+  "Source reads behind the folded probes: at V3 a second initialize hits OZ's initializer guard, and a second importGenesisBatch hits 'genesis batch imported' (finalizedStateRoots[0] = 0x64). At V10, initialize4(stand-in, 1) with lastCommittedBatchIndex 0 hits 'cutover batch mismatch' inside upgradeToAndCall, so the whole step reverts and the version stays V10.",
+  "Successful calls write a slot: initialize; importGenesisBatch; initialize2 (_initialized 1→2 and committedStateRoots[0] 0→0x64); initialize3 (rollupDelayPeriod and _initialized); initialize4 (_initialized 3→4, and the model's writes of slot 151 and legacyCutoverBatchIndex).",
+  "commit_key's premise holds: BatchDataInput's first two fields are uint8 version and bytes parentBatchHeader at every path version (source reads at V3, V5, V6, V7, V8, V9, V10, V11).",
+  "limbs is little-endian, as prelude3's `w_of_limbs` builds W{l0..l7} with l0 least significant (holon/sorts/prelude3.py:245-246; model3.wlit).",
+  "TestReMake's 'one value per milestone' can hold. Today results/M1 has 16 records with one generator_sha256 and results/M2 has 12 with one. On the I65 build branch, results/M2 has 13 records, C_o12 included, with one.",
+  "The I32-R2 re-scope at 8e6e2f50 finds 19dcde76 and 7 commits on the lead, and on any branch whose first-parent chain contains e215fbf5, including I28's build branch, which starts at 11c1c932 on e215fbf5.",
+  "The rest of the fold matches the drafter's fix map (scratchpad/i28/design_laws.md):\n- the P3 claim text;\n- G1, G2 and G3;\n- the sidecar's gaps, inflight_arguments, reverting_calls, reverting_last_edge and replay.writes;\n- the 5 pinned inputs;\n- the prompt's risks 1, 10 and 11;\n- Q63 and Q64."
+ ],
+ "reproduced": [
+  "BEND_NO_TELEMETRY=1 python -m holon audit prereg --milestone M3 -> exit 0; 'I28: OK prereg 11c1c9322a82 (9 outcome paths, 1 test file, 4 helper modules, 25 tracked functions)'; PREREG OK",
+  "BEND_NO_TELEMETRY=1 python -m holon audit prereg --milestone M2 -> exit 0; PREREG OK",
+  "python tools/freeze.py check -> FROZEN OK",
+  "python -m unittest -v tests_m3.test_versions.TestInstrument tests_m3.test_versions.TestRegressions tests_m3.test_derive_par.TestRegistry.test_catalogs tests_m3.test_par_lossy.TestPreregInstruments.test_i25_adds_no_law_and_no_catalog tests_m3.test_par_outcomes.TestM3Construction.test_every_m3_law_has_a_valid_record tests_m3.test_disch_profile.TestRegressions.test_r2_no_closure_and_no_earlier_output_changes -> Ran 10 tests in 5.333s, OK. The last one is I32's unamended R2.",
+  "python -m unittest on TestVersions, TestModel, TestParInit (test_catalog, test_analysis_is_the_instruments, test_p3), TestGaps, TestInflight, TestGenericCode and TestReMake -> Ran 18 tests, FAILED (failures=21, errors=1). All are red for the right reason:\n- '<output> is missing (I28 builds it)';\n- 'holon versions ...: usage: holon [-h]';\n- ModuleNotFoundError holon.rules.par_init;\n- TestReMake: generator_sha256 unchanged for M1 (16), M2 (12) and T32 (5).\ntest_derive_reproduces_laws_m3 was not run.",
+  "python -m tests_m3._i28 | sha256sum, twice -> a36c7b049387b26f983dbd2b73091bdec15b1c184f18e00c36d6bde2e3ba7e6c both times",
+  "_i28.commit_key on a synthetic V3 commitBatch calldata (parent header index 7) -> 8; _i28.limbs(0x64) -> [100, 0, 0, 0, 0, 0, 0, 0]",
+  "test_versions.inhabit_shape_problems on a crafted text (s_0 = vstep(C_V3_evil, vr0()), arbitrary x_i arguments, reach over unrelated steps) -> [] (N3)",
+  "Toy repository with the fold's own_commits and build_merge (T.git and T.ROOT redirected):\n- lead -> ['I28 build code', 'I28 report'];\n- another lane's branch after merging the lead -> build_merge 'Merge the lead into i29', own = ['other key prereg (direct on lead)', 'M1 records regenerated on the I28 merge (lead)'];\n- prereg pushed directly onto the lead -> own = ['I29 prereg sidecar', 'I29 build work'].\nThe ancestry-path selection picks 'Merge I28 build' on both branches (N1).",
+  "Scratch clone of /home/user/HOLON-i28 with shared objects (the worktree untouched): a simulated 'Merge PR #46' (e215fbf5 + 8e6e2f50) merged into the I65 build branch d4e9a960. I66's own_commits logic gives the oldest I32.md change = the simulated merge into i65, tip = the simulated lead merge, and 0 commits. On the simulated lead it gives tip 19dcde76 and 7 commits. `git log --first-parent --no-merges 476b02bc..e215fbf5` gives 0 (N2).",
+  "git diff e215fbf5 11c1c932 --stat -> 10 files, none of them tests_m3/test_disch_profile.py; spec/M3/amendments.jsonl +8 lines (I24 x7, I25 x1)"
+ ],
+ "open_questions": {
+  "Q63": "Folded as proposed: the gap carries obligation D4, Q63 and status open, and Q63 names both premises (initialization coherence, L < 2^64). My view is unchanged: accept the link gap and move D4 to I36, stated with both premises.",
+  "Q64": "Folded as proposed: (b) is called the likelier reading, the downgrade gap is an unscored construction check, and F12.5 is not counted as covered until the human answers."
+ },
+ "second_pass": {
+  "review": "Second verification pass, narrow, of two things. First, the fixes of the first verification pass's findings N1, N3, N4 and N5 in the new I28 prereg commit 268e828f (replacing 11c1c932). Second, I66's fix of N2 in PR #46 (head c348daaa). Each fix was checked against the code, the contract docstring, the prompt and the key, and the rewrite was searched for breakage (git diff 11c1c932 268e828f: prompts/I28_versions.md, spec/M3/predictions.json, tests_m3/_i28.py and tests_m3/test_versions.py; no amendment line changed). Both prereg audits, the freeze check and the changed fast tests were re-run. I66's selection was run on real objects in a scratch clone, deleted afterwards. This is not a fresh full review.",
+  "commit": "268e828f10c40a9535a02e9dff495cce2cbfa050",
+  "replaces": "11c1c9322a82e6e82293bf7c9b23d520ca372e7d",
+  "base": "e215fbf5fca5194646a08dc4e72ff0f15522aa64",
+  "reviewer": "independent prereg review (fresh agent), second verification pass",
+  "verdict": "sign-off",
+  "verdict_note": "No blocking or major finding remains, and N1, N3, N4 and N5 are fixed. N1's ancestry selection chooses I28's build merge on every topology the two commit rules allow that I built. I66's equivalent selection (the same rule without --topo-order) chooses e215fbf5 on 16 simulated heads over real objects. I66's N2 fix holds on real objects, and its amendment line describes the code. One new minor remains, S1: a report committed on a side branch and merged into the build branch makes build_merge pick that internal merge. It touches no prediction, and one condition plus one rule line fold it. Two notes remain. The sign-off assumes, as prompts/I28_versions.md:142 requires, that PR #46 merges into the lead before I28's build step 1.",
+  "folded": {
+   "N1": "fixed. R comes from --diff-filter=A. M comes from `rev-list --ancestry-path --merges --topo-order --reverse R..HEAD`: its second parent reaches R and its first does not. The end is M^2. The contract and the prompt add the two commit rules: the prereg and the build reach the lead only as the second parent of merge commits. Residual: S1 (minor, a report merged in from a side branch) and S2 (note, case B rests on a rule no test can enforce).",
+   "N2": "fixed in I66's PR #46 at c348daaa (see i66_n2). I28's prompt makes I66's prereg a precondition of build step 1 (N5).",
+   "N3": "fixed. One slack remains in the caller check (S3, note).",
+   "N4": "fixed",
+   "N5": "fixed"
+  },
+  "fold_evidence": {
+   "N1": "Code: tests_m3/test_versions.py:425-477 (report_commit, build_merge, end_commit, own_commits); the contract's 'Own commits and the build branch' (:254-266); prompts/I28_versions.md:136-140. Once the report exists, own_commits raises if it finds neither M nor the prereg on HEAD's first-parent chain, and it asserts a non-empty list. The drafter's toy (toy_n1_out.json), case A: a lane that merged the lead after the build merge now gets M = 'Merge I28 build' and own = [build code, report]. The old selection took the lane's merge of the lead and the lead's direct commits. My toy5: on i28 before M, own = [build code, report, review fix after the report]. On the lead, on i29 (branched before M, merged the lead after) and on i30 (branched after M), M = 'Merge I28 build' with the same three. The rule also checks on real objects through I66's identical i32_merge, which picks e215fbf5 on 16 simulated heads (i66_n2).",
+   "N3": "inhabit_shape_problems (:755) with step_problems (:720) checks the following. s_i is typed VM.VSt, and s_0's body is exactly VM.vr0(). Each x_i is a VM.VStep built by the step's constructor; its leading literal leaves equal tests_m3/_i28.py:363 abi_leaves(params, calldata) for the function its selector names in the versioned document. The selector is checked, and lengths the calldata cannot hold are refused. A call's caller word must appear among the later leaves, and a migration's caller must be the proxy admin from the EIP-1967 admin slot. Each lg_j's header starts with legacy_head (vread at s_{n-1} with base, offset and path). reach is VM.VReach<..s_n()> with body canonical_reach(n). The new test TestInstrument.test_the_shape_check_refuses_loose_inhabitants (:904) checks the decoder against the test's own readers and accepts a text of V8's shape. It refuses the crafted text: the drafter's n3_old_vs_new_out.json lists 8 problems (s_0; x_2-x_5 literals and callers; reach) where the old check listed none. It also refuses each of nine single loosenings: s_0, one argument, an extra argument, a caller, a migration's caller, a selector, a trace argument the text lacks, reach's order and a legacy coordinate. The test is green at the prereg.",
+   "N4": "tests_m3/test_versions.py:376 sets UPGRADE_REVERTS = {3: 'Initializable: contract is already initialized', 4: 'genesis batch imported', 12: 'cutover batch mismatch'}. error_string (:592) builds Error(string): 0x08c379a0 plus the ABI string. revert_data (:598) gives both sides' revert bytes, b'' for an ok step. P2 (:1060) asserts thresholds.upgrade_path_reverts (spec/M3/predictions.json:2602) == UPGRADE_REVERTS and, for each probe step, revert_data(st) == (why, why). P6 also compares revert data step by step. The reasons were checked at their sources: OZ 4.9.3 Initializable.sol:88, morph 24b616b9 Rollup.sol:181 and 5edbc693 Rollup.sol:209-213.",
+   "N5": "prompts/I28_versions.md:142: 'Before step 1, merge the lead once it holds I66's prereg (PR #46). Its re-scope of I32-R2 must be in force before I28's first commit that changes a closure file.' :126 states that I28 does not amend I32-R2 itself."
+  },
+  "findings": [
+   {
+    "id": "S1",
+    "severity": "minor",
+    "where": "tests_m3/test_versions.py:431-449 (build_merge, end_commit) and :451-477 (own_commits); the contract's 'Own commits and the build branch' (:254-266); prompts/I28_versions.md:138-140",
+    "what": "Suppose the report reaches the build branch through a merge of a side branch. build_merge then picks that internal merge: its second parent reaches R and its first parent does not. My toy4: the lead merges the prereg as 'Merge PR (I28 prereg)', and the build branch starts at the prereg with 'I28 build code' and 'I28 build: records'. The report is committed on a side branch from 'I28 build code' and merged back as 'Merge the report branch into i28'. A review fix follows, then 'Merge I28 build'. On i28 and on the lead, M = 'Merge the report branch into i28', own = ['I28 report (on a side branch)'] and end = the report commit. R1 and R2 then judge one docs commit and never see the build code, records or fix, so a false pass is possible. TestReMake and the end-based checks read the report commit's tree, which predates the records, so they go red. Neither commit rule forbids this: rule 2 is about other lines merging the build branch, not the build branch merging a side branch. Even with M chosen right, a commit that enters the build branch through a side-branch merge is off the first-parent line and goes unjudged.",
+    "why": "The own-commit scope is the boundary of R1 and R2. Every earlier report was committed directly on its build branch (I26 dafb9f1c, I31 a3f64e16, I32 27d08ab8, I63 73d9efa5, all with one parent), so this is unlikely, but nothing excludes it, and a docs lane exists in the repo.",
+    "fix": "In build_merge, also require that the prereg not lie on M^1's first-parent chain (prereg not in `git rev-list --first-parent M^1`). By rule 1 the prereg is on no first-parent chain but the build branch's. Checked on toy4 and toy5: on toy4 the lead now picks 'Merge I28 build' with own = [build code, records, review fix]; toy5 is unchanged. Also add a third rule, 'the build branch merges only the lead, and I28 commits only on its first-parent line', or walk `M^2 ^M^1 ^<prereg>` without --first-parent in the M case. That walk is exactly what M brought into the lead, since every lead commit the build merged is in M^1."
+   },
+   {
+    "id": "S2",
+    "severity": "note",
+    "where": "tests_m3/test_versions.py:458-459 (the pre-M case); contract :259-266; prompt :139",
+    "what": "Case B: if the prereg is pushed directly to the lead, against rule 1, then before M exists a lane created from the lead after the push has the prereg on its first-parent chain. own_commits takes that lane's commits as I28's (drafter's toy case B: own = I29's two commits). Once M exists, the selection is right.",
+    "why": "No test can enforce the rule before M: such a lane and the build branch look the same topologically. The contract and the prompt state the rule and its purpose.",
+    "fix": "None in code. The coordinator should merge the prereg with a merge commit, as rule 1 says, the same way the I66 key records it for PR #46."
+   },
+   {
+    "id": "S3",
+    "severity": "note",
+    "where": "tests_m3/test_versions.py:747-749 (step_problems, the caller check)",
+    "what": "A call step's caller word only has to appear somewhere among x_i's leaves after the arguments; no particular field is pinned. A constructor whose caller field holds another word passes if the caller's value also appears in a later leaf.",
+    "why": "The slack is small. The arguments, constructor, selector, s_0, reach and the legacy reads are pinned, and the replay checks the trace itself.",
+    "fix": "Optional: pin the caller to the leaf just after the arguments (the VStep constructors' field order), or to the field the model's constructor declares."
+   }
+  ],
+  "verified": [
+   "Nothing else in the rewrite broke. In git diff 11c1c932 268e828f, only P2's, P5's and R1's claims and the thresholds changed in the key: instrument_sha256 is now cf179cef... (the sha256 of tests_m3/_i28.py), contract_docstring_sha256 is now df3783bf... (the sha256 of the module docstring), and upgrade_path_reverts was added. The I28 key's amendment lines are as in the first verification pass, so AGENTS rule 2 holds as assessed there.",
+   "The prereg commit is 268e828f, the only commit on e215fbf5..268e828f and the first to hold the key I28. This matches prereg_commit and the audit.",
+   "TestReMake and P6 use end_commit and revert_data consistently with the new contract text.",
+   "The prompt (lines 80-86) discloses the verification pass. Line 136 states that the build branch starts at the prereg commit, which own_commits now requires once the report exists."
+  ],
+  "reproduced": [
+   "BEND_NO_TELEMETRY=1 python -m holon audit prereg --milestone M3 -> exit 0. 'I28: OK prereg 268e828f10c4 (9 outcome paths, 1 test file, 4 helper modules, 26 tracked functions)'; PREREG OK.",
+   "BEND_NO_TELEMETRY=1 python -m holon audit prereg --milestone M2 -> exit 0; PREREG OK.",
+   "python tools/freeze.py check -> FROZEN OK.",
+   "The 11 fast (construction) tests of tests_m3/test_versions.py, including TestInstrument.test_the_shape_check_refuses_loose_inhabitants and the instrument and docstring pins: OK in 2.7 s. The 18 build-dependent test methods are red for the expected reasons: no build outputs at the prereg (failures=21 counting subtests, errors=1).",
+   "toy5 (scratchpad/i28ver/toy5) and toy4 (scratchpad/i28ver/toy4): results as in N1's evidence and S1, with 268e828f's helpers extracted with ast and run unchanged, and with S1's proposed condition.",
+   "I66 N2: see i66_n2.reproduced."
+  ],
+  "i66_n2": {
+   "pr": 46,
+   "commit": "c348daaac08e06f4909e841ae4ae0367639299b1",
+   "base": "e215fbf5fca5194646a08dc4e72ff0f15522aa64",
+   "status": "fixed",
+   "verdict_note": "I32's merge M and its own commits are now found by ancestry from the commit that adds docs/iterations/I32.md, not from HEAD's first-parent line. On the real objects, M is e215fbf5 and the own commits are I32's seven on every head built: the lead with PR #46 merged; the lead after a simulated I66 build; d4e9a960, 703c5ea3 and 2fefb519 each merging those leads, with later commits that change closure files and the delay records; a fast-forward; the lead after merging a lane; and a lane based on that. The amended test method passes in a checkout of each of these 16 heads. The original form fails on the heads with later closure or record changes, which is the conflict the amendment resolves. The content check of the four L_disch_delay_* records is restored at M^2. The amendment line describes the code exactly in every operative clause; T2 and T3 are wording points. Four notes, none blocking. T1: a committer-date skew can make the test red (never green); add --topo-order, as I28 has.",
+   "what_changed": "c348daaa:tests_m3/test_disch_profile.py:131-188 adds _git, _is_ancestor, i32_merge, own_commits and _unstamped, and the test at :371-403 uses them. i32_merge returns two values. R is the first entry of `git log --full-history --diff-filter=A --format=%H --reverse HEAD -- docs/iterations/I32.md`. M is the first merge of `git rev-list --ancestry-path --merges --reverse --parents R..HEAD` whose second parent reaches R and whose first parent does not. own_commits lists the non-merge commits of `git log --first-parent M^2 ^M^1 ^<prereg>`, each with its diff-tree paths, and ends at M^2. Without M it uses <prereg>..HEAD and ends at HEAD. _unstamped drops the top-level generator_sha256 and every key named seconds. The test asserts that R exists (:391) and that own is non-empty (:393). It checks the union of the own commits' paths against the five closures, computed at HEAD, and against laws|results|gen/M0-M3, gen/M3/disch/classification.json excepted. It compares each L_disch_delay_* record at the end with the prereg's through _unstamped (:403). The amendment is spec/M3/amendments.jsonl:29 (iteration I32, foundation_conflict), and the I66 key's thresholds.i32_r2 and amendment_policy describe the same change.",
+   "evidence": [
+    "On the real objects, R = 27d08ab8 ('docs: I32's report (draft, ...)'). It is the only commit that adds docs/iterations/I32.md, with or without --full-history.",
+    "M = e215fbf5 (parents fde1f819, 19dcde76). Own commits of `git log --first-parent --no-merges 19dcde76 ^fde1f819 ^476b02bc`: c164ba51, e271fc06, 8dec55fc, 27d08ab8, 4cfe2b15, e543b66c, 6f1e076e. These are the seven, 6f1e076e to c164ba51, and the end is 19dcde76. The prereg 476b02bc is the only commit matching ^I32 prereg.",
+    "The changed paths of the seven are holon/__main__.py, holon/analysis/abstraction.py, holon/gen/profile.py, holon/js/profile.mjs, holon/profile.py and holon/rules/disch_profile.py (from e543b66c and e271fc06), plus gen/T32, laws/T32 and results/T32, gen/M3/disch/classification.json, docs, spec/M3/amendments.jsonl and tests_m3/fixtures/disch_profile/i32.mjs. None of them lies in the five closures at c348daaa, whose union has 136 files (0.1: 6, 0.2: 122, 0.3: 123, GEN3: 8, GEN_DISCH: 2, GEN_UNDO: 6, GEN_FACT: 7). The only earlier output among them is gen/M3/disch/classification.json.",
+    "The four results/M1/L_disch_delay_* blobs are byte-identical at the prereg 476b02bc, at M^2 19dcde76 and at c348daaa (8e1f6097, a3cb9236, 6df3b24c, 4e2ee2a0). The lead merge inside I32's branch (19dcde76 merges fde1f819) changed only docs/iterations/I43.md and spec/M3/lib/lean_promoted.json against the prereg.",
+    "Simulation (scratch clone of /home/user/HOLON-q62, `git clone --shared --no-checkout`, deleted afterwards). The helpers were extracted with ast from c348daaa's file and run unchanged with ROOT set to the clone and HEAD at each head. LEAD merges c348daaa into e215fbf5. LEAD2 merges into LEAD a simulated I66 build that appends to holon/gen/targetlib.py and re-stamps generator_sha256 on all four delay records. Each of d4e9a960 (I65 build, based before e215fbf5 at fde1f819), 703c5ea3 (I33 head, an ancestor of e215fbf5) and 2fefb519 (I69 prereg, based after e215fbf5) gets four heads, built in sequence: (1) a merge of LEAD; (2) a later commit that appends to holon/disch/run.py and re-stamps L_disch_delay_pay; (3) a merge of LEAD2; (4) a later commit that appends to holon/sorts/run3.py and re-stamps L_disch_delay_wait. Further heads: 703c5ea3 fast-forwarded to LEAD plus a later commit; LEAD3, which merges into LEAD2 the I65 lane's last head, plus a later commit on holon/fact/run.py and L_disch_delay_prove; and a lane based on that, with a later commit on holon/undo/run.py and all four records. The 2fefb519 merge conflicts in spec/M3/predictions.json and docs/BUILD_PLAN.md were resolved: the key union, and I66's text.",
+    "Result on all 16 simulated heads, and also at c348daaa, e215fbf5 and 19dcde76, where M is None as on I32's own branch: R 27d08ab8, M e215fbf5, own = the seven, end 19dcde76, no earlier output, records equal exactly. The clone's 5 refs that hold R (the i66 branch, locally and on origin; origin/HEAD at c348daaa; i28 at 268e828f; i36 at 2fefb519) give the same M, own and end. scratchpad/i28ver/sim_i66_out.json has the details.",
+    "The amended test method itself (python -m unittest tests_m3.test_disch_profile.TestRegressions.test_r2_no_closure_and_no_earlier_output_changes, BEND_NO_TELEMETRY=1, about 3 s each) passes in a checkout of c348daaa and of each of the 16 simulated heads. With the e215fbf5 file swapped in, the original form passes at e215fbf5 and c348daaa. It fails at LEAD2 (['holon/gen/targetlib.py']), at the I65 lane after LEAD (I65's closure files) and at the I33 and I69 lanes' later commits (['holon/disch/run.py']). The amended form also passes at e215fbf5 with c348daaa's file swapped in. This matches thresholds.i32_r2: 'both forms of the test pass at e215fbf5'.",
+    "Merge parents printed by `rev-list --parents` equal `rev-parse M^1 M^2` for every merge on the ancestry path. There is no pathspec, so no parent rewriting.",
+    "In the scratch clone at c348daaa: `python -m holon audit prereg --milestone M3` exits 0. Its output includes 'I32: OK prereg 476b02bc3d11 (5 outcome paths, 1 test file, 2 helper modules, 14 tracked functions)' and lists the amended test with this line; it ends with PREREG OK. The M2 audit exits 0 (PREREG OK), and tools/freeze.py check prints FROZEN OK."
+   ],
+   "amendment_line": {
+    "where": "c348daaa:spec/M3/amendments.jsonl:29",
+    "verdict": "Describes the code exactly in every operative clause. R, M, the own-commit range, the pre-M case, the two assertions, the range of the first two checks, the closures computed at HEAD and the third check's exceptions all match the code. Each concrete value (27d08ab8, e215fbf5, 19dcde76, the seven 6f1e076e..c164ba51) holds on the real objects. Two wording points are notes T2 and T3; 'whatever the topology' holds for topology but not under committer-date skew (T1).",
+    "checked": [
+     "Context clauses hold. holon/gen/targetlib.py and holon/diagram/{__init__,access,build,evidence,linked,model,principals}.py are in the holon-ir/0.2 and 0.3 closures at c348daaa. The original test fails after a simulated I66 build and on I65's lane. I32's report says at docs/iterations/I32.md:104 (e215fbf5): 'No file of a generator closure and no M0-M3 law, record or Bend file changed (the classification document is new)'.",
+     "'R is the oldest commit reachable from HEAD that adds docs/iterations/I32.md (27d08ab8)': the code takes the first entry of a reversed --full-history --diff-filter=A log, which is 27d08ab8.",
+     "'M is the oldest merge commit of git rev-list --ancestry-path --merges R..HEAD whose second parent reaches R and whose first parent does not (e215fbf5, on the lead and on every branch that holds it, based before or after it)': the code matches, with 'oldest' meaning first in the reversed default (commit-date) order. e215fbf5 on all 16 simulated heads and the 5 refs. Exception: date skew (T1).",
+     "'the non-merge commits of git log --first-parent M^2 ^M^1 ^<prereg>, ending at M^2 (19dcde76): the seven, 6f1e076e to c164ba51': exact.",
+     "'(on I32's own branch before M, those of git log --first-parent <prereg>..HEAD, ending at HEAD)': exact. At 19dcde76 the result is the seven, ending at 19dcde76.",
+     "'It asserts that R exists and that the list is non-empty': :391 and :393.",
+     "'The first two checks are unchanged but for their range ... (computed at HEAD, as before)': the checks are unchanged, but the range is now the union of per-commit diff-tree paths, not a net diff (T3). The closures are computed at HEAD, as stated (T4).",
+     "'The third keeps its strength ... but for generator_sha256 and keys named seconds, which a lead re-make merged into I32's branch may move': the code matches. On the real objects the exception never applies (T2).",
+     "'It finds the seven commits and passes at the I66 prereg, as the original test does there, and finds the same seven on a branch based before e215fbf5 that merges the lead and on one based after it': reproduced (evidence above).",
+     "'This narrows the test beyond I66's outcomes ...': disclosed here and in the key's amendment_policy (V8), which names this amendment as the one narrowed beyond I66's outcomes.",
+     "Side remark, not about the line: thresholds.i32_r2 lists 'the I65 build, I33 and I36 heads' among the branches based before e215fbf5. The i36 ref now points at 2fefb519 (I69's prereg), which holds e215fbf5. The statement was true of the ref's earlier head fde1f819, and the simulation covers both bases."
+    ]
+   },
+   "findings": [
+    {
+     "id": "T1",
+     "severity": "note",
+     "where": "c348daaa:tests_m3/test_disch_profile.py:145-160 (i32_merge)",
+     "what": "i32_merge takes the 'oldest' qualifying merge in rev-list's default order. That order follows commit dates, not topology. Reproduced on real objects. d4e9a960 merges LEAD with committer date 2020-01-01, then merges LEAD2 with a normal date. The default order puts the 2020 merge first, so M is that lane merge, M^2 = LEAD, own = [] and end = LEAD. The actual test fails: '{} is not true : no commit of I32's found between its prereg and its merge'. With --topo-order the first qualifying merge is e215fbf5. A skewed merge alone as HEAD is still handled, because HEAD is listed last.",
+     "why": "Only a spurious red, never a false pass. It needs a committer date older than e215fbf5's on a merge that later gets a child merging the lead again. That is unlikely here, since every agent commits on the same clock. I28's build_merge already uses --topo-order for the same selection.",
+     "fix": "Add --topo-order to the rev-list call; 'oldest' in the line then means topologically first. Nothing else changes on the real objects."
+    },
+    {
+     "id": "T2",
+     "severity": "note",
+     "where": "c348daaa:tests_m3/test_disch_profile.py:180-188, :399-403; amendment line, the third check",
+     "what": "The third check compares M^2 with the prereg. M^2 is 19dcde76 on every history holding e215fbf5, and the four records are byte-identical there and at the prereg. The exception for generator_sha256 and seconds therefore never applies. The line's reason for it, 'which a lead re-make merged into I32's branch may move', describes no actual case: the one lead merge into I32's branch brought only docs/iterations/I43.md and spec/M3/lib/lean_promoted.json.",
+     "why": "'Keeps its strength' is true in effect. An exact comparison would pass too, and would keep the original check's strength literally.",
+     "fix": "Compare exactly, or say in the line that the exception is never exercised because the records are identical at 19dcde76."
+    },
+    {
+     "id": "T3",
+     "severity": "note",
+     "where": "amendment line: 'The first two checks are unchanged but for their range'",
+     "what": "The checks now run over the union of each own commit's diff-tree paths, not over a net diff. That is stricter: a file changed and then restored within I32's commits now counts. On the real objects the result is the same.",
+     "why": "Wording precision only.",
+     "fix": "Optionally add 'and per commit rather than net'."
+    },
+    {
+     "id": "T4",
+     "severity": "note",
+     "where": "c348daaa:tests_m3/test_disch_profile.py:380-386 (closures computed at HEAD)",
+     "what": "The closure check intersects I32's fixed changed paths with the closures as computed at HEAD. Suppose a later key brings one of I32's six holon files (holon/__main__.py, holon/analysis/abstraction.py, holon/gen/profile.py, holon/js/profile.mjs, holon/profile.py, holon/rules/disch_profile.py) into one of the five listed closures. I32-R2 then turns red for a change I32 did not make. holon/rules/__init__.py is in the 0.2 and 0.3 closures and already imports sort, par, disch, undo and fact; I28's build edits holon/rules (holon-rules/1.6, par_init.py). Today none of the six is in the 136-file union, at c348daaa or on any simulated head.",
+     "why": "The original test had the same property, and the line states it ('computed at HEAD, as before').",
+     "fix": "No change needed now. If it ever bites, compute the closures from M^2's tree. In the meantime, I28's build should not import holon.rules.disch_profile or holon.analysis.abstraction from a closure module."
+    }
+   ],
+   "reproduced": [
+    "/tmp/claude-0/-home-user-HOLON/36cc748b-c392-5d49-873b-8207b8fa8fb5/scratchpad/i28ver/sim_i66.py (driver: builds the simulated history with merge-tree/commit-tree, extracts the helpers from c348daaa with ast and evaluates every head) -> /tmp/claude-0/-home-user-HOLON/36cc748b-c392-5d49-873b-8207b8fa8fb5/scratchpad/i28ver/sim_i66_out.json. The scratch clone was deleted afterwards.",
+    "The actual test method in a checkout: c348daaa OK; e215fbf5 original OK and amended OK; 16 simulated heads OK; the skew head plus a second lead merge (T1) FAILED with 'no commit of I32's found'.",
+    "The original form at LEAD2, at the I65 lane after LEAD and at the I33 and I69 lanes' later commits: FAILED (closure files), as the amendment says it must after I66's or I65's build.",
+    "Audits at c348daaa in the clone: M3 exit 0 (I32 OK, amendment listed), M2 exit 0; freeze check FROZEN OK."
+   ]
+  }
+ }
+}
