@@ -1,6 +1,24 @@
 {
   "atoms": [
     {
+      "id": "blob_ops:E6:CODEC.batch_RetrieveBlobBytes:CODEC.blob_RetrieveBlobBytes:f6e8978d",
+      "level": "E6",
+      "model": "blob_ops",
+      "p": "CODEC.batch_RetrieveBlobBytes",
+      "q": "CODEC.blob_RetrieveBlobBytes",
+      "src": null,
+      "via": {
+        "tokens": [
+          "blob",
+          "bytes",
+          "common",
+          "l2",
+          "morph",
+          "retrieve"
+        ]
+      }
+    },
+    {
       "id": "header_length:E1:CODEC.BatchCache_createBatchHeaderWithSequencerSetHash:CODEC.BatchHeaderBytes_BatchIndex:b02939d5",
       "level": "E1",
       "model": "header_length",
@@ -2678,7 +2696,7 @@
     }
   ],
   "document": "evidence",
-  "evidence_sha256": "468447af52cbc51819618da6648a9e781498d8623c124a0e4225adec17b1b2bd",
+  "evidence_sha256": "dc92dd52246cac342c4e3003123190dae803c7e72c60374bbae60f78c1f616cf",
   "evidence_version": "holon-evidence/0.1",
   "inputs": [
     {
@@ -2686,8 +2704,16 @@
       "sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315"
     },
     {
+      "path": "gen/M3/diagram/blob_ops.json",
+      "sha256": "df40195370900ebcc26f780ed6f737b8c3a3db8732ece4df853205f284156440"
+    },
+    {
       "path": "gen/M3/diagram/header_length.json",
       "sha256": "b9b8cb0b6d42face2309af7bb25556e052844587f82301e6a6ded3c370faba23"
+    },
+    {
+      "path": "gen/M3/goops/blob_ops.json",
+      "sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06"
     },
     {
       "path": "gen/M3/sorts/assignment.json",
@@ -2724,6 +2750,35 @@
   },
   "milestone": "M3",
   "models": {
+    "blob_ops": {
+      "anchors": {
+        "actions": {},
+        "carriers": {},
+        "codec": {
+          "batch_RetrieveBlobBytes": "CODEC.batch_RetrieveBlobBytes",
+          "blob_RetrieveBlobBytes": "CODEC.blob_RetrieveBlobBytes"
+        },
+        "consumers": {},
+        "domains": {
+          "ok_batch_RetrieveBlobBytes": [
+            "CODEC.batch_RetrieveBlobBytes"
+          ],
+          "ok_blob_RetrieveBlobBytes": [
+            "CODEC.blob_RetrieveBlobBytes"
+          ]
+        },
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": []
+      },
+      "diagram": "gen/M3/diagram/blob_ops.json",
+      "facts": "gen/M3/goops/blob_ops.json",
+      "facts_sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06",
+      "facts_version": "holon-goops/0.1"
+    },
     "header_length": {
       "anchors": {
         "actions": {},

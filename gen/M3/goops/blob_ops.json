@@ -1,0 +1,1175 @@
+{
+  "carrier": {
+    "id": "Blob",
+    "reach": "external: a blob's bytes are what the batch submitter posted to L1 in an EIP-4844 blob transaction; a derivation node fetches them from the beacon API and hands them to the decoder (whitepaper \u00a711.3 O4: the caller is node/derivation). Within the document's two packages no other type carries L1-posted data: calldata is parsed in node/derivation, which I39 extracts.",
+    "type": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+  },
+  "component": "blob_ops",
+  "document": "spec/M3/facts/morph_blob.go.extracted.json",
+  "document_sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "batch_RetrieveBlobBytes": {
+      "loop_bodies": [
+        {
+          "cmp": "<",
+          "exits": [
+            "return"
+          ],
+          "fuel": [
+            "const",
+            4096
+          ],
+          "init": [
+            "const",
+            0
+          ],
+          "iv": "i",
+          "limit": [
+            "const",
+            4096
+          ],
+          "paths": [
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    4096
+                  ]
+                ],
+                [
+                  "!=",
+                  [
+                    "index",
+                    [
+                      "param",
+                      "blob"
+                    ],
+                    [
+                      "op",
+                      "*",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        32
+                      ]
+                    ]
+                  ],
+                  [
+                    "const",
+                    0
+                  ]
+                ],
+                [
+                  ">=",
+                  [
+                    "op",
+                    "*",
+                    [
+                      "iv",
+                      "i"
+                    ],
+                    [
+                      "const",
+                      32
+                    ]
+                  ],
+                  [
+                    "const",
+                    126976
+                  ]
+                ]
+              ],
+              "end": "panic",
+              "error": null,
+              "returns": null,
+              "site": "common/batch/blob.go:49:102:index"
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    4096
+                  ]
+                ],
+                [
+                  "!=",
+                  [
+                    "index",
+                    [
+                      "param",
+                      "blob"
+                    ],
+                    [
+                      "op",
+                      "*",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        32
+                      ]
+                    ]
+                  ],
+                  [
+                    "const",
+                    0
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "op",
+                    "*",
+                    [
+                      "iv",
+                      "i"
+                    ],
+                    [
+                      "const",
+                      32
+                    ]
+                  ],
+                  [
+                    "const",
+                    126976
+                  ]
+                ]
+              ],
+              "end": "return",
+              "error": "nonnil",
+              "returns": [
+                [
+                  "nil"
+                ],
+                [
+                  "call",
+                  "fmt.Errorf",
+                  [
+                    [
+                      "str",
+                      "invalid blob, found non-zero high order byte %x of field element %d"
+                    ],
+                    [
+                      "slice",
+                      [
+                        "alloc",
+                        "common/batch/blob.go:49:111",
+                        [
+                          "const",
+                          2
+                        ]
+                      ],
+                      null,
+                      null,
+                      null
+                    ]
+                  ]
+                ]
+              ],
+              "site": null
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    4096
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "index",
+                    [
+                      "param",
+                      "blob"
+                    ],
+                    [
+                      "op",
+                      "*",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        32
+                      ]
+                    ]
+                  ],
+                  [
+                    "const",
+                    0
+                  ]
+                ]
+              ],
+              "end": "continue",
+              "error": null,
+              "returns": null,
+              "site": null
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  ">=",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    4096
+                  ]
+                ]
+              ],
+              "end": "return",
+              "error": "nil",
+              "returns": [
+                [
+                  "slice",
+                  [
+                    "alloc",
+                    "common/batch/blob.go:46:14",
+                    [
+                      "const",
+                      126976
+                    ]
+                  ],
+                  null,
+                  null,
+                  null
+                ],
+                [
+                  "nil"
+                ]
+              ],
+              "site": null
+            }
+          ],
+          "span": "common/batch/blob.go:47",
+          "step": 1
+        }
+      ],
+      "params": [
+        {
+          "name": "blob",
+          "type": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "[]byte",
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ],
+              [
+                "const",
+                131072
+              ]
+            ]
+          ],
+          "id": "common/batch/blob.go:48:10:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ],
+              [
+                "const",
+                126976
+              ]
+            ]
+          ],
+          "id": "common/batch/blob.go:49:102:index",
+          "kind": "index",
+          "status": "open",
+          "witness": {
+            "max": 4095,
+            "min": 3968,
+            "var": "i"
+          }
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  31
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  31
+                ]
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    31
+                  ]
+                ],
+                [
+                  "const",
+                  31
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    31
+                  ]
+                ],
+                [
+                  "const",
+                  31
+                ]
+              ],
+              [
+                "const",
+                126976
+              ]
+            ]
+          ],
+          "id": "common/batch/blob.go:51:12:slice",
+          "kind": "slice",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    32
+                  ]
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    32
+                  ]
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    32
+                  ]
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    32
+                  ]
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ],
+              [
+                "const",
+                131072
+              ]
+            ]
+          ],
+          "id": "common/batch/blob.go:51:32:slice",
+          "kind": "slice",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "morph-l2/common/batch.RetrieveBlobBytes",
+      "span": "common/batch/blob.go:45"
+    },
+    "blob_RetrieveBlobBytes": {
+      "loop_bodies": [
+        {
+          "cmp": "<",
+          "exits": [
+            "return"
+          ],
+          "fuel": [
+            "const",
+            4096
+          ],
+          "init": [
+            "const",
+            0
+          ],
+          "iv": "i",
+          "limit": [
+            "const",
+            4096
+          ],
+          "paths": [
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    4096
+                  ]
+                ],
+                [
+                  "!=",
+                  [
+                    "index",
+                    [
+                      "param",
+                      "blob"
+                    ],
+                    [
+                      "op",
+                      "*",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        32
+                      ]
+                    ]
+                  ],
+                  [
+                    "const",
+                    0
+                  ]
+                ]
+              ],
+              "end": "return",
+              "error": "nonnil",
+              "returns": [
+                [
+                  "nil"
+                ],
+                [
+                  "call",
+                  "fmt.Errorf",
+                  [
+                    [
+                      "str",
+                      "invalid blob, found non-zero high order byte %x of field element %d"
+                    ],
+                    [
+                      "slice",
+                      [
+                        "alloc",
+                        "common/blob/payload.go:47:111",
+                        [
+                          "const",
+                          2
+                        ]
+                      ],
+                      null,
+                      null,
+                      null
+                    ]
+                  ]
+                ]
+              ],
+              "site": null
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    4096
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "index",
+                    [
+                      "param",
+                      "blob"
+                    ],
+                    [
+                      "op",
+                      "*",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        32
+                      ]
+                    ]
+                  ],
+                  [
+                    "const",
+                    0
+                  ]
+                ]
+              ],
+              "end": "continue",
+              "error": null,
+              "returns": null,
+              "site": null
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  ">=",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    4096
+                  ]
+                ]
+              ],
+              "end": "return",
+              "error": "nil",
+              "returns": [
+                [
+                  "slice",
+                  [
+                    "alloc",
+                    "common/blob/payload.go:44:14",
+                    [
+                      "const",
+                      126976
+                    ]
+                  ],
+                  null,
+                  null,
+                  null
+                ],
+                [
+                  "nil"
+                ]
+              ],
+              "site": null
+            }
+          ],
+          "span": "common/blob/payload.go:45",
+          "step": 1
+        }
+      ],
+      "params": [
+        {
+          "name": "blob",
+          "type": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "[]byte",
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ],
+              [
+                "const",
+                131072
+              ]
+            ]
+          ],
+          "id": "common/blob/payload.go:46:10:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ],
+              [
+                "const",
+                131072
+              ]
+            ]
+          ],
+          "id": "common/blob/payload.go:47:102:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  31
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "*",
+                [
+                  "var",
+                  "t2",
+                  "i"
+                ],
+                [
+                  "const",
+                  31
+                ]
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    31
+                  ]
+                ],
+                [
+                  "const",
+                  31
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    31
+                  ]
+                ],
+                [
+                  "const",
+                  31
+                ]
+              ],
+              [
+                "const",
+                126976
+              ]
+            ]
+          ],
+          "id": "common/blob/payload.go:49:12:slice",
+          "kind": "slice",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    32
+                  ]
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    32
+                  ]
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    32
+                  ]
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "*",
+                  [
+                    "var",
+                    "t2",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    32
+                  ]
+                ],
+                [
+                  "const",
+                  32
+                ]
+              ],
+              [
+                "const",
+                131072
+              ]
+            ]
+          ],
+          "id": "common/blob/payload.go:49:32:slice",
+          "kind": "slice",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "morph-l2/common/blob.RetrieveBlobBytes",
+      "span": "common/blob/payload.go:43"
+    }
+  },
+  "results": {
+    "R_SliceByte_Error": [
+      "[]byte",
+      "error"
+    ]
+  }
+}

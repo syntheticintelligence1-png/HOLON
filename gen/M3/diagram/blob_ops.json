@@ -1,0 +1,89 @@
+{
+  "carriers": [
+    {
+      "base_type": "Blob",
+      "cls": "rep",
+      "domains": [
+        "ok_batch_RetrieveBlobBytes",
+        "ok_blob_RetrieveBlobBytes"
+      ],
+      "id": "Blob",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_SliceByte_Error",
+      "cls": "rep",
+      "id": "R_SliceByte_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M3/facts/morph_blob.go.extracted.json",
+      "domain": "ok_batch_RetrieveBlobBytes",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.batch_RetrieveBlobBytes",
+      "kind": "CODEC",
+      "model_fn": "batch_RetrieveBlobBytes",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "morph-l2/common/batch.RetrieveBlobBytes"
+        }
+      ],
+      "src": "Blob",
+      "tgt": "R_SliceByte_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "spec/M3/facts/morph_blob.go.extracted.json",
+      "domain": "ok_blob_RetrieveBlobBytes",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.blob_RetrieveBlobBytes",
+      "kind": "CODEC",
+      "model_fn": "blob_RetrieveBlobBytes",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "morph-l2/common/blob.RetrieveBlobBytes"
+        }
+      ],
+      "src": "Blob",
+      "tgt": "R_SliceByte_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M3/goops/blob_ops.json",
+  "facts_sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "blob_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

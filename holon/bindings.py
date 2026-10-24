@@ -341,8 +341,11 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     if _typed(law) or _disch(law):   # F30: the typed model gen/<m>/sorts/models/<model>.bend (I30; I31's DISCH laws)
         return _typed_model(law, m, root)
     from .codecrun import codec_kind
-    if codec_kind(law, root) == "linked":   # I24: the component model gen/<m>/model/<role>.bend (rule X9)
+    kind = codec_kind(law, root)
+    if kind == "linked":   # I24: the component model gen/<m>/model/<role>.bend (rule X9)
         return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['role']}.bend"
+    if kind == "goops":   # I67 (rule Y8d): the Go-op component's model gen/<m>/model/<component>.bend
+        return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['component']}.bend"
     return root / "gen" / m / "model" / f"{model_name(law_facts(law, m, root))}.bend"
 
 
@@ -397,14 +400,17 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     kind = codec_kind(law, root)
     if kind is not None:   # I24: a codec law, emitted as holon.codecrun emits it
         from .gen import codec01 as C1
+        from .gen import goloop as GG
         from .gen import linked as GL
         imp = f"{layout(m, root, law['law_id'])[2]}model/{model_path(law, m, root).name}"
         note = statement_hash(law, m, root)
         try:
             if kind == "linked":
                 return GL.emit(law, F.load(fp), imp, counter=counter, note=note).text
+            if kind == "goops":   # I67: as holon.codecrun writes a Go-op law's file (holon.gen.goloop.emit)
+                return GG.emit(law, F.load(fp), imp, counter=counter, note=note).text
             return C1.emit(C1.to01(law), F.load(fp), imp, counter=counter, header_note=note).text
-        except (GL.Unsupported, C1.Unsupported):
+        except (GL.Unsupported, GG.Unsupported, C1.Unsupported):
             return None
     imp = f"{layout(m, root, law['law_id'])[2]}model/{model_name(fp)}.bend"   # as the pipelines import it (I10)
     if law["ir_version"] == "holon-ir/0.1":
@@ -667,7 +673,10 @@ def hash_only_change(x: dict, y: dict) -> bool:
 
 
 def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_defs: dict):
-    """({law: STATEMENT_DIFF line}, [(law, why)]) for the changed laws."""
+    """({law: STATEMENT_DIFF line}, [(law, why)]) for the changed laws. With none (laws only added or removed) there is
+    nothing to cover, so the accepted entries' proofs are not re-checked (I67: that re-check takes most of an hour)."""
+    if not changed:
+        return {}, []
     entries = _accepted_entries(root, m)
     current = {l["law_id"]: l for l in ir.load_laws_any(m, root)}
     covered, missing = {}, []

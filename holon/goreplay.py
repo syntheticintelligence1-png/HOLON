@@ -1,0 +1,359 @@
+"""`holon replay-go --milestone M`: the witnesses of the REFUTED Go-op laws, run on the real Go code (BUILD_PLAN row I67;
+whitepaper §8.7, §9.6; the contract is rule Y9 of the docstring of tests_m3/test_go_loop.py).
+
+For every REFUTED record whose law's facts is a Go-op document (holon.diagram.goops), the witness's cell sequence is
+concretized to the one carrier value whose byte a*(init + k) + c (the ops' shared cell map, holon.gen.goloop's
+Shape.cell_map; a law whose ops read different cells is not run) holds cell k and whose every other byte is 0. Each op the law names runs on that value under recover(), from a Go test
+generated from the Go-op document alone (the ops' function ids, the carrier's type), on a scratch copy of the pinned
+checkout (config replay.<key> as the Go document's extraction config names it), and replay/<M>/goops/report.json
+records one side per law:
+  {"status": "passed" | "failed" | "not_run", "provenance": "library_api", "obstruction_observed", "observed": {op:
+   outcome class}, "expected": {op: the model's outcome}, "detail": {op: what the real call did}, "command"}.
+A side passes, the obstruction observed, iff every op's real outcome class (a nil error ORet, a non-nil error OErr, a
+panic OPanic) is the model's at the witness. The records' replay and witness_provenance fields are stamped from the
+report, as holon run re-applies them (holon.codecrun.goops_report).
+
+Exit 0 written; 2 refused, nothing written (no Go toolchain at the pinned version, a checkout not at the document's
+commit, a malformed input).
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+from . import bend, ir
+from .diagram import goops as GO
+from .gen import goloop as GG
+
+ROOT = Path(__file__).resolve().parents[1]
+CLASS = {"ok": "ORet", "err": "OErr", "panic": "OPanic"}
+TEST_PKG = "holongoopsreplay"
+# what a generated test may contain from a Go-op document (re-checked here: the document is an input)
+NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+GO_PATH = re.compile(r"^[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*$")
+GO_EXPORTED = re.compile(r"^[A-Z][A-Za-z0-9_]*$")
+
+
+class Refused(Exception):
+    """Exit 2: nothing is written."""
+
+
+def _load(p: Path):
+    return json.loads(Path(p).read_text(encoding="utf-8"))
+
+
+def dumps(o) -> str:
+    return json.dumps(o, indent=2, sort_keys=True) + "\n"
+
+
+def witness_sha256(w) -> str | None:
+    return None if w is None else hashlib.sha256(ir.canonical_json(w)).hexdigest()
+
+
+def named_ops(law: dict, doc: dict) -> list[str]:
+    """The ops a law's claim names (an op, or its domain ok_<op>), sorted."""
+    out = set()
+
+    def walk(t):
+        if isinstance(t, dict):
+            f = t.get("call")
+            if isinstance(f, str):
+                out.add(f[3:] if f not in doc["ops"] and f.startswith("ok_") else f)
+            for v in t.values():
+                walk(v)
+        elif isinstance(t, list):
+            for v in t:
+                walk(v)
+    walk(law["statement"].get("claim"))
+    return sorted(o for o in out if o in doc["ops"])
+
+
+def concretize(cmap: tuple, cells: list[int]) -> list[list[int]]:
+    """[[byte index, value]] of the carrier value of a witness: cell k at stride*k + base (holon.gen.goloop's
+    Shape.cell_map, the byte a*(init + k) + c), every other byte 0."""
+    stride, base, _ = cmap
+    return [[stride * k + base, v] for k, v in enumerate(cells) if v]
+
+
+def _go_ident(fid: str):
+    """(import path, function name) of a package-level function id "<path>.<F>" whose path and name a generated test
+    may hold; None for a method or anything else."""
+    if not isinstance(fid, str) or fid.startswith("(") or "." not in fid:
+        return None
+    path, fn = fid.rsplit(".", 1)
+    if not GO_PATH.match(path) or ".." in path.split("/") or not GO_EXPORTED.match(fn):
+        return None
+    return path, fn
+
+
+def _carrier(carrier_type: str):
+    """(pointer?, import path, type name) of a carrier type a generated test may hold, else None."""
+    t = carrier_type[1:] if isinstance(carrier_type, str) and carrier_type.startswith("*") else carrier_type
+    if not isinstance(t, str) or "." not in t:
+        return None
+    path, name = t.rsplit(".", 1)
+    if not GO_PATH.match(path) or ".." in path.split("/") or not GO_EXPORTED.match(name):
+        return None
+    return carrier_type.startswith("*"), path, name
+
+
+def test_text(carrier_type: str, ops: dict[str, tuple[str, int]]) -> str:
+    """The generated Go test: it reads {"cases": [{"key", "op", "set": [[i, v], ...]}]} from $HOLON_GOOPS_IN, runs
+    each op on a fresh carrier value with those bytes set, under recover(), and writes {key: outcome} to
+    $HOLON_GOOPS_OUT ("ok", "err:<text>", "panic:<value>")."""
+    car = _carrier(carrier_type)
+    if car is None:
+        raise Refused(f"carrier type {str(carrier_type)[:80]!r} cannot be named in a generated test")
+    ptr, cpath, cname = car
+    imports = {cpath: "holoncarrier"}
+    calls = []
+    for i, (op, (fid, nres)) in enumerate(sorted(ops.items())):
+        if not NAME.match(op) or _go_ident(fid) is None or not (isinstance(nres, int) and nres >= 1):
+            raise Refused(f"op {op!r} ({str(fid)[:80]}) cannot be named in a generated test")
+        path, fn = _go_ident(fid)
+        alias = imports.setdefault(path, f"holonop{i}")
+        arg = "&x" if ptr else "x"
+        lhs = ", ".join(["_"] * (nres - 1) + ["err"])
+        calls.append(f'\t\t"{op}": func(x holoncarrier.{cname}) error {{ {lhs} := {alias}.{fn}({arg}); return err }},')
+    imp = "\n".join(f'\t{alias} "{path}"' for path, alias in sorted(imports.items(), key=lambda kv: kv[1]))
+    return f'''// GENERATED by holon.goreplay from a Go-op document; do not edit.
+package {TEST_PKG}
+
+import (
+\t"encoding/json"
+\t"fmt"
+\t"os"
+\t"testing"
+
+{imp}
+)
+
+func holonOutcome(f func() error) (out string) {{
+\tdefer func() {{
+\t\tif r := recover(); r != nil {{
+\t\t\tout = fmt.Sprintf("panic:%v", r)
+\t\t}}
+\t}}()
+\tif err := f(); err != nil {{
+\t\treturn "err:" + err.Error()
+\t}}
+\treturn "ok"
+}}
+
+func TestHolonGoops(t *testing.T) {{
+\tops := map[string]func(x holoncarrier.{cname}) error{{
+{chr(10).join(calls)}
+\t}}
+\tvar in struct {{
+\t\tCases []struct {{
+\t\t\tKey string   `json:"key"`
+\t\t\tOp  string   `json:"op"`
+\t\t\tSet [][2]int `json:"set"`
+\t\t}} `json:"cases"`
+\t}}
+\traw, err := os.ReadFile(os.Getenv("HOLON_GOOPS_IN"))
+\tif err != nil {{
+\t\tt.Fatalf("read input: %v", err)
+\t}}
+\tif err := json.Unmarshal(raw, &in); err != nil {{
+\t\tt.Fatalf("parse input: %v", err)
+\t}}
+\tout := map[string]string{{}}
+\tfor _, c := range in.Cases {{
+\t\tf, ok := ops[c.Op]
+\t\tif !ok {{
+\t\t\tt.Fatalf("no op %s", c.Op)
+\t\t}}
+\t\tvar x holoncarrier.{cname}
+\t\tfor _, kv := range c.Set {{
+\t\t\tif kv[0] < 0 || kv[0] >= len(x) || kv[1] < 0 || kv[1] > 255 {{
+\t\t\t\tt.Fatalf("bad byte %v", kv)
+\t\t\t}}
+\t\t\tx[kv[0]] = byte(kv[1])
+\t\t}}
+\t\tout[c.Key] = holonOutcome(func() error {{ return f(x) }})
+\t}}
+\tjs, err := json.Marshal(out)
+\tif err != nil {{
+\t\tt.Fatalf("encode output: %v", err)
+\t}}
+\tif err := os.WriteFile(os.Getenv("HOLON_GOOPS_OUT"), js, 0o644); err != nil {{
+\t\tt.Fatalf("write output: %v", err)
+\t}}
+}}
+'''
+
+
+def _module_dir(ws: Path, pkg_dir: str) -> Path:
+    """The directory of the go.mod that holds a package directory of the workspace (relative, inside it)."""
+    parts = Path(pkg_dir).parts if isinstance(pkg_dir, str) else ()
+    if not parts or Path(pkg_dir).is_absolute() or ".." in parts:
+        raise Refused(f"package directory {str(pkg_dir)[:80]!r} is not a relative path inside the workspace")
+    d = ws / pkg_dir
+    while True:
+        if (d / "go.mod").is_file():
+            return d
+        if d == ws or d == d.parent:
+            raise Refused(f"no go.mod above {pkg_dir}")
+        d = d.parent
+
+
+def run_cases(root: Path, go_doc: dict, carrier_type: str, ops: dict[str, tuple[str, int]],
+              cases: list[dict]) -> tuple[dict, str]:
+    """({key: outcome}, command) of the cases on a scratch copy of the pinned checkout."""
+    from .frontends.go.extract import check_go, go_env, make_workspace, resolve_src
+    cfg = _load(root / go_doc["extraction"]["config"]["path"])
+    src = resolve_src(cfg, root)
+    head = subprocess.run(["git", "-C", str(src), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    if head != go_doc["target"]["commit"]:
+        raise Refused(f"{src} is at {head!r}, not at the Go document's commit {go_doc['target']['commit']}")
+    dirty = subprocess.run(["git", "-C", str(src), "status", "--porcelain", "--untracked-files=no"],
+                           capture_output=True, text=True).stdout.strip()
+    if dirty:   # the report attests the commit, and the workspace copies the working tree
+        raise Refused(f"{src} has local changes: {dirty[:500]}")
+    go, _ = check_go(root)
+    pkgs = {p["path"]: p["dir"] for p in go_doc["go"]["packages"]}
+    first = _go_ident(sorted(fid for fid, _ in ops.values())[0])[0]
+    if first not in pkgs:
+        raise Refused(f"package {first} is not one of the Go document's")
+    parent = Path(tempfile.mkdtemp(prefix="holon-goreplay-"))
+    try:
+        ws = parent / "src"
+        ws.mkdir()
+        make_workspace(src, ws)
+        mod = _module_dir(ws, pkgs[first])
+        (mod / TEST_PKG).mkdir()
+        (mod / TEST_PKG / "holon_goops_test.go").write_text(test_text(carrier_type, ops), encoding="utf-8")
+        (parent / "in.json").write_text(json.dumps({"cases": cases}))
+        env = go_env(GOTOOLCHAIN="local", HOLON_GOOPS_IN=str(parent / "in.json"),
+                       HOLON_GOOPS_OUT=str(parent / "out.json"))
+        cmd = ["go", "test", f"./{TEST_PKG}", "-run", "^TestHolonGoops$", "-count=1", "-v"]
+        p = subprocess.run([go] + cmd[1:], cwd=mod, env=env, capture_output=True, text=True, timeout=3600)
+        if p.returncode != 0 or not (parent / "out.json").exists():
+            raise Refused(f"the generated Go test failed (exit {p.returncode}): {(p.stdout + p.stderr)[-3000:]}")
+        out = _load(parent / "out.json")
+        return out, f"(cd {mod.relative_to(ws).as_posix()} && {' '.join(cmd)})"
+    finally:
+        shutil.rmtree(parent, ignore_errors=True)
+
+
+def build(root: Path, milestone: str) -> dict:
+    """The report of every REFUTED Go-op law of the milestone (rule Y9)."""
+    from .frontends.go.extract import check_go
+    laws = {}
+    for p in sorted((root / "laws" / milestone).glob("L*.json")):
+        law = _load(p)
+        f = law.get("facts")
+        if not isinstance(f, str) or not (root / f).is_file():
+            continue
+        doc = _load(root / f)
+        if not GO.is_goops(doc):
+            continue
+        rp = root / "results" / milestone / f"{law['law_id']}.json"
+        rec = _load(rp) if rp.is_file() else None
+        if rec is None or rec.get("status") != "REFUTED":
+            continue
+        laws[law["law_id"]] = (law, doc, rec)
+    report = {"milestone": milestone, "morph_commit": None, "go_version": None, "laws": {}, "witness_sha256": {}}
+    by_doc: dict[str, list] = {}
+    for lid, (law, doc, rec) in sorted(laws.items()):
+        by_doc.setdefault(law["facts"], []).append(lid)
+    for rel, lids in sorted(by_doc.items()):
+        doc = laws[lids[0]][1]
+        go_doc = _load(root / doc["document"])
+        raw = (root / rel).read_bytes()
+        cm = GG.CompiledModel.build(doc, hashlib.sha256(raw).hexdigest(), doc["component"], bend.config(root))
+        shapes = cm.shapes
+        ops = {}
+        cases, plan = [], {}
+        for lid in lids:
+            law, _, rec = laws[lid]
+            w = rec.get("witness") or {}
+            cells = list(bytes.fromhex(next(iter(w.values()))[2:])) if len(w) == 1 else None
+            names = named_ops(law, doc)
+            bad = [o for o in names if isinstance(shapes.get(o), GG.Unsupported)
+                   or _go_ident(doc["ops"][o]["source"]) is None]
+            if cells is None or not names or bad:
+                plan[lid] = {"not_run": f"the witness or the ops {bad or names} cannot be run from a generated test"}
+                continue
+            maps = {o: shapes[o].cell_map() for o in names}
+            cmap = next(iter(maps.values()))
+            if len(set(maps.values())) != 1 or len(cells) != cmap[2]:
+                plan[lid] = {"not_run": f"the witness is no one carrier value of the ops {names} (cell maps {maps}, "
+                                        f"{len(cells)} cells)"}
+                continue
+            expected = cm.outcomes(names, cells)   # the compiled model's outcomes at the witness
+            for o in names:
+                ops[o] = (doc["ops"][o]["source"], len(doc["ops"][o]["results"]))
+                cases.append({"key": f"{lid}/{o}", "op": o, "set": concretize(cmap, cells)})
+            plan[lid] = {"expected": expected, "witness": w}
+        outcomes, command = run_cases(root, go_doc, doc["carrier"]["type"], ops, cases) if cases else ({}, "")
+        report["morph_commit"] = go_doc["target"]["commit"]
+        for lid in lids:
+            pl = plan[lid]
+            if "not_run" in pl:
+                report["laws"][lid] = {"go": {"status": "not_run", "provenance": "library_api",
+                                              "obstruction_observed": False, "observed": {}, "expected": {},
+                                              "detail": {}, "command": "", "why": pl["not_run"]}}
+                continue
+            detail = {o: outcomes[f"{lid}/{o}"] for o in pl["expected"]}
+            observed = {o: CLASS[v.split(":", 1)[0]] for o, v in detail.items()}
+            held = observed == pl["expected"]
+            report["laws"][lid] = {"go": {"status": "passed" if held else "failed", "provenance": "library_api",
+                                          "obstruction_observed": held, "observed": observed,
+                                          "expected": pl["expected"], "detail": detail, "command": command}}
+            report["witness_sha256"][lid] = witness_sha256(pl["witness"])
+    if report["laws"]:
+        report["go_version"] = check_go(root)[1]
+    return report
+
+
+def stamp(root: Path, milestone: str, report: dict) -> list[str]:
+    """Write each REFUTED Go-op record's replay field (holon.replay.replay_status) and witness_provenance
+    (holon.filter.record_fields) from the report: what holon run writes once the report exists (holon.codecrun)."""
+    from .filter import record_fields
+    from .refute_m3 import write_record
+    from .replay import replay_status, witness_sha256
+    out = []
+    for lid in sorted(report["laws"]):
+        p = root / "results" / milestone / f"{lid}.json"
+        rec = _load(p)
+        wp, _ = record_fields(report, lid, rec.get("witness"), witness_sha256)
+        new = dict(rec, replay=replay_status(report, lid, rec.get("witness")), witness_provenance=wp)
+        if new != rec:
+            write_record(p, new)
+            out.append(lid)
+    return out
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(prog="holon replay-go")
+    ap.add_argument("--milestone", required=True)
+    ap.add_argument("--root", help="repository root (default: this checkout)")
+    a = ap.parse_args(argv)
+    if not re.fullmatch(r"M\d+", a.milestone):
+        print(f"holon replay-go: milestone {a.milestone!r} is not M<k>", file=sys.stderr)
+        return 2
+    root = Path(a.root).resolve() if a.root else ROOT
+    from .frontends.go.extract import Refused as XRefused
+    try:
+        report = build(root, a.milestone)
+    except (Refused, XRefused, OSError, KeyError, ValueError) as e:
+        print(f"holon replay-go: refused: {e}", file=sys.stderr)
+        return 2
+    out = root / "replay" / a.milestone / "goops" / "report.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(dumps(report), encoding="utf-8")
+    stamped = stamp(root, a.milestone, report)
+    for lid, e in sorted(report["laws"].items()):
+        print(f"{lid}: {e['go']['status']} {e['go']['observed']}")
+    print(f"holon replay-go: wrote {out.relative_to(root)}; stamped {len(stamped)} record(s)")
+    return 0

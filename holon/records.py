@@ -200,7 +200,8 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
     """The ledger's bundles, the "bundles" of every milestone ledger spec/M<n>/ledger.json (a document first
     modelled at that milestone, I20: the extracted model's), plus the bundles of a sidecar ledger.json next to a
     facts file (a fixture or a target outside spec/ may carry its own ledger; I6), and the generated bundle of a facts
-    file that is a linked codec document (I24) or a window view (I65). With a milestone, a bundle extended by
+    file that is a linked codec document (I24), a Go-op document (I67) or a window view (I65). With a milestone, a
+    bundle extended by
     spec/<milestone>/ledger.json (milestone_extensions) carries the extension's no_assumption groups too."""
     out = list(load_ledger(root)["bundles"])
     for p in sorted(Path(root).glob("spec/M*/ledger.json")):   # the bundles a milestone registers (I20: a document
@@ -210,6 +211,7 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
         if side.exists():
             out += json.loads(side.read_text(encoding="utf-8"))["bundles"]
         out += _linked_bundles(Path(root), facts_path)
+        out += _goops_bundles(Path(root), facts_path)
         out += _window_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
     for i, b in enumerate(out):
@@ -242,6 +244,27 @@ def _linked_bundles(root: Path, facts_path) -> list[dict]:
         return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
     except Unsupported:
         return []
+
+
+def _goops_bundles(root: Path, facts_path) -> list[dict]:
+    """I67 (rule Y8b of tests_m3/test_go_loop.py): the bundle of a Go-op document (holon.diagram.goops), generated from
+    it by holon.gen.goloop.declared_bundle: the assumptions its Go document declares and the model's own A-goloop-*
+    entries. Never hand-written: the document is itself generated (holon codecs), so its bundle follows it."""
+    p = Path(root) / facts_path
+    if p.suffix != ".json" or not p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+    except (OSError, ValueError):
+        return []
+    from .diagram.goops import is_goops
+    if not is_goops(doc):
+        return []
+    from .gen.goloop import declared_bundle
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
+        else str(facts_path)
+    return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
 
 
 def _window_bundles(root: Path, facts_path) -> list[dict]:

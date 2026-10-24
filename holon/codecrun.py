@@ -24,8 +24,10 @@ from pathlib import Path
 
 from . import bend, ir, records
 from . import lean as LN
+from .diagram import goops as GO
 from .diagram import linked as L
 from .gen import codec01 as C1
+from .gen import goloop as GG
 from .gen import linked as GL
 from .gen import refs as R
 
@@ -41,8 +43,8 @@ def _load(p: Path) -> dict | None:
 
 
 def codec_kind(law: dict, root: Path) -> str | None:
-    """"linked" (a law over a linked codec document), "facts01" (a holon-ir/0.3 law over a holon-facts/0.1 document),
-    or None (any other law: holon.mpipeline decides it)."""
+    """"linked" (a law over a linked codec document), "goops" (over a Go-op document, I67), "facts01" (a holon-ir/0.3
+    law over a holon-facts/0.1 document), or None (any other law: holon.mpipeline decides it)."""
     if law.get("ir_version") != "holon-ir/0.3" or not isinstance(law.get("facts"), str):
         return None
     doc = _load(Path(root) / law["facts"])
@@ -50,6 +52,8 @@ def codec_kind(law: dict, root: Path) -> str | None:
         return None
     if L.is_linked(doc):
         return "linked"
+    if GO.is_goops(doc):
+        return "goops"
     if C1.is_facts01(doc):
         return "facts01"
     return None
@@ -61,6 +65,7 @@ class Models:
     def __init__(self, root: Path, gen: Path, cfg: dict):
         self.root, self.gen, self.cfg = Path(root), Path(gen), cfg
         self.linked: dict = {}
+        self.goops: dict = {}
         self.facts01: dict = {}
 
     def of_linked(self, rel: str):
@@ -75,6 +80,20 @@ class Models:
             cm = GL.CompiledModel.build(doc, sha, stem, self.cfg)
             self.linked[rel] = (doc, sha, cm, src, stem)
         return self.linked[rel]
+
+    def of_goops(self, rel: str):
+        """I67 (rules Y6-Y8 of tests_m3/test_go_loop.py): a Go-op document's model gen/<M>/model/<component>.bend."""
+        if rel not in self.goops:
+            raw = (self.root / rel).read_bytes()
+            doc = json.loads(raw)
+            sha = hashlib.sha256(raw).hexdigest()
+            stem = doc["component"]
+            src = self.gen / "model" / f"{stem}.bend"
+            src.parent.mkdir(parents=True, exist_ok=True)
+            src.write_text(GG.generate(doc, sha))
+            cm = GG.CompiledModel.build(doc, sha, stem, self.cfg)
+            self.goops[rel] = (doc, sha, cm, src, stem)
+        return self.goops[rel]
 
     def of_facts01(self, rel: str):
         if rel not in self.facts01:
@@ -168,6 +187,9 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     if kind == "linked":
         doc, sha, cm, model_src, stem = models.of_linked(rel)
         compiled = cm.artifact
+    elif kind == "goops":
+        doc, sha, cm, model_src, stem = models.of_goops(rel)
+        compiled = cm.artifact
     else:
         doc, sha, cm, model_src, stem = models.of_facts01(rel)
         compiled = cm.artifact
@@ -189,6 +211,8 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
         ir.check_binder_types(law, doc)
         if kind == "linked":
             res = _decide_linked(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
+        elif kind == "goops":
+            res = _decide_goops(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
         else:
             res = _decide_facts01(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
     except ir.IRError as e:
@@ -223,7 +247,8 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
             rec["triage"] = t.get("triage", "finding")
             if t.get("why"):
                 rec["triage_why"] = t["why"]
-            rec["replay"] = replay_status(report, lid, res["witness"])
+            rec["replay"] = replay_status(goops_report(root, milestone) if kind == "goops" else report, lid,
+                                          res["witness"])
     rec.update(scope_fields(law, rec))
     rec["status"] = status
     rec["attempts"] = attempts
@@ -234,6 +259,11 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
                                                      rec, root)
     rec.update(records.v2_fields(law, rec, stmt_text, model_src, rel, compiled, root, lean_entry=lean_entry,
                                  ledger_required=not test))
+    if kind == "goops" and status == "REFUTED":   # I67 (rule Y8): its replay report is replay/<M>/goops/report.json
+        from .filter import record_fields
+        from .replay import witness_sha256
+        rec["witness_provenance"], rec["filter_bin"] = record_fields(goops_report(root, milestone), lid,
+                                                                     rec.get("witness"), witness_sha256)
     rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
     rec.update(evidence_fields(law, status, root, milestone))
     # §8.5 (I12): model_assumptions are the hypothesis premises (a codec law has none); the ledger entries meeting the
@@ -251,6 +281,20 @@ def _decide_linked(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted) 
     if dd.status in ("PROVED", "REFUTED"):
         out.update({"check": dd.check, "law_name": dd.em.name, "witness": dd.witness, "difference": dd.difference})
     return out
+
+
+def _decide_goops(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted) -> dict:
+    dd = GG.decide(law, cm, ld, pd, imp, imp, cfg, shash, write_pair, accepted)
+    out = {"status": dd.status, "attempts": dd.attempts, "bound": dd.bound,
+           "statement_text": dd.statement.text if dd.statement else None}
+    if dd.status in ("PROVED", "REFUTED"):
+        out.update({"check": dd.check, "law_name": dd.em.name, "witness": dd.witness, "difference": dd.difference})
+    return out
+
+
+def goops_report(root: Path, milestone: str) -> dict | None:
+    """I67 (rule Y9): replay/<M>/goops/report.json, the replay of the Go-op laws' witnesses on the real code."""
+    return _load(Path(root) / "replay" / milestone / "goops" / "report.json")
 
 
 def _decide_facts01(law, facts, cm, ld, pd, imp, cfg, shash, write_pair, accepted) -> dict:

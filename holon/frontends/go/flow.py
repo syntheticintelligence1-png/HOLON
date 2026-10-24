@@ -36,7 +36,7 @@ class Site:
 
 class Loop:
     __slots__ = ("header", "body", "back", "span", "depth", "kind", "iv", "init", "step", "cmp", "limit", "fuel",
-                 "exits", "x", "in_succ", "exit_succ", "phi")
+                 "exits", "x", "in_succ", "exit_succ", "phi", "k")
 
 
 class Flow:
@@ -448,7 +448,7 @@ class Flow:
         fn = self.fn
         L.span, stmt, has_cond = self._span(L)
         L.kind, L.iv, L.init, L.step, L.cmp, L.limit, L.fuel = "unbounded", None, None, None, None, None, None
-        L.x, L.in_succ, L.exit_succ, L.phi = None, None, None, None
+        L.x, L.in_succ, L.exit_succ, L.phi, L.k = None, None, None, None, 0
         hb = fn.blocks[L.header]
         last = hb.last
         if has_cond and last is not None and last.op == "If" and len(hb.succs) == 2:
@@ -509,6 +509,7 @@ class Flow:
         else:
             L.fuel = None
         L.phi = phi
+        L.k = k   # the header compares x = phi + k; init, limit and cmp are about x (I67: loop-body mode binds x)
 
     def _exits(self, L) -> list:
         fn = self.fn

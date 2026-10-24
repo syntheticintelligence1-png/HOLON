@@ -89,7 +89,8 @@ def main(argv=None) -> int:
 
 
 def linked_diagrams(milestone: str, root: Path) -> dict[str, str]:
-    """From M3 on (I24, rule X6): {model: diagram text} of every linked codec document gen/<M>/codec/<role>.json."""
+    """From M3 on (I24, rule X6): {model: diagram text} of every linked codec document gen/<M>/codec/<role>.json, and
+    (I67, rule Y4 of tests_m3/test_go_loop.py) of every Go-op document gen/<M>/goops/<component>.json."""
     import hashlib
     import json
 
@@ -111,6 +112,17 @@ def linked_diagrams(milestone: str, root: Path) -> dict[str, str]:
         dg["provenance"] = {}
         dg["inputs"] = []
         out[doc["component"]] = dumps(dg)
+    from . import goops as GO   # I67 (rule Y4 of tests_m3/test_go_loop.py): the Go-op components' diagrams
+    try:
+        gdiagrams = GO.diagrams(milestone, root)
+    except (L.LinkedError, KeyError, TypeError) as e:
+        raise DiagramError(str(e)) from e
+    for model, dg in gdiagrams.items():
+        if model in out:
+            raise DiagramError(f"a Go-op component and a linked component share the model name {model}")
+        dg["provenance"] = {}
+        dg["inputs"] = []
+        out[model] = dumps(dg)
     if not out:
         raise DiagramError(f"no linked codec documents under gen/{milestone}/codec (run `holon codecs --milestone "
                            f"{milestone}`)")
