@@ -78,10 +78,11 @@ def _field(w: dict, suffix: str) -> bytes:
 def par_records() -> dict:
     """The records of the PAR laws but those of sub-form init_chain (amended at the I28 prereg, spec/M3/amendments.jsonl:
     I28 adds a PAR law of the sub-form init_chain over the versioned document, which I24's outcome checks never
-    covered)."""
+    covered) and those over a Go-op document (amended at the I67 prereg: I67's laws over gen/M3/goops/)."""
     ls = laws("M3")
     return {k: v for k, v in records("M3").items()
-            if ls.get(k, {}).get("rule") == "PAR" and ls.get(k, {}).get("subform") != "init_chain"}
+            if ls.get(k, {}).get("rule") == "PAR" and ls.get(k, {}).get("subform") != "init_chain"
+            and not str(ls.get(k, {}).get("facts") or "").startswith("gen/M3/goops/")}
 
 
 # ---------------------------------------------------------------------------------------------- fixtures (run)
@@ -376,7 +377,9 @@ class TestBacktest(unittest.TestCase):
 class TestM3Construction(unittest.TestCase):
     def test_every_m3_law_has_a_valid_record(self):
         # the PAR laws but those of sub-form init_chain (amended at the I28 prereg, spec/M3/amendments.jsonl, as par_records)
-        ls = {k: v for k, v in laws("M3").items() if v.get("rule") == "PAR" and v.get("subform") != "init_chain"}
+        # and those over a Go-op document (amended at the I67 prereg, as par_records)
+        ls = {k: v for k, v in laws("M3").items() if v.get("rule") == "PAR" and v.get("subform") != "init_chain"
+              and not str(v.get("facts") or "").startswith("gen/M3/goops/")}
         recs = par_records()
         reg = load_json(LAWS3 / "REGISTRY.json")
         self.assertTrue(ls, "laws/M3 holds no PAR law")

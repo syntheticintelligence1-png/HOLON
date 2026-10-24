@@ -2974,6 +2974,199 @@
           "I25": 1
         }
       }
+    },
+    "I67": {
+      "title": "I67 (= I38a): Go codecs at loop granularity (holon-go-frontend/0.2 loop bodies), Go-op components over interface carriers decided by rule PAR's existing producers, and O4 at the real blob size (4096 field elements) in both kernels, replayed on the real Go code",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I67)",
+      "prompt": "prompts/I67_go_loop.md",
+      "predictions": [
+        {
+          "id": "I67-P1",
+          "claim": "O4 (PAR-totality): L_par_tot_batch_RetrieveBlobBytes, forall b: Blob. ok_batch_RetrieveBlobBytes(b) == true, derived over gen/M3/goops/blob_ops.json, is REFUTED by holon run at the real size: its witness is the 4096-cell sequence whose cell 3968 is 1 and every other cell 0 (the first field element whose index i*32 runs off the 126976-byte output), the counter-law accepted by bend, its record's kernel verdict checked by BendTT, with no reduced N, its difference false against true; holon replay-go's side passes: on the blob whose byte 126976 is 1 and every other byte 0, morph-l2/common/batch.RetrieveBlobBytes panics with a runtime index error at data[126976] (length 126976). Recorded, not counted (thresholds.disclosure): a draft model's counter-law of this shape, at the 3969-cell sequence of 3968 zeros and then a 1, checked in both kernels on the draft branch claude/ci-i67-wip (I67-R4), and the smoke run on this key's base observed the record, its kernel verdict and the replay as claimed here.",
+          "check": "tests_m3/test_go_loop.py::TestOutcomes::test_p1_o4_totality_refuted_at_real_size"
+        },
+        {
+          "id": "I67-P2",
+          "claim": "PAR-weak over the clone pair (the E6 atom of their shared name tokens): L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes is REFUTED at the same witness, its difference OPanic against OErr, its kernel verdict checked; holon replay-go's side passes: the batch clone panics and the blob clone returns a non-nil error. Recorded, not counted (thresholds.disclosure): the smoke run on this key's base observed the record, its kernel verdict and the replay as claimed here.",
+          "check": "tests_m3/test_go_loop.py::TestOutcomes::test_p2_clone_pair_refuted"
+        },
+        {
+          "id": "I67-P3",
+          "claim": "PAR domain coherence over the interface carrier Blob: L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes is REFUTED at the same witness, its difference false against true, its kernel verdict checked; replayed as I67-P2. Recorded, not counted (thresholds.disclosure): the smoke run on this key's base observed the record, its kernel verdict and the replay as claimed here.",
+          "check": "tests_m3/test_go_loop.py::TestOutcomes::test_p3_domain_coherence_refuted"
+        },
+        {
+          "id": "I67-P4",
+          "claim": "The fixed copy: L_par_tot_blob_RetrieveBlobBytes is UNKNOWN. No candidate refutes it (its model has no panic path), and a forall law over cell sequences has no proof route here (gap G6); its record's bound names the candidates and G6, and no law file is kept. The instrument sees the real blob clone panic on none of its 4101 probes. Recorded, not counted (thresholds.disclosure): the draft model's counter-law for the blob clone failed at the all-zero 4096-cell sequence on the draft branch claude/ci-i67-wip (I67-R4), and the smoke run on this key's base observed the record as claimed here.",
+          "check": "tests_m3/test_go_loop.py::TestOutcomes::test_p4_fixed_copy_unknown"
+        },
+        {
+          "id": "I67-P5",
+          "claim": "holon derive --milestone M3 derives over gen/M3/goops/blob_ops.json exactly four laws with the catalog's PAR producers unchanged: L_par_tot_batch_RetrieveBlobBytes and L_par_tot_blob_RetrieveBlobBytes (totality), L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes (weak) and L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes (domain_coherence), with the instrument's statements; the cycle element of CODEC.blob_RetrieveBlobBytes (the component's one non-tree edge) is recorded as a duplicate of the weak law, and no commit of I67's changes the rule catalog. Recorded, not counted (thresholds.disclosure): the prereg review ran this derivation, and the smoke run on this key's base derived the four laws as claimed here.",
+          "check": "tests_m3/test_go_loop.py::TestDerivation::test_p5_four_laws_and_the_duplicate"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I67-R1",
+          "claim": "holon-go-frontend/0.1 is unchanged: the five M2 Go documents (spec/M2/facts/*.go.extracted.json) re-extract byte for byte from spec/M2/lib/go_frontend.json, I18's O4 localization included.",
+          "check": "tests_m3/test_go_loop.py::TestFrontend::test_r1_m2_documents_reextract_byte_identical"
+        },
+        {
+          "id": "I67-R2",
+          "claim": "Judged at each of I67's own commits against its first parent: under laws/M3, results/M3 and gen/M3 only the four laws and records, their law and proof directories, gen/M3/goops/, gen/M3/diagram/blob_ops.json, gen/M3/model/blob_ops.bend and what rule Y11's recipe writes change (gen/M3/evidence.json, REGISTRY.json and DERIVATION.json gaining only the four laws, gen/M3/par_lossy/header_length.json in its evidence input sha256 alone, results/M3/summary.json, deps.json and splits.json gaining only the four laws, results/M3/metrics.json and metrics_timing.json (timings only), results/M3/refute/concretization.json and filter.json gaining only the four laws' entries, and the base's PAR records, law and proof directories, each record in generator_sha256 and seconds alone); every other law's DERIVATION entry, statement hash included, is unchanged.",
+          "check": "tests_m3/test_go_loop.py::TestRegressions::test_r2_nothing_else_changes"
+        },
+        {
+          "id": "I67-R3",
+          "claim": "Construction honesty: holon/diagram/goops.py, holon/gen/goloop.py and holon/frontends/go hold no target name, span or blob constant and import no test code; the Go-op documents and the model come from the sidecar and the Go document alone; the witness comes from the compiled model.",
+          "check": "tests_m3/test_go_loop.py::TestComponent::test_y3_y6_no_target_vocabulary"
+        },
+        {
+          "id": "I67-R4",
+          "claim": "Recorded, not counted (reclassified from a prediction by the prereg review, finding M6): observed on the draft branch claude/ci-i67-wip before this prereg, and disclosed in the prompt. (a) f87fdaa: the 0.2 extraction of the two packages gave the batch clone's loop body (4096 iterations from 0) exactly one panic path, at the site its 0.1 sites section holds open (I18's data[i*32] at common/batch/blob.go:49:102:index), and the blob clone's none; the M3 document is held to that here. (b) 959ef04: the draft's model generated from those loop bodies checked {ok(W) == False} for the batch clone, at W the 3969-cell sequence of 3968 zeros and then a 1, in bend (3.9 s) and BendTT --verdict (3.7 s), and the blob clone's counter-law failed at the all-zero 4096-cell sequence. (c) A hand-written spike of the same shape: bend 0.84 s, BendTT 2.75 s; a flat array indexed with U32 arithmetic ran out of the kernel's fuel at 2048 iterations.",
+          "check": "tests_m3/test_go_loop.py::TestFrontend::test_r4_the_two_loop_bodies"
+        },
+        {
+          "id": "I67-R5",
+          "claim": "Judged at each of I67's own commits: a record of results/M1, results/M2 or results/T32 that an own commit changes equals its parent's version but for generator_sha256 and keys named seconds (holon run --milestone M1 and M2 and holon profile --milestone T32 re-make them for I67's generator closures, the filter stage writing their filter fields back, as I66's V7 did); no own commit changes laws/M0, results/M0, gen/M0 or replay/M0.",
+          "check": "tests_m3/test_go_loop.py::TestRegressions::test_r5_earlier_records_in_stamps_alone"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M3/facts/morph_blob.go.extracted.json",
+        "gen/M3/goops/",
+        "gen/M3/diagram/blob_ops.json",
+        "gen/M3/model/blob_ops.bend",
+        "laws/M3/L_par_tot_batch_RetrieveBlobBytes.json",
+        "laws/M3/L_par_tot_blob_RetrieveBlobBytes.json",
+        "laws/M3/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes.json",
+        "laws/M3/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes.json",
+        "results/M3/L_par_tot_batch_RetrieveBlobBytes.json",
+        "results/M3/L_par_tot_blob_RetrieveBlobBytes.json",
+        "results/M3/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes.json",
+        "results/M3/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes.json",
+        "gen/M3/laws/L_par_tot_batch_RetrieveBlobBytes/",
+        "gen/M3/laws/L_par_tot_blob_RetrieveBlobBytes/",
+        "gen/M3/laws/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes/",
+        "gen/M3/laws/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes/",
+        "gen/M3/proofs/L_par_tot_batch_RetrieveBlobBytes/",
+        "gen/M3/proofs/L_par_tot_blob_RetrieveBlobBytes/",
+        "gen/M3/proofs/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes/",
+        "gen/M3/proofs/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes/",
+        "replay/M3/goops/",
+        "docs/iterations/I67.md"
+      ],
+      "tests": [
+        "tests_m3/test_go_loop.py"
+      ],
+      "thresholds": {
+        "base": "089b43a4 (the lead after I28's prereg merge, PR #47; CI run 40060654416 passed all 11 jobs there, gate-M3-partial and gate-M3-G2 included), with BUILD_PLAN's row I67 (7c9997d2) and its naming correction (f1ffb566)",
+        "instrument": "tests_m3/_i67.py",
+        "instrument_sha256": "48f5785033c550d8ab7d782d8205d51f254921ee93934bb9fc9e6e099d670062",
+        "go_instrument": "tests_m3/fixtures/go_loop/holon_i67_instrument.go.txt",
+        "go_instrument_sha256": "6beb894e31f2ee68d4fd99a7ca4b1b09ed1a0fef35b4de8d46a27025dc5646cb",
+        "contract_docstring_sha256": "8e4a49e20811770cd0ef6a234baaa3313f595ceeb16db89f5725360f8ecab08e",
+        "frontend_config": {
+          "path": "spec/M3/lib/go_frontend.json",
+          "sha256": "95aadbadb5c01bb823987c10d86f51229e95d91d7d5bef82f38fb3db799c1aa3"
+        },
+        "sidecar": {
+          "path": "spec/M3/lib/go_ops.json",
+          "sha256": "f96c9ea8e652f00369dfcbcc2ab4cb37fac51aa9f14ab5b145eca3407306849d"
+        },
+        "document": "spec/M3/facts/morph_blob.go.extracted.json",
+        "component": "blob_ops",
+        "carrier": {
+          "id": "Blob",
+          "type": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob"
+        },
+        "ops": {
+          "batch_RetrieveBlobBytes": "morph-l2/common/batch.RetrieveBlobBytes",
+          "blob_RetrieveBlobBytes": "morph-l2/common/blob.RetrieveBlobBytes"
+        },
+        "laws": {
+          "L_par_tot_batch_RetrieveBlobBytes": "REFUTED",
+          "L_par_tot_blob_RetrieveBlobBytes": "UNKNOWN",
+          "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": "REFUTED",
+          "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": "REFUTED"
+        },
+        "duplicate": {
+          "L_par_cy_blob_RetrieveBlobBytes": "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
+        },
+        "statuses": {
+          "PROVED": 0,
+          "REFUTED": 3,
+          "UNKNOWN": 1
+        },
+        "counted_predictions": [],
+        "observed_before_prereg": {
+          "I67-P1": "the draft's model side (R4 b, at 3969 cells); the record, its kernel verdict and its replay in the smoke run (disclosure 3)",
+          "I67-P2": "the record, its kernel verdict and its replay in the smoke run (disclosure 3)",
+          "I67-P3": "the record, its kernel verdict and its replay in the smoke run (disclosure 3)",
+          "I67-P4": "the draft's model side (R4 b, at the all-zero sequence); the record in the smoke run (disclosure 3)",
+          "I67-P5": "the derivation, by the prereg review (disclosure 2) and in the smoke run (disclosure 3)",
+          "I67-R4": "the loop bodies (R4 a), reclassified from a prediction"
+        },
+        "witness": {
+          "cells": 4096,
+          "trip_cell": 3968,
+          "trip_value": 1,
+          "other_cells": 0,
+          "stride": 32,
+          "concretized": "the 131072-byte blob whose byte 126976 is 1 and every other byte 0"
+        },
+        "differences": {
+          "L_par_tot_batch_RetrieveBlobBytes": {
+            "lhs": false,
+            "rhs": true
+          },
+          "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": {
+            "lhs": "OPanic",
+            "rhs": "OErr"
+          },
+          "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": {
+            "lhs": false,
+            "rhs": true
+          }
+        },
+        "replay": {
+          "provenance": "library_api",
+          "status": "passed",
+          "observed": {
+            "batch_RetrieveBlobBytes": "OPanic",
+            "blob_RetrieveBlobBytes": "OErr"
+          }
+        },
+        "filter": {
+          "kind": "go_only",
+          "filter_bin": "pending",
+          "why": "holon.filter.final_bin F4: a Go-only witness has no public path in the Solidity system; the node-level path is I39's (rule K2 before K1's definedness clause: Y10, amended in I40's contract)"
+        },
+        "rule_catalog_version": "unchanged by I67 (holon-rules/1.5 at the base; I28's build holds 1.6)",
+        "remade": "the base's 80 M3 PAR records (holon run --laws <every PAR law>), every M1, M2 and T32 record (holon run M1, M2; holon profile T32), each in generator_sha256 and seconds alone; every typed, UNDO, DISCH and FACT M3 record trails I67's closures until the next M3 re-make, as at the base (I28's build re-makes them)",
+        "closures": "I67's code is in the holon-ir/0.2 and 0.3 closures and in I32's (holon.profile.generator_files), not in holon-ir/0.1's (M0)",
+        "g1_window": "from this prereg's merge to the build's, M3's full-gate G1 reports spec/M3/facts/morph_blob.go.extracted.json missing (the base frontend refuses config 0.2); CI runs no M3 G1",
+        "instrument_probes": 4101,
+        "real_code_at_prereg": "the batch clone errs below element 3968 and panics with a runtime index error from 3968 to 4095 (128 elements); the blob clone errs on every element and never panics; both return the same bytes on the zero blob (I18's O4, re-observed by this key's instrument); the batch clone's error text formats the zeroed output byte data[i*32], not the blob's high-order byte",
+        "amendments": [
+          "tests_m3/test_derive_par.py: _Morph.derived (and its two inheritors), TestDeriveM3.test_derivation_follows_the_rules, TestPredictedMorph.test_cycle_basis_count_equals_the_preregistered_rank (I24)",
+          "tests_m3/test_par_outcomes.py: par_records, TestM3Construction.test_every_m3_law_has_a_valid_record (I24)",
+          "tests_m3/test_lean_promoted.py: TestRegressions.test_statuses_and_bend_files_are_unchanged (I43)",
+          "tests_m3/_i40.py: concretization_kind, with the K1/K2 text of tests_m3/test_refute.py's contract (I40)",
+          "tests_m3/test_catalog_rederivation.py: test_the_80_par_laws_each_have_one_line (F39, no key's test; no amendment line)"
+        ],
+        "review": "docs/iterations/I67_prereg_review.json (no sign-off on the draft: 1 blocking, 6 major, 15 minor findings, each folded here); docs/iterations/I67_prereg_verification.json (no sign-off: 1 blocking, 2 major and 5 minor new findings, N1-N8, and B1, M6 and m6 partly fixed; each folded here after it, the fold itself not re-verified)",
+        "coordination": "I28 (brave-wright) holds holon-rules/1.6, the PAR init_chain sub-form and the M3 re-make on runners; I67's checks are judged at its own commits, and whichever of I67 and I28 merges second re-derives laws/M3 and re-makes what changes",
+        "deferred": [
+          "I38: HypZ, HypZ_len, O5, O6, O28, D3",
+          "I39: the node-level path that would make O4's bin a finding",
+          "a proof route for forall laws over cell sequences (gap G6)",
+          "whether the E6 lexicon should read only the last name segment of a Go-op edge's function (a Question)"
+        ],
+        "known_red_at_base": "Two checks are red at the base 089b43a4, and I67 changes neither cause. (1) tests_m3/test_lean_promoted.py::TestRegressions.test_statuses_and_bend_files_are_unchanged, on the 6 DISCH nonvac LAWS.bend files F40's re-made inhabitants (5b369d4) changed beyond their statement hash, the first being gen/M3/L_disch_rev_initializable_120_b8d46c45/nonvac/LAWS.bend: its amendment here touches only the count of M3 PAR records, and the F40 follow-up that brings I43's baselines for those 6 files up to date is the lead's. (2) tests_m3/test_refute.py::TestRecordsAndShared.test_outcome_commits_touch_no_earlier_milestone, 9 failures on I26's commits e122e7a and 4784042: I67's commits are grouped (rule Y11) so that none of them adds a failure.",
+        "disclosure": "What was observed before this commit (the prereg review's finding M6; the verification's N1 and N4). (1) On the draft branch claude/ci-i67-wip, 2026-10-23: 3f17e71 and f87fdaa ran the opt-in frontend on common/batch and common/blob (I67-R4 a); 959ef04's draft model checked the batch clone's counter-law {ok(W) == False} in bend and BendTT --verdict at W the 3969-cell sequence of 3968 zeros and then a 1, and the blob clone's counter-law failed at the all-zero 4096-cell sequence (I67-R4 b). (2) The prereg review ran I67-P5's derivation (holon.rules.par.derive_document on the Y4 diagram; its verified[2]). (3) After the review was folded (2026-10-24, 13:37-13:44 UTC), the build code was smoke-run on this key's base 089b43a4 in a scratch worktree, 13:50-13:58: holon extract go, codecs, diagram, evidence, derive and lossy for M3, holon run on the four laws alone, holon replay-go and this key's contract tests (holon bind was started too). It observed every prediction's outcome as predicted: the four laws and statements of I67-P5; I67-P1-P3 REFUTED at cell 3968 = 1 with kernel verdict checked and their replays passed; I67-P4 UNKNOWN with its bound. It also found two contract gaps, both closed before this commit: test_y1_loop_bodies_shape required an error class on a return from a function without an error result, where the paths section writes null (Y1 now says so, and the test was narrowed at 13:58, after it failed); and Y9's stamp must write witness_provenance for Y8 to hold in Y11's order (Y9 and Y11 now say so). The smoke run's code and outputs are backed up, never to be merged, at 42c54af on claude/ci-i67-build-wip, as the draft build's are at ad274fe; neither commit enters the lead's history. So no prediction of this key is counted (counted_predictions is empty; observed_before_prereg names what was seen of each). The predicted values were fixed before the smoke run and not changed by it: the statuses, witness and differences are the draft key's at ad274fe (pushed 2026-10-24T13:09Z) and the reviewed key's."
+      }
     }
   }
 }

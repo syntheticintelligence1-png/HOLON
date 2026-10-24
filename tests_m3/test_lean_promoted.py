@@ -1036,7 +1036,8 @@ class TestRegressions(unittest.TestCase):
         does not regenerate (gap LP-G9; review 2, B3), keep their status, statement hash, generator hash, witnesses
         and kernels as at the prereg (sidecar unregenerated_records); records outside the attempted laws gain no
         lean4 entry, but those of the laws an intent contract derives (intended_weak; amended at the I65 prereg,
-        spec/M3/amendments.jsonl: their lean4 entry is G7's and tests_m3/test_o12.py's)."""
+        spec/M3/amendments.jsonl: their lean4 entry is G7's and tests_m3/test_o12.py's); the M3 PAR records counted are
+        those over the linked codec document (amended at the I67 prereg: I67's laws over a Go-op document are not I43's)."""
         for path, st in side()["statuses"].items():
             with self.subTest(record=path):
                 self.assertEqual(load_json(ROOT / path).get("status"), st)
@@ -1054,7 +1055,8 @@ class TestRegressions(unittest.TestCase):
             self.assertIsNotNone(m, f"{f['path']}: only a law file's statement_hash may change")
             for h in re.findall(r"statement_hash: (sha256:[0-9a-f]{64})", b.decode("utf-8")):
                 self.assertEqual(h, reg[m.group(1)][m.group(2)], f["path"])
-        par = sorted((ROOT / "results" / "M3").glob("L_par_*.json"))
+        par = [p for p in sorted((ROOT / "results" / "M3").glob("L_par_*.json"))
+               if not str(load_json(ROOT / "laws" / "M3" / p.name).get("facts") or "").startswith("gen/M3/goops/")]
         self.assertEqual(len(par), 80)
         stale = [p.stem for p in par if load_json(p).get("statement_hash") != reg["M3"][p.stem]]
         self.assertEqual(stale, [], "M3 PAR records with a statement hash other than the registry's")

@@ -1,0 +1,319 @@
+{
+  "review": "Adversarial review of the uncommitted I67 (= I38a) prereg in /home/user/HOLON/.claude/worktrees/i67. HEAD 7c9997d2305cc168510bfb0304fc07470b1a64b2 (BUILD_PLAN row I67) on base 089b43a4ce8b1dda3e9d394180e5c6d833ec1e3a. Scope: the I67 key of spec/M3/predictions.json (P1-P6, R1-R3, outcome_paths, tests, thresholds); the contract (Y1-Y12) and tests of tests_m3/test_go_loop.py; the instrument tests_m3/_i67.py and tests_m3/fixtures/go_loop/holon_i67_instrument.go.txt; spec/M3/lib/go_frontend.json and go_ops.json; prompts/I67_go_loop.md; BUILD_PLAN row I67 (docs/BUILD_PLAN.md:345) and section I38 (:1278-1292). These were checked against holon/ at HEAD, the CI workflow, the earlier keys' tests, the real Go code at /root/work/morph@3e44e795, and the draft branch origin/claude/ci-i67-wip with its scratchpad artifacts.",
+  "commit": "7c9997d2305cc168510bfb0304fc07470b1a64b2 (working tree: 1 modified file, 6 new files, uncommitted)",
+  "reviewer": "independent prereg review (fresh agent)",
+  "verdict": "no sign-off",
+  "verdict_note": "Most of the prereg is sound. The audit accepts the commit, the instrument is independent and correct (4101 probes, the real-code O4 reproduced), and P5 holds by execution of rule PAR on the Y4 diagram. The contract and its regressions, however, are not consistent with the repository it lands in. B1: I67-R2's allow-list forbids files that Y11's own recipe and earlier keys' preregistered tests require to change, so R2 fails by construction. Six major findings: closure churn of the M1, M2 and T32 records (CI gate-M1, gate-M2 and I32's C1 go red); earlier keys' tests that pin the 80-law PAR set (I24, I43, and CI's tests-m3-catalog), with no amendments; unstated code changes that G3, G9, GEVID and G2 need (IR binder rule, generated ledger bundle, evidence schema, bindings and holon bind, statement refs); Y10 contradicting I40's rule K1 in kind_of; tests that compare HEAD with the prereg on files I28's planned build changes; and pre-prereg end-to-end runs that the prereg does not disclose. Each fix is a text or test change that is cheap now but needs amendments once the key is frozen.",
+  "findings": [
+    {
+      "id": "B1",
+      "severity": "blocking",
+      "where": [
+        "tests_m3/test_go_loop.py:108-113 (Y11 recipe)",
+        "tests_m3/test_go_loop.py:625-644 (test_r2, allowed set 633-640)",
+        "spec/M3/predictions.json:3021-3024 (I67-R2)",
+        "holon/refute_m3.py:390-480, 897-900, 911-919",
+        "tests_m3/test_refute.py:950-982",
+        "holon/__main__.py:95-115, 258-280",
+        "holon/mpipeline.py:627-646, 987-991",
+        "results/M3/summary.json (80 PAR entries)",
+        "gen/M3/par_lossy/header_length.json (inputs pin gen/M3/evidence.json sha256 ddd858cb...)",
+        "holon/rules/par_lossy.py:829-834",
+        "tests_m3/test_par_lossy.py:550-570, 763-773"
+      ],
+      "what": "I67-R2 lets I67's own commits change, under laws|results|gen/M3, only the four laws and records, their law and proof dirs, gen/M3/goops/, gen/M3/diagram/blob_ops.json, gen/M3/model/blob_ops.bend, gen/M3/evidence.json, REGISTRY and DERIVATION. Following Y11, and keeping earlier keys' committed tests green, necessarily changes four groups of files outside that list. (1) Y11's last step, `holon refute --milestone M3 --only filter`, writes results/M3/refute/concretization.json and filter.json (refute_m3.py:897-900, 911-919). I40's tests require both to list every REFUTED record at HEAD (test_refute.py:960 assertIn(key, concretization records); :971-972 filter.json keys == REFUTED records). (2) `holon run --milestone M3 --laws <the four>` goes to mpipeline.run_m1(only) (__main__.py:95-115, 258-280). Its clean_gen (mpipeline.py:627-633) deletes all of gen/M3/model and gen/M3/core, and gen/M3/model/header_length.bend (the linked component model, bound by spec/bindings for 80 laws) is regenerated only by running a linked law. run_m1 also rewrites results/M3/summary.json, deps.json and splits.json with the listed laws only (mpipeline.py:987-991); summary.json holds the 80 PAR laws today. (3) Y4 changes gen/M3/evidence.json. gen/M3/par_lossy/header_length.json pins that file's sha256 in its inputs, and results/M3/metrics.json carries its evidence_sha256 (par_lossy.py:829-834). I25's tests require both to regenerate byte for byte (test_par_lossy.py:555-569 `holon lossy --check` and tree equality; :763-773 metrics). (4) All of these match ^(laws|results|gen)/M3/ and are outside test_r2's allowed set. Either I67-R2 is missed by construction, or I40's and I25's preregistered tests go red, or the build commits a deleted header_length.bend and a 4-entry summary.json.",
+      "fix": "Before freezing, add to I67-R2's claim, Y11 and test_r2 the shared files and how each may change. results/M3/refute/concretization.json and filter.json: by `holon refute --only filter`, gaining exactly the three new keys. gen/M3/par_lossy/header_length.json: `holon lossy --milestone M3`, its evidence input sha256 alone. results/M3/metrics.json: `holon metrics --milestone M3`. Then decide how the four records are made without breaking results/M3/{summary,deps,splits}.json and gen/M3/model/header_length.bend. Either specify a holon/mpipeline.py change, so that a --laws run keeps the other laws' entries and model files, or run all 84 PAR laws and let the 80 linked PAR records change in generator_sha256 and seconds alone (an R2 clause as I66 wrote for M1 and M2). State the per-file constraints in test_r2, not a blanket allowance."
+    },
+    {
+      "id": "M1",
+      "severity": "major",
+      "where": [
+        "tests_m3/test_go_loop.py:111-113 (Y11: 'generator_sha256 is not compared for M3')",
+        "spec/M3/predictions.json:3133",
+        "holon/records.py:63-67, 376-395",
+        "holon/sorts/run3.py:50-51",
+        "holon/profile.py:47-65",
+        "holon/fact/gate.py:141-151",
+        "holon/sorts/gate3.py:632-640",
+        "holon/gate.py:1294-1347",
+        ".github/workflows/holon-ci.yml:110-117",
+        "tests_m3/test_disch_profile.py:212-233",
+        "tests_m3/test_view_evidence.py:80-110 (I66 V7)",
+        "tests_m3/test_o12.py:102",
+        "tests_m3/test_versions.py:277-282, 305-308"
+      ],
+      "what": "The modules the build must edit (prompt deliverables holon/rules/__init__.py, holon/codecrun.py, holon/gen/refs.py and holon/diagram/{__init__,evidence}.py; and, per M3, holon/ir.py, holon/bindings.py and holon/records.py) are in the holon-ir/0.2 and 0.3 generator closures, in GEN3/GEN_FACT/GEN_UNDO/GEN_DISCH, and in holon.profile.generator_files (T32). holon/refute_m3.py and holon/frontends/go are in none (computed with holon.records._holon_imports at HEAD). At base, M1's 16, M2's 13 and T32's 5 records carry today's digests (dc6a12b4, 98a46315, 3c11eb3e), and all 131 M3 records already trail. Y11 and thresholds.other_m3_records speak of M3 only. Effects: CI's full gate-M1 and gate-M2 run G1, which compares records with only 'seconds' stripped (gate.py:1320-1325), and goes red; I32's C1 (test_disch_profile.py:212-233, up to seconds) goes red. The parenthetical '(generator_sha256 is not compared for M3)' is false. FACT's G1 (fact/gate.py:148-151) and gate3's G1 (norm_record strips only seconds) compare it; only CI's gate-M3-partial does not. I66's V7 said exactly that. I65, I66 and I28 each named the M1/M2/T32 re-make in their contracts.",
+      "fix": "Add to Y11, in I66 V7's words: `holon run --milestone M1` and `--milestone M2`, then `holon refute --milestone M3 --only filter`, so every M1 and M2 record changes in generator_sha256 and seconds alone; and `holon profile --milestone T32`, so T32's five records change likewise. Restate the M3 clause: 'the full M3 gate's G1 (holon/fact/gate.py rerun_problems, holon/sorts/gate3.py G1) fails on that staleness as at the base; CI runs no M3 G1'. Add I28's constraint that no closure module comes to import one of I32's six files (I32-R2 computes closures at HEAD)."
+    },
+    {
+      "id": "M2",
+      "severity": "major",
+      "where": [
+        "tests_m3/test_catalog_rederivation.py:59-67 (CI job tests-m3-catalog, .github/workflows/holon-ci.yml:128-132)",
+        "tests_m3/test_derive_par.py:570-576 (_Morph.derived), 802-815 (test_law_ir), 838-865 (test_derivation_follows_the_rules), 1124-1155 (test_cycle_basis_count_equals_the_preregistered_rank), 1157-1185 (test_the_morph_par_laws)",
+        "tests_m3/test_par_outcomes.py:78-84 (par_records), 274-292 (test_evidence_triage_of_the_m3_records)",
+        "tests_m3/test_lean_promoted.py:1031-1058 (TestRegressions.test_statuses_and_bend_files_are_unchanged)",
+        "spec/M3/amendments.jsonl (I28's lines for derived()/par_records())",
+        "tests_m3/test_view_evidence.py:111 (I66 V8)"
+      ],
+      "what": "P5 adds four laws named L_par_* over gen/M3/goops/blob_ops.json, rule PAR, plus a blob_ops entry in DERIVATION's cycle_rank and par_basis. These assertions then fail by construction: test_catalog_rederivation's len(laws/M3/L_par_*.json) == 80 and f30 ids == that list (CI job tests-m3-catalog; I28 avoided it by naming its law L_pinit_). In I24's tests: derived() keeps every PAR law but init_chain, so sorted(ls) == the 80 sidecar laws fails, as do basis_rows equality and 'every PAR entry's facts == CODEC_DOC' (test_derivation_follows_the_rules), law['facts'] == CODEC_DOC for every derived PAR law (test_law_ir), cycle_rank == {header_length: ...} and the cycle-element set (I24-P1), and the subform counts {round_trip 70, cc 6, weak 3, dom 1} (I24-P2). par_records() makes sorted(recs) == sorted(sidecar) fail (I24-P7). I43 asserts exactly 80 results/M3/L_par_*.json. test_derive_par.py:745 validates gen/M3/evidence.json against the evidence schema (M3). I28 amended exactly these helpers at its prereg, and I66 amended earlier tests in its prereg PR (V8). I67's prereg amends none and its contract does not mention them.",
+      "fix": "In this prereg's PR, amend each with an amendment line under its own key, narrowed to I67's outcomes. derived(), par_records(), test_law_ir and the entries filter take PAR laws whose facts is gen/M3/codec/header_length.json (or exclude facts under gen/M3/goops/). cycle_rank compares the component's key, and par_basis rows are filtered by model. I43's pin counts the linked component's PAR records. Fix test_catalog_rederivation (an F-fix: it is no key's test) to count PAR laws over the linked codec document. List them in a V8-style rule of the contract."
+    },
+    {
+      "id": "M3",
+      "severity": "major",
+      "where": [
+        "holon/ir.py:67-90",
+        "holon/gate.py:1426-1456 (G3 binder check 1442-1449)",
+        "holon/codecrun.py:43-55, 186-196",
+        "holon/records.py:199-245, 296-317, 477-525 (v2_fields; ledger_required)",
+        "spec/schemas/result_record_v2.schema.json (ledger_match const exact)",
+        "holon/gen/linked.py:1129-1168 (I24's generated bundle, rule X5)",
+        "spec/schemas/evidence.schema.json (models.*.facts_version enum)",
+        "holon/diagram/evidence.py:1108-1117",
+        "tests_m3/test_derive_par.py:745",
+        "holon/bindings.py:332-346, 349-426, 489-504",
+        "holon/gate.py:1139-1188",
+        "holon/gen/refs.py:591-620",
+        "tests_m3/test_go_loop.py:92-94 (Y8)",
+        "prompts/I67_go_loop.md:37-48"
+      ],
+      "what": "The CI gates (gate-M3-partial: G3, G9, GEVID; gate-M3-G2) and Y8 need holon changes that no Y-rule names. G3: ir.check_binder_types accepts a record type only from facts['types'] or a linked document's carriers, so binder 'Blob' over a goops document raises IRError. G3 then fails, and codecrun.decide turns all four laws UNKNOWN ('rejected by the IR rules'). Reproduced. G9/Y8: records.v2_fields (ledger_required on a target milestone) needs a ledger bundle for the goops document's sha256, and none exists: the static ledger has 3 bundles, _linked_bundles covers linked documents only, and there is no spec/M3/ledger.json. So holon run raises LedgerError (reproduced), and v2 requires ledger_match 'exact'. A bundle carries meaning (the records' model_assumptions: go-prim assumptions, the one-cell abstraction, panics only at open sites). I24 specified its bundle as generated (rule X5). GEVID and I24's schema test: the evidence schema's facts_version enum lacks holon-goops/0.1 (reproduced). G2: bindings._emit falls through to mlaws/Machine for a kind codec_kind does not know, which raises KeyError 'types' on a goops document (reproduced). spec/bindings/M3.json also needs the four laws (holon bind; spec/bindings/changes.jsonl), which Y11 omits. Statement refs: a goops document is not codec_document, so refs is {} and the statement hash covers none of the op entries (reproduced). The prompt lists refs.py as a deliverable, but no Y-rule says what the refs are.",
+      "fix": "Add one rule (e.g. Y8a) fixing each of these. (a) The IR binder rule: a Go-op document's carrier id and result carrier ids are its record types. (b) A ledger bundle generated from the Go-op document, never hand-written, with its entries named. (c) 'holon-goops/0.1' added to the evidence schema's enum. (d) Bindings for Go-op laws (model gen/M3/model/<component>.bend, the goloop emission), with `holon bind --milestone M3` in Y11. (e) The statement refs: e.g. fn:<op> the op entry without span/source, ok_<op> the same entry, carrier:<id>. Add a test like I24's test_statement_refs_follow_the_functions_named."
+    },
+    {
+      "id": "M4",
+      "severity": "major",
+      "where": [
+        "tests_m3/test_go_loop.py:105-107 (Y10), 611-620 (test_y10_the_bins)",
+        "holon/refute_m3.py:325-334 (witness_kind), 337-349 (kind_of), 370-377, 445-455",
+        "tests_m3/test_refute.py:90-98 (I40 K1-K4)",
+        "tests_m3/_i40.py:208-226",
+        "spec/M3/refute_env.json (targets.dom_v0_long)",
+        "spec/M3/predictions.json:3127-3131"
+      ],
+      "what": "Y10 claims that i4_sides reading replay/M3/goops/report.json makes `holon refute --only filter` give kind go_only (rule K2). It does not. witness_kind returns 'domain' for a boolean difference with a one-key witness whose value is a string. kind_of returns bmc for a domain witness (K1) before it tests go_only, and I40's contract says the same. L_par_tot_batch_RetrieveBlobBytes and L_par_dom_ok_... (difference false/true, witness {'b': '0x...'}) would therefore be concretized as bmc against target dom_v0_long, a Solidity BatchHeaderCodecV0 load target, with its cached 'solver unknown'. The bin is still pending, but test_y10 asserts go_only for all three. The existing go_only record M1/L_own_txspayload escapes K1 only because its witness value is not a string. Only WEAK (string difference) comes out go_only.",
+      "fix": "State the kind_of change in Y10: a record every side of which is library_api is go_only before the domain clause. Amend I40's K1/K2 text and _i40.concretization_kind with an amendment line. Verified: no existing REFUTED record changes kind under that order (M0/L_dom_hdr has an internal_harness side, both L_nat_eta2 records emulated_storage, M3/L_par_dom_... no side). Otherwise accept bmc and change Y10, test_y10 and thresholds.filter."
+    },
+    {
+      "id": "M5",
+      "severity": "major",
+      "where": [
+        "tests_m3/test_go_loop.py:507-509 (test_p5 catalog check)",
+        "tests_m3/test_go_loop.py:477-479 (test_y4_evidence)",
+        "tests_m3/test_go_loop.py:641-644 (test_r2 DERIVATION pre vs end)",
+        "tests_m3/test_go_loop.py:114-115 (Y12)",
+        "tests_m3/test_versions.py:271-287 (I28 shared files: holon-rules/1.6 re-derivation; gen/M3/evidence.json gains the versioned document at 283-284)"
+      ],
+      "what": "Three tests compare HEAD with I67's prereg on files that I28's planned build changes (Y12 anticipates that build), so they fail for reasons unrelated to their claims. test_p5 requires REGISTRY's rule_catalog_version at HEAD to equal the prereg's (1.5). I28 moves M3 to holon-rules/1.6, so the test is red at the lead after I28 merges, in either order. test_y4_evidence requires every evidence model and atom but blob_ops to equal the prereg's. I28 adds the versioned document's model, so the test is red after I28 merges. test_r2 compares DERIVATION at the prereg with DERIVATION at 'end'. If I67 merges second (Y12), 'end' includes I28's catalog bump, every other law's statement_hash differs, and the test is red.",
+      "fix": "Judge these at I67's own commits. For each own commit, diff parent against commit, as test_r2's file check already does: no catalog change, no other model or atom changed, no other law's DERIVATION entry changed. Or compare the catalog with holon.rules.catalog_version('M3') and assert the CATALOGS PAR producers are unchanged."
+    },
+    {
+      "id": "M6",
+      "severity": "major",
+      "where": [
+        "prompts/I67_go_loop.md:29-35",
+        "spec/M3/predictions.json:3136 (feasibility_disclosed)",
+        "origin/claude/ci-i67-wip 3f17e71, f87fdaa, 959ef04 (commit messages; FINDINGS.md)",
+        "/tmp/claude-0/-home-user-HOLON/13f9caff-002b-57ac-9895-57449b3592cb/scratchpad/i67/m3out/morph_blob_go.go.extracted.json (Oct 23 20:00)",
+        "/tmp/claude-0/-home-user-HOLON/13f9caff-002b-57ac-9895-57449b3592cb/scratchpad/i67/gen/{batch,blob}/ (Oct 23 21:53)"
+      ],
+      "what": "The prereg discloses only a hand-written spike (0.84 s / 2.75 s) and says 'No law of this key was derived, run or replayed before the prereg'. On Oct 23 the draft did more. It extracted the real document under 0.2 and observed P6: the batch clone has exactly one panic body path at blob.go:49:102:index and the blob clone none (f87fdaa; the m3out artifact shows exactly this). It generated the model from those loop bodies (holon/gen/goloop.py) and checked the counter-law {ok(W) == False} in bend (3.9 s) and BendTT --verdict (3.7 s) at 4096, with the blob clone's counter-law failing (959ef04). That is P1's and P4's model side. These are postdictions presented as predictions.",
+      "fix": "Disclose the three draft commits and what each observed, with timings, in the prompt and in thresholds.feasibility_disclosed. Mark P1 (model side), P4 (model side) and P6 as observed on the draft before the prereg. Keep the real-code replay and P5 as the genuine predictions."
+    },
+    {
+      "id": "m1",
+      "severity": "minor",
+      "where": [
+        "spec/M3/predictions.json:3017 (I67-R1)",
+        "spec/M2/facts/*.go.extracted.json",
+        "tests_m2/test_extract_go.py:49"
+      ],
+      "what": "R1 says 'the six M2 Go documents'. There are five (morph_batch, morph_blob, morph_derivation, morph_genesis, morph_nodetypes), and I18 says 'Commit the five Morph documents'. The test globs, so it passes, but the immutable claim is wrong.",
+      "fix": "Change 'six' to 'five'."
+    },
+    {
+      "id": "m2",
+      "severity": "minor",
+      "where": [
+        "spec/M3/predictions.json:3059"
+      ],
+      "what": "thresholds.base names '7c9997d3', which is not an object. HEAD is 7c9997d2305c.",
+      "fix": "Write 7c9997d2 (or the full sha)."
+    },
+    {
+      "id": "m3",
+      "severity": "minor",
+      "where": [
+        "docs/BUILD_PLAN.md:345",
+        "docs/BUILD_PLAN.md:1282"
+      ],
+      "what": "The BUILD_PLAN row I67 and section I38 name spec/M3/facts/morph_blob_go.extracted.json. The key, Y2 and G1's '<stem>.go.extracted.json' rule give spec/M3/facts/morph_blob.go.extracted.json.",
+      "fix": "Correct the row (and note it in I38)."
+    },
+    {
+      "id": "m4",
+      "severity": "minor",
+      "where": [
+        "tests_m3/test_go_loop.py:93 (Y8)",
+        "holon/gen/lean_common.py:122-132",
+        "holon/lean.py:916-920, 1340-1356",
+        "tests_m3/test_versions.py:198-213 (I28 PI6: no lean4 entry, holon.lean._attempted)"
+      ],
+      "what": "Y8 promises 'the lean4 kernel entry as for any codec law of M3'. Linked codec laws are attempted by Lean (model_kind linked). A goops document is kind 'other', so kernel_entry_v2 returns None and the record gets no lean4 entry.",
+      "fix": "Say 'no lean4 entry (no Lean emitter reads a Go-op document: holon.lean._attempted), as for I31's DISCH and I26's FACT laws'."
+    },
+    {
+      "id": "m5",
+      "severity": "minor",
+      "where": [
+        "tests_m3/test_go_loop.py:82-87 (Y7)",
+        "spec/M3/predictions.json:3097-3104 (thresholds.witness, trip_value 1 at 3100)",
+        "holon/codecrun.py:209-219"
+      ],
+      "what": "Y7 does not say which value the panic cell takes ('cell k at the panic path's'): for cell != 0, any of 1..255 qualifies. P1 pins 1. Y7 also makes BendTT part of acceptance, while codecrun.decide sets status from bend alone and records the verdict afterwards.",
+      "fix": "Specify 'the smallest byte value satisfying the path's cell predicate' for both the panic value and the continue value, and say that REFUTED needs both kernels on this path."
+    },
+    {
+      "id": "m6",
+      "severity": "minor",
+      "where": [
+        "tests_m3/test_go_loop.py:72-80 (Y6)",
+        "/root/work/morph common/batch/blob.go:50",
+        "/root/work/morph common/blob/payload.go:49"
+      ],
+      "what": "Y6's 'a path reading more than one cell' is ambiguous: both continue paths copy blob[i*32+1:i*32+32], 31 cells, though the draft's path conditions read one cell. Y6 also gives no rule mapping a return path's 'returns' to OErr or ORet (e.g. last term ['nil'] is ORet), and does not cover an open site whose lower bound can fail.",
+      "fix": "Define 'reads' as the cells the path's cond atoms read, state the returns-to-Out rule, and make a lower-bound-failing site Unsupported."
+    },
+    {
+      "id": "m7",
+      "severity": "minor",
+      "where": [
+        "tests_m3/test_go_loop.py:100 (Y9)",
+        "tests_m3/test_go_loop.py:590-609 (test_y9)"
+      ],
+      "what": "Y9 says observed holds {op: real outcome}, but the test requires the outcome class. The test also passes with observed == expected == {}, since it never checks that the ops are the ones the law names.",
+      "fix": "Say 'real outcome class', and assert sorted(observed) == the ops the law's statement calls."
+    },
+    {
+      "id": "m8",
+      "severity": "minor",
+      "where": [
+        "spec/schemas/facts_0_3_go.schema.json (extraction.frontend_version const holon-go/0.1; function additionalProperties false)",
+        "tests_m3/test_go_loop.py:18-30 (Y1)"
+      ],
+      "what": "The M3 document (holon-go/0.2, loop_bodies) will not validate against the Go facts schema, and Y1 is silent about the schema.",
+      "fix": "Extend the schema additively (frontend_version enum, optional loop_bodies) or state that 0.2 documents are outside it."
+    },
+    {
+      "id": "m9",
+      "severity": "minor",
+      "where": [
+        "holon/frontends/go/extract.py:45, 82-83",
+        "holon/gate.py:333-348"
+      ],
+      "what": "The prereg commits spec/M3/lib/go_frontend.json at 0.2, which the base frontend refuses. The full M3 gate's G1 reads it, so it gains a difference from the prereg merge until the build (not in CI). The draft avoided this by naming the file go_frontend_m3.json.",
+      "fix": "Disclose it in the prompt or thresholds."
+    },
+    {
+      "id": "m10",
+      "severity": "minor",
+      "where": [
+        "holon/diagram/evidence.py:241-249, 624-635"
+      ],
+      "what": "E6 tokens of a CODEC edge come from the whole function id, so morph, common and l2 are shared by every pair of ops of a Go-op component with one result tuple; E6 is vacuous for such components. P2 still holds, since the clones also share retrieve, blob and bytes.",
+      "fix": "Note it in Y4 or in Questions."
+    },
+    {
+      "id": "m11",
+      "severity": "minor",
+      "where": [
+        "tests_m3/test_go_loop.py:535"
+      ],
+      "what": "The 'no U32 arithmetic' check greps only U32.(add|sub|mul|div|mod). Operator syntax would pass it, and so do per-iteration U32 comparisons, which the draft's FINDINGS.md counts as costly.",
+      "fix": "Define what is forbidden, and check the per-iteration step body."
+    },
+    {
+      "id": "m12",
+      "severity": "minor",
+      "where": [
+        "tests_m3/test_go_loop.py:48-49 (Y3)",
+        "tests_m3/test_derive_par.py:688-700"
+      ],
+      "what": "Y3 leaves the layout of `holon codecs --out DIR` open. I24's test requires DIR to hold exactly header_length.json at its top level.",
+      "fix": "Specify it, e.g. Go-op documents under DIR/goops/ or a separate flag."
+    },
+    {
+      "id": "m13",
+      "severity": "minor",
+      "where": [
+        "holon/records.py:497-502 (v2_fields: record_fields(load_report(milestone)))",
+        "holon/replay.py:321-323",
+        "holon/gate.py:60-71 (G6)"
+      ],
+      "what": "A goops record's witness_provenance is unspecified. v2_fields reads replay/M3/report.json, so it stays {}, while G6 (full gate) expects it to equal holon.filter's value computed from the report.",
+      "fix": "State that it is {go: library_api}, from replay/M3/goops/report.json."
+    },
+    {
+      "id": "m14",
+      "severity": "minor",
+      "where": [
+        "tests_m3/test_go_loop.py:99-101 (Y9 'command')",
+        "AGENTS.md rule 7"
+      ],
+      "what": "The report's 'command' may embed scratch paths, which would make the report nondeterministic.",
+      "fix": "Require a path-free command text."
+    },
+    {
+      "id": "m15",
+      "severity": "minor",
+      "where": [
+        "tests_m3/_i67.py:12-13"
+      ],
+      "what": "The instrument's docstring names witness_cells(...), which the instrument does not define (it is in test_go_loop.py).",
+      "fix": "Correct the docstring (a docstring-only edit is not a fingerprinted change)."
+    }
+  ],
+  "verified": [
+    "Prereg audit: with exactly the 7 files committed on 7c9997d in a scratch clone, `python -m holon audit prereg --milestone M3` prints 'I67: OK prereg ... (22 outcome paths, 1 test file, 2 helper modules, 20 tracked functions)' and 'PREREG OK', with no I67 notes: every check names a preregistered test. Every file is an allowed prereg input (the predictions file, the key's prompt and tests, tests_m3/ package files, spec/M3/lib/).",
+    "Outcome paths are plain literal paths, and none exists at HEAD (spec/M3/facts/ is absent). They overlap only with earlier keys' prefixes (I24's laws|results|gen/M3/{laws,proofs}/L_par_; I43's gen/M3/laws/, gen/M3/proofs/, results/M3/), whose prereg commits are ancestors, and with none of I28's (L_pinit_, */versions/). Shared files (evidence.json, REGISTRY, DERIVATION) are correctly not outcome paths, so I28's parallel build cannot trip I67's order rule.",
+    "P5 by execution: holon.rules.par.derive_document on the Y4 diagram (two CODEC edges Blob->R_SliceByte_Error, domains ok_<op>, interface carrier with key_space byte, base_type id) with the real E6 atom gives exactly L_par_weak_batch_..._blob_..., L_par_dom_ok_batch_..._ok_blob_..., and L_par_tot_batch_... and L_par_tot_blob_.... The cycle element {edge: CODEC.blob_RetrieveBlobBytes} has laws [] and duplicates {L_par_cy_blob_RetrieveBlobBytes: L_par_weak_...}; cycle_basis gives E=2, V=2, kappa=1, rank=1, tree [CODEC.batch_...]. All four statements equal tests_m3/_i67.py expected_laws.",
+    "On a document without facts_version or linked keys, no producer crashes: round_trip, cross_component_codec, branch (sources differ), recompute, consumer and init are no-ops. holon.rules.Document returns early for non-0.2 facts, and law_hash does not crash (refs {}). I28's init_chain sits outside par.SUBFORMS (I24's test pins SUBFORMS), so derive_document would not run it on a goops document.",
+    "E6 with spec/M2/lib/evidence_lexical.json: tokens {batch,blob,bytes,common,l2,morph,retrieve} against {blob,bytes,common,l2,morph,retrieve}. One atom, p=CODEC.batch_RetrieveBlobBytes, q=CODEC.blob_RetrieveBlobBytes, which gives the weak law id P2 and P5 name.",
+    "The instrument imports only the standard library; PROBES has 4101 entries (1 + 4096 + 4); its expected_ops and expected_laws follow Y3 and Y5; the Go instrument records ok/err/panic per clone with recovered text.",
+    "`python3 -m unittest tests_m3.test_go_loop.TestInstrument -v` passes 2 tests in 9.6 s: instrument, Go file, contract docstring and both sidecars match the key's sha256 pins, and the real code is O4 on all probes.",
+    "Real code @3e44e795: batch.RetrieveBlobBytes formats data[i*32] in its error branch (common/batch/blob.go:49), data being 4096*31 = 126976 bytes, so a nonzero high byte at element i >= 3968 panics with 'index out of range [126976] with length 126976' at i = 3968, while blob.RetrieveBlobBytes formats blob[i*32] (payload.go:47). The 0.1 sites: batch has exactly one open site, common/batch/blob.go:49:102:index (witness i 3968..4095), and all of blob's sites are safe. Only these two functions in the packages take one *kzg4844.Blob and return error last. codec_shaped holds (returns []byte).",
+    "spec/M3/lib/go_frontend.json has target, source, primitives and limits equal to spec/M2/lib/go_frontend.json's (Y2).",
+    "Y9's report shape fits holon.replay.replay_status (reads laws[id].go.status and witness_sha256) and holon.filter.sides/final_bin (go_only gives F4 pending).",
+    "Side effects ruled out: the new M3 document does not move gen/M3/link.json (spec/M3/lib/link.json names M2 documents) or G8 (holon.coverage lists extraction sidecars only), and I40's codec and unknowns stages iterate the I40 sidecar's fixed lists, so they do not sweep in the new laws.",
+    "GEVID passes at base for M3 (131 laws, read-only call). The diagram schema already excludes holon-linked/0.1, so M3 diagrams are not schema-checked and Y4 adds no new schema issue there.",
+    "R3's regexes find nothing in today's holon/frontends/go/*.py or in the draft's goloop.py/paths.py/analyses.py/extract.py/ctx.py, so the test is satisfiable and not trivially red.",
+    "List<&2, U32> is the documented Bend 2 type (docs/BEND_PRIMER.md:62). L.anchors over the Y4 diagram gives exactly the codec/domains anchors test_y4_evidence expects.",
+    "Informational: law_evidence over the Y4 anchors gives the tot laws levels [] (evidence_triage finding when REFUTED) and the weak/dom laws [E6] (intent_question); GEVID reports, does not fail, the divergence from v1 triage 'finding'."
+  ],
+  "reproduced": [
+    "git rev-parse HEAD -> 7c9997d2305cc168510bfb0304fc07470b1a64b2; base 089b43a4ce8b1dda3e9d394180e5c6d833ec1e3a; `git rev-parse --verify 7c9997d3` -> no such object",
+    "scratch clone + commit of the 7 files; `python3 -m holon audit prereg --milestone M3` -> 'I67: OK prereg 198dded1ae56 (22 outcome paths, 1 test file, 2 helper modules, 20 tracked functions)', 'PREREG OK'",
+    "`python3 -m unittest tests_m3.test_go_loop.TestInstrument -v` -> Ran 2 tests in 9.596s, OK",
+    "par.derive_document(ParDoc(rel=gen/M3/goops/blob_ops.json, facts={goops_version, component}, diagram=<Y4>, atoms=e6(...))) -> the 4 laws, cycle duplicate {L_par_cy_blob_RetrieveBlobBytes: L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes}; statements == _i67.expected_laws",
+    "holon.records.generator_files(irv) membership: holon/{diagram/__init__,diagram/evidence,rules/__init__,codecrun,gen/refs,bindings,ir,replay,filter}.py in holon-ir/0.2 and 0.3, not 0.1; the same in GEN3, GEN3+GEN_FACT/UNDO/DISCH and holon.profile.generator_files; holon/refute_m3.py and holon/frontends/go/* in none",
+    "Base digests: results/M0 8 fresh (0.1), M1 16 fresh (0.2), M2 13 fresh (0.3), T32 5 fresh (profile 3c11eb3e), M3 131 stale (PAR 8b53a521, DISCH 81a06b9c, FACT 8d0a176c, UNDO 03ffc198, SORT b40f7a78 vs current GEN3 0d16e1b3, FACT 82506280, UNDO 5ad35706, DISCH 10aa0123, IR03 98a46315)",
+    "holon.schema.errors(gen/M3/evidence.json + a Y4 blob_ops model) -> \"$.models.blob_ops.facts_version: 'holon-goops/0.1' not one of [...]\"; the base document -> []",
+    "ir.check_binder_types(goops law, goops doc) -> IRError 'binder b: Blob is neither an IR type nor a record type of its facts'",
+    "records.resolve_bundle(sha, 'gen/M3/goops/blob_ops.json', ...) -> LedgerError 'no ledger bundle ... add its model assumptions to spec/ledger/assumptions.json'",
+    "holon.gen.refs.refs(goops law, goops doc) -> {}; law_hash unchanged when an op's paths change",
+    "holon.gen.machine.Machine(goops doc, ...) (the bindings fallback path) -> KeyError 'types'",
+    "holon.diagram.evidence.gevid('M3') at base -> passed, 131 laws, 0 uncovered",
+    "results/M3/refute/concretization.json: kinds direct 30, bmc 4 (target dom_v0_long or eta2_state, result unknown), commit_class 5, go_only 1 (M1/L_own_txspayload, witness value not a string)",
+    "gen/M3/par_lossy/header_length.json inputs pin gen/M3/evidence.json sha256 ddd858cb0a396280..., equal to `sha256sum gen/M3/evidence.json`",
+    "`python -m holon gate --milestone M3 --checks G3,G9,GEVID` in the scratch clone -> GENV fails (checker fingerprint not the pinned one), checks skipped; so G3/G9/G2 effects were established by calling the underlying functions",
+    "git show origin/claude/ci-i67-wip: 3f17e71 / f87fdaa / 959ef04 messages; scratchpad/i67/m3out/morph_blob_go.go.extracted.json (Oct 23 20:00) loop_bodies: batch has 4 paths, one panic at common/batch/blob.go:49:102:index; blob has 3, no panic"
+  ],
+  "open_questions": [
+    "How should the four records be made without disturbing results/M3/{summary,deps,splits}.json and gen/M3/model/header_length.bend? Option 1: change `holon run --laws` (mpipeline.run_m1) to merge. Option 2: re-make the 80 linked PAR records in generator_sha256 and seconds alone. Lead or human decision (B1).",
+    "gate-M3-partial is 'red until G11V passes (Q36)' per the CI comment. The prompt's exit 'as at the base or better' needs the base run's failing items recorded in the prereg.",
+    "I66's V7 expected an I67 M3 re-make ('the F40 and I67 re-makes'); Y11 now defers it. Intended?",
+    "Should Y10's kind be go_only by amending I40's K1/K2, or bmc (keeping I40's rule) with Y10, test_y10 and thresholds.filter changed? (M4)",
+    "E6 over Go function ids is satisfied by any two ops of one component through the import-path tokens (m10). Should the lexicon read only the last name segment for Go-op edges? That would change no current atom's existence here."
+  ]
+}
