@@ -17386,6 +17386,12 @@
      "where": "common/batch/batch_cache.go:1401"
     },
     {
+     "function": "(*morph-l2/common/batch.BatchData).Append",
+     "kind": "unsupported",
+     "what": "a store through ('field', ('param', 'cks'), 'blockContexts') on a path of one iteration: no loop body",
+     "where": "common/batch/batch_data.go:38"
+    },
+    {
      "function": "morph-l2/common/batch.BuildBlockContext",
      "kind": "inexact_layout",
      "what": "layout of the 60-byte allocation has unknown cells",
@@ -590554,128 +590560,7 @@
         "l1TxHashes"
        ]
       ],
-      "paths": [
-       {
-        "cond": [
-         [
-          "==",
-          [
-           "param",
-           "cks"
-          ],
-          [
-           "nil"
-          ]
-         ]
-        ],
-        "end": "return",
-        "error": null,
-        "returns": [],
-        "site": null
-       },
-       {
-        "cond": [
-         [
-          "!=",
-          [
-           "param",
-           "cks"
-          ],
-          [
-           "nil"
-          ]
-         ],
-         [
-          "<=",
-          [
-           "const",
-           0
-          ],
-          [
-           "iv",
-           "i"
-          ]
-         ],
-         [
-          "<",
-          [
-           "op",
-           "+",
-           [
-            "iv",
-            "i"
-           ],
-           [
-            "const",
-            1
-           ]
-          ],
-          [
-           "len",
-           [
-            "param",
-            "l1TxHashes"
-           ]
-          ]
-         ]
-        ],
-        "end": "continue",
-        "error": null,
-        "returns": null,
-        "site": null
-       },
-       {
-        "cond": [
-         [
-          "!=",
-          [
-           "param",
-           "cks"
-          ],
-          [
-           "nil"
-          ]
-         ],
-         [
-          "<=",
-          [
-           "const",
-           0
-          ],
-          [
-           "iv",
-           "i"
-          ]
-         ],
-         [
-          ">=",
-          [
-           "op",
-           "+",
-           [
-            "iv",
-            "i"
-           ],
-           [
-            "const",
-            1
-           ]
-          ],
-          [
-           "len",
-           [
-            "param",
-            "l1TxHashes"
-           ]
-          ]
-         ]
-        ],
-        "end": "return",
-        "error": null,
-        "returns": [],
-        "site": null
-       }
-      ],
+      "paths": null,
       "span": "common/batch/batch_data.go:38",
       "step": 1
      }
@@ -597340,18 +597225,8 @@
              [
               "append",
               [
-               "slice",
-               [
-                "alloc",
-                "common/batch/batch_storage.go:420:22",
-                [
-                 "const",
-                 0
-                ]
-               ],
-               null,
-               null,
-               null
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -597385,18 +597260,8 @@
              [
               "append",
               [
-               "slice",
-               [
-                "alloc",
-                "common/batch/batch_storage.go:420:22",
-                [
-                 "const",
-                 0
-                ]
-               ],
-               null,
-               null,
-               null
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -597560,18 +597425,8 @@
              [
               "append",
               [
-               "slice",
-               [
-                "alloc",
-                "common/batch/batch_storage.go:420:22",
-                [
-                 "const",
-                 0
-                ]
-               ],
-               null,
-               null,
-               null
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -597605,18 +597460,8 @@
              [
               "append",
               [
-               "slice",
-               [
-                "alloc",
-                "common/batch/batch_storage.go:420:22",
-                [
-                 "const",
-                 0
-                ]
-               ],
-               null,
-               null,
-               null
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -597934,18 +597779,8 @@
              [
               "append",
               [
-               "slice",
-               [
-                "alloc",
-                "common/batch/batch_storage.go:420:22",
-                [
-                 "const",
-                 0
-                ]
-               ],
-               null,
-               null,
-               null
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -597979,18 +597814,8 @@
              [
               "append",
               [
-               "slice",
-               [
-                "alloc",
-                "common/batch/batch_storage.go:420:22",
-                [
-                 "const",
-                 0
-                ]
-               ],
-               null,
-               null,
-               null
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -598197,18 +598022,8 @@
              [
               "append",
               [
-               "slice",
-               [
-                "alloc",
-                "common/batch/batch_storage.go:420:22",
-                [
-                 "const",
-                 0
-                ]
-               ],
-               null,
-               null,
-               null
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -598242,18 +598057,8 @@
              [
               "append",
               [
-               "slice",
-               [
-                "alloc",
-                "common/batch/batch_storage.go:420:22",
-                [
-                 "const",
-                 0
-                ]
-               ],
-               null,
-               null,
-               null
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -598575,7 +598380,8 @@
              [
               "append",
               [
-               "nil"
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -598609,7 +598415,8 @@
              [
               "append",
               [
-               "nil"
+               "unknown",
+               "opaque"
               ],
               [
                "slice",
@@ -618238,8 +618045,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -618261,21 +618076,33 @@
            "(*github.com/morph-l2/go-ethereum/core/types.Transaction).Type",
            [
             [
-             "index",
+             "elem",
+             "*github.com/morph-l2/go-ethereum/core/types.Transaction",
              [
-              "param",
-              "transactions"
-             ],
-             [
-              "op",
-              "+",
+              "index",
               [
-               "iv",
-               "i"
+               "param",
+               "transactions"
               ],
               [
-               "const",
-               1
+               "op",
+               "+",
+               [
+                "op",
+                "-",
+                [
+                 "iv",
+                 "i"
+                ],
+                [
+                 "const",
+                 1
+                ]
+               ],
+               [
+                "const",
+                1
+               ]
               ]
              ]
             ]
@@ -618293,21 +618120,33 @@
            "(*github.com/morph-l2/go-ethereum/core/types.Transaction).L1MessageQueueIndex",
            [
             [
-             "index",
+             "elem",
+             "*github.com/morph-l2/go-ethereum/core/types.Transaction",
              [
-              "param",
-              "transactions"
-             ],
-             [
-              "op",
-              "+",
+              "index",
               [
-               "iv",
-               "i"
+               "param",
+               "transactions"
               ],
               [
-               "const",
-               1
+               "op",
+               "+",
+               [
+                "op",
+                "-",
+                [
+                 "iv",
+                 "i"
+                ],
+                [
+                 "const",
+                 1
+                ]
+               ],
+               [
+                "const",
+                1
+               ]
               ]
              ]
             ]
@@ -618382,8 +618221,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -618405,21 +618252,33 @@
            "(*github.com/morph-l2/go-ethereum/core/types.Transaction).Type",
            [
             [
-             "index",
+             "elem",
+             "*github.com/morph-l2/go-ethereum/core/types.Transaction",
              [
-              "param",
-              "transactions"
-             ],
-             [
-              "op",
-              "+",
+              "index",
               [
-               "iv",
-               "i"
+               "param",
+               "transactions"
               ],
               [
-               "const",
-               1
+               "op",
+               "+",
+               [
+                "op",
+                "-",
+                [
+                 "iv",
+                 "i"
+                ],
+                [
+                 "const",
+                 1
+                ]
+               ],
+               [
+                "const",
+                1
+               ]
               ]
              ]
             ]
@@ -618437,21 +618296,33 @@
            "(*github.com/morph-l2/go-ethereum/core/types.Transaction).L1MessageQueueIndex",
            [
             [
-             "index",
+             "elem",
+             "*github.com/morph-l2/go-ethereum/core/types.Transaction",
              [
-              "param",
-              "transactions"
-             ],
-             [
-              "op",
-              "+",
+              "index",
               [
-               "iv",
-               "i"
+               "param",
+               "transactions"
               ],
               [
-               "const",
-               1
+               "op",
+               "+",
+               [
+                "op",
+                "-",
+                [
+                 "iv",
+                 "i"
+                ],
+                [
+                 "const",
+                 1
+                ]
+               ],
+               [
+                "const",
+                1
+               ]
               ]
              ]
             ]
@@ -618487,8 +618358,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -618510,21 +618389,33 @@
            "(*github.com/morph-l2/go-ethereum/core/types.Transaction).Type",
            [
             [
-             "index",
+             "elem",
+             "*github.com/morph-l2/go-ethereum/core/types.Transaction",
              [
-              "param",
-              "transactions"
-             ],
-             [
-              "op",
-              "+",
+              "index",
               [
-               "iv",
-               "i"
+               "param",
+               "transactions"
               ],
               [
-               "const",
-               1
+               "op",
+               "+",
+               [
+                "op",
+                "-",
+                [
+                 "iv",
+                 "i"
+                ],
+                [
+                 "const",
+                 1
+                ]
+               ],
+               [
+                "const",
+                1
+               ]
               ]
              ]
             ]
@@ -618544,21 +618435,33 @@
             "(*github.com/morph-l2/go-ethereum/core/types.Transaction).MarshalBinary",
             [
              [
-              "index",
+              "elem",
+              "*github.com/morph-l2/go-ethereum/core/types.Transaction",
               [
-               "param",
-               "transactions"
-              ],
-              [
-               "op",
-               "+",
+               "index",
                [
-                "iv",
-                "i"
+                "param",
+                "transactions"
                ],
                [
-                "const",
-                1
+                "op",
+                "+",
+                [
+                 "op",
+                 "-",
+                 [
+                  "iv",
+                  "i"
+                 ],
+                 [
+                  "const",
+                  1
+                 ]
+                ],
+                [
+                 "const",
+                 1
+                ]
                ]
               ]
              ]
@@ -618634,8 +618537,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -618657,21 +618568,33 @@
            "(*github.com/morph-l2/go-ethereum/core/types.Transaction).Type",
            [
             [
-             "index",
+             "elem",
+             "*github.com/morph-l2/go-ethereum/core/types.Transaction",
              [
-              "param",
-              "transactions"
-             ],
-             [
-              "op",
-              "+",
+              "index",
               [
-               "iv",
-               "i"
+               "param",
+               "transactions"
               ],
               [
-               "const",
-               1
+               "op",
+               "+",
+               [
+                "op",
+                "-",
+                [
+                 "iv",
+                 "i"
+                ],
+                [
+                 "const",
+                 1
+                ]
+               ],
+               [
+                "const",
+                1
+               ]
               ]
              ]
             ]
@@ -618691,21 +618614,33 @@
             "(*github.com/morph-l2/go-ethereum/core/types.Transaction).MarshalBinary",
             [
              [
-              "index",
+              "elem",
+              "*github.com/morph-l2/go-ethereum/core/types.Transaction",
               [
-               "param",
-               "transactions"
-              ],
-              [
-               "op",
-               "+",
+               "index",
                [
-                "iv",
-                "i"
+                "param",
+                "transactions"
                ],
                [
-                "const",
-                1
+                "op",
+                "+",
+                [
+                 "op",
+                 "-",
+                 [
+                  "iv",
+                  "i"
+                 ],
+                 [
+                  "const",
+                  1
+                 ]
+                ],
+                [
+                 "const",
+                 1
+                ]
                ]
               ]
              ]
@@ -618742,8 +618677,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -619617,8 +619560,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -619658,8 +619609,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -637835,8 +637794,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -637945,8 +637912,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -638080,8 +638055,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -638331,8 +638314,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -638690,8 +638681,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -639133,8 +639132,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -639568,8 +639575,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -640022,8 +640037,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -640323,8 +640346,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -640708,8 +640739,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -641085,8 +641124,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
@@ -641481,8 +641528,16 @@
            "op",
            "+",
            [
-            "iv",
-            "i"
+            "op",
+            "-",
+            [
+             "iv",
+             "i"
+            ],
+            [
+             "const",
+             1
+            ]
            ],
            [
             "const",
