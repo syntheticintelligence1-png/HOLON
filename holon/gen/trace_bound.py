@@ -35,7 +35,7 @@ from .machine import Machine, bname, bt, fresh
 from .mlaws import ALIAS, EmittedM, q, qualify_model
 
 NAT_CMP = {"<=": "le", "<": "lt"}
-MAX_SPLIT = 8   # Bool atoms one helper splits at most (2^8 cases); C_o12 and C_o12_open split at most 2
+MAX_SPLIT = 8   # Bool atoms one helper splits at most (2^8 cases); the laws this class proves today split at most 2
 BOOL_OPS = ("&&", "||", "!")
 CMP_OPS = ("<", "<=", ">", ">=", "==", "!=")
 
