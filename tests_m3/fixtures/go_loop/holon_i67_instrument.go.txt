@@ -1,0 +1,74 @@
+// HOLON I67 prereg instrument (tests_m3/_i67.py run_instrument), fixed at the I67 prereg and independent of holon/.
+// The test copies it into a scratch copy of morph common/batch at the pinned commit as holon_i67_instrument_test.go
+// and runs
+//   (cd common && HOLON_I67_IN=... HOLON_I67_OUT=... go test ./batch -run '^TestHolonI67Instrument$' -count=1 -v)
+// It calls the real code and records what happens; it compares nothing.
+//
+// Input ($HOLON_I67_IN):  {"probes": [[[offset, value], ...], ...]}
+//   probe: a kzg4844.Blob whose every byte is 0 except blob[offset] = value for each listed pair.
+// Output ($HOLON_I67_OUT): {"common/batch": [outcome per probe], "common/blob": [outcome per probe]}
+//   outcome: "ok:<sha256 hex of the returned bytes>" (nil error), "err:<the error's text>" (non-nil error) or
+//   "panic:<the recovered value>".
+package batch
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"os"
+	"testing"
+
+	cblob "morph-l2/common/blob"
+
+	"github.com/morph-l2/go-ethereum/crypto/kzg4844"
+)
+
+func holonI67Outcome(f func() ([]byte, error)) (out string) {
+	defer func() {
+		if r := recover(); r != nil {
+			out = fmt.Sprintf("panic:%v", r)
+		}
+	}()
+	data, err := f()
+	if err != nil {
+		return "err:" + err.Error()
+	}
+	sum := sha256.Sum256(data)
+	return "ok:" + hex.EncodeToString(sum[:])
+}
+
+func TestHolonI67Instrument(t *testing.T) {
+	var in struct {
+		Probes [][][2]int `json:"probes"`
+	}
+	raw, err := os.ReadFile(os.Getenv("HOLON_I67_IN"))
+	if err != nil {
+		t.Fatalf("read input: %v", err)
+	}
+	if err := json.Unmarshal(raw, &in); err != nil {
+		t.Fatalf("parse input: %v", err)
+	}
+	out := map[string][]string{"common/batch": {}, "common/blob": {}}
+	for _, p := range in.Probes {
+		var b kzg4844.Blob
+		for _, kv := range p {
+			if kv[0] < 0 || kv[0] >= len(b) || kv[1] < 0 || kv[1] > 255 {
+				t.Fatalf("bad probe pair %v", kv)
+			}
+			b[kv[0]] = byte(kv[1])
+		}
+		bb, cb := b, b
+		out["common/batch"] = append(out["common/batch"],
+			holonI67Outcome(func() ([]byte, error) { return RetrieveBlobBytes(&bb) }))
+		out["common/blob"] = append(out["common/blob"],
+			holonI67Outcome(func() ([]byte, error) { return cblob.RetrieveBlobBytes(&cb) }))
+	}
+	js, err := json.Marshal(out)
+	if err != nil {
+		t.Fatalf("encode output: %v", err)
+	}
+	if err := os.WriteFile(os.Getenv("HOLON_I67_OUT"), js, 0o644); err != nil {
+		t.Fatalf("write output: %v", err)
+	}
+}

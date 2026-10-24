@@ -570,10 +570,12 @@ class _Morph(unittest.TestCase):
     def derived(self) -> dict:
         """The PAR laws derive wrote but those of sub-form init_chain (later M3 iterations add laws of other rules, and I28
         a PAR law of the sub-form init_chain over the versioned document; I24's checks are about I24's PAR laws. Amended
-        at the I28 prereg, spec/M3/amendments.jsonl)."""
+        at the I28 prereg, spec/M3/amendments.jsonl) and those over a Go-op document (I67's, gen/M3/goops/; amended at
+        the I67 prereg)."""
         self.assertEqual(self.r.code, 0, self.r.log)
         return {k: v for k, v in self.r.law_docs().items()
-                if v.get("rule") == "PAR" and v.get("subform") != "init_chain"}
+                if v.get("rule") == "PAR" and v.get("subform") != "init_chain"
+                and not str(v.get("facts") or "").startswith("gen/M3/goops/")}
 
 
 # ---------------------------------------------------------------------------------------------- the registry
@@ -838,7 +840,8 @@ class TestDeriveM3(_Morph):
     def test_derivation_follows_the_rules(self):
         """Construction: every law, basis element, reason and duplicate of DERIVATION.json is the one rules X8 and
         P0-P12 give over the component, as tests_m3/_i24x.py writes them out; statements exactly (canonical JSON).
-        Amended at the I28 prereg (spec/M3/amendments.jsonl): the entries of sub-form init_chain (I28's) are left out."""
+        Amended at the I28 prereg (spec/M3/amendments.jsonl): the entries of sub-form init_chain (I28's) are left out.
+        Amended at the I67 prereg: the entries and basis rows over a Go-op component (I67's, gen/M3/goops/) are left out."""
         comp, diag, ats, exp = morph_component()
         dv = self.r.doc("DERIVATION")
         ls = self.derived()
@@ -852,8 +855,10 @@ class TestDeriveM3(_Morph):
             with self.subTest(law=lid):
                 self.assertEqual(ls[lid]["subform"], want["subform"])
                 self.assertEqual(canonical_json(ls[lid]["statement"]), canonical_json(want["statement"]))
-        self.assertEqual(I.basis_rows(dv["par_basis"]), I.basis_rows(exp["basis"]))
-        entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR" and e.get("subform") != "init_chain"}
+        goops = {p.stem for p in (ROOT / "gen" / "M3" / "goops").glob("*.json")}
+        self.assertEqual(I.basis_rows([b for b in dv["par_basis"] if b["model"] not in goops]), I.basis_rows(exp["basis"]))
+        entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR" and e.get("subform") != "init_chain"
+                   and not str(e.get("facts") or "").startswith("gen/M3/goops/")}
         self.assertEqual(sorted(entries), sorted(ls))
         for lid, e in entries.items():
             with self.subTest(entry=lid):
@@ -1128,14 +1133,17 @@ class TestPredictedMorph(_Morph):
         adds a law: the two blob getters' cycles (against the tree edge BlobCommitHash) restate the three PAR-weak laws
         at their common versions (X8c: BlobHashesHash at 2, BlobVersionedHash at 0 and 1; recorded as duplicates), the
         V1 encoder and the patch share no version ({1}, {2}), and load_sol's self-loop is not a parallel pair. No TRANS
-        edge enters the basis (the transitions document has no M3 diagram, G1)."""
+        edge enters the basis (the transitions document has no M3 diagram, G1). Amended at the I67 prereg
+        (spec/M3/amendments.jsonl): the cycle rank and basis rows of a Go-op component (I67's) are left out."""
         self.assertEqual(self.r.code, 0, self.r.log)
         sc = load_json(SIDECAR)["components"][COMPONENT]
         dv = self.r.doc("DERIVATION")
-        self.assertEqual(dv["cycle_rank"], {COMPONENT: sc["cycle"]})
+        goops = {p.stem for p in (ROOT / "gen" / "M3" / "goops").glob("*.json")}
+        self.assertEqual({k: v for k, v in dv["cycle_rank"].items() if k not in goops}, {COMPONENT: sc["cycle"]})
         self.assertEqual({k: sc["cycle"][k] for k in ("E", "V", "kappa", "rank")},
                          {"E": 20, "V": 17, "kappa": 1, "rank": 4})
-        cyc = {(b["key"]["edge"], b["version"]): b for b in dv["par_basis"] if b["subform"] == "cycle"}
+        cyc = {(b["key"]["edge"], b["version"]): b for b in dv["par_basis"]
+               if b["subform"] == "cycle" and b["model"] not in goops}
         self.assertEqual(sorted({e for e, _ in cyc}), sorted(sc["cycle"]["non_tree"]))
         self.assertEqual(sorted(cyc, key=lambda k: (k[0], -1 if k[1] is None else k[1])),
                          [("CODEC.BatchHeaderBytes_BlobHashesHash", 2), ("CODEC.BatchHeaderBytes_BlobVersionedHash", 0),

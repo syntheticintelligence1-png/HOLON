@@ -1,0 +1,258 @@
+{
+ "verification": "Independent check that docs/iterations/I67_prereg_review.json (B1, M1-M6, m1-m15, 5 open questions) was folded into the uncommitted I67 prereg in /home/user/HOLON/.claude/worktrees/i67. HEAD f1ffb566481028b23fe1620b1f83c8c95eac94db, base 089b43a4ce8b1dda3e9d394180e5c6d833ec1e3a. The fold was last written Oct 24 13:37-13:44 UTC (test_go_loop.py 13:37, amendments 13:39, prompt 13:41, predictions 13:44) and did not change while this ran. Read-only on the worktree. Everything was run in scratch clones under scratchpad/v/: clone (prereg files committed as 8137196, review as 58a8054), clone2 (prereg and review in one commit), and drafted (the i67-build backup commit 42c54af). Checked: the key, the Y1-Y13 contract and every test of tests_m3/test_go_loop.py; the instrument and sidecar pins; the 9 amendment lines and the amended I24, I40, I43 and F39 tests; the I40 K1/K2 reorder over every REFUTED record; Y11's recipe against holon/mpipeline.py (clean_gen, run_m1), holon/codecrun.py, holon/records.py (v2_fields), holon/refute_m3.py (concretize, main), holon/rules/par_lossy.py, holon/metrics.py and holon/backtest.py; generator closures; CI jobs; and the draft branches (origin/claude/ci-i67-wip 3f17e71, f87fdaa, 959ef04; ad274fe and 42c54af in the i67-build worktree) and their scratchpad artifacts.",
+ "reviewer": "independent verification of the I67 prereg fold (fresh agent)",
+ "verdict": "no sign-off",
+ "verdict_note": "The fold fixes most of the review: 19 of 22 findings are fixed, 3 partly fixed (B1, M6, m6), and all 5 open questions are answered or deferred. The audit accepts the prereg when the review JSON goes in a separate commit. The amended earlier tests pass at the base and on the draft build snapshot. At the base, Y11's all-PAR re-make followed by the filter stage gives exactly what R2 allows for the PAR part. Sign-off is still withheld for three reasons. N1 (blocking): after the fold was written, the build ran end to end on the folded key before any prereg commit (derive, run, replay-go, and the P1-P5 tests passing), and the outcomes are now committed on the i67-build branch. The key and prompt still say no law was derived, recorded or replayed before the prereg, and they count P1-P5. N2 (major): `holon metrics` rewrites results/M3/metrics_timing.json, which test_r2 rejects. N3 (major): test_y1_loop_bodies_shape contradicts Y1 for functions without an error result, so a correct build fails it.",
+ "findings_status": [
+  {
+   "id": "B1",
+   "status": "partly fixed",
+   "where": "spec/M3/predictions.json:3016-3020 (I67-R2); tests_m3/test_go_loop.py:142-167 (Y11), 791-849 (test_r2)",
+   "note": "R2 and test_r2 now name each shared file with a per-file rule, and Y11 re-makes every PAR law (option 2). Reproduced at the base: `holon run --milestone M3 --laws <80 PAR>` followed by `holon refute --only filter` leaves exactly the 80 PAR records changed, in generator_sha256 and seconds only. header_length.bend, gen/M3/core, the PAR laws/, proofs/ and nonvac/ dirs, summary.json, deps.json and splits.json stay byte-identical, and so do results/M3/refute/*. Still open: N2 (results/M3/metrics_timing.json is outside the allow-list), N5 (the runs and the filter must share one commit) and N6 (the deps.json and splits.json claims are not checked)."
+  },
+  {
+   "id": "M1",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:156-167 (Y11); spec/M3/predictions.json:3031-3034 (I67-R5), 3150-3151",
+   "note": "Y11 adds the M1, M2 and T32 re-make and the filter stage. The M3 clause now says the full gate's G1 reports the staleness and CI runs no M3 G1, and the I32 import constraint is added. Closures re-checked: codecrun, records, ir, bindings, gen/refs, diagram/* and rules/__init__ are in the holon-ir/0.2 and 0.3 closures and in profile.generator_files, and none of them is in 0.1's. At the base, `holon run --milestone M1` followed by the filter leaves all 16 records changed in stamps only and nothing else."
+  },
+  {
+   "id": "M2",
+   "status": "fixed",
+   "where": "spec/M3/amendments.jsonl:41-49; tests_m3/test_derive_par.py:570-578, 840-869, 1128-1150; tests_m3/test_par_outcomes.py:78-85, 377-385; tests_m3/test_lean_promoted.py:1058-1060; tests_m3/test_catalog_rederivation.py:62-69; tests_m3/test_go_loop.py:171-179 (Y13)",
+   "note": "The audit prints each amended test as amended, and its result is PREREG OK. At the prereg commit, TestDeriveM3+TestPredictedMorph (10), the par_records-based tests (7) and the 80-law F39 test pass. On the draft snapshot 42c54af (four goops laws derived), the same tests plus TestLinkedLayer codecs and evidence pass (20 OK), and the amended I43 count gives 80 of 84. The backtest (holon/backtest.py:446) and I24's refs test (facts == CODEC_DOC) need no amendment. I43's test is red at the base for F40, as disclosed, so its amended line cannot run yet."
+  },
+  {
+   "id": "M3",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:109-124 (Y8 a-e), 154 (holon bind in Y11), 711-749 (test_y8_*)",
+   "note": "Y8 now states the binder rule, the generated bundle, the evidence schema enum, the bindings with holon bind, the statement refs, no lean4 entry and the witness_provenance. G9's ledger_problems works once codec_kind returns 'goops' (Y7). Remaining wording and coverage gaps are in N8."
+  },
+  {
+   "id": "M4",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:136-141 (Y10); tests_m3/_i40.py:210-231; tests_m3/test_refute.py:98-100; spec/M3/amendments.jsonl:49",
+   "note": "Over all 40 REFUTED records at the base, the old and new K1/K2 orders give the same kinds (bmc 4, commit_class 5, direct 30, go_only 1). test_sidecar_computed_fields_are_the_computation_at_the_prereg (the amended concretization_kind over I40's prereg tree), test_sidecar_counts and both recomputed-bin tests pass. For I67's records, I40's final_sides is {} and gives 'pending', matching F4."
+  },
+  {
+   "id": "M5",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:578-586 (test_y4_evidence), 614-617 (test_p5), 811-847 (test_r2)",
+   "note": "These three tests now compare each own commit with its first parent, not the prereg with HEAD."
+  },
+  {
+   "id": "M6",
+   "status": "partly fixed",
+   "where": "prompts/I67_go_loop.md:31-45; spec/M3/predictions.json:2983-2987, 3026-3030 (I67-R4), 3102-3112",
+   "note": "The Oct 23 draft runs are now disclosed and P6 is reclassified as R4. Three gaps remain. (a) The disclosed details are wrong (N4). (b) The review itself ran P5's derivation (holon.rules.par.derive_document on the Y4 diagram, its verified[2]), yet prompt line 42 says P5 was never run. (c) The Oct 24 smoke run after the fold is not disclosed (N1)."
+  },
+  {
+   "id": "m1",
+   "status": "fixed",
+   "where": "spec/M3/predictions.json:3012 (I67-R1); tests_m3/test_go_loop.py:19",
+   "note": "R1 now says 'five', which matches the 5 M2 Go documents."
+  },
+  {
+   "id": "m2",
+   "status": "fixed",
+   "where": "spec/M3/predictions.json:3064",
+   "note": "7c9997d2, f1ffb566 and 089b43a4 all resolve to commits."
+  },
+  {
+   "id": "m3",
+   "status": "fixed",
+   "where": "docs/BUILD_PLAN.md:345 (commit f1ffb56)",
+   "note": "The row names morph_blob.go.extracted.json and notes the name I38 uses."
+  },
+  {
+   "id": "m4",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:122-124, 724",
+   "note": "No lean4 entry (holon.lean._attempted), and the test asserts it."
+  },
+  {
+   "id": "m5",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:97-108 (Y7)",
+   "note": "Panic and continue values are now the smallest byte values. The fold resolved acceptance the other way, explicitly: REFUTED needs bend alone, the BendTT verdict is recorded, and P1-P3 predict 'checked', which matches codecrun.decide."
+  },
+  {
+   "id": "m6",
+   "status": "partly fixed",
+   "where": "tests_m3/test_go_loop.py:82-96 (Y6)",
+   "note": "'Reads' is now defined by the condition atoms, and the return-to-Out rule is stated. A site whose lower bound can fail is neither made Unsupported nor shown to reduce to a single index atom."
+  },
+  {
+   "id": "m7",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:130-134, 772-774",
+   "note": "Y9 says outcome class, and the test asserts that observed's keys are the named ops."
+  },
+  {
+   "id": "m8",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:34-35; prompts/I67_go_loop.md:48-49",
+   "note": "The schema extension is additive, and I18's schema tests keep passing."
+  },
+  {
+   "id": "m9",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:40-42; prompts/I67_go_loop.md:63-64; spec/M3/predictions.json:3152",
+   "note": "The G1 window is disclosed."
+  },
+  {
+   "id": "m10",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:72-74; thresholds.deferred",
+   "note": "Noted in Y4 and kept as a Question."
+  },
+  {
+   "id": "m11",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:90-93, 647-656",
+   "note": "The forbidden operations are defined, and the line-level infix filter is not vacuous. The draft model passes it (i67_t1.log)."
+  },
+  {
+   "id": "m12",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:55-57",
+   "note": "--goops-out was added and --out alone writes linked documents only. I24's test_codecs_writes_the_component passes on the draft."
+  },
+  {
+   "id": "m13",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:123-124, 725-726",
+   "note": "The value and its source are stated. The full M3 gate's G6 is not addressed, and CI does not run it."
+  },
+  {
+   "id": "m14",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:131-132, 775",
+   "note": "The command must hold no path, and the test's regex checks it."
+  },
+  {
+   "id": "m15",
+   "status": "fixed",
+   "where": "tests_m3/_i67.py:12-14",
+   "note": "The docstring is corrected and instrument_sha256 re-pinned. test_the_key_pins_the_instruments passes."
+  },
+  {
+   "id": "OQ1",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:150-153; spec/M3/predictions.json:3150",
+   "note": "Answered with option 2: re-make all PAR laws, the 80 records changing in stamps only."
+  },
+  {
+   "id": "OQ2",
+   "status": "fixed",
+   "where": "prompts/I67_go_loop.md:76-77; spec/M3/predictions.json:3064",
+   "note": "The base CI run 40060654416 passed all 11 jobs, and the exit is 'as at the base'."
+  },
+  {
+   "id": "OQ3",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:164-167; spec/M3/predictions.json:3150",
+   "note": "Deferral is explicit: typed, UNDO, DISCH and FACT records trail until I28's re-make."
+  },
+  {
+   "id": "OQ4",
+   "status": "fixed",
+   "where": "tests_m3/test_go_loop.py:136-141; spec/M3/amendments.jsonl:49",
+   "note": "Answered as go_only, by amending I40's K1/K2."
+  },
+  {
+   "id": "OQ5",
+   "status": "fixed",
+   "where": "spec/M3/predictions.json thresholds.deferred",
+   "note": "Deferred as a Question."
+  }
+ ],
+ "new_findings": [
+  {
+   "id": "N1",
+   "severity": "blocking",
+   "where": "/home/user/HOLON/.claude/worktrees/i67-build (outputs Oct 24 13:50-13:58 UTC; committed as 42c54af at 14:15); scratchpad/i67_run4.log, i67_replay.log, i67_t1.log; prompts/I67_go_loop.md:42-45; spec/M3/predictions.json:2983-3010, 3102-3112",
+   "what": "The build was run end to end on the folded key before any prereg commit. The i67-build copy of predictions.json is byte-identical to the fold's. Timeline: M3 Go document 13:50:30; gen/M3/goops 13:50:43; the four laws derived 13:50:59; holon run on the four, giving 3 REFUTED at cell 3968 = 1 (kernel checked, differences as predicted) and 1 UNKNOWN; replay-go, giving 3 passed (OPanic/OErr); test_go_loop's P1-P5, Y3, Y6, Y8(e) and Y9 tests OK at 13:54. test_y1 was then relaxed in that worktree at 13:58, after it failed. Those outputs are committed in 42c54af, whose message says they are 'disclosed in the I67 key'. They are not: the fold's key and prompt (the same bytes as 42c54af's copies) still say 'No law of this key was derived, recorded or replayed before the prereg' and list P1-P5 as counted. BUILD_PLAN §0.1.1 lets a prediction count only when its outcome is recorded nowhere in the repo, and §0.1.2 says to push the prereg before implementation. P5's core derivation was also executed by the review (verified[2]).",
+   "fix": "Disclose the smoke run in the prompt and thresholds: worktree, times, commands, outcomes and the test_y1 change. Move P1-P5 to 'recorded, not counted', or state that no prediction of this key counts. Keep ad274fe and 42c54af off HEAD's ancestry for good: they change outcome paths (docs/iterations/I67.md, laws, records, replay) before C_K, so the audit's order rule would fail."
+  },
+  {
+   "id": "N2",
+   "severity": "major",
+   "where": "tests_m3/test_go_loop.py:805-820 (test_r2 allowed set), 163 (Y11 last step); holon/metrics.py:243-259; spec/M3/predictions.json:3016-3020",
+   "what": "`holon metrics --milestone M3` also rewrites results/M3/metrics_timing.json. That file is tracked, and every earlier metrics commit changed it (18d40b4, d0dfac7, 84c5dd8, 5e4b64a). Reproduced at the prereg commit: metrics_s went from 2.746 to 0.31. test_r2's regex covers the file but its allow-list does not, so the commit that carries Y11's last step fails I67-R2 unless the file is reverted by hand.",
+   "fix": "Add results/M3/metrics_timing.json (timings only; G1 never compares it) to R2's claim and allowed set, or say in Y11 that it is not committed."
+  },
+  {
+   "id": "N3",
+   "severity": "major",
+   "where": "tests_m3/test_go_loop.py:461 vs Y1 (lines 20-33); spec/M2/facts/morph_batch.go.extracted.json; (*morph-l2/common/batch.BatchData).DataHash",
+   "what": "Y1 requires loop_bodies for DataHash, which is codec-shaped, has a counted loop (iv i, step 1, a fuel) and returns [common.Hash] with no error. Y1 writes paths 'as the paths section writes one', and the paths section puts 'error': null on a return from a function without an error result (348 such paths in the M2 morph_batch document). test_y1_loop_bodies_shape asserts that error is non-null on every return path. The fold's test failed exactly there on the draft's document (DataHash, Append, aggregateBlobHashes; i67_t1.log). The i67-build copy relaxes the assertion; the fold does not.",
+   "fix": "Assert error is null on non-return paths and on returns of functions whose last result is not error, and is in {nil, nonnil, unknown} otherwise, as the i67-build patch does. Say so in Y1."
+  },
+  {
+   "id": "N4",
+   "severity": "minor",
+   "where": "spec/M3/predictions.json:2983-2987 (I67-P1 'at 4096 cells'), 3026-3030 (I67-R4 b); prompts/I67_go_loop.md:36-38",
+   "what": "The draft 959ef04 checked the batch counter-law at W = List.append(List.replicate(U32, 3968n, 0), [1]), which is 3969 cells (scratchpad i67/gen/batch/M.bend:61). It checked the blob clone's counter-law at the all-zero 4096-cell carrier (i67/gen/blob/M.bend:61), not at the trip witness. The immutable texts say 'at 4096 cells' and imply one W.",
+   "fix": "State the exact witnesses that were observed."
+  },
+  {
+   "id": "N5",
+   "severity": "minor",
+   "where": "tests_m3/test_go_loop.py:142-163 (Y11), 821-826, 859-867; tests_m3/test_refute.py:1253-1286; spec/M3/predictions.json:3170",
+   "what": "holon run builds a record from scratch: a re-made REFUTED record loses concretization and gets a provisional filter_bin (reproduced: the 4 REFUTED PAR records, 2 of them finding->pending). So R2 and R5's per-commit stamps-only checks hold only if the M1, M2 and M3 runs and the filter stage land in one commit; reproduced, the filter restores all of them. Y11 does not say this. Separately, I40's test_outcome_commits_touch_no_earlier_milestone fails any commit that writes results/M3/refute/ and adds a record. It is already red at the base (I26's e122e7a and 4784042, 9 failures) and is missing from known_red_at_base. A one-commit build adds failures unless the refute docs are committed apart from the four new records.",
+   "fix": "State the commit grouping in Y11 (runs and filter together, the refute docs in a later commit of their own), and list the I40 test under known_red_at_base."
+  },
+  {
+   "id": "N6",
+   "severity": "minor",
+   "where": "spec/M3/predictions.json:3016-3020 vs tests_m3/test_go_loop.py:805-809; Y5 (80-81) vs Y12 (168-170)",
+   "what": "R2's claim says deps.json and splits.json gain only the four laws, but test_r2 accepts any change to them. Y5 says no I67 commit changes a law's rule_catalog_version, yet if I67 merges second (Y12) its four laws must be re-derived under I28's holon-rules/1.6.",
+   "fix": "Check deps.json and splits.json the way summary.json is checked, or narrow the claim. Scope Y5 to REGISTRY and the catalogs, or except the Y12 re-derivation."
+  },
+  {
+   "id": "N7",
+   "severity": "minor",
+   "where": "prompts/I67_go_loop.md:76-77 vs spec/M3/predictions.json:3170",
+   "what": "The exit requires the earlier tests amended at this prereg to be green, but test_statuses_and_bend_files_are_unchanged is red at the base for F40 and I67 does not fix it.",
+   "fix": "Change the exit to 'green, or red only as at the base (known_red_at_base)'."
+  },
+  {
+   "id": "N8",
+   "severity": "minor",
+   "where": "tests_m3/test_go_loop.py:120-122 vs 739-741; 113-116 vs 723",
+   "what": "Y8(e) says 'for each op the claim names, fn:<op> (and fn:ok_<op> for its domain)', which can be read as also requiring fn:<op> when only the domain is named; the test requires fn:<call> for each call and nothing more. Y8(b) names the bundle's entries (go-prim assumptions and A-goloop-cells/outcome/sites), but the only check is ledger_match == 'exact', which any generated bundle meets.",
+   "fix": "Reword Y8(e) as 'fn:<f> for each function f the claim calls'. Assert the bundle's entry ids in test_y8."
+  }
+ ],
+ "reproduced": [
+  "git rev-parse: HEAD f1ffb566481028b23fe1620b1f83c8c95eac94db; base 089b43a4ce8b1dda3e9d394180e5c6d833ec1e3a; 7c9997d2 and f1ffb566 resolve, 7c9997d3 does not",
+  "scratchpad/v/clone, prereg files committed as 8137196 and the review as 58a8054: `python3 -m holon audit prereg --milestone M3` -> 'I67: OK prereg 8137196962f0 (22 outcome paths, 1 test file, 2 helper modules, 23 tracked functions)', PREREG OK; every I24, I40 and I43 amended test is printed as amended",
+  "scratchpad/v/clone2, prereg and review in one commit -> 'I67: FAIL ... also changes files that are not prereg inputs: docs/iterations/I67_prereg_review.json' (commit the review separately, as I28 did)",
+  "test_go_loop at the prereg commit: TestInstrument 2 ok (key, sidecar and contract-docstring pins; real code O4) and test_r1 ok; the other 19 fail for lack of a build, as expected",
+  "amended earlier tests at the prereg commit: test_derive_par TestDeriveM3+TestPredictedMorph 10 OK; test_par_outcomes TestMorphOutcomes + 3 TestM3Construction 7 OK; test_catalog_rederivation 80-law test OK; test_lean_promoted test_statuses_and_bend_files_are_unchanged FAIL on gen/M3/L_disch_rev_initializable_120_b8d46c45/nonvac/LAWS.bend (F40, as disclosed)",
+  "I40 at the prereg commit: test_sidecar_computed_fields_are_the_computation_at_the_prereg, test_sidecar_counts, test_every_refuted_record_at_head_has_a_recomputed_bin and test_the_filter_document_lists_every_recomputed_bin OK; old vs new K1/K2 order over 40 REFUTED records: no kind change; test_outcome_commits_touch_no_earlier_milestone FAIL at the base (9 failures: commits e122e7a and 4784042)",
+  "base code, clone: `holon run --milestone M3 --laws <80 PAR laws>` (6m12s) changed only the 80 PAR records: 76 in generator_sha256 and seconds; the 4 REFUTED lost concretization and 2 of those went filter_bin finding->pending; then `holon refute --milestone M3 --only filter` left all 80 stamps-only and results/M3/refute/* byte-identical; header_length.bend, gen/M3/core, the laws/, proofs/ and nonvac/ dirs, summary.json, deps.json and splits.json byte-identical",
+  "base code, clone: `holon run --milestone M1` then the filter -> 16 M1 records stamps-only, no other file changed",
+  "clone2: `holon metrics --milestone M3` -> results/M3/metrics_timing.json modified (metrics_s 2.746 -> 0.31), metrics.json unchanged",
+  "scratchpad/v/drafted at 42c54af (draft build plus four goops laws): amended I24/F39 tests and TestLinkedLayer codecs/evidence: 20 OK; the amended I43 count gives 80 of 84 L_par records; the I40 sidecar test OK",
+  "/home/user/HOLON/.claude/worktrees/i67-build: spec/M3/predictions.json byte-identical to the fold's (copied 13:50:12); outputs 13:50:30-13:58:36; replay/M3/goops/report.json: 3 sides passed; records: tot_batch, weak and dom REFUTED with verdict checked, witness 4096 cells with cell 3968 = 1; tot_blob UNKNOWN; test_go_loop.py differs from the fold only in test_y1's error assertion (patched 13:58:16)",
+  "scratchpad i67_run4.log 13:52:45 (3 REFUTED checked, 1 UNKNOWN), i67_replay.log 13:53:49 (3 passed, stamped 3 records), i67_t1.log 13:54:45 (P1-P5 and Y9 ok; test_y1 FAIL on DataHash, Append, aggregateBlobHashes return paths with error null)",
+  "959ef04 holon/gen/goloop.py model_text: batch W = List.append(&2, U32, List.replicate(U32, 3968n, 0), [1]); blob W = List.replicate(U32, 4096n, 0) (scratchpad i67/gen/{batch,blob}/M.bend:61)",
+  "spec/M2/facts/morph_batch.go.extracted.json: 348 return paths with error null in functions without an error result; DataHash go.loops entry: kind counted, iv i, step 1, init [const 0]; results [common.Hash]; paths_reason 'loop', i.e. codec-shaped"
+ ],
+ "author_fold": {
+  "note": "Added by the author after the verification, not by the verifier: how each new finding was folded into the prereg commit 9325bad. The fold itself was not re-verified; the prereg audit passed on it (a scratch clone with the prereg and this file in separate commits: 'I67: OK prereg', PREREG OK).",
+  "N1": "Disclosed in thresholds.disclosure and the prompt: the draft's runs, the review's derivation of I67-P5, and the smoke run (13:50-13:58, its commands and outcomes, the test_y1 change, backups ad274fe and 42c54af kept off the lead). counted_predictions is empty, observed_before_prereg names what was seen of each prediction, and each prediction's claim says 'Recorded, not counted'. No predicted value changed.",
+  "N2": "results/M3/metrics_timing.json (timings only) added to Y11's metrics step, to I67-R2's claim and to test_r2's allowed set.",
+  "N3": "Y1 states the error clause as the paths section writes it, and test_y1 asserts it: null on every path but a return from a function whose last result is error, and one of nil, nonnil and unknown there.",
+  "N4": "The draft's witnesses stated exactly in I67-P1, I67-P4, I67-R4 (b) and the prompt: the batch counter-law at the 3969-cell sequence of 3968 zeros and then a 1, the blob clone's at the all-zero 4096-cell sequence.",
+  "N5": "Y11 states the commit grouping: holon run M3 through the filter stage's record write-back in one commit, the results/M3/refute/ documents in a later commit of their own, holon metrics' files in another. I40's test_outcome_commits_touch_no_earlier_milestone added to known_red_at_base.",
+  "N6": "test_r2 checks deps.json (every definition's dependents, and per model, but the four laws as at the parent) and splits.json (no pair but one naming the four laws added or changed). Y5 now reads: no commit of I67's changes holon.rules' catalogs or laws/M3/REGISTRY.json's rule_catalog_version, and the four laws carry the registry's version (under Y12, the lead's once merged in), which is what test_p5 checks.",
+  "N7": "The prompt's exit: the amended earlier tests green, or red only as at the base (known_red_at_base).",
+  "N8": "Y8(e) reworded to 'fn:<f> for each function f the claim calls (an op, or its domain ok_<op>)'. test_y8 asserts the generated bundle's entries: one per assumption of the Go document (by source), each introduced by ops' definitions, and A-goloop-cells, A-goloop-outcome and A-goloop-sites.",
+  "M6": "As N1 and N4.",
+  "m6": "Y6 states the bound-site rule: one panic path per bound the frontend cannot prove, ending in its negation, so a lower bound that can fail is an index condition a*iv + c' < 0 under the threshold rule (iv < ceil(-c'/a)).",
+  "also": "The smoke run found that Y9's stamp must write witness_provenance for Y8 to hold in Y11's order (holon run precedes the report). Y9 and Y11 now say the stamp writes the replay field and witness_provenance."
+ }
+}
