@@ -344,15 +344,17 @@ def witness_kind(rec: dict) -> str:
 
 
 def kind_of(rec: dict, law: dict, ss: dict) -> str:
-    """Rules K1-K4: bmc (a blocking side, a migration in the statement, or a definedness witness), go_only (every
-    side a Go library call), commit_class (a codec witness), direct (a schedule of public calls)."""
+    """Rules K1-K4: bmc (a blocking side, a migration in the statement, or a definedness witness), go_only (every side
+    a Go library call; tested before K1's definedness clause, I67 rule Y10), commit_class (a codec witness), direct (a
+    schedule of public calls)."""
     provs = [s.get("provenance") for s in ss.values()]
     wk = witness_kind(rec)
-    if any(p in ("internal_harness", "emulated_storage") for p in provs) or _has_key(law.get("statement"), "mig") \
-            or wk == "domain":
+    if any(p in ("internal_harness", "emulated_storage") for p in provs) or _has_key(law.get("statement"), "mig"):
         return "bmc"
     if provs and all(p == "library_api" for p in provs):
         return "go_only"
+    if wk == "domain":
+        return "bmc"
     if wk == "codec":
         return "commit_class"
     return "direct"

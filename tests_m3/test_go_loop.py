@@ -16,23 +16,30 @@ spec/M3/amendments.jsonl): tests_m3/_i67.py and its Go file tests_m3/fixtures/go
 document; the concretization of Y9), written without holon/.
 
 Y1 Frontend 0.2. holon.frontends.go accepts config_version holon-go-frontend/0.1 and holon-go-frontend/0.2. A 0.1
-   config extracts byte for byte what it extracts at the base (every spec/M2/facts/*.go.extracted.json from
+   config extracts byte for byte what it extracts at the base (the five spec/M2/facts/*.go.extracted.json from
    spec/M2/lib/go_frontend.json). A 0.2 config writes extraction.frontend_version holon-go/0.2 and adds, to the entry of
    every function that is codec-shaped (holon.frontends.go.analyses.Analysis.codec_shaped, unchanged) and has a loop of
    kind counted or range with an induction phi, a fuel and step 1, the key loop_bodies: one entry per such loop, in
    header order, {"span", "iv", "init", "step", "cmp", "limit", "fuel", "exits", "paths"}. The first eight are what the
    loop's go.loops entry holds; paths are the loop-free paths of one iteration over the symbolic induction variable
    ["iv", <iv>]: the blocks before the loop run as in the function's path enumeration, the header binds the induction
-   variable with init <= iv assumed, the header's own test forks the body from the exit, a jump back to the header
-   ends a path "continue", the exit flows on to the function's return ("return", with its returns), and a bound site
-   the reasoner cannot prove safe ends a path "panic" with its site id, by the enumeration's own rule. A path is
-   {"cond": [atom], "end": "panic" | "return" | "continue", "returns": [term] | null, "site": site id | null}. No other
-   key of a document changes meaning.
+   variable with init <= iv assumed, every other phi of the header is an opaque term of its own (a loop-carried value
+   is unknown in a later iteration), the header's own test forks the body from the exit, a jump back to the header ends
+   a path "continue", the exit flows on to the function's return ("return", with its returns), and a bound site the
+   reasoner cannot prove safe ends a path "panic" with its site id, by the enumeration's own rule. Memory the loop writes
+   is read as at the loop's entry (per-iteration writes are not tracked; Y6 reads conditions over the induction variable
+   and the parameter's cells only). A path is written as the paths section writes one: {"cond": [atom], "end": "panic" |
+   "return" | "continue", "error": "nil" | "nonnil" | "unknown" | null (null unless the path returns), "returns": [term]
+   | null, "site": site id | null}. A body over the path limit has paths null and a path_limit debt entry; an
+   unsupported construct met in a body is a debt entry, as in a path enumeration. spec/schemas/facts_0_3_go.schema.json
+   is extended additively (frontend_version holon-go/0.1 or 0.2, an optional loop_bodies of this shape). No other key of
+   a document changes meaning.
 Y2 The M3 document. spec/M3/lib/go_frontend.json (config 0.2; one document, morph_blob, of morph-l2/common/batch and
    morph-l2/common/blob; source, primitives and limits as spec/M2/lib/go_frontend.json's) and
    `python -m holon extract go --milestone M3` write spec/M3/facts/morph_blob.go.extracted.json, byte for byte what
-   holon.gate's G1 re-extracts (unchanged code: it covers M3 because spec/M3/lib/link.json exists). What its two
-   RetrieveBlobBytes entries hold is prediction I67-P6.
+   holon.gate's G1 re-extracts (unchanged code: it covers M3 because spec/M3/lib/link.json exists). From this prereg's
+   merge to the build's, M3's full-gate G1 reports that document missing (the base frontend refuses config 0.2); CI runs
+   no M3 G1. What its two RetrieveBlobBytes entries hold is recorded in I67-R4 (observed on the draft, not counted).
 Y3 Go-op components. The sidecar spec/M3/lib/go_ops.json (go_ops_version holon-go-ops/0.1) names a Go document and its
    components, each {"carrier": a Go type, "reach": text}. holon.diagram.goops builds, per component, a holon-goops/0.1
    document {"goops_version", "component", "document": the Go document's path, "document_sha256", "carrier": {"id",
@@ -43,11 +50,12 @@ Y3 Go-op components. The sidecar spec/M3/lib/go_ops.json (go_ops_version holon-g
    import path's last segment); two ops with one model name, or a name that is not an identifier, are refused (exit 3,
    nothing written). "source" is the function id; the other op keys are the document's entry verbatim (loop_bodies
    null when absent). The carrier id is the type without its leading "*" and package path. A result carrier id is
-   "R_" followed by the op's result types joined by "_", each written as an identifier: a leading "[]" as "Slice", a
-   leading "*" as "Ptr", then the last name segment with its first letter upper-cased ([]byte, error: R_SliceByte_Error).
-   `holon codecs --milestone M3` writes gen/M3/goops/<component>.json beside gen/M3/codec/ (whose files do not change),
-   removes a stale one, and --check covers both. holon/diagram/goops.py holds no target name: every name comes from the
-   sidecar and the document.
+   "R_" followed by the op's result types joined by "_", each written as an identifier: every leading "[]" as "Slice"
+   and "*" as "Ptr", then the last name segment with its first letter upper-cased ([]byte, error: R_SliceByte_Error).
+   `holon codecs --milestone M3` writes gen/M3/goops/<component>.json (--goops-out DIR overrides the directory; with
+   --out alone no Go-op document is written, so --out DIR holds the linked codec documents only), removes a stale one,
+   and --check covers both directories; gen/M3/codec/ does not change. holon/diagram/goops.py holds no target name:
+   every name comes from the sidecar and the document.
 Y4 Diagram and evidence. `holon diagram --milestone M3` also writes gen/M3/diagram/<component>.json per Go-op
    component (holon-diagram/0.1; the linked components' diagrams do not change): model the component, facts its
    gen/M3/goops path, facts_sha256, facts_version holon-goops/0.1; carriers the interface carrier {"id", "cls": "rep",
@@ -60,59 +68,115 @@ Y4 Diagram and evidence. `holon diagram --milestone M3` also writes gen/M3/diagr
    where it does not panic. `holon evidence --milestone M3` adds one model per Go-op component (facts, facts_sha256,
    facts_version, diagram and anchors: "codec" model_fn -> edge id, "domains" ok_<op> -> [edge id], every other anchor
    key empty, as I24's for a linked component) and its E6 atoms (holon.diagram.evidence.e6 with I14's lexicon,
-   unchanged); no other level (an op has no layout and no machine). Every other model and atom of gen/M3/evidence.json
-   stays as it is.
+   unchanged); no other level (an op has no layout and no machine). spec/schemas/evidence.schema.json admits
+   facts_version holon-goops/0.1. Every other model and atom of the evidence set stays as it is. A noted consequence: E6
+   tokens come from the whole function id, so any two ops of one component with one result tuple share import-path
+   tokens and get an E6 atom (the two clones also share retrieve, blob and bytes); the lexicon is I14's and unchanged.
 Y5 Derivation. `holon derive --milestone M3` reads the Go-op components with the linked codec layer, each document,
    diagram and the evidence set byte for byte what holon codecs, holon diagram and holon evidence write now (else
    refused: a stale input), and runs the catalog's PAR producers over each component's diagram and atoms, as they are
    (holon.rules.par changes in no line). Over blob_ops that gives the laws expected_laws gives (prediction I67-P5),
    each with rule PAR and facts gen/M3/goops/blob_ops.json, and the cycle basis element of the component's non-tree
-   edge is a duplicate of the weak law. The rule catalog version does not change.
+   edge is a duplicate of the weak law. The rule catalog does not change: no commit of I67's changes a law's
+   rule_catalog_version or holon.rules' catalogs.
 Y6 The model. holon.gen.goloop.generate(doc, sha) is gen/M3/model/<component>.bend (holon run writes it), from the
    Go-op document alone: a type Out with constructors OPanic, OErr and ORet (a panic, a non-nil error, a nil error);
    per op a function <op> over the cell sequence List<&2, U32>, ok_<op>(b) = not is_panic(<op>(b)), and eq_out and
    eq_bool. An op's model is its one loop body: the iterations consume the cell sequence one node per iteration (cell k
-   is the array cell the body reads at iteration k, blob[a*k + c] for its affine read with constants a and c of the
-   document), the induction variable is a Nat, an open bound site a*iv + c' < C is the Nat threshold
-   ceil((C - c') / a) compared with the induction variable, and no U32 arithmetic is done per iteration. The fuel is the
-   loop's trip count. An op outside this class (no loop body, more than one loop, a path reading more than one cell, a
-   non-affine index, a predicate other than a comparison of the cell with a constant) is Unsupported: the laws naming
-   it are UNKNOWN, with the reason. holon/gen/goloop.py names no target.
+   is the array cell the body's path conditions read at iteration k, the parameter's cell a*k + c for constants a >= 1
+   and c >= 0 of the document), the induction variable is a Nat, and a body path's index condition a*iv + c' REL C is
+   the Nat condition on the induction variable it is equivalent to (a threshold such as iv >= ceil((C - c') / a)). A
+   return path's outcome is its "error": nil is ORet, nonnil OErr; a panic path's is OPanic. The loop's exit paths give
+   the outcome after the last iteration, and the fuel is the loop's trip count. The ops' definitions use no U32
+   arithmetic (no U32 add, sub, mul, div, mod, shift or bit operation, no infix arithmetic on a U32): per iteration
+   they compare the cell with constants (U32 comparisons) and the index with thresholds (Nat comparisons), and the
+   index grows by Nat successor. An op outside this class (no loop body, more than one loop, a path condition reading a
+   second cell or anything but the induction variable and the parameter's cells, a non-affine index, a return whose
+   error is unknown, exit paths with two outcomes, body paths that do not partition the cell and index values) is
+   Unsupported: the laws naming it are UNKNOWN, with the reason. holon/gen/goloop.py names no target.
 Y7 Deciding. holon run decides a law whose facts is a Go-op document through holon.codecrun (a third kind, goops).
    Candidates, in order: per op of the component, by model name, its model's smallest panic witness (the first
-   iteration k from the loop's init at which a panic path's conditions hold: cells before k at the continue path's
-   cell value, cell k at the panic path's, cells after k at the continue value, n cells, n the trip count); then the n
-   continue values. A law is REFUTED at the first candidate whose counter-law (the claim's negation at the candidate:
-   eq_out or eq_bool of the two sides is False) bend accepts at its acceptance point (holon.mpipeline.accepted) and
-   BendTT --verdict checks; its witness is {"b": "0x" + the n cells, one byte each, in hex} and its difference
-   {"lhs", "rhs"} the sides' values at it ("OPanic", "OErr", "ORet"; true, false). A law no candidate refutes is
-   UNKNOWN, its bound naming the candidates and that a forall law over cell sequences has no proof route here (gap G6):
-   there is no proof generator for these laws. The witness comes from the compiled model, never from the instrument or
-   the real code.
-Y8 Records. results/M3/<law id>.json per law over a Go-op document is holon.codecrun.decide's record (v1 and v2
-   fields; evidence fields from gen/M3/evidence.json; the lean4 kernel entry as for any codec law of M3), status per
-   Y7, kernel verdict checked when REFUTED, replay per Y9. Laws over other documents are decided as before.
+   iteration k from the loop's init at which a panic path's conditions hold for some cell value: cell k the smallest
+   byte value satisfying that path's cell conditions, every other cell the smallest byte value that keeps its iteration
+   on a continue path; n cells, n the trip count); then the sequence of continue values (each the smallest such byte
+   value). A law is REFUTED at the first candidate whose counter-law (BEND_PRIMER 5.4: exs b, the claim's two sides
+   unequal; the motive the model's eq_out or eq_bool) bend accepts at its acceptance point (holon.mpipeline.accepted);
+   its record's kernel verdict is BendTT --verdict's on that proof (predictions I67-P1-P3 say checked). Its witness is
+   {"b": "0x" + the n cells, one byte each, in hex} and its difference {"lhs", "rhs"} the sides' values at it
+   ("OPanic", "OErr", "ORet"; true, false). A law no candidate refutes is UNKNOWN, its bound naming the candidates and
+   that a forall law over cell sequences has no proof route here (gap G6): there is no proof generator for these laws.
+   The witness comes from the compiled model, never from the instrument or the real code.
+Y8 Records and the gate. results/M3/<law id>.json per law over a Go-op document is holon.codecrun.decide's record (v1
+   and v2 fields; evidence fields from gen/M3/evidence.json), status per Y7, replay per Y9. What the gate checks of
+   such a law is made to hold by these changes, each generated, never hand-written: (a) the IR's binder rule takes a
+   Go-op document's carrier id as its record type (holon.ir.check_binder_types); (b) its ledger bundle is generated from
+   the Go-op document (holon.records' generated bundles, as I24's for a linked document): every assumption the Go
+   document declares, introduced by the ops' definitions, and the model's own A-goloop-cells (an op's argument is the
+   cells its body reads), A-goloop-outcome (errors and returned bytes are not modelled) and A-goloop-sites (an op panics
+   only at the sites the frontend cannot prove safe; per-iteration writes are not tracked), so ledger_match is exact;
+   (c) evidence.schema.json's facts_version enum admits holon-goops/0.1 (Y4); (d) holon.bindings binds a Go-op law to
+   gen/M3/model/<component>.bend and its emission (holon.gen.goloop.emit, as codecrun writes the law file), and
+   `holon bind --milestone M3 --laws <the four>` adds the four bindings to spec/bindings/M3.json, logged as added only
+   (no other binding changes); (e) the statement hash's refs over a Go-op document (holon.gen.refs) are, for each op the
+   claim names, "fn:<op>" (and "fn:ok_<op>" for its domain) the op's entry without source and span, and "carrier:<id>"
+   the carrier's {"id", "type"}. The record carries no lean4 entry (no Lean emitter reads a Go-op document:
+   holon.lean._attempted, as for I31's DISCH and I26's FACT laws) and, when REFUTED, witness_provenance {"go":
+   "library_api"} from replay/M3/goops/report.json. Laws over other documents are decided as before.
 Y9 Replay. `holon replay-go --milestone M3` concretizes the witness of every REFUTED record of a Go-op law: the carrier
-   value whose array cell blob[a*k + c] (Y6's read) is cell k of the witness and whose every other byte is 0. It runs
-   each op the law names on it under recover(), from a Go test it generates from the Go-op document (the ops' function
+   value whose array cell a*k + c (Y6's read) is cell k of the witness and whose every other byte is 0. It runs each op
+   the law's claim names on it under recover(), from a Go test it generates from the Go-op document (the ops' function
    ids and the carrier's type) on a scratch copy of the pinned morph checkout (config replay.morph), and writes
    replay/M3/goops/report.json {"milestone", "morph_commit", "go_version", "laws": {law id: {"go": {"status": "passed"
-   | "failed" | "not_run", "provenance": "library_api", "obstruction_observed", "observed": {op: real outcome},
-   "expected": {op: model outcome}, "command"}}}, "witness_sha256": {law id: holon.replay.witness_sha256(witness)}}. A
-   side passes, with obstruction_observed true, iff every op's real outcome class (nil error ORet, non-nil error OErr,
-   panic OPanic) is the model's at the witness. holon run re-applies the report to the records
+   | "failed" | "not_run", "provenance": "library_api", "obstruction_observed", "observed": {op: real outcome class},
+   "expected": {op: model outcome}, "detail": {op: what the real call did}, "command": a text with no absolute or
+   scratch path}}}, "witness_sha256": {law id: holon.replay.witness_sha256(witness)}}. A side passes, with
+   obstruction_observed true, iff every op's real outcome class (nil error ORet, non-nil error OErr, panic OPanic) is
+   the model's at the witness. It stamps the records' replay field from the report, and holon run re-applies it
    (holon.replay.replay_status).
-Y10 Filter. holon.refute_m3.i4_sides also reads replay/M3/goops/report.json (key "M3/<law id>"), so `holon refute
-   --milestone M3 --only filter` sees a Go-op record's side: kind go_only (rule K2), concretization reason the node-level
-   path I39 builds, and final bin pending (holon.filter.final_bin's F4, unchanged).
-Y11 Regenerated, never hand-written: spec/M3/facts/morph_blob.go.extracted.json (holon extract go), gen/M3/goops/
-   (holon codecs), gen/M3/diagram/blob_ops.json (holon diagram), gen/M3/evidence.json (holon evidence), laws/M3/
-   (holon derive), gen/M3/model/blob_ops.bend, the four laws' law and proof directories and records (holon run over
-   those laws), replay/M3/goops/report.json (holon replay-go), then the four records again (holon run) and their bins
-   (holon refute --only filter). No other M3 record is re-made: they trail I67's generator closures until the next M3
-   re-make, as I66's did (generator_sha256 is not compared for M3).
-Y12 Coordination. I28's build holds holon-rules/1.6; I67 needs no catalog. Whichever of I67 and I28 merges second
-   re-derives laws/M3 and re-makes what changes.
+Y10 Filter. holon.refute_m3.i4_sides also reads replay/M3/goops/report.json (key "M3/<law id>", at the record's own
+   witness). holon.refute_m3.kind_of takes a record every side of which is a Go library call (library_api) as go_only
+   before its definedness (domain-witness) clause: rule K2 before K1's domain clause, amended in I40's contract and
+   instrument at this prereg (Y13); no REFUTED record of the base changes kind under that order. So `holon refute
+   --milestone M3 --only filter` gives a Go-op REFUTED record kind go_only, the reason "node-level public path needs
+   I39", and final bin pending (holon.filter.final_bin's F4, unchanged).
+Y11 Regenerated, never hand-written, by this recipe, in this order:
+   - holon extract go --milestone M3: spec/M3/facts/morph_blob.go.extracted.json;
+   - holon codecs --milestone M3: gen/M3/goops/blob_ops.json (gen/M3/codec/ byte-identical);
+   - holon diagram --milestone M3: gen/M3/diagram/blob_ops.json (the others byte-identical);
+   - holon evidence --milestone M3: gen/M3/evidence.json;
+   - holon derive --milestone M3: laws/M3/ (the four laws; REGISTRY.json; DERIVATION.json);
+   - holon lossy --milestone M3: gen/M3/par_lossy/header_length.json, its evidence input sha256 alone (the review file
+     stays empty);
+   - holon run --milestone M3 --laws <every PAR law of laws/M3> (how M3's PAR records are made since I24): gen/M3/model/
+     (header_length.bend byte-identical, blob_ops.bend new), the PAR laws' law and proof directories (the base's
+     byte-identical), their records (the base's 80 in generator_sha256 and seconds alone), results/M3/summary.json,
+     deps.json and splits.json (the four laws added);
+   - holon bind --milestone M3 --laws <the four>: spec/bindings/M3.json and one line of spec/bindings/changes.jsonl;
+   - holon replay-go --milestone M3: replay/M3/goops/report.json, and the four records' replay fields;
+   - holon run --milestone M1 and --milestone M2, and holon profile --milestone T32: every M1, M2 and T32 record in
+     generator_sha256 and seconds alone, since I67's code is in the holon-ir/0.2 and 0.3 closures and in I32's
+     (holon.profile.generator_files), as I66's V7 re-made them; no M0 file changes (holon-ir/0.1's closure has none of
+     I67's files);
+   - holon refute --milestone M3 --only filter: the filter fields of every REFUTED M1-M3 record (written back as before,
+     the three new records gaining theirs), and results/M3/refute/concretization.json and filter.json, which gain
+     exactly the three new records' entries;
+   - holon metrics --milestone M3: results/M3/metrics.json.
+   Every M3 record of a typed, UNDO, DISCH or FACT law trails I67's closures until the next M3 re-make, as at the base
+   (the full M3 gate's G1 reports that staleness, holon/fact/gate.py and holon/sorts/gate3.py, as it does at the base;
+   CI runs no M3 G1). No module of a generator closure comes to import one of I32's files (I32-R2 computes closures at
+   HEAD).
+Y12 Coordination. I28's build holds holon-rules/1.6 and re-makes the M3 records. I67's checks are judged at I67's own
+   commits (each against its first parent), so another key's changes merged into I67's branch are never counted as
+   I67's. Whichever of I67 and I28 merges second re-derives laws/M3 and re-makes what changes.
+Y13 Earlier tests amended at this prereg (spec/M3/amendments.jsonl), each narrowed to I67's outcomes, as I28 and I66
+   amended theirs: I24's helpers and checks that take every PAR law (tests_m3/test_derive_par.py _Morph.derived,
+   test_derivation_follows_the_rules, test_cycle_basis_count_equals_the_preregistered_rank; tests_m3/test_par_outcomes.py
+   par_records and test_every_m3_law_has_a_valid_record) leave out the laws over a Go-op document, and the cycle-rank
+   and basis checks read the linked component's rows; I43's count of M3 PAR records (tests_m3/test_lean_promoted.py
+   TestRegressions.test_statuses_and_bend_files_are_unchanged) counts those over the linked codec document; I40's rule
+   order (tests_m3/_i40.py concretization_kind and the K1/K2 text of tests_m3/test_refute.py's contract) takes K2 before
+   K1's domain clause (Y10); F39's tests-m3-catalog check (tests_m3/test_catalog_rederivation.py, no key's test) counts
+   the PAR laws over the linked codec document.
 
 Predictions are in spec/M3/predictions.json under I67; the tests below check them and the rules above.
 """
@@ -215,6 +279,41 @@ def own_commits() -> tuple[dict[str, list[str]], str, str]:
     return out, end, pre
 
 
+def _unstamped(x):
+    """A record without generator_sha256 (at the top) and without any key named "seconds" (anywhere)."""
+    def walk(v):
+        if isinstance(v, dict):
+            return {k: walk(w) for k, w in v.items() if k != "seconds"}
+        if isinstance(v, list):
+            return [walk(w) for w in v]
+        return v
+    return {k: v for k, v in walk(x).items() if k != "generator_sha256"}
+
+
+def at(c: str, path: str):
+    """The JSON document at path in commit c, or None when the commit holds no such file."""
+    try:
+        return json.loads(git("show", f"{c}:{path}"))
+    except AssertionError:
+        return None
+
+
+def own_changes(path: str) -> list[tuple[str, str]]:
+    """(parent, commit) of every own commit of I67's (own_commits) that changes path."""
+    own, _, _ = own_commits()
+    return [(git("rev-parse", f"{c}^1").strip(), c) for c, paths in sorted(own.items()) if path in paths]
+
+
+def named_ops(law: dict) -> list[str]:
+    """The ops a law's claim names (an op, or its domain ok_<op>), sorted."""
+    out = set()
+    for t in law["statement"]["claim"]["eq"]:
+        f = t.get("call") if isinstance(t, dict) else None
+        if isinstance(f, str):
+            out.add(f[3:] if f.startswith("ok_") else f)
+    return sorted(out)
+
+
 def need_built(test) -> None:
     for rel in (DOC, GOOPS, DIAGRAM):
         test.assertTrue((ROOT / rel).is_file(), f"{rel} is not committed (no build)")
@@ -313,7 +412,7 @@ class TestInstrument(unittest.TestCase):
 # ------------------------------------------------------------------------------------------------ frontend
 class TestFrontend(unittest.TestCase):
     def test_r1_m2_documents_reextract_byte_identical(self):
-        """I67-R1 and Y1: the M2 sidecar (config 0.1) extracts the six committed M2 Go documents byte for byte."""
+        """I67-R1 and Y1: the M2 sidecar (config 0.1) extracts the five committed M2 Go documents byte for byte."""
         item(KEY, "I67-R1")
         out = scratch()
         p = run_holon(["extract", "go", "--milestone", "M2", "--out-dir", str(out)], timeout=3600)
@@ -354,18 +453,24 @@ class TestFrontend(unittest.TestCase):
                     for key in ("iv", "init", "step", "cmp", "limit", "fuel", "exits"):
                         self.assertEqual(lb[key], hits[0][key], key)
                     self.assertEqual(lb["step"], 1)
-                    for p in lb["paths"]:
-                        self.assertEqual(sorted(p), ["cond", "end", "returns", "site"])
+                    # as the paths section writes one: an error class only on a return from a function whose last
+                    # result is error (null on every other path)
+                    returns_error = bool(f.get("results")) and f["results"][-1] == "error"
+                    for p in lb["paths"] or []:
+                        self.assertEqual(sorted(p), ["cond", "end", "error", "returns", "site"])
                         self.assertIn(p["end"], ("panic", "return", "continue"))
                         self.assertEqual(p["site"] is not None, p["end"] == "panic")
                         self.assertEqual(p["returns"] is not None, p["end"] == "return")
+                        self.assertIn(p["error"], (None, "nil", "nonnil", "unknown"))
+                        self.assertEqual(p["error"] is not None, p["end"] == "return" and returns_error)
         self.assertGreater(n, 0)
 
-    def test_p6_the_two_loop_bodies(self):
-        """I67-P6: the batch clone's loop body (4096 iterations from 0) has exactly one panic path, at the site the 0.1
-        sites section holds open for that function (I18's data[i*32] at blob.go:49, witness i from 3968 to 4095); the
-        blob clone's has no panic path and its sites are all safe."""
-        item(KEY, "I67-P6")
+    def test_r4_the_two_loop_bodies(self):
+        """I67-R4 (recorded, not counted: observed on the draft before the prereg): the batch clone's loop body (4096
+        iterations from 0) has exactly one panic path, at the site the 0.1 sites section holds open for that function
+        (I18's data[i*32] at blob.go:49, witness i from 3968 to 4095); the blob clone's has no panic path and its sites
+        are all safe."""
+        item(KEY, "I67-R4")
         need_built(self)
         doc = load_json(ROOT / DOC)
         b, c = go_entry(doc, BATCH_FN), go_entry(doc, BLOB_FN)
@@ -474,9 +579,15 @@ class TestComponent(unittest.TestCase):
         mine = [a for a in ev["atoms"] if a["model"] == COMP]
         self.assertEqual([(a["level"], a["p"], a["q"]) for a in mine], [("E6", f"CODEC.{BATCH}", f"CODEC.{BLOB}")])
         self.assertTrue({"retrieve", "blob", "bytes"} <= set(mine[0]["via"]["tokens"]), mine[0]["via"])
-        old = json.loads(git("show", f"{prereg_commit()}:gen/M3/evidence.json"))
-        self.assertEqual({k: v for k, v in ev["models"].items() if k != COMP}, old["models"])
-        self.assertEqual([a for a in ev["atoms"] if a["model"] != COMP], old["atoms"])
+        changes = own_changes("gen/M3/evidence.json")
+        self.assertTrue(changes, "no own commit changes gen/M3/evidence.json")
+        for parent, c in changes:   # judged at I67's own commits (Y12): another key's models are never I67's
+            with self.subTest(commit=c[:12]):
+                old, new = at(parent, "gen/M3/evidence.json"), at(c, "gen/M3/evidence.json")
+                self.assertEqual({k: v for k, v in new["models"].items() if k != COMP},
+                                 {k: v for k, v in old["models"].items() if k != COMP})
+                self.assertEqual([a for a in new["atoms"] if a["model"] != COMP],
+                                 [a for a in old["atoms"] if a["model"] != COMP])
 
 
 # ------------------------------------------------------------------------------------------------ derivation
@@ -504,9 +615,14 @@ class TestDerivation(unittest.TestCase):
         cyc = [b for b in der["par_basis"] if b["model"] == COMP and b["subform"] == "cycle"]
         self.assertEqual([(b["key"], b["laws"], b["duplicates"]) for b in cyc],
                          [({"edge": f"CODEC.{BLOB}"}, [], {CYCLE: WEAK})])
-        old = json.loads(git("show", f"{prereg_commit()}:laws/{M}/REGISTRY.json"))
-        new = load_json(ROOT / "laws" / M / "REGISTRY.json")
-        self.assertEqual(new.get("rule_catalog_version"), old.get("rule_catalog_version"))
+        for parent, c in own_changes(f"laws/{M}/REGISTRY.json"):   # Y5: no own commit changes the catalog
+            with self.subTest(commit=c[:12]):
+                self.assertEqual(at(c, f"laws/{M}/REGISTRY.json").get("rule_catalog_version"),
+                                 at(parent, f"laws/{M}/REGISTRY.json").get("rule_catalog_version"))
+        reg = load_json(ROOT / "laws" / M / "REGISTRY.json")
+        for lid in LAWS:
+            with self.subTest(catalog=lid):
+                self.assertEqual(law(lid)["rule_catalog_version"], reg["rule_catalog_version"])
         rules, contracts = holon_module("holon.rules"), holon_module("holon.contracts")
         res = contracts.with_contracts(M, ROOT, rules.compute(M, ROOT))
         for lid in LAWS:
@@ -532,7 +648,16 @@ class TestModel(unittest.TestCase):
             with self.subTest(defines=name):
                 self.assertIn(name, text)
         self.assertIn(f"{THRESHOLD}n", text)
-        self.assertIsNone(re.search(r"U32\.(add|sub|mul|div|mod)\b", text))
+        self.assertIsNone(re.search(r"U32\.(add|sub|mul|div|mod|divmod|pow|shl|shr|shln|shrn|and|or|xor|not|inc|dec)\b",
+                                    text))
+        for line in text.splitlines():   # infix arithmetic only as the index's Nat successor 1n+<var>
+            if line.lstrip().startswith("#"):
+                continue
+            rest = re.sub(r"\b1n\+[A-Za-z_]\w*", "", line)
+            rest = re.sub(r"[-=]>|<[^<>]*>", "", rest)   # arrows and type arguments
+            rest = re.sub(r"(?<=[(,{\s])\+(?=[A-Za-z_])", "", rest)   # reuse markers (+x) of binders
+            with self.subTest(line=line.strip()):
+                self.assertIsNone(re.search(r"[+*/%]|\s-\s", rest))
 
 
 # ------------------------------------------------------------------------------------------------ outcomes
@@ -585,6 +710,49 @@ class TestOutcomes(unittest.TestCase):
         self.assertFalse([x for x in I.run_instrument()["common/blob"] if I.kind(x) == "panic"])
 
 
+# ------------------------------------------------------------------------------------------------ records and gate
+class TestRecords(unittest.TestCase):
+    def test_y8_what_the_gate_checks(self):
+        """Y8: each record's binder type is the IR's (a), its ledger bundle exact (b), its evidence model admitted by the
+        evidence schema (c), its binding in spec/bindings/M3.json over the Go-op model (d); no lean4 entry; a REFUTED
+        record's witness_provenance is {"go": "library_api"}."""
+        need_built(self)
+        IR = holon_module("holon.ir")
+        doc = load_json(ROOT / GOOPS)
+        binds = load_json(ROOT / "spec" / "bindings" / "M3.json")["laws"]
+        for lid in LAWS:
+            r, lw = rec(lid), law(lid)
+            with self.subTest(law=lid):
+                IR.check_binder_types(lw, doc)
+                self.assertEqual(r["ledger_match"], "exact")
+                self.assertEqual([k for k in r.get("kernels") or [] if k.get("name") == "lean4"], [])
+                if r["status"] == "REFUTED":
+                    self.assertEqual(r["witness_provenance"], {"go": "library_api"})
+                self.assertEqual(binds[lid]["model"], MODEL)
+                self.assertEqual(binds[lid]["statement_hash"], r["statement_hash"])
+
+    def test_y8_statement_refs(self):
+        """Y8(e): a Go-op law's statement refs are fn:<op> (and fn:ok_<op>) for the ops its claim names and
+        carrier:<id>; an op's ref ignores its source and span and follows its loop body."""
+        need_built(self)
+        R = holon_module("holon.gen.refs")
+        doc = load_json(ROOT / GOOPS)
+        for lid in LAWS:
+            lw = law(lid)
+            with self.subTest(law=lid):
+                calls = sorted({t["call"] for t in lw["statement"]["claim"]["eq"] if isinstance(t, dict) and "call" in t})
+                refs = R.refs(lw, doc)
+                self.assertEqual(sorted(refs), sorted([f"fn:{f}" for f in calls] + ["carrier:Blob"]))
+                op = named_ops(lw)[0]
+                moved = json.loads(json.dumps(doc))
+                moved["ops"][op]["span"] = "elsewhere"
+                moved["ops"][op]["source"] = "elsewhere"
+                self.assertEqual(R.refs(lw, moved), refs)
+                edited = json.loads(json.dumps(doc))
+                edited["ops"][op]["loop_bodies"] = []
+                self.assertNotEqual(R.refs(lw, edited), refs)
+
+
 # ------------------------------------------------------------------------------------------------ replay and filter
 class TestReplay(unittest.TestCase):
     def test_y9_the_report(self):
@@ -605,8 +773,10 @@ class TestReplay(unittest.TestCase):
                                  ("passed", "library_api", True))
                 self.assertEqual(rep["witness_sha256"][lid], R.witness_sha256(r["witness"]))
                 got = real_outcomes(witness_cells(r))
+                self.assertEqual(sorted(side["observed"]), named_ops(law(lid)))
                 self.assertEqual(side["observed"], {op: I.outcome_class(got[op]) for op in side["observed"]})
                 self.assertEqual(side["observed"], side["expected"])
+                self.assertIsNone(re.search(r"(^|[\s(=])/|tmp|holon-", side["command"]), side["command"])
 
     def test_y10_the_bins(self):
         """Y10: the REFUTED Go-op records carry concretization kind go_only and filter_bin pending."""
@@ -623,25 +793,82 @@ class TestReplay(unittest.TestCase):
 # ------------------------------------------------------------------------------------------------ regressions
 class TestRegressions(unittest.TestCase):
     def test_r2_nothing_else_changes(self):
-        """I67-R2: I67's own commits change, under laws/M3, results/M3 and gen/M3, only the four laws and records,
-        their law and proof directories, gen/M3/goops/, gen/M3/diagram/blob_ops.json, gen/M3/model/blob_ops.bend,
-        gen/M3/evidence.json, laws/M3/REGISTRY.json and laws/M3/DERIVATION.json; and every other law's DERIVATION entry
-        (statement hash included) is the one at the prereg."""
+        """I67-R2, judged commit by commit: each of I67's own commits against its first parent (Y12: another key's
+        changes merged into I67's branch, I28's re-make under holon-rules/1.6 for one, are never counted as I67's). An
+        own commit changes, under laws/M3, results/M3 and gen/M3, only the four laws and records, their law and proof
+        directories, gen/M3/goops/, gen/M3/diagram/blob_ops.json, gen/M3/model/blob_ops.bend and what Y11's recipe writes
+        besides: gen/M3/evidence.json, laws/M3/REGISTRY.json and DERIVATION.json, gen/M3/par_lossy/header_length.json
+        (its evidence input sha256 alone), results/M3/summary.json, deps.json, splits.json, metrics.json,
+        results/M3/refute/concretization.json and filter.json (gaining only the four laws' entries), and the records, law
+        and proof directories of the PAR laws its parent's summary lists, each such record equal to its parent's version
+        but for generator_sha256 and keys named seconds. summary.json and DERIVATION.json gain only the four laws, every
+        other entry unchanged (statement hashes included). At the end of I67's own commits the four laws are derived."""
         item(KEY, "I67-R2")
         own, end, pre = own_commits()
         self.assertTrue(own, "no commit of I67's after its prereg")
-        allowed = {f"laws/M3/{lid}.json" for lid in LAWS} | {f"results/M3/{lid}.json" for lid in LAWS} | {
+        fixed = {f"laws/M3/{lid}.json" for lid in LAWS} | {f"results/M3/{lid}.json" for lid in LAWS} | {
             "gen/M3/diagram/blob_ops.json", MODEL, "gen/M3/evidence.json", "laws/M3/REGISTRY.json",
-            "laws/M3/DERIVATION.json"}
-        prefixes = ("gen/M3/goops/",) + tuple(f"gen/M3/{d}/{lid}/" for d in ("laws", "proofs") for lid in LAWS)
-        changed = sorted({f for paths in own.values() for f in paths})
-        bad = [f for f in changed if re.match(r"^(laws|results|gen)/M3/", f) and f not in allowed
-               and not f.startswith(prefixes)]
-        self.assertEqual(bad, [])
-        old = {e["law_id"]: e for e in json.loads(git("show", f"{pre}:laws/M3/DERIVATION.json"))["laws"]}
-        new = {e["law_id"]: e for e in json.loads(git("show", f"{end}:laws/M3/DERIVATION.json"))["laws"]}
-        self.assertEqual(sorted(set(new) - set(old)), sorted(LAWS))
-        self.assertEqual({k: new[k] for k in old}, old)
+            "laws/M3/DERIVATION.json", "gen/M3/par_lossy/header_length.json", "results/M3/summary.json",
+            "results/M3/deps.json", "results/M3/splits.json", "results/M3/metrics.json",
+            "results/M3/refute/concretization.json", "results/M3/refute/filter.json"}
+        mine = {f"M3/{lid}" for lid in LAWS}
+        for c, paths in sorted(own.items()):
+            parent = git("rev-parse", f"{c}^1").strip()
+            par = sorted(at(parent, "results/M3/summary.json") or {})
+            allowed = fixed | {f"results/M3/{lid}.json" for lid in par}
+            prefixes = ("gen/M3/goops/",) + tuple(f"gen/M3/{d}/{lid}/" for d in ("laws", "proofs")
+                                                  for lid in LAWS + tuple(par))
+            with self.subTest(commit=c[:12]):
+                bad = [f for f in paths if re.match(r"^(laws|results|gen)/M3/", f) and f not in allowed
+                       and not f.startswith(prefixes)]
+                self.assertEqual(bad, [])
+                for lid in par:
+                    f = f"results/M3/{lid}.json"
+                    if f in paths and lid not in LAWS:
+                        o, n = at(parent, f), at(c, f)
+                        if o is not None and n is not None:
+                            self.assertEqual(_unstamped(n), _unstamped(o), lid)
+                for f in ("results/M3/summary.json", "laws/M3/DERIVATION.json", "results/M3/refute/concretization.json",
+                          "results/M3/refute/filter.json"):
+                    if f not in paths:
+                        continue
+                    o, n = at(parent, f) or {}, at(c, f) or {}
+                    if f.endswith("DERIVATION.json"):
+                        o = {e["law_id"]: e for e in o.get("laws", [])}
+                        n = {e["law_id"]: e for e in n.get("laws", [])}
+                        new_ok = set(LAWS)
+                    elif f.startswith("results/M3/refute/"):
+                        o, n, new_ok = o.get("records") or {}, n.get("records") or {}, mine
+                    else:
+                        new_ok = set(LAWS)
+                    self.assertEqual(sorted(set(n) - set(o) - new_ok), [], f)
+                    self.assertEqual({k: n.get(k) for k in o if k not in new_ok},
+                                     {k: v for k, v in o.items() if k not in new_ok}, f)
+                f = "gen/M3/par_lossy/header_length.json"
+                if f in paths:
+                    o, n = at(parent, f), at(c, f)
+                    strip = lambda d: {**d, "inputs": [i for i in d["inputs"] if i["path"] != "gen/M3/evidence.json"]}
+                    self.assertEqual(strip(n), strip(o), f)
+        new = {e["law_id"] for e in (at(end, "laws/M3/DERIVATION.json") or {}).get("laws", [])}
+        self.assertEqual(sorted(set(LAWS) - new), [])
+
+    def test_r5_earlier_records_in_stamps_alone(self):
+        """I67-R5 (Y11): an own commit that changes a record of results/M1, results/M2 or results/T32 leaves it equal
+        to its parent's version but for generator_sha256 and keys named seconds (holon run --milestone M1 and M2, holon
+        profile --milestone T32, then the filter stage writing the filter fields back); no own commit changes a file
+        under laws/M0, results/M0, gen/M0 or replay/M0."""
+        item(KEY, "I67-R5")
+        own, _, _ = own_commits()
+        self.assertTrue(own, "no commit of I67's after its prereg")
+        for c, paths in sorted(own.items()):
+            parent = git("rev-parse", f"{c}^1").strip()
+            with self.subTest(commit=c[:12]):
+                self.assertEqual([f for f in paths if re.match(r"^(laws|results|gen|replay)/M0/", f)], [])
+                for f in paths:
+                    if re.match(r"^results/(M1|M2|T32)/L[^/]*\.json$", f):
+                        o, n = at(parent, f), at(c, f)
+                        if o is not None and n is not None:
+                            self.assertEqual(_unstamped(n), _unstamped(o), f)
 
 
 if __name__ == "__main__":

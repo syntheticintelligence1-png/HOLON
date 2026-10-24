@@ -211,18 +211,21 @@ def concretization_kind(key: str, rec: dict, law: dict, sides: dict) -> str:
     """Rules K1-K4 of the contract.
     K1 bmc: the witness rests on a construction no public call makes: a side ran on an internal harness or emulated
        storage, or the law's statement applies a migration (a "mig" term), or a codec law's claim is definedness (a
-       domain witness);
-    K2 go_only: every side of the witness is a Go library call (no EVM side);
+       domain witness) and not every side is a Go library call;
+    K2 go_only: every side of the witness is a Go library call (no EVM side), tested before K1's definedness clause
+       (amended at the I67 prereg, spec/M3/amendments.jsonl: a Go-op law's definedness witness has no EVM side);
     K3 commit_class: a codec law whose claim compares an EVM encoder with another encoder (the Solidity side is a commit
        of the witness's version from the deployment, observing the cells where the encoders differ);
     K4 direct: otherwise (the witness is a schedule of public calls on the machine from its initial state)."""
     w = rec.get("witness") if isinstance(rec.get("witness"), dict) else {}
     kind = signature(rec, w)[0] if w else "trace"
     provs = [s.get("provenance") for s in sides.values()]
-    if any(p in BLOCKING for p in provs) or _has_key(law.get("statement"), "mig") or kind == "domain":
+    if any(p in BLOCKING for p in provs) or _has_key(law.get("statement"), "mig"):
         return "bmc"
     if provs and all(p == "library_api" for p in provs):
         return "go_only"
+    if kind == "domain":
+        return "bmc"
     if kind == "codec":
         return "commit_class"
     return "direct"

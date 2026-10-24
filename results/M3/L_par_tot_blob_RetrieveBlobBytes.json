@@ -1,0 +1,119 @@
+{
+  "artifacts": {
+    "law_name": null,
+    "laws": null,
+    "model": "gen/M3/model/blob_ops.bend",
+    "proof": null
+  },
+  "attempts": [
+    {
+      "candidate": "the smallest panic witness of batch_RetrieveBlobBytes",
+      "error": "SOME PROOFS FAIL\nError:\n- expected : Empty\n- observed : Unit\nContext:\n- e : {True{} == True{} : Bool}\nLocation: Laws.cl_l_par_tot_blob_retrieveblobbytes\n7 | def Laws.cl_l_par_tot_blob_retrieveblobbytes():\n8>|   (List.append(&2, U32, List.replicate(U32, 3968n, 0), List.append(&2, U32, [1], List.replicate(U32, 127n, 0))), e => (%e : M.is_true(M.eq_bool(_, M.ok_blob_RetrieveBlobBytes(List.append(&2, U32, List.replicate(U32, 3968n, 0), List.append(&2, U32, [1], List.replicate(U32, 127n, 0))))))\n  |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n9 |   Unit{}))",
+      "exit_code": 1,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 2.005
+    },
+    {
+      "candidate": "the continue values of batch_RetrieveBlobBytes",
+      "error": "SOME PROOFS FAIL\nError:\n- expected : Empty\n- observed : Unit\nContext:\n- e : {True{} == True{} : Bool}\nLocation: Laws.cl_l_par_tot_blob_retrieveblobbytes\n7 | def Laws.cl_l_par_tot_blob_retrieveblobbytes():\n8>|   (List.replicate(U32, 4096n, 0), e => (%e : M.is_true(M.eq_bool(_, M.ok_blob_RetrieveBlobBytes(List.replicate(U32, 4096n, 0))))\n  |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n9 |   Unit{}))",
+      "exit_code": 1,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "SOME PROOFS FAIL",
+      "seconds": 1.943
+    }
+  ],
+  "bound": "no candidate refutes it in the compiled model (candidates: the smallest panic witness of batch_RetrieveBlobBytes; the continue values of batch_RetrieveBlobBytes); a forall law over cell sequences has no proof route here (gap G6)",
+  "checker": {
+    "exit_code": null,
+    "marker": "not_run"
+  },
+  "compiled_sha256": "4e15335012e8549882246e695adec15bcdf8f41bafa43288ff4f601110e0b61a",
+  "cone": [
+    "Out",
+    "Res",
+    "St",
+    "blob_RetrieveBlobBytes",
+    "body_blob_RetrieveBlobBytes",
+    "is_panic",
+    "ok_blob_RetrieveBlobBytes",
+    "run_blob_RetrieveBlobBytes",
+    "sel_blob_RetrieveBlobBytes_0",
+    "step_blob_RetrieveBlobBytes"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "6a0e88072c77bb0800baa8c22835716c43f82ba630c84bdc690262666d1ee2a9",
+  "filter_bin": null,
+  "generator_sha256": "9ab2c917a5883d9dfd1646adf2d8b746a9777f70371869f98448ba98d27e9cff",
+  "independence_class": "none",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "not_run",
+      "role": "primary",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_tot_blob_RetrieveBlobBytes",
+  "ledger_assumptions": [
+    "A-goloop-cells",
+    "A-goloop-outcome",
+    "A-goloop-sites",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "6136735f9abc8670dfcfe0ffcf66edd2afddcf2aa2dca93b0700e4e16e7d5c5a",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:7b97acdecc9687fc6550b3a7eeec7aafc97b9d4dfeaf5ffc0dbe3eb7e6ea48dd",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "codec laws are not replayed in I24",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 b: Blob. ok_blob_RetrieveBlobBytes(b) == true",
+  "statement_hash": "sha256:7b97acdecc9687fc6550b3a7eeec7aafc97b9d4dfeaf5ffc0dbe3eb7e6ea48dd",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "UNKNOWN",
+  "subform": "totality",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

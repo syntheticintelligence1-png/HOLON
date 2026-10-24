@@ -95,7 +95,9 @@ Questions (outputs under results/M3/refute/; formats under Outputs)
           targets): dom_v0_long for M0/L_dom_hdr and M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol, eta2_state for
           M1/L_nat_eta2 and M2/extracted_m1/L_nat_eta2. Result path (with its witness), no_path (every k <= H unsat) or
           unknown;
-       K2 go_only: every side is a Go library call: result null, reason "node-level public path needs I39";
+       K2 go_only: every side is a Go library call: result null, reason "node-level public path needs I39"; K2 is
+          tested before K1's definedness clause, so a definedness witness all of whose sides are Go library calls is
+          go_only (amended at the I67 prereg, spec/M3/amendments.jsonl; no REFUTED record of that prereg changes kind);
        K3 commit_class: a codec witness comparing the EVM encoder with another: a commit of the witness's version from
           R0 (the M0 commit-path rule, holon.mreplay.m0_commit_sides): result path, length 1;
        K4 direct: the witness is a schedule of public calls (its environment steps: time and the messenger's enqueue, as

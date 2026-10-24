@@ -24,7 +24,7 @@
       "properties": {
         "method": {"const": "extracted"},
         "frontend": {"const": "go"},
-        "frontend_version": {"const": "holon-go/0.1"},
+        "frontend_version": {"enum": ["holon-go/0.1", "holon-go/0.2"]},
         "tool": {
           "type": "object",
           "required": ["go", "x_tools", "ssadump_sha256"],
@@ -188,7 +188,8 @@
         "loop_free": {"type": "boolean"},
         "paths": {"type": ["array", "null"], "items": {"$ref": "#/$defs/path"}},
         "paths_reason": {"enum": [null, "loop", "path_limit", "recursion", "not_codec"]},
-        "sites": {"type": "array", "items": {"$ref": "#/$defs/site"}}
+        "sites": {"type": "array", "items": {"$ref": "#/$defs/site"}},
+        "loop_bodies": {"type": "array", "items": {"$ref": "#/$defs/loop_body"}}
       }
     },
     "path": {
@@ -456,6 +457,35 @@
         "limit": {"$ref": "#/$defs/term_or_null"},
         "fuel": {"$ref": "#/$defs/term_or_null"},
         "exits": {"type": "array", "items": {"enum": ["break", "return", "panic", "other"]}}
+      }
+    },
+    "loop_body": {
+      "description": "holon-go/0.2 (I67, rule Y1 of tests_m3/test_go_loop.py): one iteration of a counted or range loop of step 1 as loop-free paths over its symbolic induction variable [\"iv\", <iv>]; the first eight keys are the loop's go.loops fields, paths null past the path limit",
+      "type": "object",
+      "required": ["span", "iv", "init", "step", "cmp", "limit", "fuel", "exits", "paths"],
+      "additionalProperties": false,
+      "properties": {
+        "span": {"$ref": "#/$defs/span"},
+        "iv": {"type": ["string", "null"]},
+        "init": {"$ref": "#/$defs/term_or_null"},
+        "step": {"type": ["integer", "null"]},
+        "cmp": {"enum": [null, "==", "!=", "<", "<=", ">", ">="]},
+        "limit": {"$ref": "#/$defs/term_or_null"},
+        "fuel": {"$ref": "#/$defs/term_or_null"},
+        "exits": {"type": "array", "items": {"enum": ["break", "return", "panic", "other"]}},
+        "paths": {"type": ["array", "null"], "items": {"$ref": "#/$defs/loop_path"}}
+      }
+    },
+    "loop_path": {
+      "type": "object",
+      "required": ["cond", "end", "returns", "site", "error"],
+      "additionalProperties": false,
+      "properties": {
+        "cond": {"$ref": "#/$defs/atoms"},
+        "end": {"enum": ["return", "panic", "continue"]},
+        "returns": {"type": ["array", "null"], "items": {"$ref": "#/$defs/term"}},
+        "site": {"type": ["string", "null"]},
+        "error": {"enum": [null, "nil", "nonnil", "unknown"]}
       }
     }
   }

@@ -10,8 +10,8 @@ records one side per law:
   {"status": "passed" | "failed" | "not_run", "provenance": "library_api", "obstruction_observed", "observed": {op:
    outcome class}, "expected": {op: the model's outcome}, "detail": {op: what the real call did}, "command"}.
 A side passes, the obstruction observed, iff every op's real outcome class (a nil error ORet, a non-nil error OErr, a
-panic OPanic) is the model's at the witness. The records' replay fields are stamped from the report, as holon run
-re-applies it (holon.codecrun.goops_report).
+panic OPanic) is the model's at the witness. The records' replay and witness_provenance fields are stamped from the
+report, as holon run re-applies them (holon.codecrun.goops_report).
 
 Exit 0 written; 2 refused, nothing written (no Go toolchain at the pinned version, a checkout not at the document's
 commit, a malformed input).
@@ -181,13 +181,13 @@ def _module_dir(ws: Path, pkg_dir: str) -> Path:
 def run_cases(root: Path, go_doc: dict, carrier_type: str, ops: dict[str, tuple[str, int]],
               cases: list[dict]) -> tuple[dict, str]:
     """({key: outcome}, command) of the cases on a scratch copy of the pinned checkout."""
-    from .frontends.go import extract as X
+    from .frontends.go.extract import check_go, go_env, make_workspace, resolve_src
     cfg = _load(root / go_doc["extraction"]["config"]["path"])
-    src = X.resolve_src(cfg, root)
+    src = resolve_src(cfg, root)
     head = subprocess.run(["git", "-C", str(src), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
     if head != go_doc["target"]["commit"]:
         raise Refused(f"{src} is at {head!r}, not at the Go document's commit {go_doc['target']['commit']}")
-    go, _ = X.check_go(root)
+    go, _ = check_go(root)
     pkgs = {p["path"]: p["dir"] for p in go_doc["go"]["packages"]}
     first = _go_ident(sorted(fid for fid, _ in ops.values())[0])[0]
     if first not in pkgs:
@@ -196,12 +196,12 @@ def run_cases(root: Path, go_doc: dict, carrier_type: str, ops: dict[str, tuple[
     try:
         ws = parent / "src"
         ws.mkdir()
-        X.make_workspace(src, ws)
+        make_workspace(src, ws)
         mod = _module_dir(ws, pkgs[first])
         (mod / TEST_PKG).mkdir()
         (mod / TEST_PKG / "holon_goops_test.go").write_text(test_text(carrier_type, ops), encoding="utf-8")
         (parent / "in.json").write_text(json.dumps({"cases": cases}))
-        env = X.go_env(GOTOOLCHAIN="local", HOLON_GOOPS_IN=str(parent / "in.json"),
+        env = go_env(GOTOOLCHAIN="local", HOLON_GOOPS_IN=str(parent / "in.json"),
                        HOLON_GOOPS_OUT=str(parent / "out.json"))
         cmd = ["go", "test", f"./{TEST_PKG}", "-run", "^TestHolonGoops$", "-count=1", "-v"]
         p = subprocess.run([go] + cmd[1:], cwd=mod, env=env, capture_output=True, text=True, timeout=3600)
@@ -215,7 +215,7 @@ def run_cases(root: Path, go_doc: dict, carrier_type: str, ops: dict[str, tuple[
 
 def build(root: Path, milestone: str) -> dict:
     """The report of every REFUTED Go-op law of the milestone (rule Y9)."""
-    from .frontends.go import extract as X
+    from .frontends.go.extract import check_go
     laws = {}
     for p in sorted((root / "laws" / milestone).glob("L*.json")):
         law = _load(p)
@@ -273,19 +273,22 @@ def build(root: Path, milestone: str) -> dict:
                                           "expected": pl["expected"], "detail": detail, "command": command}}
             report["witness_sha256"][lid] = witness_sha256(pl["witness"])
     if report["laws"]:
-        report["go_version"] = X.check_go(root)[1]
+        report["go_version"] = check_go(root)[1]
     return report
 
 
 def stamp(root: Path, milestone: str, report: dict) -> list[str]:
-    """Write each REFUTED Go-op record's replay field from the report (holon.replay.replay_status)."""
+    """Write each REFUTED Go-op record's replay field (holon.replay.replay_status) and witness_provenance
+    (holon.filter.record_fields) from the report: what holon run writes once the report exists (holon.codecrun)."""
+    from .filter import record_fields
     from .refute_m3 import write_record
-    from .replay import replay_status
+    from .replay import replay_status, witness_sha256
     out = []
     for lid in sorted(report["laws"]):
         p = root / "results" / milestone / f"{lid}.json"
         rec = _load(p)
-        new = dict(rec, replay=replay_status(report, lid, rec.get("witness")))
+        wp, _ = record_fields(report, lid, rec.get("witness"), witness_sha256)
+        new = dict(rec, replay=replay_status(report, lid, rec.get("witness")), witness_provenance=wp)
         if new != rec:
             write_record(p, new)
             out.append(lid)

@@ -9,8 +9,9 @@ What it computes, each from its own reading of the inputs:
   * expected_laws(component): the basis rule Y5 gives over such a component with PAR's producers as I24 wrote them
     (P4 weak over E6 pairs of one (src, tgt), P5 over the interface carrier's domains, P6 per op, P8 a duplicate),
     as law ids and statements;
-  * cells_probe(cells, stride) and witness_cells(...): the concretization rule Y9 (cell k of a witness is the byte the
-    loop body reads at iteration k, blob[stride * k]) and its inverse over a probe.
+  * cells_probe(cells, stride), cells_of_hex(hex) and single_cell(e): the concretization rule Y9 (cell k of a witness
+    is the byte the loop body reads at iteration k, blob[stride * k]): a witness's probe, its cells, and the witness
+    whose one non-zero cell is e.
 """
 from __future__ import annotations
 

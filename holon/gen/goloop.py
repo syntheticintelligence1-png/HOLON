@@ -25,6 +25,7 @@ count, the stride, the thresholds, the cell values) is read from the document.
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import shutil
 from dataclasses import dataclass, field
@@ -395,6 +396,68 @@ def shapes(doc: dict) -> dict:
         except Unsupported as e:
             out[name] = e
     return out
+
+
+PRELUDE_DEFS = ("eq_out", "eq_bool", "is_true")
+
+
+def op_defs(sh: Shape) -> dict[str, list[str]]:
+    """The definitions op_text writes for one op, by the A-goloop entry of declared_bundle that classifies each."""
+    op = sh.op
+    return {"A-goloop-cells": [op, f"step_{op}", f"run_{op}"], "A-goloop-outcome": [f"ok_{op}"],
+            "A-goloop-sites": [f"body_{op}"] + [f"sel_{op}_{k}" for k in range(len(sh.paths) - 1)]}
+
+
+def _slug(s: str) -> str:
+    out = re.sub(r"[^A-Za-z0-9-]+", "-", s).strip("-")
+    return out or "assumption"
+
+
+def declared_bundle(doc: dict, rel: str, sha: str, root: Path) -> dict:
+    """The ledger bundle of a Go-op model (holon.records; rule Y8b): every assumption the Go document declares (its
+    "assumptions"), each introduced by the ops' definitions, and the model's own A-goloop-cells, A-goloop-outcome and
+    A-goloop-sites. Every definition generate() writes is classified once: by an entry, or the prelude's equality
+    utilities by the one no_assumption group."""
+    per_op = [op_defs(sh) for sh in shapes(doc).values() if not isinstance(sh, Unsupported)]
+    own = {"A-goloop-cells": ["St", "Res"], "A-goloop-outcome": ["Out", "is_panic"], "A-goloop-sites": []}
+    for d in per_op:
+        for k, names in d.items():
+            own[k] += names
+    ops = sorted(n for d in per_op for names in d.values() for n in names)
+    drel = doc["document"]
+    try:
+        src = json.loads((Path(root) / drel).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        src = {}
+    entries, seen = [], set(own)
+    for i, a in enumerate(src.get("assumptions") or []):
+        if not isinstance(a, dict) or not isinstance(a.get("id"), str):
+            continue
+        aid = _slug(a["id"])
+        while aid in seen:
+            aid += "-2"
+        seen.add(aid)
+        entries.append({"id": aid, "kind": "abstraction", "source": f"{drel}#/assumptions/{i}",
+                        "text": a.get("text", ""), "introduced_by": ops})
+    texts = {
+        "A-goloop-cells": "An op's argument is the sequence of the array cells its loop body reads, one per iteration "
+                          "(cell k is the parameter's cell a*k + c), and the loop runs its trip count; every other byte "
+                          "of the carrier is not modelled (rule Y6), and replay concretizes a witness with those bytes 0 "
+                          "(rule Y9).",
+        "A-goloop-outcome": "An op's outcome is whether it panics, returns a non-nil error or returns a nil one (OPanic, "
+                            "OErr, ORet); the error's value and the returned bytes are not modelled (rule Y6).",
+        "A-goloop-sites": "An op panics only at the bound sites the Go frontend cannot prove safe, by its path "
+                          "enumeration's rule; memory the loop writes is read as at the loop's entry, so per-iteration "
+                          "writes are not tracked, and a loop-carried value is opaque (rule Y1)."}
+    for k in sorted(own):
+        entries.append({"id": k, "kind": "abstraction", "source": f"{rel}#/ops", "text": texts[k],
+                        "introduced_by": sorted(own[k])})
+    return {"facts": rel, "facts_sha256": sha, "model": f"model/{doc['component']}",
+            "doc": "The model of a Go-op document (holon.gen.goloop): the assumptions its Go document declares, and the "
+                   "loop-body model's own (generated from the document, never hand-written).",
+            "entries": entries,
+            "no_assumption": [{"defs": list(PRELUDE_DEFS), "why": "equality utilities of the generator prelude; no "
+                                                                  "modelling choice"}]}
 
 
 def generate(doc: dict, sha: str) -> str:

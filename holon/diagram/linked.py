@@ -784,9 +784,14 @@ def main(argv=None) -> int:
               file=sys.stderr)
         return 2
     out = Path(a.out) if a.out else codec_dir(a.milestone, root)
-    gout = Path(a.goops_out) if a.goops_out else GO.goops_dir(a.milestone, root)
+    # the Go-op documents go to --goops-out, by default gen/<M>/goops; with --out alone none is written (rule Y3)
+    gout = Path(a.goops_out) if a.goops_out else (None if a.out else GO.goops_dir(a.milestone, root))
+    if gout is None:
+        gtexts = {}
     if a.check:
         for d, want in ((out, texts), (gout, gtexts)):
+            if d is None:
+                continue
             have = {p.name: p.read_text(encoding="utf-8") for p in sorted(d.glob("*.json"))} if d.is_dir() else {}
             if have != want:
                 print(f"holon codecs: {d} differs from a fresh build", file=sys.stderr)
@@ -794,7 +799,7 @@ def main(argv=None) -> int:
         print(f"holon codecs: {out} reproduces ({len(texts)} components), {gout} too ({len(gtexts)} Go-op components)")
         return 0
     for d, want in ((out, texts), (gout, gtexts)):
-        if not want and not d.is_dir():
+        if d is None or (not want and not d.is_dir()):
             continue
         d.mkdir(parents=True, exist_ok=True)
         for p in sorted(d.glob("*.json")):

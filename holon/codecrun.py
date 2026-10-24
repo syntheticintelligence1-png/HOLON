@@ -259,6 +259,11 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
                                                      rec, root)
     rec.update(records.v2_fields(law, rec, stmt_text, model_src, rel, compiled, root, lean_entry=lean_entry,
                                  ledger_required=not test))
+    if kind == "goops" and status == "REFUTED":   # I67 (rule Y8): its replay report is replay/<M>/goops/report.json
+        from .filter import record_fields
+        from .replay import witness_sha256
+        rec["witness_provenance"], rec["filter_bin"] = record_fields(goops_report(root, milestone), lid,
+                                                                     rec.get("witness"), witness_sha256)
     rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
     rec.update(evidence_fields(law, status, root, milestone))
     # §8.5 (I12): model_assumptions are the hypothesis premises (a codec law has none); the ledger entries meeting the
