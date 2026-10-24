@@ -1,0 +1,979 @@
+[
+ {
+  "assumptions": [
+   "A_clk"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_fill_once",
+  "layer": "F_fill[EVM]",
+  "minimal_assumption_sets": [
+   []
+  ],
+  "relaxations": {},
+  "states_explored_under_all": 17,
+  "text": "each relay hash pays its recipient at most once (fast or slow), over the life of the spoke"
+ },
+ {
+  "assumptions": [
+   "A_clk"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_fill_once",
+  "layer": "F_fill[SVM]",
+  "minimal_assumption_sets": [
+   [
+    "A_clk"
+   ]
+  ],
+  "relaxations": {
+   "A_clk": {
+    "counterexample_length": 6,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "fillRelay",
+      "next": "(status=F, t=0, leaf=False, pay=1)",
+      "state": "(status=X, t=0, leaf=False, pay=0)"
+     },
+     {
+      "action": "tick",
+      "next": "(status=F, t=1, leaf=False, pay=1)",
+      "state": "(status=F, t=0, leaf=False, pay=1)"
+     },
+     {
+      "action": "tick",
+      "next": "(status=F, t=2, leaf=False, pay=1)",
+      "state": "(status=F, t=1, leaf=False, pay=1)"
+     },
+     {
+      "action": "close_fill_pda",
+      "next": "(status=X, t=2, leaf=False, pay=1)",
+      "state": "(status=F, t=2, leaf=False, pay=1)"
+     },
+     {
+      "action": "clockBack",
+      "next": "(status=X, t=1, leaf=False, pay=1)",
+      "state": "(status=X, t=2, leaf=False, pay=1)"
+     },
+     {
+      "action": "fillRelay",
+      "next": "(status=F, t=1, leaf=False, pay=2)",
+      "state": "(status=X, t=1, leaf=False, pay=1)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 23,
+  "text": "each relay hash pays its recipient at most once (fast or slow), over the life of the spoke"
+ },
+ {
+  "assumptions": [
+   "A_V1_oneG0",
+   "A_V2_noRepropose",
+   "A_exec_nonOwner",
+   "A_inst_single"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_refund_once",
+  "layer": "R_root[native]",
+  "minimal_assumption_sets": [
+   [
+    "A_V1_oneG0",
+    "A_V2_noRepropose"
+   ]
+  ],
+  "relaxations": {
+   "A_V1_oneG0": {
+    "counterexample_length": 7,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "propose[two groupIndex-0 leaves for X]",
+      "next": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=0, prop=0, leaves={}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRootBundle[X0 by nonOwner]",
+      "next": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0}, store={}, uuid=0, pendX=1, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "bridge.deliver(relayRootBundle -> X)",
+      "next": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0}, store={}, uuid=0, pendX=1, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[x1, rootBundleId=0]",
+      "next": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRootBundle[X0b by nonOwner]",
+      "next": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0,X0b}, store={}, uuid=0, pendX=1, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "bridge.deliver(relayRootBundle -> X)",
+      "next": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0,X0b}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0,X0b}, store={}, uuid=0, pendX=1, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[x1, rootBundleId=1]",
+      "next": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0,X0b}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={}, paid={0,1}), x2=None, y1=(copies=0, imported={}, paid={}), payX=2, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,X0b,Y0}, executed={X0,X0b}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     }
+    ]
+   },
+   "A_V2_noRepropose": {
+    "counterexample_length": 9,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "propose[valid]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=0, prop=0, leaves={}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRootBundle[X0 by nonOwner]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=1, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "bridge.deliver(relayRootBundle -> X)",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=1, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "emergencyDeleteProposal",
+      "next": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[x1, rootBundleId=0]",
+      "next": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "propose[same roots again]",
+      "next": "(props=2, prop=2, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRootBundle[X0 by nonOwner]",
+      "next": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=1, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=2, prop=2, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "bridge.deliver(relayRootBundle -> X)",
+      "next": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=1, pendY=0, x1=(copies=1, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[x1, rootBundleId=1]",
+      "next": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={}, paid={0,1}), x2=None, y1=(copies=0, imported={}, paid={}), payX=2, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 24,
+  "text": "each refund entitlement in a root is paid at most once per chain (over all spoke instances)"
+ },
+ {
+  "assumptions": [
+   "A_V1_oneG0",
+   "A_V2_noRepropose",
+   "A_exec_nonOwner",
+   "A_inst_single"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_root_authorized",
+  "layer": "R_root[native]",
+  "minimal_assumption_sets": [
+   []
+  ],
+  "relaxations": {},
+  "states_explored_under_all": 24,
+  "text": "a chain pays from a root only if the HubPool executed that chain's groupIndex-0 leaf (deletion revokes)"
+ },
+ {
+  "assumptions": [
+   "A_V1_oneG0",
+   "A_V2_noRepropose",
+   "A_exec_nonOwner",
+   "A_inst_single"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_refund_once",
+  "layer": "R_root[universal]",
+  "minimal_assumption_sets": [
+   [
+    "A_V2_noRepropose",
+    "A_exec_nonOwner",
+    "A_inst_single"
+   ]
+  ],
+  "relaxations": {
+   "A_V2_noRepropose": {
+    "counterexample_length": 9,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "propose[valid]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=0, prop=0, leaves={}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRootBundle[X0 by nonOwner]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "emergencyDeleteProposal",
+      "next": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeMessage[x1, nonce=ts:1]",
+      "next": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[x1, rootBundleId=0]",
+      "next": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "propose[same roots again]",
+      "next": "(props=2, prop=2, leaves={X0,Y0}, executed={}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=0, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRootBundle[X0 by nonOwner]",
+      "next": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0'),('ts', 2, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=2, prop=2, leaves={X0,Y0}, executed={}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeMessage[x1, nonce=ts:2]",
+      "next": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0'),('ts', 2, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={('ts', 1, '0'),('ts', 2, '0')}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0'),('ts', 2, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[x1, rootBundleId=1]",
+      "next": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0'),('ts', 2, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={('ts', 1, '0'),('ts', 2, '0')}, paid={0,1}), x2=None, y1=(copies=0, imported={}, paid={}), payX=2, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=2, prop=2, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0'),('ts', 2, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=2, imported={('ts', 1, '0'),('ts', 2, '0')}, paid={0}), x2=None, y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=False)"
+     }
+    ]
+   },
+   "A_exec_nonOwner": {
+    "counterexample_length": 7,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "propose[valid]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=0, prop=0, leaves={}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRootBundle[X0 by nonOwner]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeMessage[y1, nonce=ts:1]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[y1, rootBundleId=0]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={0}), payX=0, payY=1, yExec=False, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeRootBundle[Y0 by owner]",
+      "next": "(props=1, prop=0, leaves={X0,Y0}, executed={X0,Y0}, store={('adm', 0, 'Y'),('ts', 1, '0')}, uuid=1, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={0}), payX=0, payY=1, yExec=True, deployed2=False)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={0}), payX=0, payY=1, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "executeMessage[y1, nonce=adm:0]",
+      "next": "(props=1, prop=0, leaves={X0,Y0}, executed={X0,Y0}, store={('adm', 0, 'Y'),('ts', 1, '0')}, uuid=1, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=2, imported={('adm', 0, 'Y'),('ts', 1, '0')}, paid={0}), payX=0, payY=1, yExec=True, deployed2=False)",
+      "state": "(props=1, prop=0, leaves={X0,Y0}, executed={X0,Y0}, store={('adm', 0, 'Y'),('ts', 1, '0')}, uuid=1, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={0}), payX=0, payY=1, yExec=True, deployed2=False)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[y1, rootBundleId=1]",
+      "next": "(props=1, prop=0, leaves={X0,Y0}, executed={X0,Y0}, store={('adm', 0, 'Y'),('ts', 1, '0')}, uuid=1, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=2, imported={('adm', 0, 'Y'),('ts', 1, '0')}, paid={0,1}), payX=0, payY=2, yExec=True, deployed2=False)",
+      "state": "(props=1, prop=0, leaves={X0,Y0}, executed={X0,Y0}, store={('adm', 0, 'Y'),('ts', 1, '0')}, uuid=1, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=2, imported={('adm', 0, 'Y'),('ts', 1, '0')}, paid={0}), payX=0, payY=1, yExec=True, deployed2=False)"
+     }
+    ]
+   },
+   "A_inst_single": {
+    "counterexample_length": 7,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "deploy second Universal_SpokePool on X",
+      "next": "(props=0, prop=0, leaves={}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=(copies=0, imported={}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)",
+      "state": "(props=0, prop=0, leaves={}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+     },
+     {
+      "action": "propose[valid]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=(copies=0, imported={}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)",
+      "state": "(props=0, prop=0, leaves={}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=(copies=0, imported={}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)"
+     },
+     {
+      "action": "executeRootBundle[X0 by nonOwner]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=(copies=0, imported={}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=(copies=0, imported={}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)"
+     },
+     {
+      "action": "executeMessage[x1, nonce=ts:1]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={}), x2=(copies=0, imported={}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=(copies=0, imported={}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)"
+     },
+     {
+      "action": "executeMessage[x2, nonce=ts:1]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={}), x2=(copies=1, imported={('ts', 1, '0')}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={}), x2=(copies=0, imported={}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[x1, rootBundleId=0]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=(copies=1, imported={('ts', 1, '0')}, paid={}), y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=True)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={}), x2=(copies=1, imported={('ts', 1, '0')}, paid={}), y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=True)"
+     },
+     {
+      "action": "executeRelayerRefundLeaf[x2, rootBundleId=0]",
+      "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=(copies=1, imported={('ts', 1, '0')}, paid={0}), y1=(copies=0, imported={}, paid={}), payX=2, payY=0, yExec=False, deployed2=True)",
+      "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=1, imported={('ts', 1, '0')}, paid={0}), x2=(copies=1, imported={('ts', 1, '0')}, paid={}), y1=(copies=0, imported={}, paid={}), payX=1, payY=0, yExec=False, deployed2=True)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 48,
+  "text": "each refund entitlement in a root is paid at most once per chain (over all spoke instances)"
+ },
+ {
+  "assumptions": [
+   "A_V1_oneG0",
+   "A_V2_noRepropose",
+   "A_exec_nonOwner",
+   "A_inst_single"
+  ],
+  "exhaustive": true,
+  "holds_under_all": false,
+  "invariant": "I_root_authorized",
+  "layer": "R_root[universal]",
+  "minimal_assumption_sets": [],
+  "relaxations": {},
+  "states_explored_under_all": 48,
+  "text": "a chain pays from a root only if the HubPool executed that chain's groupIndex-0 leaf (deletion revokes)",
+  "unconditional_counterexample": [
+   {
+    "action": "propose[valid]",
+    "next": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+    "state": "(props=0, prop=0, leaves={}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+   },
+   {
+    "action": "executeRootBundle[X0 by nonOwner]",
+    "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+    "state": "(props=1, prop=1, leaves={X0,Y0}, executed={}, store={}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+   },
+   {
+    "action": "executeMessage[y1, nonce=ts:1]",
+    "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)",
+    "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=0, imported={}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+   },
+   {
+    "action": "executeRelayerRefundLeaf[y1, rootBundleId=0]",
+    "next": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={0}), payX=0, payY=1, yExec=False, deployed2=False)",
+    "state": "(props=1, prop=1, leaves={X0,Y0}, executed={X0}, store={('ts', 1, '0')}, uuid=0, pendX=0, pendY=0, x1=(copies=0, imported={}, paid={}), x2=None, y1=(copies=1, imported={('ts', 1, '0')}, paid={}), payX=0, payY=0, yExec=False, deployed2=False)"
+   }
+  ]
+ },
+ {
+  "assumptions": [
+   "A_pct0",
+   "A_noHaircut",
+   "A_feesBacked"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_backing",
+  "layer": "L_ledger",
+  "minimal_assumption_sets": [
+   [
+    "A_pct0"
+   ]
+  ],
+  "relaxations": {
+   "A_pct0": {
+    "counterexample_length": 4,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "addLiquidity(2)",
+      "next": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=0, U=0, F=0, B=0, S=0, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "setProtocolFeeCapture(100%)",
+      "next": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=100)",
+      "state": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "executeRootBundle(netSend=0, bundleLpFees=2)",
+      "next": "(L=2, U=0, F=0, B=2, S=2, P=2, Out=2, Arr=0, pct=100)",
+      "state": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=100)"
+     },
+     {
+      "action": "claimProtocolFeesCaptured",
+      "next": "(L=2, U=0, F=0, B=0, S=2, P=0, Out=2, Arr=0, pct=100)",
+      "state": "(L=2, U=0, F=0, B=2, S=2, P=2, Out=2, Arr=0, pct=100)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 1742,
+  "text": "liquidReserves <= token balance (accounting guard is physically backed)"
+ },
+ {
+  "assumptions": [
+   "A_pct0",
+   "A_noHaircut",
+   "A_feesBacked"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_donation_neutral",
+  "layer": "L_ledger",
+  "minimal_assumption_sets": [
+   []
+  ],
+  "relaxations": {},
+  "states_explored_under_all": 1742,
+  "text": "donations and sync never change LP equity (no share-inflation lever)"
+ },
+ {
+  "assumptions": [
+   "A_pct0",
+   "A_noHaircut",
+   "A_feesBacked"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_equity_nonneg",
+  "layer": "L_ledger",
+  "minimal_assumption_sets": [
+   [
+    "A_noHaircut"
+   ]
+  ],
+  "relaxations": {
+   "A_noHaircut": {
+    "counterexample_length": 4,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "addLiquidity(2)",
+      "next": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=0, U=0, F=0, B=0, S=0, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "haircutReserves(1)",
+      "next": "(L=2, U=-1, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "haircutReserves(1)",
+      "next": "(L=2, U=-2, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=2, U=-1, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "haircutReserves(1)",
+      "next": "(L=2, U=-3, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=2, U=-2, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 1742,
+  "text": "supply > 0 => N = L + U - F >= 0 (exchange rate defined)"
+ },
+ {
+  "assumptions": [
+   "A_pct0",
+   "A_noHaircut",
+   "A_feesBacked"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_exit_at_zero_util",
+  "layer": "L_ledger",
+  "minimal_assumption_sets": [
+   [
+    "A_noHaircut",
+    "A_pct0"
+   ]
+  ],
+  "relaxations": {
+   "A_noHaircut": {
+    "counterexample_length": 4,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "addLiquidity(2)",
+      "next": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=0, U=0, F=0, B=0, S=0, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "haircutReserves(1)",
+      "next": "(L=2, U=-1, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "haircutReserves(1)",
+      "next": "(L=2, U=-2, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=2, U=-1, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "haircutReserves(1)",
+      "next": "(L=2, U=-3, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=2, U=-2, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)"
+     }
+    ]
+   },
+   "A_pct0": {
+    "counterexample_length": 4,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "addLiquidity(2)",
+      "next": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=0, U=0, F=0, B=0, S=0, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "setProtocolFeeCapture(100%)",
+      "next": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=100)",
+      "state": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "executeRootBundle(netSend=0, bundleLpFees=2)",
+      "next": "(L=2, U=0, F=0, B=2, S=2, P=2, Out=2, Arr=0, pct=100)",
+      "state": "(L=2, U=0, F=0, B=2, S=2, P=0, Out=0, Arr=0, pct=100)"
+     },
+     {
+      "action": "claimProtocolFeesCaptured",
+      "next": "(L=2, U=0, F=0, B=0, S=2, P=0, Out=2, Arr=0, pct=100)",
+      "state": "(L=2, U=0, F=0, B=2, S=2, P=2, Out=2, Arr=0, pct=100)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 1742,
+  "text": "if reported utilization is 0, every LP share is redeemable"
+ },
+ {
+  "assumptions": [
+   "A_pct0",
+   "A_noHaircut",
+   "A_feesBacked"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_rate_monotone",
+  "layer": "L_ledger",
+  "minimal_assumption_sets": [
+   []
+  ],
+  "relaxations": {},
+  "states_explored_under_all": 1742,
+  "text": "exchange rate never decreases while supply > 0 (haircut excluded)"
+ },
+ {
+  "assumptions": [
+   "A_pct0",
+   "A_noHaircut",
+   "A_feesBacked"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_solvency",
+  "layer": "L_ledger",
+  "minimal_assumption_sets": [
+   [
+    "A_feesBacked"
+   ]
+  ],
+  "relaxations": {
+   "A_feesBacked": {
+    "counterexample_length": 2,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "executeRootBundle(netSend=0, bundleLpFees=2, fees unbacked)",
+      "next": "(L=0, U=2, F=2, B=0, S=0, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=0, U=0, F=0, B=0, S=0, P=0, Out=0, Arr=0, pct=0)"
+     },
+     {
+      "action": "accrueLpFees(1)",
+      "next": "(L=0, U=2, F=1, B=0, S=0, P=0, Out=0, Arr=0, pct=0)",
+      "state": "(L=0, U=2, F=2, B=0, S=0, P=0, Out=0, Arr=0, pct=0)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 1742,
+  "text": "LP equity <= physical assets (hub + spokes + in flight) - protocol claims"
+ },
+ {
+  "assumptions": [
+   "A_wl",
+   "A_hblk",
+   "A_ff",
+   "A_ooOK"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_bond_custody",
+  "layer": "H_proposal",
+  "minimal_assumption_sets": [
+   []
+  ],
+  "relaxations": {},
+  "states_explored_under_all": 27,
+  "text": "bond held by HubPool iff a proposal is active"
+ },
+ {
+  "assumptions": [
+   "A_wl",
+   "A_hblk",
+   "A_ff",
+   "A_ooOK"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_dispute_escalates",
+  "layer": "H_proposal",
+  "minimal_assumption_sets": [
+   [
+    "A_ff",
+    "A_hblk",
+    "A_ooOK",
+    "A_wl"
+   ]
+  ],
+  "relaxations": {
+   "A_ff": {
+    "counterexample_length": 3,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "UMA: finalFee(bondToken) >= bondAmount",
+      "next": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=True, ooBroken=False, freeRemovals=0)",
+      "state": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "proposeRootBundle[honest]",
+      "next": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={}, ffHigh=True, ooBroken=False, freeRemovals=0)",
+      "state": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=True, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "disputeRootBundle -> _cancelBundle",
+      "next": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=True, ooBroken=False, freeRemovals=1)",
+      "state": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={}, ffHigh=True, ooBroken=False, freeRemovals=0)"
+     }
+    ]
+   },
+   "A_hblk": {
+    "counterexample_length": 4,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "proposeRootBundle[honest]",
+      "next": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={}, ffHigh=False, ooBroken=False, freeRemovals=0)",
+      "state": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "disputeRootBundle -> requestAndProposePriceFor + disputePriceFor (DVM)",
+      "next": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={(0, 'H')}, ffHigh=False, ooBroken=False, freeRemovals=0)",
+      "state": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "proposeRootBundle[honest]",
+      "next": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={(0, 'H')}, ffHigh=False, ooBroken=False, freeRemovals=0)",
+      "state": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={(0, 'H')}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "disputeRootBundle -> _cancelBundle",
+      "next": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={(0, 'H')}, ffHigh=False, ooBroken=False, freeRemovals=1)",
+      "state": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={(0, 'H')}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     }
+    ]
+   },
+   "A_ooOK": {
+    "counterexample_length": 3,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "UMA: de-whitelist identifier or collateral",
+      "next": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=False, ooBroken=True, freeRemovals=0)",
+      "state": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "proposeRootBundle[honest]",
+      "next": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={}, ffHigh=False, ooBroken=True, freeRemovals=0)",
+      "state": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=False, ooBroken=True, freeRemovals=0)"
+     },
+     {
+      "action": "disputeRootBundle -> _cancelBundle",
+      "next": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=False, ooBroken=True, freeRemovals=1)",
+      "state": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={}, ffHigh=False, ooBroken=True, freeRemovals=0)"
+     }
+    ]
+   },
+   "A_wl": {
+    "counterexample_length": 4,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "proposeRootBundle[attacker]",
+      "next": "(prop=A, phase=live, count=2, bonds=1, blk=0, ooReq={}, ffHigh=False, ooBroken=False, freeRemovals=0)",
+      "state": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "disputeRootBundle -> requestAndProposePriceFor + disputePriceFor (DVM)",
+      "next": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={(0, 'A')}, ffHigh=False, ooBroken=False, freeRemovals=0)",
+      "state": "(prop=A, phase=live, count=2, bonds=1, blk=0, ooReq={}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "proposeRootBundle[honest]",
+      "next": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={(0, 'A')}, ffHigh=False, ooBroken=False, freeRemovals=0)",
+      "state": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={(0, 'A')}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     },
+     {
+      "action": "disputeRootBundle -> _cancelBundle",
+      "next": "(prop=None, phase=None, count=0, bonds=0, blk=0, ooReq={(0, 'A')}, ffHigh=False, ooBroken=False, freeRemovals=1)",
+      "state": "(prop=H, phase=live, count=2, bonds=1, blk=0, ooReq={(0, 'A')}, ffHigh=False, ooBroken=False, freeRemovals=0)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 27,
+  "text": "an honest proposal leaves liveness only by DVM escalation with a disputer bond, by execution or by admin"
+ },
+ {
+  "assumptions": [
+   "A_bondNotPooled",
+   "A_pct0"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_hub_live",
+  "layer": "B_bond_vs_reserves",
+  "minimal_assumption_sets": [
+   [
+    "A_bondNotPooled"
+   ],
+   [
+    "A_pct0"
+   ]
+  ],
+  "relaxations": {
+   "A_bondNotPooled": {
+    "counterexample_length": 4,
+    "relaxed_from": "MINIMAL",
+    "trace": [
+     {
+      "action": "proposeRootBundle(2 leaves)",
+      "next": "(L=0, B=2, active=True, count=2, P=0, pct=0)",
+      "state": "(L=0, B=0, active=False, count=0, P=0, pct=0)"
+     },
+     {
+      "action": "setProtocolFeeCapture(100%)",
+      "next": "(L=0, B=2, active=True, count=2, P=0, pct=100)",
+      "state": "(L=0, B=2, active=True, count=2, P=0, pct=0)"
+     },
+     {
+      "action": "executeRootBundle(netSend=0, fee=2)",
+      "next": "(L=0, B=2, active=True, count=1, P=2, pct=100)",
+      "state": "(L=0, B=2, active=True, count=2, P=0, pct=100)"
+     },
+     {
+      "action": "claimProtocolFeesCaptured",
+      "next": "(L=0, B=0, active=True, count=1, P=0, pct=100)",
+      "state": "(L=0, B=2, active=True, count=1, P=2, pct=100)"
+     }
+    ]
+   },
+   "A_pct0": {
+    "counterexample_length": 4,
+    "relaxed_from": "MINIMAL",
+    "trace": [
+     {
+      "action": "proposeRootBundle(2 leaves)",
+      "next": "(L=0, B=2, active=True, count=2, P=0, pct=0)",
+      "state": "(L=0, B=0, active=False, count=0, P=0, pct=0)"
+     },
+     {
+      "action": "setProtocolFeeCapture(100%)",
+      "next": "(L=0, B=2, active=True, count=2, P=0, pct=100)",
+      "state": "(L=0, B=2, active=True, count=2, P=0, pct=0)"
+     },
+     {
+      "action": "executeRootBundle(netSend=0, fee=2)",
+      "next": "(L=0, B=2, active=True, count=1, P=2, pct=100)",
+      "state": "(L=0, B=2, active=True, count=2, P=0, pct=100)"
+     },
+     {
+      "action": "claimProtocolFeesCaptured",
+      "next": "(L=0, B=0, active=True, count=1, P=0, pct=100)",
+      "state": "(L=0, B=2, active=True, count=1, P=2, pct=100)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 18,
+  "text": "while a proposal is active the HubPool can always refund the bond (last leaf / emergency delete live)"
+ },
+ {
+  "assumptions": [
+   "A_closedCallees"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_admin_principal",
+  "layer": "A_authority[principal]",
+  "minimal_assumption_sets": [
+   []
+  ],
+  "relaxations": {},
+  "states_explored_under_all": 4,
+  "text": "only the admin principal exercises onlyAdmin"
+ },
+ {
+  "assumptions": [
+   "A_closedCallees"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_admin_principal",
+  "layer": "A_authority[flag]",
+  "minimal_assumption_sets": [
+   [
+    "A_closedCallees"
+   ]
+  ],
+  "relaxations": {
+   "A_closedCallees": {
+    "counterexample_length": 3,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "adminMessage.begin",
+      "next": "(stage=admin, flag=True, upgradedBy=None)",
+      "state": "(stage=idle, flag=False, upgradedBy=None)"
+     },
+     {
+      "action": "admin.executeExternalCall(T) yields control",
+      "next": "(stage=callee, flag=True, upgradedBy=None)",
+      "state": "(stage=admin, flag=True, upgradedBy=None)"
+     },
+     {
+      "action": "T.upgradeTo(evil) [callback]",
+      "next": "(stage=callee, flag=True, upgradedBy=callee)",
+      "state": "(stage=callee, flag=True, upgradedBy=None)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 4,
+  "text": "only the admin principal exercises onlyAdmin"
+ },
+ {
+  "assumptions": [
+   "A_fifo"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_last_writer",
+  "layer": "C_channel",
+  "minimal_assumption_sets": [
+   [
+    "A_fifo"
+   ]
+  ],
+  "relaxations": {
+   "A_fifo": {
+    "counterexample_length": 2,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "deliver(m1: pauseDeposits(true))",
+      "next": "(delivered=(1,), paused=True)",
+      "state": "(delivered=(), paused=None)"
+     },
+     {
+      "action": "deliver(m0: pauseDeposits(false))",
+      "next": "(delivered=(1, 0), paused=False)",
+      "state": "(delivered=(1,), paused=True)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 3,
+  "text": "after all messages are delivered, spoke state equals the effect of the last-issued message"
+ },
+ {
+  "assumptions": [
+   "A_atomicAuth"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_unsafe_id_bound",
+  "layer": "D_unsafe_id[EVM]",
+  "minimal_assumption_sets": [
+   []
+  ],
+  "relaxations": {},
+  "states_explored_under_all": 4,
+  "text": "the deposit consuming the depositor's funds carries the id the depositor chose"
+ },
+ {
+  "assumptions": [
+   "A_atomicAuth"
+  ],
+  "exhaustive": true,
+  "holds_under_all": true,
+  "invariant": "I_unsafe_id_bound",
+  "layer": "D_unsafe_id[SVM]",
+  "minimal_assumption_sets": [
+   [
+    "A_atomicAuth"
+   ]
+  ],
+  "relaxations": {
+   "A_atomicAuth": {
+    "counterexample_length": 2,
+    "relaxed_from": "ALL",
+    "trace": [
+     {
+      "action": "depositor: approve delegate",
+      "next": "(authorized=True, deposited=None, prefilled=False)",
+      "state": "(authorized=False, deposited=None, prefilled=False)"
+     },
+     {
+      "action": "anyone: deposit()/unsafe_deposit(other nonce) with depositor's delegation",
+      "next": "(authorized=True, deposited=other, prefilled=False)",
+      "state": "(authorized=True, deposited=None, prefilled=False)"
+     }
+    ]
+   }
+  },
+  "states_explored_under_all": 4,
+  "text": "the deposit consuming the depositor's funds carries the id the depositor chose"
+ }
+]
