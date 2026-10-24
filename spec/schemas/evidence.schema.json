@@ -42,8 +42,9 @@
       "properties": {
         "facts": {"type": "string"},
         "facts_sha256": {"$ref": "#/$defs/sha256"},
-        "facts_version": {"enum": ["holon-facts/0.1", "holon-facts/0.2", "holon-facts/0.3", "holon-linked/0.1"],
-                          "description": "holon-facts/0.3: an extracted transitions document the milestone adopts for derivation (I20); its diagram is null and it has anchors only. holon-linked/0.1 (I24, rule X7): a linked codec document gen/<M>/codec/<role>.json, with its component diagram and E1, E2 and E6 atoms"},
+        "facts_version": {"enum": ["holon-facts/0.1", "holon-facts/0.2", "holon-facts/0.3", "holon-linked/0.1",
+                                   "holon-versions/0.1"],
+                          "description": "holon-facts/0.3: an extracted transitions document the milestone adopts for derivation (I20); its diagram is null and it has anchors only. holon-linked/0.1 (I24, rule X7): a linked codec document gen/<M>/codec/<role>.json, with its component diagram and E1, E2 and E6 atoms. holon-versions/0.1 (I28): the milestone's versioned document (holon.versions, the output its versions sidecar names); its diagram is null and it has anchors only, those of its versions' transitions documents merged"},
         "diagram": {"type": ["string", "null"], "pattern": "^gen/M[0-9]+/diagram/[A-Za-z0-9_]+\\.json$"},
         "anchors": {"$ref": "#/$defs/anchors"}
       }
