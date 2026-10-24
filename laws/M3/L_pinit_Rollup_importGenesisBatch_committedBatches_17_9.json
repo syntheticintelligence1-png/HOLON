@@ -1,0 +1,58 @@
+{
+  "facts": "gen/M3/versions/morph_rollup.versions.json",
+  "facts_sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_pinit_Rollup_importGenesisBatch_committedBatches_17_9",
+  "milestone": "M3",
+  "notes": "initialization coherence (whitepaper \u00a75.1): when a is a successful call of importGenesisBatch (the root site of the chain committedBatches) at the reachable state s with environment e, the header it commits has cell 17 (shift 192) equal to its cell 9: the running sum the successor sites carry starts at the first header's own increment; init morph_rollup.versions:chain:committedBatches:17:9",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.6",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "e",
+        "q": "forall",
+        "type": "Env"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "env": {
+            "var": "e"
+          },
+          "from": {
+            "var": "s"
+          },
+          "init": "morph_rollup.versions:chain:committedBatches:17:9",
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "init_chain"
+}
