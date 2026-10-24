@@ -988,6 +988,16 @@
       "what": "library builtin zero_csr declares no access kind: every state field passed to it is accessed whole (*)"
     },
     {
+      "kind": "HASH",
+      "ledger": "CF-keccak-blobhashes",
+      "what": "CF-keccak-blobhashes: keccak256 over the blob versioned hashes (version 2) is the injective stand-in agg(xs) = AGG_BASE + enc(xs): CF(keccak256, S) for every finite S."
+    },
+    {
+      "kind": "HASH",
+      "ledger": "CF-keccak-headers",
+      "what": "CF-keccak-headers: CF(keccak256, {stored headers, presented header}): header equality stands for committedBatches equality; a caller presents the stored header of the index it names, and committedBatches[k] != 0 iff k <= LCI (abstractions/2)."
+    },
+    {
       "kind": "LEDGER",
       "source": "#/abstractions/0",
       "what": "abstraction 0 is cited by no ledger entry: Values (state roots, hashes, versioned hashes) are Nat tokens; 0 is bytes32(0). Times are Nat seconds relative to an epoch (replay adds T_EPOCH)."
@@ -1026,10 +1036,6 @@
       "kind": "LEDGER",
       "source": "#/abstractions/7",
       "what": "abstraction 7 is cited by no ledger entry: Not modelled (coverage debt): reward/deposit accounting (batchChallengeReward, proveRemaining, claimReward, claimProveRemaining), withdrawalRoots, parameter updates, challenger/verifier admin, importGenesisBatch (the initial state is post-genesis), initialize3/4, dataHash contents."
-    },
-    {
-      "kind": "LEDGER",
-      "what": "no ledger bundle has facts_sha256 2de8ab0d421dfb9d2fbcf027d5fb3d3b7f69df84580b4d0e8bb289a062d94b9d: no model assumption is linked"
     },
     {
       "kind": "UNMODELLED",
