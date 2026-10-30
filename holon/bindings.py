@@ -730,8 +730,9 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
                     and set(defs) <= set(e.get("defs") or [])
                     and (hashes is None or (br.get("old"), br.get("new")) == tuple(hashes)))
         return e.get("kind") in ("strengthening", "weakening", "reextraction")
-    return (e.get("kind") == "binding_change" and isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"])
-            and set(defs) <= set(e.get("defs") or []))
+    # a fixed statement: a binding_change, or (I83) a model_extension, naming every changed definition
+    return (e.get("kind") in ("binding_change", "model_extension") and isinstance(e.get("old"), dict)
+            and core(e["old"]) == core(e["new"]) and set(defs) <= set(e.get("defs") or []))
 
 
 def hash_only_change(x: dict, y: dict) -> bool:
@@ -757,18 +758,59 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
                                  + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
                                     "catalog_rederivation when nothing else in its binding changed" if sc else
-                                    f"its statement is fixed: a binding_change naming {law_defs[lid]}") + ")"))
+                                    f"its statement is fixed: a binding_change or a model_extension naming "
+                                    f"{law_defs[lid]}") + ")"))
         else:
             covered[lid] = n
     return covered, missing
+
+
+def resolve_covered(n, commit, log_at, where: dict) -> tuple[list[int], str | None]:
+    """(I83; the coordinator's decision, revocable) The lines of the current laws/STATEMENT_DIFF.jsonl that a change line's
+    covered_by number n names. For a change line appended by `commit`, n is a line of the log as it was at that commit:
+    its exact text there (log_at(commit): that version's lines, or None when it cannot be read: a problem, never a fall
+    back to the position), found by that text in the current file (where: {line text: [current line numbers]}). A lead
+    merge appends other lines before a branch's own, so only the content is a stable address. For a change line not yet
+    committed (commit None), n is a current line number, as before. Returns (current line numbers, problem or None)."""
+    if not isinstance(n, int) or isinstance(n, bool):
+        return [], "its covered_by entry is not a line number"
+    if commit is None:
+        return [n], None
+    old = log_at(commit)
+    if old is None:
+        return [], (f"laws/STATEMENT_DIFF.jsonl cannot be read at {commit[:12]}, the commit that appended the change line "
+                    "(a shallow clone?)")
+    if not 0 < n <= len(old):
+        return [], f"laws/STATEMENT_DIFF.jsonl has no line {n} at {commit[:12]}, the commit that appended the change line"
+    return list(where.get(old[n - 1], [])), None
+
+
+def change_line_problems(ln: dict, i: int, commit, entries: dict, log_at, where: dict) -> list[str]:
+    """What keeps change line i (ln; appended by `commit`, None while not committed) from naming, for each law it
+    rebinds, an accepted laws/STATEMENT_DIFF.jsonl entry that covers it (entries: {current line number: accepted
+    entry}; resolve_covered maps its covered_by numbers to current lines)."""
+    probs = []
+    cov = ln.get("covered_by") if isinstance(ln.get("covered_by"), dict) else {}
+    defs = ln.get("law_defs") if isinstance(ln.get("law_defs"), dict) else {}
+    for lid in ln.get("laws") or []:
+        ld = defs.get(lid, ln.get("defs") or [])   # a catalog_rederivation covers a line only when it logs no def
+        cands, why = resolve_covered(cov.get(lid), commit, log_at, where)
+        ok = why is None and any(e is not None and (entry_covers(e, lid, None, True, ld) or
+                                                    entry_covers(e, lid, None, False, ld))
+                                 for e in (entries.get(k) for k in cands))
+        if not ok:
+            probs.append(f"{CHANGES}: post-I10 line {i} rebinds {lid} without an accepted laws/STATEMENT_DIFF.jsonl entry "
+                         "covering it" + (f": {why}" if why else ""))
+    return probs
 
 
 def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     """G2 (audit F-M2-09): every change line of spec/bindings/changes.jsonl for milestone m logged after
     laws/STATEMENT_DIFF.jsonl was introduced maps each changed law to an accepted entry that covers it; the log
     extends its version at that commit and every committed version (append-only). Lines before the I10 commit
-    are grandfathered. Returns (problems, note); off git the check cannot run, and the note says so."""
-    from .statement_diff import blob_at, cutoff_commit, in_git, merged_lines
+    are grandfathered. A committed change line's covered_by numbers are read at the commit that appended it (I83:
+    resolve_covered). Returns (problems, note); off git the check cannot run, and the note says so."""
+    from .statement_diff import LOG, blob_at, cutoff_commit, in_git, merged_lines
     root = Path(root)
     if not in_git(root):
         return [], "binding change log not checked: no git history (a copied tree)"
@@ -779,12 +821,27 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     data = p.read_bytes() if p.exists() else b""
     base = blob_at(root, cut, CHANGES.as_posix()) or b""
     problems = []
-    if not data.startswith(base) or merged_lines(data, p, root)[2]:   # append-only, merges included
+    spans, side, mprobs = merged_lines(data, p, root)
+    if not data.startswith(base) or mprobs:   # append-only, merges included
         problems.append(f"{CHANGES} does not extend its committed versions (append-only)")
         return problems, ""
     entries = _accepted_entries(root, m)
-    n_lines = 0
-    for i, raw in enumerate(data[len(base):].decode("utf-8", errors="replace").splitlines(), start=1):
+    where: dict = {}
+    for k, x in enumerate((root / LOG).read_bytes().splitlines() if (root / LOG).exists() else [], start=1):
+        where.setdefault(x, []).append(k)
+    logs: dict = {}
+
+    def log_at(commit: str):
+        if commit not in logs:
+            b = blob_at(root, commit, LOG.as_posix())
+            logs[commit] = None if b is None else b.splitlines()
+        return logs[commit]
+
+    committed_len = spans[-1][0] if spans else 0
+    n_lines, offset = 0, len(base)
+    for i, rawb in enumerate(data[len(base):].splitlines(keepends=True), start=1):
+        start, offset = offset, offset + len(rawb)
+        raw = rawb.decode("utf-8", errors="replace")
         if not raw.strip():
             continue
         try:
@@ -795,13 +852,8 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
         if not isinstance(ln, dict) or ln.get("milestone") != m or ln.get("created"):
             continue
         n_lines += 1
-        cov = ln.get("covered_by") if isinstance(ln.get("covered_by"), dict) else {}
-        defs = ln.get("law_defs") if isinstance(ln.get("law_defs"), dict) else {}
-        for lid in ln.get("laws") or []:
-            e = entries.get(cov.get(lid)) if isinstance(cov.get(lid), int) else None
-            ld = defs.get(lid, ln.get("defs") or [])   # a catalog_rederivation covers a line only when it logs no def
-            ok = e is not None and (entry_covers(e, lid, None, True, ld) or entry_covers(e, lid, None, False, ld))
-            if not ok:
-                problems.append(f"{CHANGES}: post-I10 line {i} rebinds {lid} without an accepted "
-                                "laws/STATEMENT_DIFF.jsonl entry covering it")
+        # the commit that appended it: along HEAD's first-parent chain, or the oldest side version holding it (a line a
+        # merge brought in); None only for a line beyond every committed version (not yet committed)
+        commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(rawb)
+        problems += change_line_problems(ln, i, commit, entries, log_at, where)
     return problems, f"{n_lines} post-I10 binding change lines of {m}, each covered by an accepted statement-diff entry"

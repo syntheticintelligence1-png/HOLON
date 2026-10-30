@@ -5656,6 +5656,278 @@
         ],
         "disclosure": "P2, P3 and P4 count toward prediction accuracy: nobody computed their outcomes before this commit. P1 is recorded, not counted: the author read most of what decides it (observed_before_prereg). I87 builds machinery, so most of its claims are construction checks (R1-R13). A miss in any prediction is reported as a miss, never fixed by changing the policy or the instrument after the outcome."
       }
+    },
+    "I83": {
+      "title": "I83 (= I28b): I28's model debt paid. holon.sorts.model3 compiles the pre-V11 commit actions (abi.decode of a tuple of value types and dynamic arrays, with the decoder's checks; a word list as a call argument; the memory copy of input bytes read in assembly; calldataload at an input's calldata offset), a generic candidate generator finds the in-flight inhabitants on the versioned machine (G11V, I28's rule V8 unchanged), every inhabitant replays on the real code (I28's rule V9), and the lifecycle kind model_extension re-binds the laws over the extended versioned layer (G2 stays green); I28's P5 and P6 re-attempted under a new key, as I62 re-ran I61; I28 keeps its number and its misses",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I83)",
+      "prompt": "prompts/I83_versions_debt.md",
+      "predictions": [
+        {
+          "id": "I83-P1",
+          "claim": "model3 compiles every action of every path version: holon versions model writes a versioned model whose init.json records no model debt at any path version (versions[v].debt empty, V3..V11) and none in the layer, every successor-site action of every version (rule PI1, the instrument's) is among its compiled actions, and holon versions model --check reproduces it. Derivation: a survey of I28's documents at the base (the term heads of every action of V3..V10 against model3's language) finds exactly three kinds of term outside it, all in the commit actions (the base's debt: thresholds.model_debt_at_base): abi.decode of batchSignatureInput.sequencerSets as (uint256, address[], uint256, address[], uint256, address[]), its components verifySignature's address[] argument (V3..V10; rules L1, L2); the frontend's unknown-memory mloads of the memory copy of batchDataInput.blockContexts, each at blockContexts plus a literal plus 60 times an iteration or count (V3..V5, BatchCodecV0.sol:57/70/73/87/96/105; rule L3); and calldataload at skippedL1MessageBitmap.offset (V3, V4; rule L4).",
+          "check": "tests_m3/test_versions_debt.py::TestModel::test_p1_no_model_debt"
+        },
+        {
+          "id": "I83-P2",
+          "claim": "G11V's in-flight sets are inhabited (I28-P5 re-attempted): I28's own check, tests_m3/test_versions.py::TestInflight::test_p5_every_mig_edge_of_the_path_is_inhabited, passes unchanged (8 inhabitants of rule V8's shape, each accepted by Bend and by BendTT when the verdict is enabled; holon gate --milestone M3 --checks G11V reports 'in-flight: 8 of 8 edges inhabited'); every edge's trace is rule IS1's with the instrument's labels (the upgrade path's prefix up to the source version, commitBatch at the source version, the edge: 5 steps at V3->V4 .. 12 at V10->V11), every key is 1, and the cutover's legacy words are batchDataStore[1].signedSequencersBitmap = 1 and l1StakingContract = the binding's stand-in 0x5615deb798bb3e4dfa0139dfa1b3d433cc23b72f. Derivation: a commit on top of the recorded genesis header (index 0) writes index 1; commitBatch sorts first among every version's successor-site actions and needs neither the rollup delay of commitBatchWithProof nor the stored blob hash of commitState; IS2's moves meet its checks from the zero call: the parent header is the genesis header the trace hashed (the keccak256 move), prevStateRoot is committedStateRoots[0] = 0x64 from V4 on (initialize2(0x64) on the path), postStateRoot 1, numL1Messages 1 where the rollup-delay check applies (V7..V10: the stand-in's queue time 1 plus the recorded delay 20 lies below the record's block time), at V3..V5 one block context of zero bytes after its count 1 (the ErrorNoBlockInBatch move, then ErrorIncorrectBatchLength's length 62) and an empty skipped bitmap, and sequencerSets the canonical zero encoding (IS2's start: six head words, three empty address arrays, 288 bytes); every external call is answered by the labelled stand-in with the word 1 (A-env), so the bitmap the V10 commit stores is 1, and l1StakingContract is initialize's first argument.",
+          "check": "tests_m3/test_versions_debt.py::TestInflight::test_p2_every_mig_edge_is_inhabited"
+        },
+        {
+          "id": "I83-P3",
+          "claim": "The cutover's inhabitant replays on the real code (I28-P6 re-attempted): I28's own check, tests_m3/test_versions.py::TestInflight::test_p6_the_cutover_inhabitant_replays, passes unchanged: the run inflight:V10->V11 of replay/M3/versions/report.json passes over the inhabitant's 12-step trace; the legacy words read on the real chain before the upgrade are the inhabitant's (1, the stand-in); after the real upgradeToAndCall(V11, initialize4(the stand-in, 1)) batchDataStore(1) returns 1 (the bitmap's low 160 bits) as its submitter and submitterContract() returns the stand-in. Derivation: I28-P2 (held) refined every step of the trace but the commit on the real code; the V10 commit is V10's document compiled with L1 and L2 the only new semantics on its path (the decoder accepts the canonical zero encoding on both sides, and verifySignature is answered 1 whatever its calldata); initialize4 at V11 holds on the state one commit leaves (lastCommittedBatchIndex 1, no challenge, no revert request; the stand-in has code).",
+          "check": "tests_m3/test_versions_debt.py::TestInflight::test_p3_the_cutover_replays"
+        },
+        {
+          "id": "I83-P4",
+          "claim": "Every inhabitant on the real code (rule IS3): replay/M3/versions/report.json holds one run inflight:<a>-><b> per MIG edge, over the edge's inhabitant trace. The runs of V6->V7, V7->V8, V8->V9, V9->V10 and V10->V11 pass (every step's statuses, revert data and compared words agree). The runs of V3->V4, V4->V5 and V5->V6 agree at every step on the statuses and the revert data and on every compared word but one: at the commit step, the word of committedBatches[1] (real slot 0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66, keccak256(1 . 161)) differs. Derivation: at V3..V5 the batch's data hash is keccak256 of a memory region the frontend leaves unsummarised (the block loop's ['loop', ..] entry: the instrument's havoc_versions), which model3 havocs at the base (holon/sorts/model3.py mem_write: its bytes become the unknown sentinel), so its key is in no hash table and the hash reads 0, in the evaluator and in Bend alike, and the header the model hashes into committedBatches[1] carries a zero data hash where the chain's carries the real one; every other word the commit writes (batchDataStore[1]: the record's block time, its finalization time, the last block number read through L3, the bitmap 1; lastCommittedBatchIndex; committedStateRoots[1] from V4 on) is computed from values the model holds exactly; from V6 on the data hash is an mloop the model evaluates, as at the head.",
+          "check": "tests_m3/test_versions_debt.py::TestInflight::test_p4_every_inhabitant_replays"
+        },
+        {
+          "id": "I83-P5",
+          "claim": "I29's three cutover squares stay UNKNOWN on I83's model (judged once I29's build has merged into the lead and into this branch; otherwise reported as not observed): re-run with holon run --milestone M3 --laws on the versioned model I83 commits, L_nat_sq_Rollup_V10_V11_batchDataStore_proveState, L_nat_sq_Rollup_V10_V11_submitterContract_challengeState and L_nat_sq_Rollup_V10_V11_submitterContract_proveState are each UNKNOWN. Derivation (I29's preregistered contract, rule N7, and its sidecar spec/M3/lib/nat.json at 1cc8e13d): its search proposes only the path's migrations and the deployment record's calls (initialize, two setters and importGenesisBatch: no commit) within max_trace 10, the length of the shortest trace reaching V10 with the genesis imported (the entry edge, two calls, seven migrations), so none of its states at V10 holds a batch past the genesis batch on I83's model either; proveState needs a committed batch in challenge and challengeState one above lastFinalizedBatchIndex; I83 changes neither op (both compiled at I28). I29-P2 attributes the UNKNOWN to V10's model debt; with the debt paid, the squares stay UNKNOWN for the reasons of I29's own search and budget.",
+          "check": "tests_m3/test_versions_debt.py::TestNat::test_p5_i29_cutover_squares_stay_unknown"
+        },
+        {
+          "id": "I83-P6",
+          "claim": "G2 stays green through the lifecycle kind model_extension: every M3 law bound to the versioned layer (the PAR-init law; and I29's NAT laws once its build has merged) is re-bound by exactly one accepted model_extension line of laws/STATEMENT_DIFF.jsonl that I83's own commits append (X1-X4: the statement fixed, only the cone changed, the new versioned model a conservative extension of the bound one, the verdict re-established by both kernels: the PAR-init law REFUTED with its counter-law accepted by Bend and BendTT on the new model); and G2's lifecycle and binding checks over M3 find nothing (holon.statement_diff.scan, the statement-change tie, holon.bindings.check_change_log, and holon.bindings.diff of spec/bindings/M3.json against holon.bindings.derive). Derivation: the extension adds VStep constructors and vstep and vok arms (the layer), HAct constructors, step arms, action definitions and HEnv's e_blobs field (each V3..V10 module: the commits read blobhash, which no other action of those versions does), and new definitions; VSt, VEnv (which holds e_blobs since V11's commits compile), VReach, VP and the claim functions keep their text; no fresh name of an old action moves (no V3..V10 module holds an mloop at the base: the commits are those versions' only actions with memory loops).",
+          "check": "tests_m3/test_versions_debt.py::TestBindings::test_p6_g2_stays_green_through_model_extension"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I83-R1",
+          "claim": "model3's earlier outputs do not move: holon model --milestone M3 (typed) and --untyped write the .bend files of gen/M3/sorts/models/ and gen/M3/sorts/untyped/models/ byte for byte; V11's module gen/M3/versions/models/morph_rollup_versions_V11.bend (a document every action of which compiled at I28) is the base's; holon/sorts/prelude3.py is the base's.",
+          "check": "tests_m3/test_versions_debt.py::TestModel::test_r1_earlier_models_are_byte_identical"
+        },
+        {
+          "id": "I83-R2",
+          "claim": "I28's other outcomes hold on I83's tree: holon versions extract --check and holon versions analyze --check reproduce (I28's documents, versioned document and analysis do not move); the PAR-init law is REFUTED with the base's witness trace [entry, initialize, importGenesisBatch]; the replay report's upgrade_path run and the PAR-init witness's run pass.",
+          "check": "tests_m3/test_versions_debt.py::TestRegressions::test_r2_i28_outcomes_hold"
+        },
+        {
+          "id": "I83-R3",
+          "claim": "I83's own commits keep the contract's commit rules: no frozen root, I63 output, I28 document, sidecar, versioned document or analysis, gen/M3/sorts/ or gen/M3/theory/ path, law file, REGISTRY or DERIVATION, spec/M1/ or spec/M2/ path, holon/frontends/, holon/extracted_eval.py, holon/sorts/prelude3.py, holon/rules/ or holon-ir/0.1 closure file, and none of I28's or I63's instruments, contract or sidecars; laws/STATEMENT_DIFF.jsonl only appended with model_extension lines; spec/bindings/M3.json changed only in the bindings of laws those lines name; no M3 record's status changed; the M1, M2 and T32 records changed only in generator_sha256 and keys named seconds.",
+          "check": "tests_m3/test_versions_debt.py::TestRegressions::test_r3_own_commits_touch_nothing_forbidden"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/versions/models/",
+        "gen/M3/versions/inflight/",
+        "results/M3/versions/",
+        "replay/M3/versions/",
+        "docs/iterations/I83.md"
+      ],
+      "tests": [
+        "tests_m3/test_versions_debt.py"
+      ],
+      "thresholds": {
+        "base": "00b12f70 (the lead after I28's build merge, PR #50)",
+        "base_commit": "00b12f7083ac3ed886c73af17a05a447edcc1f66",
+        "instrument": "tests_m3/_i83.py",
+        "instrument_sha256": "616d746a868b445043befce8abb3a755089b4f4234324c79e5dcb86b7a48238f",
+        "sidecar": "spec/M3/lib/inflight_search.json",
+        "sidecar_sha256": "d4824f65609026828c1e2df043d8ef87fe3dc0465d8d9748d35b35ae9220230e",
+        "contract_docstring_sha256": "db4a584fa345bc1230df473f2eede6e6dced50577dffda85c760833d7b674899",
+        "inputs_sha256": {
+          "spec/M3/lib/versions.json": "aa6ea949281bef01a33d052ab6c2fe1ad810a5074c0046ec53e3e63899097ac7",
+          "spec/M3/lib/versions_basis.json": "57730ee51a779d5f586ed3fc23203d70f63d5158c6c4f0b9224cc530f2fab9fb",
+          "gen/M3/sorts/models/morph_rollup.extracted.init.json": "814b34cefb89cd73e2ad265d3473220e6e36115d00e84738a85a0e2691da2014",
+          "gen/M3/versions/morph_rollup.versions.json": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
+          "gen/M3/history/morph_rollup.json": "a971bd42ed47ca8fa320384bab0b51f5832edf52c350582edc7ed008369427bc",
+          "tests_m3/_i28.py": "cf179cefb496b66a523bf83b691146f6f5e5b59bcd74ce665ff4adb306cb4286",
+          "tests_m3/test_versions.py": "1d65f8a9451bab387b1f7e5a1e8a709bab7ca5fa843afa36e747e40e7c859815",
+          "gen/M3/versions/models/morph_rollup.versions.init.json": "d9da65904ef9fc4693258f3b78a42283de831176732ffff29cdd0e3317d1361b"
+        },
+        "basis": {
+          "trace_labels": {
+            "V3->V4": [
+              "entry",
+              "initialize",
+              "importGenesisBatch",
+              "commitBatch",
+              "V3->V4"
+            ],
+            "V4->V5": [
+              "entry",
+              "initialize",
+              "importGenesisBatch",
+              "V3->V4",
+              "commitBatch",
+              "V4->V5"
+            ],
+            "V5->V6": [
+              "entry",
+              "initialize",
+              "importGenesisBatch",
+              "V3->V4",
+              "V4->V5",
+              "commitBatch",
+              "V5->V6"
+            ],
+            "V6->V7": [
+              "entry",
+              "initialize",
+              "importGenesisBatch",
+              "V3->V4",
+              "V4->V5",
+              "V5->V6",
+              "commitBatch",
+              "V6->V7"
+            ],
+            "V7->V8": [
+              "entry",
+              "initialize",
+              "importGenesisBatch",
+              "V3->V4",
+              "V4->V5",
+              "V5->V6",
+              "V6->V7",
+              "commitBatch",
+              "V7->V8"
+            ],
+            "V8->V9": [
+              "entry",
+              "initialize",
+              "importGenesisBatch",
+              "V3->V4",
+              "V4->V5",
+              "V5->V6",
+              "V6->V7",
+              "V7->V8",
+              "commitBatch",
+              "V8->V9"
+            ],
+            "V9->V10": [
+              "entry",
+              "initialize",
+              "importGenesisBatch",
+              "V3->V4",
+              "V4->V5",
+              "V5->V6",
+              "V6->V7",
+              "V7->V8",
+              "V8->V9",
+              "commitBatch",
+              "V9->V10"
+            ],
+            "V10->V11": [
+              "entry",
+              "initialize",
+              "importGenesisBatch",
+              "V3->V4",
+              "V4->V5",
+              "V5->V6",
+              "V6->V7",
+              "V7->V8",
+              "V8->V9",
+              "V9->V10",
+              "commitBatch",
+              "V10->V11"
+            ]
+          },
+          "trace_lengths": {
+            "V3->V4": 5,
+            "V4->V5": 6,
+            "V5->V6": 7,
+            "V6->V7": 8,
+            "V7->V8": 9,
+            "V8->V9": 10,
+            "V9->V10": 11,
+            "V10->V11": 12
+          },
+          "key": 1,
+          "stand_in": "0x5615deb798bb3e4dfa0139dfa1b3d433cc23b72f",
+          "cutover_legacy_reads": [
+            "Rollup.batchDataStore.signedSequencersBitmap",
+            "Rollup.l1StakingContract"
+          ],
+          "havoc_versions": [
+            "V3",
+            "V4",
+            "V5"
+          ],
+          "havoc_slots": {
+            "V3": "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66",
+            "V4": "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66",
+            "V5": "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66"
+          },
+          "replay_pass_edges": [
+            "V6->V7",
+            "V7->V8",
+            "V8->V9",
+            "V9->V10",
+            "V10->V11"
+          ],
+          "replay_one_slot_edges": [
+            "V3->V4",
+            "V4->V5",
+            "V5->V6"
+          ]
+        },
+        "model_debt_at_base": {
+          "V10": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ],
+          "V3": [
+            "commitBatch"
+          ],
+          "V4": [
+            "commitBatch"
+          ],
+          "V5": [
+            "commitBatch"
+          ],
+          "V6": [
+            "commitBatch"
+          ],
+          "V7": [
+            "commitBatch",
+            "commitBatchWithProof"
+          ],
+          "V8": [
+            "commitBatch",
+            "commitBatchWithProof"
+          ],
+          "V9": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ]
+        },
+        "i29_squares": [
+          "L_nat_sq_Rollup_V10_V11_batchDataStore_proveState",
+          "L_nat_sq_Rollup_V10_V11_submitterContract_challengeState",
+          "L_nat_sq_Rollup_V10_V11_submitterContract_proveState"
+        ],
+        "i29_prereg": "1cc8e13dc89032f0b3971ec8cd21a7463d971ef2 (PR #51, claude/brave-wright-2c5d0o-i29: rule N7, spec/M3/lib/nat.json search.max_trace 10)",
+        "lifecycle_kind": "model_extension",
+        "layered_laws_at_base": [
+          "L_pinit_Rollup_importGenesisBatch_committedBatches_17_9"
+        ],
+        "counted_predictions": [
+          "I83-P1",
+          "I83-P2",
+          "I83-P3",
+          "I83-P4",
+          "I83-P5",
+          "I83-P6"
+        ],
+        "construction_not_scored": [
+          "the lifecycle channel's rules X0-X5 (tests_m3/test_versions_debt.py::TestLifecycle: the coordinator's negative tests and their positive controls, red at the prereg)",
+          "the generic-code check (TestGenericCode)",
+          "the instruments (TestInstrument)"
+        ],
+        "not_adopted": {
+          "I28-P4": "not this debt: the D4 link gap's sites at V3..V5 are PI5's site rule over the frontend's documents, whose getCrossDomainMessage argument is loop-carried there; I83 changes neither the documents nor the analysis (R2), so I28-P4 stays I28's miss and is not re-predicted"
+        },
+        "decisions": {
+          "lifecycle": "the coordinator's decision of 2026-10-30 under the human's standing delegation, revocable: I83 adds model_extension rather than leaving G2 red or binding the laws to a second, less faithful module",
+          "record_fields": "X3 admits a constructor gaining fields (erased from every pattern and construction before comparing), beyond the coordinator's 'only new constructors are added': a V3..V10 module's HEnv gains e_blobs when its commits compile"
+        },
+        "amendments": {}
+      }
     }
   }
 }

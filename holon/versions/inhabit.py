@@ -4,18 +4,19 @@ deployed path (G11V's in-flight sets).
 An inhabitant is a trace from vr0 whose last two steps are a successful call of a successor site's action (PI1) of
 version a (a commit: the batch it commits is in flight at the upgrade) and the successful migration along a -> b (by
 upgradeToAndCall with the reinitializer the edge introduces, called with the sidecar's inflight_arguments, else
-upgradeTo). Its key is the batch index the last commit writes (the parent header's index plus one); its legacy words
-are the words every in-flight entry of the edge of kind retyped or reinterpreted reads that the change touches, at
-their real slots and layout coordinates, each nonzero in the state before the migration. Its INHABIT.bend
+upgradeTo). Its key is the mapping key of the commitment family's entry the commit writes; its legacy words are the
+words every in-flight entry of the edge of kind retyped or reinterpreted reads that the change touches, at their real
+slots and layout coordinates, each nonzero in the state before the migration. Its INHABIT.bend
 (holon.versions.proofs.inhabit_text) is checked by Bend, and by BendTT when the verdict is enabled.
 
-The prefix to version a is the sidecar's upgrade path up to a (the entry edge, the deployment record's first calls, the
-path's migrations with the upgrade path's arguments). The commit's candidates are the successor-site call candidates of
-holon.sorts' search over a's document, which drives I30's typed model (its ghost state); a version's module is model3's
-untyped model of its document (the frozen assignment covers the adopted document only), so no candidate generator runs
-over it: an edge whose source has a successor action in the versioned model is reported uninhabited with that reason,
-and an edge whose source has none (each a model debt of its version) with the compiler's reasons. Nothing is smoothed:
-every uninhabited edge is in results/<M>/versions/inflight.json with its reason.
+The trace (I83 rule IS1): the sidecar's upgrade path up to a (the entry edge, the deployment record's first calls, the
+path's migrations with the upgrade path's arguments), then the commit, then the migration a -> b. The commit is found by
+I83's candidate generator over a's untyped module (holon.versions.synth, rule IS2, with the search sidecar
+spec/<M>/lib/inflight_search.json): the successor-site actions of a in name order, each synthesized from its start by
+moves directed by the first failing check of its run on the versioned machine. Candidates are proposals; Bend decides.
+An edge whose source has no successor action in the versioned model (each a model debt of its version), whose search
+finds no successful commit, or whose INHABIT.bend a kernel rejects, is uninhabited with that reason. Nothing is
+smoothed: every edge is in results/<M>/versions/inflight.json with what was found or tried.
 """
 from __future__ import annotations
 
@@ -72,6 +73,7 @@ def successor_actions(m: Machine, vid: str) -> list:
 
 
 def edge_entry(m: Machine, a: str, b: str) -> dict:
+    """An uninhabited edge's entry when its source has no successor action in the versioned model, else None."""
     succ = successor_actions(m, a)
     compiled = [x for x in succ if x in m.actions(a)]
     base = {"edge": f"{a}->{b}", "trace": [], "key": None, "legacy": [], "bend": None, "verdict": None,
@@ -84,9 +86,77 @@ def edge_entry(m: Machine, a: str, b: str) -> dict:
                         + (f" (at {debt[x].get('record')}, {debt[x].get('src')})" if x in debt else "")
                         for x in succ)
         return dict(base, reason=f"no successor site action of {a} is in the versioned model (model debt): {why}")
-    return dict(base, reason=f"{a}'s successor actions {compiled} are in the versioned model, but their commit "
-                             "candidates come from holon.sorts' search, which drives I30's typed model; a version's "
-                             "module is untyped (model3 without the sort section), so no candidate was tried")
+    return None
+
+
+def commit_family(m: Machine, a: str) -> str | None:
+    """The commitment family of the successor sites of a's document (PI1; one family, else None)."""
+    from ..rules.par_init import chains
+    p, _rel = m.docs[a]
+    fams = sorted({f["family"] for f in chains(json.loads(p.read_text(encoding="utf-8")))["families"]
+                   if f["successor_sites"]})
+    return fams[0] if len(fams) == 1 else None
+
+
+def search_edge(ctx: Ctx, m: Machine, a: str, b: str, syn, log=None) -> tuple[dict, list]:
+    """(the edge's entry without the kernels' verdicts, the trace): rule IS1's trace with IS2's commit, or the reason
+    the edge has none."""
+    from . import PLACEHOLDER
+    from .machine import num
+    from .paths import action_of, migration
+    from .synth import committed_key
+    entry = edge_entry(m, a, b)
+    if entry is not None:
+        return entry, []
+    base = {"edge": f"{a}->{b}", "trace": [], "key": None, "legacy": [], "bend": None, "verdict": None,
+            "inhabited": False}
+    up = ctx.side["upgrade_path"]
+    calls = m.dep.get("calls") or []
+    v0 = m.path[0]
+    trace, kh = [], {}
+    state = m.initial()
+
+    def push(st: dict) -> dict:
+        nonlocal state
+        o = m.step(state, st)
+        trace.append(dict(st, ok=o["status"] == "ok"))
+        kh.update(o["kh"])
+        state = o["state"]
+        return o
+    push(m.migrate_step(PLACEHOLDER, v0, None))
+    for i in up["first_calls"]:
+        c = calls[i]
+        push(m.call_step(v0, action_of(m, v0, c["data"]), num(c["caller"]), c["data"]))
+    for x, y in zip(m.path, m.path[1:]):
+        if x == a:
+            break
+        push(migration(m, x, y, up["arguments"], state))
+    if not all(s["ok"] for s in trace) or state["version"] != a:
+        return dict(base, reason=f"the upgrade path's prefix to {a} does not run on the versioned machine"), trace
+    tried, step = [], None
+    for act in [x for x in successor_actions(m, a) if x in m.actions(a)]:
+        step, why = syn.synthesize(a, act, state, dict(kh))
+        if step is not None:
+            break
+        tried += [f"{act}: {w}" for w in why]
+    if step is None:
+        return dict(base, reason=f"no successful call of {a}'s successor-site actions was found",
+                    tried=tried), trace
+    o = push(step)
+    fam = commit_family(m, a)
+    key = committed_key(m, a, fam, o) if fam else None
+    args = dict(up["arguments"])
+    args.update({k: v for k, v in (ctx.side.get("inflight_arguments") or {}).items() if k != "doc"})
+    push(migration(m, a, b, args, state))
+    if not (trace[-2]["ok"] and trace[-1]["ok"]):
+        return dict(base, reason=f"the migration {a}->{b} after the commit fails on the versioned machine",
+                    trace=trace), trace
+    if key is None:
+        return dict(base, reason=f"the commit's key (the commitment family's entry it writes) is not found",
+                    trace=trace), trace
+    if log:
+        log(f"{a}->{b}: a trace of {len(trace)} steps, key {key}")
+    return dict(base, trace=trace, key=key), trace
 
 
 def inhabitant(ctx: Ctx, m: Machine, a: str, b: str, trace: list, key: int | None) -> tuple[str, list, list]:
@@ -191,31 +261,69 @@ def clause(milestone: str, root, cfg=None) -> tuple[bool, str] | None:
 
 
 def build(ctx: Ctx, log=None) -> tuple[dict, dict]:
-    """(inflight.json's document, {relative path of an INHABIT.bend: text})."""
+    """(inflight.json's document without the kernels' verdicts, {relative path of an INHABIT.bend: text})."""
+    from .synth import Synth, load_side
     m = Machine(ctx)
     try:
+        syn = Synth(m, load_side(ctx), log=log)
         edges, files = [], {}
         for a, b in zip(m.path, m.path[1:]):
-            x = edge_entry(m, a, b)
+            x, trace = search_edge(ctx, m, a, b, syn, log)
+            if x.get("trace") and x.get("key") is not None and "reason" not in x:
+                text, legacy, _outs = inhabitant(ctx, m, a, b, x["trace"], x["key"])
+                x["legacy"] = legacy
+                rel = f"{ctx.out('inflight_dir')}/{a}_{b}/INHABIT.bend"
+                files[rel] = text
+                x["file"] = rel
+                if any(int(w["word"], 16) == 0 for w in legacy):
+                    x["reason"] = "a legacy word is zero before the migration"
+                    files.pop(rel)
+                    x.pop("file")
             edges.append(x)
             if log:
-                log(f"{a}->{b}: {'inhabited' if x['inhabited'] else 'not inhabited: ' + x['reason'][:160]}")
+                log(f"{a}->{b}: {'a candidate inhabitant' if 'file' in x else 'not inhabited: ' + x['reason'][:160]}")
         return {"inflight_version": INFLIGHT_VERSION, "edges": edges}, files
     finally:
         m.close()
 
 
+def kernels(ctx: Ctx, doc: dict, cfg=None, log=None) -> dict:
+    """Each candidate's INHABIT.bend checked by Bend and, when the verdict is enabled, by BendTT: the edge is inhabited
+    only when they accept it (its entry records both runs)."""
+    from .. import bend
+    out = []
+    for x in doc["edges"]:
+        x = dict(x)
+        rel = x.pop("file", None)
+        if rel is not None:
+            f = ctx.root / rel
+            r = bend.check(f, cfg)
+            x["bend"] = {"exit_code": r.code, "marker": r.marker}
+            v = bend.check_verdict(f, cfg) if bend.verdict_enabled(cfg) else None
+            x["verdict"] = {"exit_code": v.code, "marker": v.marker} if v is not None else None
+            ok = r.ok and (v is None or v.ok)
+            x["inhabited"] = ok
+            x["reason"] = None if ok else (f"INHABIT.bend rejected by bend: {r.first_line[:200]}" if not r.ok else
+                                           f"INHABIT.bend rejected by BendTT: {v.first_line[:200]}")
+            if log:
+                log(f"{x['edge']}: bend {r.marker} ({r.seconds:.1f}s)"
+                    + (f", BendTT {v.marker} ({v.seconds:.1f}s)" if v is not None else ""))
+        x.setdefault("reason", None)
+        out.append(x)
+    return {"inflight_version": doc["inflight_version"], "edges": out}
+
+
 def run(ctx: Ctx, check: bool) -> int:
-    doc, files = build(ctx, log=lambda s: print(f"holon versions inhabit: {s}"))
+    log = (lambda s: print(f"holon versions inhabit: {s}", flush=True))
+    doc, files = build(ctx, log=log)
     target = ctx.root / ctx.out("inflight_results")
     out_dir = ctx.root / ctx.out("inflight_dir")
-    data = render(doc)
     if check:
-        ok = write_or_check(target, data, True)
         have = sorted(p.relative_to(ctx.root).as_posix() for p in out_dir.rglob("INHABIT.bend")) \
             if out_dir.is_dir() else []
-        ok = ok and have == sorted(files) and all(write_or_check(ctx.root / r, t.encode("utf-8"), True)
-                                                  for r, t in files.items())
+        ok = have == sorted(files) and all(write_or_check(ctx.root / r, t.encode("utf-8"), True)
+                                           for r, t in files.items())
+        ok = ok and write_or_check(target, render(kernels(ctx, doc, log=log)), True)
         print(f"holon versions inhabit: {'reproduces' if ok else 'differs from a fresh run'}")
         return 0 if ok else 1
     if out_dir.is_dir():
@@ -224,8 +332,8 @@ def run(ctx: Ctx, check: bool) -> int:
                 shutil.rmtree(p.parent, ignore_errors=True)
     for r, t in files.items():
         write_or_check(ctx.root / r, t.encode("utf-8"), False)
-    write_or_check(target, data, False)
+    doc = kernels(ctx, doc, log=log)
+    write_or_check(target, render(doc), False)
     n = sum(1 for e in doc["edges"] if e["inhabited"])
     print(f"holon versions inhabit: in-flight: {n} of {len(doc['edges'])} edges inhabited -> {ctx.out('inflight_results')}")
     return 0
-
