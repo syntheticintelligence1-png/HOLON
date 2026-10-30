@@ -1,0 +1,168 @@
+{
+ "by_member_action": {
+  "rollup": {
+   "challengeState": {
+    "ok": 41,
+    "revert": 28
+   },
+   "commitBatch": {
+    "ok": 597,
+    "revert": 341
+   },
+   "commitBatchWithProof": {
+    "ok": 18,
+    "revert": 114
+   },
+   "commitState": {
+    "ok": 7,
+    "revert": 217
+   },
+   "finalizeBatch": {
+    "ok": 11,
+    "revert": 104
+   },
+   "proveCommittedBatchState": {
+    "ok": 14,
+    "revert": 52
+   },
+   "proveState": {
+    "ok": 3,
+    "revert": 96
+   },
+   "revertBatch": {
+    "ok": 55,
+    "revert": 13
+   },
+   "setPause": {
+    "ok": 111,
+    "revert": 12
+   }
+  },
+  "router": {
+   "getVerifier": {
+    "ok": 92,
+    "revert": 1
+   },
+   "initialize": {
+    "ok": 4,
+    "revert": 60
+   },
+   "legacyVerifiersLength": {
+    "ok": 77,
+    "revert": 0
+   },
+   "owner": {
+    "ok": 59,
+    "revert": 0
+   },
+   "renounceOwnership": {
+    "ok": 19,
+    "revert": 47
+   },
+   "transferOwnership": {
+    "ok": 12,
+    "revert": 55
+   },
+   "updateVerifier": {
+    "ok": 17,
+    "revert": 75
+   },
+   "verifyAggregateProof": {
+    "ok": 9,
+    "revert": 62
+   }
+  }
+ },
+ "corpus": {
+  "path": "gen/M3/bundle2/corpus.json",
+  "sha256": "713e9e552a55da50264b6c8815e67209e34d9d1db0cc0e27b8b722860c17d7b0",
+  "sources": {
+   "m1": 300,
+   "random": 60,
+   "seed": 5
+  }
+ },
+ "disagreements": [
+  {
+   "class": "unexplained",
+   "id": "b2-3b07db4da0183911",
+   "links": {}
+  },
+  {
+   "class": "unexplained",
+   "id": "b2-eef27270e9ed9fd0",
+   "links": {}
+  }
+ ],
+ "frames_ok": {
+  "rollup": {
+   "challengeState": 41,
+   "commitBatch": 597,
+   "commitBatchWithProof": 18,
+   "commitState": 7,
+   "finalizeBatch": 11,
+   "proveCommittedBatchState": 14,
+   "proveState": 3,
+   "revertBatch": 55,
+   "setPause": 111
+  },
+  "router": {
+   "getVerifier": 92,
+   "initialize": 4,
+   "legacyVerifiersLength": 77,
+   "owner": 59,
+   "renounceOwnership": 19,
+   "transferOwnership": 12,
+   "updateVerifier": 17,
+   "verifyAggregateProof": 44
+  }
+ },
+ "links_ok": [
+  [
+   "rollup",
+   "commitBatchWithProof",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   18
+  ],
+  [
+   "rollup",
+   "proveCommittedBatchState",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   14
+  ],
+  [
+   "rollup",
+   "proveState",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   3
+  ],
+  [
+   "router",
+   "updateVerifier",
+   "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149",
+   "IRollup.lastFinalizedBatchIndex",
+   17
+  ]
+ ],
+ "observables": [
+  "status",
+  "revert",
+  "return",
+  "storage",
+  "logs",
+  "frames"
+ ],
+ "refinement_version": "holon-bundle2-refinement/0.1",
+ "steps": 2423,
+ "toolchain": {
+  "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+  "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+  "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+ },
+ "traces": 365,
+ "unexplained": 2,
+ "unsupported": 2
+}
