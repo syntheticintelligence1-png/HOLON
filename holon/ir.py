@@ -74,6 +74,8 @@ def check_binder_types(law: dict, facts: dict | None) -> None:
         types = set(facts.get("carriers", {}))
     if (facts or {}).get("goops_version") == "holon-goops/0.1":     # a Go-op document (I67): its interface carrier
         types = {(facts.get("carrier") or {}).get("id")}
+    if (facts or {}).get("own_version") == "holon-own/0.1":   # an OWN carrier document (I35, W8): its type's calls, values
+        types = {f"{k}_{facts.get('stem')}" for k in ("Call", "Val")}
     for b in law.get("statement", {}).get("binders", []):
         t = str(b.get("type", ""))
         if t in BASE_TYPES or t.startswith("Fn<") or re.fullmatch(r"Bytes\([0-9]+\)", t):
@@ -252,6 +254,9 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I27): an UNDO term, the undo law of the pair or residue ID over the law's binders (holon.rules.undo)
     if "undo" in t and isinstance(t.get("on"), list):
         return f"undo_ok[{t['undo']}]({', '.join(render_term(a) for a in t['on'])})"
+    # holon-ir/0.3 (I35): an OWN term, the alias or lost-write law ID over the law's binders (holon.rules.own)
+    if "own" in t and isinstance(t.get("on"), list):
+        return f"own_ok[{t['own']}]({', '.join(render_term(a) for a in t['on'])})"
     # holon-ir/0.3 (I65): a ghost counter, the sum of E over the successful A steps of T run from S
     if isinstance(t.get("ghost"), str) and "over" in t:
         from .diagram.access import render as render_expr

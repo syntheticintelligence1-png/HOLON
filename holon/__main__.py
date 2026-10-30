@@ -228,6 +228,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["codecs"]:  # likewise for holon.diagram.linked (the linked codec layer, I24)
         from .diagram import linked
         return linked.main(argv[1:])
+    if argv[:1] == ["own"]:  # likewise for holon.own (rule OWN's carrier documents, I35)
+        from . import own
+        return own.main(argv[1:])
     if argv[:1] == ["replay-go"]:  # likewise for holon.goreplay (the Go-op laws' replay on the real code, I67)
         from . import goreplay
         return goreplay.main(argv[1:])

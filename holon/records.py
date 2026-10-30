@@ -200,7 +200,8 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
     """The ledger's bundles, the "bundles" of every milestone ledger spec/M<n>/ledger.json (a document first
     modelled at that milestone, I20: the extracted model's), plus the bundles of a sidecar ledger.json next to a
     facts file (a fixture or a target outside spec/ may carry its own ledger; I6), and the generated bundle of a facts
-    file that is a linked codec document (I24), a Go-op document (I67) or a window view (I65). With a milestone, a
+    file that is a linked codec document (I24), a Go-op document (I67), an OWN carrier document (I35) or a window view
+    (I65). With a milestone, a
     bundle extended by
     spec/<milestone>/ledger.json (milestone_extensions) carries the extension's no_assumption groups too."""
     out = list(load_ledger(root)["bundles"])
@@ -212,6 +213,7 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
             out += json.loads(side.read_text(encoding="utf-8"))["bundles"]
         out += _linked_bundles(Path(root), facts_path)
         out += _goops_bundles(Path(root), facts_path)
+        out += _own_bundles(Path(root), facts_path)
         out += _window_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
     for i, b in enumerate(out):
@@ -262,6 +264,27 @@ def _goops_bundles(root: Path, facts_path) -> list[dict]:
     if not is_goops(doc):
         return []
     from .gen.goloop import declared_bundle
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
+        else str(facts_path)
+    return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
+
+
+def _own_bundles(root: Path, facts_path) -> list[dict]:
+    """I35 (rule W11 of tests_m3/test_own.py): the bundle of an OWN carrier document (holon.own), generated from it by
+    holon.gen.ownheap.declared_bundle: the assumptions its Go document declares and the heap model's A-go-growth,
+    A-own-fields and A-own-len. Never hand-written: the document is itself generated (holon own)."""
+    p = Path(root) / facts_path
+    if p.suffix != ".json" or not p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+    except (OSError, ValueError):
+        return []
+    from .own import is_own
+    if not is_own(doc):
+        return []
+    from .gen.ownheap import declared_bundle
     rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
         else str(facts_path)
     return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]

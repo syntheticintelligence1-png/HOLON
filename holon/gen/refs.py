@@ -396,6 +396,10 @@ class _Closure:
             self.undo(t["undo"])
             self.term(t["on"])
             return
+        if isinstance(t.get("own"), str) and isinstance(t.get("on"), list):   # an OWN term (I35)
+            self.own(t["own"])
+            self.term(t["on"])
+            return
         for v in t.values():
             self.term(v)
 
@@ -459,6 +463,18 @@ class _Closure:
         self.tmpl("step")
         for n in sorted(self.acts):
             self.action(n)
+
+    def own(self, oid: str) -> None:
+        """own:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the alias or lost-write
+        basis ID (holon.rules.own.own_ref), recomputed from the law's carrier document; and the entries of the
+        document's methods the basis names (method:<name>, without source and span)."""
+        if "own:" + oid in self.out:
+            return
+        from ..rules.own import own_ref
+        self.out["own:" + oid] = own_ref(oid, self.law, self.root)
+        for m, e in sorted((self.f.get("methods") or {}).items()):
+            if isinstance(e, dict):
+                self.put("method:" + m, {k: v for k, v in e.items() if k not in ("source", "span")})
 
     def site(self, sid: str) -> None:
         """site:<ID>: the site's spec (holon.sorts.sites.site_ref), from the facts, their library and the sidecar."""
