@@ -384,7 +384,10 @@ def rec(lid: str) -> dict:
 
 
 def disch_laws(root: Path = ROOT, m: str = M3) -> dict[str, dict]:
-    return {p.stem: load_json(p) for p in sorted((root / "laws" / m).glob("L_disch_*.json"))}
+    """The DISCH laws but those of sub-form self_controlled (amended at I84's build, spec/M3/amendments.jsonl: I84's law
+    over I80's bundle declaration, which I31's checks never covered)."""
+    laws = {p.stem: load_json(p) for p in sorted((root / "laws" / m).glob("L_disch_*.json"))}
+    return {k: v for k, v in laws.items() if v.get("subform") != "self_controlled"}
 
 
 def derivation(root: Path = ROOT, m: str = M3) -> dict[str, dict]:
