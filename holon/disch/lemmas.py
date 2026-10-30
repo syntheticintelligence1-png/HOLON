@@ -277,6 +277,21 @@ def st_frame(s: M.HSt, +kw: M.SK, +v: M.W, +k: M.SK, ne1: {M.sk_eq(kw, k) == Fal
     case M.HSt{sl}:
       kv_frame(sl, kw, v, False{}, k, ne1, ne2)
 
+# a boolean and its negation (the key split's facts)
+def not_t(+x: Bool, e: {Bool.not(x) == True{} : Bool}) -> {x == False{} : Bool}:
+  match x:
+    case True{}:
+      efq({True{} == False{} : Bool}, false_ne_true(e))
+    case False{}:
+      {==}
+
+def f_not(+x: Bool, e: {x == False{} : Bool}) -> {Bool.not(x) == True{} : Bool}:
+  match x:
+    case True{}:
+      efq({Bool.not(True{}) == True{} : Bool}, true_ne_false(e))
+    case False{}:
+      {==}
+
 # the key split: two keys differ when the first of their words compared differently does (the comparisons before it
 # evaluate to True); the symmetry of a word disequality, w_ne_sym, follows w_eq_self (holon.disch.order)
 def sp_ne_o(+ak: M.W, +ao: M.W, +bk: M.W, +bo: M.W, e: {M.w_eq(ao, bo) == False{} : Bool}) -> {M.sp_eq(M.SP_m{ak, ao}, M.SP_m{bk, bo}) == False{} : Bool}:

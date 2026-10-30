@@ -326,6 +326,10 @@ def _store_sk(prefix: str) -> list[str]:
         f"{{{P}w_eq(_, b) == False{{}} : Bool}}\n      e))))\n    case False{{}}:\n      {{==}}\n",
         f"def w_ne_sym(+a: {W}, +b: {W}, e: {{{P}w_eq(a, b) == False{{}} : Bool}}) -> {{{P}w_eq(b, a) == False{{}} : "
         f"Bool}}:\n  w_ne_sym_c({P}w_eq(b, a), a, b, e, {{==}})\n",
+        # a store at a key equal to k (sk_eq true) is read back at k
+        f"def st_same_k(s: {P}HSt, +kw: {P}SK, +v: {W}, +k: {P}SK, e: {{{P}sk_eq(kw, k) == True{{}} : Bool}}) -> "
+        f"{{{P}sload({P}sstore(s, kw, v), k) == v : {W}}}:\n  (%sk_refl(kw, k, e) : {{{P}sload({P}sstore(s, kw, v), _) == v "
+        f": {W}}}\n  st_same(s, kw, v))\n",
     ]
 
 

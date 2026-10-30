@@ -46,6 +46,15 @@ class NoProof(ValueError):
     """The route does not apply (named)."""
 
 
+class NeedSplit(NoProof):
+    """(I68) A store's key meets one of B's keys in the words (x, y) and no fact in scope decides w_eq(x, y): a route
+    that may split the path there (holon.sorts.tag_exact) catches it."""
+
+    def __init__(self, x: str, y: str):
+        super().__init__(f"a store meets B's key where {x[:80]} and {y[:80]} may be equal")
+        self.x, self.y = x, y
+
+
 _CONN = {"Bool.and": 2, "Bool.or": 2, "Bool.not": 1}
 
 
@@ -349,6 +358,40 @@ def sk_ne_proof(kw: str, k: str, hyp: str) -> str | None:
     return f"sk_ne_p({args}, {{==}}, {{==}}, {rest})" if rest else None
 
 
+def sk_eq_proof(kw: str, k: str, hyp: str) -> str | None:
+    """A proof of {sk_eq(kw, k) == True} from hyp : {w_eq(x, y) == True}, (x, y) key_cmp's stuck pair (x of kw), every
+    other comparison evaluating to True (and_intro over sk_eq's conjunctions); None otherwise."""
+    pa, pb = sk_parts(kw), sk_parts(k)
+    if pa is None or pb is None or len(pa[2]) != len(pb[2]):
+        return None
+    pairs = [(pa[0], pb[0]), (pa[1], pb[1])] + [q for (k1, o1), (k2, o2) in zip(pa[2], pb[2]) for q in ((o1, o2), (k1, k2))]
+    used = False
+    pfs = []
+    for x, y in pairs:
+        a, b = literal_word(x), literal_word(y)
+        if a is not None and b is not None and a == b:
+            pfs.append("{==}")
+        elif not used and (a is None or b is None):
+            pfs.append(hyp)
+            used = True
+        else:
+            return None
+    # sk_eq: and(w_eq(b), and(w_eq(o), sps)); sps: and(sp_eq, sps_rest) per step, Nil: True; sp_eq: and(w_eq(o), w_eq(k))
+    def sps(i: int) -> tuple[str, str]:
+        if i == len(pa[2]):
+            return "M.sps_eq(Nil{}, Nil{})", "{==}"
+        (k1, o1), (k2, o2) = pa[2][i], pb[2][i]
+        sp = f"M.sp_eq(M.SP_m{{{k1}, {o1}}}, M.SP_m{{{k2}, {o2}}})"
+        spp = f"and_intro(M.w_eq({o1}, {o2}), M.w_eq({k1}, {k2}), {pfs[2 + 2 * i]}, {pfs[3 + 2 * i]})"
+        rest, rp = sps(i + 1)
+        xs, ys = _sps_text(pa[2][i + 1:]), _sps_text(pb[2][i + 1:])
+        return (f"M.sps_eq({_sps_text(pa[2][i:])}, {_sps_text(pb[2][i:])})",
+                f"and_intro({sp}, M.sps_eq({xs}, {ys}), {spp}, {rp})")
+    st, sp_pf = sps(0)
+    return (f"and_intro(M.w_eq({pa[0]}, {pb[0]}), Bool.and(M.w_eq({pa[1]}, {pb[1]}), {st}), {pfs[0]}, "
+            f"and_intro(M.w_eq({pa[1]}, {pb[1]}), {st}, {pfs[1]}, {sp_pf}))")
+
+
 def stores(term: str, base: str) -> list | None:
     """[(key, value)..] when term is sstore(..sstore(base, k1, v1).., kn, vn) (innermost first), else None."""
     out = []
@@ -448,6 +491,8 @@ class ActionProof:
         self.nb_count = 0
         self.br_count = 0
         self.loops: dict = {}               # loop L -> its LoopProof (I68, the loop frames L1)
+        self.splits = False                 # a stuck store raises NeedSplit (I68: holon.sorts.tag_exact's step lemmas)
+        self.loop_extra: list = []          # [(name, type)]: variables B's keys mention besides st (I68, tag_exact's k)
 
     # ------------------------------------------------------------------ text pieces
     def hb_param(self) -> str:
@@ -583,16 +628,22 @@ class ActionProof:
             inv_params = "".join(f", +{x}: {{M.sload({cur['ov']}, {k}) == {r} : M.W}}"
                                  for (x, r), k in zip(invs, self.keys))
         vp = "".join(f", +v_{f}: {self.types[self.fields.index(f)]}" for f in self.var_fields)
+        lp, la = self.local_params(invs)
         self.defs.append(
-            f"def {name}(c: Bool, {self.fixed_params()}{vp}{self.hb_param()}{inv_params}"
+            f"def {name}(c: Bool, {self.fixed_params()}{vp}{lp}{self.hb_param()}{inv_params}"
             f"{self.carried_params([c for _x, c in carried])}, ec: {{{br.cond} == c : Bool}}) "
             f"-> {self.goal(f'{fn}(c, {args})')}:\n"
             f"  match c:\n    case True{{}}:\n      {then_term}\n    case False{{}}:\n      {else_term}\n")
-        call_args = self.fixed_args() + "".join(f", {cur[f]}" for f in self.var_fields) + self.hb_arg()
+        call_args = self.fixed_args() + "".join(f", {cur[f]}" for f in self.var_fields) + la + self.hb_arg()
         if self.tracks:
             call_args += "".join(f", {x}" for x, _r in invs)
         call_args += "".join(f", {x}" for x, _c in carried)
         return f"{name}({br.cond}, {call_args}, {{==}})"
+
+    def local_params(self, invs: list) -> tuple[str, str]:
+        """(params, args) of the lemma-local words the invariants' right sides name (I68: tag_exact's transported
+        words); the DISCH routes have none."""
+        return "", ""
 
     def convoy(self, br: Branch, carried: tuple) -> bool:
         """(I68, the convoy) Is a passed check's equation carried down the chain? On the frame route over a structural
@@ -605,6 +656,19 @@ class ActionProof:
             return False
         bases = {sk_parts(k)[0] for k in self.keys if sk_parts(k) and sk_parts(k)[2]}
         return any(f"M.sload(st, M.SK{{{b}," in br.cond for b in bases)
+
+    @staticmethod
+    def split_fact(at: tuple, carried: tuple):
+        """("eq", {w_eq(x, y) == True}) or ("ne", {w_eq(x, y) == False}) when a carried fact decides the words (x, y) =
+        at (a split's or a passed check's), else None."""
+        x, y = at
+        for pc, cond in carried:
+            c = cond.strip()
+            if c == f"M.w_eq({x}, {y})":
+                return "eq", pc
+            if c == f"Bool.not(M.w_eq({x}, {y}))":
+                return "ne", f"not_t(M.w_eq({x}, {y}), {pc})"
+        return None
 
     def nb_for(self, atoms: list, sb: str, sc: str, imps: list) -> str:
         """The boolean lemma of a contradiction (one per skeletons and implications)."""
@@ -687,7 +751,22 @@ class ActionProof:
                                   "or array slot goes through the law's keccak256 parameter, which the statement leaves "
                                   "unconstrained, so no frame separates it from B's slots")
                 fr = f"st_frame({o}, {kw}, {v}, {K}, {{==}}, {{==}})"
-                if rel == "stuck":
+                fact = self.split_fact(at, carried) if rel == "stuck" and self.splits else None
+                if fact is not None and fact[0] == "eq":   # (I68, tag_exact) a split's fact: the store is at B's key
+                    keq = sk_eq_proof(kw, K, fact[1])
+                    if keq is None:
+                        raise NoProof(f"{self.action}: the store at {kw.strip()[:120]} meets B's key {K[:120]} in more "
+                                      "than the split words")
+                    o2 = f"M.sstore({o}, {kw}, {v})"
+                    proof, rhs = f"st_same_k({o}, {kw}, {v}, {K}, {keq})", v.strip()
+                    o = o2
+                    continue
+                if fact is not None:                        # (I68, tag_exact) a split's fact: the keys differ
+                    ne1, ne2 = sk_ne_proof(kw, K, fact[1]), sk_ne_proof(K, kw, f"w_ne_sym({at[0]}, {at[1]}, {fact[1]})")
+                    fr = f"st_frame({o}, {kw}, {v}, {K}, {ne1}, {ne2})" if ne1 and ne2 else None
+                elif rel == "stuck":
+                    if self.splits:
+                        raise NeedSplit(*at)
                     fr = self.key_split(o, kw, v, K, at, carried) if self.route == "frame" else None
                 if fr is None and self.route == "loop":
                     raise NoProof(f"{self.action}: its loop {self.L} stores at {kw.strip()[:160]}, which B's key {K} "
@@ -875,12 +954,12 @@ class ActionProof:
         ip = "".join(f", +i{j}: {{M.sload(o1, {k}) == {r} : M.W}}" for j, (k, (_x, r)) in enumerate(zip(keys, new_invs)))
         pat = f"{X}{{{', '.join('+' + ys[f] for f in self.fields)}}}"
         self.defs.append(f"def {name}({self.fixed_params()}, +o1: M.HSt, y: {X}{self.hb_param()}{ip}"
-                         f"{self.carried_params(conds)}, +hy: {{{lp.ob}(st, y) == {obs_x} : {lp.O}}}) -> "
+                         f"{self.carried_params(conds)}, +hy: {{{lp.ob}(st{lp.xa}, y) == {obs_x} : {lp.O}}}) -> "
                          f"{self.goal(f'M.la_{self.ab}_{node.n}(M.u_nz(M.gx_{self.ab}_cd(y)), y)')}:\n"
                          f"  match y:\n    case {pat}:\n      {body}\n")
         ls = f"M.ls_{self.ab}_{node.L}({X}{{{', '.join(node.rec.fields)}}})"
         y = f"M.lp_{self.ab}_{node.L}({node.fuel}, {node.d}, {ls})"
-        hy = f"{lp.lp}({node.fuel}, {node.d}, st, {ls}, {lp.ob}(st, {ls}), {{==}})"
+        hy = f"{lp.lp}({node.fuel}, {node.d}, st{lp.xa}, {ls}, {lp.ob}(st{lp.xa}, {ls}), {{==}})"
         call = f"{name}({self.fixed_args()}, {vals['ov']}, {y}{self.hb_arg()}"
         call += "".join(f", {x}" for x, _r in new_invs) + "".join(f", {x}" for x, _c in carried) + f", {hy})"
         return call
@@ -904,7 +983,8 @@ class ActionProof:
 
     def loop_proof(self, L: int) -> "LoopProof":
         if L not in self.loops:
-            lp = LoopProof(self.g, self.action, L, self.keys if self.tracks else [], f"{self.p}L{L}")
+            lp = LoopProof(self.g, self.action, L, self.keys if self.tracks else [], f"{self.p}L{L}",
+                           self.loop_extra if self.tracks else [])
             self.loops[L] = lp
             self.defs += lp.lemmas()
         return self.loops[L]
@@ -923,9 +1003,12 @@ class LoopProof(ActionProof):
     a record whose fixed fields are the context's and whose overlay keeps the words at the keys (frames by
     evaluation, as the frame route: a store at one of the keys is refused). Nothing here names a target."""
 
-    def __init__(self, g: Gen, action: str, L: int, keys: list, prefix: str):
+    def __init__(self, g: Gen, action: str, L: int, keys: list, prefix: str, extra: list = ()):
         self._common(g, action, "loop", prefix)
         self.tag = None
+        # variables the keys mention besides st (I68, tag_exact's step key k): parameters of every lemma and of ob
+        self.xp = "".join(f", +{n}: {t}" for n, t in extra)
+        self.xa = "".join(f", {n}" for n, _t in extra)
         self.time = False
         self.T = "t"
         self.L = L
@@ -960,17 +1043,17 @@ class LoopProof(ActionProof):
         return ""
 
     def fixed_params(self) -> str:
-        return f"+st: M.HSt, +ar: M.AR_{self.ab}, +e: M.HEnv{self.g.tparams}, +o0: M.HSt, +s0: M.HSt"
+        return f"+st: M.HSt, +ar: M.AR_{self.ab}, +e: M.HEnv{self.g.tparams}, +o0: M.HSt, +s0: M.HSt{self.xp}"
 
     def fixed_args(self) -> str:
-        return f"st, ar, e{self.g.targs}, o0, s0"
+        return f"st, ar, e{self.g.targs}, o0, s0{self.xa}"
 
     def goal(self, x: str) -> str:
         """The observation of x, or of lb's result for a term of the body's statement chain."""
         head = re.match(r"M\.(\w+)\(", x.strip())
         own = head is not None and head.group(1).startswith(tuple(f"{q}_{self.ab}_" for q in LOOP_PARTS))
         t = x if own else f"{self.lb}({x})"
-        return f"{{{self.ob}(s0, {t}) == {self.ref()} : {self.O}}}"
+        return f"{{{self.ob}(s0{self.xa}, {t}) == {self.ref()} : {self.O}}}"
 
     def emit(self, node, cur: dict, invs: list, nonzero: str | None = None, carried: tuple = ()) -> str:
         if isinstance(node, Next):    # the body's chain (in lb: its result goes through the loop's exit)
@@ -1007,7 +1090,7 @@ class LoopProof(ActionProof):
         pat = f"{X}{{{', '.join('+' + v for v in names)}}}"
         comps = [f"x_{f}" for f in self.fixed_order] + [f"M.sload(x_ov, {k})" for k in self.keys]
         out = [f"type {self.O} is Data:\n  {self.O}{{{', '.join(f'f{i}: {t}' for i, t in enumerate(tys))}}}\n",
-               f"def {self.ob}(+s0: M.HSt, r: {X}) -> {self.O}:\n  match r:\n    case {pat}:\n      {self.obs(comps[:len(self.fixed_order)], comps[len(self.fixed_order):])}\n"]
+               f"def {self.ob}(+s0: M.HSt{self.xp}, r: {X}) -> {self.O}:\n  match r:\n    case {pat}:\n      {self.obs(comps[:len(self.fixed_order)], comps[len(self.fixed_order):])}\n"]
         gs = ", ".join(f"+a{i}" for i in range(len(tys)))
         for i, t in enumerate(tys):
             out.append(f"def {self.getter(i)}(o: {self.O}) -> {t}:\n  match o:\n    case {self.O}{{{gs}}}:\n      a{i}\n")
@@ -1022,24 +1105,25 @@ class LoopProof(ActionProof):
                          f"{self.goal(f'M.li_{self.ab}_{self.L}({X}{{{', '.join(rec)}}})')}:\n  {body}\n")
         xrec = f"{X}{{{', '.join(names)}}}"
         targs = "".join(f", x_{n}" for n in self.g.tabs)
-        call = (f"{top}(x_st, x_ar, x_en{targs}, x_ov, s0" + "".join(f", x_{f}" for f in self.var_fields)
+        call = (f"{top}(x_st, x_ar, x_en{targs}, x_ov, s0{self.xa}" + "".join(f", x_{f}" for f in self.var_fields)
                 + ", {==}" * len(self.keys) + ")")
-        li = (f"def {self.p}_li(+s0: M.HSt, +x: {X}, +o: {self.O}, h: {{{self.ob}(s0, x) == o : {self.O}}}) -> "
-              f"{{{self.ob}(s0, M.li_{self.ab}_{self.L}(x)) == o : {self.O}}}:\n  match x:\n    case {pat}:\n"
-              f"      Equal.trans({self.O}, {self.ob}(s0, M.li_{self.ab}_{self.L}({xrec})), {self.ob}(s0, {xrec}), o, "
+        s0x = f"s0{self.xa}"
+        li = (f"def {self.p}_li(+s0: M.HSt{self.xp}, +x: {X}, +o: {self.O}, h: {{{self.ob}({s0x}, x) == o : {self.O}}}) -> "
+              f"{{{self.ob}({s0x}, M.li_{self.ab}_{self.L}(x)) == o : {self.O}}}:\n  match x:\n    case {pat}:\n"
+              f"      Equal.trans({self.O}, {self.ob}({s0x}, M.li_{self.ab}_{self.L}({xrec})), {self.ob}({s0x}, {xrec}), o, "
               f"{call}, h)\n")
         ld = f"M.gx_{self.ab}_ld{self.L}"
         if f"gx_{self.ab}_ld{self.L}" not in self.mi.defs:
             raise NoProof(f"{self.action}: its loop {self.L} has no direction field ld{self.L}")
-        lp = (f"def {self.lp}(f: Nat, +d: Nat, +s0: M.HSt, +x: {X}, +o: {self.O}, h: {{{self.ob}(s0, x) == o : "
-              f"{self.O}}}) -> {{{self.ob}(s0, M.lp_{self.ab}_{self.L}(f, d, x)) == o : {self.O}}}:\n"
+        lp = (f"def {self.lp}(f: Nat, +d: Nat, +s0: M.HSt{self.xp}, +x: {X}, +o: {self.O}, h: {{{self.ob}({s0x}, x) == o : "
+              f"{self.O}}}) -> {{{self.ob}({s0x}, M.lp_{self.ab}_{self.L}(f, d, x)) == o : {self.O}}}:\n"
               f"  match f:\n    case 0n:\n      match d:\n        case 0n:\n          h\n        case 1n+q:\n"
               f"          match q:\n            case 0n:\n              match x:\n                case {pat}:\n"
               f"                  h\n            case 1n+s:\n              h\n"
               f"    case 1n+r:\n      match d:\n        case 0n:\n          h\n        case 1n+q:\n"
               f"          match q:\n            case 0n:\n"
-              f"              {self.lp}(r, {ld}(M.li_{self.ab}_{self.L}(x)), s0, M.li_{self.ab}_{self.L}(x), o, "
-              f"{self.p}_li(s0, x, o, h))\n            case 1n+s:\n              h\n")
+              f"              {self.lp}(r, {ld}(M.li_{self.ab}_{self.L}(x)), {s0x}, M.li_{self.ab}_{self.L}(x), o, "
+              f"{self.p}_li({s0x}, x, o, h))\n            case 1n+s:\n              h\n")
         return out + self.defs + [li, lp]
 
 
@@ -1213,7 +1297,7 @@ def law_proof(g: Gen, law: dict, model_import: str, section_import: str, laws_im
     if g.sec.blk[tag]["time"]:
         # time monotonicity: B at the premise's t, with t <= time(e), gives B at time(e), where every route states it
         tm = TimeMono(g, tag, "tl_blk")
-        defs += tm.defs + [NOT_LEMMAS]
+        defs += tm.defs + ([] if g.sk else [NOT_LEMMAS])   # (the structural library holds not_t and f_not)
     for i, act in enumerate(sorted(members)):
         ab = bname(act)
         p = f"r{i}"
