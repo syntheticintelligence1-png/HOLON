@@ -5389,6 +5389,122 @@
         ]
       }
     },
+    "I29": {
+      "title": "I29: rule NAT over I28's versioned machine (catalog holon-rules/1.8): naturality squares across the deployed path's MIG edges for the operations that read an in-flight type, composition coherence of the path's initializers (O18), native equivalence as generated gap records, every REFUTED witness replayed on the real code",
+      "plan": "docs/BUILD_PLAN.md#i29-nat-rule-about-2-to-3-days",
+      "prompt": "prompts/I29_nat.md",
+      "predictions": [
+        {
+          "id": "I29-P1",
+          "claim": "O18 and its siblings are REFUTED. holon derive --milestone M3 under holon-rules/1.8 writes the six composition laws (rule N2: one per ordered pair of the path's introduced initializers initialize (entry edge, version 1), initialize2 (V3->V4, 2), initialize3 (V6->V7, 3), initialize4 (V10->V11, 4) whose early one is an action of the late one's edge's both versions with one selector), and holon run decides each REFUTED: the witness's trace from vr0 has the shortest length reaching the late edge's source version (1 for initialize/initialize2 at V3, 4 for initialize/initialize3 and initialize2/initialize3 at V6, 8 for the three pairs with initialize4 at V10), every step successful; at its last state the early initializer's call (the deployment record's call of initialize; initialize2 with 0x64 and initialize3 with the recorded delay, by the record's first caller) succeeds at the source version and the late edge's upgradeToAndCall with the late initializer then succeeds (right), while the same upgradeToAndCall succeeds at that state and the early initializer's call then reverts at the new version with OpenZeppelin 4.9.3's 'Initializable: contract is already initialized' (left): the late reinitializer(v_j) sets _initialized to v_j, after which reinitializer(v_i < v_j) and initializer revert, so the early initializer is lost for good (O18: initialize4 before initialize3 leaves rollupDelayPeriod D = 0). Each counter-law's PROOF.bend imports its LAWS.bend as Laws and Bend accepts it. Derivation (source reads): OpenZeppelin 4.9.3 Initializable (the pinned tree): reinitializer requires !_initializing && _initialized < version, initializer requires _initialized < 1 (or == 1 before construction); no initializer has an access check (initialize4's admin check runs inside the migration); initialize2 needs a nonzero root, initialize3 a nonzero delay, initialize4 the admin, a submitter with code, lastCommittedBatchIndex equal to the expected index (the state's own, by I28's inflight_arguments), no challenge and no revert request, all true on a migrations-only trace; the versioned machine allows upgradeTo on every edge (A-proxy), so the early initializer's edge can be skipped.",
+          "check": "tests_m3/test_nat.py::TestPredictions::test_p1_composition_is_refuted"
+        },
+        {
+          "id": "I29-P2",
+          "claim": "The three naturality laws at the cutover V10->V11 (rule N3: readers at V11 of the in-flight types batchDataStore, retyped with touched member submitter, and submitterContract, reinterpreted from l1StakingContract, with a same-selector action at V10: proveState for both, challengeState for submitterContract) are UNKNOWN: no witness within max_trace 10 and no proof, each record's bound naming the model debt of V10's successor-site actions. Derivation: I28's versioned model compiles no commit action before V11 (commitBatch, commitBatchWithProof and commitState are model debt at V10: gen/M3/versions/models/morph_rollup.versions.init.json on I28's build), so no reachable V10 state holds a batch past the genesis batch; proveState (V10 Rollup.sol:603, head :595) needs a committed batch in challenge and challengeState (head :471) a committed batch above lastFinalizedBatchIndex; so on every reachable V10 state both orders revert the op at the same guard after the same external calls, answered alike by A-env's stand-in, and the square holds on the model, while no generator proves a NAT law. BUILD_PLAN's O14 prediction (REFUTED) is therefore not adopted.",
+          "check": "tests_m3/test_nat.py::TestPredictions::test_p2_naturality_is_unknown"
+        },
+        {
+          "id": "I29-P3",
+          "claim": "Every REFUTED NAT witness replays on the real code: in replay/M3/nat/report.json both runs <id>:left and <id>:right of each REFUTED NAT record pass through I28's versioned harness (OpenZeppelin 4.9.3 TransparentUpgradeableProxy over the placeholder, every path version built from its commit), with the left run's last step reverting on the real chain with Error('Initializable: contract is already initialized') and the right run's last two steps succeeding; each record's replay field is passed. Derivation: the witnesses' steps are the upgrade path's kinds of steps (I28-P2 replayed upgradeTo, upgradeToAndCall with initialize2, initialize3 and initialize4, initialize by the harness and the initializer guard's revert); a reinitializer called directly through the proxy by a non-admin runs the same code (the transparent proxy forwards it).",
+          "check": "tests_m3/test_nat.py::TestPredictions::test_p3_the_witnesses_replay"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I29-R1",
+          "claim": "BUILD_PLAN I29's regression: the O15 analogue, M1's L_nat_eta2 (rule NAT, native_equivalence over the hand-written M1 model), stays REFUTED.",
+          "check": "tests_m3/test_nat.py::TestRegressions::test_r1_the_o15_analogue"
+        },
+        {
+          "id": "I29-R2",
+          "claim": "I29's own commits, judged one by one against their first parents, change no earlier M3 law (not NAT) but in rule_catalog_version and no earlier M3 record's status, and write none of I28's outputs or code (gen/M3/versions/, gen/M3/history/, results/M3/history/, replay/M3/versions/, holon/versions/) nor a frozen root; at end every record directly under results/M1, results/M2 and results/T32 carries a generator_sha256 other than at the prereg (re-made: holon/rules/__init__.py is in their closures).",
+          "check": "tests_m3/test_nat.py::TestRegressions::test_r2_own_commits_move_no_earlier_outcome"
+        },
+        {
+          "id": "I29-R3",
+          "claim": "I28's PAR-init law L_pinit_Rollup_importGenesisBatch_committedBatches_17_9 stays REFUTED with its witness (I28-P3).",
+          "check": "tests_m3/test_nat.py::TestRegressions::test_r3_the_pinit_law_stays_refuted"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/nat/",
+        "laws/M3/L_nat_",
+        "results/M3/L_nat_",
+        "gen/M3/laws/L_nat_",
+        "gen/M3/proofs/L_nat_",
+        "replay/M3/nat/",
+        "docs/iterations/I29.md"
+      ],
+      "tests": [
+        "tests_m3/test_nat.py"
+      ],
+      "thresholds": {
+        "base": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874 (the lead before I28's build merges; I28's build, PR #50, at abb834b73f76726784079ce0e21ed627e7db9579 on claude/brave-wright-2c5d0o-i28-build, produces every input I29 reads)",
+        "catalog": "holon-rules/1.8 (holon-rules/1.7 is I71's, UNDO cancel; the next free version)",
+        "instrument": "tests_m3/_i29.py",
+        "instrument_sha256": "d01dd62f866d2ed384c971b00ef6ae7d0715417a7ba726ecbfb99add128ea027",
+        "contract_docstring_sha256": "982d379853f1aaa65d72aeac1d478ee857a653772e63b80f47d9248cb2369c5c",
+        "basis": {
+          "read_at": "tests_m3/_i29.py::basis_doc over I28's build outputs at abb834b (gen/M3/versions/morph_rollup.versions.json sha256 b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78)",
+          "law_ids": [
+            "L_nat_comp_Rollup_initialize2_initialize3",
+            "L_nat_comp_Rollup_initialize2_initialize4",
+            "L_nat_comp_Rollup_initialize3_initialize4",
+            "L_nat_comp_Rollup_initialize_initialize2",
+            "L_nat_comp_Rollup_initialize_initialize3",
+            "L_nat_comp_Rollup_initialize_initialize4",
+            "L_nat_sq_Rollup_V10_V11_batchDataStore_proveState",
+            "L_nat_sq_Rollup_V10_V11_submitterContract_challengeState",
+            "L_nat_sq_Rollup_V10_V11_submitterContract_proveState"
+          ],
+          "composition": [
+            "L_nat_comp_Rollup_initialize2_initialize3",
+            "L_nat_comp_Rollup_initialize2_initialize4",
+            "L_nat_comp_Rollup_initialize3_initialize4",
+            "L_nat_comp_Rollup_initialize_initialize2",
+            "L_nat_comp_Rollup_initialize_initialize3",
+            "L_nat_comp_Rollup_initialize_initialize4"
+          ],
+          "naturality": [
+            "L_nat_sq_Rollup_V10_V11_batchDataStore_proveState",
+            "L_nat_sq_Rollup_V10_V11_submitterContract_challengeState",
+            "L_nat_sq_Rollup_V10_V11_submitterContract_proveState"
+          ],
+          "gap_ids": [
+            "gap:M3:native:V10->V11:Rollup.batchDataStore:proveState",
+            "gap:M3:native:V10->V11:Rollup.submitterContract:challengeState",
+            "gap:M3:native:V10->V11:Rollup.submitterContract:commitBatch",
+            "gap:M3:native:V10->V11:Rollup.submitterContract:commitState",
+            "gap:M3:native:V10->V11:Rollup.submitterContract:initialize4",
+            "gap:M3:native:V10->V11:Rollup.submitterContract:proveState"
+          ],
+          "witness_lengths": {
+            "L_nat_comp_Rollup_initialize_initialize2": 1,
+            "L_nat_comp_Rollup_initialize_initialize3": 4,
+            "L_nat_comp_Rollup_initialize2_initialize3": 4,
+            "L_nat_comp_Rollup_initialize_initialize4": 8,
+            "L_nat_comp_Rollup_initialize2_initialize4": 8,
+            "L_nat_comp_Rollup_initialize3_initialize4": 8
+          }
+        },
+        "counted_predictions": [
+          "I29-P1",
+          "I29-P2",
+          "I29-P3"
+        ],
+        "construction_checks": "the analysis and the laws equal the instrument's basis (test_c1, test_c3; the basis is known at the prereg, so it is a construction check, not a prediction), the catalog (test_c2), the law files' shape (test_c4), the records (test_c5) and G6's binding (test_c6)",
+        "build_plan_mapping": {
+          "O18": "I29-P1 (L_nat_comp_Rollup_initialize3_initialize4)",
+          "O14": "not adopted as REFUTED: the cutover's squares are UNKNOWN (I29-P2) because I28's model commits nothing before V11; O13 and O14 are recorded as native gaps and naturality laws over the cutover's readers",
+          "O16": "no law: eta_enq is the message queue's migration, and the queue has no extracted history (I36 links the queue)",
+          "O17": "no law: batchBlobVersionedHashes is an added variable, never an in-flight type (I28 rule V3), so NAT has no obligation over it",
+          "unchanged_entry_points_proved": "not adopted: rule NAT generates squares only for readers of in-flight types (whitepaper §5.3), none of which is unchanged across V10->V11, and no NAT proof generator exists (a square over every reachable state needs induction over VReach)",
+          "O15": "I29-R1 (M1's L_nat_eta2); the versioned history's V3->V4 has no in-flight type (committedStateRoots is added there), so NAT states nothing over eta2 on the machine"
+        },
+        "disclosure": "Before this commit: the instrument ran over I28's build outputs (the basis above, no other output); source reads of the Rollup at V3, V4, V6, V7, V10 and V11 and of the pinned OpenZeppelin Initializable. No NAT code exists, and the versioned machine, the search, Bend and the harness ran on no NAT square, trace or law."
+      }
+    },
     "I35": {
       "title": "Rule OWN from extracted backing identities: OWN-alias pairs and OWN-lost-write laws over the Go document's slice facts, decided on a generated Go heap model and replayed on the real Go code",
       "plan": "docs/BUILD_PLAN.md row I35 and section I35",

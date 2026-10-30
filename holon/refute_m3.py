@@ -426,6 +426,13 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             from .versions.replay import side as versions_side
             vs = versions_side(root, key.rpartition("/")[0], key.rpartition("/")[2], rec.get("witness"))
             ss = {"solidity": vs} if vs else {}
+        nat = law.get("rule") == "NAT" and law.get("ir_version") == "holon-ir/0.3"
+        if not ss and nat:
+            # I29 (N9): a NAT record's side is its two runs of the NAT replay report (holon.rules.nat_replay)
+            from .rules.nat_replay import side as nat_side
+            vs = nat_side(root, key.rpartition("/")[0], key.rpartition("/")[2], rec.get("witness"))
+            ss = {"solidity": vs} if vs else {}
+        versioned = versioned or nat
         kind = kind_of(rec, law, ss)
         gen = ((rep.get("records") or {}).get(key) or {}).get("sides") or {}
         final_sides = {**ss, **gen}
@@ -460,8 +467,9 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
                             reason=f"a commit at version {v} from R0 (rule K3, the M0 commit-path rule): {r['reason']}")
                 path = r["path"] if r["verdict"] == "path" else None
         elif kind == "direct":
-            conc.update(result="path", length=(len((rec.get("witness") or {}).get("trace") or []) or None) if versioned
-                        else trace_length(rec),
+            conc.update(result="path", length=(len((rec.get("witness") or {}).get("trace") or [])
+                                               + len(((rec.get("witness") or {}).get("square") or {}).get("right") or [])
+                                               or None) if versioned else trace_length(rec),
                         reason=("the witness is a schedule of public calls; its emitted tests are its side"
                                 if gen else "the witness is a schedule of public calls (its replay is the record's side)"))
         else:

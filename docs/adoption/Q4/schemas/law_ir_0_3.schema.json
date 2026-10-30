@@ -397,6 +397,12 @@
     },
     {
      "$ref": "#/$defs/t_init"
+    },
+    {
+     "$ref": "#/$defs/t_square"
+    },
+    {
+     "$ref": "#/$defs/t_own"
     }
    ]
   },
@@ -1031,6 +1037,29 @@
     },
     "on": {
      "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_square": {
+   "type": "object",
+   "required": [
+    "square",
+    "on"
+   ],
+   "additionalProperties": false,
+   "description": "a NAT square term (I29, holon.rules.nat): the square id <model>:square:<a>:<b>:<op> of a basis element (rule NAT, sub-form composition or naturality) applied to the op's call, a migration step of the edge a -> b, a reachable state of the versioned machine and the op's environment: the Bool 'the migration then the op at b, and the op at a then the migration, end in the same version and storage, with the op succeeding on both sides or neither and the migration likewise'; rendered square_ok[ID](A, U, S, E); its statement ref square:ID hashes the basis element and the documents of a and b, recomputed from the versioned document (holon.gen.refs)",
+   "properties": {
+    "square": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:square:[A-Za-z0-9_]+:[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+    },
+    "on": {
+     "type": "array",
+     "minItems": 4,
+     "maxItems": 4,
      "items": {
       "$ref": "#/$defs/term"
      }

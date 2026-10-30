@@ -96,15 +96,34 @@ CATALOGS[CANCEL_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[INI
 CATALOGS[CANCEL_CATALOG_VERSION]["UNDO"] = {**CATALOGS[INIT_CHAIN_CATALOG_VERSION]["UNDO"],
                                             _undo.CANCEL_SUBFORM: _undo.CANCEL}
 
+#   holon-rules/1.8  I29's (holon-rules/1.7 is I71's): the rules of the catalog M3 derived with before I29 unchanged (the
+#                    same producer objects), plus rule NAT (holon.rules.nat: composition and naturality squares across a
+#                    contract's versioned machine, whitepaper §5.3), which, like PAR/init_chain, takes the milestone's
+#                    versions sidecar and its versioned document instead of the typed context (_nat_part); M3 and later.
+from . import nat as _nat  # noqa: E402
+NAT_CATALOG_VERSION = "holon-rules/1.8"
+CATALOGS[NAT_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[CANCEL_CATALOG_VERSION].items()},
+                                 _nat.RULE: {sub: _nat.PRODUCERS[sub] for sub in _nat.SUBFORMS}}
+VERSIONED_RULES = (_nat.RULE,)   # rules whose producers read the versioned document (_nat_part), not the typed context
+
+#   holon-rules/1.9  I35's: the rules of holon-rules/1.8 unchanged (the same producer objects), plus rule OWN
+#                    (holon.rules.own: sub-forms alias and lost_write over the OWN carrier documents gen/<M>/own/*.json,
+#                    rules W4, W5 and W8 of tests_m3/test_own.py), derived in a part of its own (_own_part); M3 and later.
+#                    A typed test milestone keeps holon-rules/1.2.
+from . import own as _own  # noqa: E402
+OWN_CATALOG_VERSION = "holon-rules/1.9"
+CATALOGS[OWN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[NAT_CATALOG_VERSION].items()},
+                                 _own.RULE: dict(_own.PRODUCERS)}
+
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.7 for the typed target milestones (M3 and
-    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain and I71's UNDO/cancel); holon-rules/1.2 for the
-    typed test milestones (T<n> with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every
-    other test milestone. A test milestone's catalog may be replaced with `--catalog`."""
+    """The rule-catalog version a milestone derives with: holon-rules/1.9 for the typed target milestones (M3 and
+    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel, I29's NAT and I35's OWN);
+    holon-rules/1.2 for the typed test milestones (T<n> with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0
+    for M0-M2 and every other test milestone. A test milestone's catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return CANCEL_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return OWN_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -330,10 +349,10 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
 
 def _typed_rules(catalog: dict) -> list[str]:
     """The rules of a catalog after holon-rules/1.0 whose producers take the typed context (produce(ctx), I30): every
-    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document), and OWN,
-    which derives over the carrier documents in a part of its own (_own_part, I35)."""
-    from . import own as _own
-    return sorted(r for r in catalog if r not in ("PAR", _own.RULE))
+    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document), the rules
+    over the versioned document (VERSIONED_RULES, I29: _nat_part), and OWN, which derives over the carrier documents
+    in a part of its own (_own_part, I35)."""
+    return sorted(r for r in catalog if r != "PAR" and r not in VERSIONED_RULES and r != _own.RULE)
 
 
 def _transitions(doc) -> bool:
@@ -695,6 +714,34 @@ def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
     return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
 
 
+def _nat_part(milestone: str, root: Path, cv: str) -> dict | None:
+    """derive's part for rule NAT (I29, holon.rules.nat), when the catalog holds it: its producers over the milestone's
+    versioned document (none without a versions sidecar), read through their own input list (DERIVATION.json lists
+    it; the obstructions document does not). Returns the laws, their DERIVATION entries, the inputs read and the
+    documents' sha256, or None when the catalog has no rule NAT."""
+    from ..gen import refs as R
+    subs = CATALOGS[cv].get(_nat.RULE)
+    if not subs:
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for sub in sorted(subs):
+            pairs += subs[sub].produce(ctx)
+    except ValueError as e:
+        raise ValueError(f"{_nat.RULE}: {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
 def _own_part(milestone: str, root: Path, cv: str) -> dict | None:
     """derive's part for rule OWN (I35, holon.rules.own; rule W8 of tests_m3/test_own.py), when the catalog holds it:
     its producers over the milestone's committed carrier documents gen/<M>/own/*.json, read through its own input list
@@ -780,11 +827,14 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
     init = _init_chain_part(milestone, root, cv) if not given else None
     if init is not None:
         inputs.files.update(init["inputs"].files)
+    nat = _nat_part(milestone, root, cv) if not given else None
+    if nat is not None:
+        inputs.files.update(nat["inputs"].files)
     own = _own_part(milestone, root, cv) if not given else None   # I35: rule OWN over the carrier documents
     if own is not None:
         inputs.files.update(own["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed, init, own):
+    for part in (par, typed, init, nat, own):
         if part is None:
             continue
         for lid, law in part["laws"].items():
