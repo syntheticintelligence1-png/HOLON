@@ -942,18 +942,25 @@ class TestGateAndRegressions(unittest.TestCase):
             shutil.rmtree(repo.parent, ignore_errors=True)
 
     def test_i25_outcome_commits_touch_no_frozen_or_earlier_output(self):
-        """I25-R1, R2 and R4 (part): every commit that changes an I25 outcome path (gen/M3/par_lossy/,
+        """I25-R1, R2 and R4 (part): every commit of I25's that changes an I25 outcome path (gen/M3/par_lossy/,
         spec/M3/evidence_review.jsonl) changes no file under laws/, gen/M0-M3's codec, diagram and evidence set,
-        results/M0-M2, gen/M0-M2 or replay/. Needs the real checkout's history: a missing .git is a failure, never a
-        skip."""
+        results/M0-M2, gen/M0-M2 or replay/. I25's commits are the ones reachable from R, the oldest commit of
+        HEAD's history that adds docs/iterations/I25.md (I25's report, made after every I25 outcome commit). Amended
+        (spec/M3/amendments.jsonl): the test judged every commit that changes an outcome path, so it counted a later
+        key's re-make of the header_length document (I67's 1ebec02 and d106a83, rule Y11) as I25's; it now judges
+        the commits I25 made, found by ancestry, which is what I25-R1, R2 and R4 claim. Needs the real checkout's
+        history: a missing .git is a failure, never a skip."""
         def git(*args):
             p = subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, text=True,
                                env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"})
             if p.returncode != 0:
                 raise AssertionError(f"git {' '.join(args)}: {p.stderr.strip()}")
             return p.stdout
-        commits = git("log", "--format=%H", "--", "gen/M3/par_lossy", "spec/M3/evidence_review.jsonl").split()
-        self.assertTrue(commits, "no commit writes an I25 outcome path")
+        added = git("log", "--full-history", "--diff-filter=A", "--format=%H", "--reverse", "HEAD", "--",
+                    "docs/iterations/I25.md").split()
+        self.assertTrue(added, "docs/iterations/I25.md is reachable from no commit of HEAD's history")
+        commits = git("log", "--format=%H", added[0], "--", "gen/M3/par_lossy", "spec/M3/evidence_review.jsonl").split()
+        self.assertTrue(commits, "no commit of I25's writes an I25 outcome path")
         never = ("laws/", "gen/M3/codec/", "gen/M3/diagram/", "gen/M3/evidence.json", "results/M0/", "results/M1/",
                  "results/M2/", "gen/M0/", "gen/M1/", "gen/M2/", "replay/")
         for c in commits:

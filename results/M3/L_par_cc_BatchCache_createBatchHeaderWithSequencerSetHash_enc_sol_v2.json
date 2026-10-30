@@ -12,7 +12,7 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.521
+      "seconds": 0.58
     },
     {
       "bound": "record fills (ones, counting, 0xff, zeros, one field 0xff, 8 random with seed 20261013), the premises applied, kept when the named encoders' ok atoms over record fields hold (33 candidates); hit: ones",
@@ -26,20 +26,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.651
+      "seconds": 0.715
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.003
+      "seconds": 1.17
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.651
+    "seconds": 0.715
   },
   "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
   "concretization": {
@@ -75,7 +75,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
   "filter_bin": "pending",
-  "generator_sha256": "d1fd1e3709c806e82e837f897908b4c9e2bc490118d50fb8e85c4696fcd98012",
+  "generator_sha256": "68296ef073b11d18c2758651c67ce838f020be2e567e313ca409cbd76dced936",
   "independence_class": "I2",
   "kernel": {
     "name": "bend",
@@ -132,7 +132,7 @@
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2/LAWS.bend",
-    "parent_statement_hash": "sha256:a2ef4e7617ea24061b93ee9fdcc12971a0b480140a35007de07c269c4565b4c4",
+    "parent_statement_hash": "sha256:0cf54d719c92052886211fd648dbada49fb2ce9a8d764ad8b658ab27be5401c6",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -165,7 +165,7 @@
     "kind": "unbounded"
   },
   "statement": "\u2200 h: BatchHeaderV1, \u2200 k: Header. k.version == 0x02 \u2227 h.BatchHeaderV0.BatchIndex == k.batchIndex \u2227 h.BatchHeaderV0.BlobVersionedHash == k.blobVersionedHash \u2227 h.BatchHeaderV0.DataHash == k.dataHash \u2227 h.BatchHeaderV0.L1MessagePopped == k.l1MessagePopped \u2227 h.LastBlockNumber == k.lastBlockNumber \u2227 h.BatchHeaderV0.ParentBatchHash == k.parentBatchHash \u2227 h.BatchHeaderV0.PostStateRoot == k.postStateHash \u2227 h.BatchHeaderV0.PrevStateRoot == k.prevStateHash \u2227 h.BatchHeaderV0.TotalL1MessagePopped == k.totalL1MessagePopped \u2227 h.BatchHeaderV0.WithdrawalRoot == k.withdrawRootHash \u21d2 BatchCache_createBatchHeaderWithSequencerSetHash(h) == enc_sol(k)",
-  "statement_hash": "sha256:a2ef4e7617ea24061b93ee9fdcc12971a0b480140a35007de07c269c4565b4c4",
+  "statement_hash": "sha256:0cf54d719c92052886211fd648dbada49fb2ce9a8d764ad8b658ab27be5401c6",
   "statement_scope": {
     "kind": "unbounded"
   },
