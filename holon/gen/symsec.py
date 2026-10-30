@@ -714,6 +714,9 @@ class SymSection(Trace):
         raise GenError(f"{e['law_id']}: the site {b['action']} {b['src']} of {reg} is not in the document")
 
     def law_sentinel(self, n: int, e: dict) -> None:
+        """The site's write term is compiled in the call's initial context x0_<a>(st, ar, en, kh) (the document's terms
+        read the pre-state, the arguments and the environment); the premise block.timestamp >= 1, where the term reads
+        the clock, is stated as block.timestamp != 0 (the same proposition of an unsigned word)."""
         b = e["basis"]
         a = bname(b["action"])
         self.is_act(a)
@@ -722,22 +725,23 @@ class SymSection(Trace):
         val = self.compile_word(b["action"], term)
         reads_ts = ["env", "block.timestamp"] in list(S._walk(term))
         c = int(b["constant"])
-        claim = f"{self.Q('w_nz')}(sy_v_{n}(x))" if c == 0 else f"Bool.not({self.Q('w_eq')}(sy_v_{n}(x), {self.lit(c)}))"
-        prem = [f"U32.is_eq({self.Q(f'gx_{a}_cd')}(x), 0)"]
+        claim = f"{self.Q('w_nz')}(sy_v_{n}(x0))" if c == 0 else f"Bool.not({self.Q('w_eq')}(sy_v_{n}(x0), {self.lit(c)}))"
+        prem = [f"U32.is_eq({self.Q(f'gx_{a}_cd')}(xr), 0)"]
         if reads_ts:
-            prem.append(f"{self.Q('w_le')}({self.lit(1)}, {self.Q('ge_e_block_timestamp')}(en))")
-        self.add(f"# the word the site {b['src']} writes to {b['register']}, in the context of the call of {b['action']}\n"
-                 f"def sy_v_{n}(+x: {X}) -> {self.Q('W')}:\n  {val}")
+            prem.append(f"{self.Q('w_nz')}({self.Q('ge_e_block_timestamp')}(en))")
+        self.add(f"# the word the site {b['src']} writes to {b['register']}, in the initial context of the call of "
+                 f"{b['action']}\ndef sy_v_{n}(+x: {X}) -> {self.Q('W')}:\n  {val}")
         for mode in ("c", "h"):
             body = f"ux_imp({self.conj(prem)}, {claim})" if mode == "c" else self.conj(prem)
-            self.add(f"def sy_sn_{n}_{mode}(+x: {X}, +en: {self.Q('HEnv')}) -> Bool:\n  {body}")
+            self.add(f"def sy_sn_{n}_{mode}(+xr: {X}, +x0: {X}, +en: {self.Q('HEnv')}) -> Bool:\n  {body}")
         hs = self.hsig()
         for mode, other, fn in (("c", "True{}", "sy_ok"), ("h", "False{}", "sy_hit")):
             cases = []
             for cn in self.actions:
                 if cn == a:
-                    cases.append(f"    case {self.Q(f'A_{cn}')}{{ar, +en}}:\n      sy_sn_{n}_{mode}({self.Q(f'xr_{a}')}("
-                                 f"{self.Q('gh_get_st')}(g), ar, en{self.hargs()}), en)")
+                    st = f"{self.Q('gh_get_st')}(g)"
+                    cases.append(f"    case {self.Q(f'A_{cn}')}{{+ar, +en}}:\n      sy_sn_{n}_{mode}({self.Q(f'xr_{a}')}("
+                                 f"{st}, ar, en{self.hargs()}), {self.Q(f'x0_{a}')}({st}, ar, en{self.hargs()}), en)")
                 else:
                     cases.append(f"    case {self.Q(f'A_{cn}')}{{ar, en}}:\n      {other}")
             lead = (f"# {e['law_id']}: a successful call of {b['action']} (block.timestamp >= 1 where the site reads it) "
