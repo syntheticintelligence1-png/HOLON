@@ -885,6 +885,156 @@ class TestChangeLog(unittest.TestCase):
         self.assertTrue(any("cannot be read" in p for p in problems), problems)
 
 
+class TestStore(unittest.TestCase):
+    """Added after C_K (the coordinator's decision, revocable): a model_extension line is checkable from the working tree
+    alone, as tests/test_40_gate.py checks a copied tree. Every file its acceptance record names (the old and new model
+    files, the record, the proof; for a line appended from now on also the law file, the old record and the two
+    bindings) is kept, content-addressed, in laws/STATEMENT_DIFF.store/. Off git, G2 checks the line from those files
+    (holon.statement_diff._verify_extension_store: X0, X1, X2 when the bindings are named, X3, X4 on the recorded
+    re-check); on git the history is a cross-check (_verify_extension_record). A missing file, a file that is no gzip
+    and one whose bytes do not hash to its name fail closed. Each case builds a tree holding only the log, the store and
+    the config, with no git."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.S = sd()
+        cls.line = next(json.loads(x) for x in (ROOT / LOG).read_text().splitlines()
+                        if '"model_extension"' in x and json.loads(x).get("kind") == "model_extension")
+        cls.ext = cls.line["accepted"]["extension"]
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="i83-store-"))
+        self.addCleanup(shutil.rmtree, self.root, True)
+        shutil.copytree(ROOT / "config", self.root / "config")
+        shutil.copytree(ROOT / self.S.STORE, self.root / self.S.STORE)
+
+    def put(self, data: bytes) -> str:
+        return self.S.store_write(self.root, data)
+
+    def scan(self, line: dict) -> dict:
+        (self.root / LOG).write_text(json.dumps(line, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+        self.assertFalse(self.S.in_git(self.root))
+        return self.S.scan(self.root / LOG, self.root, milestone="M0")
+
+    def rejected(self, line: dict, needle: str):
+        s = self.scan(line)
+        self.assertFalse(s["entries"][0]["ok"])
+        self.assertTrue(any(needle in p for p in s["problems"]), s["problems"])
+
+    def variant(self, **ext) -> dict:
+        line = json.loads(json.dumps(self.line))
+        line["accepted"]["extension"].update(ext)
+        return line
+
+    def record(self, **changes) -> str:
+        rec = json.loads(self.S.store_read(ROOT, self.ext["record"]["sha256"])[0])
+        rec.update(changes)
+        return self.put(json.dumps(rec, indent=1).encode())
+
+    def test_the_committed_line_checks_off_git(self):
+        s = self.scan(self.line)
+        self.assertEqual(s["problems"], [])
+        self.assertEqual([x["ok"] for x in s["entries"]], [True])
+        self.assertEqual(s["stored"], [1])
+        self.assertIn("STATEMENT_DIFF.store", s["note"])
+
+    def test_the_store_holds_every_named_file(self):
+        """Positive, on the repository: every file the log's model_extension line names is stored and reads back, and the
+        store's generator (`python -m holon.statement_diff store`) finds nothing to add."""
+        for sha, what in self.S.extension_named(self.ext):
+            with self.subTest(what=what):
+                self.assertIsNone(self.S.store_read(ROOT, sha)[1])
+        self.assertEqual(self.S.extension_store_fill(ROOT), ([], []))
+
+    def test_a_missing_file_fails_closed(self):
+        sha = self.ext["models"]["old"][sorted(self.ext["models"]["old"])[0]]
+        (self.root / self.S.STORE / f"{sha}.gz").unlink()
+        self.rejected(self.line, "is missing")
+
+    def test_a_file_hashing_to_another_name_fails_closed(self):
+        import gzip
+        p = self.root / self.S.STORE / f"{self.ext['proof']['sha256']}.gz"
+        p.write_bytes(gzip.compress(gzip.decompress(p.read_bytes()) + b"\n# appended\n", mtime=0))
+        self.rejected(self.line, "not its name")
+
+    def test_a_file_that_is_no_gzip_fails_closed(self):
+        (self.root / self.S.STORE / f"{self.ext['record']['sha256']}.gz").write_bytes(b"not a gzip file")
+        self.rejected(self.line, "no gzip")
+
+    def test_rejects_a_renaming_that_is_not_the_inferred_one(self):
+        """The entry and its acceptance record agree, and both drop one pair of the inferred renaming."""
+        line = json.loads(json.dumps(self.line))
+        f = sorted(line["renaming"])[0]
+        line["renaming"][f].pop(sorted(line["renaming"][f])[0])
+        line["accepted"]["extension"]["renaming"] = line["renaming"]
+        self.rejected(line, "not the one inferred")
+
+    def test_rejects_an_old_model_the_new_one_does_not_extend(self):
+        """The old entry file gains a definition the new model lacks (stored under its own sha256 and named)."""
+        models = json.loads(json.dumps(self.ext["models"]))
+        top = next(r for r in models["old"] if r.endswith("/morph_rollup_versions.bend"))
+        text, _ = self.S.store_read(ROOT, models["old"][top])
+        models["old"][top] = self.put(text + b"\ndef holon_store_probe() -> U64:\n  0\n")
+        self.rejected(self.variant(models=models), "(X3)")
+
+    def test_rejects_a_record_of_another_law_or_status(self):
+        self.rejected(self.variant(record=dict(self.ext["record"], sha256=self.record(law_id="L_none"))), "(X1)")
+        self.rejected(self.variant(record=dict(self.ext["record"], sha256=self.record(status="PROVED"))), "(X1)")
+
+    def test_rejects_a_dishonest_status_move(self):
+        """REFUTED -> PROVED: the record and its acceptance agree, and a conservative extension keeps the witness."""
+        self.rejected(self.variant(record=dict(self.ext["record"], sha256=self.record(status="PROVED"),
+                                               new_status="PROVED")), "(X4)")
+
+    def test_rejects_a_record_naming_another_model(self):
+        self.rejected(self.variant(record=dict(self.ext["record"], sha256=self.record(model_sha256="0" * 64))), "(X4)")
+
+    def test_rejects_a_recheck_bend_did_not_accept(self):
+        rc = json.loads(json.dumps(self.ext["recheck"]))
+        rc["bend"]["exit_code"] = 1
+        self.rejected(self.variant(recheck=rc), "(X4)")
+
+    def test_rejects_an_acceptance_naming_another_bound_commit(self):
+        self.rejected(self.variant(bound_commit="0" * 40), "(X0)")
+
+    def test_the_named_old_record_law_file_and_bindings(self):
+        """A line appended from now on also names the old record, the law file and the two bindings: positive, then an
+        old status that is not the stored old record's, and defs that are not the bindings' changed definitions."""
+        B = holon_module("holon.bindings")
+        bc, m = self.ext["bound_commit"], self.line["milestone"]
+        self.assertEqual(self.line["law_id"], PINIT)
+        rec = json.loads(self.S.store_read(ROOT, self.ext["record"]["sha256"])[0])
+        ob = self.S._binding_at(ROOT, bc, m, PINIT)
+        rel = B.path(m, ROOT).relative_to(ROOT).as_posix()   # the re-bind: the first later binding that differs
+        nb = next(x for x in (self.S._binding_at(ROOT, c, m, PINIT)
+                              for c in git("log", "--format=%H", "--reverse", f"{bc}..HEAD", "--", rel).split())
+                  if x != ob)
+        self.assertEqual(B.changed_defs(ob, nb), sorted(self.line["defs"]))
+        named = {"record": dict(self.ext["record"],
+                                old_sha256=self.put(git("show", f"{bc}:{self.ext['record']['path']}").encode())),
+                 "laws": {"path": rec["artifacts"]["laws"],
+                          "sha256": self.put((ROOT / rec["artifacts"]["laws"]).read_bytes())},
+                 "bindings": {"old": self.put(self.S.ir.canonical_json(ob)),
+                              "new": self.put(self.S.ir.canonical_json(nb))}}
+        self.assertEqual(self.scan(self.variant(**named))["problems"], [])
+        self.rejected(self.variant(**dict(named, record=dict(named["record"], old_status="UNKNOWN"))), "old status")
+        line = self.variant(**named)
+        line["defs"] = line["defs"][1:]
+        self.rejected(line, "(X2)")
+
+    def test_git_cross_checks_the_history(self):
+        """On git the acceptance record is tied to the history: the old model files at bound_commit, the old status."""
+        c = git("log", "--format=%H", "-S", '"kind": "model_extension"', "--", LOG).split()[-1]
+        self.assertIsNone(self.S._verify_extension_record(self.line, self.ext, c, ROOT))
+        models = json.loads(json.dumps(self.ext["models"]))
+        models["old"][sorted(models["old"])[0]] = "0" * 64
+        why = self.S._verify_extension_record(self.line, dict(self.ext, models=models), c, ROOT)
+        self.assertIn(f"is not the file at {self.ext['bound_commit'][:7]}", why or "")
+        why = self.S._verify_extension_record(
+            self.line, dict(self.ext, record=dict(self.ext["record"], old_status="UNKNOWN")), c, ROOT)
+        self.assertIn("old status", why or "")
+
+
 # ---------------------------------------------------------------------------------------------- generic code
 class TestGenericCode(unittest.TestCase):
     def test_new_code_names_no_target(self):

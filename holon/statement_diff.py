@@ -35,7 +35,14 @@ A frozen statement may change only through an entry that this module accepts:
                    stays REFUTED, PROVED stays PROVED or becomes REFUTED, UNKNOWN may become any status; the record is
                    the new model's). Unsigned; the strengthening direction only (no claim, statement or registry hash
                    moves). `python -m holon.statement_diff extend --milestone M [--append]` builds the entries
-                   (model_extension_entries).
+                   (model_extension_entries). Every file the check read and its acceptance record names (the old and
+                   new model files, the record, the proof; in a line appended since the store exists, also the law
+                   file, the old record and the two bindings) is kept, gzip, under its sha256 in
+                   laws/STATEMENT_DIFF.store/ (append writes them;
+                   `python -m holon.statement_diff store` writes those of committed lines from git). So the line is
+                   checkable from the working tree alone (_verify_extension_store: X0, X1, X2 on the stored bindings,
+                   X3 on the stored models, X4 on the stored record and the recorded re-check; a file missing, or
+                   hashing to anything but its name, fails closed), and the git history is a cross-check.
   strengthening    a kernel-checked S' => S (holon.gen.implication generates the obligation and its proof;
                    Bend, and BendTT when available, must accept it).
   weakening        a gpg signature verifiable against a public key in keys/ (Q3) and an auditor review. A
@@ -67,6 +74,8 @@ API:
   registry_changes(milestone, root) -> {"git", "changes", "note"}  statement-hash changes the log must cover
   tie_problems(milestone, root, scanned) -> ([problem], note)      G2: every change covered by an accepted entry
   catalog_rederivation_entries(milestone, root) -> (entries, notes) the catalog_rederivation entries still needed
+  store_read(root, sha256) -> (bytes, None) | (None, why)          a file of laws/STATEMENT_DIFF.store/, verified
+  extension_store_fill(root) -> (stored, problems)                 the files model_extension lines name, from git
 
 Each line is checked once, against the tree it was appended to (audit F-M2-22). `python -m holon.statement_diff
 append ENTRY.json` runs check_entry on the working tree and, only when it accepts, appends the entry with an
@@ -77,7 +86,10 @@ sha256 of the generated obligation and of the proof Bend accepted. Then:
   * a committed line is not re-proved: its recorded facts hashes must equal those files at the commit that
     appended it (read-only git cat-file). A later facts change therefore never invalidates an accepted line, and
     the append-only log never keeps G2 red because of one.
-Off git (a copied tree) every line counts as new and is checked against the working tree.
+Off git (a copied tree) every line counts as new and is checked against the working tree, but a model_extension line:
+it is checked from the files it names in laws/STATEMENT_DIFF.store/ (as a committed line is from the commit that
+appended it: the law's model, record and statement on the tree move on after it, while the stored files do not), and on
+git it is checked so too, beside the history checks.
 
 The statement-change tie (audit F-M2-08, whitepaper G2 "changes only per §9.4"): every law whose registry hash
 changed, in a commit after the log was introduced or in the working tree against HEAD, or which was deleted, needs
@@ -90,6 +102,7 @@ Self-certified until the human freezes this module, keys/ and the registries (Q1
 """
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import os
@@ -97,6 +110,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zlib
 from pathlib import Path
 
 from . import ir
@@ -992,10 +1006,24 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
         # runs on its proof, which its own milestone's G2 makes (each proof re-checked once per CI run)
         own = not (milestone and isinstance(e, dict) and e.get("kind") == "binding_change"
                    and _law_milestone(root, e.get("law_id")) not in (None, milestone))
+        # I83: a model_extension line is checked from the working tree alone (its files in laws/STATEMENT_DIFF.store/,
+        # _verify_extension_store); on git it is also tied to the history (committed) or checked in full (new)
+        ext_line = isinstance(e, dict) and e.get("kind") == "model_extension"
+        if hist is None and ext_line:
+            why = _verify_extension_store(e, acc, root)
+            if why:
+                out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
+            else:
+                item["ok"] = True
+            out.setdefault("stored", []).append(n)
+            continue
+        if ext_line:
+            out.setdefault("stored", []).append(n)
         if commit is not None:
             if not own:
                 out.setdefault("elsewhere", []).append(n)
-            why = _verify_committed(e, acc, commit, root, recheck=own)
+            why = _verify_committed(e, acc, commit, root, recheck=own) or \
+                (_verify_extension_store(e, acc, root) if ext_line else None)
             if why:
                 out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
             else:
@@ -1010,11 +1038,19 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
         elif ir.canonical_json(acc) != ir.canonical_json(acceptance(e, r, root)):
             out["problems"].append(f"line {n}: {_line_tag(e)}: its acceptance record differs from the check of the "
                                    "working tree")
+        elif ext_line and (why := _verify_extension_store(e, acc, root)):
+            out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
         else:
             item["ok"] = True
     if out.get("unchecked"):
         out["note"] += (f"; {len(out['unchecked'])} binding_change line(s) of another milestone not checked here (no git "
                         f"history; lines {', '.join(map(str, out['unchecked']))})")
+    if out.get("stored"):
+        out["note"] += (f"; {len(out['stored'])} model_extension line(s) checked from the files they name in "
+                        f"{STORE.as_posix()}/ (lines {', '.join(map(str, out['stored'][:8]))}"
+                        f"{' ...' if len(out['stored']) > 8 else ''})"
+                        + (": every rule but the kernels' runs, which the check that appended them made" if hist is None
+                           else ", and against the git history"))
     if out.get("elsewhere"):
         lines = out["elsewhere"]
         out["note"] += (f"; {len(lines)} binding_change line(s) of other milestones (line(s) {', '.join(map(str, lines[:8]))}"
@@ -1071,7 +1107,7 @@ def _verify_committed(e, acc, commit: str, root: Path, recheck: bool = True) -> 
         if why:
             return why
     if e.get("kind") == "model_extension":   # I83: the files it compared and re-checked, as they were at the commit
-        why = _verify_extension_record(acc.get("extension"), commit, root)
+        why = _verify_extension_record(e, acc.get("extension"), commit, root)
         if why:
             return why
     if e.get("kind") == "reextraction" and e.get("facts") not in acc["facts"]:
@@ -1262,6 +1298,8 @@ def append(entry: dict, root: Path) -> dict:
         acc = acceptance(entry, r, root)
         if acc.get("equivalence"):   # F33: the proof artifacts G2 re-checks in both kernels
             write_artifacts(entry, acc["equivalence"], r["equivalence"], root)
+        for data in r.get("_store") or []:   # I83: every file a model_extension line names, for checks off git
+            store_write(root, data)
         line = json.dumps({**entry, "accepted": acc}, sort_keys=True, ensure_ascii=False)
         p = root / LOG
         data = p.read_bytes() if p.exists() else b""
@@ -1741,18 +1779,32 @@ def infer_renaming(old: dict, new: dict) -> dict:
     return out
 
 
-def _external_refs(texts: dict, target: str) -> set:
-    """The names of file `target` other files reference through an import alias (Alias.name)."""
-    out = set()
+def _ref_index(texts: dict) -> dict:
+    """{file: ({alias: file} of its local imports, [(path, alias)] of its import lines, {X: {name}} of every X.name it
+    writes)}: what _external_refs reads of each file, parsed once for every target."""
+    out = {}
     for g, text in texts.items():
+        toks, dots = _rtoks(text), {}
+        for i in range(len(toks) - 2):
+            if toks[i + 1] == ".":
+                dots.setdefault(toks[i], set()).add(toks[i + 2])
+        out[g] = (_bend_blocks(text)[1], re.findall(r"(?m)^import\s+(\S+)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$", text),
+                  dots)
+    return out
+
+
+def _external_refs(texts: dict, target: str, index: dict | None = None) -> set:
+    """The names of file `target` other files reference through an import alias (Alias.name); index: _ref_index(texts)."""
+    index = _ref_index(texts) if index is None else index
+    out = set()
+    for g in texts:
         if g == target:
             continue
-        aliases = {a for a, fl in _bend_blocks(text)[1].items() if fl == target}
-        aliases |= set(re.findall(rf"(?m)^import\s+\S*?{re.escape(target)}\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$", text))
-        toks = _rtoks(text)
-        for i in range(len(toks) - 2):
-            if toks[i] in aliases and toks[i + 1] == ".":
-                out.add(toks[i + 2])
+        local, lines, dots = index[g]
+        aliases = {a for a, fl in local.items() if fl == target}
+        aliases |= {a for path, a in lines if re.fullmatch(rf"\S*?{re.escape(target)}", path)}
+        for a in aliases:
+            out |= dots.get(a, set())
     return out
 
 
@@ -1762,7 +1814,7 @@ def renaming_problems(old: dict, new: dict, renaming: dict, fixed=frozenset()) -
     constructor renamed), injective, capturing nothing, fixing every name another file references and every name in
     `fixed` (the roots and every name the law's files reference), and no definition's image bound as a local name. An
     image that is a name of the old file must be one the renaming moves too (it is applied at once)."""
-    probs = []
+    probs, iold, inew = [], None, None
     for f in sorted(renaming):
         s = renaming[f]
         if f not in old or f not in new or not isinstance(s, dict):
@@ -1771,7 +1823,8 @@ def renaming_problems(old: dict, new: dict, renaming: dict, fixed=frozenset()) -
         ob, nb = _bend_blocks(old[f])[0], _bend_blocks(new[f])[0]
         ko, kn = _kinds(ob), _kinds(nb)
         oid = _idents(old[f])
-        ext = _external_refs(old, f) | _external_refs(new, f) | set(fixed)
+        iold, inew = iold or _ref_index(old), inew or _ref_index(new)
+        ext = _external_refs(old, f, iold) | _external_refs(new, f, inew) | set(fixed)
         bound = _bound_locals(nb)
         if len(set(s.values())) != len(s):
             probs.append(f"{f}: the renaming maps two names to one")
@@ -1997,12 +2050,16 @@ def _law_refs(root: Path, milestone: str, lid: str, model_files: set) -> set:
         rel = ((rec or {}).get("artifacts") or {}).get(key) if isinstance(rec, dict) else None
         if not isinstance(rel, str) or not (Path(root) / rel).is_file():
             continue
-        text = (Path(root) / rel).read_text(encoding="utf-8")
-        aliases = {a for path, a in re.findall(r"(?m)^import\s+(\S+)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$", text)
-                   if Path(path).name in model_files}
-        toks = _rtoks(text)
-        out |= {toks[i + 2] for i in range(len(toks) - 2) if toks[i] in aliases and toks[i + 1] == "."}
+        out |= _file_refs((Path(root) / rel).read_text(encoding="utf-8"), model_files)
     return out
+
+
+def _file_refs(text: str, model_files: set) -> set:
+    """The names a file references in the model's files (Alias.name through an import of one of them)."""
+    aliases = {a for path, a in re.findall(r"(?m)^import\s+(\S+)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$", text)
+               if Path(path).name in model_files}
+    toks = _rtoks(text)
+    return {toks[i + 2] for i in range(len(toks) - 2) if toks[i] in aliases and toks[i + 1] == "."}
 
 
 def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
@@ -2020,9 +2077,10 @@ def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
         return _res(False, "a model_extension carries milestone, bound_commit and defs (X0)")
     if entry.get("signature"):
         return _res(False, "a model_extension is unsigned: its rules are checked, never signed for")
-    if not in_git(root):
-        return _res(False, "a model_extension is checked against the bound model at bound_commit, which needs the git "
-                           "history (a copied tree cannot check it)")
+    if not in_git(root):   # a line in the log is checked off git from laws/STATEMENT_DIFF.store/ (scan)
+        return _res(False, "a new model_extension entry is checked against the binding, model and record at "
+                           "bound_commit, which needs the git history (off git, G2 checks an appended line from the "
+                           "files it names in laws/STATEMENT_DIFF.store/)")
     if _git(root, "merge-base", "--is-ancestor", commit_b, "HEAD").returncode != 0:
         return _res(False, f"bound_commit {commit_b[:12]} is not a commit in HEAD's history")
     cur = root / "laws" / m / f"{lid}.json"
@@ -2068,7 +2126,8 @@ def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
     if probs:
         return _res(False, "not a conservative extension (X3): " + "; ".join(probs[:6]))
     rel = f"results/{m}/{lid}.json"
-    old_rec, new_rec = _json_or_none(blob_at(root, commit_b, rel)), _json_or_none((root / rel).read_bytes()) \
+    old_bytes = blob_at(root, commit_b, rel)
+    old_rec, new_rec = _json_or_none(old_bytes), _json_or_none((root / rel).read_bytes()) \
         if (root / rel).is_file() else None
     old_status = (old_rec or {}).get("status") if isinstance(old_rec, dict) else None
     model_sha = hashlib.sha256((root / nb["model"]).resolve().read_bytes()).hexdigest()
@@ -2081,19 +2140,28 @@ def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
                                     old_status, new_rec, recheck, model_sha, bend.verdict_enabled(bend.config(root)))
     if vp:
         return _res(False, "the verdict is not re-established on the new model (X4): " + "; ".join(vp))
+    laws_rel = (new_rec.get("artifacts") or {}).get("laws")
+    laws_rel = laws_rel if isinstance(laws_rel, str) and (root / laws_rel).is_file() else None
+    # every file the check read, by sha256, for laws/STATEMENT_DIFF.store/ (append writes them): off git the line is
+    # checked from them alone (_verify_extension_store)
+    store = [t.encode("utf-8") for t in list(of.values()) + list(nf.values())] + [ir.canonical_json(ob),
+                                                                                   ir.canonical_json(nb)]
+    store += [(root / x).read_bytes() for x in (rel, proof_rel, laws_rel) if x] + ([old_bytes] if old_bytes else [])
     ext = {"bound_commit": commit_b,
            "models": {"old": {r: _sha(t) for r, t in of.items()}, "new": {r: _sha(t) for r, t in nf.items()}},
            "renaming": renaming,
            "record": {"path": rel, "sha256": _sha((root / rel).read_bytes()), "old_status": old_status,
-                      "new_status": new_rec.get("status")},
+                      "old_sha256": _sha(old_bytes), "new_status": new_rec.get("status")},
            "proof": ({"path": proof_rel, "sha256": _sha((root / proof_rel).read_bytes())} if proof_rel else None),
+           "laws": ({"path": laws_rel, "sha256": _sha((root / laws_rel).read_bytes())} if laws_rel else None),
+           "bindings": {"old": _sha(ir.canonical_json(ob)), "new": _sha(ir.canonical_json(nb))},
            "recheck": recheck}
     out = _res(True, f"model_extension: {lid}'s statement is fixed; its model {nb['model']} is a conservative extension "
                      f"of the one bound at {commit_b[:12]} ({len(changed)} definitions of its cone changed or added); "
                      f"its verdict {old_status} -> {new_rec.get('status')} re-established on the new model"
                      + (" by Bend and BendTT" if recheck and recheck.get("bendtt") else
                         " by Bend" if recheck else ""))
-    out["extension"] = ext
+    out["extension"], out["_store"] = ext, store
     return out
 
 
@@ -2105,29 +2173,263 @@ def _top_of(root: Path, commit: str, rel: str) -> str:
     return rel
 
 
-def _verify_extension_record(ext, commit: str, root: Path) -> str | None:
-    """A committed model_extension line is not re-checked: its record must name the new model files, the record and the
-    proof as they were at the commit that appended it, and kernels' runs that accepted the proof."""
+def _verify_extension_record(e, ext, commit: str, root: Path) -> str | None:
+    """A committed model_extension line is not re-checked against the tree: its record must name the new model files, the
+    record, the proof and the law file as they were at the commit that appended it, the old model files, the old record
+    (and its status) and the old binding as they were at its bound_commit, and kernels' runs that accepted the proof.
+    These are the git cross-checks of the files laws/STATEMENT_DIFF.store/ holds for the line (_verify_extension_store)."""
     if not isinstance(ext, dict) or not isinstance(ext.get("models"), dict) or not isinstance(ext.get("record"), dict):
         return "its acceptance record names no model_extension check"
-    for r, sha in sorted((ext["models"].get("new") or {}).items()):
-        b = blob_at(root, commit, r)
-        if b is None or _sha(b) != sha:
-            return f"its acceptance record's {r} is not the file at {commit[:7]}"
+    bc = ext.get("bound_commit")
+    if not isinstance(e, dict) or bc != e.get("bound_commit") or not isinstance(bc, str):
+        return "its acceptance record names another bound_commit than the entry"
+    for at, side in ((commit, "new"), (bc, "old")):
+        for r, sha in sorted((ext["models"].get(side) or {}).items()):
+            b = blob_at(root, at, r)
+            if b is None or _sha(b) != sha:
+                return f"its acceptance record's {r} is not the file at {at[:7]}"
     rec = ext["record"]
     b = blob_at(root, commit, rec.get("path") or "")
     if b is None or _sha(b) != rec.get("sha256"):
         return f"its acceptance record's {rec.get('path')} is not the file at {commit[:7]}"
-    pf = ext.get("proof")
-    if pf is not None:
-        b = blob_at(root, commit, pf.get("path") or "")
-        if b is None or _sha(b) != pf.get("sha256"):
-            return f"its acceptance record's proof {pf.get('path')} is not the file at {commit[:7]}"
+    b = blob_at(root, bc, rec.get("path") or "")
+    old = _json_or_none(b)
+    old_status = old.get("status") if isinstance(old, dict) else None
+    if old_status is None or old_status != rec.get("old_status"):
+        return f"its acceptance record's old status is not the status of {rec.get('path')} at {bc[:7]}"
+    if "old_sha256" in rec and rec["old_sha256"] != _sha(b):
+        return f"its acceptance record's old record is not {rec.get('path')} at {bc[:7]}"
+    for k in ("proof", "laws"):
+        pf = ext.get(k)
+        if pf is not None:
+            b = blob_at(root, commit, (pf or {}).get("path") or "")
+            if b is None or _sha(b) != (pf or {}).get("sha256"):
+                return f"its acceptance record's {k} file {(pf or {}).get('path')} is not the file at {commit[:7]}"
+    bo = (ext.get("bindings") or {}).get("old") if isinstance(ext.get("bindings"), dict) else None
+    if "bindings" in ext:
+        ob = _binding_at(root, bc, str(e.get("milestone")), str(e.get("law_id")))
+        if bo is None or ob is None or _sha(ir.canonical_json(ob)) != bo:
+            return f"its acceptance record's old binding is not the binding at {bc[:7]}"
     rc = ext.get("recheck")
     if rec.get("new_status") in ("PROVED", "REFUTED"):
         if not isinstance(rc, dict) or (rc.get("bend") or {}).get("exit_code") != 0:
             return "its acceptance record names no Bend run that accepted the proof"
     return None
+
+
+# ---------------------------------------------------------------- the model_extension store (I83)
+STORE = Path("laws") / "STATEMENT_DIFF.store"   # every file a model_extension line names, gzip, named by its sha256
+_HEX64 = re.compile(r"[0-9a-f]{64}\Z")
+_STORE_MEMO: dict = {}   # (step, sha256s of its inputs) -> result: content-addressed, so one computation per process
+
+
+def store_read(root: Path, sha) -> tuple[bytes | None, str | None]:
+    """(the file of laws/STATEMENT_DIFF.store/ whose sha256 is sha, None), or (None, why): a file that is missing, is no
+    gzip or holds bytes hashing to anything but its name fails closed."""
+    if not isinstance(sha, str) or not _HEX64.match(sha):
+        return None, f"{sha!r} names no file of {STORE.as_posix()}/ (a sha256)"
+    p = Path(root) / STORE / f"{sha}.gz"
+    if not p.is_file():
+        return None, f"{STORE.as_posix()}/{sha}.gz is missing"
+    try:
+        b = gzip.decompress(p.read_bytes())
+    except (OSError, EOFError, zlib.error) as x:
+        return None, f"{STORE.as_posix()}/{sha}.gz is no gzip file ({type(x).__name__})"
+    if _sha(b) != sha:
+        return None, f"{STORE.as_posix()}/{sha}.gz holds a file whose sha256 is {_sha(b)}, not its name"
+    return b, None
+
+
+def store_write(root: Path, data: bytes) -> str:
+    """Keep a file in laws/STATEMENT_DIFF.store/ under its sha256 (gzip with no name and time 0, so the same file gives
+    the same bytes); a file already there, whole, is left as it is."""
+    sha = _sha(data)
+    if store_read(root, sha)[0] is None:
+        p = Path(root) / STORE / f"{sha}.gz"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(gzip.compress(data, compresslevel=9, mtime=0))
+    return sha
+
+
+def extension_named(ext) -> list[tuple]:
+    """[(sha256, what)] of every file a model_extension acceptance record names: the old and new model files, the record
+    (and the old record), the proof, the law file and the two bindings, when it names them."""
+    if not isinstance(ext, dict):
+        return []
+    out = []
+    for side in ("old", "new"):
+        for r, sha in sorted(((ext.get("models") or {}).get(side) or {}).items()):
+            out.append((sha, f"the {side} model file {r}"))
+    rec = ext.get("record") if isinstance(ext.get("record"), dict) else {}
+    out.append((rec.get("sha256"), f"the record {rec.get('path')}"))
+    if "old_sha256" in rec:
+        out.append((rec["old_sha256"], f"the record {rec.get('path')} at the bound commit"))
+    for k in ("proof", "laws"):
+        if ext.get(k) is not None:
+            x = ext[k] if isinstance(ext[k], dict) else {}
+            out.append((x.get("sha256"), f"the {k} file {x.get('path')}"))
+    if "bindings" in ext:
+        bs = ext["bindings"] if isinstance(ext["bindings"], dict) else {}
+        out += [(bs.get(side), f"the {side} binding") for side in ("old", "new")]
+    return out
+
+
+def _memo(step: str, key, f):
+    k = (step, json.dumps(key, sort_keys=True))
+    if k not in _STORE_MEMO:
+        _STORE_MEMO[k] = f()
+    return _STORE_MEMO[k]
+
+
+def _top_file(files: dict) -> str | None:
+    """The one file of a model's files ({path: text}) that no other imports (the model's entry), or None."""
+    from .bindings import _LOCAL_IMPORT
+    imported = {(Path(r).parent / name).as_posix() for r, t in files.items() for name in _LOCAL_IMPORT.findall(t)}
+    if not imported <= set(files):
+        return None   # a module the files import is not among them
+    tops = sorted(r for r in files if r not in imported)
+    return tops[0] if len(tops) == 1 else None
+
+
+def _verify_extension_store(e, acc, root: Path) -> str | None:
+    """A model_extension line checked from the working tree alone (I83; the coordinator's decision, revocable): every
+    file its acceptance record names is read from laws/STATEMENT_DIFF.store/ (a missing file, or one whose bytes do not
+    hash to its name, fails closed), and every rule that needs only those files holds again:
+      X0 the entry carries milestone, bound_commit and defs, unsigned, and its acceptance record names its bound_commit
+         and renaming;
+      X1 old and new are the same statement, and the stored record is the law's;
+      X2 (when the record names the two bindings) they differ in the cone alone, and the entry's defs are exactly the
+         changed definitions;
+      X3 the stored old and new model files: the renaming inferred from them is the entry's, and extension_problems
+         finds nothing with every name the stored proof and law file reference fixed;
+      X4 the stored record names the stored new model (its model_sha256 is the sha256 of the entry file of the new
+         files), has the new status the acceptance names, which moves from the old status in the honest direction (the
+         stored old record's status, when named), and the recorded re-check shows Bend, and BendTT whenever the verdict
+         is available, accepting the proof.
+    The kernels are not re-run here: the check that appended the line ran them on the same files, which are the files
+    the record names. On git the files are also tied to the history (_verify_extension_record)."""
+    from . import bend
+    from . import bindings as B
+    if not isinstance(e, dict) or not _is_law(e.get("old")) or not _is_law(e.get("new")):
+        return "a model_extension line carries the old and the new statement as law IR"
+    if core(e["old"]) != core(e["new"]):
+        return "a model_extension keeps the statement fixed (X1), and this line changes it"
+    if not isinstance(e.get("milestone"), str) or not isinstance(e.get("bound_commit"), str) \
+            or not isinstance(e.get("defs"), list) or e.get("signature"):
+        return "a model_extension line carries milestone, bound_commit and defs, unsigned (X0)"
+    ext = acc.get("extension") if isinstance(acc, dict) and acc.get("kind") == "model_extension" else None
+    if not isinstance(ext, dict) or not isinstance(ext.get("models"), dict) or not isinstance(ext.get("record"), dict):
+        return "its acceptance record names no model_extension check"
+    if ext.get("bound_commit") != e["bound_commit"] or ext.get("renaming") != e.get("renaming"):
+        return "its acceptance record names another bound_commit or renaming than the entry (X0)"
+    named, files = extension_named(ext), {}
+    for sha, what in named:
+        b, why = store_read(root, sha)
+        if b is None:
+            return f"{what} cannot be read from the working tree: {why}"
+        files[sha] = b
+    try:
+        old = {r: files[s].decode("utf-8") for r, s in sorted((ext["models"].get("old") or {}).items())}
+        new = {r: files[s].decode("utf-8") for r, s in sorted((ext["models"].get("new") or {}).items())}
+        rec = json.loads(files[ext["record"]["sha256"]].decode("utf-8"))
+        proof = files[ext["proof"]["sha256"]].decode("utf-8") if ext.get("proof") else None
+        laws = files[ext["laws"]["sha256"]].decode("utf-8") if ext.get("laws") else None
+        old_rec = json.loads(files[ext["record"]["old_sha256"]]) if "old_sha256" in ext["record"] else None
+        bnd = {k: json.loads(files[ext["bindings"][k]]) for k in ("old", "new")} if "bindings" in ext else None
+    except (UnicodeDecodeError, ValueError, KeyError, TypeError) as x:
+        return f"a stored file of the line does not read as its record names it ({type(x).__name__})"
+    lid = e["new"]["law_id"]
+    if not isinstance(rec, dict) or rec.get("law_id") != lid or rec.get("status") != ext["record"].get("new_status"):
+        return f"the stored record is not {lid}'s record with the status its acceptance names (X1)"
+    if old_rec is not None and (not isinstance(old_rec, dict) or old_rec.get("status") != ext["record"].get("old_status")):
+        return "the stored old record does not have the old status its acceptance names (X4)"
+    arts = rec.get("artifacts") if isinstance(rec.get("artifacts"), dict) else {}
+    for k in ("proof", "laws"):
+        if ext.get(k) is not None and arts.get(k) != ext[k].get("path"):
+            return f"the stored record's {k} file is not the one its acceptance names"
+    if bnd is not None:
+        ob, nb = bnd["old"], bnd["new"]
+        if not isinstance(ob, dict) or not isinstance(nb, dict) or [k for k in BINDING_KEYS if ob.get(k) != nb.get(k)]:
+            return f"the stored bindings of {lid} differ beyond the cone (X2)"
+        if B.changed_defs(ob, nb) != sorted(e["defs"]):
+            return "the entry's defs are not the changed definitions of the stored bindings (X2)"
+    top_old, top_new = _top_file(old), _top_file(new)
+    if top_old is None or top_new is None:
+        return "the stored model files are not one model each (an entry file importing every other) (X3)"
+    short, short_new = {Path(r).name: t for r, t in old.items()}, {Path(r).name: t for r, t in new.items()}
+    if len(short) != len(old) or len(short_new) != len(new):
+        return "two stored model files of one side have the same name (X3)"
+    shas = [sorted(ext["models"]["old"].items()), sorted(ext["models"]["new"].items())]
+    renaming = _memo("infer", shas, lambda: infer_renaming(short, short_new))
+    if renaming != (e.get("renaming") or {}):
+        return "the entry's renaming (old -> new names) is not the one inferred from the stored models (X3)"
+    fixed = set()
+    for text in (proof, laws):
+        if text is not None:
+            fixed |= _file_refs(text, set(short) | set(short_new))
+    probs = _memo("x3", [shas, renaming, sorted(fixed)],
+                  lambda: extension_problems(short, short_new, fixed=frozenset(fixed), renaming=renaming))
+    if probs:
+        return "the stored models are not a conservative extension (X3): " + "; ".join(probs[:6])
+    vp = verdict_problems(ext["record"].get("old_status"), rec, ext.get("recheck"),
+                          ext["models"]["new"][top_new], bend.verdict_enabled(bend.config(root)))
+    if vp:
+        return "the stored record does not re-establish the verdict (X4): " + "; ".join(vp)
+    return None
+
+
+def extension_store_fill(root: Path) -> tuple[list, list]:
+    """(stored sha256s, problems): keep in laws/STATEMENT_DIFF.store/ every file a model_extension line of the log names
+    and the store lacks, read from git (read-only): the old model files, the old record and the old binding at the line's
+    bound_commit, every other file at the commit that appended the line (on the tree for a line not yet committed); each
+    must hash as the line names it. `python -m holon.statement_diff store` (append writes them for a new line)."""
+    root = Path(root)
+    path = root / LOG
+    if not path.is_file() or not in_git(root):
+        return [], [f"{path} or the git history is missing"]
+    data = path.read_bytes()
+    spans, side, _ = merged_lines(data, path, root)
+    committed_len = spans[-1][0] if spans else 0
+    done, probs, offset = [], [], 0
+    for n, raw in enumerate(data.splitlines(keepends=True), start=1):
+        start, offset = offset, offset + len(raw)
+        e = _json_or_none(raw)
+        if not isinstance(e, dict) or e.get("kind") != "model_extension":
+            continue
+        commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(raw)
+        ext = (e.get("accepted") or {}).get("extension") if isinstance(e.get("accepted"), dict) else None
+        if not isinstance(ext, dict) or not isinstance(ext.get("bound_commit"), str):
+            probs.append(f"line {n}: no model_extension acceptance record")
+            continue
+        bc, rec = ext["bound_commit"], ext.get("record") or {}
+
+        def at(c, rel):
+            return blob_at(root, c, rel) if c is not None else ((root / rel).read_bytes() if (root / rel).is_file()
+                                                                  else None)
+        source = {}
+        for r, sha in (ext.get("models") or {}).get("old", {}).items():
+            source[sha] = lambda r=r: at(bc, r)
+        for r, sha in (ext.get("models") or {}).get("new", {}).items():
+            source.setdefault(sha, lambda r=r: at(commit, r))
+        source.setdefault(rec.get("sha256"), lambda: at(commit, rec.get("path") or ""))
+        if "old_sha256" in rec:
+            source.setdefault(rec["old_sha256"], lambda: at(bc, rec.get("path") or ""))
+        for k in ("proof", "laws"):
+            if isinstance(ext.get(k), dict):
+                source.setdefault(ext[k].get("sha256"), lambda k=k: at(commit, ext[k].get("path") or ""))
+        if isinstance(ext.get("bindings"), dict):
+            source.setdefault(ext["bindings"].get("old"),
+                              lambda: ir.canonical_json(_binding_at(root, bc, str(e.get("milestone")),
+                                                                    str(e.get("law_id")))))
+        for sha, what in extension_named(ext):
+            if store_read(root, sha)[0] is not None:
+                continue
+            b = source[sha]() if sha in source else None
+            if b is None or _sha(b) != sha:
+                probs.append(f"line {n}: {what} ({str(sha)[:12]}..) cannot be read from git as the line names it")
+                continue
+            done.append(store_write(root, b))
+    return sorted(set(done)), probs
 
 
 def model_extension_entries(milestone: str, root: Path) -> tuple[list, list]:
@@ -2185,7 +2487,7 @@ def main(argv: list[str] | None = None) -> int:
     ones of) the reextraction / catalog_rederivation entries the milestone needs."""
     import argparse
     ap = argparse.ArgumentParser(prog="python -m holon.statement_diff")
-    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog", "rebind", "extend"))
+    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog", "rebind", "extend", "store"))
     ap.add_argument("entry", nargs="?")
     ap.add_argument("--root", default=str(ir.ROOT))
     ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
@@ -2219,6 +2521,12 @@ def main(argv: list[str] | None = None) -> int:
             Path(a.report).write_text(json.dumps(report, indent=1, sort_keys=True) + "\n")
         print(f"{len(es)} binding_change entries, {bad} rejected; {len(notes)} laws need another kind")
         return 0 if not bad else 1
+    if a.command == "store":   # I83: the files the model_extension lines name, read from git, into the store
+        done, probs = extension_store_fill(root)
+        for x in probs:
+            print(f"not stored: {x}")
+        print(f"{len(done)} file(s) stored in {STORE.as_posix()}/; {len(probs)} problem(s)")
+        return 0 if not probs else 1
     if a.command == "extend":   # I83: the model_extension entries of laws whose bound model gained behaviours
         es, notes = model_extension_entries(a.milestone, root)
         bad = 0
