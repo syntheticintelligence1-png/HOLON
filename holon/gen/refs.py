@@ -39,6 +39,10 @@ refs is the transitive closure of what the statement names, over the facts def g
   coerce:ID          a SORT coercion term {"coerce": ID, "on": A, "from": S} (I30): sha256 of canonical {"template":
                      "holon.rules.sort/coerce_ok", "template_version": 1, "subform", "basis", "hits"}, recomputed from
                      the document, the frozen assignment and the sidecars (holon.rules.sort.coerce_ref)
+  bundle:ID          a bundle-law term {"bundle": ID, ...} (I86): sha256 (hex) of canonical {"template":
+                     "holon.rules.bundle/<subform>", "template_version": 1, "subform", "member", "site"}, the site
+                     recomputed from the milestone's bundle-laws sidecar, declaration and documents
+                     (holon.rules.bundle.bundle_ref)
   disch:ID           a DISCH term {"disch": ID, "on": A, "from": S, "at": T, "env": E} (I31): sha256 (hex) of canonical
                      {"template": "holon.rules.disch/<subform>", "template_version": 1, "subform", "model", "blocked",
                      "check", "check_expr", "class", "closure", "excluded"}, recomputed from the document and the
@@ -387,6 +391,12 @@ class _Closure:
             self.term(t["on"])
             self.term(t["from"])
             return
+        if isinstance(t.get("bundle"), str):   # a bundle-law term (I86): its site, and the terms it applies to
+            self.bundle(t["bundle"])
+            for k in ("on", "from", "at", "env"):
+                if k in t:
+                    self.term(t[k])
+            return
         if isinstance(t.get("disch"), str) and "on" in t and "from" in t:   # a DISCH term (I31)
             self.disch(t["disch"])
             for k in ("on", "from", "at", "env"):
@@ -434,6 +444,14 @@ class _Closure:
         for h in spec.get("hits") or []:
             n = h.get("action")
             self.put("A_" + n, strip_meta(acts.get(n)) if n in acts else None)
+
+    def bundle(self, bid: str) -> None:
+        """bundle:<ID>: the bundle law's site document (holon.rules.bundle.bundle_ref), recomputed from the law's
+        milestone's bundle-laws sidecar, declaration and documents."""
+        if "bundle:" + bid in self.out:
+            return
+        from ..rules.bundle import bundle_ref
+        self.out["bundle:" + bid] = bundle_ref(bid, self.law, self.root)
 
     def disch(self, did: str) -> None:
         """disch:<ID>: the DISCH law's ref document (holon.analysis.closure.disch_ref), recomputed from the document
