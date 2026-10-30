@@ -807,13 +807,13 @@ class Gen:
 
     def t_shl(self, t, sc):
         if not isinstance(t[2], int):
-            raise GenError(f"{sc.action}: a shift by a non-constant amount")
+            return self.var_shift("l", t, sc)       # I83 L5: a shift by a non-constant amount
         fn = self.shl(int(t[2]))
         return (f"{fn}({self.w(t[1], sc)})" if fn else "w0()"), "w"
 
     def t_shr(self, t, sc):
         if not isinstance(t[2], int):
-            raise GenError(f"{sc.action}: a shift by a non-constant amount")
+            return self.var_shift("r", t, sc)       # I83 L5: a shift by a non-constant amount
         fn = self.shr(int(t[2]))
         return (f"{fn}({self.w(t[1], sc)})" if fn else "w0()"), "w"
 
@@ -2512,3 +2512,159 @@ def main(argv=None) -> int:
             if not r.ok:
                 return 1
     return 0
+
+
+# ================================================================================================ I86: DB1
+# The constructs the bundle's messenger needs (BUILD_PLAN I86; the contract is the docstring of
+# tests_m3/test_bundle_laws.py, rule DB1). They are methods of the generator attached here, in a block of their own, as
+# I83's block attaches its own; a model that uses none of them is written byte for byte as before (DB2):
+#   abi.encodeWithSignature(sig, a..)  the first four bytes of keccak256 of the literal signature (a constant the compiler
+#                                      folds), then the ABI head/tail encoding of the arguments by the signature's types
+#                                      (holon.extracted_eval's rule): a bytes or string argument a tail, any other a word
+#   ["update", X, ["member", _, m], v] the struct value X with member m set to v (one member level, the evaluator's rule);
+#                                      a storage struct X is read member by member; a member read of such a value reads
+#                                      it (t_member's hook for an update or struct base)
+#   the packed width of a word        an element of an array input has the element type, a loop-carried name its entry's
+#                                      type when its next value has the same, a conditional of two branches of one type
+#                                      that type (holon.extracted_eval.Eval.term_type; term_type's hook)
+#   a shift by a non-constant amount  I83's L5, copied verbatim below until I83 lands (the same Bend text, so no model
+#                                      moves when the copy is dropped for I83's)
+
+def _i86_ext_helpers(self) -> dict:
+    h = getattr(self, "_ext_defs", None)
+    if h is None:
+        h = self._ext_defs = {}
+    return h
+
+
+def _i86_ext_helper(self, name: str, text: str) -> str:
+    h = _i86_ext_helpers(self)
+    if name not in h:
+        h[name] = text.rstrip("\n") + "\n"
+    return name
+
+
+def _i86_var_shift(self, d: str, t, sc):
+    """I83's L5 (a copy until I83 lands): a shift by a non-constant amount n (EVM SHL/SHR: n >= 256 gives 0): the
+    constant shifts by 2^b for every set bit b of n below 256, in order (w_shrv / w_shlv, emitted only into a model that
+    shifts by a non-constant amount)."""
+    name = f"w_sh{d}v"
+    if name not in _i86_ext_helpers(self):
+        lines = [f"def {name}(+a: W, +n: W) -> W:"]
+        prev = "a"
+        for b in range(8):
+            fn = self.shr(1 << b) if d == "r" else self.shl(1 << b)
+            lines.append(f"  +s{b} = {{ite(W, w_nz(w_and(n, {wlit(1 << b)})), {fn}({prev}), {prev}) : W}}")
+            prev = f"s{b}"
+        lines.append(f"  ite(W, w_lt(n, {wlit(256)}), {prev}, w0())")
+        _i86_ext_helper(self, name, "\n".join(lines) + "\n")
+    return f"{name}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+def _i86_t_abi_encodeWithSignature(self, t, sc):
+    from ..keccak import keccak256
+    if not (isinstance(t[1], list) and t[1][:1] == ["str"]):
+        raise GenError(f"{sc.action}: abi.encodeWithSignature of a signature that is not a literal")
+    sig = bytes.fromhex(t[1][1]).decode("utf-8")
+    types = [p.get("type") for p in EV.signature_types(sig)]
+    if len(types) != len(t) - 2:
+        raise GenError(f"{sc.action}: abi.encodeWithSignature({sig}) with {len(t) - 2} arguments")
+    heads, tails = [], []
+    for x, ty in zip(t[2:], types):
+        c, k = self.value(x, sc)
+        if ty in ("bytes", "string"):
+            heads.append(None)
+            tails.append(self.to_bytes(c, k))
+        elif EV._is_dynamic({"type": ty}) or ty.startswith("int") or ty == "tuple":
+            raise GenError(f"{sc.action}: abi.encodeWithSignature with an argument of type {ty}")
+        else:
+            heads.append(f"b_of_w({self.to_w(c, k)})")
+    sel = keccak256(sig.encode("utf-8"))[:4]
+    return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat(heads, tails)})", "b"
+
+
+def _i86_struct_members(self, base, sc) -> dict:
+    """{member: word code} of a struct value term: a struct or update term's members, or a storage struct read member
+    by member (as a whole-struct write reads it)."""
+    c, k = self.tx(base, sc)
+    if k == "z":
+        return json.loads(c[2:])
+    if k == "p":
+        _slot, _off, tid, _l = self.locate(c, sc)
+        st = self.m.type_of(tid)
+        if "members" not in st:
+            raise GenError(f"{sc.action}: an update of a {st.get('label')} read")
+        vals = {}
+        for mm in st["members"]:
+            mt = self.m.type_of(mm["type"])
+            if mt.get("encoding") != "inplace" or "members" in mt or "base" in mt:
+                continue
+            vals[mm["label"]] = self.w(["member", base, mm["label"]], sc)
+        return vals
+    raise GenError(f"{sc.action}: an update of a {k} value")
+
+
+def _i86_t_update(self, t, sc):
+    tgt = t[2]
+    if not (isinstance(tgt, list) and len(tgt) == 3 and tgt[0] == "member" and isinstance(tgt[2], str)):
+        raise GenError(f"{sc.action}: an update of a value at a path deeper than one member")
+    vals = _i86_struct_members(self, t[1], sc)
+    if tgt[2] not in vals:
+        raise GenError(f"{sc.action}: an update of no member {tgt[2]}")
+    vals[tgt[2]] = self.w(t[3], sc)
+    return "z:" + json.dumps(vals, sort_keys=True), "z"
+
+
+_i86_t_member_before = Gen.t_member
+
+
+def _i86_t_member(self, t, sc):
+    if isinstance(t[1], list) and t[1][:1] in (["update"], ["struct"]):
+        vals = _i86_struct_members(self, t[1], sc)
+        if t[2] not in vals:
+            raise GenError(f"{sc.action}: no member {t[2]} in a struct value")
+        return vals[t[2]], "w"
+    return _i86_t_member_before(self, t, sc)
+
+
+_i86_term_type_before = Gen.term_type
+
+
+def _i86_term_type(self, t, sc):
+    h = t[0] if isinstance(t, list) and t and isinstance(t[0], str) else None
+    if h == "index" and isinstance(t[1], list) and t[1][:1] == ["param"]:
+        ty = self.term_type(t[1], sc)
+        return re.sub(r"\[\d*\]$", "", ty) if isinstance(ty, str) and ty.endswith("]") else None
+    if h == "carried":
+        span, name = t[1], t[2]
+        r = t[3] if len(t) > 3 and isinstance(t[3], int) else 0
+        loops = [lp for lp in (self.m.actions.get(sc.action) or {}).get("loops") or [] if lp.get("src") == span]
+        if r >= len(loops):
+            return None
+        ent = next((c for c in loops[r].get("carried") or [] if c.get("name") == name), None)
+        nxt = next((c for c in loops[r].get("next") or [] if c.get("name") == name), None)
+        if ent is None:
+            return None
+        a = self.term_type(ent.get("entry"), sc)
+        b = self.term_type(nxt.get("value"), sc) if nxt is not None else a
+        return a if a is not None and a == b else None
+    if h == "?":
+        a, b = self.term_type(t[2], sc), self.term_type(t[3], sc)
+        return a if a is not None and a == b else None
+    return _i86_term_type_before(self, t, sc)
+
+
+_i86_shift_defs_before = Gen.shift_defs
+
+
+def _i86_shift_defs(self) -> list[str]:
+    return _i86_shift_defs_before(self) + list(_i86_ext_helpers(self).values())
+
+
+if not hasattr(Gen, "var_shift"):          # I83's L5 is the one when I83 has landed
+    Gen.var_shift = _i86_var_shift
+    Gen.shift_defs = _i86_shift_defs
+Gen.t_abi_encodeWithSignature = _i86_t_abi_encodeWithSignature
+Gen.t_update = _i86_t_update
+Gen.t_member = _i86_t_member
+Gen.term_type = _i86_term_type
