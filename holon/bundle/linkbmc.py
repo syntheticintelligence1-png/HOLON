@@ -42,8 +42,8 @@ answer model, so the engine's code and every result it gave before stay as they 
   Q4 results/<M>/bundle_laws/bmc.json: {"bmc_version", "settings", "targets": {id: {"kind", "verdict", "k", "path",
      "reason", "replay", "bound"}}}; --check re-runs everything and compares. A target whose search did not finish
      has no verdict: "not_run", with why (I40's crash guard fired or the solver crashed, which is never a verdict; or
-     the document was written with --cached-only before a run finished it). --check does not search a target the
-     checked document records as not run: it carries no verdict to reproduce.
+     the document was written with --cached-only before a run finished it). --check searches every target, so a
+     not-run target reproduces only while the check's own search of it does not finish either.
   Q5 No law and no I40 output changes.
 
 holon.bundle.linkbmc_out replays the paths and writes the document (Q3's replay, Q4); this module is the search
@@ -490,15 +490,13 @@ def not_run(t: dict, why: str) -> dict:
 
 
 def search_all(s: Setup, log=print, cache: str | None = None, *, check: bool = False, cached_only: bool = False,
-               skip: dict | None = None, jobs: int = 1) -> dict:
+               jobs: int = 1) -> dict:
     """Each target's search with I40's engine (iterative deepening k = 1..H, the cone's levels): {id: result}.
 
     cache: a directory (the environment's HOLON_BUNDLE_BMC_CACHE) where each finished search is kept under the digest
     of the code and the inputs, so an interrupted run resumes. A run and a check keep separate entries (a check's are
     named check-<digest>): a check reads only its own recomputations, never a run's, so an interrupted check resumes
-    too. cached_only: no search; a target without an entry is not run. skip: {id: why}, targets not searched but
-    recorded as not run with that why (--check: the targets the checked document records as not run, which carry no
-    verdict to reproduce).
+    too. cached_only: no search; a target without an entry is not run.
 
     Each target's search builds its own Problem, so jobs > 1 searches targets side by side with the same results. A
     search that the solver's crash guard aborts (I40's watchdog), or whose solver crashes, gives no verdict: the target
@@ -512,9 +510,6 @@ def search_all(s: Setup, log=print, cache: str | None = None, *, check: bool = F
     pre = ("check-" if check else "") + (dig[:16] if dig else "")
 
     def one(t):
-        if skip and t["id"] in skip:
-            log(f"{t['id']} ({t['kind']}): not searched (the checked document records it not run)")
-            return t["id"], not_run(t, skip[t["id"]])
         cf = Path(cache) / f"{pre}-{t['id'].replace('/', '_').replace('#', '_').replace(':', '_')}.json" \
             if cache else None
         if cf is not None and cf.is_file():
