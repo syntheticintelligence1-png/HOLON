@@ -18,6 +18,7 @@
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
   python -m holon oracle check --milestone M2 [--root DIR]   (oracle sidecar hypotheses: A4, G11V; I12)
+  python -m holon oracle compression --milestone M3 [--root DIR] [--check]   (HypZ and HypZ_len on the real codec; I91)
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
   python -m holon replay [--milestone M] [--morph PATH] [--forge F] [--solc S] [--work DIR] [--write-pins]
   python -m holon lean --milestone M0 [--json] [--jobs N]   (Lean 4 second kernel, I9)
@@ -348,8 +349,10 @@ def _main(argv: list) -> int:
     bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
                                    "(or stays unbound)")
     orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
-                                        "(the oracle sidecar's hypotheses, I12); both write results/M2/hypotheses.json")
-    orc.add_argument("which", choices=["zero-blob", "check"])
+                                        "(the oracle sidecar's hypotheses, I12), both writing results/M2/hypotheses.json; "
+                                        "`oracle compression --milestone M3` (HypZ and HypZ_len on the real codec, I91), "
+                                        "writing results/M3/compression_oracle.json")
+    orc.add_argument("which", choices=["zero-blob", "check", "compression"])
     orc.add_argument("rest", nargs=argparse.REMAINDER)
     cu = sub.add_parser("checker-upgrade", help="re-run gates and runs under a candidate checker; report every diff")
     cu.add_argument("rest", nargs=argparse.REMAINDER)
@@ -421,6 +424,9 @@ def _main(argv: list) -> int:
         if a.which == "check":
             from . import oracle_check
             return oracle_check.main(a.rest)
+        if a.which == "compression":   # I91 (rules Z1-Z9 of tests_m3/test_compress.py)
+            from .oracles import compression
+            return compression.main(a.rest)
         from .oracles import zero_blob
         return zero_blob.main(a.rest)
     if a.cmd == "checker-upgrade":
