@@ -268,7 +268,17 @@ def _generic(sub: str, n: int, act: str, role: str, a_act: str, b_act: str, hit:
         # the claim's outer connectives: ux_imp for the counter-law's sy_ok, Bool.and for the inhabitant's sy_hit
         f, md = ("Bool.and", "h") if hit else ("U.ux_imp", "c")
         fin = f"{f}({prem}, {f}({oks}, U.sy_om_{n}_{md}(uxy, uyx)))"
-        chain = [("efin", "_"),
+        head = [("efin", "_")]
+        if not hit:
+            # the counter-law's last comparison, sy_om_<n>_c unfolded: the two orders' stores, each filtered to its
+            # sink-reaching entries (U.sy_snk) by a lemma of its own, compared as literals
+            snk = lambda u: f"U.sy_snk(U.sy_sl(U.sy_st_of(U.sy_post({u}))))"  # noqa: E731
+            lits += [("fx", "List<&2, M.KV>", snk("uxy")), ("fy", "List<&2, M.KV>", snk("uyx"))]
+            ok2 = "Bool.and(U32.is_eq(U.sy_code(uxy), 0), U32.is_eq(U.sy_code(uyx), 0))"
+            fin = f"U.ux_imp({prem}, U.ux_imp({oks}, U.ux_imp({ok2}, U.sy_sink_eq2(fx, fy))))"
+            head += [("efy", f"U.ux_imp({prem}, U.ux_imp({oks}, U.ux_imp({ok2}, U.sy_sink_eq2(fx, _))))"),
+                     ("efx", f"U.ux_imp({prem}, U.ux_imp({oks}, U.ux_imp({ok2}, U.sy_sink_eq2(_, {snk('uyx')}))))")]
+        chain = head + [
                  ("euyx", f"{f}({prem}, {f}({oks}, U.sy_om_{n}_{md}(uxy, _)))"),
                  ("euxy", f"{f}({prem}, {f}({oks}, U.sy_om_{n}_{md}(_, U.ux_ostep(x, U.sy_post(uy), kh))))"),
                  ("euy", f"{f}({prem}, U.sy_om_{n}_{md}2(ux, _, x, y, kh))"),
@@ -336,7 +346,7 @@ def _split(law: dict, n: int, sub: str, model_import: str, sym_import: str, laws
         return re.sub(r"(?<![\w.])(" + "|".join(sorted(map(re.escape, sub_map), key=len, reverse=True)) + r")(?![\w(])",
                       lambda m: sub_map[m.group(1)], text)
     for k, t, _e in lits:
-        lines += [f"def l_{k}() -> {t}:\n  {lit.typed(runs[k], t.split('.', 1)[1])}", ""]
+        lines += [f"def l_{k}() -> {t}:\n  {lit.typed(runs[k], re.sub(r'(?<![\w.])[MU][.]', '', t))}", ""]
     for h, ty in hyps:
         lines += [f"def {h}() -> {inst(ty)}:\n  {{==}}", ""]
     names = ["g", "x"] + [b for b, _t in binders(law)[1:]] + ["kh"]

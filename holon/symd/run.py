@@ -448,11 +448,16 @@ class Decider:
             m.drop([h1])
             return out
         y = m.act(w["y"])
-        hx, hy = m.fresh(), m.fresh()
+        hx, hy, hxy, hyx = m.fresh(), m.fresh(), m.fresh(), m.fresh()
         out = {"ux": run(x, {"$ref": g}, hx), "uy": run(y, {"$ref": g}, hy)}
-        out["uxy"] = run(y, {"$call": "sy_post", "args": [{"$ref": hx}]})
-        out["uyx"] = run(x, {"$call": "sy_post", "args": [{"$ref": hy}]})
-        m.drop([hx, hy])
+        out["uxy"] = run(y, {"$call": "sy_post", "args": [{"$ref": hx}]}, hxy)
+        out["uyx"] = run(x, {"$call": "sy_post", "args": [{"$ref": hy}]}, hyx)
+
+        def snk(h):  # the order's store after both steps, filtered to its sink-reaching entries (U.sy_snk)
+            post = {"$call": "sy_st_of", "args": [{"$call": "sy_post", "args": [{"$ref": h}]}]}
+            return m.mreq({"fn": "sy_snk", "args": [{"$call": "sy_sl", "args": [post]}]})["out"]
+        out["fx"], out["fy"] = snk(hxy), snk(hyx)
+        m.drop([hx, hy, hxy, hyx])
         return out
 
     def emit_counter(self, el: dict, law: dict, sc: SymCtx, w: dict):

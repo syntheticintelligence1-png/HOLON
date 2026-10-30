@@ -677,8 +677,20 @@ class SymSection(Trace):
                  f"{self.Q('kv_get')}(ys, k)))")
         self.add(f"def sy_sks(zs: List<&2, {KV}>, +xs: List<&2, {KV}>, +ys: List<&2, {KV}>) -> Bool:\n  match zs:\n"
                  "    case Nil{}:\n      True{}\n    case Con{h, t}:\n      Bool.and(sy_sk1(h, xs, ys), sy_sks(t, xs, ys))")
+        # sy_sink_eq compares the sink-reaching entries alone (sy_snk keeps them in order, so kv_get of a sink key finds
+        # the entry it finds in the whole store, and every other entry passed vacuously): the same Bool, and a counter-law
+        # converts each filtered store once (holon.symd.proofs) instead of looking every key up in both whole stores
+        self.add(f"def sy_snk_c(b: Bool, +h: {KV}, +r: List<&2, {KV}>) -> List<&2, {KV}>:\n  match b:\n"
+                 "    case True{}:\n      Con{h, r}\n    case False{}:\n      r")
+        self.add(f"def sy_snk_h(h: {KV}, +r: List<&2, {KV}>) -> List<&2, {KV}>:\n  match h:\n"
+                 f"    case {KV}{{+k, v}}:\n      sy_snk_c(sy_sink_key(k), {KV}{{k, v}}, r)")
+        self.add(f"# the store's sink-reaching entries, in order\n"
+                 f"def sy_snk(zs: List<&2, {KV}>) -> List<&2, {KV}>:\n  match zs:\n"
+                 "    case Nil{}:\n      Nil{}\n    case Con{h, t}:\n      sy_snk_h(h, sy_snk(t))")
+        self.add(f"def sy_sink_eq2(+fx: List<&2, {KV}>, +fy: List<&2, {KV}>) -> Bool:\n"
+                 "  Bool.and(sy_sks(fx, fx, fy), sy_sks(fy, fx, fy))")
         self.add(f"def sy_sink_eq(+xs: List<&2, {KV}>, +ys: List<&2, {KV}>) -> Bool:\n"
-                 "  Bool.and(sy_sks(xs, xs, ys), sy_sks(ys, xs, ys))")
+                 "  sy_sink_eq2(sy_snk(xs), sy_snk(ys))")
 
     # ---------------------------------------------------------- the laws
     def is_act(self, a: str) -> None:
