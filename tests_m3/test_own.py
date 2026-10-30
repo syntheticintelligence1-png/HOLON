@@ -336,7 +336,7 @@ class TestPredictions(unittest.TestCase):
         recs = records(M)
         for lid in ALIAS_PROVED:
             self.assertEqual(recs[lid]["status"], "PROVED", lid)
-            ks = {k["kernel"]: k.get("result") for k in recs[lid]["kernels"]}
+            ks = {k.get("name"): k.get("result") for k in recs[lid]["kernels"]}   # amended: entries are keyed "name"
             self.assertEqual(ks.get("bendtt"), "checked", lid)
             self.assertTrue((ROOT / "gen" / M / "proofs" / lid / "PROOF.bend").is_file(), lid)
 
