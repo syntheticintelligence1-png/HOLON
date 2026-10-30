@@ -217,6 +217,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["versions"]:  # likewise for holon.versions (versioned machines, I28: rules V1-V9, PI1-PI6)
         from . import versions
         return versions.main(argv[1:])
+    if argv[:1] == ["bundle2"]:  # likewise for holon.bundle2 (Bundle II's extraction and linked machine, I80)
+        from . import bundle2
+        return bundle2.main(argv[1:])
     if argv[:1] == ["history"]:  # likewise for holon.frontends.solidity.history (deployment history, I63)
         from .frontends.solidity import history
         return history.main(argv[1:])
@@ -244,6 +247,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
         from . import profile
         return profile.main(argv[1:])
+    if argv[:1] == ["rank"]:  # likewise for holon.rank (Def 6.13's measures and §10.10's ranking, I81)
+        from . import rank
+        return rank.main(argv[1:])
     if argv[:1] == ["backtest"]:  # likewise for holon.backtest (the back-test across documents, I24)
         from . import backtest
         return backtest.main(argv[1:])
