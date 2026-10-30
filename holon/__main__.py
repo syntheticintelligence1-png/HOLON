@@ -62,6 +62,8 @@
   python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
                                                         (the theory core and basis sufficiency by application:
                                                         gen/<M>/theory/; I42)
+  python -m holon versions extract|model|analyze|inhabit|replay [--check]   (versioned machines over the deployment
+                                                        history, PAR-init and the in-flight inhabitants; I28)
   python -m holon types|termsize|model|run|replay --milestone M3 ...   (typed milestones, M3+ and T30+: I30's
                                                         holon.sorts; `run --laws` naming only laws outside I30's typed
                                                         SORT subforms, I24's PAR laws on M3, runs holon.pipeline)
@@ -207,6 +209,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["historical"]:  # likewise for holon.historical (fetch | replay, I59)
         from . import historical
         return historical.main(argv[1:])
+    if argv[:1] == ["versions"]:  # likewise for holon.versions (versioned machines, I28: rules V1-V9, PI1-PI6)
+        from . import versions
+        return versions.main(argv[1:])
     if argv[:1] == ["history"]:  # likewise for holon.frontends.solidity.history (deployment history, I63)
         from .frontends.solidity import history
         return history.main(argv[1:])
@@ -261,6 +266,17 @@ def _main(argv: list) -> int:
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
+    if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I28: the PAR-init laws (rule PAR, sub-form init_chain) a --laws list names are decided over the versioned
+        # model (holon.versions.run); the list's other laws go on as before
+        from .versions import run as versions_run
+        split = versions_run.ids_of(argv)
+        if split is not None:
+            vids, others = split
+            rc = 0
+            if others:
+                rc = _main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, versions_run.main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(vids)]))
     if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv):
         from .fact import run as fact_run
         if fact_run.has_fact_laws(argv):

@@ -394,6 +394,9 @@
     },
     {
      "$ref": "#/$defs/t_ghost"
+    },
+    {
+     "$ref": "#/$defs/t_init"
     }
    ]
   },
@@ -983,6 +986,32 @@
      "$ref": "#/$defs/term"
     },
     "from": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_init": {
+   "type": "object",
+   "required": [
+    "init",
+    "on",
+    "from",
+    "env"
+   ],
+   "additionalProperties": false,
+   "description": "a PAR-init term (I28, holon.rules.par_init): the init id <model>:chain:<F>:<o>:<o'> of a commitment chain's basis element (rule PAR, sub-form init_chain) applied to an action, a reachable state of the versioned machine and the step's environment: the Bool 'when the action is a successful call of the chain's root site action at the state with the environment, the cell o of the bytes the root site hashes equals their cell o'' (true otherwise); rendered init_ok[ID](A, S, E); its statement ref init:ID hashes the basis element and the per-version documents, recomputed from the versioned document (holon.gen.refs)",
+   "properties": {
+    "init": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:chain:[A-Za-z0-9_]+:[0-9]+:[0-9]+$"
+    },
+    "on": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    },
+    "env": {
      "$ref": "#/$defs/term"
     }
    }

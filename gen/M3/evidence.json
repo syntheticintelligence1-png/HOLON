@@ -2696,7 +2696,7 @@
     }
   ],
   "document": "evidence",
-  "evidence_sha256": "dc92dd52246cac342c4e3003123190dae803c7e72c60374bbae60f78c1f616cf",
+  "evidence_sha256": "f0ba5b9817074d31d4eb2186b6afa675516087de4a8ee99777a86c5719e76c47",
   "evidence_version": "holon-evidence/0.1",
   "inputs": [
     {
@@ -2720,6 +2720,46 @@
       "sha256": "1fa800ee65969c575b5310b3d9d14913b7f82f3b5e65d5ebc30afe3fb9ea818f"
     },
     {
+      "path": "gen/M3/versions/documents/V10.json",
+      "sha256": "b3329d0f5ae7cde0f8128f7624cfe1ee1f9ccec201c3d655263ec99692b8860f"
+    },
+    {
+      "path": "gen/M3/versions/documents/V11.json",
+      "sha256": "a4a61f6269a8b243695c1d861bb25dc1a37e97f20ee9eb61251e4826ae13c5cd"
+    },
+    {
+      "path": "gen/M3/versions/documents/V3.json",
+      "sha256": "cc051bc099b464e082f024c806515650d0a3b03d34a5491a0c5bbafdb173f288"
+    },
+    {
+      "path": "gen/M3/versions/documents/V4.json",
+      "sha256": "df9e2044a7031d844efe0f0967c8750806e43765486de1f6cbd4eddcc39f5e52"
+    },
+    {
+      "path": "gen/M3/versions/documents/V5.json",
+      "sha256": "b0dce3975dcc8aa3b8a76e81d75c5ed0ff9c1a50104b816d6436cf73c867955a"
+    },
+    {
+      "path": "gen/M3/versions/documents/V6.json",
+      "sha256": "8a93bf01c3955e9a38df8bf9f022de524dbc9207782cbfeac4db4a0d1efaa0bd"
+    },
+    {
+      "path": "gen/M3/versions/documents/V7.json",
+      "sha256": "15aa9ed25174bf8e74b1468ecac6621c3a123bf6ca3d0d6b76dec0ba6f7d1b1f"
+    },
+    {
+      "path": "gen/M3/versions/documents/V8.json",
+      "sha256": "8ec6d3cb1d820cee48453ff407125c536dc1c4f50bb31c4997c1f04408aa0297"
+    },
+    {
+      "path": "gen/M3/versions/documents/V9.json",
+      "sha256": "02fcf8c6fe7831bbc9635460620fd48e4756ee6951de0a4560c3ec0caa63d289"
+    },
+    {
+      "path": "gen/M3/versions/morph_rollup.versions.json",
+      "sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78"
+    },
+    {
       "path": "spec/M2/facts/morph_batch.go.extracted.json",
       "sha256": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573"
     },
@@ -2738,6 +2778,10 @@
     {
       "path": "spec/M3/lib/derive_extracted.json",
       "sha256": "87749c82c2e790561357e5d99b22ff1aa895774e3064a39e8e80f98e30466a6f"
+    },
+    {
+      "path": "spec/M3/lib/versions.json",
+      "sha256": "aa6ea949281bef01a33d052ab6c2fe1ad810a5074c0046ec53e3e63899097ac7"
     }
   ],
   "levels": {
@@ -3307,6 +3351,503 @@
       "facts": "spec/M2/facts/morph_rollup.extracted.json",
       "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
       "facts_version": "holon-facts/0.3"
+    },
+    "morph_rollup.versions": {
+      "anchors": {
+        "actions": {
+          "addChallenger": "TRANS.addChallenger",
+          "batchChallengedSuccess": "TRANS.batchChallengedSuccess",
+          "batchExist": "TRANS.batchExist",
+          "batchInChallenge": "TRANS.batchInChallenge",
+          "batchInsideChallengeWindow": "TRANS.batchInsideChallengeWindow",
+          "challengeState": "TRANS.challengeState",
+          "claimProveRemaining": "TRANS.claimProveRemaining",
+          "claimReward": "TRANS.claimReward",
+          "commitBatch": "TRANS.commitBatch",
+          "commitBatchWithProof": "TRANS.commitBatchWithProof",
+          "commitState": "TRANS.commitState",
+          "finalizeBatch": "TRANS.finalizeBatch",
+          "importGenesisBatch": "TRANS.importGenesisBatch",
+          "initialize": "TRANS.initialize",
+          "initialize2": "TRANS.initialize2",
+          "initialize3": "TRANS.initialize3",
+          "initialize4": "TRANS.initialize4",
+          "isBatchFinalized": "TRANS.isBatchFinalized",
+          "owner": "TRANS.owner",
+          "paused": "TRANS.paused",
+          "proveCommittedBatchState": "TRANS.proveCommittedBatchState",
+          "proveState": "TRANS.proveState",
+          "receive": "TRANS.receive",
+          "removeChallenger": "TRANS.removeChallenger",
+          "renounceOwnership": "TRANS.renounceOwnership",
+          "revertBatch": "TRANS.revertBatch",
+          "setPause": "TRANS.setPause",
+          "transferOwnership": "TRANS.transferOwnership",
+          "updateFinalizePeriodSeconds": "TRANS.updateFinalizePeriodSeconds",
+          "updateProofWindow": "TRANS.updateProofWindow",
+          "updateRewardPercentage": "TRANS.updateRewardPercentage",
+          "updateRollupDelayPeriod": "TRANS.updateRollupDelayPeriod",
+          "updateVerifier": "TRANS.updateVerifier"
+        },
+        "carriers": {
+          "ContextUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "OwnableUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "PausableUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "__maxNumTxInChunk": {
+            "readers": [],
+            "writers": []
+          },
+          "_initialized": {
+            "readers": [
+              "TRANS.initialize",
+              "TRANS.initialize2",
+              "TRANS.initialize3",
+              "TRANS.initialize4"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.initialize2",
+              "TRANS.initialize3",
+              "TRANS.initialize4"
+            ]
+          },
+          "_initializing": {
+            "readers": [
+              "TRANS.initialize",
+              "TRANS.initialize2",
+              "TRANS.initialize3",
+              "TRANS.initialize4"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.initialize2",
+              "TRANS.initialize3",
+              "TRANS.initialize4"
+            ]
+          },
+          "_owner": {
+            "readers": [
+              "TRANS.addChallenger",
+              "TRANS.claimProveRemaining",
+              "TRANS.importGenesisBatch",
+              "TRANS.initialize",
+              "TRANS.owner",
+              "TRANS.removeChallenger",
+              "TRANS.renounceOwnership",
+              "TRANS.revertBatch",
+              "TRANS.setPause",
+              "TRANS.transferOwnership",
+              "TRANS.updateFinalizePeriodSeconds",
+              "TRANS.updateProofWindow",
+              "TRANS.updateRewardPercentage",
+              "TRANS.updateRollupDelayPeriod",
+              "TRANS.updateVerifier"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.renounceOwnership",
+              "TRANS.transferOwnership"
+            ]
+          },
+          "_paused": {
+            "readers": [
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.paused",
+              "TRANS.proveState",
+              "TRANS.setPause"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.setPause"
+            ]
+          },
+          "batchBlobVersionedHashes": {
+            "readers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch"
+            ],
+            "writers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch"
+            ]
+          },
+          "batchChallengeReward": {
+            "readers": [
+              "TRANS.claimReward",
+              "TRANS.proveState",
+              "TRANS.revertBatch",
+              "TRANS.setPause"
+            ],
+            "writers": [
+              "TRANS.claimReward",
+              "TRANS.proveState",
+              "TRANS.revertBatch",
+              "TRANS.setPause"
+            ]
+          },
+          "batchChallenged": {
+            "readers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.setPause"
+            ],
+            "writers": [
+              "TRANS.challengeState"
+            ]
+          },
+          "batchDataStore": {
+            "readers": [
+              "TRANS.batchExist",
+              "TRANS.batchInsideChallengeWindow",
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch",
+              "TRANS.proveState"
+            ],
+            "writers": [
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch"
+            ]
+          },
+          "challenges": {
+            "readers": [
+              "TRANS.batchChallengedSuccess",
+              "TRANS.batchInChallenge",
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.proveState",
+              "TRANS.revertBatch",
+              "TRANS.setPause"
+            ],
+            "writers": [
+              "TRANS.challengeState",
+              "TRANS.finalizeBatch",
+              "TRANS.proveState",
+              "TRANS.revertBatch",
+              "TRANS.setPause"
+            ]
+          },
+          "committedBatches": {
+            "readers": [
+              "TRANS.batchExist",
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch",
+              "TRANS.proveCommittedBatchState",
+              "TRANS.proveState",
+              "TRANS.revertBatch"
+            ],
+            "writers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.importGenesisBatch",
+              "TRANS.revertBatch"
+            ]
+          },
+          "committedStateRoots": {
+            "readers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch",
+              "TRANS.initialize2"
+            ],
+            "writers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch",
+              "TRANS.initialize2"
+            ]
+          },
+          "finalizationPeriodSeconds": {
+            "readers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.updateFinalizePeriodSeconds"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateFinalizePeriodSeconds"
+            ]
+          },
+          "finalizedStateRoots": {
+            "readers": [
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch"
+            ],
+            "writers": [
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch"
+            ]
+          },
+          "inChallenge": {
+            "readers": [
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.initialize4",
+              "TRANS.revertBatch",
+              "TRANS.setPause"
+            ],
+            "writers": [
+              "TRANS.challengeState",
+              "TRANS.proveState",
+              "TRANS.revertBatch",
+              "TRANS.setPause"
+            ]
+          },
+          "isChallenger": {
+            "readers": [
+              "TRANS.addChallenger",
+              "TRANS.challengeState",
+              "TRANS.removeChallenger"
+            ],
+            "writers": [
+              "TRANS.addChallenger",
+              "TRANS.removeChallenger"
+            ]
+          },
+          "l1StakingContract": {
+            "readers": [
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.proveState"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "lastCommittedBatchIndex": {
+            "readers": [
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.initialize2",
+              "TRANS.initialize4"
+            ],
+            "writers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.importGenesisBatch",
+              "TRANS.revertBatch"
+            ]
+          },
+          "lastFinalizedBatchIndex": {
+            "readers": [
+              "TRANS.challengeState",
+              "TRANS.finalizeBatch",
+              "TRANS.isBatchFinalized",
+              "TRANS.revertBatch"
+            ],
+            "writers": [
+              "TRANS.finalizeBatch",
+              "TRANS.importGenesisBatch"
+            ]
+          },
+          "legacyCutoverBatchIndex": {
+            "readers": [],
+            "writers": [
+              "TRANS.initialize4"
+            ]
+          },
+          "messageQueue": {
+            "readers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "proofRewardPercent": {
+            "readers": [
+              "TRANS.proveState",
+              "TRANS.updateRewardPercentage"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateRewardPercentage"
+            ]
+          },
+          "proofWindow": {
+            "readers": [
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.proveState",
+              "TRANS.updateProofWindow"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateProofWindow"
+            ]
+          },
+          "proveRemaining": {
+            "readers": [
+              "TRANS.claimProveRemaining",
+              "TRANS.proveState"
+            ],
+            "writers": [
+              "TRANS.claimProveRemaining",
+              "TRANS.proveState"
+            ]
+          },
+          "revertReqIndex": {
+            "readers": [
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.finalizeBatch",
+              "TRANS.initialize4",
+              "TRANS.proveState",
+              "TRANS.revertBatch"
+            ],
+            "writers": [
+              "TRANS.proveState",
+              "TRANS.revertBatch"
+            ]
+          },
+          "rollupDelayPeriod": {
+            "readers": [
+              "TRANS.commitBatch",
+              "TRANS.commitBatchWithProof",
+              "TRANS.commitState",
+              "TRANS.updateRollupDelayPeriod"
+            ],
+            "writers": [
+              "TRANS.initialize3",
+              "TRANS.updateRollupDelayPeriod"
+            ]
+          },
+          "submitterContract": {
+            "readers": [
+              "TRANS.challengeState",
+              "TRANS.commitBatch",
+              "TRANS.commitState",
+              "TRANS.initialize4",
+              "TRANS.proveState"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.initialize4"
+            ]
+          },
+          "verifier": {
+            "readers": [
+              "TRANS.commitBatchWithProof",
+              "TRANS.proveCommittedBatchState",
+              "TRANS.proveState",
+              "TRANS.updateVerifier"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateVerifier"
+            ]
+          },
+          "withdrawalRoots": {
+            "readers": [
+              "TRANS.finalizeBatch"
+            ],
+            "writers": [
+              "TRANS.finalizeBatch"
+            ]
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.addChallenger",
+          "TRANS.batchChallengedSuccess",
+          "TRANS.batchExist",
+          "TRANS.batchInChallenge",
+          "TRANS.batchInsideChallengeWindow",
+          "TRANS.challengeState",
+          "TRANS.claimProveRemaining",
+          "TRANS.claimReward",
+          "TRANS.commitBatch",
+          "TRANS.commitBatchWithProof",
+          "TRANS.commitState",
+          "TRANS.finalizeBatch",
+          "TRANS.importGenesisBatch",
+          "TRANS.initialize",
+          "TRANS.initialize2",
+          "TRANS.initialize3",
+          "TRANS.initialize4",
+          "TRANS.isBatchFinalized",
+          "TRANS.owner",
+          "TRANS.paused",
+          "TRANS.proveCommittedBatchState",
+          "TRANS.proveState",
+          "TRANS.receive",
+          "TRANS.removeChallenger",
+          "TRANS.renounceOwnership",
+          "TRANS.revertBatch",
+          "TRANS.setPause",
+          "TRANS.transferOwnership",
+          "TRANS.updateFinalizePeriodSeconds",
+          "TRANS.updateProofWindow",
+          "TRANS.updateRewardPercentage",
+          "TRANS.updateRollupDelayPeriod",
+          "TRANS.updateVerifier"
+        ]
+      },
+      "diagram": null,
+      "facts": "gen/M3/versions/morph_rollup.versions.json",
+      "facts_sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
+      "facts_version": "holon-versions/0.1"
     }
   },
   "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",

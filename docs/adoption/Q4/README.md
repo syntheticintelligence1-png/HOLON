@@ -7,9 +7,9 @@ Prepared by I64 (= I33a), rule K10 of `tests_m3/test_contracts.py`. It answers h
 | File in this package | Copied to | What it is |
 |---|---|---|
 | `schemas/result_record_v2.schema.json` | `schemas/result_record_v2.schema.json` | The v2 result record, additive to the frozen v1 `schemas/result_record.schema.json`. Since I64 it admits `filter_bin: "intended_bounded"` and the field `intended {contract, l_weak, replaces}` on REFUTED records (K8). |
-| `schemas/law_ir_0_3.schema.json` | `schemas/law_ir_0_3.schema.json` | The IR 0.3 law format, including the INTENT rule and (since I26) rule FACT's additive `fact` term. |
+| `schemas/law_ir_0_3.schema.json` | `schemas/law_ir_0_3.schema.json` | The IR 0.3 law format, including the INTENT rule, (since I26) rule FACT's additive `fact` term and (since I28) rule PAR's additive `init` term (sub-form init_chain). |
 
-Both files are byte-equal to `spec/schemas/` (I26 re-copied the IR schema after adding the `fact` term, and I71 after admitting the `cancel` undo id); `TestSchemaAndAdoption.test_the_q4_package` checks this.
+Both files are byte-equal to `spec/schemas/` (I26 re-copied the IR schema after adding the `fact` term, I28 after adding the `init` term, and I71 after admitting the `cancel` undo id); `TestSchemaAndAdoption.test_the_q4_package` checks this.
 
 The adoption adds two files beside the frozen v1 schemas. It edits none of the v1 schemas: the v1 `triage` enum stays as it is (Q4), and the frozen tests read only the v1 schemas (`tests/_util.py`).
 
