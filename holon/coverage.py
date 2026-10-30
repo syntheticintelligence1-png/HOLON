@@ -70,8 +70,36 @@ def compute(m: str, root=ROOT) -> dict:
         cov = mod.coverage_document(side, sp, root, None)
         if cov is not None:
             docs.append(dict(cov, document=side["output"]))
+    docs.extend(bundle_entries(m, root))
     docs.sort(key=lambda d: d["document"])
     return {"documents": docs, "unaccounted": sum(len(d["unaccounted"]) for d in docs)}
+
+
+def bundle_entries(m: str, root=ROOT) -> list:
+    """E5 (I69): the coverage entry of every member of the milestone's bundle sidecar (spec/<m>/lib/bundle.json) that
+    is extracted at the target's pinned head (compiled from the checkout, as the milestone's own sidecars are), by its
+    generated sidecar (holon.bundle.extract.generated_sidecar); an extracted_only member is not listed (its tree comes
+    from git objects, which a partial clone of the target at the pinned head does not hold)."""
+    import tempfile
+    root = Path(root)
+    if not (root / "spec" / m / "lib" / "bundle.json").is_file():
+        return []
+    from .bundle import context
+    from .bundle.extract import generated_sidecar
+    from .frontends.solidity import coverage_document
+    ctx = context(root, m)
+    out = []
+    with tempfile.TemporaryDirectory(prefix="holon-coverage-") as td:
+        for mem in ctx.members():
+            if mem.get("adopted") or mem.get("commit") != ctx.side["target"]["head"]:
+                continue
+            sc = generated_sidecar(ctx, mem)
+            sp = Path(td) / f"{mem['name']}.json"
+            sp.write_text(json.dumps(sc, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+            cov = coverage_document(sc, sp, root, None)
+            if cov is not None:
+                out.append(dict(cov, document=sc["output"]))
+    return out
 
 
 def render(doc: dict) -> bytes:

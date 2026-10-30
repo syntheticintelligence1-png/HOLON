@@ -201,6 +201,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["coverage"]:  # likewise for holon.coverage (I19)
         from . import coverage
         return coverage.main(argv[1:])
+    if argv[:1] == ["bundle"]:  # likewise for holon.bundle (a bundle of linked contracts; outside every closure)
+        from . import bundle
+        return bundle.main(argv[1:])
     if argv[:1] == ["link"]:  # likewise for holon.frontends.link (I19)
         from .frontends import link
         return link.main(argv[1:])
