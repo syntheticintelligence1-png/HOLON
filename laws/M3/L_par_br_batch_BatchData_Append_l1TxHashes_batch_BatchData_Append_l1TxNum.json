@@ -1,0 +1,44 @@
+{
+  "facts": "gen/M3/goops/l1_counts.json",
+  "facts_sha256": "c12089fda0fabe8c8eaecbca0fde4ce0e26996b44afcfd2f93bc32ff55d1151f",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum",
+  "milestone": "M3",
+  "notes": "PAR branch (holon.rules.par): batch_BatchData_Append_l1TxHashes and batch_BatchData_Append_l1TxNum are two paths of one function",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.6",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "SliceHash"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "var": "x"
+            }
+          ],
+          "call": "batch_BatchData_Append_l1TxHashes"
+        },
+        {
+          "args": [
+            {
+              "var": "x"
+            }
+          ],
+          "call": "batch_BatchData_Append_l1TxNum"
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "branch"
+}

@@ -41,11 +41,23 @@
         "CODEC.enc_sol",
         "HASH.keccak256"
       ]
+    },
+    "l1_counts": {
+      "E": 2,
+      "V": 2,
+      "kappa": 1,
+      "non_tree": [
+        "CODEC.batch_BatchData_Append_l1TxNum"
+      ],
+      "rank": 1,
+      "tree": [
+        "CODEC.batch_BatchData_Append_l1TxHashes"
+      ]
     }
   },
   "derive_version": "holon-derive/0.1",
   "document": "derivation",
-  "evidence_sha256": "23037a4cec6e328188ebff28b10f04465eaab34acd24c961bc41dd64a263cef5",
+  "evidence_sha256": "87b59370e7b3b0feec83ddb9a897b8d1cb398f9eb2ea0b576d81925da7a60512",
   "inputs": [
     {
       "path": "audit/rounds/M2/round2/a4.json",
@@ -64,6 +76,10 @@
       "sha256": "b9b8cb0b6d42face2309af7bb25556e052844587f82301e6a6ded3c370faba23"
     },
     {
+      "path": "gen/M3/diagram/l1_counts.json",
+      "sha256": "7aec71d8311a13e5782dda79ecf5a373445134ef2191d8cf8d5d90c4e782eda2"
+    },
+    {
       "path": "gen/M3/disch/closure.json",
       "sha256": "6abeeaca1ddfd8e9454427a92fbad706c2c903a7138ba6a4551b3c53fdcc1a21"
     },
@@ -73,11 +89,15 @@
     },
     {
       "path": "gen/M3/evidence.json",
-      "sha256": "527284932416907a3290bc8bfc86fe1fec08a39ecb185599461a017ae4106308"
+      "sha256": "060b636fab1241f055f1ee0f14cb3a9bb81ea62aab8d251fa95ad3bcefc40b32"
     },
     {
       "path": "gen/M3/goops/blob_ops.json",
       "sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06"
+    },
+    {
+      "path": "gen/M3/goops/l1_counts.json",
+      "sha256": "c12089fda0fabe8c8eaecbca0fde4ce0e26996b44afcfd2f93bc32ff55d1151f"
     },
     {
       "path": "gen/M3/sorts/assignment.json",
@@ -306,6 +326,14 @@
     {
       "path": "spec/M3/lib/fact.json",
       "sha256": "651e15ed10a826aef6d8c11a1f00545436fd359283f05de2c0a7473f1e999557"
+    },
+    {
+      "path": "spec/M3/lib/go_counts.json",
+      "sha256": "142b6ff207942dde287c9e37b0158c36fb3fcf5ef929d1adb397de3987d0f992"
+    },
+    {
+      "path": "spec/M3/lib/go_frontend.json",
+      "sha256": "95aadbadb5c01bb823987c10d86f51229e95d91d7d5bef82f38fb3db799c1aa3"
     },
     {
       "path": "spec/M3/lib/go_ops.json",
@@ -2663,6 +2691,23 @@
       "rule": "FACT",
       "statement_hash": "sha256:47c2eec1bf9a5bd56f846189bbcddd97d9c26c1d2886fe3f7ad8683b18577d34",
       "subform": "kernel"
+    },
+    {
+      "basis": {
+        "key": {
+          "p": "CODEC.batch_BatchData_Append_l1TxHashes",
+          "q": "CODEC.batch_BatchData_Append_l1TxNum"
+        },
+        "model": "l1_counts",
+        "subform": "branch",
+        "version": null
+      },
+      "entry_points": [],
+      "facts": "gen/M3/goops/l1_counts.json",
+      "law_id": "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum",
+      "rule": "PAR",
+      "statement_hash": "sha256:28ea7b2fadf2bd0f248e3043796a038a077784cad7b731c742c66692402fa52c",
+      "subform": "branch"
     },
     {
       "basis": {
@@ -5752,6 +5797,20 @@
     {
       "duplicates": {},
       "key": {
+        "p": "CODEC.batch_BatchData_Append_l1TxHashes",
+        "q": "CODEC.batch_BatchData_Append_l1TxNum"
+      },
+      "laws": [
+        "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum"
+      ],
+      "model": "l1_counts",
+      "reason": null,
+      "subform": "branch",
+      "version": null
+    },
+    {
+      "duplicates": {},
+      "key": {
         "atom": "blob_ops:E6:CODEC.batch_RetrieveBlobBytes:CODEC.blob_RetrieveBlobBytes:f6e8978d"
       },
       "laws": [
@@ -6091,6 +6150,19 @@
       "laws": [],
       "model": "header_length",
       "reason": "no_common_version",
+      "subform": "cycle",
+      "version": null
+    },
+    {
+      "duplicates": {
+        "L_par_cy_batch_BatchData_Append_l1TxNum": "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum"
+      },
+      "key": {
+        "edge": "CODEC.batch_BatchData_Append_l1TxNum"
+      },
+      "laws": [],
+      "model": "l1_counts",
+      "reason": null,
       "subform": "cycle",
       "version": null
     },
