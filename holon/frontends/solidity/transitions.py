@@ -237,6 +237,7 @@ from __future__ import annotations
 
 import re
 import sys
+from collections import Counter
 from dataclasses import dataclass, field
 
 from .. import ExtractionError, FACTS_VERSION
@@ -2403,7 +2404,7 @@ class Walk:
                 iface = owner["name"]
             else:
                 iface = re.sub(r"^(contract|interface) ", "", type_string(callee.get("expression") or {})) or "?"
-            fname = f"{iface}.{target['name'] if target is not None else member}"
+            fname = f"{iface}.{overload_name(self.ix, owner, target) if target is not None else member}"
             term = ("call", fname) + tuple(vals)
         commit = not low and iface in self.commit
         if commit:
@@ -3547,6 +3548,22 @@ def actions_of(index: Index, contract: dict) -> list[dict]:
     return sorted(out, key=lambda n: (n.get("name") or n.get("kind"), n["id"]))
 
 
+def overload_name(ix, owner: dict | None, fn: dict) -> str:
+    """Rule E2 (bundle) for a called function: its name, or <name>_<selector> when the contract that declares it (with
+    its bases) has more than one external or public function of that name with distinct selectors."""
+    name = fn.get("name") or fn.get("kind")
+    sel = fn.get("functionSelector")
+    if owner is None or not sel:
+        return name
+    sels = set()
+    for cid in owner.get("linearizedBaseContracts") or [owner["id"]]:
+        for f in (ix.nodes.get(cid) or {}).get("nodes") or []:
+            if f.get("nodeType") == "FunctionDefinition" and f.get("name") == name \
+                    and f.get("visibility") in ("external", "public") and f.get("functionSelector"):
+                sels.add(f["functionSelector"])
+    return f"{name}_{sel}" if len(sels) > 1 else name
+
+
 def walk_contract(compiled, side: dict):
     """(index, contract, actions, collector): every action walked."""
     index = Index(compiled)
@@ -3563,6 +3580,10 @@ def walk_contract(compiled, side: dict):
         raise ExtractionError("the walk exceeds the recursion budget (a term or a call chain is too deep)") from e
     finally:
         sys.setrecursionlimit(limit)
+    count = Counter(a["name"] for a in acts)            # E2 (bundle): an overloaded name is <name>_<selector>
+    for a in acts:
+        if count[a["name"]] > 1 and a.get("selector"):
+            a["name"] = f"{a['name']}_{a['selector'][2:]}"
     names = [a["name"] for a in acts]
     if len(set(names)) != len(names):
         dup = sorted({x for x in names if names.count(x) > 1})
