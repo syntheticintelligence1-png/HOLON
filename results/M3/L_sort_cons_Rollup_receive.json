@@ -1,7 +1,8 @@
 {
   "annotation": {
     "source": "whitepaper.md §11.6, D8: 'Conservation, except O30 and the annotated slash receive'",
-    "text": "The Rollup's receive is where the Submitter's slash sends the challenger's reward (Submitter.sol:146-158, _transfer(rollupContract, reward)); the calling frame, the Rollup's _challengerWin (Rollup.sol:803-807), credits batchChallengeReward with the deposit plus that reward. The receive alone records nothing, so its law is expected REFUTED; the annotation is the whitepaper's, recorded before any run, and changes no statement: it only marks the record's triage and keeps the law out of D8's unexplained exceptions."
+    "text": "The Rollup's receive is where the Submitter's slash sends the challenger's reward (Submitter.sol:146-158, _transfer(rollupContract, reward)); the calling frame, the Rollup's _challengerWin (Rollup.sol:803-807), credits batchChallengeReward with the deposit plus that reward. The receive alone records nothing, so its law is expected REFUTED; the annotation is the whitepaper's, recorded before any run, and changes no statement: it only marks the record's triage and keeps the law out of D8's unexplained exceptions.",
+    "triage": "annotated"
   },
   "artifacts": {
     "claims": "gen/M3/bundle_laws/claims/rollup.bend",
@@ -23,11 +24,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 11.707
+          "seconds": 20.207
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 4.987
+        "seconds": 12.083
       },
       "escape_hatches": [],
       "kind": "counter",
@@ -43,11 +44,11 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 11.707
+      "seconds": 20.207
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 4.987
+    "seconds": 12.083
   },
   "claims_sha256": "34cee46e7c2f0efa11043b86ec9d2a04ec989b7527ff74c70fb318ae2ef95c30",
   "compiled_sha256": "348b0ff72d189525274e5aa2a8d94e709846acb2cd9b50705d0befbee3400ef5",
@@ -1797,7 +1798,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": "finding",
-  "generator_sha256": "792b45fe0789bb245c0da9d743e8fb303b63a1372a6b90a0a22b605e66b8e469",
+  "generator_sha256": "dba9e1f063c3c5d881da88b9cba56f9e7a8acb6e59e675b9c0a764ab1aa2ab37",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -1856,12 +1857,12 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 21.238,
+  "seconds": 41.005,
   "statement": "§7.5 conservation (the inflow half): in every reachable state where the payable action succeeds, its msg.value is accounted for by its class's claim; rollup:conservation:receive",
   "statement_hash": "sha256:60bb1d4e247c3da195e90c5ecce98ad927e0c2d5c6c15128b3badff66efb4684",
   "status": "REFUTED",
   "subform": "conservation",
-  "triage": "annotated",
+  "triage": "finding",
   "witness": {
     "action": "receive",
     "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496",

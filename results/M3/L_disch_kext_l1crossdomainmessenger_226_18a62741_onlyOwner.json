@@ -19,11 +19,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 30.187
+          "seconds": 33.258
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 11.614
+        "seconds": 8.125
       },
       "escape_hatches": [],
       "kind": "exists",
@@ -39,11 +39,11 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 30.187
+      "seconds": 33.258
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 11.614
+    "seconds": 8.125
   },
   "claims_sha256": "dc4c08199d0de78027a71ced273f30e4c248d6cccd9da499e8546402417f6212",
   "compiled_sha256": "0a098a01b537a1ad4b20a09f4b7a7c4883609ea2f0d6085478a73cafd6b70eea",
@@ -810,7 +810,7 @@
   "evidence_triage": "none",
   "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
   "filter_bin": null,
-  "generator_sha256": "792b45fe0789bb245c0da9d743e8fb303b63a1372a6b90a0a22b605e66b8e469",
+  "generator_sha256": "dba9e1f063c3c5d881da88b9cba56f9e7a8acb6e59e675b9c0a764ab1aa2ab37",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -834,23 +834,19 @@
     }
   ],
   "law_id": "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner",
-  "ledger_assumptions": [],
-  "ledger_match": "none",
+  "ledger_assumptions": [
+    "A-env",
+    "A-implicit",
+    "A-loop",
+    "A-reach",
+    "A-reentrancy"
+  ],
+  "ledger_match": "exact",
   "member": "messenger",
   "model_assumptions": [],
   "model_sha256": "ac40fb7cbf7a3c438b663425d11f39aea8fa3ce7732bb414b1e3cfc9e7a956c4",
   "non_vacuity": {
     "bound": "the checked existential proof is its own inhabitant",
-    "checker": {
-      "bendtt": {
-        "exit_code": 0,
-        "output_tail": "ALL PROOFS CHECK\n",
-        "seconds": 30.187
-      },
-      "exit_code": 0,
-      "marker": "ALL PROOFS CHECK",
-      "seconds": 11.614
-    },
     "degenerate": false,
     "law": "gen/M3/laws/L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner/LAWS.bend",
     "parent_statement_hash": "sha256:675b983ab4b09bd80554383106e45103c585ec51dba9ea60eb64732517ba126c",
@@ -930,7 +926,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 46.408,
+  "seconds": 47.915,
   "statement": "external dependence at a key: a reachable state where the blocked condition holds at k and a successful step of the class after which it does not; messenger:keyed_external:l1crossdomainmessenger_226_18a62741:onlyOwner",
   "statement_hash": "sha256:675b983ab4b09bd80554383106e45103c585ec51dba9ea60eb64732517ba126c",
   "status": "PROVED",

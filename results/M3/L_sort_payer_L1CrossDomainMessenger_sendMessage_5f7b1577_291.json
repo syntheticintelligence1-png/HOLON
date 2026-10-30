@@ -19,16 +19,31 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 6.463
+          "seconds": 7.565
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 2.701
+        "seconds": 4.113
       },
       "escape_hatches": [],
       "generator": "caller_key",
       "kind": "proof",
       "verdict": "checked"
+    },
+    {
+      "checker": {
+        "bendtt": {
+          "exit_code": 0,
+          "output_tail": "ALL PROOFS CHECK\n",
+          "seconds": 15.282
+        },
+        "exit_code": 0,
+        "marker": "ALL PROOFS CHECK",
+        "seconds": 6.27
+      },
+      "kind": "inhabitant",
+      "law": "gen/M3/L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291/nonvac/LAWS.bend",
+      "status": "inhabited"
     }
   ],
   "bound": null,
@@ -40,11 +55,11 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 6.463
+      "seconds": 7.565
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 2.701
+    "seconds": 4.113
   },
   "claims_sha256": "dc4c08199d0de78027a71ced273f30e4c248d6cccd9da499e8546402417f6212",
   "compiled_sha256": "0a098a01b537a1ad4b20a09f4b7a7c4883609ea2f0d6085478a73cafd6b70eea",
@@ -793,7 +808,7 @@
   "evidence_triage": "none",
   "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
   "filter_bin": null,
-  "generator_sha256": "792b45fe0789bb245c0da9d743e8fb303b63a1372a6b90a0a22b605e66b8e469",
+  "generator_sha256": "dba9e1f063c3c5d881da88b9cba56f9e7a8acb6e59e675b9c0a764ab1aa2ab37",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -817,23 +832,19 @@
     }
   ],
   "law_id": "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291",
-  "ledger_assumptions": [],
-  "ledger_match": "none",
+  "ledger_assumptions": [
+    "A-env",
+    "A-implicit",
+    "A-loop",
+    "A-reach",
+    "A-reentrancy"
+  ],
+  "ledger_match": "exact",
   "member": "messenger",
   "model_assumptions": [],
   "model_sha256": "ac40fb7cbf7a3c438b663425d11f39aea8fa3ce7732bb414b1e3cfc9e7a956c4",
   "non_vacuity": {
     "bound": "a checked inhabitant of the premises",
-    "checker": {
-      "bendtt": {
-        "exit_code": 0,
-        "output_tail": "ALL PROOFS CHECK\n",
-        "seconds": 11.418
-      },
-      "exit_code": 0,
-      "marker": "ALL PROOFS CHECK",
-      "seconds": 8.114
-    },
     "degenerate": false,
     "law": "gen/M3/L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291/nonvac/LAWS.bend",
     "parent_statement_hash": "sha256:a8b1c7ac5bdbc5f354a649d89cf574d3f44bf8e3bfc85180f88495ff822f3cec",
@@ -861,7 +872,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 33.651,
+  "seconds": 45.342,
   "statement": "§7.5 payer: in every reachable state where the action succeeds, every principal argument of its price call is the payer, the step's caller; messenger:payer:sendMessage_5f7b1577:291",
   "statement_hash": "sha256:a8b1c7ac5bdbc5f354a649d89cf574d3f44bf8e3bfc85180f88495ff822f3cec",
   "status": "PROVED",

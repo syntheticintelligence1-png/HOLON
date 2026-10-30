@@ -664,7 +664,7 @@
   "evidence_triage": "none",
   "facts_sha256": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2",
   "filter_bin": null,
-  "generator_sha256": "792b45fe0789bb245c0da9d743e8fb303b63a1372a6b90a0a22b605e66b8e469",
+  "generator_sha256": "dba9e1f063c3c5d881da88b9cba56f9e7a8acb6e59e675b9c0a764ab1aa2ab37",
   "independence_class": "none",
   "kernel": {
     "name": "bend",
@@ -680,8 +680,14 @@
     }
   ],
   "law_id": "L_sort_cons_Submitter_stake",
-  "ledger_assumptions": [],
-  "ledger_match": "none",
+  "ledger_assumptions": [
+    "A-env",
+    "A-implicit",
+    "A-loop",
+    "A-reach",
+    "A-reentrancy"
+  ],
+  "ledger_match": "exact",
   "member": "submitter",
   "model_assumptions": [],
   "model_sha256": "5baac692c64ddb11417555155b57711988b6bf2b951e2f72de809e4e5ce7ab08",
@@ -709,7 +715,7 @@
     "horizon": "5 corpus candidates over 427 traces, 5 value-variant candidates; no proof attempted: an unmet dependency (I68; CS4, K8)",
     "kind": "bounded"
   },
-  "seconds": 7.693,
+  "seconds": 12.959,
   "statement": "§7.5 conservation (the inflow half): in every reachable state where the payable action succeeds, its msg.value is accounted for by its class's claim; submitter:conservation:stake",
   "statement_hash": "sha256:58483c5d030a3edec2321c77f8ffd9b1d20f9f937a22ab378ad0cc8a4b0e9281",
   "status": "UNKNOWN",

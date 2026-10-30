@@ -19,11 +19,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 44.527
+          "seconds": 61.235
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 19.999
+        "seconds": 25.006
       },
       "escape_hatches": [],
       "kind": "counter",
@@ -39,11 +39,11 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 44.527
+      "seconds": 61.235
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 19.999
+    "seconds": 25.006
   },
   "claims_sha256": "dc4c08199d0de78027a71ced273f30e4c248d6cccd9da499e8546402417f6212",
   "compiled_sha256": "0a098a01b537a1ad4b20a09f4b7a7c4883609ea2f0d6085478a73cafd6b70eea",
@@ -795,7 +795,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
   "filter_bin": "finding",
-  "generator_sha256": "792b45fe0789bb245c0da9d743e8fb303b63a1372a6b90a0a22b605e66b8e469",
+  "generator_sha256": "dba9e1f063c3c5d881da88b9cba56f9e7a8acb6e59e675b9c0a764ab1aa2ab37",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -819,8 +819,14 @@
     }
   ],
   "law_id": "L_sort_cons_L1CrossDomainMessenger_receive",
-  "ledger_assumptions": [],
-  "ledger_match": "none",
+  "ledger_assumptions": [
+    "A-env",
+    "A-implicit",
+    "A-loop",
+    "A-reach",
+    "A-reentrancy"
+  ],
+  "ledger_match": "exact",
   "member": "messenger",
   "model_assumptions": [],
   "model_sha256": "ac40fb7cbf7a3c438b663425d11f39aea8fa3ce7732bb414b1e3cfc9e7a956c4",
@@ -848,7 +854,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 69.518,
+  "seconds": 91.727,
   "statement": "§7.5 conservation (the inflow half): in every reachable state where the payable action succeeds, its msg.value is accounted for by its class's claim; messenger:conservation:receive",
   "statement_hash": "sha256:4a4a73bca3ab0e7787fdd1f334ff6caa7a729e7a886c8f82b9c3f7a57dd28457",
   "status": "REFUTED",

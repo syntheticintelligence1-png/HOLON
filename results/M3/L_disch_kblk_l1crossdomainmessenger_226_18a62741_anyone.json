@@ -796,7 +796,7 @@
   "evidence_triage": "none",
   "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
   "filter_bin": null,
-  "generator_sha256": "792b45fe0789bb245c0da9d743e8fb303b63a1372a6b90a0a22b605e66b8e469",
+  "generator_sha256": "dba9e1f063c3c5d881da88b9cba56f9e7a8acb6e59e675b9c0a764ab1aa2ab37",
   "independence_class": "none",
   "kernel": {
     "name": "bend",
@@ -812,8 +812,14 @@
     }
   ],
   "law_id": "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone",
-  "ledger_assumptions": [],
-  "ledger_match": "none",
+  "ledger_assumptions": [
+    "A-env",
+    "A-implicit",
+    "A-loop",
+    "A-reach",
+    "A-reentrancy"
+  ],
+  "ledger_match": "exact",
   "member": "messenger",
   "model_assumptions": [],
   "model_sha256": "ac40fb7cbf7a3c438b663425d11f39aea8fa3ce7732bb414b1e3cfc9e7a956c4",
@@ -841,7 +847,7 @@
     "horizon": "70 corpus candidates over 427 traces; no proof attempted: an unmet dependency (I68; CS4, K8)",
     "kind": "bounded"
   },
-  "seconds": 5.346,
+  "seconds": 3.589,
   "statement": "Thm 6.10 at a key: while the blocked condition holds at k, every successful step of the class keeps it; messenger:keyed_blocking:l1crossdomainmessenger_226_18a62741:anyone",
   "statement_hash": "sha256:328ce9adb09e841342c94addcc79ccaed4a43e4ca79691fc8396bafcc5e0a6fe",
   "status": "UNKNOWN",
