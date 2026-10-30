@@ -709,12 +709,17 @@ def e_makeslice(bad_len: Bool, bad_cap: Bool, big: Bool, by: Bool, +h: List<&2, 
 def big_cap(+c: GV) -> Bool:
   Bool.not(u64lt(ih(c), il(c), 0, 268435457))
 
-def w_items(xs: List<&2, GV>, +h: List<&2, GV>, +c: Nat, +p: List<&2, Nat>, +at: U32) -> List<&2, GV>:
+# xs stored one at a time at path p of cell c from index at, as hstore stores each (the cell rewritten, then put once:
+# consecutive stores into one cell compose in the cell)
+def c_items(xs: List<&2, GV>, +x: GV, +p: List<&2, Nat>, +at: U32) -> GV:
   match xs:
     case Nil{}:
-      h
-    case Con{x, t}:
-      w_items(t, hstore(h, VP{c, pext(p, U32.to_nat(at))}, x), c, p, U32.add(at, 1))
+      x
+    case Con{v, t}:
+      c_items(t, vset(pext(p, U32.to_nat(at)), x, v), p, U32.add(at, 1))
+
+def w_items(xs: List<&2, GV>, +h: List<&2, GV>, +c: Nat, +p: List<&2, Nat>, +at: U32) -> List<&2, GV>:
+  lput(h, c, c_items(xs, hget(h, c), p, at))
 
 def app_new(by: Bool, +h: List<&2, GV>, +olds: List<&2, GV>, +items: List<&2, GV>) -> Eff:
   match by:
@@ -793,12 +798,16 @@ def rd_cell(+r: GV) -> Nat:
     case _:
       0n
 
-def w_bytes(xs: List<&2, U32>, +h: List<&2, GV>, +c: Nat, +p: List<&2, Nat>, +at: U32) -> List<&2, GV>:
+# the bytes xs stored as w_items stores its values
+def c_bytes(xs: List<&2, U32>, +x: GV, +p: List<&2, Nat>, +at: U32) -> GV:
   match xs:
     case Nil{}:
-      h
-    case Con{x, t}:
-      w_bytes(t, hstore(h, VP{c, pext(p, U32.to_nat(at))}, VI{0, x}), c, p, U32.add(at, 1))
+      x
+    case Con{b, t}:
+      c_bytes(t, vset(pext(p, U32.to_nat(at)), x, VI{0, b}), p, U32.add(at, 1))
+
+def w_bytes(xs: List<&2, U32>, +h: List<&2, GV>, +c: Nat, +p: List<&2, Nat>, +at: U32) -> List<&2, GV>:
+  lput(h, c, c_bytes(xs, hget(h, c), p, at))
 
 def br_store_s(s: GV, +h: List<&2, GV>, +chunk: List<&2, U32>) -> List<&2, GV>:
   match s:

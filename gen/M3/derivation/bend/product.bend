@@ -233,17 +233,7 @@ def input_version(x: M.HAct) -> Nat:
     case _:
       0n
 
-# vh is a closure, so it is called at most once (Bend is affine): blobs_match is the proposition its Bool
-# premise decides, for every index i: blobhash(i) is vh of cb(p)'s i-th blob, or zero past them
-def bh(vh: C.GV -> M.W, bl: List<&2, C.GV>, i: Nat) -> M.W:
-  match bl i:
-    case Nil{} _:
-      M.w0()
-    case Con{b, t} 0n:
-      vh(b)
-    case Con{b, t} 1n+j:
-      bh(vh, t, j)
-
+# ---------------------------------------------------------------- blobs_match
 def blobhashes(x: M.HAct) -> List<&2, M.W>:
   match x:
     case M.A_commitBatch{ar, en}:
@@ -251,8 +241,48 @@ def blobhashes(x: M.HAct) -> List<&2, M.W>:
     case _:
       Nil{}
 
+# I88's Bool, on the blob hashes hs and vh's images gs of the blobs: for each index below the longer of the two, hs's
+# element (zero past its end) equals gs's (zero past its end); past both, both are zero
+def bm_bool(hs: List<&2, M.W>, gs: List<&2, M.W>) -> Bool:
+  match hs gs:
+    case Nil{} Nil{}:
+      True{}
+    case Nil{} Con{g, u}:
+      Bool.and(M.w_eq(M.w0(), g), bm_bool(Nil{}, u))
+    case Con{h, t} Nil{}:
+      Bool.and(M.w_eq(h, M.w0()), bm_bool(t, Nil{}))
+    case Con{h, t} Con{g, u}:
+      Bool.and(M.w_eq(h, g), bm_bool(t, u))
+
+def blobs_match_b(x: M.HAct, gs: List<&2, M.W>) -> Bool:
+  bm_bool(blobhashes(x), gs)
+
+# gs is vh's image of the blobs bl, in order
+def imgs(vh: C.GV -> M.W, bl: List<&2, C.GV>, gs: List<&2, M.W>) -> Type:
+  match bl gs:
+    case Nil{} Nil{}:
+      Unit
+    case Nil{} Con{g, u}:
+      Empty
+    case Con{b, t} Nil{}:
+      Empty
+    case Con{b, t} Con{g, u}:
+      {g == vh(b) : M.W} & imgs(vh, t, u)
+
+# the proposition the Bool decides, over the same prefix: vh applied to each blob in the proposition
+def bm_rel(hs: List<&2, M.W>, vh: C.GV -> M.W, bl: List<&2, C.GV>) -> Type:
+  match hs bl:
+    case Nil{} Nil{}:
+      Unit
+    case Nil{} Con{b, t}:
+      {M.w0() == vh(b) : M.W} & bm_rel(Nil{}, vh, t)
+    case Con{h, u} Nil{}:
+      {h == M.w0() : M.W} & bm_rel(u, vh, Nil{})
+    case Con{h, u} Con{b, t}:
+      {h == vh(b) : M.W} & bm_rel(u, vh, t)
+
 def blobs_match(+x: M.HAct, p: List<&2, Nat>, cb: List<&2, Nat> -> List<&2, C.GV>, vh: C.GV -> M.W) -> Type:
-  @i:Nat -> {M.w_nth(blobhashes(x), i) == bh(vh, cb(p), i) : M.W}
+  bm_rel(blobhashes(x), vh, cb(p))
 
 # ---------------------------------------------------------------- the join (I85's J1, J2)
 # the consumer's batch of the commit x: blobs in its blobs field, ctx (None: nil) in its contexts field;
@@ -291,8 +321,8 @@ def fuel0() -> Nat:
 
 # the consumer's entry on a batch with a fuel: C.consumer_run's body (the machine from the entry's frame on
 # globals_cells() ++ cells, the receiver at cell 4), its fuel an argument
-def run_bc(bc: BC, fuel: Nat, pl: List<&2, C.GV> -> C.PlAns, dtm: List<&2, U32> -> C.DtAns) -> C.Res:
-  match bc:
+def run_bc(bx: BC, fuel: Nat, pl: List<&2, C.GV> -> C.PlAns, dtm: List<&2, U32> -> C.DtAns) -> C.Res:
+  match bx:
     case BC{cells, batch}:
       C.m_run(fuel, C.MGo{C.Fr11{C.F11K0{}, C.rset([False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}], C.rset([False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}, True{}], C.RE{}, batch), C.VP{4n, Nil{}})}, Nil{}, List.append(&2, C.GV, C.globals_cells(), cells), pl, dtm})
 

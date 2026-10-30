@@ -172,7 +172,7 @@ class Inputs:
 
 
 # ====================================================================== the consumer model's entry
-class Entry:
+class Launch:
     """The consumer model's machine (holon.derivation.bendgen): consumer_run's fuel and its initial state, the entry
     function's frame at its first block with the receiver and the batch in its registers."""
 
@@ -203,7 +203,7 @@ class Product:
         self.I = I
         self.lay = I.info["layouts"]
         self.G = len(I.info["globals"])
-        self.entry = Entry((I.root / I.model_rel).read_text(encoding="utf-8"), I.info)
+        self.entry = Launch((I.root / I.model_rel).read_text(encoding="utf-8"), I.info)
         self.typed_path, self.tt, self.key, self.slot = I.typed()
         self.hdr_path = I.header()
         self.statements = [law["statement"] for law in I.laws] + \
@@ -335,16 +335,7 @@ class Product:
                 raise Unsupported(f"input:{m} is not a word member")
             out += [f"def input_{m}(x: M.HAct) -> Nat:", "  match x:", f"    case M.A_{a}{{ar, en}}:",
                     f"      w_nat(M.g_{st}_{m}(M.ga_{a}_{p}(ar)))", "    case _:", "      0n", ""]
-        out += [
-            "# vh is a closure, so it is called at most once (Bend is affine): blobs_match is the proposition its Bool",
-            "# premise decides, for every index i: blobhash(i) is vh of cb(p)'s i-th blob, or zero past them",
-            "def bh(vh: C.GV -> M.W, bl: List<&2, C.GV>, i: Nat) -> M.W:\n  match bl i:\n    case Nil{} _:\n"
-            "      M.w0()\n    case Con{b, t} 0n:\n      vh(b)\n    case Con{b, t} 1n+j:\n      bh(vh, t, j)\n",
-            "def blobhashes(x: M.HAct) -> List<&2, M.W>:",
-            "  match x:", f"    case M.A_{a}{{ar, en}}:", "      M.ge_e_blobs(en)", "    case _:", "      Nil{}", "",
-            "def blobs_match(+x: M.HAct, p: List<&2, Nat>, cb: List<&2, Nat> -> List<&2, C.GV>, vh: C.GV -> M.W) -> Type:",
-            "  @i:Nat -> {M.w_nth(blobhashes(x), i) == bh(vh, cb(p), i) : M.W}", "",
-            ]
+        out += BLOBS_MATCH.replace("{A}", a).splitlines() + [""]
         return out
 
     # ------------------------------------------------------------ the batch (J1, J2)
@@ -436,8 +427,8 @@ class Product:
             f"def fuel0() -> Nat:\n  {self.entry.fuel}\n",
             "# the consumer's entry on a batch with a fuel: C.consumer_run's body (the machine from the entry's frame on",
             f"# globals_cells() ++ cells, the receiver at cell {G}), its fuel an argument",
-            "def run_bc(bc: BC, fuel: Nat, pl: List<&2, C.GV> -> C.PlAns, dtm: List<&2, U32> -> C.DtAns) -> C.Res:",
-            "  match bc:", "    case BC{cells, batch}:",
+            "def run_bc(bx: BC, fuel: Nat, pl: List<&2, C.GV> -> C.PlAns, dtm: List<&2, U32> -> C.DtAns) -> C.Res:",
+            "  match bx:", "    case BC{cells, batch}:",
             f"      C.m_run(fuel, {self.entry.go0('cells', 'batch', 'pl', 'dtm')})", "",
             "# the run of a step x on the payload p (its blobs cb(p)), the blob layer pl, the decoder dtm, the contexts ctx",
             "def rm(x: M.HAct, p: List<&2, Nat>, cb: List<&2, Nat> -> List<&2, C.GV>, pl: List<&2, C.GV> -> C.PlAns, "
@@ -544,6 +535,64 @@ class Product:
             ps = ", ".join(f"{p}: {R.fn_type(R.param_type(name, p))}" for p in h["parameters"])
             out += [f"# {name} ({h['family']})", f"def {name}({ps}) -> Type:", "  " + R.pi(h["statement"]), ""]
         return out
+
+
+# ====================================================================== blobs_match
+# I88's term blobs_match (its vocabulary: "Bool: x's blob hashes (blobhash(i)) are vh of cb(p)'s blobs in order, then
+# zero") is a Bool that applies vh to every blob. A Bend closure is affine (called at most once), so no Bend def computes
+# that Bool from vh: the law premise `blobs_match == true` is rendered as the proposition the Bool decides, over exactly
+# the prefix the Bool checks (bm_rel), and the Bool itself is stated on vh's image list gs (bm_bool; imgs ties gs to vh).
+# holon.derivation.bendequiv proves the two equivalent, for every image list, in both kernels.
+BLOBS_MATCH = """# ---------------------------------------------------------------- blobs_match
+def blobhashes(x: M.HAct) -> List<&2, M.W>:
+  match x:
+    case M.A_{A}{ar, en}:
+      M.ge_e_blobs(en)
+    case _:
+      Nil{}
+
+# I88's Bool, on the blob hashes hs and vh's images gs of the blobs: for each index below the longer of the two, hs's
+# element (zero past its end) equals gs's (zero past its end); past both, both are zero
+def bm_bool(hs: List<&2, M.W>, gs: List<&2, M.W>) -> Bool:
+  match hs gs:
+    case Nil{} Nil{}:
+      True{}
+    case Nil{} Con{g, u}:
+      Bool.and(M.w_eq(M.w0(), g), bm_bool(Nil{}, u))
+    case Con{h, t} Nil{}:
+      Bool.and(M.w_eq(h, M.w0()), bm_bool(t, Nil{}))
+    case Con{h, t} Con{g, u}:
+      Bool.and(M.w_eq(h, g), bm_bool(t, u))
+
+def blobs_match_b(x: M.HAct, gs: List<&2, M.W>) -> Bool:
+  bm_bool(blobhashes(x), gs)
+
+# gs is vh's image of the blobs bl, in order
+def imgs(vh: C.GV -> M.W, bl: List<&2, C.GV>, gs: List<&2, M.W>) -> Type:
+  match bl gs:
+    case Nil{} Nil{}:
+      Unit
+    case Nil{} Con{g, u}:
+      Empty
+    case Con{b, t} Nil{}:
+      Empty
+    case Con{b, t} Con{g, u}:
+      {g == vh(b) : M.W} & imgs(vh, t, u)
+
+# the proposition the Bool decides, over the same prefix: vh applied to each blob in the proposition
+def bm_rel(hs: List<&2, M.W>, vh: C.GV -> M.W, bl: List<&2, C.GV>) -> Type:
+  match hs bl:
+    case Nil{} Nil{}:
+      Unit
+    case Nil{} Con{b, t}:
+      {M.w0() == vh(b) : M.W} & bm_rel(Nil{}, vh, t)
+    case Con{h, u} Nil{}:
+      {h == M.w0() : M.W} & bm_rel(u, vh, Nil{})
+    case Con{h, u} Con{b, t}:
+      {h == vh(b) : M.W} & bm_rel(u, vh, t)
+
+def blobs_match(+x: M.HAct, p: List<&2, Nat>, cb: List<&2, Nat> -> List<&2, C.GV>, vh: C.GV -> M.W) -> Type:
+  bm_rel(blobhashes(x), vh, cb(p))"""
 
 
 # ====================================================================== rendering a statement

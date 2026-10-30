@@ -4,7 +4,7 @@ with the adopted Solidity commit into an evaluator-level product machine, and re
 tests_m3/test_derivation_extraction.py).
 
   python -m holon derivation extract|corpus|product|refine [--check] [--sidecar PATH] [--root DIR]
-  python -m holon derivation bend|bend-refine [--check] [--bend-sidecar PATH] [--root DIR]
+  python -m holon derivation bend|bend-refine|bend-decide [--check] [--bend-sidecar PATH] [--root DIR]
 
   extract  the Go frontend's document of the sidecar's stem (its own config, unchanged) plus the "consumer" section: the
            SSA of the consumer's closure, its environment, globals, types and coverage            holon.derivation.extract
@@ -22,6 +22,7 @@ tests_m3/test_derivation_extraction.py).
 
   bend     the consumer compiled to a Bend model (I89: holon.derivation.bendgen, holon.derivation.bendrun)
   bend-refine  HypB's instance (the real blob layer) checked, and the compiled model refined on the 169 cases
+  bend-decide  I88's law set decided by the checker: I88's decider with the Bend engine (holon.derivation.bendengine)
 
 The interpreter (holon.derivation.interp) and its standard-library natives (holon.derivation.natives) are the consumer
 model; holon.derivation.goside generates the Go test that is both the replay and the environment's oracle. Everything
@@ -101,7 +102,7 @@ def write_or_check(root: Path, outputs: dict, check: bool) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="holon derivation")
     ap.add_argument("command", choices=("extract", "corpus", "product", "refine", "laws", "decide", "bend",
-                                        "bend-refine"))
+                                        "bend-refine", "bend-decide"))
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--sidecar", default=SIDECAR)
     ap.add_argument("--laws-sidecar", default=None)
@@ -114,6 +115,20 @@ def main(argv=None) -> int:
     root = Path(a.root).resolve() if a.root else ROOT
     if a.command in ("laws", "decide"):
         return _law_set(a, root)
+    if a.command == "bend-decide":
+        from . import bendengine
+        try:
+            outputs, differs = bendengine.run(root, a.bend_sidecar, check=a.check)
+        except Refused as e:
+            print(f"holon derivation {a.command}: refused: {e}", file=sys.stderr)
+            return 2
+        except DerivationError as e:
+            print(f"holon derivation {a.command}: error: {e}", file=sys.stderr)
+            return 3
+        for rel in differs:
+            print(f"holon derivation: {rel} differs", file=sys.stderr)
+        rc = write_or_check(root, outputs, a.check)
+        return 1 if differs else rc
     if a.command in ("bend", "bend-refine"):
         from . import bendgen, bendrun
         try:
