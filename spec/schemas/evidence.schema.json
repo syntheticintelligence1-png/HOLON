@@ -81,8 +81,10 @@
       "required": ["id", "model", "level", "p", "q", "via", "src"],
       "additionalProperties": false,
       "properties": {
-        "id": {"type": "string", "pattern": "^[A-Za-z0-9_]+:E[1-6]:[^:]+:[^:]+:[0-9a-f]{8}$"},
-        "model": {"type": "string", "pattern": "^[A-Za-z0-9_]+$"},
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.]*:E[1-6]:[^:]+:[^:]+:[0-9a-f]{8}$",
+               "description": "<model>:<level>:<p>:<q>:<first 8 hex digits of the canonical sha256 of via>; the model part admits a dot after its first character (I72: an adopted transitions document's model is keyed by its file name without .json)"},
+        "model": {"type": "string", "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.]*$",
+                  "description": "the model's key in models; a dot is admitted after the first character (I72: an adopted transitions document's model, e.g. its file name without .json)"},
         "level": {"enum": ["E1", "E2", "E3", "E4", "E5", "E6"]},
         "p": {"$ref": "#/$defs/edge"},
         "q": {"$ref": "#/$defs/edge"},

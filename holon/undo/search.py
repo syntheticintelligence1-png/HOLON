@@ -16,6 +16,9 @@ sha256 of every key a candidate looks up) and its external-call hints. The UNDO 
                  two states differ (obs, as Bend states it) is a witness
   candidates     every (x, y, t) evaluated counts; at most max_candidates per law; the first witness ends the search
 
+A cancel law (I71) is searched as a pair (x;y at prefix states, y accepted by uhit_<x>, which includes y succeeding from
+the prefix state), its continuations compared from the state after x;y and from the state after y alone.
+
 A residue law's witness is realized by one of its pairs: x a call of one of its pairs' a, y of the undo action
 (restoring as the pair law requires), k the key x writes the residue at, v the register's raw words in the state after
 prefix, x, y; t must observe set_F(s, k, v) differently from s and exactly as the state after x and y (the divergence
@@ -476,6 +479,32 @@ class UndoSearch:
         if str(why).startswith("pair:") and self.streak[1] >= self.X_VARIANTS:
             raise Disagree(why)
         return False
+
+    # ---------------------------------------------------------- the cancellation
+    def cancel(self, e: dict) -> tuple[dict | None, str]:
+        b = e["basis"]
+        fams = {r["family"] for r in b["restores"]} | set(b["residues"])
+        return self.over_prefixes(b["a"], lambda trace, g: self.cancel_witness(e, trace, g, fams))
+
+    def cancel_witness(self, e, trace, g, fams):
+        """x;y at the prefix state g as for a pair, then y alone from g (it succeeds: uhit_<x> says so, and its
+        environment holds the answers its evaluation from g looked up), and t compared from the two states."""
+        for xs, ys, s2 in self.pairs_at(e, trace, g):
+            code, s3, _c = self.m.run_step(g, ys, save=True)
+            self.tick()
+            if code != 0:
+                continue
+            keys = self.keys_of(e, xs, g)
+            seeds = [retime(xs, int(ys.env.get("block.timestamp") or 0))]
+
+            def check(t, oa, ob):
+                return bend_view(oa) != bend_view(ob)
+            t = self.continuations(s2, s3, trace + [xs, ys], seeds, fams, keys, check)
+            if t is not None:
+                w = {"prefix": trace, "x": xs, "y": ys, "t": t}
+                if self.accepted(w):
+                    return w
+        return None
 
     # ---------------------------------------------------------- the residue
     def residue(self, e: dict, pair_laws: dict) -> tuple[dict | None, str]:
