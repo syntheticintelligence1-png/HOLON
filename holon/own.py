@@ -291,8 +291,9 @@ def atoms(doc: dict, diag: dict) -> list[dict]:
 
 
 def anchors(diag: dict) -> dict:
-    """What laws over the carrier name: every OWN edge by its method."""
-    return {"own": {e["model_fn"]: e["id"] for e in diag["edges"]}}
+    """What laws over the carrier name: every OWN edge by its method ("own"), and the edges a trace binder ranges over
+    ("trans": every method's, holon.diagram.evidence rule L3)."""
+    return {"own": {e["model_fn"]: e["id"] for e in diag["edges"]}, "trans": sorted(e["id"] for e in diag["edges"])}
 
 
 def diagrams(milestone: str, root: Path | str) -> dict[str, dict]:
