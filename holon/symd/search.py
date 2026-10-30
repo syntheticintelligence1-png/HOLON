@@ -55,6 +55,11 @@ class SymSearch(US.UndoSearch):
         self.refused += 1
         self.log(f"  the witness of {w['law']} ({w['subform']}) is refused by the real-side check: {why} "
                  f"({self.refused} refused)")
+        key = str(why).split(":", 2)[:2] if str(why).startswith("x:") else None
+        last, n = self.streak
+        self.streak = (key, n + 1 if (key is not None and key == last) else 1)
+        if key is not None and self.streak[1] >= self.X_VARIANTS:
+            raise US.Disagree("pair:" + key[1])
         return False
 
     # ---------------------------------------------------------- evaluations
@@ -90,6 +95,59 @@ class SymSearch(US.UndoSearch):
                 out.append(c)
         return out
 
+    def recorded_bytes(self) -> list[str]:
+        """Byte strings the deployment's recorded calls carried as dynamic arguments (holon fragments --hints: the
+        calls' calldata, each head word read as an offset to a length-prefixed byte string), at most eight."""
+        if getattr(self, "_rb", None) is not None:
+            return self._rb
+        out: list = []
+        for c in getattr(self.m.hints, "calls", None) or []:
+            data = c.get("data") or "0x"
+            d = bytes.fromhex(data[10:]) if len(data) > 10 else b""
+            for i in range(0, min(len(d), 32 * 8), 32):
+                o = int.from_bytes(d[i:i + 32], "big")
+                if o < 32 or o % 32 or o + 32 > len(d):
+                    continue
+                k = int.from_bytes(d[o:o + 32], "big")
+                if 0 < k <= 4096 and o + 32 + k <= len(d):
+                    v = "0x" + d[o + 32:o + 32 + k].hex()
+                    if v not in out:
+                        out.append(v)
+        self._rb = out[:8]
+        return self._rb
+
+    def byte_variants(self, g: str, trace: list, a: str, base: list) -> list:
+        """Successful calls of a from g whose top-level bytes arguments take a byte string the deployment's recorded
+        calls carried (the external answers the model's hints give are then the deployment's own), first."""
+        act = next((x for x in self.doc.get("actions") or [] if x["name"] == a), {})
+        ps = [p["name"] for p in act.get("params") or [] if p.get("type") == "bytes"]
+        if not ps or not base:
+            return []
+        out, seen = [], set()
+        for st in base[:2]:
+            for p in ps:
+                for v in self.recorded_bytes():
+                    if st.args.get(p) == v:
+                        continue
+                    c = US.fresh_step(S3.Step(a, dict(st.args, **{p: v}), dict(st.env)))
+                    self.tick()
+                    code, g1, _calls = self.m.run_step(g, c, save=True)
+                    if code != 0:
+                        self.m.drop([g1])
+                        continue
+                    h = self.m.fingerprint(g1)
+                    if h in seen:
+                        self.m.drop([g1])
+                        continue
+                    seen.add(h)
+                    out.append((c, g1))
+        return out
+
+    def cands_of(self, g: str, trace: list, a: str) -> list:
+        """x_candidates, with the recorded-bytes variants of its first calls first."""
+        xs = self.x_candidates(g, trace, a)
+        return self.byte_variants(g, trace, a, [c for c, _h in xs]) + xs
+
     def with_caller(self, g: str, trace: list, st: S3.Step, caller: int) -> S3.Step | None:
         """st by another caller, if it still succeeds from g (its call answers settled again)."""
         c = S3.Step(st.action, dict(st.args), dict(st.env, caller=caller))
@@ -101,7 +159,7 @@ class SymSearch(US.UndoSearch):
     # ---------------------------------------------------------- the four sub-forms at one prefix state
     def tau_at(self, e: dict, n: int, trace: list, g: str):
         a = e["basis"]["action"]
-        for xs, g1 in self.x_candidates(g, trace, a):
+        for xs, g1 in self.cands_of(g, trace, a):
             self.m.drop([g1])
             for d in TAU_D:
                 args = lambda xs=xs, d=d: [{"$ref": g}, self.m.act(xs), W(d)]  # noqa: E731
@@ -120,7 +178,7 @@ class SymSearch(US.UndoSearch):
     def pi_at(self, e: dict, n: int, trace: list, g: str):
         b = e["basis"]
         a, role = b["action"], b["role"]
-        for xs, g1 in self.x_candidates(g, trace, a):
+        for xs, g1 in self.cands_of(g, trace, a):
             self.m.drop([g1])
             mem = self.members(g, role, trace, [xs])
             if len(mem) < 2:
@@ -153,8 +211,8 @@ class SymSearch(US.UndoSearch):
 
     def omega_at(self, e: dict, n: int, trace: list, g: str):
         b = e["basis"]
-        xs_ = self.x_candidates(g, trace, b["a"])
-        ys_ = self.x_candidates(g, trace, b["b"])
+        xs_ = self.cands_of(g, trace, b["a"])
+        ys_ = self.cands_of(g, trace, b["b"])
         try:
             for xs, gx in xs_:
                 for ys, gy in ys_:
@@ -184,7 +242,7 @@ class SymSearch(US.UndoSearch):
 
     def sentinel_at(self, e: dict, n: int, trace: list, g: str):
         a = e["basis"]["action"]
-        for xs, g1 in self.x_candidates(g, trace, a):
+        for xs, g1 in self.cands_of(g, trace, a):
             self.m.drop([g1])
             args = [{"$ref": g}, self.m.act(xs)]
             if self.ok(n, args, xs):
@@ -200,7 +258,8 @@ class SymSearch(US.UndoSearch):
         sub = e["subform"]
         at = getattr(self, f"{sub}_at")
         entry = e["basis"].get("action") or e["basis"].get("a")
-        return self.over_prefixes(entry, lambda trace, g: at(e, n, trace, g))
+        w, note = self.over_prefixes(entry, lambda trace, g: at(e, n, trace, g))
+        return w, note.replace("because a pair step (", "because the act x (")
 
     def inhabitant(self, e: dict) -> tuple[dict | None, str]:
         """A reachable state and arguments where the law's premises hold (G11V): sy_hit_<n> true."""

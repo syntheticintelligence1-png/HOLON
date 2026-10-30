@@ -158,6 +158,18 @@ class NoProof(ValueError):
     pass
 
 
+class SymLit(UP.Lit):
+    """Witness literals with the sym section's records (UOS, UOb) qualified by U in typed rendering as well."""
+
+    def typed(self, v, ty: str) -> str:
+        if isinstance(v, dict) and "$r" in v and v["$r"] in self.mine:
+            name = v["$r"]
+            fs = self.recs.get(name) or []
+            vals = v.get("f") or {}
+            return f"U.{name}{{" + ", ".join(self.typed(vals[f], t) for f, t in fs) + "}"
+        return super().typed(v, ty)
+
+
 def sentinel_proof(law: dict, n: int, site_term, action: str, actions: list[str], model_import: str,
                    sym_import: str, laws_import: str, hashes: list) -> str:
     """The proof of a sentinel law whose site writes the clock (see the module docstring), or NoProof."""
@@ -183,4 +195,103 @@ def sentinel_proof(law: dict, n: int, site_term, action: str, actions: list[str]
                       f"M.w_nz(M.ge_e_block_timestamp(en)))"]
         else:
             lines += [f"    case M.A_{cn}{{_, _}}:", "      {==}"]
+    return "\n".join(lines) + "\n"
+
+
+# ------------------------------------------------------------------------------------------------ the split counter-law
+def _motives(sub: str, n: int, act: str, S: str, X: str, KH: str, extra: dict) -> tuple[str, list, str]:
+    """(the claim's premise over the literals, [(lemma name, the motive with _ at the run the lemma replaces)], the last
+    goal) of sy_ok_<n>'s body (holon.gen.symsec law_tau, law_pi, law_omega), the rewrites in order."""
+    F = "False{}"
+    if sub in ("tau", "pi"):
+        if sub == "tau":
+            D = extra["d"]
+            prem = f"Bool.and(U.sy_is_{act}({X}), Bool.and(U.sy_fits_g({S}, {D}), U.sy_fits_x({X}, {D})))"
+            r2 = f"U.ux_ostep(U.sy_tau_x({X}, {D}), U.sy_tau_g({S}, {D}), {KH})"
+            back = lambda u1: f"U.sy_tau_uos({u1}, {D})"  # noqa: E731
+        else:
+            A, B, role = extra["a"], extra["b"], extra["role"]
+            prem = (f"Bool.and(U.sy_is_{act}({X}), Bool.and(Bool.not(M.w_eq({A}, {B})), Bool.and(U.sy_mem_{role}({S}, {A}), "
+                    f"U.sy_mem_{role}({S}, {B}))))")
+            r2 = f"U.ux_ostep(U.sy_pi_x({X}, {A}, {B}), U.sy_pi_g({S}, {A}, {B}), {KH})"
+            back = lambda u1: f"U.sy_pi_uos_{act}({u1}, {A}, {B})"  # noqa: E731
+        r1 = f"U.ux_ostep({X}, {S}, {KH})"
+        steps = [("e_pre", f"{{U.ux_imp(_, U.sy_uos_eq({r2}, {back(r1)})) == {F} : Bool}}"),
+                 ("e_u2", f"{{U.ux_imp(True{{}}, U.sy_uos_eq(_, {back(r1)})) == {F} : Bool}}"),
+                 ("e_u1", f"{{U.ux_imp(True{{}}, U.sy_uos_eq(l_u2(), {back('_')})) == {F} : Bool}}")]
+        last = f"{{U.ux_imp(True{{}}, U.sy_uos_eq(l_u2(), {back('l_u1()')})) == {F} : Bool}}"
+        return prem, steps, last
+    Y, a, b = extra["y"], extra["a_act"], extra["b_act"]
+    prem = f"Bool.and(U.sy_is_{a}({X}), U.sy_is_{b}({Y}))"
+    c2 = lambda ux, uy: f"U.sy_om_{n}_c2({ux}, {uy}, {X}, {Y}, {KH})"  # noqa: E731
+    oks = "Bool.and(U32.is_eq(U.sy_code(l_ux()), 0), U32.is_eq(U.sy_code(l_uy()), 0))"
+    rxy = f"U.ux_ostep({Y}, U.sy_post(l_ux()), {KH})"
+    ryx = f"U.ux_ostep({X}, U.sy_post(l_uy()), {KH})"
+    steps = [("e_pre", f"{{U.ux_imp(_, {c2(f'U.ux_ostep({X}, {S}, {KH})', f'U.ux_ostep({Y}, {S}, {KH})')}) == {F} : Bool}}"),
+             ("e_ux", f"{{U.ux_imp(True{{}}, {c2('_', f'U.ux_ostep({Y}, {S}, {KH})')}) == {F} : Bool}}"),
+             ("e_uy", f"{{U.ux_imp(True{{}}, {c2('l_ux()', '_')}) == {F} : Bool}}"),
+             ("e_uxy", f"{{U.ux_imp(True{{}}, U.ux_imp({oks}, U.sy_om_{n}_c(_, {ryx}))) == {F} : Bool}}"),
+             ("e_uyx", f"{{U.ux_imp(True{{}}, U.ux_imp({oks}, U.sy_om_{n}_c(l_uxy(), _))) == {F} : Bool}}")]
+    last = f"{{U.ux_imp(True{{}}, U.ux_imp({oks}, U.sy_om_{n}_c(l_uxy(), l_uyx()))) == {F} : Bool}}"
+    return prem, steps, last
+
+
+def counter_proof_split(law: dict, n: int, sub: str, model_import: str, sym_import: str, laws_import: str,
+                        hashes: list, prefix: list, states: list, values: dict, tables: dict, lit, runs: dict,
+                        basis: dict, note: str) -> str:
+    """The counter-law proof with one kernel conversion per run (A30's shape): the literal result of each run the
+    claim makes (runs: tau/pi {u1: x from s, u2: g x from g s}; omega {ux, uy: x, y from s; uxy: y after x; uyx: x
+    after y}) as a lemma {literal == run} by computation, the premise {True == premise}, and cz rewriting the claim's
+    runs with them, so that the last conversion compares literals only."""
+    lid = law["law_id"]
+    tb = P3.tabs_binders(hashes)
+    targs = [f"t_{t}()" for t, _h in tb]
+    KH = ", ".join(targs)
+    lines = [PHEADER, "import Base", f"import {model_import} as M", f"import {sym_import} as U",
+             f"import {laws_import} as Laws", "", f"# class counter_split: {note}"]
+    lines += P3._table_defs(tb, tables, lit)
+    body, chain, state = UP._prefix_defs(tb, prefix, states, lit)
+    lines += body
+    bl, bnames = _binder_defs(law, values, lit)
+    lines += bl
+    names = [b for b, _t in binders(law)]
+    X = "b_x()"
+    extra = {k: f"b_{k}()" for k in names if k != "x"}
+    if sub == "pi":
+        extra["role"] = bname(basis["role"])
+        act = bname(basis["action"])
+    elif sub == "tau":
+        act = bname(basis["action"])
+    else:
+        act = ""
+        extra.update(a_act=bname(basis["a"]), b_act=bname(basis["b"]))
+    prem, steps, last = _motives(sub, n, act, state, X, KH, extra)
+    order = ["u1", "u2"] if sub in ("tau", "pi") else ["ux", "uy", "uxy", "uyx"]
+    for k in order:
+        lines += [f"def l_{k}() -> U.UOS:\n  {lit.typed(runs[k], 'UOS')}", ""]
+    run_terms = {"u1": f"U.ux_ostep({X}, {state}, {KH})"}
+    if sub == "tau":
+        run_terms["u2"] = f"U.ux_ostep(U.sy_tau_x({X}, b_d()), U.sy_tau_g({state}, b_d()), {KH})"
+    elif sub == "pi":
+        run_terms["u2"] = f"U.ux_ostep(U.sy_pi_x({X}, b_a(), b_b()), U.sy_pi_g({state}, b_a(), b_b()), {KH})"
+    else:
+        run_terms = {"ux": f"U.ux_ostep({X}, {state}, {KH})", "uy": f"U.ux_ostep(b_y(), {state}, {KH})",
+                     "uxy": f"U.ux_ostep(b_y(), U.sy_post(l_ux()), {KH})",
+                     "uyx": f"U.ux_ostep({X}, U.sy_post(l_uy()), {KH})"}
+    for k in order:
+        lines += [f"def e_{k}() -> {{l_{k}() == {run_terms[k]} : U.UOS}}:\n  {{==}}", ""]
+    lines += [f"def e_pre() -> {{True{{}} == {prem} : Bool}}:\n  {{==}}", ""]
+    lines += [f"def e_last() -> {last}:\n  {{==}}", ""]
+    proof = "e_last()"
+    for name, motive in reversed(steps):
+        proof = f"(%{name}() : {motive}\n  {proof})"
+    lines += [f"def cz() -> {{{call('sy_ok', n, [state] + bnames, targs)} == False{{}} : Bool}}:\n  {proof}", ""]
+    lines += ["def true_ne_false(p: {True{} == False{} : Bool}) -> Empty:\n  (%p : M.is_true(_)\n  Unit{})", ""]
+    tup = "e => true_ne_false((%e : {_ == False{} : Bool}\n  cz()))"
+    for b in reversed(bnames):
+        tup = f"({b}, {tup})"
+    tup = f"({state}, ({chain}, {tup}))"
+    for t in reversed(targs):
+        tup = f"({t}, {tup})"
+    lines.append(f"def Laws.{law_name(lid, True)}():\n  {tup}")
     return "\n".join(lines) + "\n"

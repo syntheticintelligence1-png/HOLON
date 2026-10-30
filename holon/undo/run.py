@@ -606,9 +606,12 @@ def main(argv: list) -> int:
     except (OSError, ValueError):
         derivation = {}
     mine = undo_laws(derivation)
+    from ..symd import run as sym_run    # I34's SYM laws, decided by holon.symd.run
+    syms = sym_run.sym_laws(derivation)
     want = [x.strip() for x in (a.laws or "").split(",") if x.strip()] or None
     undo_ids = [x for x in mine if want is None or x in want]
-    others = None if want is None else [x for x in want if x not in mine]
+    sym_ids = [x for x in syms if want is None or x in want]
+    others = None if want is None else [x for x in want if x not in mine and x not in syms]
     rc = 0
     if cmd == "replay":
         rc = run3.main([cmd] + rest)
@@ -622,6 +625,8 @@ def main(argv: list) -> int:
         rc = run3.main([cmd] + r_argv)
     if undo_ids and U.has_sidecar(a.milestone, root, usc):
         rc = max(rc, run_main(a, undo_ids))
+    if sym_ids:
+        rc = max(rc, sym_run.run_main(a, sym_ids))
     return rc
 
 

@@ -28,8 +28,9 @@ word the site's write term gives, in the action's context, with the register's c
 
 What the generators leave out (disclosed in each record, and the replay on the real contract compares both runs):
   - a key the store does not hold is not translated (the store is a finite map; on the real contract an unwritten
-    slot is zero in both runs as well). J3's "a key absent from the store reading d" is not representable here: the
-    spec/M3/amendments.jsonl line of I34 records it;
+    slot is zero in both runs as well). J3's "a key absent from the store reading d" is not representable here, and
+    neither is π on the address(0) every unwritten address register holds: the I34 report states both (a Surprise and
+    a Question for the human), and each record's sym.notes;
   - a recorded call's answer is mapped by π in its arguments only (the facts record no answer types), and a call
     whose argument types the facts do not determine is not mapped (named in the section's header).
 
