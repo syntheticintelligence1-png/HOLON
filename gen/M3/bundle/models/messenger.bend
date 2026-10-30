@@ -2,7 +2,7 @@
 # facts_sha256: d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519
 # model_version: holon-model-m3/0.2 (untyped: the sort section off)
 # initial state: the deployment of replay/M3/bundle/deployment.json (11 non-zero slots)
-# model debt (actions left out): proveAndRelayMessage, replayMessage, sendMessage_5f7b1577, sendMessage_b2267a7b, verifyMerkleProof
+# model debt (actions left out): none
 import Base
 
 def ite(-A: Data, c: Bool, a: A, b: A) -> A:
@@ -977,16 +977,68 @@ def w_shl_8(a: W) -> W:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{U32.shln(a0, 8n), U32.or(U32.shln(a1, 8n), U32.shrn(a0, 24n)), U32.or(U32.shln(a2, 8n), U32.shrn(a1, 24n)), U32.or(U32.shln(a3, 8n), U32.shrn(a2, 24n)), U32.or(U32.shln(a4, 8n), U32.shrn(a3, 24n)), U32.or(U32.shln(a5, 8n), U32.shrn(a4, 24n)), U32.or(U32.shln(a6, 8n), U32.shrn(a5, 24n)), U32.or(U32.shln(a7, 8n), U32.shrn(a6, 24n))}
 
+def w_shl_128(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{0, 0, 0, 0, a0, a1, a2, a3}
+
+def w_shr_1(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{U32.or(U32.shrn(a0, 1n), U32.shln(a1, 31n)), U32.or(U32.shrn(a1, 1n), U32.shln(a2, 31n)), U32.or(U32.shrn(a2, 1n), U32.shln(a3, 31n)), U32.or(U32.shrn(a3, 1n), U32.shln(a4, 31n)), U32.or(U32.shrn(a4, 1n), U32.shln(a5, 31n)), U32.or(U32.shrn(a5, 1n), U32.shln(a6, 31n)), U32.or(U32.shrn(a6, 1n), U32.shln(a7, 31n)), U32.shrn(a7, 1n)}
+
+def w_shr_2(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{U32.or(U32.shrn(a0, 2n), U32.shln(a1, 30n)), U32.or(U32.shrn(a1, 2n), U32.shln(a2, 30n)), U32.or(U32.shrn(a2, 2n), U32.shln(a3, 30n)), U32.or(U32.shrn(a3, 2n), U32.shln(a4, 30n)), U32.or(U32.shrn(a4, 2n), U32.shln(a5, 30n)), U32.or(U32.shrn(a5, 2n), U32.shln(a6, 30n)), U32.or(U32.shrn(a6, 2n), U32.shln(a7, 30n)), U32.shrn(a7, 2n)}
+
+def w_shr_4(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{U32.or(U32.shrn(a0, 4n), U32.shln(a1, 28n)), U32.or(U32.shrn(a1, 4n), U32.shln(a2, 28n)), U32.or(U32.shrn(a2, 4n), U32.shln(a3, 28n)), U32.or(U32.shrn(a3, 4n), U32.shln(a4, 28n)), U32.or(U32.shrn(a4, 4n), U32.shln(a5, 28n)), U32.or(U32.shrn(a5, 4n), U32.shln(a6, 28n)), U32.or(U32.shrn(a6, 4n), U32.shln(a7, 28n)), U32.shrn(a7, 4n)}
+
 def w_shr_8(a: W) -> W:
   match a:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{U32.or(U32.shrn(a0, 8n), U32.shln(a1, 24n)), U32.or(U32.shrn(a1, 8n), U32.shln(a2, 24n)), U32.or(U32.shrn(a2, 8n), U32.shln(a3, 24n)), U32.or(U32.shrn(a3, 8n), U32.shln(a4, 24n)), U32.or(U32.shrn(a4, 8n), U32.shln(a5, 24n)), U32.or(U32.shrn(a5, 8n), U32.shln(a6, 24n)), U32.or(U32.shrn(a6, 8n), U32.shln(a7, 24n)), U32.shrn(a7, 8n)}
+
+def w_shr_16(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{U32.or(U32.shrn(a0, 16n), U32.shln(a1, 16n)), U32.or(U32.shrn(a1, 16n), U32.shln(a2, 16n)), U32.or(U32.shrn(a2, 16n), U32.shln(a3, 16n)), U32.or(U32.shrn(a3, 16n), U32.shln(a4, 16n)), U32.or(U32.shrn(a4, 16n), U32.shln(a5, 16n)), U32.or(U32.shrn(a5, 16n), U32.shln(a6, 16n)), U32.or(U32.shrn(a6, 16n), U32.shln(a7, 16n)), U32.shrn(a7, 16n)}
+
+def w_shr_32(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{a1, a2, a3, a4, a5, a6, a7, 0}
+
+def w_shr_64(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{a2, a3, a4, a5, a6, a7, 0, 0}
+
+def w_shr_128(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{a4, a5, a6, a7, 0, 0, 0, 0}
 
 def w_shr_160(a: W) -> W:
   match a:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{a5, a6, a7, 0, 0, 0, 0, 0}
 
+def w_shrv(+a: W, +n: W) -> W:
+  +s0 = {ite(W, w_nz(w_and(n, W{1, 0, 0, 0, 0, 0, 0, 0})), w_shr_1(a), a) : W}
+  +s1 = {ite(W, w_nz(w_and(n, W{2, 0, 0, 0, 0, 0, 0, 0})), w_shr_2(s0), s0) : W}
+  +s2 = {ite(W, w_nz(w_and(n, W{4, 0, 0, 0, 0, 0, 0, 0})), w_shr_4(s1), s1) : W}
+  +s3 = {ite(W, w_nz(w_and(n, W{8, 0, 0, 0, 0, 0, 0, 0})), w_shr_8(s2), s2) : W}
+  +s4 = {ite(W, w_nz(w_and(n, W{16, 0, 0, 0, 0, 0, 0, 0})), w_shr_16(s3), s3) : W}
+  +s5 = {ite(W, w_nz(w_and(n, W{32, 0, 0, 0, 0, 0, 0, 0})), w_shr_32(s4), s4) : W}
+  +s6 = {ite(W, w_nz(w_and(n, W{64, 0, 0, 0, 0, 0, 0, 0})), w_shr_64(s5), s5) : W}
+  +s7 = {ite(W, w_nz(w_and(n, W{128, 0, 0, 0, 0, 0, 0, 0})), w_shr_128(s6), s6) : W}
+  ite(W, w_lt(n, W{256, 0, 0, 0, 0, 0, 0, 0}), s7, w0())
+
+# HEnv.e_block_timestamp: block.timestamp
 # HEnv.e_caller: caller
 # HEnv.e_calls: calls
 # HEnv.e_code: code
@@ -994,36 +1046,41 @@ def w_shr_160(a: W) -> W:
 # HEnv.e_msg_value: msg.value
 # HEnv.e_this: this
 type HEnv is Data:
-  HEnv{e_caller: W, e_calls: List<&2, HCall>, e_code: List<&2, KB>, e_msg_data_length: W, e_msg_value: W, e_this: W}
+  HEnv{e_block_timestamp: W, e_caller: W, e_calls: List<&2, HCall>, e_code: List<&2, KB>, e_msg_data_length: W, e_msg_value: W, e_this: W}
+
+def ge_e_block_timestamp(e: HEnv) -> W:
+  match e:
+    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
+      e_block_timestamp
 
 def ge_e_caller(e: HEnv) -> W:
   match e:
-    case HEnv{e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
       e_caller
 
 def ge_e_calls(e: HEnv) -> List<&2, HCall>:
   match e:
-    case HEnv{e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
       e_calls
 
 def ge_e_code(e: HEnv) -> List<&2, KB>:
   match e:
-    case HEnv{e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
       e_code
 
 def ge_e_msg_data_length(e: HEnv) -> W:
   match e:
-    case HEnv{e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
       e_msg_data_length
 
 def ge_e_msg_value(e: HEnv) -> W:
   match e:
-    case HEnv{e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
       e_msg_value
 
 def ge_e_this(e: HEnv) -> W:
   match e:
-    case HEnv{e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_msg_data_length, e_msg_value, e_this}:
       e_this
 
 type AR_initialize is Data:
@@ -1053,11 +1110,138 @@ type AR_owner is Data:
 type AR_paused is Data:
   AR_paused{}
 
+type AR_proveAndRelayMessage is Data:
+  AR_proveAndRelayMessage{_from: W, _to: W, _value: W, _nonce: W, _message: List<&2, U32>, _withdrawalProof: List<&2, W>, _withdrawalRoot: W}
+
+def ga_proveAndRelayMessage__from(e: AR_proveAndRelayMessage) -> W:
+  match e:
+    case AR_proveAndRelayMessage{_from, _to, _value, _nonce, _message, _withdrawalProof, _withdrawalRoot}:
+      _from
+
+def ga_proveAndRelayMessage__to(e: AR_proveAndRelayMessage) -> W:
+  match e:
+    case AR_proveAndRelayMessage{_from, _to, _value, _nonce, _message, _withdrawalProof, _withdrawalRoot}:
+      _to
+
+def ga_proveAndRelayMessage__value(e: AR_proveAndRelayMessage) -> W:
+  match e:
+    case AR_proveAndRelayMessage{_from, _to, _value, _nonce, _message, _withdrawalProof, _withdrawalRoot}:
+      _value
+
+def ga_proveAndRelayMessage__nonce(e: AR_proveAndRelayMessage) -> W:
+  match e:
+    case AR_proveAndRelayMessage{_from, _to, _value, _nonce, _message, _withdrawalProof, _withdrawalRoot}:
+      _nonce
+
+def ga_proveAndRelayMessage__message(e: AR_proveAndRelayMessage) -> List<&2, U32>:
+  match e:
+    case AR_proveAndRelayMessage{_from, _to, _value, _nonce, _message, _withdrawalProof, _withdrawalRoot}:
+      _message
+
+def ga_proveAndRelayMessage__withdrawalProof(e: AR_proveAndRelayMessage) -> List<&2, W>:
+  match e:
+    case AR_proveAndRelayMessage{_from, _to, _value, _nonce, _message, _withdrawalProof, _withdrawalRoot}:
+      _withdrawalProof
+
+def ga_proveAndRelayMessage__withdrawalRoot(e: AR_proveAndRelayMessage) -> W:
+  match e:
+    case AR_proveAndRelayMessage{_from, _to, _value, _nonce, _message, _withdrawalProof, _withdrawalRoot}:
+      _withdrawalRoot
+
 type AR_receive is Data:
   AR_receive{}
 
 type AR_renounceOwnership is Data:
   AR_renounceOwnership{}
+
+type AR_replayMessage is Data:
+  AR_replayMessage{_from: W, _to: W, _value: W, _messageNonce: W, _message: List<&2, U32>, _newGasLimit: W, _refundAddress: W}
+
+def ga_replayMessage__from(e: AR_replayMessage) -> W:
+  match e:
+    case AR_replayMessage{_from, _to, _value, _messageNonce, _message, _newGasLimit, _refundAddress}:
+      _from
+
+def ga_replayMessage__to(e: AR_replayMessage) -> W:
+  match e:
+    case AR_replayMessage{_from, _to, _value, _messageNonce, _message, _newGasLimit, _refundAddress}:
+      _to
+
+def ga_replayMessage__value(e: AR_replayMessage) -> W:
+  match e:
+    case AR_replayMessage{_from, _to, _value, _messageNonce, _message, _newGasLimit, _refundAddress}:
+      _value
+
+def ga_replayMessage__messageNonce(e: AR_replayMessage) -> W:
+  match e:
+    case AR_replayMessage{_from, _to, _value, _messageNonce, _message, _newGasLimit, _refundAddress}:
+      _messageNonce
+
+def ga_replayMessage__message(e: AR_replayMessage) -> List<&2, U32>:
+  match e:
+    case AR_replayMessage{_from, _to, _value, _messageNonce, _message, _newGasLimit, _refundAddress}:
+      _message
+
+def ga_replayMessage__newGasLimit(e: AR_replayMessage) -> W:
+  match e:
+    case AR_replayMessage{_from, _to, _value, _messageNonce, _message, _newGasLimit, _refundAddress}:
+      _newGasLimit
+
+def ga_replayMessage__refundAddress(e: AR_replayMessage) -> W:
+  match e:
+    case AR_replayMessage{_from, _to, _value, _messageNonce, _message, _newGasLimit, _refundAddress}:
+      _refundAddress
+
+type AR_sendMessage_5f7b1577 is Data:
+  AR_sendMessage_5f7b1577{_to: W, _value: W, _message: List<&2, U32>, _gasLimit: W, _refundAddress: W}
+
+def ga_sendMessage_5f7b1577__to(e: AR_sendMessage_5f7b1577) -> W:
+  match e:
+    case AR_sendMessage_5f7b1577{_to, _value, _message, _gasLimit, _refundAddress}:
+      _to
+
+def ga_sendMessage_5f7b1577__value(e: AR_sendMessage_5f7b1577) -> W:
+  match e:
+    case AR_sendMessage_5f7b1577{_to, _value, _message, _gasLimit, _refundAddress}:
+      _value
+
+def ga_sendMessage_5f7b1577__message(e: AR_sendMessage_5f7b1577) -> List<&2, U32>:
+  match e:
+    case AR_sendMessage_5f7b1577{_to, _value, _message, _gasLimit, _refundAddress}:
+      _message
+
+def ga_sendMessage_5f7b1577__gasLimit(e: AR_sendMessage_5f7b1577) -> W:
+  match e:
+    case AR_sendMessage_5f7b1577{_to, _value, _message, _gasLimit, _refundAddress}:
+      _gasLimit
+
+def ga_sendMessage_5f7b1577__refundAddress(e: AR_sendMessage_5f7b1577) -> W:
+  match e:
+    case AR_sendMessage_5f7b1577{_to, _value, _message, _gasLimit, _refundAddress}:
+      _refundAddress
+
+type AR_sendMessage_b2267a7b is Data:
+  AR_sendMessage_b2267a7b{_to: W, _value: W, _message: List<&2, U32>, _gasLimit: W}
+
+def ga_sendMessage_b2267a7b__to(e: AR_sendMessage_b2267a7b) -> W:
+  match e:
+    case AR_sendMessage_b2267a7b{_to, _value, _message, _gasLimit}:
+      _to
+
+def ga_sendMessage_b2267a7b__value(e: AR_sendMessage_b2267a7b) -> W:
+  match e:
+    case AR_sendMessage_b2267a7b{_to, _value, _message, _gasLimit}:
+      _value
+
+def ga_sendMessage_b2267a7b__message(e: AR_sendMessage_b2267a7b) -> List<&2, U32>:
+  match e:
+    case AR_sendMessage_b2267a7b{_to, _value, _message, _gasLimit}:
+      _message
+
+def ga_sendMessage_b2267a7b__gasLimit(e: AR_sendMessage_b2267a7b) -> W:
+  match e:
+    case AR_sendMessage_b2267a7b{_to, _value, _message, _gasLimit}:
+      _gasLimit
 
 type AR_setPause is Data:
   AR_setPause{_status: W}
@@ -1098,6 +1282,29 @@ def ga_updateRollup__newRollup(e: AR_updateRollup) -> W:
   match e:
     case AR_updateRollup{_newRollup}:
       _newRollup
+
+type AR_verifyMerkleProof is Data:
+  AR_verifyMerkleProof{leafHash: W, smtProof: List<&2, W>, index: W, root: W}
+
+def ga_verifyMerkleProof_leafHash(e: AR_verifyMerkleProof) -> W:
+  match e:
+    case AR_verifyMerkleProof{leafHash, smtProof, index, root}:
+      leafHash
+
+def ga_verifyMerkleProof_smtProof(e: AR_verifyMerkleProof) -> List<&2, W>:
+  match e:
+    case AR_verifyMerkleProof{leafHash, smtProof, index, root}:
+      smtProof
+
+def ga_verifyMerkleProof_index(e: AR_verifyMerkleProof) -> W:
+  match e:
+    case AR_verifyMerkleProof{leafHash, smtProof, index, root}:
+      index
+
+def ga_verifyMerkleProof_root(e: AR_verifyMerkleProof) -> W:
+  match e:
+    case AR_verifyMerkleProof{leafHash, smtProof, index, root}:
+      root
 
 type X_initialize is Data:
   X_initialize{st: HSt, ov: HSt, ar: AR_initialize, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>}
@@ -2066,6 +2273,615 @@ def logs_paused(+st: HSt, +ar: AR_paused, +en: HEnv, +kh: List<&2, HKB>) -> List
 def step_paused(+st: HSt, +ar: AR_paused, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
   st_after(run_paused(st, ar, en, kh), st)
 
+type X_proveAndRelayMessage is Data:
+  X_proveAndRelayMessage{st: HSt, ov: HSt, ar: AR_proveAndRelayMessage, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c1_0: W, c1_1: W, it1: W, cn1: W, rt1: W, ld1: Nat}
+
+def gx_proveAndRelayMessage_st(e: X_proveAndRelayMessage) -> HSt:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      st
+
+def gx_proveAndRelayMessage_ov(e: X_proveAndRelayMessage) -> HSt:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      ov
+
+def gx_proveAndRelayMessage_ar(e: X_proveAndRelayMessage) -> AR_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      ar
+
+def gx_proveAndRelayMessage_en(e: X_proveAndRelayMessage) -> HEnv:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      en
+
+def gx_proveAndRelayMessage_kh(e: X_proveAndRelayMessage) -> List<&2, HKB>:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      kh
+
+def gx_proveAndRelayMessage_cd(e: X_proveAndRelayMessage) -> U32:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      cd
+
+def gx_proveAndRelayMessage_rv(e: X_proveAndRelayMessage) -> List<&2, U32>:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      rv
+
+def gx_proveAndRelayMessage_lg(e: X_proveAndRelayMessage) -> List<&2, HLog>:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      lg
+
+def gx_proveAndRelayMessage_tw(e: X_proveAndRelayMessage) -> List<&2, W>:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      tw
+
+def gx_proveAndRelayMessage_c1_0(e: X_proveAndRelayMessage) -> W:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      c1_0
+
+def gx_proveAndRelayMessage_c1_1(e: X_proveAndRelayMessage) -> W:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      c1_1
+
+def gx_proveAndRelayMessage_it1(e: X_proveAndRelayMessage) -> W:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      it1
+
+def gx_proveAndRelayMessage_cn1(e: X_proveAndRelayMessage) -> W:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      cn1
+
+def gx_proveAndRelayMessage_rt1(e: X_proveAndRelayMessage) -> W:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      rt1
+
+def gx_proveAndRelayMessage_ld1(e: X_proveAndRelayMessage) -> Nat:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      ld1
+
+def sx_proveAndRelayMessage_st(e: X_proveAndRelayMessage, +v: HSt) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{_, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{v, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_ov(e: X_proveAndRelayMessage, +v: HSt) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, _, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, v, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_ar(e: X_proveAndRelayMessage, +v: AR_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, _, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, v, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_en(e: X_proveAndRelayMessage, +v: HEnv) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, _, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, v, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_kh(e: X_proveAndRelayMessage, +v: List<&2, HKB>) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, _, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, v, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_cd(e: X_proveAndRelayMessage, +v: U32) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, _, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, v, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_rv(e: X_proveAndRelayMessage, +v: List<&2, U32>) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, _, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, v, lg, tw, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_lg(e: X_proveAndRelayMessage, +v: List<&2, HLog>) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, _, tw, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, v, tw, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_tw(e: X_proveAndRelayMessage, +v: List<&2, W>) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, _, c1_0, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, v, c1_0, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_c1_0(e: X_proveAndRelayMessage, +v: W) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, _, c1_1, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, v, c1_1, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_c1_1(e: X_proveAndRelayMessage, +v: W) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, _, it1, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, v, it1, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_it1(e: X_proveAndRelayMessage, +v: W) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, _, cn1, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, v, cn1, rt1, ld1}
+
+def sx_proveAndRelayMessage_cn1(e: X_proveAndRelayMessage, +v: W) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, _, rt1, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, v, rt1, ld1}
+
+def sx_proveAndRelayMessage_rt1(e: X_proveAndRelayMessage, +v: W) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, _, ld1}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, v, ld1}
+
+def sx_proveAndRelayMessage_ld1(e: X_proveAndRelayMessage, +v: Nat) -> X_proveAndRelayMessage:
+  match e:
+    case X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, _}:
+      X_proveAndRelayMessage{st, ov, ar, en, kh, cd, rv, lg, tw, c1_0, c1_1, it1, cn1, rt1, v}
+
+def xf_proveAndRelayMessage(x: X_proveAndRelayMessage, +c: U32, +r: List<&2, U32>) -> X_proveAndRelayMessage:
+  sx_proveAndRelayMessage_cd(sx_proveAndRelayMessage_rv(x, r), c)
+
+def sz_proveAndRelayMessage(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  x
+
+def ev_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, +x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      sx_proveAndRelayMessage_lg(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, Con{HLog{[W{1274354575, 283363422, 3522007532, 3618318662, 2091985068, 356561206, 1212918299, 2580602952}, h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__nonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_proveAndRelayMessage__message(x_ar)), Nil{}))))))))], Nil{}}, x_lg})
+
+def ec_proveAndRelayMessage_1(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      sz_proveAndRelayMessage(ev_proveAndRelayMessage_1(x))
+    case False{}:
+      sz_proveAndRelayMessage(x)
+
+# event contracts/contracts/l1/L1CrossDomainMessenger.sol:170
+def s_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      ec_proveAndRelayMessage_1(Bool.not(w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), ga_proveAndRelayMessage__to(x_ar), True{}, ga_proveAndRelayMessage__message(x_ar)))))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+def ev_proveAndRelayMessage_2(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, +x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      sx_proveAndRelayMessage_lg(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, Con{HLog{[W{1367216956, 2738205175, 1934009303, 3302587282, 3370495103, 656005320, 2518708705, 1178722122}, h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__nonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_proveAndRelayMessage__message(x_ar)), Nil{}))))))))], Nil{}}, x_lg})
+
+def ec_proveAndRelayMessage_2(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_1(ev_proveAndRelayMessage_2(x))
+    case False{}:
+      s_proveAndRelayMessage_1(x)
+
+# event contracts/contracts/l1/L1CrossDomainMessenger.sol:168
+def s_proveAndRelayMessage_2(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      ec_proveAndRelayMessage_2(w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), ga_proveAndRelayMessage__to(x_ar), True{}, ga_proveAndRelayMessage__message(x_ar))))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+def wr_proveAndRelayMessage_3(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__nonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_proveAndRelayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250])) : W}
+      +v = {W{1, 0, 0, 0, 0, 0, 0, 0} : W}
+      +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(v, W{255, 0, 0, 0, 0, 0, 0, 0}))) : HSt}
+      sx_proveAndRelayMessage_tw(sx_proveAndRelayMessage_ov(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, o1), Con{k, x_tw})
+
+def wc_proveAndRelayMessage_3(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_2(wr_proveAndRelayMessage_3(x))
+    case False{}:
+      s_proveAndRelayMessage_2(x)
+
+# write contracts/contracts/l1/L1CrossDomainMessenger.sol:167
+def s_proveAndRelayMessage_3(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      wc_proveAndRelayMessage_3(w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), ga_proveAndRelayMessage__to(x_ar), True{}, ga_proveAndRelayMessage__message(x_ar))))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+def wr_proveAndRelayMessage_4(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      +o0 = x_ov
+      +k = {W{201, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {W{57005, 0, 0, 0, 0, 0, 0, 0} : W}
+      +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{0, 0, 0, 0, 0, 4294967295, 4294967295, 4294967295}), w_and(v, W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))) : HSt}
+      sx_proveAndRelayMessage_tw(sx_proveAndRelayMessage_ov(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/L1CrossDomainMessenger.sol:163
+def s_proveAndRelayMessage_4(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  s_proveAndRelayMessage_3(wr_proveAndRelayMessage_4(x))
+
+def wr_proveAndRelayMessage_5(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, +x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      +o0 = x_ov
+      +k = {W{201, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {ga_proveAndRelayMessage__from(x_ar) : W}
+      +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{0, 0, 0, 0, 0, 4294967295, 4294967295, 4294967295}), w_and(v, W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))) : HSt}
+      sx_proveAndRelayMessage_tw(sx_proveAndRelayMessage_ov(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/L1CrossDomainMessenger.sol:160
+def s_proveAndRelayMessage_5(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  s_proveAndRelayMessage_4(wr_proveAndRelayMessage_5(x))
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:154-157#0
+def k_proveAndRelayMessage_6(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_5(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 16, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 101, 110, 103, 101, 114, 58, 32, 105, 110, 118, 97, 108, 105, 100, 32, 119, 105, 116, 104, 100, 114, 97, 119, 97, 108, 32, 105, 110, 99, 108, 117, 115, 105, 111, 110, 32, 112, 114, 111, 111, 102]))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:154-157
+def s_proveAndRelayMessage_6(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, +x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_6(w_eq(x_c1_1, ga_proveAndRelayMessage__withdrawalRoot(x_ar)), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+def ln_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, +x_c1_1, +x_it1, x_cn1, x_rt1, x_ld1}:
+      +n0 = {w_add(x_it1, W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n1 = {ite(W, w_eq(w_and(w_shrv(ga_proveAndRelayMessage__nonce(x_ar), x_it1), W{1, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, List.append(&2, U32, b_take(32n, b_of_w(w_nth(ga_proveAndRelayMessage__withdrawalProof(x_ar), n_of_w(x_it1))), 0), List.append(&2, U32, b_take(32n, b_of_w(x_c1_1), 0), Nil{}))), h_get(x_kh, List.append(&2, U32, b_take(32n, b_of_w(x_c1_1), 0), List.append(&2, U32, b_take(32n, b_of_w(w_nth(ga_proveAndRelayMessage__withdrawalProof(x_ar), n_of_w(x_it1))), 0), Nil{})))) : W}
+      sx_proveAndRelayMessage_ld1(sx_proveAndRelayMessage_it1(sx_proveAndRelayMessage_c1_1(sx_proveAndRelayMessage_c1_0(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, n0), n1), w_add(x_it1, w_u(1))), 1n)
+
+def lbk_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, +x_it1, x_cn1, x_rt1, x_ld1}:
+      sx_proveAndRelayMessage_ld1(sx_proveAndRelayMessage_cn1(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, x_it1), 3n)
+
+def lk_proveAndRelayMessage_1(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      lbk_proveAndRelayMessage_1(x)
+    case False{}:
+      ln_proveAndRelayMessage_1(x)
+
+def lc_proveAndRelayMessage_1(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      sx_proveAndRelayMessage_ld1(x, 2n)
+    case False{}:
+      ln_proveAndRelayMessage_1(x)
+
+def lb_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      lc_proveAndRelayMessage_1(u_nz(x_cd), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+def lz_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  x
+
+# proveAndRelayMessage#contracts/contracts/libraries/common/Verify.sol:14#0
+def k_proveAndRelayMessage_8(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      lz_proveAndRelayMessage_1(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 15, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/libraries/common/Verify.sol:14
+def s_proveAndRelayMessage_8(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, +x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_8(Bool.or(Bool.not(w_lt(x_it1, W{32, 0, 0, 0, 0, 0, 0, 0})), w_add_ok(x_it1, W{1, 0, 0, 0, 0, 0, 0, 0})), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/libraries/common/Verify.sol:16#0
+def k_proveAndRelayMessage_9(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_8(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 14, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/libraries/common/Verify.sol:16
+def s_proveAndRelayMessage_9(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, +x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_9(Bool.or(Bool.not(Bool.and(w_lt(x_it1, W{32, 0, 0, 0, 0, 0, 0, 0}), Bool.not(w_eq(w_and(w_shrv(ga_proveAndRelayMessage__nonce(x_ar), x_it1), W{1, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0})))), w_lt(x_it1, W{32, 0, 0, 0, 0, 0, 0, 0})), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/libraries/common/Verify.sol:15#0
+def k_proveAndRelayMessage_10(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_9(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 13, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/libraries/common/Verify.sol:15
+def s_proveAndRelayMessage_10(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, +x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_10(Bool.or(Bool.not(Bool.and(w_lt(x_it1, W{32, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_and(w_shrv(ga_proveAndRelayMessage__nonce(x_ar), x_it1), W{1, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}))), w_lt(x_it1, W{32, 0, 0, 0, 0, 0, 0, 0})), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+def lx_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, +x_it1, x_cn1, x_rt1, x_ld1}:
+      sx_proveAndRelayMessage_ld1(sx_proveAndRelayMessage_cn1(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, x_it1), 0n)
+
+def lh_proveAndRelayMessage_1(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      lb_proveAndRelayMessage_1(s_proveAndRelayMessage_10(x))
+    case False{}:
+      lx_proveAndRelayMessage_1(x)
+
+def li_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, +x_it1, x_cn1, x_rt1, x_ld1}:
+      lh_proveAndRelayMessage_1(w_lt(x_it1, W{32, 0, 0, 0, 0, 0, 0, 0}), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+def lpz_proveAndRelayMessage_1(d: Nat, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match d:
+    case 0n:
+      x
+    case 1n+q:
+      match q:
+        case 0n:
+          xf_proveAndRelayMessage(x, 4294967295, Nil{})
+        case 1n+s:
+          x
+
+# loop contracts/contracts/libraries/common/Verify.sol:14-17: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
+def lp_proveAndRelayMessage_1(f: Nat, d: Nat, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match f:
+    case 0n:
+      lpz_proveAndRelayMessage_1(d, x)
+    case 1n+r:
+      match d:
+        case 0n:
+          x
+        case 1n+q:
+          match q:
+            case 0n:
+              +y = li_proveAndRelayMessage_1(x)
+              lp_proveAndRelayMessage_1(r, gx_proveAndRelayMessage_ld1(y), y)
+            case 1n+s:
+              x
+
+def ls_proveAndRelayMessage_1(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      +v0 = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v1 = {h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__nonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_proveAndRelayMessage__message(x_ar)), Nil{})))))))) : W}
+      sx_proveAndRelayMessage_ld1(sx_proveAndRelayMessage_rt1(sx_proveAndRelayMessage_cn1(sx_proveAndRelayMessage_it1(sx_proveAndRelayMessage_c1_1(sx_proveAndRelayMessage_c1_0(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, v0), v1), w0()), w0()), w0()), 1n)
+
+def la_proveAndRelayMessage_7(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      x
+    case False{}:
+      s_proveAndRelayMessage_6(x)
+
+def lg_proveAndRelayMessage_7(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  +y = lp_proveAndRelayMessage_1(U32.to_nat(4097), 1n, ls_proveAndRelayMessage_1(x))
+  la_proveAndRelayMessage_7(u_nz(gx_proveAndRelayMessage_cd(y)), y)
+
+# loop contracts/contracts/libraries/common/Verify.sol:14-17
+def s_proveAndRelayMessage_7(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  lg_proveAndRelayMessage_7(x)
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:148#0
+def k_proveAndRelayMessage_11(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_7(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 12, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 101, 110, 103, 101, 114, 58, 32, 119, 105, 116, 104, 100, 114, 97, 119, 97, 108, 82, 111, 111, 116, 32, 110, 111, 116, 32, 102, 105, 110, 97, 108, 105, 122, 101, 100]))))
+
+def cq_proveAndRelayMessage_11_0(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_proveAndRelayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+          xf_proveAndRelayMessage(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [4, 215, 114, 21], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__withdrawalRoot(x_ar)), Nil{})))))
+    case False{}:
+      match x:
+        case X_proveAndRelayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+          k_proveAndRelayMessage_11(w_nz(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [4, 215, 114, 21], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__withdrawalRoot(x_ar)), Nil{})))), 0n)), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:148
+def s_proveAndRelayMessage_11(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      cq_proveAndRelayMessage_11_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [4, 215, 114, 21], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__withdrawalRoot(x_ar)), Nil{}))))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:147#0
+def k_proveAndRelayMessage_12(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_11(x)
+    case False{}:
+      match x:
+        case X_proveAndRelayMessage{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+          xf_proveAndRelayMessage(X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}, 11, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{253, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [4, 215, 114, 21], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__withdrawalRoot(x_ar)), Nil{})))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{253, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [4, 215, 114, 21], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__withdrawalRoot(x_ar)), Nil{}))))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:147
+def s_proveAndRelayMessage_12(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_12(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{253, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [4, 215, 114, 21], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__withdrawalRoot(x_ar)), Nil{})))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:141#0
+def k_proveAndRelayMessage_13(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_12(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 10, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 101, 110, 103, 101, 114, 58, 32, 119, 105, 116, 104, 100, 114, 97, 119, 97, 108, 32, 104, 97, 115, 32, 97, 108, 114, 101, 97, 100, 121, 32, 98, 101, 101, 110, 32, 102, 105, 110, 97, 108, 105, 122, 101, 100]))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:141
+def s_proveAndRelayMessage_13(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_13(Bool.not(w_nz(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_proveAndRelayMessage__nonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_proveAndRelayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 250]))), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:136#0
+def k_proveAndRelayMessage_14(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_13(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 9, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 101, 110, 103, 101, 114, 58, 32, 73, 110, 118, 97, 108, 105, 100, 32, 109, 101, 115, 115, 97, 103, 101, 32, 115, 101, 110, 100, 101, 114]))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:136
+def s_proveAndRelayMessage_14(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_14(Bool.not(w_eq(ga_proveAndRelayMessage__from(x_ar), w_and(sload(x_st, W{201, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/libraries/CrossDomainMessenger.sol:152#0
+def k_proveAndRelayMessage_15(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_14(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 8, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 101, 110, 103, 101, 114, 58, 32, 70, 111, 114, 98, 105, 100, 32, 116, 111, 32, 99, 97, 108, 108, 32, 115, 101, 108, 102]))))
+
+# check contracts/contracts/libraries/CrossDomainMessenger.sol:152
+def s_proveAndRelayMessage_15(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_15(Bool.not(w_eq(ga_proveAndRelayMessage__to(x_ar), ge_e_this(x_en))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:132#0
+def k_proveAndRelayMessage_16(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_15(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 7, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 101, 110, 103, 101, 114, 58, 32, 70, 111, 114, 98, 105, 100, 32, 116, 111, 32, 99, 97, 108, 108, 32, 109, 101, 115, 115, 97, 103, 101, 32, 113, 117, 101, 117, 101]))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:132
+def s_proveAndRelayMessage_16(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_16(Bool.not(w_eq(ga_proveAndRelayMessage__to(x_ar), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/libraries/CrossDomainMessenger.sol:64#0
+def k_proveAndRelayMessage_17(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_16(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 6, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 97, 103, 101, 32, 105, 115, 32, 97, 108, 114, 101, 97, 100, 121, 32, 105, 110, 32, 101, 120, 101, 99, 117, 116, 105, 111, 110]))))
+
+# check contracts/contracts/libraries/CrossDomainMessenger.sol:64
+def s_proveAndRelayMessage_17(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_17(w_eq(w_and(sload(x_st, W{201, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{57005, 0, 0, 0, 0, 0, 0, 0}), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#_openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0
+def k_proveAndRelayMessage_18(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_17(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 5, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([80, 97, 117, 115, 97, 98, 108, 101, 58, 32, 112, 97, 117, 115, 101, 100]))))
+
+# check _openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def s_proveAndRelayMessage_18(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_18(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:124#0
+def k_proveAndRelayMessage_19(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_18(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 4, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:124
+def s_proveAndRelayMessage_19(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_19(Bool.not(w_nz(w_shr_160(ga_proveAndRelayMessage__to(x_ar)))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:123#0
+def k_proveAndRelayMessage_20(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_19(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 3, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:123
+def s_proveAndRelayMessage_20(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_20(Bool.not(w_nz(w_shr_160(ga_proveAndRelayMessage__from(x_ar)))), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:122-172#1
+def k_proveAndRelayMessage_21(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_20(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 2, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:122-172
+def s_proveAndRelayMessage_21(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_21(w_ge(ge_e_msg_data_length(x_en), W{1220, 0, 0, 0, 0, 0, 0, 0}), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+# proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:122-172#0
+def k_proveAndRelayMessage_22(c: Bool, x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match c:
+    case True{}:
+      s_proveAndRelayMessage_21(x)
+    case False{}:
+      xf_proveAndRelayMessage(x, 1, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:122-172
+def s_proveAndRelayMessage_22(x: X_proveAndRelayMessage) -> X_proveAndRelayMessage:
+  match x:
+    case X_proveAndRelayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1}:
+      k_proveAndRelayMessage_22(w_eq(ge_e_msg_value(x_en), W{0, 0, 0, 0, 0, 0, 0, 0}), X_proveAndRelayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_it1, x_cn1, x_rt1, x_ld1})
+
+def x0_proveAndRelayMessage(+st: HSt, +ar: AR_proveAndRelayMessage, +en: HEnv, +kh: List<&2, HKB>) -> X_proveAndRelayMessage:
+  X_proveAndRelayMessage{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}, w0(), w0(), w0(), w0(), w0(), 0n}
+
+# the context after the action's program ran (holon.extracted_eval's order)
+def xr_proveAndRelayMessage(+st: HSt, +ar: AR_proveAndRelayMessage, +en: HEnv, +kh: List<&2, HKB>) -> X_proveAndRelayMessage:
+  s_proveAndRelayMessage_22(x0_proveAndRelayMessage(st, ar, en, kh))
+
+def xo_proveAndRelayMessage(x: X_proveAndRelayMessage) -> HOut:
+  match x:
+    case X_proveAndRelayMessage{_, x_ov, _, _, _, x_cd, x_rv, x_lg, x_tw, _, _, _, _, _, _}:
+      HOut{x_cd, x_rv, x_ov, lg_rev(x_lg, Nil{}), x_tw}
+
+def run_proveAndRelayMessage(+st: HSt, +ar: AR_proveAndRelayMessage, +en: HEnv, +kh: List<&2, HKB>) -> HOut:
+  xo_proveAndRelayMessage(xr_proveAndRelayMessage(st, ar, en, kh))
+
+# 0 when every check of proveAndRelayMessage holds, k + 1 when check k (holon.machine's order) is the first to fail
+def chk_proveAndRelayMessage(+st: HSt, +ar: AR_proveAndRelayMessage, +en: HEnv, +kh: List<&2, HKB>) -> U32:
+  o_code(run_proveAndRelayMessage(st, ar, en, kh))
+
+def post_proveAndRelayMessage(+st: HSt, +ar: AR_proveAndRelayMessage, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  o_post(run_proveAndRelayMessage(st, ar, en, kh))
+
+def logs_proveAndRelayMessage(+st: HSt, +ar: AR_proveAndRelayMessage, +en: HEnv, +kh: List<&2, HKB>) -> List<&2, HLog>:
+  o_logs(run_proveAndRelayMessage(st, ar, en, kh))
+
+def step_proveAndRelayMessage(+st: HSt, +ar: AR_proveAndRelayMessage, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  st_after(run_proveAndRelayMessage(st, ar, en, kh), st)
+
 type X_receive is Data:
   X_receive{st: HSt, ov: HSt, ar: AR_receive, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>}
 
@@ -2383,6 +3199,1471 @@ def logs_renounceOwnership(+st: HSt, +ar: AR_renounceOwnership, +en: HEnv, +kh: 
 
 def step_renounceOwnership(+st: HSt, +ar: AR_renounceOwnership, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
   st_after(run_renounceOwnership(st, ar, en, kh), st)
+
+type X_replayMessage is Data:
+  X_replayMessage{st: HSt, ov: HSt, ar: AR_replayMessage, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>}
+
+def gx_replayMessage_st(e: X_replayMessage) -> HSt:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      st
+
+def gx_replayMessage_ov(e: X_replayMessage) -> HSt:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      ov
+
+def gx_replayMessage_ar(e: X_replayMessage) -> AR_replayMessage:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      ar
+
+def gx_replayMessage_en(e: X_replayMessage) -> HEnv:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      en
+
+def gx_replayMessage_kh(e: X_replayMessage) -> List<&2, HKB>:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      kh
+
+def gx_replayMessage_cd(e: X_replayMessage) -> U32:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      cd
+
+def gx_replayMessage_rv(e: X_replayMessage) -> List<&2, U32>:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      rv
+
+def gx_replayMessage_lg(e: X_replayMessage) -> List<&2, HLog>:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      lg
+
+def gx_replayMessage_tw(e: X_replayMessage) -> List<&2, W>:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      tw
+
+def sx_replayMessage_st(e: X_replayMessage, +v: HSt) -> X_replayMessage:
+  match e:
+    case X_replayMessage{_, ov, ar, en, kh, cd, rv, lg, tw}:
+      X_replayMessage{v, ov, ar, en, kh, cd, rv, lg, tw}
+
+def sx_replayMessage_ov(e: X_replayMessage, +v: HSt) -> X_replayMessage:
+  match e:
+    case X_replayMessage{st, _, ar, en, kh, cd, rv, lg, tw}:
+      X_replayMessage{st, v, ar, en, kh, cd, rv, lg, tw}
+
+def sx_replayMessage_ar(e: X_replayMessage, +v: AR_replayMessage) -> X_replayMessage:
+  match e:
+    case X_replayMessage{st, ov, _, en, kh, cd, rv, lg, tw}:
+      X_replayMessage{st, ov, v, en, kh, cd, rv, lg, tw}
+
+def sx_replayMessage_en(e: X_replayMessage, +v: HEnv) -> X_replayMessage:
+  match e:
+    case X_replayMessage{st, ov, ar, _, kh, cd, rv, lg, tw}:
+      X_replayMessage{st, ov, ar, v, kh, cd, rv, lg, tw}
+
+def sx_replayMessage_kh(e: X_replayMessage, +v: List<&2, HKB>) -> X_replayMessage:
+  match e:
+    case X_replayMessage{st, ov, ar, en, _, cd, rv, lg, tw}:
+      X_replayMessage{st, ov, ar, en, v, cd, rv, lg, tw}
+
+def sx_replayMessage_cd(e: X_replayMessage, +v: U32) -> X_replayMessage:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, _, rv, lg, tw}:
+      X_replayMessage{st, ov, ar, en, kh, v, rv, lg, tw}
+
+def sx_replayMessage_rv(e: X_replayMessage, +v: List<&2, U32>) -> X_replayMessage:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, _, lg, tw}:
+      X_replayMessage{st, ov, ar, en, kh, cd, v, lg, tw}
+
+def sx_replayMessage_lg(e: X_replayMessage, +v: List<&2, HLog>) -> X_replayMessage:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, _, tw}:
+      X_replayMessage{st, ov, ar, en, kh, cd, rv, v, tw}
+
+def sx_replayMessage_tw(e: X_replayMessage, +v: List<&2, W>) -> X_replayMessage:
+  match e:
+    case X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, _}:
+      X_replayMessage{st, ov, ar, en, kh, cd, rv, lg, v}
+
+def xf_replayMessage(x: X_replayMessage, +c: U32, +r: List<&2, U32>) -> X_replayMessage:
+  sx_replayMessage_cd(sx_replayMessage_rv(x, r), c)
+
+def sz_replayMessage(x: X_replayMessage) -> X_replayMessage:
+  x
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:241#0
+def k_replayMessage_1(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      sz_replayMessage(x)
+    case False{}:
+      xf_replayMessage(x, 16, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([70, 97, 105, 108, 101, 100, 32, 116, 111, 32, 114, 101, 102, 117, 110, 100, 32, 116, 104, 101, 32, 102, 101, 101]))))
+
+def cq_replayMessage_1_1(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_replayMessage_1(Bool.or(Bool.not(w_gt(w_sub(ge_e_msg_value(x_en), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), ga_replayMessage__refundAddress(x_ar), True{}, Nil{}))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def cq_replayMessage_1_0(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          cq_replayMessage_1_1(Bool.and(Bool.not(Bool.not(w_gt(w_sub(ge_e_msg_value(x_en), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:241
+def s_replayMessage_1(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_replayMessage_1_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{})))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def ev_replayMessage_2(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, +x_lg, x_tw}:
+      sx_replayMessage_lg(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, Con{HLog{[W{2533703009, 3498833990, 4123645552, 1659376880, 3022921656, 361252213, 95550585, 2745247000}, ga_replayMessage__messageNonce(x_ar), ge_e_caller(x_en), ga_replayMessage__to(x_ar)], List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), List.append(&2, U32, b_of_u(128), abi_dyn(ga_replayMessage__message(x_ar))))))}, x_lg})
+
+def cq_replayMessage_2_0(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      s_replayMessage_1(ev_replayMessage_2(x))
+
+# event contracts/contracts/l1/L1CrossDomainMessenger.sol:234
+def s_replayMessage_2(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_replayMessage_2_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def wr_replayMessage_3(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])) : W}
+      +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{0, 0, 0, 0, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w_and(w_add(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}))) : HSt}
+      +o2 = {sstore(o1, k, w_or(w_and(sload(o1, k), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), w_shl_128(w_and(w_and(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0})))) : HSt}
+      sx_replayMessage_tw(sx_replayMessage_ov(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o2), Con{k, x_tw})
+
+def cq_replayMessage_3_0(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      s_replayMessage_2(wr_replayMessage_3(x))
+
+# write contracts/contracts/l1/L1CrossDomainMessenger.sol:231
+def s_replayMessage_3(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_replayMessage_3_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:226#0
+def k_replayMessage_4(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_3(x)
+    case False{}:
+      xf_replayMessage(x, 15, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([69, 120, 99, 101, 101, 100, 32, 109, 97, 120, 105, 109, 117, 109, 32, 114, 101, 112, 108, 97, 121, 32, 116, 105, 109, 101, 115]))))
+
+def cq_replayMessage_4_0(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      match x:
+        case X_replayMessage{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_replayMessage_4(w_lt(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), sload(x_st, W{255, 0, 0, 0, 0, 0, 0, 0})), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:226
+def s_replayMessage_4(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_replayMessage_4_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def wr_replayMessage_5(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1])) : W}
+      +v = {w_and(w_add(w_and(w_shr_128(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])))), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_replayMessage_tw(sx_replayMessage_ov(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
+
+def wc_replayMessage_5(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_4(wr_replayMessage_5(x))
+    case False{}:
+      s_replayMessage_4(x)
+
+def cq_replayMessage_5_0(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      match x:
+        case X_replayMessage{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+          wc_replayMessage_5(Bool.not(w_eq(w_and(w_shr_128(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])))), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# write contracts/contracts/l1/L1CrossDomainMessenger.sol:220
+def s_replayMessage_5(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_replayMessage_5_0(Bool.and(Bool.not(w_eq(w_and(w_shr_128(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])))), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def wr_replayMessage_6(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1])) : W}
+      +v = {w_add(ga_replayMessage__messageNonce(x_ar), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_replayMessage_tw(sx_replayMessage_ov(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
+
+def wc_replayMessage_6(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_5(wr_replayMessage_6(x))
+    case False{}:
+      s_replayMessage_5(x)
+
+def cq_replayMessage_6_0(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      match x:
+        case X_replayMessage{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+          wc_replayMessage_6(w_eq(w_and(w_shr_128(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])))), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# write contracts/contracts/l1/L1CrossDomainMessenger.sol:218
+def s_replayMessage_6(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_replayMessage_6_0(Bool.and(w_eq(w_and(w_shr_128(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])))), W{4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:209#0
+def k_replayMessage_7(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_6(x)
+    case False{}:
+      match x:
+        case X_replayMessage{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 14, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{})))))))), Nil{}))))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{})))))))), Nil{})))))))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:209
+def s_replayMessage_7(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_7(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{})))))))), Nil{}))))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:208#0
+def k_replayMessage_8(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_7(x)
+    case False{}:
+      match x:
+        case X_replayMessage{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 13, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:208
+def s_replayMessage_8(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_8(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:204#0
+def k_replayMessage_9(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_8(x)
+    case False{}:
+      xf_replayMessage(x, 12, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([70, 97, 105, 108, 101, 100, 32, 116, 111, 32, 100, 101, 100, 117, 99, 116, 32, 116, 104, 101, 32, 102, 101, 101]))))
+
+def cq_replayMessage_9_1(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_replayMessage{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_replayMessage_9(Bool.or(Bool.not(w_gt(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))), 0n), W{0, 0, 0, 0, 0, 0, 0, 0})), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{203, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, Nil{}))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def cq_replayMessage_9_0(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          cq_replayMessage_9_1(Bool.and(Bool.not(Bool.not(w_gt(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:204
+def s_replayMessage_9(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_replayMessage_9_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{})))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:201#0
+def k_replayMessage_10(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_9(x)
+    case False{}:
+      xf_replayMessage(x, 11, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([73, 110, 115, 117, 102, 102, 105, 99, 105, 101, 110, 116, 32, 109, 115, 103, 46, 118, 97, 108, 117, 101, 32, 102, 111, 114, 32, 102, 101, 101]))))
+
+def cq_replayMessage_10_0(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_replayMessage_10(w_ge(ge_e_msg_value(x_en), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))), 0n)), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:201
+def s_replayMessage_10(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_replayMessage_10_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{})))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:198#0
+def k_replayMessage_11(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_10(x)
+    case False{}:
+      match x:
+        case X_replayMessage{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_replayMessage(X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 10, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{})))))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:198
+def s_replayMessage_11(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_11(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__newGasLimit(x_ar)), Nil{}))))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:195#0
+def k_replayMessage_12(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_11(x)
+    case False{}:
+      xf_replayMessage(x, 9, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 97, 103, 101, 32, 97, 108, 114, 101, 97, 100, 121, 32, 100, 114, 111, 112, 112, 101, 100]))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:195
+def s_replayMessage_12(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_12(Bool.not(w_nz(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 252]))), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:193#0
+def k_replayMessage_13(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_12(x)
+    case False{}:
+      xf_replayMessage(x, 8, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([80, 114, 111, 118, 105, 100, 101, 100, 32, 109, 101, 115, 115, 97, 103, 101, 32, 104, 97, 115, 32, 110, 111, 116, 32, 98, 101, 101, 110, 32, 101, 110, 113, 117, 101, 117, 101, 100]))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:193
+def s_replayMessage_13(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_13(w_gt(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ga_replayMessage__from(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__to(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__value(x_ar)), List.append(&2, U32, b_of_w(ga_replayMessage__messageNonce(x_ar)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_replayMessage__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 251]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/libraries/CrossDomainMessenger.sol:64#0
+def k_replayMessage_14(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_13(x)
+    case False{}:
+      xf_replayMessage(x, 7, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([77, 101, 115, 115, 97, 103, 101, 32, 105, 115, 32, 97, 108, 114, 101, 97, 100, 121, 32, 105, 110, 32, 101, 120, 101, 99, 117, 116, 105, 111, 110]))))
+
+# check contracts/contracts/libraries/CrossDomainMessenger.sol:64
+def s_replayMessage_14(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_14(w_eq(w_and(sload(x_st, W{201, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{57005, 0, 0, 0, 0, 0, 0, 0}), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#_openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0
+def k_replayMessage_15(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_14(x)
+    case False{}:
+      xf_replayMessage(x, 6, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([80, 97, 117, 115, 97, 98, 108, 101, 58, 32, 112, 97, 117, 115, 101, 100]))))
+
+# check _openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def s_replayMessage_15(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_15(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:182#0
+def k_replayMessage_16(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_15(x)
+    case False{}:
+      xf_replayMessage(x, 5, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:182
+def s_replayMessage_16(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_16(Bool.not(w_nz(w_shr_160(ga_replayMessage__refundAddress(x_ar)))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:181#0
+def k_replayMessage_17(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_16(x)
+    case False{}:
+      xf_replayMessage(x, 4, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:181
+def s_replayMessage_17(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_17(Bool.not(w_nz(w_shr_32(ga_replayMessage__newGasLimit(x_ar)))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:177#0
+def k_replayMessage_18(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_17(x)
+    case False{}:
+      xf_replayMessage(x, 3, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:177
+def s_replayMessage_18(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_18(Bool.not(w_nz(w_shr_160(ga_replayMessage__to(x_ar)))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:176#0
+def k_replayMessage_19(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_18(x)
+    case False{}:
+      xf_replayMessage(x, 2, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:176
+def s_replayMessage_19(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_19(Bool.not(w_nz(w_shr_160(ga_replayMessage__from(x_ar)))), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:175-244#0
+def k_replayMessage_20(c: Bool, x: X_replayMessage) -> X_replayMessage:
+  match c:
+    case True{}:
+      s_replayMessage_19(x)
+    case False{}:
+      xf_replayMessage(x, 1, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:175-244
+def s_replayMessage_20(x: X_replayMessage) -> X_replayMessage:
+  match x:
+    case X_replayMessage{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_replayMessage_20(w_ge(ge_e_msg_data_length(x_en), W{228, 0, 0, 0, 0, 0, 0, 0}), X_replayMessage{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def x0_replayMessage(+st: HSt, +ar: AR_replayMessage, +en: HEnv, +kh: List<&2, HKB>) -> X_replayMessage:
+  X_replayMessage{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}}
+
+# the context after the action's program ran (holon.extracted_eval's order)
+def xr_replayMessage(+st: HSt, +ar: AR_replayMessage, +en: HEnv, +kh: List<&2, HKB>) -> X_replayMessage:
+  s_replayMessage_20(x0_replayMessage(st, ar, en, kh))
+
+def xo_replayMessage(x: X_replayMessage) -> HOut:
+  match x:
+    case X_replayMessage{_, x_ov, _, _, _, x_cd, x_rv, x_lg, x_tw}:
+      HOut{x_cd, x_rv, x_ov, lg_rev(x_lg, Nil{}), x_tw}
+
+def run_replayMessage(+st: HSt, +ar: AR_replayMessage, +en: HEnv, +kh: List<&2, HKB>) -> HOut:
+  xo_replayMessage(xr_replayMessage(st, ar, en, kh))
+
+# 0 when every check of replayMessage holds, k + 1 when check k (holon.machine's order) is the first to fail
+def chk_replayMessage(+st: HSt, +ar: AR_replayMessage, +en: HEnv, +kh: List<&2, HKB>) -> U32:
+  o_code(run_replayMessage(st, ar, en, kh))
+
+def post_replayMessage(+st: HSt, +ar: AR_replayMessage, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  o_post(run_replayMessage(st, ar, en, kh))
+
+def logs_replayMessage(+st: HSt, +ar: AR_replayMessage, +en: HEnv, +kh: List<&2, HKB>) -> List<&2, HLog>:
+  o_logs(run_replayMessage(st, ar, en, kh))
+
+def step_replayMessage(+st: HSt, +ar: AR_replayMessage, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  st_after(run_replayMessage(st, ar, en, kh), st)
+
+type X_sendMessage_5f7b1577 is Data:
+  X_sendMessage_5f7b1577{st: HSt, ov: HSt, ar: AR_sendMessage_5f7b1577, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>}
+
+def gx_sendMessage_5f7b1577_st(e: X_sendMessage_5f7b1577) -> HSt:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      st
+
+def gx_sendMessage_5f7b1577_ov(e: X_sendMessage_5f7b1577) -> HSt:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      ov
+
+def gx_sendMessage_5f7b1577_ar(e: X_sendMessage_5f7b1577) -> AR_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      ar
+
+def gx_sendMessage_5f7b1577_en(e: X_sendMessage_5f7b1577) -> HEnv:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      en
+
+def gx_sendMessage_5f7b1577_kh(e: X_sendMessage_5f7b1577) -> List<&2, HKB>:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      kh
+
+def gx_sendMessage_5f7b1577_cd(e: X_sendMessage_5f7b1577) -> U32:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      cd
+
+def gx_sendMessage_5f7b1577_rv(e: X_sendMessage_5f7b1577) -> List<&2, U32>:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      rv
+
+def gx_sendMessage_5f7b1577_lg(e: X_sendMessage_5f7b1577) -> List<&2, HLog>:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      lg
+
+def gx_sendMessage_5f7b1577_tw(e: X_sendMessage_5f7b1577) -> List<&2, W>:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      tw
+
+def sx_sendMessage_5f7b1577_st(e: X_sendMessage_5f7b1577, +v: HSt) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{_, ov, ar, en, kh, cd, rv, lg, tw}:
+      X_sendMessage_5f7b1577{v, ov, ar, en, kh, cd, rv, lg, tw}
+
+def sx_sendMessage_5f7b1577_ov(e: X_sendMessage_5f7b1577, +v: HSt) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, _, ar, en, kh, cd, rv, lg, tw}:
+      X_sendMessage_5f7b1577{st, v, ar, en, kh, cd, rv, lg, tw}
+
+def sx_sendMessage_5f7b1577_ar(e: X_sendMessage_5f7b1577, +v: AR_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, _, en, kh, cd, rv, lg, tw}:
+      X_sendMessage_5f7b1577{st, ov, v, en, kh, cd, rv, lg, tw}
+
+def sx_sendMessage_5f7b1577_en(e: X_sendMessage_5f7b1577, +v: HEnv) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, _, kh, cd, rv, lg, tw}:
+      X_sendMessage_5f7b1577{st, ov, ar, v, kh, cd, rv, lg, tw}
+
+def sx_sendMessage_5f7b1577_kh(e: X_sendMessage_5f7b1577, +v: List<&2, HKB>) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, _, cd, rv, lg, tw}:
+      X_sendMessage_5f7b1577{st, ov, ar, en, v, cd, rv, lg, tw}
+
+def sx_sendMessage_5f7b1577_cd(e: X_sendMessage_5f7b1577, +v: U32) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, _, rv, lg, tw}:
+      X_sendMessage_5f7b1577{st, ov, ar, en, kh, v, rv, lg, tw}
+
+def sx_sendMessage_5f7b1577_rv(e: X_sendMessage_5f7b1577, +v: List<&2, U32>) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, _, lg, tw}:
+      X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, v, lg, tw}
+
+def sx_sendMessage_5f7b1577_lg(e: X_sendMessage_5f7b1577, +v: List<&2, HLog>) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, _, tw}:
+      X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, v, tw}
+
+def sx_sendMessage_5f7b1577_tw(e: X_sendMessage_5f7b1577, +v: List<&2, W>) -> X_sendMessage_5f7b1577:
+  match e:
+    case X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, _}:
+      X_sendMessage_5f7b1577{st, ov, ar, en, kh, cd, rv, lg, v}
+
+def xf_sendMessage_5f7b1577(x: X_sendMessage_5f7b1577, +c: U32, +r: List<&2, U32>) -> X_sendMessage_5f7b1577:
+  sx_sendMessage_5f7b1577_cd(sx_sendMessage_5f7b1577_rv(x, r), c)
+
+def sz_sendMessage_5f7b1577(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  x
+
+def wr_sendMessage_5f7b1577_1(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {W{151, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {W{1, 0, 0, 0, 0, 0, 0, 0} : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_sendMessage_5f7b1577_tw(sx_sendMessage_5f7b1577_ov(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
+
+# write _openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:72
+def s_sendMessage_5f7b1577_1(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  sz_sendMessage_5f7b1577(wr_sendMessage_5f7b1577_1(x))
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:314#0
+def k_sendMessage_5f7b1577_2(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_1(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 13, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([70, 97, 105, 108, 101, 100, 32, 116, 111, 32, 114, 101, 102, 117, 110, 100, 32, 116, 104, 101, 32, 102, 101, 101]))))
+
+def cq_sendMessage_5f7b1577_2_1(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_5f7b1577_2(Bool.or(Bool.not(w_gt(w_sub(w_sub(ge_e_msg_value(x_en), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))), 0n)), ga_sendMessage_5f7b1577__value(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), ga_sendMessage_5f7b1577__refundAddress(x_ar), True{}, Nil{}))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def cq_sendMessage_5f7b1577_2_0(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          cq_sendMessage_5f7b1577_2_1(Bool.and(Bool.not(Bool.not(w_gt(w_sub(w_sub(ge_e_msg_value(x_en), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))), 0n)), ga_sendMessage_5f7b1577__value(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:314
+def s_sendMessage_5f7b1577_2(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_5f7b1577_2_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{})))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def ev_sendMessage_5f7b1577_3(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, +x_lg, x_tw}:
+      sx_sendMessage_5f7b1577_lg(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, Con{HLog{[W{2013916190, 1776382179, 1971057783, 3074997011, 1890565034, 712737440, 3024258586, 272855539}, ge_e_caller(x_en), ga_sendMessage_5f7b1577__to(x_ar)], List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), List.append(&2, U32, b_of_u(128), abi_dyn(ga_sendMessage_5f7b1577__message(x_ar))))))}, x_lg})
+
+def cq_sendMessage_5f7b1577_3_0(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      s_sendMessage_5f7b1577_2(ev_sendMessage_5f7b1577_3(x))
+
+# event contracts/contracts/l1/L1CrossDomainMessenger.sol:307
+def s_sendMessage_5f7b1577_3(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_5f7b1577_3_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def wr_sendMessage_5f7b1577_4(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_5f7b1577__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 251])) : W}
+      +v = {ge_e_block_timestamp(x_en) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_sendMessage_5f7b1577_tw(sx_sendMessage_5f7b1577_ov(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
+
+def cq_sendMessage_5f7b1577_4_0(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      s_sendMessage_5f7b1577_3(wr_sendMessage_5f7b1577_4(x))
+
+# write contracts/contracts/l1/L1CrossDomainMessenger.sol:305
+def s_sendMessage_5f7b1577_4(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_5f7b1577_4_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:304#0
+def k_sendMessage_5f7b1577_5(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_4(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 12, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([68, 117, 112, 108, 105, 99, 97, 116, 101, 100, 32, 109, 101, 115, 115, 97, 103, 101]))))
+
+def cq_sendMessage_5f7b1577_5_0(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_5f7b1577_5(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_5f7b1577__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 251]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:304
+def s_sendMessage_5f7b1577_5(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_5f7b1577_5_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:298#0
+def k_sendMessage_5f7b1577_6(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_5(x)
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 11, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_5f7b1577__message(x_ar)), Nil{})))))))), Nil{}))))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_5f7b1577__message(x_ar)), Nil{})))))))), Nil{})))))))))
+
+def cq_sendMessage_5f7b1577_6_0(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_5f7b1577_6(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_5f7b1577__message(x_ar)), Nil{})))))))), Nil{}))))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:298
+def s_sendMessage_5f7b1577_6(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_5f7b1577_6_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:294#0
+def k_sendMessage_5f7b1577_7(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_6(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 10, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([70, 97, 105, 108, 101, 100, 32, 116, 111, 32, 100, 101, 100, 117, 99, 116, 32, 116, 104, 101, 32, 102, 101, 101]))))
+
+def cq_sendMessage_5f7b1577_7_1(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_5f7b1577_7(Bool.or(Bool.not(w_gt(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))), 0n), W{0, 0, 0, 0, 0, 0, 0, 0})), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{203, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, Nil{}))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def cq_sendMessage_5f7b1577_7_0(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          cq_sendMessage_5f7b1577_7_1(Bool.and(Bool.not(Bool.not(w_gt(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:294
+def s_sendMessage_5f7b1577_7(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_5f7b1577_7_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{})))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:291#1
+def k_sendMessage_5f7b1577_8(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_7(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 9, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([73, 110, 115, 117, 102, 102, 105, 99, 105, 101, 110, 116, 32, 109, 115, 103, 46, 118, 97, 108, 117, 101]))))
+
+def cq_sendMessage_5f7b1577_8_0(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_5f7b1577_8(w_ge(ge_e_msg_value(x_en), w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))), 0n), ga_sendMessage_5f7b1577__value(x_ar))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:291
+def s_sendMessage_5f7b1577_8(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_5f7b1577_8_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{})))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:291#0
+def k_sendMessage_5f7b1577_9(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_8(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 8, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+def cq_sendMessage_5f7b1577_9_0(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_5f7b1577_9(w_add_ok(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))), 0n), ga_sendMessage_5f7b1577__value(x_ar)), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:291
+def s_sendMessage_5f7b1577_9(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_5f7b1577_9_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{})))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:290#0
+def k_sendMessage_5f7b1577_10(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_9(x)
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 7, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{})))))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:290
+def s_sendMessage_5f7b1577_10(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_5f7b1577_10(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_5f7b1577__gasLimit(x_ar)), Nil{}))))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:286#0
+def k_sendMessage_5f7b1577_11(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_10(x)
+    case False{}:
+      match x:
+        case X_sendMessage_5f7b1577{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_5f7b1577(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 6, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:286
+def s_sendMessage_5f7b1577_11(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_5f7b1577_11(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def wr_sendMessage_5f7b1577_12(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {W{151, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {W{2, 0, 0, 0, 0, 0, 0, 0} : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_sendMessage_5f7b1577_tw(sx_sendMessage_5f7b1577_ov(X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
+
+# write _openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:66
+def s_sendMessage_5f7b1577_12(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  s_sendMessage_5f7b1577_11(wr_sendMessage_5f7b1577_12(x))
+
+# sendMessage_5f7b1577#_openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:63#0
+def k_sendMessage_5f7b1577_13(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_12(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 5, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([82, 101, 101, 110, 116, 114, 97, 110, 99, 121, 71, 117, 97, 114, 100, 58, 32, 114, 101, 101, 110, 116, 114, 97, 110, 116, 32, 99, 97, 108, 108]))))
+
+# check _openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:63
+def s_sendMessage_5f7b1577_13(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_5f7b1577_13(Bool.not(w_eq(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{2, 0, 0, 0, 0, 0, 0, 0})), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#_openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0
+def k_sendMessage_5f7b1577_14(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_13(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 4, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([80, 97, 117, 115, 97, 98, 108, 101, 58, 32, 112, 97, 117, 115, 101, 100]))))
+
+# check _openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def s_sendMessage_5f7b1577_14(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_5f7b1577_14(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:117#0
+def k_sendMessage_5f7b1577_15(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_14(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 3, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:117
+def s_sendMessage_5f7b1577_15(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_5f7b1577_15(Bool.not(w_nz(w_shr_160(ga_sendMessage_5f7b1577__refundAddress(x_ar)))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:113#0
+def k_sendMessage_5f7b1577_16(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_15(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 2, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:113
+def s_sendMessage_5f7b1577_16(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_5f7b1577_16(Bool.not(w_nz(w_shr_160(ga_sendMessage_5f7b1577__to(x_ar)))), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_5f7b1577#contracts/contracts/l1/L1CrossDomainMessenger.sol:112-120#0
+def k_sendMessage_5f7b1577_17(c: Bool, x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match c:
+    case True{}:
+      s_sendMessage_5f7b1577_16(x)
+    case False{}:
+      xf_sendMessage_5f7b1577(x, 1, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:112-120
+def s_sendMessage_5f7b1577_17(x: X_sendMessage_5f7b1577) -> X_sendMessage_5f7b1577:
+  match x:
+    case X_sendMessage_5f7b1577{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_5f7b1577_17(w_ge(ge_e_msg_data_length(x_en), W{164, 0, 0, 0, 0, 0, 0, 0}), X_sendMessage_5f7b1577{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def x0_sendMessage_5f7b1577(+st: HSt, +ar: AR_sendMessage_5f7b1577, +en: HEnv, +kh: List<&2, HKB>) -> X_sendMessage_5f7b1577:
+  X_sendMessage_5f7b1577{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}}
+
+# the context after the action's program ran (holon.extracted_eval's order)
+def xr_sendMessage_5f7b1577(+st: HSt, +ar: AR_sendMessage_5f7b1577, +en: HEnv, +kh: List<&2, HKB>) -> X_sendMessage_5f7b1577:
+  s_sendMessage_5f7b1577_17(x0_sendMessage_5f7b1577(st, ar, en, kh))
+
+def xo_sendMessage_5f7b1577(x: X_sendMessage_5f7b1577) -> HOut:
+  match x:
+    case X_sendMessage_5f7b1577{_, x_ov, _, _, _, x_cd, x_rv, x_lg, x_tw}:
+      HOut{x_cd, x_rv, x_ov, lg_rev(x_lg, Nil{}), x_tw}
+
+def run_sendMessage_5f7b1577(+st: HSt, +ar: AR_sendMessage_5f7b1577, +en: HEnv, +kh: List<&2, HKB>) -> HOut:
+  xo_sendMessage_5f7b1577(xr_sendMessage_5f7b1577(st, ar, en, kh))
+
+# 0 when every check of sendMessage_5f7b1577 holds, k + 1 when check k (holon.machine's order) is the first to fail
+def chk_sendMessage_5f7b1577(+st: HSt, +ar: AR_sendMessage_5f7b1577, +en: HEnv, +kh: List<&2, HKB>) -> U32:
+  o_code(run_sendMessage_5f7b1577(st, ar, en, kh))
+
+def post_sendMessage_5f7b1577(+st: HSt, +ar: AR_sendMessage_5f7b1577, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  o_post(run_sendMessage_5f7b1577(st, ar, en, kh))
+
+def logs_sendMessage_5f7b1577(+st: HSt, +ar: AR_sendMessage_5f7b1577, +en: HEnv, +kh: List<&2, HKB>) -> List<&2, HLog>:
+  o_logs(run_sendMessage_5f7b1577(st, ar, en, kh))
+
+def step_sendMessage_5f7b1577(+st: HSt, +ar: AR_sendMessage_5f7b1577, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  st_after(run_sendMessage_5f7b1577(st, ar, en, kh), st)
+
+type X_sendMessage_b2267a7b is Data:
+  X_sendMessage_b2267a7b{st: HSt, ov: HSt, ar: AR_sendMessage_b2267a7b, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>}
+
+def gx_sendMessage_b2267a7b_st(e: X_sendMessage_b2267a7b) -> HSt:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      st
+
+def gx_sendMessage_b2267a7b_ov(e: X_sendMessage_b2267a7b) -> HSt:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      ov
+
+def gx_sendMessage_b2267a7b_ar(e: X_sendMessage_b2267a7b) -> AR_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      ar
+
+def gx_sendMessage_b2267a7b_en(e: X_sendMessage_b2267a7b) -> HEnv:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      en
+
+def gx_sendMessage_b2267a7b_kh(e: X_sendMessage_b2267a7b) -> List<&2, HKB>:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      kh
+
+def gx_sendMessage_b2267a7b_cd(e: X_sendMessage_b2267a7b) -> U32:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      cd
+
+def gx_sendMessage_b2267a7b_rv(e: X_sendMessage_b2267a7b) -> List<&2, U32>:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      rv
+
+def gx_sendMessage_b2267a7b_lg(e: X_sendMessage_b2267a7b) -> List<&2, HLog>:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      lg
+
+def gx_sendMessage_b2267a7b_tw(e: X_sendMessage_b2267a7b) -> List<&2, W>:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, tw}:
+      tw
+
+def sx_sendMessage_b2267a7b_st(e: X_sendMessage_b2267a7b, +v: HSt) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{_, ov, ar, en, kh, cd, rv, lg, tw}:
+      X_sendMessage_b2267a7b{v, ov, ar, en, kh, cd, rv, lg, tw}
+
+def sx_sendMessage_b2267a7b_ov(e: X_sendMessage_b2267a7b, +v: HSt) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, _, ar, en, kh, cd, rv, lg, tw}:
+      X_sendMessage_b2267a7b{st, v, ar, en, kh, cd, rv, lg, tw}
+
+def sx_sendMessage_b2267a7b_ar(e: X_sendMessage_b2267a7b, +v: AR_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, _, en, kh, cd, rv, lg, tw}:
+      X_sendMessage_b2267a7b{st, ov, v, en, kh, cd, rv, lg, tw}
+
+def sx_sendMessage_b2267a7b_en(e: X_sendMessage_b2267a7b, +v: HEnv) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, _, kh, cd, rv, lg, tw}:
+      X_sendMessage_b2267a7b{st, ov, ar, v, kh, cd, rv, lg, tw}
+
+def sx_sendMessage_b2267a7b_kh(e: X_sendMessage_b2267a7b, +v: List<&2, HKB>) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, _, cd, rv, lg, tw}:
+      X_sendMessage_b2267a7b{st, ov, ar, en, v, cd, rv, lg, tw}
+
+def sx_sendMessage_b2267a7b_cd(e: X_sendMessage_b2267a7b, +v: U32) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, _, rv, lg, tw}:
+      X_sendMessage_b2267a7b{st, ov, ar, en, kh, v, rv, lg, tw}
+
+def sx_sendMessage_b2267a7b_rv(e: X_sendMessage_b2267a7b, +v: List<&2, U32>) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, _, lg, tw}:
+      X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, v, lg, tw}
+
+def sx_sendMessage_b2267a7b_lg(e: X_sendMessage_b2267a7b, +v: List<&2, HLog>) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, _, tw}:
+      X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, v, tw}
+
+def sx_sendMessage_b2267a7b_tw(e: X_sendMessage_b2267a7b, +v: List<&2, W>) -> X_sendMessage_b2267a7b:
+  match e:
+    case X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, _}:
+      X_sendMessage_b2267a7b{st, ov, ar, en, kh, cd, rv, lg, v}
+
+def xf_sendMessage_b2267a7b(x: X_sendMessage_b2267a7b, +c: U32, +r: List<&2, U32>) -> X_sendMessage_b2267a7b:
+  sx_sendMessage_b2267a7b_cd(sx_sendMessage_b2267a7b_rv(x, r), c)
+
+def sz_sendMessage_b2267a7b(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  x
+
+def wr_sendMessage_b2267a7b_1(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {W{151, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {W{1, 0, 0, 0, 0, 0, 0, 0} : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_sendMessage_b2267a7b_tw(sx_sendMessage_b2267a7b_ov(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
+
+# write _openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:72
+def s_sendMessage_b2267a7b_1(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  sz_sendMessage_b2267a7b(wr_sendMessage_b2267a7b_1(x))
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:314#0
+def k_sendMessage_b2267a7b_2(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_1(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 12, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([70, 97, 105, 108, 101, 100, 32, 116, 111, 32, 114, 101, 102, 117, 110, 100, 32, 116, 104, 101, 32, 102, 101, 101]))))
+
+def cq_sendMessage_b2267a7b_2_1(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_b2267a7b_2(Bool.or(Bool.not(w_gt(w_sub(w_sub(ge_e_msg_value(x_en), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))), 0n)), ga_sendMessage_b2267a7b__value(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), ge_e_caller(x_en), True{}, Nil{}))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def cq_sendMessage_b2267a7b_2_0(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          cq_sendMessage_b2267a7b_2_1(Bool.and(Bool.not(Bool.not(w_gt(w_sub(w_sub(ge_e_msg_value(x_en), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))), 0n)), ga_sendMessage_b2267a7b__value(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:314
+def s_sendMessage_b2267a7b_2(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_b2267a7b_2_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{})))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def ev_sendMessage_b2267a7b_3(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, +x_lg, x_tw}:
+      sx_sendMessage_b2267a7b_lg(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, Con{HLog{[W{2013916190, 1776382179, 1971057783, 3074997011, 1890565034, 712737440, 3024258586, 272855539}, ge_e_caller(x_en), ga_sendMessage_b2267a7b__to(x_ar)], List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), List.append(&2, U32, b_of_u(128), abi_dyn(ga_sendMessage_b2267a7b__message(x_ar))))))}, x_lg})
+
+def cq_sendMessage_b2267a7b_3_0(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      s_sendMessage_b2267a7b_2(ev_sendMessage_b2267a7b_3(x))
+
+# event contracts/contracts/l1/L1CrossDomainMessenger.sol:307
+def s_sendMessage_b2267a7b_3(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_b2267a7b_3_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def wr_sendMessage_b2267a7b_4(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_b2267a7b__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 251])) : W}
+      +v = {ge_e_block_timestamp(x_en) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_sendMessage_b2267a7b_tw(sx_sendMessage_b2267a7b_ov(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
+
+def cq_sendMessage_b2267a7b_4_0(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      s_sendMessage_b2267a7b_3(wr_sendMessage_b2267a7b_4(x))
+
+# write contracts/contracts/l1/L1CrossDomainMessenger.sol:305
+def s_sendMessage_b2267a7b_4(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_b2267a7b_4_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:304#0
+def k_sendMessage_b2267a7b_5(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_4(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 11, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([68, 117, 112, 108, 105, 99, 97, 116, 101, 100, 32, 109, 101, 115, 115, 97, 103, 101]))))
+
+def cq_sendMessage_b2267a7b_5_0(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_b2267a7b_5(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_b2267a7b__message(x_ar)), Nil{}))))))))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 251]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:304
+def s_sendMessage_b2267a7b_5(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_b2267a7b_5_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:298#0
+def k_sendMessage_b2267a7b_6(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_5(x)
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 10, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_b2267a7b__message(x_ar)), Nil{})))))))), Nil{}))))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_b2267a7b__message(x_ar)), Nil{})))))))), Nil{})))))))))
+
+def cq_sendMessage_b2267a7b_6_0(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))))
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_b2267a7b_6(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [155, 21, 151, 130], List.append(&2, U32, b_of_w(w_and(sload(x_st, W{202, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), List.append(&2, U32, b_of_u(96), List.append(&2, U32, abi_dyn(List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__to(x_ar)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__value(x_ar)), List.append(&2, U32, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, b_of_u(160), List.append(&2, U32, abi_dyn(ga_sendMessage_b2267a7b__message(x_ar)), Nil{})))))))), Nil{}))))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:298
+def s_sendMessage_b2267a7b_6(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_b2267a7b_6_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:294#0
+def k_sendMessage_b2267a7b_7(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_6(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 9, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([70, 97, 105, 108, 101, 100, 32, 116, 111, 32, 100, 101, 100, 117, 99, 116, 32, 116, 104, 101, 32, 102, 101, 101]))))
+
+def cq_sendMessage_b2267a7b_7_1(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_b2267a7b_7(Bool.or(Bool.not(w_gt(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))), 0n), W{0, 0, 0, 0, 0, 0, 0, 0})), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{203, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, Nil{}))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def cq_sendMessage_b2267a7b_7_0(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          cq_sendMessage_b2267a7b_7_1(Bool.and(Bool.not(Bool.not(w_gt(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:294
+def s_sendMessage_b2267a7b_7(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_b2267a7b_7_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{})))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:291#1
+def k_sendMessage_b2267a7b_8(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_7(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 8, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([73, 110, 115, 117, 102, 102, 105, 99, 105, 101, 110, 116, 32, 109, 115, 103, 46, 118, 97, 108, 117, 101]))))
+
+def cq_sendMessage_b2267a7b_8_0(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_b2267a7b_8(w_ge(ge_e_msg_value(x_en), w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))), 0n), ga_sendMessage_b2267a7b__value(x_ar))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:291
+def s_sendMessage_b2267a7b_8(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_b2267a7b_8_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{})))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:291#0
+def k_sendMessage_b2267a7b_9(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_8(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 7, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+def cq_sendMessage_b2267a7b_9_0(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))))
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          k_sendMessage_b2267a7b_9(w_add_ok(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))), 0n), ga_sendMessage_b2267a7b__value(x_ar)), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:291
+def s_sendMessage_b2267a7b_9(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      cq_sendMessage_b2267a7b_9_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{})))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:290#0
+def k_sendMessage_b2267a7b_10(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_9(x)
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 6, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{})))))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:290
+def s_sendMessage_b2267a7b_10(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_b2267a7b_10(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [62, 76, 187, 230], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), List.append(&2, U32, b_of_w(ga_sendMessage_b2267a7b__gasLimit(x_ar)), Nil{}))))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:286#0
+def k_sendMessage_b2267a7b_11(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_10(x)
+    case False{}:
+      match x:
+        case X_sendMessage_b2267a7b{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+          xf_sendMessage_b2267a7b(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, 5, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{})))))
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:286
+def s_sendMessage_b2267a7b_11(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_b2267a7b_11(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{254, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def wr_sendMessage_b2267a7b_12(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw}:
+      +o0 = x_ov
+      +k = {W{151, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {W{2, 0, 0, 0, 0, 0, 0, 0} : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_sendMessage_b2267a7b_tw(sx_sendMessage_b2267a7b_ov(X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
+
+# write _openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:66
+def s_sendMessage_b2267a7b_12(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  s_sendMessage_b2267a7b_11(wr_sendMessage_b2267a7b_12(x))
+
+# sendMessage_b2267a7b#_openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:63#0
+def k_sendMessage_b2267a7b_13(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_12(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 4, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([82, 101, 101, 110, 116, 114, 97, 110, 99, 121, 71, 117, 97, 114, 100, 58, 32, 114, 101, 101, 110, 116, 114, 97, 110, 116, 32, 99, 97, 108, 108]))))
+
+# check _openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:63
+def s_sendMessage_b2267a7b_13(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_b2267a7b_13(Bool.not(w_eq(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{2, 0, 0, 0, 0, 0, 0, 0})), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#_openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0
+def k_sendMessage_b2267a7b_14(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_13(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 3, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([80, 97, 117, 115, 97, 98, 108, 101, 58, 32, 112, 97, 117, 115, 101, 100]))))
+
+# check _openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def s_sendMessage_b2267a7b_14(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_b2267a7b_14(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:103#0
+def k_sendMessage_b2267a7b_15(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_14(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 2, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:103
+def s_sendMessage_b2267a7b_15(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_b2267a7b_15(Bool.not(w_nz(w_shr_160(ga_sendMessage_b2267a7b__to(x_ar)))), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+# sendMessage_b2267a7b#contracts/contracts/l1/L1CrossDomainMessenger.sol:102-109#0
+def k_sendMessage_b2267a7b_16(c: Bool, x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match c:
+    case True{}:
+      s_sendMessage_b2267a7b_15(x)
+    case False{}:
+      xf_sendMessage_b2267a7b(x, 1, Nil{})
+
+# check contracts/contracts/l1/L1CrossDomainMessenger.sol:102-109
+def s_sendMessage_b2267a7b_16(x: X_sendMessage_b2267a7b) -> X_sendMessage_b2267a7b:
+  match x:
+    case X_sendMessage_b2267a7b{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw}:
+      k_sendMessage_b2267a7b_16(w_ge(ge_e_msg_data_length(x_en), W{132, 0, 0, 0, 0, 0, 0, 0}), X_sendMessage_b2267a7b{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+
+def x0_sendMessage_b2267a7b(+st: HSt, +ar: AR_sendMessage_b2267a7b, +en: HEnv, +kh: List<&2, HKB>) -> X_sendMessage_b2267a7b:
+  X_sendMessage_b2267a7b{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}}
+
+# the context after the action's program ran (holon.extracted_eval's order)
+def xr_sendMessage_b2267a7b(+st: HSt, +ar: AR_sendMessage_b2267a7b, +en: HEnv, +kh: List<&2, HKB>) -> X_sendMessage_b2267a7b:
+  s_sendMessage_b2267a7b_16(x0_sendMessage_b2267a7b(st, ar, en, kh))
+
+def xo_sendMessage_b2267a7b(x: X_sendMessage_b2267a7b) -> HOut:
+  match x:
+    case X_sendMessage_b2267a7b{_, x_ov, _, _, _, x_cd, x_rv, x_lg, x_tw}:
+      HOut{x_cd, x_rv, x_ov, lg_rev(x_lg, Nil{}), x_tw}
+
+def run_sendMessage_b2267a7b(+st: HSt, +ar: AR_sendMessage_b2267a7b, +en: HEnv, +kh: List<&2, HKB>) -> HOut:
+  xo_sendMessage_b2267a7b(xr_sendMessage_b2267a7b(st, ar, en, kh))
+
+# 0 when every check of sendMessage_b2267a7b holds, k + 1 when check k (holon.machine's order) is the first to fail
+def chk_sendMessage_b2267a7b(+st: HSt, +ar: AR_sendMessage_b2267a7b, +en: HEnv, +kh: List<&2, HKB>) -> U32:
+  o_code(run_sendMessage_b2267a7b(st, ar, en, kh))
+
+def post_sendMessage_b2267a7b(+st: HSt, +ar: AR_sendMessage_b2267a7b, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  o_post(run_sendMessage_b2267a7b(st, ar, en, kh))
+
+def logs_sendMessage_b2267a7b(+st: HSt, +ar: AR_sendMessage_b2267a7b, +en: HEnv, +kh: List<&2, HKB>) -> List<&2, HLog>:
+  o_logs(run_sendMessage_b2267a7b(st, ar, en, kh))
+
+def step_sendMessage_b2267a7b(+st: HSt, +ar: AR_sendMessage_b2267a7b, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  st_after(run_sendMessage_b2267a7b(st, ar, en, kh), st)
 
 type X_setPause is Data:
   X_setPause{st: HSt, ov: HSt, ar: AR_setPause, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>}
@@ -3537,19 +5818,382 @@ def logs_updateRollup(+st: HSt, +ar: AR_updateRollup, +en: HEnv, +kh: List<&2, H
 def step_updateRollup(+st: HSt, +ar: AR_updateRollup, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
   st_after(run_updateRollup(st, ar, en, kh), st)
 
+type X_verifyMerkleProof is Data:
+  X_verifyMerkleProof{st: HSt, ov: HSt, ar: AR_verifyMerkleProof, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c2_0: W, c2_1: W, it2: W, cn2: W, rt2: W, ld2: Nat}
+
+def gx_verifyMerkleProof_st(e: X_verifyMerkleProof) -> HSt:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      st
+
+def gx_verifyMerkleProof_ov(e: X_verifyMerkleProof) -> HSt:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      ov
+
+def gx_verifyMerkleProof_ar(e: X_verifyMerkleProof) -> AR_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      ar
+
+def gx_verifyMerkleProof_en(e: X_verifyMerkleProof) -> HEnv:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      en
+
+def gx_verifyMerkleProof_kh(e: X_verifyMerkleProof) -> List<&2, HKB>:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      kh
+
+def gx_verifyMerkleProof_cd(e: X_verifyMerkleProof) -> U32:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      cd
+
+def gx_verifyMerkleProof_rv(e: X_verifyMerkleProof) -> List<&2, U32>:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      rv
+
+def gx_verifyMerkleProof_lg(e: X_verifyMerkleProof) -> List<&2, HLog>:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      lg
+
+def gx_verifyMerkleProof_tw(e: X_verifyMerkleProof) -> List<&2, W>:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      tw
+
+def gx_verifyMerkleProof_c2_0(e: X_verifyMerkleProof) -> W:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      c2_0
+
+def gx_verifyMerkleProof_c2_1(e: X_verifyMerkleProof) -> W:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      c2_1
+
+def gx_verifyMerkleProof_it2(e: X_verifyMerkleProof) -> W:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      it2
+
+def gx_verifyMerkleProof_cn2(e: X_verifyMerkleProof) -> W:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      cn2
+
+def gx_verifyMerkleProof_rt2(e: X_verifyMerkleProof) -> W:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      rt2
+
+def gx_verifyMerkleProof_ld2(e: X_verifyMerkleProof) -> Nat:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      ld2
+
+def sx_verifyMerkleProof_st(e: X_verifyMerkleProof, +v: HSt) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{_, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{v, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_ov(e: X_verifyMerkleProof, +v: HSt) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, _, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, v, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_ar(e: X_verifyMerkleProof, +v: AR_verifyMerkleProof) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, _, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, v, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_en(e: X_verifyMerkleProof, +v: HEnv) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, _, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, v, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_kh(e: X_verifyMerkleProof, +v: List<&2, HKB>) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, _, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, v, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_cd(e: X_verifyMerkleProof, +v: U32) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, _, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, v, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_rv(e: X_verifyMerkleProof, +v: List<&2, U32>) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, _, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, v, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_lg(e: X_verifyMerkleProof, +v: List<&2, HLog>) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, _, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, v, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_tw(e: X_verifyMerkleProof, +v: List<&2, W>) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, _, c2_0, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, v, c2_0, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_c2_0(e: X_verifyMerkleProof, +v: W) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, _, c2_1, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, v, c2_1, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_c2_1(e: X_verifyMerkleProof, +v: W) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, _, it2, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, v, it2, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_it2(e: X_verifyMerkleProof, +v: W) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, _, cn2, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, v, cn2, rt2, ld2}
+
+def sx_verifyMerkleProof_cn2(e: X_verifyMerkleProof, +v: W) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, _, rt2, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, v, rt2, ld2}
+
+def sx_verifyMerkleProof_rt2(e: X_verifyMerkleProof, +v: W) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, _, ld2}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, v, ld2}
+
+def sx_verifyMerkleProof_ld2(e: X_verifyMerkleProof, +v: Nat) -> X_verifyMerkleProof:
+  match e:
+    case X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, _}:
+      X_verifyMerkleProof{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, v}
+
+def xf_verifyMerkleProof(x: X_verifyMerkleProof, +c: U32, +r: List<&2, U32>) -> X_verifyMerkleProof:
+  sx_verifyMerkleProof_cd(sx_verifyMerkleProof_rv(x, r), c)
+
+def sz_verifyMerkleProof(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  x
+
+def ln_verifyMerkleProof_2(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, +x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
+      +n0 = {w_add(x_it2, W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n1 = {ite(W, w_eq(w_and(w_shrv(ga_verifyMerkleProof_index(x_ar), x_it2), W{1, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, List.append(&2, U32, b_take(32n, b_of_w(w_nth(ga_verifyMerkleProof_smtProof(x_ar), n_of_w(x_it2))), 0), List.append(&2, U32, b_take(32n, b_of_w(x_c2_1), 0), Nil{}))), h_get(x_kh, List.append(&2, U32, b_take(32n, b_of_w(x_c2_1), 0), List.append(&2, U32, b_take(32n, b_of_w(w_nth(ga_verifyMerkleProof_smtProof(x_ar), n_of_w(x_it2))), 0), Nil{})))) : W}
+      sx_verifyMerkleProof_ld2(sx_verifyMerkleProof_it2(sx_verifyMerkleProof_c2_1(sx_verifyMerkleProof_c2_0(X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, n0), n1), w_add(x_it2, w_u(1))), 1n)
+
+def lbk_verifyMerkleProof_2(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
+      sx_verifyMerkleProof_ld2(sx_verifyMerkleProof_cn2(X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, x_it2), 3n)
+
+def lk_verifyMerkleProof_2(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      lbk_verifyMerkleProof_2(x)
+    case False{}:
+      ln_verifyMerkleProof_2(x)
+
+def lc_verifyMerkleProof_2(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      sx_verifyMerkleProof_ld2(x, 2n)
+    case False{}:
+      ln_verifyMerkleProof_2(x)
+
+def lb_verifyMerkleProof_2(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+      lc_verifyMerkleProof_2(u_nz(x_cd), X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+
+def lz_verifyMerkleProof_2(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  x
+
+# verifyMerkleProof#contracts/contracts/libraries/common/Verify.sol:14#0
+def k_verifyMerkleProof_2(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      lz_verifyMerkleProof_2(x)
+    case False{}:
+      xf_verifyMerkleProof(x, 5, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/libraries/common/Verify.sol:14
+def s_verifyMerkleProof_2(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
+      k_verifyMerkleProof_2(Bool.or(Bool.not(w_lt(x_it2, W{32, 0, 0, 0, 0, 0, 0, 0})), w_add_ok(x_it2, W{1, 0, 0, 0, 0, 0, 0, 0})), X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+
+# verifyMerkleProof#contracts/contracts/libraries/common/Verify.sol:16#0
+def k_verifyMerkleProof_3(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      s_verifyMerkleProof_2(x)
+    case False{}:
+      xf_verifyMerkleProof(x, 4, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/libraries/common/Verify.sol:16
+def s_verifyMerkleProof_3(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
+      k_verifyMerkleProof_3(Bool.or(Bool.not(Bool.and(w_lt(x_it2, W{32, 0, 0, 0, 0, 0, 0, 0}), Bool.not(w_eq(w_and(w_shrv(ga_verifyMerkleProof_index(x_ar), x_it2), W{1, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0})))), w_lt(x_it2, W{32, 0, 0, 0, 0, 0, 0, 0})), X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+
+# verifyMerkleProof#contracts/contracts/libraries/common/Verify.sol:15#0
+def k_verifyMerkleProof_4(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      s_verifyMerkleProof_3(x)
+    case False{}:
+      xf_verifyMerkleProof(x, 3, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/libraries/common/Verify.sol:15
+def s_verifyMerkleProof_4(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
+      k_verifyMerkleProof_4(Bool.or(Bool.not(Bool.and(w_lt(x_it2, W{32, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_and(w_shrv(ga_verifyMerkleProof_index(x_ar), x_it2), W{1, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}))), w_lt(x_it2, W{32, 0, 0, 0, 0, 0, 0, 0})), X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+
+def lx_verifyMerkleProof_2(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
+      sx_verifyMerkleProof_ld2(sx_verifyMerkleProof_cn2(X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, x_it2), 0n)
+
+def lh_verifyMerkleProof_2(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      lb_verifyMerkleProof_2(s_verifyMerkleProof_4(x))
+    case False{}:
+      lx_verifyMerkleProof_2(x)
+
+def li_verifyMerkleProof_2(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
+      lh_verifyMerkleProof_2(w_lt(x_it2, W{32, 0, 0, 0, 0, 0, 0, 0}), X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+
+def lpz_verifyMerkleProof_2(d: Nat, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match d:
+    case 0n:
+      x
+    case 1n+q:
+      match q:
+        case 0n:
+          xf_verifyMerkleProof(x, 4294967295, Nil{})
+        case 1n+s:
+          x
+
+# loop contracts/contracts/libraries/common/Verify.sol:14-17: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
+def lp_verifyMerkleProof_2(f: Nat, d: Nat, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match f:
+    case 0n:
+      lpz_verifyMerkleProof_2(d, x)
+    case 1n+r:
+      match d:
+        case 0n:
+          x
+        case 1n+q:
+          match q:
+            case 0n:
+              +y = li_verifyMerkleProof_2(x)
+              lp_verifyMerkleProof_2(r, gx_verifyMerkleProof_ld2(y), y)
+            case 1n+s:
+              x
+
+def ls_verifyMerkleProof_2(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+      +v0 = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v1 = {ga_verifyMerkleProof_leafHash(x_ar) : W}
+      sx_verifyMerkleProof_ld2(sx_verifyMerkleProof_rt2(sx_verifyMerkleProof_cn2(sx_verifyMerkleProof_it2(sx_verifyMerkleProof_c2_1(sx_verifyMerkleProof_c2_0(X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, v0), v1), w0()), w0()), w0()), 1n)
+
+def la_verifyMerkleProof_1(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      x
+    case False{}:
+      sz_verifyMerkleProof(x)
+
+def lg_verifyMerkleProof_1(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  +y = lp_verifyMerkleProof_2(U32.to_nat(4097), 1n, ls_verifyMerkleProof_2(x))
+  la_verifyMerkleProof_1(u_nz(gx_verifyMerkleProof_cd(y)), y)
+
+# loop contracts/contracts/libraries/common/Verify.sol:14-17
+def s_verifyMerkleProof_1(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  lg_verifyMerkleProof_1(x)
+
+# verifyMerkleProof#contracts/contracts/libraries/common/Verify.sol:6-20#1
+def k_verifyMerkleProof_5(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      s_verifyMerkleProof_1(x)
+    case False{}:
+      xf_verifyMerkleProof(x, 2, Nil{})
+
+# check contracts/contracts/libraries/common/Verify.sol:6-20
+def s_verifyMerkleProof_5(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+      k_verifyMerkleProof_5(w_ge(ge_e_msg_data_length(x_en), W{1124, 0, 0, 0, 0, 0, 0, 0}), X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+
+# verifyMerkleProof#contracts/contracts/libraries/common/Verify.sol:6-20#0
+def k_verifyMerkleProof_6(c: Bool, x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match c:
+    case True{}:
+      s_verifyMerkleProof_5(x)
+    case False{}:
+      xf_verifyMerkleProof(x, 1, Nil{})
+
+# check contracts/contracts/libraries/common/Verify.sol:6-20
+def s_verifyMerkleProof_6(x: X_verifyMerkleProof) -> X_verifyMerkleProof:
+  match x:
+    case X_verifyMerkleProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+      k_verifyMerkleProof_6(w_eq(ge_e_msg_value(x_en), W{0, 0, 0, 0, 0, 0, 0, 0}), X_verifyMerkleProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+
+def x0_verifyMerkleProof(+st: HSt, +ar: AR_verifyMerkleProof, +en: HEnv, +kh: List<&2, HKB>) -> X_verifyMerkleProof:
+  X_verifyMerkleProof{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}, w0(), w0(), w0(), w0(), w0(), 0n}
+
+# the context after the action's program ran (holon.extracted_eval's order)
+def xr_verifyMerkleProof(+st: HSt, +ar: AR_verifyMerkleProof, +en: HEnv, +kh: List<&2, HKB>) -> X_verifyMerkleProof:
+  s_verifyMerkleProof_6(x0_verifyMerkleProof(st, ar, en, kh))
+
+def xo_verifyMerkleProof(x: X_verifyMerkleProof) -> HOut:
+  match x:
+    case X_verifyMerkleProof{_, x_ov, _, _, _, x_cd, x_rv, x_lg, x_tw, _, _, _, _, _, _}:
+      HOut{x_cd, x_rv, x_ov, lg_rev(x_lg, Nil{}), x_tw}
+
+def run_verifyMerkleProof(+st: HSt, +ar: AR_verifyMerkleProof, +en: HEnv, +kh: List<&2, HKB>) -> HOut:
+  xo_verifyMerkleProof(xr_verifyMerkleProof(st, ar, en, kh))
+
+# 0 when every check of verifyMerkleProof holds, k + 1 when check k (holon.machine's order) is the first to fail
+def chk_verifyMerkleProof(+st: HSt, +ar: AR_verifyMerkleProof, +en: HEnv, +kh: List<&2, HKB>) -> U32:
+  o_code(run_verifyMerkleProof(st, ar, en, kh))
+
+def post_verifyMerkleProof(+st: HSt, +ar: AR_verifyMerkleProof, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  o_post(run_verifyMerkleProof(st, ar, en, kh))
+
+def logs_verifyMerkleProof(+st: HSt, +ar: AR_verifyMerkleProof, +en: HEnv, +kh: List<&2, HKB>) -> List<&2, HLog>:
+  o_logs(run_verifyMerkleProof(st, ar, en, kh))
+
+def step_verifyMerkleProof(+st: HSt, +ar: AR_verifyMerkleProof, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  st_after(run_verifyMerkleProof(st, ar, en, kh), st)
+
 # an action with its arguments and its environment (A-env: free per step)
 type HAct is Data:
   A_initialize{ar: AR_initialize, en: HEnv}
   A_messageNonce{ar: AR_messageNonce, en: HEnv}
   A_owner{ar: AR_owner, en: HEnv}
   A_paused{ar: AR_paused, en: HEnv}
+  A_proveAndRelayMessage{ar: AR_proveAndRelayMessage, en: HEnv}
   A_receive{ar: AR_receive, en: HEnv}
   A_renounceOwnership{ar: AR_renounceOwnership, en: HEnv}
+  A_replayMessage{ar: AR_replayMessage, en: HEnv}
+  A_sendMessage_5f7b1577{ar: AR_sendMessage_5f7b1577, en: HEnv}
+  A_sendMessage_b2267a7b{ar: AR_sendMessage_b2267a7b, en: HEnv}
   A_setPause{ar: AR_setPause, en: HEnv}
   A_transferOwnership{ar: AR_transferOwnership, en: HEnv}
   A_updateFeeVault{ar: AR_updateFeeVault, en: HEnv}
   A_updateMaxReplayTimes{ar: AR_updateMaxReplayTimes, en: HEnv}
   A_updateRollup{ar: AR_updateRollup, en: HEnv}
+  A_verifyMerkleProof{ar: AR_verifyMerkleProof, en: HEnv}
 
 def step(a: HAct, +s: HSt, +kh: List<&2, HKB>) -> HSt:
   match a:
@@ -3561,10 +6205,18 @@ def step(a: HAct, +s: HSt, +kh: List<&2, HKB>) -> HSt:
       step_owner(s, ar, en, kh)
     case A_paused{ar, en}:
       step_paused(s, ar, en, kh)
+    case A_proveAndRelayMessage{ar, en}:
+      step_proveAndRelayMessage(s, ar, en, kh)
     case A_receive{ar, en}:
       step_receive(s, ar, en, kh)
     case A_renounceOwnership{ar, en}:
       step_renounceOwnership(s, ar, en, kh)
+    case A_replayMessage{ar, en}:
+      step_replayMessage(s, ar, en, kh)
+    case A_sendMessage_5f7b1577{ar, en}:
+      step_sendMessage_5f7b1577(s, ar, en, kh)
+    case A_sendMessage_b2267a7b{ar, en}:
+      step_sendMessage_b2267a7b(s, ar, en, kh)
     case A_setPause{ar, en}:
       step_setPause(s, ar, en, kh)
     case A_transferOwnership{ar, en}:
@@ -3575,6 +6227,8 @@ def step(a: HAct, +s: HSt, +kh: List<&2, HKB>) -> HSt:
       step_updateMaxReplayTimes(s, ar, en, kh)
     case A_updateRollup{ar, en}:
       step_updateRollup(s, ar, en, kh)
+    case A_verifyMerkleProof{ar, en}:
+      step_verifyMerkleProof(s, ar, en, kh)
 
 # the initial state: the target's storage after the deployment of the binding (zero without one)
 def s0() -> HSt:
