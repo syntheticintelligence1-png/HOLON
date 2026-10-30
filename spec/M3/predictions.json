@@ -5110,6 +5110,400 @@
         },
         "fold": "docs/iterations/I69_prereg_fold.json (M1-M5, m1-m9 and n1-n3 of docs/iterations/I69_prereg_review.json, each with what changed); the review and the fold notes are a separate own commit after C_K (docs/ only)"
       }
+    },
+    "I85": {
+      "title": "= I39a: the Go derivation extracted (ParseBatch as an extracted consumer: I18's skeleton document of node/derivation plus the SSA of ParseBatch's closure, its environment named) and the product machine joining the Solidity commit (the adopted Rollup document's commitBatch, evaluator-level) with Go derivation through the derivation's own calldata join and the committed header as the next parent (the cycle), its consumer half refined against a Go replay of the real BatchInfo.ParseBatch on 169 batches; no laws",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I85)",
+      "prompt": "prompts/I85_derivation_extraction.md",
+      "predictions": [
+        {
+          "id": "I85-P1",
+          "claim": "The consumer is extracted as read (D1-D4): spec/M3/facts/morph_derivation.extracted.json, less its consumer key, is I18's spec/M2/facts/morph_derivation.go.extracted.json (the same frontend, config and package set); its consumer section's closure is the 14 functions of thresholds.closure (ParseBatch, the BlockContext decoder and node/types' DecodeBlockContext, the transaction queue's enqueue and dequeue and constructor, encodeTransactions, the five BatchHeaderBytes methods it reaches (BatchIndex, TotalL1MessagePopped, Version, LastBlockNumber, validate), RetrieveBlobBytes and the zstd wrapper DecompressBatchBytes); its environment is exactly the 13 callees of thresholds.environment with their kinds (9 standard-library natives: fmt.Errorf, errors.New, bytes.NewReader, encoding/binary.Read, the big-endian Uint16 and Uint64, math/big's NewInt, SetBytes and Cmp; the oracles DecompressMorphDABatch and DecodeTxsFromBytes; Transactions.Len as a slice length; Transaction.MarshalBinary as an encoding); no callee, global or instruction is unaccounted; the instrument's walk over the section gives the same closure and environment. Derivation: reading the sources at the head: every static call of those bodies, with the sidecar's boundary at DecodeTxsFromBytes and the cgo decompressor; the bodies use structs, pointers, slices, append, copy, make, interfaces for fmt's and binary.Read's arguments and two counted loops, all ops the interpreter evaluates; the globals they read are common/batch's three error variables (assigned by errors.New in a package initializer) and binary.BigEndian.",
+          "check": "tests_m3/test_derivation_extraction.py::TestExtraction::test_p1_the_consumer_is_extracted_as_read"
+        },
+        {
+          "id": "I85-P2",
+          "claim": "The join is as read (J1): gen/M3/derivation/product.json's join rows are the seven of thresholds.join, which the instrument recomputes from the document's join function and the Rollup document's commitBatch parameter: each BatchDataInput member, through the Go field its first letter capitalized names (go-ethereum's ABI decoder fills modernBatchDataInput by those names), lands in the RPCRollupBatch field unpackModernRollupCall's literal stores it into: version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot and postStateRoot under their own names, withdrawalRoot as WithdrawRoot. Derivation: reading unpackModernRollupCall (the composite literal at derivation.go:700-708); no member is dropped by the join.",
+          "check": "tests_m3/test_derivation_extraction.py::TestProduct::test_p2_the_join_is_as_read"
+        },
+        {
+          "id": "I85-P3",
+          "claim": "The consumer's read set (D5): ParseBatch reads exactly BlockContexts, LastBlockNumber, ParentBatchHeader, PostStateRoot, Sidecar (and Sidecar.Blobs), Version and WithdrawRoot of its batch, and never reads NumL1Messages, PrevStateRoot, Hash, CurrentSequencerSetBytes or Signatures (thresholds.reads, thresholds.unread; together they are every field of RPCRollupBatch). Derivation: reading batch_info.go:87-248. The committed L1-message count reaches the derived batch (P2) and is then discarded: F11's L1-count observation, as an extraction fact; I39 states its law.",
+          "check": "tests_m3/test_derivation_extraction.py::TestExtraction::test_p3_the_consumer_reads"
+        },
+        {
+          "id": "I85-P4",
+          "claim": "The product machine commits and closes the cycle (J2, J3, K1-K5): on the 8 product traces (20 commits) every planned commit is ok on the adopted Rollup document from I80's deployment record under the declared environment, with batch index k for the k-th commit; each committed header (the argument of the keccak256 written to committedBatches) hashes to the word written; each next commit's parent is that header (the first's is I20's genesis); and the derivation of each committed batch agrees with the real ParseBatch and is ok with batchIndex the committed index for versions 1 and 2, and fails with \"invalid batch: zero block count\" for version 0 (thresholds.product_v0_error). Derivation: the commits follow I20's harness rule (parent hash, index, previous state root, non-zero roots, an active submitter, an empty queue so no L1-message delay); a modern commit carries no calldata contexts, so a version 0 batch has no block count (batch_info.go:114-198), while versions 1 and 2 count blocks from the parent's last block number, which the Solidity header stores.",
+          "check": "tests_m3/test_derivation_extraction.py::TestProduct::test_p4_the_product_commits_and_closes_the_cycle"
+        },
+        {
+          "id": "I85-P5",
+          "claim": "The consumer refines the real ParseBatch (G1-G5, C4-C5): on all 169 cases (thresholds.cases: 29 planted, 120 random, 20 product) the interpreter of the document's consumer SSA, its environment answered by Go's standard-library semantics and by the real library's decompressor and transaction decoder, agrees with the Go replay of the real BatchInfo.ParseBatch in status, error text, panic text and the whole receiver's dump: 0 disagreements, 0 unsupported; steps.json recounts to refinement.json and its real sides are the replay report's. Derivation: the closure's ops have exact Go semantics in the interpreter; the texts come from the same format strings and runtime messages; the environment is the real library's. This is the least certain prediction: one formatting verb, one nil-versus-empty slice or one runtime text the interpreter gets wrong misses it.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRefinement::test_p5_the_consumer_refines_the_real_parsebatch"
+        },
+        {
+          "id": "I85-P6",
+          "claim": "The corpus reaches every live return (C4-C5): among the agreeing cases, each of ParseBatch's 15 live returns (thresholds.sites.reached: batch_info.go:89, 94, 118, 124, 138, 147, 158, 171, 175, 186, 198, 203, 229, 235 and the ok return at 247) ends at least one case; its 5 dead returns (98, 131, 142, 153, 212) end none; and at least one case panics with \"runtime error: index out of range [126976] with length 126976\" (O4's site in RetrieveBlobBytes, reached through derivation). Derivation: reading ParseBatch: 98 and 131 re-check a header that BatchIndex has already validated, 153 asks a validated version-1-or-later parent for its last block number, and 142 and 212 decode exactly 60 bytes, which DecodeBlockContext always accepts; the planted cases were chosen for the other returns.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRefinement::test_p6_the_corpus_reaches_every_live_return"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I85-R1",
+          "claim": "Earlier Go extractions do not move: holon extract go --milestone M2 and --milestone M3 reproduce I18's five documents and I67's M3 document byte for byte (green at the prereg by CI's G1).",
+          "check": "tests_m3/test_derivation_extraction.py::TestRegressions::test_r1_the_go_documents_regenerate"
+        },
+        {
+          "id": "I85-R2",
+          "claim": "I85's own commits (the contract's definition) change only what the contract allows: at least one adds spec/M3/facts/morph_derivation.extracted.json; none changes a frozen root, laws/, spec/ but that document, holon/rules/, holon/frontends/, a file of thresholds.closures (the generator closures at the prereg), a file under replay/ outside replay/M3/derivation/, under gen/ outside gen/M3/derivation/ or under results/ outside results/M3/derivation/. So no record is re-made.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I85-R3",
+          "claim": "holon audit prereg passes for M2 and M3 (tested). On CI, on the build head: gate-M0, gate-M1 and gate-M2 pass; gate-M3-partial and gate-M3-G2 fail only on the base's items (thresholds.base_gate_M3); tests-m3-catalog, the frozen suite, freeze-check and both audits pass. The full M3 gate is not claimed.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRegressions::test_r3_the_prereg_audits_pass"
+        },
+        {
+          "id": "I85-R4",
+          "claim": "holon/derivation/ (construction) exists, imports no test module, names no target (thresholds.forbidden, no address) and no file of it is in any generator closure at HEAD.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRegressions::test_r4_holon_derivation_is_generic_and_outside_every_closure"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M3/facts/morph_derivation.extracted.json",
+        "gen/M3/derivation/",
+        "results/M3/derivation/",
+        "replay/M3/derivation/",
+        "docs/iterations/I85.md"
+      ],
+      "tests": [
+        "tests_m3/test_derivation_extraction.py"
+      ],
+      "thresholds": {
+        "base": "92c98e40b17a8bdbe516c67e46190098a898f270 (the lead), with BUILD_PLAN's row I85 committed before this commit",
+        "instrument": "tests_m3/_i85.py",
+        "instrument_sha256": "c1b7cc5b882884d64638a51a0b25ead771fcb966bf932b2ac8b192adba97ce4d",
+        "sidecar": "spec/M3/lib/derivation.json",
+        "sidecar_sha256": "175d292ff4b0afbb46e483bad38ceba7c78770c8efa91028cd8fc4b000a1e9ec",
+        "contract_docstring_sha256": "bdba8618d7075f8bc4341df412a2e3631aeb8b94606278feaa004b2e652f4a3a",
+        "inputs_sha256": {
+          "spec/M2/lib/go_frontend.json": "5f948249c90f8ac6d5092db74fcf51a196cd8ed34584fe23982f926b0db98f5f",
+          "spec/M2/facts/morph_derivation.go.extracted.json": "f0f1ee13857f10a38c73f0f2b0e002d5602d2fbea266fdf3c87ffa4cc5e8a89d",
+          "spec/M2/facts/morph_rollup.extracted.json": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+          "replay/M3/bundle2/deployment.json": "85a123ff929532440952b33cd613ca44b7a6b798701d4f8f6c47fc5a2817a8b6",
+          "tests_m2/_keccak.py": "0ea4d7f52b7994b7fc1f6c4fad806b5db228f01dd02bc7800936d3924d060c16"
+        },
+        "closure": [
+          "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+          "(*morph-l2/node/derivation.BlockContext).Decode",
+          "(*morph-l2/node/derivation.txQueue).dequeue",
+          "(*morph-l2/node/derivation.txQueue).enqueue",
+          "(*morph-l2/node/types.WrappedBlock).DecodeBlockContext",
+          "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+          "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+          "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+          "(morph-l2/common/batch.BatchHeaderBytes).Version",
+          "(morph-l2/common/batch.BatchHeaderBytes).validate",
+          "morph-l2/common/batch.RetrieveBlobBytes",
+          "morph-l2/common/codec/zstd.DecompressBatchBytes",
+          "morph-l2/node/derivation.encodeTransactions",
+          "morph-l2/node/derivation.newTxQueue"
+        ],
+        "environment": {
+          "(*math/big.Int).Cmp": "native",
+          "(*math/big.Int).SetBytes": "native",
+          "(*github.com/morph-l2/go-ethereum/core/types.Transaction).MarshalBinary": "encoding",
+          "(encoding/binary.bigEndian).Uint16": "native",
+          "(encoding/binary.bigEndian).Uint64": "native",
+          "(github.com/morph-l2/go-ethereum/core/types.Transactions).Len": "slice_len",
+          "bytes.NewReader": "native",
+          "encoding/binary.Read": "native",
+          "errors.New": "native",
+          "fmt.Errorf": "native",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.DecompressMorphDABatch": "oracle",
+          "math/big.NewInt": "native",
+          "morph-l2/common/batch.DecodeTxsFromBytes": "oracle"
+        },
+        "join": [
+          [
+            "version",
+            "Version",
+            "Version"
+          ],
+          [
+            "parentBatchHeader",
+            "ParentBatchHeader",
+            "ParentBatchHeader"
+          ],
+          [
+            "lastBlockNumber",
+            "LastBlockNumber",
+            "LastBlockNumber"
+          ],
+          [
+            "numL1Messages",
+            "NumL1Messages",
+            "NumL1Messages"
+          ],
+          [
+            "prevStateRoot",
+            "PrevStateRoot",
+            "PrevStateRoot"
+          ],
+          [
+            "postStateRoot",
+            "PostStateRoot",
+            "PostStateRoot"
+          ],
+          [
+            "withdrawalRoot",
+            "WithdrawalRoot",
+            "WithdrawRoot"
+          ]
+        ],
+        "reads": [
+          "BlockContexts",
+          "LastBlockNumber",
+          "ParentBatchHeader",
+          "PostStateRoot",
+          "Sidecar",
+          "Sidecar.Blobs",
+          "Version",
+          "WithdrawRoot"
+        ],
+        "unread": [
+          "CurrentSequencerSetBytes",
+          "Hash",
+          "NumL1Messages",
+          "PrevStateRoot",
+          "Signatures"
+        ],
+        "cases": {
+          "planted": 29,
+          "random": 120,
+          "product": 20
+        },
+        "sites": {
+          "reached": [
+            "node/derivation/batch_info.go:89",
+            "node/derivation/batch_info.go:94",
+            "node/derivation/batch_info.go:118",
+            "node/derivation/batch_info.go:124",
+            "node/derivation/batch_info.go:138",
+            "node/derivation/batch_info.go:147",
+            "node/derivation/batch_info.go:158",
+            "node/derivation/batch_info.go:171",
+            "node/derivation/batch_info.go:175",
+            "node/derivation/batch_info.go:186",
+            "node/derivation/batch_info.go:198",
+            "node/derivation/batch_info.go:203",
+            "node/derivation/batch_info.go:229",
+            "node/derivation/batch_info.go:235",
+            "node/derivation/batch_info.go:247"
+          ],
+          "dead": [
+            "node/derivation/batch_info.go:98",
+            "node/derivation/batch_info.go:131",
+            "node/derivation/batch_info.go:142",
+            "node/derivation/batch_info.go:153",
+            "node/derivation/batch_info.go:212"
+          ],
+          "panic": "runtime error: index out of range [126976] with length 126976"
+        },
+        "product_v0_error": "invalid batch: zero block count",
+        "forbidden": [
+          "morph",
+          "Morph",
+          "ParseBatch",
+          "BatchInfo",
+          "RPCRollupBatch",
+          "commitBatch",
+          "committedBatches",
+          "Rollup",
+          "zstd",
+          "go-ethereum",
+          "DecodeTxsFromBytes",
+          "BlockContext",
+          "batchDataInput",
+          "unpackModernRollupCall",
+          "MarshalBinary",
+          "Sidecar"
+        ],
+        "closures": [
+          "holon/__init__.py",
+          "holon/analysis/__init__.py",
+          "holon/analysis/abstraction.py",
+          "holon/analysis/closure.py",
+          "holon/analysis/deadness.py",
+          "holon/bend.py",
+          "holon/bindings.py",
+          "holon/codecrun.py",
+          "holon/consumers.py",
+          "holon/corpus.py",
+          "holon/diagram/__init__.py",
+          "holon/diagram/access.py",
+          "holon/diagram/build.py",
+          "holon/diagram/evidence.py",
+          "holon/diagram/goops.py",
+          "holon/diagram/linked.py",
+          "holon/diagram/model.py",
+          "holon/diagram/principals.py",
+          "holon/diagram/transitions.py",
+          "holon/disch/__init__.py",
+          "holon/disch/lemmas.py",
+          "holon/disch/mirror.py",
+          "holon/disch/order.py",
+          "holon/disch/proofs.py",
+          "holon/disch/run.py",
+          "holon/disch/search.py",
+          "holon/disch/section.py",
+          "holon/evidence.py",
+          "holon/evm_abi.py",
+          "holon/extracted_eval.py",
+          "holon/fact/__init__.py",
+          "holon/fact/product.py",
+          "holon/fact/proofs.py",
+          "holon/fact/run.py",
+          "holon/fact/search.py",
+          "holon/fact/section.py",
+          "holon/facts.py",
+          "holon/filter.py",
+          "holon/fragments_corpus.py",
+          "holon/fragments_doc.py",
+          "holon/frontends/__init__.py",
+          "holon/frontends/go/document.py",
+          "holon/frontends/solidity/__init__.py",
+          "holon/frontends/solidity/ast.py",
+          "holon/frontends/solidity/compile.py",
+          "holon/frontends/solidity/layout_extract.py",
+          "holon/frontends/solidity/storage.py",
+          "holon/frontends/solidity/transitions.py",
+          "holon/gen/__init__.py",
+          "holon/gen/cdriver.py",
+          "holon/gen/codec01.py",
+          "holon/gen/coercion.py",
+          "holon/gen/core.py",
+          "holon/gen/eqlib.py",
+          "holon/gen/eqprove.py",
+          "holon/gen/eqsearch.py",
+          "holon/gen/eqterms.py",
+          "holon/gen/equivalence.py",
+          "holon/gen/goloop.py",
+          "holon/gen/implication.py",
+          "holon/gen/laws.py",
+          "holon/gen/lean_common.py",
+          "holon/gen/lean_laws.py",
+          "holon/gen/lean_linked.py",
+          "holon/gen/lean_machine.py",
+          "holon/gen/lean_mlaws.py",
+          "holon/gen/lean_model.py",
+          "holon/gen/lean_mproofs.py",
+          "holon/gen/lean_proofs.py",
+          "holon/gen/lean_sites.py",
+          "holon/gen/linked.py",
+          "holon/gen/machine.py",
+          "holon/gen/mlaws.py",
+          "holon/gen/model.py",
+          "holon/gen/mproofs.py",
+          "holon/gen/oracles.py",
+          "holon/gen/profile.py",
+          "holon/gen/proofs.py",
+          "holon/gen/refs.py",
+          "holon/gen/targetlib.py",
+          "holon/gen/trace_bound.py",
+          "holon/inhabit.py",
+          "holon/intake.py",
+          "holon/ir.py",
+          "holon/js/eval3.mjs",
+          "holon/js/profile.mjs",
+          "holon/keccak.py",
+          "holon/layout.py",
+          "holon/lean.py",
+          "holon/machine.py",
+          "holon/machine_bend.py",
+          "holon/measures_fact.py",
+          "holon/model_eval.py",
+          "holon/model_native.py",
+          "holon/mpipeline.py",
+          "holon/mreplay.py",
+          "holon/oracles/zero_blob.py",
+          "holon/pipeline.py",
+          "holon/profile.py",
+          "holon/records.py",
+          "holon/refinement.py",
+          "holon/refute.py",
+          "holon/replay.py",
+          "holon/replay_fragments.py",
+          "holon/rules/__init__.py",
+          "holon/rules/disch.py",
+          "holon/rules/disch_profile.py",
+          "holon/rules/fact.py",
+          "holon/rules/par.py",
+          "holon/rules/par_init.py",
+          "holon/rules/sort.py",
+          "holon/rules/undo.py",
+          "holon/schema.py",
+          "holon/sorts/__init__.py",
+          "holon/sorts/affine3.py",
+          "holon/sorts/assign.py",
+          "holon/sorts/check.py",
+          "holon/sorts/constraints.py",
+          "holon/sorts/core.py",
+          "holon/sorts/deploy3.py",
+          "holon/sorts/envcode3.py",
+          "holon/sorts/evaluate3.py",
+          "holon/sorts/extracted.py",
+          "holon/sorts/flow.py",
+          "holon/sorts/grammar.py",
+          "holon/sorts/model3.py",
+          "holon/sorts/prelude3.py",
+          "holon/sorts/prelude3_lemmas.py",
+          "holon/sorts/proofs3.py",
+          "holon/sorts/reextract.py",
+          "holon/sorts/run3.py",
+          "holon/sorts/search3.py",
+          "holon/sorts/sites.py",
+          "holon/sorts/solve.py",
+          "holon/sorts/termsize.py",
+          "holon/sorts/typed_sidecar.py",
+          "holon/sorts/unions.py",
+          "holon/sorts/width.py",
+          "holon/statement_diff.py",
+          "holon/undo/__init__.py",
+          "holon/undo/proofs.py",
+          "holon/undo/run.py",
+          "holon/undo/search.py",
+          "holon/undo/trace.py",
+          "holon/window.py",
+          "spec/M1/lib/morph_rollup.lib.json",
+          "spec/M1/lib/morph_rollup.pointwise.json",
+          "spec/M1/policy_hints.mjs",
+          "spec/M2/lib/oracles.json",
+          "spec/M2/lib/window_rollup.json",
+          "spec/lib/go_slices.lib.json"
+        ],
+        "base_gate_M3": "gate-M3-partial at the base fails G11V's in-flight clause alone (I28's P5 miss: \"in-flight: 0 of 8 edges inhabited\"); gate-M3-G2 passes. I85 adds no law, record or coverage entry, so its build may change neither.",
+        "known_red_at_base": [
+          "tests_m3.test_undo: 11 (UNDO records trail)",
+          "tests_m3.test_disch_profile: 3 (I32's misses)",
+          "tests_m2 group 2: 2 (solidity history.py honesty)",
+          "tests_m2 group 3: 14 failures and 6 errors (historical snapshot, extract toolchain, transitions, filter bins, historical exit)",
+          "I43-R1 (tests_m3/test_lean_promoted.py), re-baselined by the lead",
+          "since I28's build: test_fact TestGate.test_partial_gate_on_a_copy, test_sort_types TestRecordsAndGate.test_gate_m3_passes, test_disch TestGateAndRegressions.test_gate_m3_passes_and_rejects_the_disch_canaries",
+          "I80's tests_m3/test_bundle2_extraction.py: P2, P4, P6 and the zkevm subtest",
+          "I81's tests_m3.test_ranking: test_p4_reach_against_impact, test_p6_persistence_and_cost, test_p7_order",
+          "locally: tests_m3.test_par_lossy.TestCore.test_inj_push_is_proved (the bun is not the pinned build)"
+        ],
+        "coordination": "I85 writes spec/M3/facts/morph_derivation.extracted.json, gen/M3/derivation/, results/M3/derivation/, replay/M3/derivation/, spec/M3/lib/derivation.json and holon/derivation/, and adds one dispatch line to holon/__main__.py; it touches no closure file, frontend or earlier output. Whoever merges second keeps every dispatch line.",
+        "deferred": [
+          "I39 proper: O7, the O8 law pair under HypC with splits.json, O24, the F11 L1-count law",
+          "a Bend product model (the product machine is evaluator-level; a law that needs one builds it)",
+          "extracting DecodeTxsFromBytes and the decompressor (named environment here; Q-I85-a)",
+          "real KZG versioned hashes in the product (a stand-in here; Q-I85-b)",
+          "the derivation's L1-message handling (handleL1Message) and block application (derive): the product stops at ParseBatch"
+        ],
+        "disclosed": "Read before this prereg: node/derivation/batch_info.go in full; derivation.go's fetch, UnPackData, unpackModernRollupCall, parseBatch, handleL1Message and derive; common/batch's BatchHeaderBytes getters and validate, RetrieveBlobBytes, DecodeTxsFromBytes and its helpers; common/codec/zstd; node/types DecodeBlockContext; the go-ethereum fork's RPCRollupBatch and SafeL2Data and the DA codec's Go binding (module cache); Rollup.sol's commit path, _commitBatch and _computeBlobVersionedHash; the queue's getFirstUnfinalizedMessageEnqueueTime; I18's derivation document (ParseBatch: paths null, reason loop; its sites); the adopted Rollup document's commitBatch record (calls, parameter, the committedBatches write term); I17's header document; I20's harness (header rule, genesis, actors); I80's deployment record. Run: go build ./derivation/ in a scratch copy of the workspace with the proxy off (66 s, success: the plan's dependency risk does not hold locally); the instrument's corpus and genesis check; an RLP self-check of the generated transactions with a session-only decoder; git show of batch_info.go; the generator closures with holon's functions. Never run on the target: ssadump, the frontend, the interpreter, the Go replay, the oracle, the compressor, or holon.extracted_eval on commitBatch."
+      }
     }
   }
 }
