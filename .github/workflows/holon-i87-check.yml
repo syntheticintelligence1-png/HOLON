@@ -1,0 +1,143 @@
+# CI only (I87), not for merge: I87's audit-loop outputs re-checked with the pinned toolchain (config/holon.json):
+# the round-1 packet and A4 (`--check` rebuilds both from their target commit byte for byte, with A4's 38
+# representatives checked by the pinned bend2 and BendTT), and the I87 and I5 acceptance tests. Every step runs; the
+# summary step prints one line per check, and the job fails if any check failed. The toolchain is the cached one of
+# holon-ci.yml.
+name: holon-i87-check
+
+on:
+  push:
+    branches: ['claude/brave-wright-2c5d0o-ci-i87-check']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: holon-i87-check-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  BEND_NO_TELEMETRY: '1'
+
+jobs:
+  toolchain:
+    name: toolchain (install + verify pins)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.key.outputs.key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Cache key from the pins
+        id: key
+        run: echo "key=holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}" >> "$GITHUB_OUTPUT"
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: restore
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Install the pinned toolchain
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: bash .github/ci/install_toolchain.sh
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: steps.restore.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+
+  check:
+    name: i87-check
+    needs: toolchain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: Checks
+        run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/out"
+          : > "$RUNNER_TEMP/out/summary.txt"
+          check () {
+            name="$1"; shift
+            if "$@" > "$RUNNER_TEMP/out/$name.log" 2>&1; then r=PASS; else r=FAIL; fi
+            echo "I87-CI $name: $r" | tee -a "$RUNNER_TEMP/out/summary.txt"
+            tail -n 25 "$RUNNER_TEMP/out/$name.log"
+          }
+          check fingerprint python -c "import json; from holon import bend; print(json.dumps(bend.fingerprint(bend.config()), sort_keys=True)[:600])"
+          check vacuity-check python -m holon audit vacuity --milestone M3 --round 1 --check
+          check hostile-check python -m holon audit hostile --milestone M3 --round 1 --check
+          check converge-check python -m holon audit converge --milestone M3 --check
+          check round-M3 python -m holon audit round --milestone M3
+          check gaps python -m holon audit gaps
+          check status-check python -m holon coordinator status --check
+          check tests-i87 python -m unittest tests_m3.test_audit_loop -v
+          check tests-i5 python -m unittest tests_m2.test_audit -v
+          check prereg-M3 python -m holon audit prereg --milestone M3
+          echo "----- summary"
+          cat "$RUNNER_TEMP/out/summary.txt"
+          grep "I87-CI tests-i87" -A0 "$RUNNER_TEMP/out/summary.txt" || true
+          tail -n 4 "$RUNNER_TEMP/out/tests-i87.log" || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: i87-check-out
+          retention-days: 7
+          path: ${{ runner.temp }}/out/
