@@ -141,6 +141,7 @@ class Evaluator:
     checks: dict = field(default_factory=dict)
     starts: int = 0                  # node processes started (a restart forgets the native tables: holon.sorts.search3)
     sk: bool = False                 # a structural store (I68)
+    seen: set = field(default_factory=set)   # the storage keys the settled runs of step() took (I68: holon keys)
 
     @classmethod
     def build(cls, model_path, doc) -> "Evaluator":
@@ -410,7 +411,15 @@ class Evaluator:
             return {"status": "unsupported", "revert": None, "writes": {}, "events": [], "guard": None,
                     "reason": f"no action {action} in the document"}
         r, _kh, _sh = self.run_fix(action, state, args, env)
+        if self.sk:
+            self.seen.update(r.sk)
         return self.outcome(action, r.out, state)
+
+    def keys_document(self) -> dict:
+        """(I68) the storage keys the corpus's steps took, each with its real slot (holon keys reads it: source r5)."""
+        return {"document": "corpus_keys", "model": str(self.model_path.name),
+                "keys": [{"b": hex(b), "o": hex(o), "p": [{"k": hex(k), "o": hex(o2)} for _t, k, o2 in p],
+                          "real": hex(SKEYS.real_slot(b, o, p))} for b, o, p in sorted(self.seen)]}
 
 
 def sk_of_hex(x: str) -> tuple:
