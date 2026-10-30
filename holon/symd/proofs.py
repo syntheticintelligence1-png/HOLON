@@ -391,7 +391,8 @@ def _list(xs: list[str]) -> str:
 # Instead: the three guards are true by computation (fz), and sy_sink_eq2 is false at one entry, reached through
 # sy_sks's conjunctions without evaluating the entries before it (and_r), then that entry's comparison by computation.
 # Every lemma below is generic over variables (both kernels unfold a definition applied to variables only as far as a
-# stuck match); their instances meet the declared types syntactically.
+# stuck match); their instances meet the declared types syntactically. A variable and_r's first (matched) argument
+# reads is relevant, not erased.
 SINK_LEMMAS = """def and_l(-a: Bool, -b: Bool, e: {False{} == a : Bool}) -> {False{} == Bool.and(a, b) : Bool}:
   %e : {False{} == Bool.and(_, b) : Bool}
   {==}
@@ -407,7 +408,7 @@ def and_r(a: Bool, -b: Bool, e: {False{} == b : Bool}) -> {False{} == Bool.and(a
 def sks_l(-h: M.KV, -t: List<&2, M.KV>, -xs: List<&2, M.KV>, -ys: List<&2, M.KV>, e: {False{} == U.sy_sk1(h, xs, ys) : Bool}) -> {False{} == U.sy_sks(Con{h, t}, xs, ys) : Bool}:
   and_l(U.sy_sk1(h, xs, ys), U.sy_sks(t, xs, ys), e)
 
-def sks_r(-h: M.KV, -t: List<&2, M.KV>, -xs: List<&2, M.KV>, -ys: List<&2, M.KV>, e: {False{} == U.sy_sks(t, xs, ys) : Bool}) -> {False{} == U.sy_sks(Con{h, t}, xs, ys) : Bool}:
+def sks_r(h: M.KV, -t: List<&2, M.KV>, +xs: List<&2, M.KV>, +ys: List<&2, M.KV>, e: {False{} == U.sy_sks(t, xs, ys) : Bool}) -> {False{} == U.sy_sks(Con{h, t}, xs, ys) : Bool}:
   and_r(U.sy_sk1(h, xs, ys), U.sy_sks(t, xs, ys), e)
 
 def sks_at(-zs: List<&2, M.KV>, -h: M.KV, -t: List<&2, M.KV>, -xs: List<&2, M.KV>, -ys: List<&2, M.KV>, ez: {Con{h, t} == zs : List<&2, M.KV>}, e: {False{} == U.sy_sks(Con{h, t}, xs, ys) : Bool}) -> {False{} == U.sy_sks(zs, xs, ys) : Bool}:
@@ -417,7 +418,7 @@ def sks_at(-zs: List<&2, M.KV>, -h: M.KV, -t: List<&2, M.KV>, -xs: List<&2, M.KV
 def eq2_l(-fx: List<&2, M.KV>, -fy: List<&2, M.KV>, e: {False{} == U.sy_sks(fx, fx, fy) : Bool}) -> {False{} == U.sy_sink_eq2(fx, fy) : Bool}:
   and_l(U.sy_sks(fx, fx, fy), U.sy_sks(fy, fx, fy), e)
 
-def eq2_r(-fx: List<&2, M.KV>, -fy: List<&2, M.KV>, e: {False{} == U.sy_sks(fy, fx, fy) : Bool}) -> {False{} == U.sy_sink_eq2(fx, fy) : Bool}:
+def eq2_r(+fx: List<&2, M.KV>, +fy: List<&2, M.KV>, e: {False{} == U.sy_sks(fy, fx, fy) : Bool}) -> {False{} == U.sy_sink_eq2(fx, fy) : Bool}:
   and_r(U.sy_sks(fx, fx, fy), U.sy_sks(fy, fx, fy), e)
 
 def fz(-p: Bool, -o: Bool, -o2: Bool, -q: Bool, ep: {True{} == p : Bool}, eo: {True{} == o : Bool}, eo2: {True{} == o2 : Bool}, eq: {False{} == q : Bool}) -> {U.ux_imp(p, U.ux_imp(o, U.ux_imp(o2, q))) == False{} : Bool}:
