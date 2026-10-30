@@ -1,0 +1,68 @@
+{
+  "facts": "gen/M3/versions/morph_rollup.versions.json",
+  "facts_sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_nat_comp_Rollup_initialize_initialize3",
+  "milestone": "M3",
+  "notes": "composition coherence (whitepaper \u00a75.3 (c)): initialize, introduced at placeholder->V3 (version 1), applied before the migration V6 -> V7 that introduces initialize3 (version 3) or after it: from the reachable state s, the migration u then the call a at V7, and the call a at V6 then u, end in the same version and storage, the call succeeding on both sides or on neither and u likewise; square morph_rollup.versions:square:V6:V7:initialize",
+  "rule": "NAT",
+  "rule_catalog_version": "holon-rules/1.8",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "u",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "e",
+        "q": "forall",
+        "type": "Env"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "a"
+            },
+            {
+              "var": "u"
+            },
+            {
+              "var": "s"
+            },
+            {
+              "var": "e"
+            }
+          ],
+          "square": "morph_rollup.versions:square:V6:V7:initialize"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "composition"
+}

@@ -415,6 +415,14 @@ class Gate3:
         bad += ub
         self.checks["G6"] = _res(not bad, f"{n} REFUTED entry points and {un} REFUTED UNDO laws replayed and passed on "
                                           "the real contract" if not bad else "; ".join(bad[:8]))
+        try:      # I29 (N9): the REFUTED NAT records are bound to their runs of the NAT replay report
+            from ..rules.nat_replay import g6 as nat_g6
+            nat = nat_g6(self.m, self.root)
+        except Exception as e:  # noqa: BLE001  (a crash is a failed clause)
+            nat = (False, f"NAT laws: the binding could not be checked: {type(e).__name__}: {e}")
+        if nat is not None:
+            c = self.checks["G6"]
+            self.checks["G6"] = _res(c["passed"] and nat[0], f"{c['detail']}; {nat[1]}")
 
     def g9(self):
         bad = []

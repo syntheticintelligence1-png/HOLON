@@ -314,6 +314,48 @@ def _pinit(law: dict) -> bool:
     return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == RULE and law.get("subform") == SUBFORM
 
 
+def _nat(law: dict) -> bool:
+    """A NAT law (I29): a holon-ir/0.3 law of rule NAT over a versioned document. holon.rules.nat_run decides it over
+    the versioned layer and its claims module, and emits its law file (holon.rules.nat_run.law_file)."""
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == "NAT"
+
+
+def _nat_run():
+    """holon.rules.nat_run, imported by name (as holon.versions is) so that NAT's decider stays out of the M1-M3
+    records' closure."""
+    import importlib
+    return importlib.import_module("holon.rules.nat_run")
+
+
+_N_QUAL = re.compile(r"(?<![\w.])N\.")
+
+
+def nat_layer_entries(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict[str, str]:
+    """BendTT entry name -> its full text for a NAT law: the versioned layer with the claims module's definitions
+    appended unqualified (its imports dropped, `M.` removed), translated together with the version modules the layer
+    imports (an imported module's entries are named by its file's stem): one module, as the UNDO and FACT sections."""
+    nr = _nat_run()
+    nctx = nr.NatCtx(Path(root), m)
+    layer = nctx.layer_path().resolve()
+    files, todo = {}, [layer.name]
+    while todo:
+        name = todo.pop()
+        if name in files:
+            continue
+        text = (layer.parent / name).read_text()
+        files[name] = text
+        todo.extend(_LOCAL_IMPORT.findall(text))
+    claims = nctx.module_path().read_text()
+    body = "\n".join(ln for ln in claims.splitlines() if not ln.startswith("import "))
+    files[layer.name] = files[layer.name].rstrip("\n") + "\n\n" + re.sub(r"(?<![\w.])M\.", "", body) + "\n"
+    try:
+        shown = nctx.module_path().relative_to(Path(root)).as_posix()
+    except ValueError:
+        shown = nctx.module_path().name
+    return dict(_layer_entries_cached(tuple(sorted(files.items())), layer.name,
+                                      json.dumps(cfg, sort_keys=True) if cfg else "", shown))
+
+
 def _versions(name: str):
     """A holon.versions module, imported by name (as holon.fact.proofs is) so that the versioned layer's generator
     stays out of the M1-M3 records' closure."""
@@ -393,6 +435,8 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
     if _pinit(law):   # I28: the versioned model gen/<m>/versions/models/<model>.bend (a link to the layer)
         return _versions("proofs").model_paths(m, root)[0]
+    if _nat(law):   # I29: the claims module gen/<m>/nat/models/<stem>_nat.bend (over the versioned layer)
+        return _nat_run().NatCtx(Path(root), m).module_path()
     if _undo(law):   # I27: the trace section gen/<m>/undo/models/<model>.bend
         return _trace_model(law, m, root)
     if _fact(law):   # I26: the FACT section gen/<m>/fact/models/<model>.fact.bend
@@ -420,6 +464,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
         return None
     if _pinit(law):   # I28: emitted as holon.versions.run writes it (holon.versions.proofs.law_file)
         return _versions("proofs").law_file(law, m, root, statement_hash(law, m, root), counter)
+    if _nat(law):   # I29: emitted as holon.rules.nat_run writes it (holon.rules.nat_run.law_file)
+        return _nat_run().law_file(law, m, root, statement_hash(law, m, root), counter)
     if _disch(law):   # I31: as holon.disch.run writes it (holon.disch.proofs.laws_text); an external law (an
         from .disch import proofs as DP   # existential law, never REFUTED) has no counter-law
         from .disch.section import tables
@@ -568,6 +614,9 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     elif _pinit(law):   # I28: the layer translated with the version modules it imports
         entries = layer_entries(mp, cfg or bend.config(root))
         c = kernel_cone(statement_text(law, m, root), entries)
+    elif _nat(law):   # I29: the layer and the claims module as one module (N. roots are the claims module's)
+        entries = nat_layer_entries(law, m, root, cfg or bend.config(root))
+        c = kernel_cone(_N_QUAL.sub("M.", statement_text(law, m, root)), entries)
     else:
         entries = kernel_entries(mp, cfg or bend.config(root))
         c = kernel_cone(statement_text(law, m, root), entries)
