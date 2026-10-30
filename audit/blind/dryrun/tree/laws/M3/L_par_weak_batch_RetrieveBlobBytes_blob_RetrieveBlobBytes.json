@@ -1,0 +1,44 @@
+{
+  "facts": "gen/M3/goops/blob_ops.json",
+  "facts_sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes",
+  "milestone": "M3",
+  "notes": "PAR weak (holon.rules.par): batch_RetrieveBlobBytes and blob_RetrieveBlobBytes share only name tokens ['blob', 'bytes', 'common', 'l2', 'morph', 'retrieve'] (E6 atom blob_ops:E6:CODEC.batch_RetrieveBlobBytes:CODEC.blob_RetrieveBlobBytes:f6e8978d)",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.6",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "b",
+        "q": "forall",
+        "type": "Blob"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "batch_RetrieveBlobBytes"
+        },
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "blob_RetrieveBlobBytes"
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "weak"
+}

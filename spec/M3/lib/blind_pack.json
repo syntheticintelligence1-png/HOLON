@@ -1,0 +1,92 @@
+{
+  "doc": "I82 prereg sidecar (= I46a; contract: rules K1-K9 and L1-L6 of the docstring of tests_m3/test_blind.py). It fixes BUILD_PLAN I46's protocol for tools/blind_pack.py before any bundle exists: what the sealed bundle contains (the pinned target code; HOLON tooling, i.e. extractors, rules, generators and gate, at a fixed commit; the whitepaper with section 2, section 11, Appendix A, Appendix B and every 'Morph instances' list removed), what it excludes, and the leak classes the pack scans the bundle for. The tool reads this file from the commit it packs, never from the working tree. Include roots are the tooling: holon/ (extractors in holon/frontends, rules in holon/rules, generators in holon/gen, the gate in holon/gate.py) with what they need to run: tools/ (toolchain installers and the frozen-file checker), config/, schemas/ and the CI toolchain scripts .github/ci/. Not tooling, so not packed: tests/ and tests_m*/ (acceptance tests and fixtures, which name case-study instances), audit/ (audit rounds over the case study), bend/ (probe notes), the repository's README.md, AGENTS.md, FROZEN.sha256 and .github/workflows/. exclude_prefixes is the protocol's list, applied to every path; exclude_basenames are the protocol's maps_to sidecars and spec/M1/policy_hints.mjs wherever such a file sits; exclude_paths are two tools that are case-study tooling, not extractors, rules, generators or gate. The leak classes are pattern matches, reported and never filtered: a match is not an adjudicated leak. law_names and witness numbers are data-driven from the packed commit (rule L2).",
+  "version": "holon-blind-pack/0.1",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "checkout": "config/holon.json extract.sources[repo] at the packed commit, unless --target is given"
+  },
+  "members": {
+    "target_prefix": "target/",
+    "tooling_prefix": "tooling/"
+  },
+  "include_roots": [
+    ".github/ci/",
+    "config/",
+    "holon/",
+    "schemas/",
+    "tools/"
+  ],
+  "include_files": [
+    ".gitattributes",
+    ".gitignore",
+    "requirements-dev.txt"
+  ],
+  "exclude_prefixes": [
+    "docs/",
+    "facts/",
+    "gen/",
+    "laws/",
+    "prompts/",
+    "replay/",
+    "results/",
+    "spec/"
+  ],
+  "exclude_basenames": [
+    "maps_to*.json",
+    "policy_hints.mjs"
+  ],
+  "exclude_paths": {
+    "tools/blind_pack.py": "this tool: its leak classes are case-study knowledge",
+    "tools/casestudy.py": "the case-study coverage tool (I4): it reads section 11 and Appendix A"
+  },
+  "whitepaper": {
+    "source": "whitepaper.md",
+    "member": "tooling/whitepaper.md",
+    "remove_sections": [
+      "## 2 ",
+      "## 11 ",
+      "## Appendix A.",
+      "## Appendix B."
+    ],
+    "remove_lists": [
+      "**Morph instances:**"
+    ]
+  },
+  "leaks": {
+    "scan_prefix": "tooling/",
+    "context_chars": 40,
+    "rule_context": "(?i)\\b(?:rules?|clauses?|steps?)\\b",
+    "classes": {
+      "section_ref": [
+        "§\\s?11(?:\\.\\d+)*",
+        "§\\s?2\\.\\d+",
+        "\\bAppendix [AB]\\b",
+        "\\bApp\\.\\s?[AB]\\b",
+        "(?i)\\bmorph instances\\b",
+        "(?i)\\bcase[- ]stud(?:y|ies)\\b",
+        "(?i)\\bmanual analysis\\b",
+        "(?i)\\bprior manual\\b"
+      ],
+      "case_id": [
+        "\\bO(?:[1-9]|[12][0-9]|3[0-7])\\b",
+        "\\bN[1-4]\\b",
+        "\\bF(?:1[0-4]|[1-9])(?:\\.[1-9]|[a-f](?:,[a-f])*)?\\b",
+        "\\bD[1-9]\\b"
+      ],
+      "code_site": [
+        "[\\w./-]+\\.(?:sol|go):\\d+(?:[-:]\\d+)?"
+      ]
+    },
+    "law_names": {
+      "from_law_dirs": [
+        "laws/M0/",
+        "laws/M1/"
+      ],
+      "from_section": "### 11.8"
+    },
+    "witness_numbers": {
+      "min_digits": 3
+    }
+  }
+}

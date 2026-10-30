@@ -1,0 +1,9977 @@
+{
+ "actions": [
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:84-95",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      100
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:84-95",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_feeVault"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_feeVault",
+     "seq": 2,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:84",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_rollup"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_rollup",
+     "seq": 3,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:84",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_messageQueue"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_messageQueue",
+     "seq": 4,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:84",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "L1CrossDomainMessenger",
+   "edges": [],
+   "effects": [
+    {
+     "family": "_owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:85"
+    },
+    {
+     "family": "_initialized",
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:90"
+    },
+    {
+     "family": "_initializing",
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:92"
+    },
+    {
+     "family": "_initializing",
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:96"
+    },
+    {
+     "family": "_paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:39"
+    },
+    {
+     "family": "_status",
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:45"
+    },
+    {
+     "family": "rollup",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:90"
+    },
+    {
+     "family": "messageQueue",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:91"
+    },
+    {
+     "family": "maxReplayTimes",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:93"
+    },
+    {
+     "family": "xDomainMessageSender",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:79"
+    },
+    {
+     "family": "counterpart",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:81"
+    },
+    {
+     "family": "feeVault",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:83"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "cond": 1,
+     "event": "OwnableUpgradeable.OwnershipTransferred",
+     "indexed": [
+      true,
+      true
+     ],
+     "seq": 13,
+     "signature": "OwnershipTransferred(address,address)",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:86",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+      "contracts/contracts/libraries/CrossDomainMessenger.sol:74",
+      "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:30",
+      "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:34"
+     ],
+     "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+     "topics": [
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ]
+    },
+    {
+     "anonymous": false,
+     "args": [
+      0,
+      3
+     ],
+     "cond": 1,
+     "event": "IL1CrossDomainMessenger.UpdateMaxReplayTimes",
+     "indexed": [
+      false,
+      false
+     ],
+     "seq": 26,
+     "signature": "UpdateMaxReplayTimes(uint256,uint256)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:94",
+     "stack": [],
+     "topic0": "0xd700562df02eb66951f6f5275df7ebd7c0ec58b3422915789b3b1877aab2e52b",
+     "topics": []
+    },
+    {
+     "anonymous": false,
+     "args": [
+      1
+     ],
+     "cond": [
+      "!",
+      [
+       "storage",
+       "_initializing"
+      ]
+     ],
+     "event": "Initializable.Initialized",
+     "indexed": [
+      false
+     ],
+     "seq": 28,
+     "signature": "Initialized(uint8)",
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:97",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:84"
+     ],
+     "topic0": "0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498",
+     "topics": []
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "496e697469616c697a61626c653a20636f6e747261637420697320616c726561647920696e697469616c697a6564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "&&",
+       [
+        "!",
+        [
+         "storage",
+         "_initializing"
+        ]
+       ],
+       [
+        "<",
+        [
+         "storage",
+         "_initialized"
+        ],
+        1
+       ]
+      ],
+      [
+       "&&",
+       [
+        "!",
+        [
+         ">",
+         [
+          "len",
+          [
+           "code",
+           [
+            "this"
+           ]
+          ]
+         ],
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "storage",
+         "_initialized"
+        ],
+        1
+       ]
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "496e697469616c697a61626c653a20636f6e747261637420697320616c726561647920696e697469616c697a6564"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "&&",
+         [
+          "!",
+          [
+           "storage",
+           "_initializing"
+          ]
+         ],
+         [
+          "<",
+          [
+           "storage",
+           "_initialized"
+          ],
+          1
+         ]
+        ],
+        [
+         "&&",
+         [
+          "!",
+          [
+           ">",
+           [
+            "len",
+            [
+             "code",
+             [
+              "this"
+             ]
+            ]
+           ],
+           0
+          ]
+         ],
+         [
+          "==",
+          [
+           "storage",
+           "_initialized"
+          ],
+          1
+         ]
+        ]
+       ],
+       "seq": 5,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:84"
+       ]
+      }
+     ],
+     "reason": "Initializable: contract is already initialized",
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:86-89"
+    },
+    {
+     "args": [],
+     "error": {
+      "name": "ICrossDomainMessenger.ErrZeroAddress",
+      "selector": "0xecc6fdf0",
+      "signature": "ErrZeroAddress()"
+     },
+     "expr": [
+      "!",
+      [
+       "||",
+       [
+        "||",
+        [
+         "==",
+         [
+          "param",
+          "_rollup"
+         ],
+         0
+        ],
+        [
+         "==",
+         [
+          "param",
+          "_messageQueue"
+         ],
+         0
+        ]
+       ],
+       [
+        "==",
+        [
+         "param",
+         "_feeVault"
+        ],
+        0
+       ]
+      ]
+     ],
+     "kind": "revert",
+     "reaches": [
+      {
+       "args": [],
+       "expr": [
+        "!",
+        [
+         "||",
+         [
+          "||",
+          [
+           "==",
+           [
+            "param",
+            "_rollup"
+           ],
+           0
+          ],
+          [
+           "==",
+           [
+            "param",
+            "_messageQueue"
+           ],
+           0
+          ]
+         ],
+         [
+          "==",
+          [
+           "param",
+           "_feeVault"
+          ],
+          0
+         ]
+        ]
+       ],
+       "seq": 8,
+       "stack": []
+      }
+     ],
+     "reason": "ErrZeroAddress",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:86"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "496e697469616c697a61626c653a20636f6e7472616374206973206e6f7420696e697469616c697a696e67"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": 1,
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "496e697469616c697a61626c653a20636f6e7472616374206973206e6f7420696e697469616c697a696e67"
+        ]
+       ],
+       "expr": 1,
+       "seq": 9,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:73"
+       ]
+      },
+      {
+       "args": [
+        [
+         "str",
+         "496e697469616c697a61626c653a20636f6e7472616374206973206e6f7420696e697469616c697a696e67"
+        ]
+       ],
+       "expr": 1,
+       "seq": 10,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:74",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:29"
+       ]
+      },
+      {
+       "args": [
+        [
+         "str",
+         "496e697469616c697a61626c653a20636f6e7472616374206973206e6f7420696e697469616c697a696e67"
+        ]
+       ],
+       "expr": 1,
+       "seq": 11,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:74",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:30",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:33"
+       ]
+      },
+      {
+       "args": [
+        [
+         "str",
+         "496e697469616c697a61626c653a20636f6e7472616374206973206e6f7420696e697469616c697a696e67"
+        ]
+       ],
+       "expr": 1,
+       "seq": 14,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:75",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:34"
+       ]
+      },
+      {
+       "args": [
+        [
+         "str",
+         "496e697469616c697a61626c653a20636f6e7472616374206973206e6f7420696e697469616c697a696e67"
+        ]
+       ],
+       "expr": 1,
+       "seq": 15,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:75",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:35",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:38"
+       ]
+      },
+      {
+       "args": [
+        [
+         "str",
+         "496e697469616c697a61626c653a20636f6e7472616374206973206e6f7420696e697469616c697a696e67"
+        ]
+       ],
+       "expr": 1,
+       "seq": 17,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:76",
+        "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:40"
+       ]
+      },
+      {
+       "args": [
+        [
+         "str",
+         "496e697469616c697a61626c653a20636f6e7472616374206973206e6f7420696e697469616c697a696e67"
+        ]
+       ],
+       "expr": 1,
+       "seq": 18,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:76",
+        "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:41",
+        "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:44"
+       ]
+      }
+     ],
+     "reason": "Initializable: contract is not initializing",
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "initializer"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "initialize",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "check",
+     3
+    ],
+    [
+     "check",
+     4
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:86-89",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:86",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133",
+     1
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133",
+     2
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133",
+     3
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133",
+     4
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133",
+     5
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:133",
+     6
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_feeVault",
+     "type": "address",
+     "width": 160
+    },
+    {
+     "location": "default",
+     "name": "_rollup",
+     "type": "address",
+     "width": 160
+    },
+    {
+     "location": "default",
+     "name": "_messageQueue",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {
+    "_initialized": 1,
+    "_owner": [
+     "caller"
+    ],
+    "_paused": 0,
+    "_status": 1,
+    "counterpart": 473846233978378680511350941857232385279071879175,
+    "feeVault": [
+     "?",
+     [
+      "!=",
+      [
+       "param",
+       "_feeVault"
+      ],
+      0
+     ],
+     [
+      "param",
+      "_feeVault"
+     ],
+     [
+      "storage",
+      "feeVault"
+     ]
+    ],
+    "maxReplayTimes": 3,
+    "messageQueue": [
+     "param",
+     "_messageQueue"
+    ],
+    "rollup": [
+     "param",
+     "_rollup"
+    ],
+    "xDomainMessageSender": 57005
+   },
+   "principal": null,
+   "returns": null,
+   "selector": "0xc0c53b8b",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:84-95",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "_initialized",
+     "path": [],
+     "seq": 6,
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:90",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:84"
+     ],
+     "value": 1
+    },
+    {
+     "cond": [
+      "!",
+      [
+       "storage",
+       "_initializing"
+      ]
+     ],
+     "family": "_initializing",
+     "path": [],
+     "seq": 7,
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:92",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:84"
+     ],
+     "value": 1
+    },
+    {
+     "cond": 1,
+     "family": "_owner",
+     "path": [],
+     "seq": 12,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:85",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+      "contracts/contracts/libraries/CrossDomainMessenger.sol:74",
+      "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:30",
+      "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:34"
+     ],
+     "value": [
+      "caller"
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "_paused",
+     "path": [],
+     "seq": 16,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:39",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+      "contracts/contracts/libraries/CrossDomainMessenger.sol:75",
+      "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:35"
+     ],
+     "value": 0
+    },
+    {
+     "cond": 1,
+     "family": "_status",
+     "path": [],
+     "seq": 19,
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:45",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:88",
+      "contracts/contracts/libraries/CrossDomainMessenger.sol:76",
+      "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:41"
+     ],
+     "value": 1
+    },
+    {
+     "cond": 1,
+     "family": "xDomainMessageSender",
+     "path": [],
+     "seq": 20,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:79",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:88"
+     ],
+     "value": 57005
+    },
+    {
+     "cond": 1,
+     "family": "counterpart",
+     "path": [],
+     "seq": 21,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:81",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:88"
+     ],
+     "value": 473846233978378680511350941857232385279071879175
+    },
+    {
+     "cond": [
+      "!=",
+      [
+       "param",
+       "_feeVault"
+      ],
+      0
+     ],
+     "family": "feeVault",
+     "path": [],
+     "seq": 22,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:83",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:88"
+     ],
+     "value": [
+      "param",
+      "_feeVault"
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "rollup",
+     "path": [],
+     "seq": 23,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:90",
+     "stack": [],
+     "value": [
+      "param",
+      "_rollup"
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "messageQueue",
+     "path": [],
+     "seq": 24,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:91",
+     "stack": [],
+     "value": [
+      "param",
+      "_messageQueue"
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "maxReplayTimes",
+     "path": [],
+     "seq": 25,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:93",
+     "stack": [],
+     "value": 3
+    },
+    {
+     "cond": [
+      "!",
+      [
+       "storage",
+       "_initializing"
+      ]
+     ],
+     "family": "_initializing",
+     "path": [],
+     "seq": 27,
+     "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:96",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:84"
+     ],
+     "value": 0
+    }
+   ]
+  },
+  {
+   "calls": [
+    {
+     "args": [],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.nextCrossDomainMessageIndex",
+      [
+       "storage",
+       "messageQueue"
+      ]
+     ],
+     "fn": "IL1MessageQueue.nextCrossDomainMessageIndex",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 1,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:320",
+     "stack": [],
+     "value": 0
+    }
+   ],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:319-321",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "L1CrossDomainMessenger",
+   "edges": [],
+   "effects": [],
+   "events": [],
+   "guards": [],
+   "loops": [],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "view",
+   "name": "messageNonce",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "call",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": [
+    "call",
+    "IL1MessageQueue.nextCrossDomainMessageIndex"
+   ],
+   "selector": "0xecc70428",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:319-321",
+   "writes": []
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:48-50",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "OwnableUpgradeable",
+   "edges": [],
+   "effects": [],
+   "events": [],
+   "guards": [],
+   "loops": [],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "view",
+   "name": "owner",
+   "order": [
+    [
+     "check",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": [
+    "storage",
+    "_owner"
+   ],
+   "selector": "0x8da5cb5b",
+   "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:48-50",
+   "writes": []
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:69-71",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "PausableUpgradeable",
+   "edges": [],
+   "effects": [],
+   "events": [],
+   "guards": [],
+   "loops": [],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "view",
+   "name": "paused",
+   "order": [
+    [
+     "check",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": [
+    "!=",
+    [
+     "storage",
+     "_paused"
+    ],
+    0
+   ],
+   "selector": "0x5c975abb",
+   "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:69-71",
+   "writes": []
+  },
+  {
+   "calls": [
+    {
+     "args": [
+      [
+       "param",
+       "_withdrawalRoot"
+      ]
+     ],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IRollup.withdrawalRoots",
+      [
+       "storage",
+       "rollup"
+      ],
+      [
+       "param",
+       "_withdrawalRoot"
+      ]
+     ],
+     "fn": "IRollup.withdrawalRoots",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "rollup"
+     ],
+     "seq": 10,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:147",
+     "stack": [],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "param",
+       "_message"
+      ]
+     ],
+     "commit": false,
+     "cond": 1,
+     "expr": 1,
+     "fn": "address.call",
+     "mutability": "payable",
+     "receiver": [
+      "param",
+      "_to"
+     ],
+     "seq": 18,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:161",
+     "stack": [],
+     "value": [
+      "param",
+      "_value"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:122-172",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      1220
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:122-172",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_from"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_from",
+     "seq": 2,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:123",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_to"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_to",
+     "seq": 3,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:124",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": [
+     {
+      "iters": 32,
+      "loop": "contracts/contracts/libraries/common/Verify.sol:14-17"
+     }
+    ]
+   },
+   "declared_in": "L1CrossDomainMessenger",
+   "edges": [
+    {
+     "fn": "keccak256",
+     "kind": "HASH",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:138"
+    },
+    {
+     "fn": "keccak256",
+     "kind": "HASH",
+     "src": "contracts/contracts/libraries/common/Verify.sol:15"
+    },
+    {
+     "fn": "keccak256",
+     "kind": "HASH",
+     "src": "contracts/contracts/libraries/common/Verify.sol:16"
+    }
+   ],
+   "effects": [
+    {
+     "family": "xDomainMessageSender",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:160"
+    },
+    {
+     "family": "xDomainMessageSender",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:163"
+    },
+    {
+     "family": "finalizedWithdrawals",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:167"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "keccak256",
+       [
+        "abi.encodeWithSignature",
+        [
+         "str",
+         "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+        ],
+        [
+         "param",
+         "_from"
+        ],
+        [
+         "param",
+         "_to"
+        ],
+        [
+         "param",
+         "_value"
+        ],
+        [
+         "param",
+         "_nonce"
+        ],
+        [
+         "param",
+         "_message"
+        ]
+       ]
+      ]
+     ],
+     "cond": [
+      "at",
+      0,
+      [
+       "call",
+       "address.call",
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_message"
+       ],
+       [
+        "value",
+        [
+         "param",
+         "_value"
+        ]
+       ]
+      ]
+     ],
+     "event": "ICrossDomainMessenger.RelayedMessage",
+     "indexed": [
+      true
+     ],
+     "seq": 21,
+     "signature": "RelayedMessage(bytes32)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:168",
+     "stack": [],
+     "topic0": "0x4641df4a962071e12719d8c8c8e5ac7fc4d97b927346a3d7a335b1f7517e133c",
+     "topics": [
+      [
+       "keccak256",
+       [
+        "abi.encodeWithSignature",
+        [
+         "str",
+         "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+        ],
+        [
+         "param",
+         "_from"
+        ],
+        [
+         "param",
+         "_to"
+        ],
+        [
+         "param",
+         "_value"
+        ],
+        [
+         "param",
+         "_nonce"
+        ],
+        [
+         "param",
+         "_message"
+        ]
+       ]
+      ]
+     ]
+    },
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "keccak256",
+       [
+        "abi.encodeWithSignature",
+        [
+         "str",
+         "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+        ],
+        [
+         "param",
+         "_from"
+        ],
+        [
+         "param",
+         "_to"
+        ],
+        [
+         "param",
+         "_value"
+        ],
+        [
+         "param",
+         "_nonce"
+        ],
+        [
+         "param",
+         "_message"
+        ]
+       ]
+      ]
+     ],
+     "cond": [
+      "!",
+      [
+       "at",
+       0,
+       [
+        "call",
+        "address.call",
+        [
+         "param",
+         "_to"
+        ],
+        [
+         "param",
+         "_message"
+        ],
+        [
+         "value",
+         [
+          "param",
+          "_value"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "event": "ICrossDomainMessenger.FailedRelayedMessage",
+     "indexed": [
+      true
+     ],
+     "seq": 22,
+     "signature": "FailedRelayedMessage(bytes32)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:170",
+     "stack": [],
+     "topic0": "0x99d0e048484baa1b1540b1367cb128acd7ab2946d1ed91ec10e3c85e4bf51b8f",
+     "topics": [
+      [
+       "keccak256",
+       [
+        "abi.encodeWithSignature",
+        [
+         "str",
+         "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+        ],
+        [
+         "param",
+         "_from"
+        ],
+        [
+         "param",
+         "_to"
+        ],
+        [
+         "param",
+         "_value"
+        ],
+        [
+         "param",
+         "_nonce"
+        ],
+        [
+         "param",
+         "_message"
+        ]
+       ]
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "5061757361626c653a20706175736564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!",
+      [
+       "storage",
+       "_paused"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "5061757361626c653a20706175736564"
+        ]
+       ],
+       "expr": [
+        "!",
+        [
+         "storage",
+         "_paused"
+        ]
+       ],
+       "seq": 4,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:130",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:50"
+       ]
+      }
+     ],
+     "reason": "Pausable: paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d65737361676520697320616c726561647920696e20657865637574696f6e"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "xDomainMessageSender"
+      ],
+      57005
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d65737361676520697320616c726561647920696e20657865637574696f6e"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "xDomainMessageSender"
+        ],
+        57005
+       ],
+       "seq": 5,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:130"
+       ]
+      }
+     ],
+     "reason": "Message is already in execution",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:64"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d657373656e6765723a20466f7262696420746f2063616c6c206d657373616765207175657565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "param",
+       "_to"
+      ],
+      [
+       "storage",
+       "messageQueue"
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d657373656e6765723a20466f7262696420746f2063616c6c206d657373616765207175657565"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "param",
+         "_to"
+        ],
+        [
+         "storage",
+         "messageQueue"
+        ]
+       ],
+       "seq": 6,
+       "stack": []
+      }
+     ],
+     "reason": "Messenger: Forbid to call message queue",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:132"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d657373656e6765723a20466f7262696420746f2063616c6c2073656c66"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "param",
+       "_to"
+      ],
+      [
+       "this"
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d657373656e6765723a20466f7262696420746f2063616c6c2073656c66"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "param",
+         "_to"
+        ],
+        [
+         "this"
+        ]
+       ],
+       "seq": 7,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:133"
+       ]
+      }
+     ],
+     "reason": "Messenger: Forbid to call self",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:152"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d657373656e6765723a20496e76616c6964206d6573736167652073656e646572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "param",
+       "_from"
+      ],
+      [
+       "storage",
+       "xDomainMessageSender"
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d657373656e6765723a20496e76616c6964206d6573736167652073656e646572"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "param",
+         "_from"
+        ],
+        [
+         "storage",
+         "xDomainMessageSender"
+        ]
+       ],
+       "seq": 8,
+       "stack": []
+      }
+     ],
+     "reason": "Messenger: Invalid message sender",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:136"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d657373656e6765723a207769746864726177616c2068617320616c7265616479206265656e2066696e616c697a6564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!",
+      [
+       "map",
+       [
+        "storage",
+        "finalizedWithdrawals"
+       ],
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "param",
+          "_nonce"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d657373656e6765723a207769746864726177616c2068617320616c7265616479206265656e2066696e616c697a6564"
+        ]
+       ],
+       "expr": [
+        "!",
+        [
+         "map",
+         [
+          "storage",
+          "finalizedWithdrawals"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_nonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ]
+       ],
+       "seq": 9,
+       "stack": []
+      }
+     ],
+     "reason": "Messenger: withdrawal has already been finalized",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:141"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d657373656e6765723a207769746864726177616c526f6f74206e6f742066696e616c697a6564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "call",
+      "IRollup.withdrawalRoots",
+      [
+       "param",
+       "_withdrawalRoot"
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d657373656e6765723a207769746864726177616c526f6f74206e6f742066696e616c697a6564"
+        ]
+       ],
+       "expr": [
+        "call",
+        "IRollup.withdrawalRoots",
+        [
+         "param",
+         "_withdrawalRoot"
+        ]
+       ],
+       "seq": 11,
+       "stack": []
+      }
+     ],
+     "reason": "Messenger: withdrawalRoot not finalized",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:148"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d657373656e6765723a20696e76616c6964207769746864726177616c20696e636c7573696f6e2070726f6f66"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "exit",
+       "contracts/contracts/libraries/common/Verify.sol:14-17",
+       "node"
+      ],
+      [
+       "param",
+       "_withdrawalRoot"
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d657373656e6765723a20696e76616c6964207769746864726177616c20696e636c7573696f6e2070726f6f66"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "exit",
+         "contracts/contracts/libraries/common/Verify.sol:14-17",
+         "node"
+        ],
+        [
+         "param",
+         "_withdrawalRoot"
+        ]
+       ],
+       "seq": 16,
+       "stack": []
+      }
+     ],
+     "reason": "Messenger: invalid withdrawal inclusion proof",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:154-157"
+    }
+   ],
+   "loops": [
+    {
+     "at_break": [],
+     "bound": 32,
+     "break": 0,
+     "carried": [
+      {
+       "entry": 0,
+       "name": "height",
+       "value": [
+        "iter",
+        "contracts/contracts/libraries/common/Verify.sol:14-17"
+       ]
+      },
+      {
+       "entry": [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "param",
+          "_nonce"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ],
+       "name": "node",
+       "value": [
+        "carried",
+        "contracts/contracts/libraries/common/Verify.sol:14-17",
+        "node"
+       ]
+      }
+     ],
+     "cond": 1,
+     "count": 32,
+     "exit": [
+      {
+       "name": "height",
+       "value": 32
+      },
+      {
+       "name": "node",
+       "value": [
+        "exit",
+        "contracts/contracts/libraries/common/Verify.sol:14-17",
+        "node"
+       ]
+      }
+     ],
+     "head": [
+      "<",
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Verify.sol:14-17"
+      ],
+      32
+     ],
+     "kind": "for",
+     "next": [
+      {
+       "name": "height",
+       "value": [
+        "+",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Verify.sol:14-17"
+        ],
+        1
+       ]
+      },
+      {
+       "name": "node",
+       "value": [
+        "?",
+        [
+         "==",
+         [
+          "&",
+          [
+           ">>",
+           [
+            "param",
+            "_nonce"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Verify.sol:14-17"
+           ]
+          ],
+          1
+         ],
+         1
+        ],
+        [
+         "keccak256",
+         [
+          "abi.encodePacked",
+          [
+           "index",
+           [
+            "param",
+            "_withdrawalProof"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Verify.sol:14-17"
+           ]
+          ],
+          [
+           "carried",
+           "contracts/contracts/libraries/common/Verify.sol:14-17",
+           "node"
+          ]
+         ]
+        ],
+        [
+         "keccak256",
+         [
+          "abi.encodePacked",
+          [
+           "carried",
+           "contracts/contracts/libraries/common/Verify.sol:14-17",
+           "node"
+          ],
+          [
+           "index",
+           [
+            "param",
+            "_withdrawalProof"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Verify.sol:14-17"
+           ]
+          ]
+         ]
+        ]
+       ]
+      }
+     ],
+     "regions": [],
+     "returns": [],
+     "seq": 12,
+     "src": "contracts/contracts/libraries/common/Verify.sol:14-17",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:155"
+     ],
+     "steps": [
+      13,
+      14,
+      15
+     ]
+    }
+   ],
+   "modifiers": [
+    "whenNotPaused",
+    "notInExecution"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "proveAndRelayMessage",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "check",
+     3
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/libraries/CrossDomainMessenger.sol:64",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:132",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/libraries/CrossDomainMessenger.sol:152",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:136",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:141",
+     0
+    ],
+    [
+     "call",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:148",
+     0
+    ],
+    [
+     "loop",
+     0
+    ],
+    [
+     "panic",
+     0
+    ],
+    [
+     "panic",
+     1
+    ],
+    [
+     "panic",
+     2
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:154-157",
+     0
+    ]
+   ],
+   "panics": [
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Verify.sol:14-17"
+      ],
+      32
+     ],
+     "code": 50,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "&&",
+        [
+         "<",
+         [
+          "iter",
+          "contracts/contracts/libraries/common/Verify.sol:14-17"
+         ],
+         32
+        ],
+        [
+         "==",
+         [
+          "&",
+          [
+           ">>",
+           [
+            "param",
+            "_nonce"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Verify.sol:14-17"
+           ]
+          ],
+          1
+         ],
+         1
+        ]
+       ]
+      ],
+      [
+       "<",
+       [
+        "iter",
+        "contracts/contracts/libraries/common/Verify.sol:14-17"
+       ],
+       32
+      ]
+     ],
+     "loop": 12,
+     "op": "index",
+     "seq": 13,
+     "src": "contracts/contracts/libraries/common/Verify.sol:15",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:155"
+     ]
+    },
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Verify.sol:14-17"
+      ],
+      32
+     ],
+     "code": 50,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "&&",
+        [
+         "<",
+         [
+          "iter",
+          "contracts/contracts/libraries/common/Verify.sol:14-17"
+         ],
+         32
+        ],
+        [
+         "!",
+         [
+          "==",
+          [
+           "&",
+           [
+            ">>",
+            [
+             "param",
+             "_nonce"
+            ],
+            [
+             "iter",
+             "contracts/contracts/libraries/common/Verify.sol:14-17"
+            ]
+           ],
+           1
+          ],
+          1
+         ]
+        ]
+       ]
+      ],
+      [
+       "<",
+       [
+        "iter",
+        "contracts/contracts/libraries/common/Verify.sol:14-17"
+       ],
+       32
+      ]
+     ],
+     "loop": 12,
+     "op": "index",
+     "seq": 14,
+     "src": "contracts/contracts/libraries/common/Verify.sol:16",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:155"
+     ]
+    },
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Verify.sol:14-17"
+      ],
+      1
+     ],
+     "code": 17,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "<",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Verify.sol:14-17"
+        ],
+        32
+       ]
+      ],
+      [
+       "fits",
+       256,
+       [
+        "+",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Verify.sol:14-17"
+        ],
+        1
+       ]
+      ]
+     ],
+     "loop": 12,
+     "op": "+",
+     "seq": 15,
+     "src": "contracts/contracts/libraries/common/Verify.sol:14",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:155"
+     ]
+    }
+   ],
+   "params": [
+    {
+     "location": "default",
+     "name": "_from",
+     "type": "address",
+     "width": 160
+    },
+    {
+     "location": "default",
+     "name": "_to",
+     "type": "address",
+     "width": 160
+    },
+    {
+     "location": "default",
+     "name": "_value",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "default",
+     "name": "_nonce",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "memory",
+     "name": "_message",
+     "type": "bytes",
+     "width": null
+    },
+    {
+     "location": "calldata",
+     "name": "_withdrawalProof",
+     "type": "bytes32[32]",
+     "width": null
+    },
+    {
+     "location": "default",
+     "name": "_withdrawalRoot",
+     "type": "bytes32",
+     "width": 256
+    }
+   ],
+   "payable": false,
+   "post": {
+    "finalizedWithdrawals": [
+     "?",
+     [
+      "at",
+      0,
+      [
+       "call",
+       "address.call",
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_message"
+       ],
+       [
+        "value",
+        [
+         "param",
+         "_value"
+        ]
+       ]
+      ]
+     ],
+     [
+      "store",
+      [
+       "storage",
+       "finalizedWithdrawals"
+      ],
+      [
+       [
+        "map",
+        [
+         "keccak256",
+         [
+          "abi.encodeWithSignature",
+          [
+           "str",
+           "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+          ],
+          [
+           "param",
+           "_from"
+          ],
+          [
+           "param",
+           "_to"
+          ],
+          [
+           "param",
+           "_value"
+          ],
+          [
+           "param",
+           "_nonce"
+          ],
+          [
+           "param",
+           "_message"
+          ]
+         ]
+        ]
+       ]
+      ],
+      1
+     ],
+     [
+      "storage",
+      "finalizedWithdrawals"
+     ]
+    ],
+    "xDomainMessageSender": 57005
+   },
+   "principal": null,
+   "returns": null,
+   "selector": "0x86fa4b73",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:122-172",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "xDomainMessageSender",
+     "path": [],
+     "seq": 17,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:160",
+     "stack": [],
+     "value": [
+      "param",
+      "_from"
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "xDomainMessageSender",
+     "path": [],
+     "seq": 19,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:163",
+     "stack": [],
+     "value": 57005
+    },
+    {
+     "cond": [
+      "at",
+      0,
+      [
+       "call",
+       "address.call",
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_message"
+       ],
+       [
+        "value",
+        [
+         "param",
+         "_value"
+        ]
+       ]
+      ]
+     ],
+     "family": "finalizedWithdrawals",
+     "path": [
+      [
+       "map",
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "param",
+          "_nonce"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "seq": 20,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:167",
+     "stack": [],
+     "value": 1
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "CrossDomainMessenger",
+   "edges": [],
+   "effects": [],
+   "events": [],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 0,
+       "stack": [
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:90",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "payable",
+   "name": "receive",
+   "order": [
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [],
+   "payable": true,
+   "post": {},
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": null,
+   "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:90",
+   "writes": []
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:66-68",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "OwnableUpgradeable",
+   "edges": [],
+   "effects": [
+    {
+     "family": "_owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:85"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "_owner"
+      ],
+      0
+     ],
+     "cond": 1,
+     "event": "OwnableUpgradeable.OwnershipTransferred",
+     "indexed": [
+      true,
+      true
+     ],
+     "seq": 3,
+     "signature": "OwnershipTransferred(address,address)",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:86",
+     "stack": [
+      "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:67"
+     ],
+     "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+     "topics": [
+      [
+       "storage",
+       "_owner"
+      ],
+      0
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 1,
+       "stack": [
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:66",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "renounceOwnership",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [],
+   "payable": false,
+   "post": {
+    "_owner": 0
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0x715018a6",
+   "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:66-68",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "_owner",
+     "path": [],
+     "seq": 2,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:85",
+     "stack": [
+      "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:67"
+     ],
+     "value": 0
+    }
+   ]
+  },
+  {
+   "calls": [
+    {
+     "args": [
+      [
+       "param",
+       "_from"
+      ],
+      [
+       "param",
+       "_newGasLimit"
+      ]
+     ],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.estimateCrossDomainMessageFee",
+      [
+       "storage",
+       "messageQueue"
+      ],
+      [
+       "param",
+       "_from"
+      ],
+      [
+       "param",
+       "_newGasLimit"
+      ]
+     ],
+     "fn": "IL1MessageQueue.estimateCrossDomainMessageFee",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 9,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:198",
+     "stack": [],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "str",
+       ""
+      ]
+     ],
+     "commit": false,
+     "cond": [
+      ">",
+      [
+       "call",
+       "IL1MessageQueue.estimateCrossDomainMessageFee",
+       [
+        "param",
+        "_from"
+       ],
+       [
+        "param",
+        "_newGasLimit"
+       ]
+      ],
+      0
+     ],
+     "expr": 1,
+     "fn": "address.call",
+     "mutability": "payable",
+     "receiver": [
+      "storage",
+      "feeVault"
+     ],
+     "seq": 11,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:203",
+     "stack": [],
+     "value": [
+      "call",
+      "IL1MessageQueue.estimateCrossDomainMessageFee",
+      [
+       "param",
+       "_from"
+      ],
+      [
+       "param",
+       "_newGasLimit"
+      ]
+     ]
+    },
+    {
+     "args": [],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.nextCrossDomainMessageIndex",
+      [
+       "storage",
+       "messageQueue"
+      ]
+     ],
+     "fn": "IL1MessageQueue.nextCrossDomainMessageIndex",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 13,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:208",
+     "stack": [],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "storage",
+       "counterpart"
+      ],
+      [
+       "param",
+       "_newGasLimit"
+      ],
+      [
+       "abi.encodeWithSignature",
+       [
+        "str",
+        "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+       ],
+       [
+        "param",
+        "_from"
+       ],
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_value"
+       ],
+       [
+        "param",
+        "_messageNonce"
+       ],
+       [
+        "param",
+        "_message"
+       ]
+      ]
+     ],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.appendCrossDomainMessage",
+      [
+       "storage",
+       "messageQueue"
+      ],
+      [
+       "storage",
+       "counterpart"
+      ],
+      [
+       "param",
+       "_newGasLimit"
+      ],
+      [
+       "abi.encodeWithSignature",
+       [
+        "str",
+        "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+       ],
+       [
+        "param",
+        "_from"
+       ],
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_value"
+       ],
+       [
+        "param",
+        "_messageNonce"
+       ],
+       [
+        "param",
+        "_message"
+       ]
+      ]
+     ],
+     "fn": "IL1MessageQueue.appendCrossDomainMessage",
+     "mutability": "nonpayable",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 14,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:209",
+     "stack": [],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "str",
+       ""
+      ]
+     ],
+     "commit": false,
+     "cond": [
+      ">",
+      [
+       "-",
+       [
+        "env",
+        "msg.value"
+       ],
+       [
+        "call",
+        "IL1MessageQueue.estimateCrossDomainMessageFee",
+        [
+         "param",
+         "_from"
+        ],
+        [
+         "param",
+         "_newGasLimit"
+        ]
+       ]
+      ],
+      0
+     ],
+     "expr": 1,
+     "fn": "address.call",
+     "mutability": "payable",
+     "receiver": [
+      "param",
+      "_refundAddress"
+     ],
+     "seq": 20,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:240",
+     "stack": [],
+     "value": [
+      "-",
+      [
+       "env",
+       "msg.value"
+      ],
+      [
+       "call",
+       "IL1MessageQueue.estimateCrossDomainMessageFee",
+       [
+        "param",
+        "_from"
+       ],
+       [
+        "param",
+        "_newGasLimit"
+       ]
+      ]
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      228
+     ],
+     "kind": "calldatasize",
+     "seq": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:175-244",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_from"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_from",
+     "seq": 1,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:176",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_to"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_to",
+     "seq": 2,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:177",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_newGasLimit"
+      ],
+      4294967296
+     ],
+     "kind": "abi",
+     "param": "_newGasLimit",
+     "seq": 3,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:181",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_refundAddress"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_refundAddress",
+     "seq": 4,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:182",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "L1CrossDomainMessenger",
+   "edges": [
+    {
+     "fn": "keccak256",
+     "kind": "HASH",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:191"
+    }
+   ],
+   "effects": [
+    {
+     "family": "prevReplayIndex",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:218"
+    },
+    {
+     "family": "prevReplayIndex",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:220"
+    },
+    {
+     "family": "replayStates",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:231"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "param",
+       "_messageNonce"
+      ],
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_to"
+      ],
+      [
+       "param",
+       "_value"
+      ],
+      [
+       "call",
+       "IL1MessageQueue.nextCrossDomainMessageIndex"
+      ],
+      [
+       "param",
+       "_newGasLimit"
+      ],
+      [
+       "param",
+       "_message"
+      ]
+     ],
+     "cond": 1,
+     "event": "IL1CrossDomainMessenger.ReplayMessage",
+     "indexed": [
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+     ],
+     "seq": 19,
+     "signature": "ReplayMessage(uint256,address,address,uint256,uint256,uint256,bytes)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:234",
+     "stack": [],
+     "topic0": "0xa3a1251805b1fc7915884575b42e1fb862e814f0f5c9d670d08bf84697053d61",
+     "topics": [
+      [
+       "param",
+       "_messageNonce"
+      ],
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_to"
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "5061757361626c653a20706175736564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!",
+      [
+       "storage",
+       "_paused"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "5061757361626c653a20706175736564"
+        ]
+       ],
+       "expr": [
+        "!",
+        [
+         "storage",
+         "_paused"
+        ]
+       ],
+       "seq": 5,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:183",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:50"
+       ]
+      }
+     ],
+     "reason": "Pausable: paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d65737361676520697320616c726561647920696e20657865637574696f6e"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "xDomainMessageSender"
+      ],
+      57005
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d65737361676520697320616c726561647920696e20657865637574696f6e"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "xDomainMessageSender"
+        ],
+        57005
+       ],
+       "seq": 6,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:183"
+       ]
+      }
+     ],
+     "reason": "Message is already in execution",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:64"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "50726f7669646564206d65737361676520686173206e6f74206265656e20656e717565756564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      ">",
+      [
+       "map",
+       [
+        "storage",
+        "messageSendTimestamp"
+       ],
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "param",
+          "_messageNonce"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "50726f7669646564206d65737361676520686173206e6f74206265656e20656e717565756564"
+        ]
+       ],
+       "expr": [
+        ">",
+        [
+         "map",
+         [
+          "storage",
+          "messageSendTimestamp"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        0
+       ],
+       "seq": 7,
+       "stack": []
+      }
+     ],
+     "reason": "Provided message has not been enqueued",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:193"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4d65737361676520616c72656164792064726f70706564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!",
+      [
+       "map",
+       [
+        "storage",
+        "__isL1MessageDropped"
+       ],
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "param",
+          "_messageNonce"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4d65737361676520616c72656164792064726f70706564"
+        ]
+       ],
+       "expr": [
+        "!",
+        [
+         "map",
+         [
+          "storage",
+          "__isL1MessageDropped"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ]
+       ],
+       "seq": 8,
+       "stack": []
+      }
+     ],
+     "reason": "Message already dropped",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:195"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "496e73756666696369656e74206d73672e76616c756520666f7220666565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.value"
+      ],
+      [
+       "call",
+       "IL1MessageQueue.estimateCrossDomainMessageFee",
+       [
+        "param",
+        "_from"
+       ],
+       [
+        "param",
+        "_newGasLimit"
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "496e73756666696369656e74206d73672e76616c756520666f7220666565"
+        ]
+       ],
+       "expr": [
+        ">=",
+        [
+         "env",
+         "msg.value"
+        ],
+        [
+         "call",
+         "IL1MessageQueue.estimateCrossDomainMessageFee",
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_newGasLimit"
+         ]
+        ]
+       ],
+       "seq": 10,
+       "stack": []
+      }
+     ],
+     "reason": "Insufficient msg.value for fee",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:201"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4661696c656420746f206465647563742074686520666565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        ">",
+        [
+         "call",
+         "IL1MessageQueue.estimateCrossDomainMessageFee",
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_newGasLimit"
+         ]
+        ],
+        0
+       ]
+      ],
+      [
+       "at",
+       0,
+       [
+        "call",
+        "address.call",
+        [
+         "storage",
+         "feeVault"
+        ],
+        [
+         "str",
+         ""
+        ],
+        [
+         "value",
+         [
+          "call",
+          "IL1MessageQueue.estimateCrossDomainMessageFee",
+          [
+           "param",
+           "_from"
+          ],
+          [
+           "param",
+           "_newGasLimit"
+          ]
+         ]
+        ]
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4661696c656420746f206465647563742074686520666565"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "!",
+         [
+          ">",
+          [
+           "call",
+           "IL1MessageQueue.estimateCrossDomainMessageFee",
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_newGasLimit"
+           ]
+          ],
+          0
+         ]
+        ],
+        [
+         "at",
+         0,
+         [
+          "call",
+          "address.call",
+          [
+           "storage",
+           "feeVault"
+          ],
+          [
+           "str",
+           ""
+          ],
+          [
+           "value",
+           [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+             "param",
+             "_from"
+            ],
+            [
+             "param",
+             "_newGasLimit"
+            ]
+           ]
+          ]
+         ]
+        ]
+       ],
+       "seq": 12,
+       "stack": []
+      }
+     ],
+     "reason": "Failed to deduct the fee",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:204"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "457863656564206d6178696d756d207265706c61792074696d6573"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "<",
+      [
+       "member",
+       [
+        "update",
+        [
+         "map",
+         [
+          "storage",
+          "replayStates"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "replayStates"
+          ],
+          [
+           "keccak256",
+           [
+            "abi.encodeWithSignature",
+            [
+             "str",
+             "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+             "param",
+             "_from"
+            ],
+            [
+             "param",
+             "_to"
+            ],
+            [
+             "param",
+             "_value"
+            ],
+            [
+             "param",
+             "_messageNonce"
+            ],
+            [
+             "param",
+             "_message"
+            ]
+           ]
+          ]
+         ],
+         "lastIndex"
+        ],
+        [
+         "trunc",
+         128,
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ]
+        ]
+       ],
+       "times"
+      ],
+      [
+       "storage",
+       "maxReplayTimes"
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "457863656564206d6178696d756d207265706c61792074696d6573"
+        ]
+       ],
+       "expr": [
+        "<",
+        [
+         "member",
+         [
+          "update",
+          [
+           "map",
+           [
+            "storage",
+            "replayStates"
+           ],
+           [
+            "keccak256",
+            [
+             "abi.encodeWithSignature",
+             [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+             ],
+             [
+              "param",
+              "_from"
+             ],
+             [
+              "param",
+              "_to"
+             ],
+             [
+              "param",
+              "_value"
+             ],
+             [
+              "param",
+              "_messageNonce"
+             ],
+             [
+              "param",
+              "_message"
+             ]
+            ]
+           ]
+          ],
+          [
+           "member",
+           [
+            "map",
+            [
+             "storage",
+             "replayStates"
+            ],
+            [
+             "keccak256",
+             [
+              "abi.encodeWithSignature",
+              [
+               "str",
+               "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+              ],
+              [
+               "param",
+               "_from"
+              ],
+              [
+               "param",
+               "_to"
+              ],
+              [
+               "param",
+               "_value"
+              ],
+              [
+               "param",
+               "_messageNonce"
+              ],
+              [
+               "param",
+               "_message"
+              ]
+             ]
+            ]
+           ],
+           "lastIndex"
+          ],
+          [
+           "trunc",
+           128,
+           [
+            "call",
+            "IL1MessageQueue.nextCrossDomainMessageIndex"
+           ]
+          ]
+         ],
+         "times"
+        ],
+        [
+         "storage",
+         "maxReplayTimes"
+        ]
+       ],
+       "seq": 17,
+       "stack": []
+      }
+     ],
+     "reason": "Exceed maximum replay times",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:226"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4661696c656420746f20726566756e642074686520666565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        ">",
+        [
+         "-",
+         [
+          "env",
+          "msg.value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.estimateCrossDomainMessageFee",
+          [
+           "param",
+           "_from"
+          ],
+          [
+           "param",
+           "_newGasLimit"
+          ]
+         ]
+        ],
+        0
+       ]
+      ],
+      [
+       "at",
+       0,
+       [
+        "call",
+        "address.call",
+        [
+         "param",
+         "_refundAddress"
+        ],
+        [
+         "str",
+         ""
+        ],
+        [
+         "value",
+         [
+          "-",
+          [
+           "env",
+           "msg.value"
+          ],
+          [
+           "call",
+           "IL1MessageQueue.estimateCrossDomainMessageFee",
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_newGasLimit"
+           ]
+          ]
+         ]
+        ]
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4661696c656420746f20726566756e642074686520666565"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "!",
+         [
+          ">",
+          [
+           "-",
+           [
+            "env",
+            "msg.value"
+           ],
+           [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+             "param",
+             "_from"
+            ],
+            [
+             "param",
+             "_newGasLimit"
+            ]
+           ]
+          ],
+          0
+         ]
+        ],
+        [
+         "at",
+         0,
+         [
+          "call",
+          "address.call",
+          [
+           "param",
+           "_refundAddress"
+          ],
+          [
+           "str",
+           ""
+          ],
+          [
+           "value",
+           [
+            "-",
+            [
+             "env",
+             "msg.value"
+            ],
+            [
+             "call",
+             "IL1MessageQueue.estimateCrossDomainMessageFee",
+             [
+              "param",
+              "_from"
+             ],
+             [
+              "param",
+              "_newGasLimit"
+             ]
+            ]
+           ]
+          ]
+         ]
+        ]
+       ],
+       "seq": 21,
+       "stack": []
+      }
+     ],
+     "reason": "Failed to refund the fee",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:241"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "whenNotPaused",
+    "notInExecution"
+   ],
+   "mstores": [],
+   "mutability": "payable",
+   "name": "replayMessage",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "check",
+     3
+    ],
+    [
+     "check",
+     4
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/libraries/CrossDomainMessenger.sol:64",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:193",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:195",
+     0
+    ],
+    [
+     "call",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:201",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:204",
+     0
+    ],
+    [
+     "call",
+     2
+    ],
+    [
+     "call",
+     3
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:226",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:241",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_from",
+     "type": "address",
+     "width": 160
+    },
+    {
+     "location": "default",
+     "name": "_to",
+     "type": "address",
+     "width": 160
+    },
+    {
+     "location": "default",
+     "name": "_value",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "default",
+     "name": "_messageNonce",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "memory",
+     "name": "_message",
+     "type": "bytes",
+     "width": null
+    },
+    {
+     "location": "default",
+     "name": "_newGasLimit",
+     "type": "uint32",
+     "width": 32
+    },
+    {
+     "location": "default",
+     "name": "_refundAddress",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": true,
+   "post": {
+    "prevReplayIndex": [
+     "?",
+     [
+      "==",
+      [
+       "member",
+       [
+        "map",
+        [
+         "storage",
+         "replayStates"
+        ],
+        [
+         "keccak256",
+         [
+          "abi.encodeWithSignature",
+          [
+           "str",
+           "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+          ],
+          [
+           "param",
+           "_from"
+          ],
+          [
+           "param",
+           "_to"
+          ],
+          [
+           "param",
+           "_value"
+          ],
+          [
+           "param",
+           "_messageNonce"
+          ],
+          [
+           "param",
+           "_message"
+          ]
+         ]
+        ]
+       ],
+       "lastIndex"
+      ],
+      0
+     ],
+     [
+      "store",
+      [
+       "storage",
+       "prevReplayIndex"
+      ],
+      [
+       [
+        "map",
+        [
+         "call",
+         "IL1MessageQueue.nextCrossDomainMessageIndex"
+        ]
+       ]
+      ],
+      [
+       "+",
+       [
+        "param",
+        "_messageNonce"
+       ],
+       1
+      ]
+     ],
+     [
+      "store",
+      [
+       "storage",
+       "prevReplayIndex"
+      ],
+      [
+       [
+        "map",
+        [
+         "call",
+         "IL1MessageQueue.nextCrossDomainMessageIndex"
+        ]
+       ]
+      ],
+      [
+       "trunc",
+       128,
+       [
+        "+",
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "replayStates"
+          ],
+          [
+           "keccak256",
+           [
+            "abi.encodeWithSignature",
+            [
+             "str",
+             "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+             "param",
+             "_from"
+            ],
+            [
+             "param",
+             "_to"
+            ],
+            [
+             "param",
+             "_value"
+            ],
+            [
+             "param",
+             "_messageNonce"
+            ],
+            [
+             "param",
+             "_message"
+            ]
+           ]
+          ]
+         ],
+         "lastIndex"
+        ],
+        1
+       ]
+      ]
+     ]
+    ],
+    "replayStates": [
+     "store",
+     [
+      "storage",
+      "replayStates"
+     ],
+     [
+      [
+       "map",
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "param",
+          "_messageNonce"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     [
+      "update",
+      [
+       "update",
+       [
+        "map",
+        [
+         "storage",
+         "replayStates"
+        ],
+        [
+         "keccak256",
+         [
+          "abi.encodeWithSignature",
+          [
+           "str",
+           "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+          ],
+          [
+           "param",
+           "_from"
+          ],
+          [
+           "param",
+           "_to"
+          ],
+          [
+           "param",
+           "_value"
+          ],
+          [
+           "param",
+           "_messageNonce"
+          ],
+          [
+           "param",
+           "_message"
+          ]
+         ]
+        ]
+       ],
+       [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "replayStates"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        "lastIndex"
+       ],
+       [
+        "trunc",
+        128,
+        [
+         "call",
+         "IL1MessageQueue.nextCrossDomainMessageIndex"
+        ]
+       ]
+      ],
+      [
+       "member",
+       [
+        "update",
+        [
+         "map",
+         [
+          "storage",
+          "replayStates"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "replayStates"
+          ],
+          [
+           "keccak256",
+           [
+            "abi.encodeWithSignature",
+            [
+             "str",
+             "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+             "param",
+             "_from"
+            ],
+            [
+             "param",
+             "_to"
+            ],
+            [
+             "param",
+             "_value"
+            ],
+            [
+             "param",
+             "_messageNonce"
+            ],
+            [
+             "param",
+             "_message"
+            ]
+           ]
+          ]
+         ],
+         "lastIndex"
+        ],
+        [
+         "trunc",
+         128,
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ]
+        ]
+       ],
+       "times"
+      ],
+      [
+       "trunc",
+       128,
+       [
+        "+",
+        [
+         "member",
+         [
+          "update",
+          [
+           "map",
+           [
+            "storage",
+            "replayStates"
+           ],
+           [
+            "keccak256",
+            [
+             "abi.encodeWithSignature",
+             [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+             ],
+             [
+              "param",
+              "_from"
+             ],
+             [
+              "param",
+              "_to"
+             ],
+             [
+              "param",
+              "_value"
+             ],
+             [
+              "param",
+              "_messageNonce"
+             ],
+             [
+              "param",
+              "_message"
+             ]
+            ]
+           ]
+          ],
+          [
+           "member",
+           [
+            "map",
+            [
+             "storage",
+             "replayStates"
+            ],
+            [
+             "keccak256",
+             [
+              "abi.encodeWithSignature",
+              [
+               "str",
+               "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+              ],
+              [
+               "param",
+               "_from"
+              ],
+              [
+               "param",
+               "_to"
+              ],
+              [
+               "param",
+               "_value"
+              ],
+              [
+               "param",
+               "_messageNonce"
+              ],
+              [
+               "param",
+               "_message"
+              ]
+             ]
+            ]
+           ],
+           "lastIndex"
+          ],
+          [
+           "trunc",
+           128,
+           [
+            "call",
+            "IL1MessageQueue.nextCrossDomainMessageIndex"
+           ]
+          ]
+         ],
+         "times"
+        ],
+        1
+       ]
+      ]
+     ]
+    ]
+   },
+   "principal": null,
+   "returns": null,
+   "selector": "0x55004105",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:175-244",
+   "writes": [
+    {
+     "cond": [
+      "==",
+      [
+       "member",
+       [
+        "map",
+        [
+         "storage",
+         "replayStates"
+        ],
+        [
+         "keccak256",
+         [
+          "abi.encodeWithSignature",
+          [
+           "str",
+           "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+          ],
+          [
+           "param",
+           "_from"
+          ],
+          [
+           "param",
+           "_to"
+          ],
+          [
+           "param",
+           "_value"
+          ],
+          [
+           "param",
+           "_messageNonce"
+          ],
+          [
+           "param",
+           "_message"
+          ]
+         ]
+        ]
+       ],
+       "lastIndex"
+      ],
+      0
+     ],
+     "family": "prevReplayIndex",
+     "path": [
+      [
+       "map",
+       [
+        "call",
+        "IL1MessageQueue.nextCrossDomainMessageIndex"
+       ]
+      ]
+     ],
+     "seq": 15,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:218",
+     "stack": [],
+     "value": [
+      "+",
+      [
+       "param",
+       "_messageNonce"
+      ],
+      1
+     ]
+    },
+    {
+     "cond": [
+      "!",
+      [
+       "==",
+       [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "replayStates"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        "lastIndex"
+       ],
+       0
+      ]
+     ],
+     "family": "prevReplayIndex",
+     "path": [
+      [
+       "map",
+       [
+        "call",
+        "IL1MessageQueue.nextCrossDomainMessageIndex"
+       ]
+      ]
+     ],
+     "seq": 16,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:220",
+     "stack": [],
+     "value": [
+      "trunc",
+      128,
+      [
+       "+",
+       [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "replayStates"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        "lastIndex"
+       ],
+       1
+      ]
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "replayStates",
+     "path": [
+      [
+       "map",
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "param",
+          "_messageNonce"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "seq": 18,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:231",
+     "stack": [],
+     "value": [
+      "update",
+      [
+       "update",
+       [
+        "map",
+        [
+         "storage",
+         "replayStates"
+        ],
+        [
+         "keccak256",
+         [
+          "abi.encodeWithSignature",
+          [
+           "str",
+           "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+          ],
+          [
+           "param",
+           "_from"
+          ],
+          [
+           "param",
+           "_to"
+          ],
+          [
+           "param",
+           "_value"
+          ],
+          [
+           "param",
+           "_messageNonce"
+          ],
+          [
+           "param",
+           "_message"
+          ]
+         ]
+        ]
+       ],
+       [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "replayStates"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        "lastIndex"
+       ],
+       [
+        "trunc",
+        128,
+        [
+         "call",
+         "IL1MessageQueue.nextCrossDomainMessageIndex"
+        ]
+       ]
+      ],
+      [
+       "member",
+       [
+        "update",
+        [
+         "map",
+         [
+          "storage",
+          "replayStates"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "param",
+            "_from"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "param",
+            "_messageNonce"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "replayStates"
+          ],
+          [
+           "keccak256",
+           [
+            "abi.encodeWithSignature",
+            [
+             "str",
+             "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+             "param",
+             "_from"
+            ],
+            [
+             "param",
+             "_to"
+            ],
+            [
+             "param",
+             "_value"
+            ],
+            [
+             "param",
+             "_messageNonce"
+            ],
+            [
+             "param",
+             "_message"
+            ]
+           ]
+          ]
+         ],
+         "lastIndex"
+        ],
+        [
+         "trunc",
+         128,
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ]
+        ]
+       ],
+       "times"
+      ],
+      [
+       "trunc",
+       128,
+       [
+        "+",
+        [
+         "member",
+         [
+          "update",
+          [
+           "map",
+           [
+            "storage",
+            "replayStates"
+           ],
+           [
+            "keccak256",
+            [
+             "abi.encodeWithSignature",
+             [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+             ],
+             [
+              "param",
+              "_from"
+             ],
+             [
+              "param",
+              "_to"
+             ],
+             [
+              "param",
+              "_value"
+             ],
+             [
+              "param",
+              "_messageNonce"
+             ],
+             [
+              "param",
+              "_message"
+             ]
+            ]
+           ]
+          ],
+          [
+           "member",
+           [
+            "map",
+            [
+             "storage",
+             "replayStates"
+            ],
+            [
+             "keccak256",
+             [
+              "abi.encodeWithSignature",
+              [
+               "str",
+               "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+              ],
+              [
+               "param",
+               "_from"
+              ],
+              [
+               "param",
+               "_to"
+              ],
+              [
+               "param",
+               "_value"
+              ],
+              [
+               "param",
+               "_messageNonce"
+              ],
+              [
+               "param",
+               "_message"
+              ]
+             ]
+            ]
+           ],
+           "lastIndex"
+          ],
+          [
+           "trunc",
+           128,
+           [
+            "call",
+            "IL1MessageQueue.nextCrossDomainMessageIndex"
+           ]
+          ]
+         ],
+         "times"
+        ],
+        1
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [
+    {
+     "args": [],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.nextCrossDomainMessageIndex",
+      [
+       "storage",
+       "messageQueue"
+      ]
+     ],
+     "fn": "IL1MessageQueue.nextCrossDomainMessageIndex",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 5,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:286",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+     ],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ]
+     ],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.estimateCrossDomainMessageFee",
+      [
+       "storage",
+       "messageQueue"
+      ],
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ]
+     ],
+     "fn": "IL1MessageQueue.estimateCrossDomainMessageFee",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 6,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:290",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+     ],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "str",
+       ""
+      ]
+     ],
+     "commit": false,
+     "cond": [
+      ">",
+      [
+       "call",
+       "IL1MessageQueue.estimateCrossDomainMessageFee",
+       [
+        "caller"
+       ],
+       [
+        "param",
+        "_gasLimit"
+       ]
+      ],
+      0
+     ],
+     "expr": 1,
+     "fn": "address.call",
+     "mutability": "payable",
+     "receiver": [
+      "storage",
+      "feeVault"
+     ],
+     "seq": 9,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+     ],
+     "value": [
+      "call",
+      "IL1MessageQueue.estimateCrossDomainMessageFee",
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ]
+     ]
+    },
+    {
+     "args": [
+      [
+       "storage",
+       "counterpart"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ],
+      [
+       "abi.encodeWithSignature",
+       [
+        "str",
+        "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+       ],
+       [
+        "caller"
+       ],
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_value"
+       ],
+       [
+        "call",
+        "IL1MessageQueue.nextCrossDomainMessageIndex"
+       ],
+       [
+        "param",
+        "_message"
+       ]
+      ]
+     ],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.appendCrossDomainMessage",
+      [
+       "storage",
+       "messageQueue"
+      ],
+      [
+       "storage",
+       "counterpart"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ],
+      [
+       "abi.encodeWithSignature",
+       [
+        "str",
+        "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+       ],
+       [
+        "caller"
+       ],
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_value"
+       ],
+       [
+        "call",
+        "IL1MessageQueue.nextCrossDomainMessageIndex"
+       ],
+       [
+        "param",
+        "_message"
+       ]
+      ]
+     ],
+     "fn": "IL1MessageQueue.appendCrossDomainMessage",
+     "mutability": "nonpayable",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 11,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:298",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+     ],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "str",
+       ""
+      ]
+     ],
+     "commit": false,
+     "cond": [
+      ">",
+      [
+       "-",
+       [
+        "-",
+        [
+         "env",
+         "msg.value"
+        ],
+        [
+         "call",
+         "IL1MessageQueue.estimateCrossDomainMessageFee",
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_gasLimit"
+         ]
+        ]
+       ],
+       [
+        "param",
+        "_value"
+       ]
+      ],
+      0
+     ],
+     "expr": 1,
+     "fn": "address.call",
+     "mutability": "payable",
+     "receiver": [
+      "caller"
+     ],
+     "seq": 15,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+     ],
+     "value": [
+      "-",
+      [
+       "-",
+       [
+        "env",
+        "msg.value"
+       ],
+       [
+        "call",
+        "IL1MessageQueue.estimateCrossDomainMessageFee",
+        [
+         "caller"
+        ],
+        [
+         "param",
+         "_gasLimit"
+        ]
+       ]
+      ],
+      [
+       "param",
+       "_value"
+      ]
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      132
+     ],
+     "kind": "calldatasize",
+     "seq": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:102-109",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_to"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_to",
+     "seq": 1,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:103",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "L1CrossDomainMessenger",
+   "edges": [
+    {
+     "fn": "keccak256",
+     "kind": "HASH",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:301"
+    }
+   ],
+   "effects": [
+    {
+     "family": "_status",
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:66"
+    },
+    {
+     "family": "_status",
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:72"
+    },
+    {
+     "family": "messageSendTimestamp",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:305"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_to"
+      ],
+      [
+       "param",
+       "_value"
+      ],
+      [
+       "call",
+       "IL1MessageQueue.nextCrossDomainMessageIndex"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ],
+      [
+       "param",
+       "_message"
+      ]
+     ],
+     "cond": 1,
+     "event": "ICrossDomainMessenger.SentMessage",
+     "indexed": [
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+     ],
+     "seq": 14,
+     "signature": "SentMessage(address,address,uint256,uint256,uint256,bytes)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:307",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+     ],
+     "topic0": "0x104371f3b442861a2a7b82a070afbbaab748bb13757bf47769e170e37809ec1e",
+     "topics": [
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_to"
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "5061757361626c653a20706175736564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!",
+      [
+       "storage",
+       "_paused"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "5061757361626c653a20706175736564"
+        ]
+       ],
+       "expr": [
+        "!",
+        [
+         "storage",
+         "_paused"
+        ]
+       ],
+       "seq": 2,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:107",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:50"
+       ]
+      }
+     ],
+     "reason": "Pausable: paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "5265656e7472616e637947756172643a207265656e7472616e742063616c6c"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "storage",
+       "_status"
+      ],
+      2
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "5265656e7472616e637947756172643a207265656e7472616e742063616c6c"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "storage",
+         "_status"
+        ],
+        2
+       ],
+       "seq": 3,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:108",
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:281",
+        "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:56"
+       ]
+      }
+     ],
+     "reason": "ReentrancyGuard: reentrant call",
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:63"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "496e73756666696369656e74206d73672e76616c7565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.value"
+      ],
+      [
+       "+",
+       [
+        "call",
+        "IL1MessageQueue.estimateCrossDomainMessageFee",
+        [
+         "caller"
+        ],
+        [
+         "param",
+         "_gasLimit"
+        ]
+       ],
+       [
+        "param",
+        "_value"
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "496e73756666696369656e74206d73672e76616c7565"
+        ]
+       ],
+       "expr": [
+        ">=",
+        [
+         "env",
+         "msg.value"
+        ],
+        [
+         "+",
+         [
+          "call",
+          "IL1MessageQueue.estimateCrossDomainMessageFee",
+          [
+           "caller"
+          ],
+          [
+           "param",
+           "_gasLimit"
+          ]
+         ],
+         [
+          "param",
+          "_value"
+         ]
+        ]
+       ],
+       "seq": 8,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+       ]
+      }
+     ],
+     "reason": "Insufficient msg.value",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:291"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4661696c656420746f206465647563742074686520666565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        ">",
+        [
+         "call",
+         "IL1MessageQueue.estimateCrossDomainMessageFee",
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_gasLimit"
+         ]
+        ],
+        0
+       ]
+      ],
+      [
+       "at",
+       0,
+       [
+        "call",
+        "address.call",
+        [
+         "storage",
+         "feeVault"
+        ],
+        [
+         "str",
+         ""
+        ],
+        [
+         "value",
+         [
+          "call",
+          "IL1MessageQueue.estimateCrossDomainMessageFee",
+          [
+           "caller"
+          ],
+          [
+           "param",
+           "_gasLimit"
+          ]
+         ]
+        ]
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4661696c656420746f206465647563742074686520666565"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "!",
+         [
+          ">",
+          [
+           "call",
+           "IL1MessageQueue.estimateCrossDomainMessageFee",
+           [
+            "caller"
+           ],
+           [
+            "param",
+            "_gasLimit"
+           ]
+          ],
+          0
+         ]
+        ],
+        [
+         "at",
+         0,
+         [
+          "call",
+          "address.call",
+          [
+           "storage",
+           "feeVault"
+          ],
+          [
+           "str",
+           ""
+          ],
+          [
+           "value",
+           [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+             "caller"
+            ],
+            [
+             "param",
+             "_gasLimit"
+            ]
+           ]
+          ]
+         ]
+        ]
+       ],
+       "seq": 10,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+       ]
+      }
+     ],
+     "reason": "Failed to deduct the fee",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:294"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4475706c696361746564206d657373616765"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "map",
+       [
+        "storage",
+        "messageSendTimestamp"
+       ],
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4475706c696361746564206d657373616765"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "map",
+         [
+          "storage",
+          "messageSendTimestamp"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "caller"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "call",
+            "IL1MessageQueue.nextCrossDomainMessageIndex"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        0
+       ],
+       "seq": 12,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+       ]
+      }
+     ],
+     "reason": "Duplicated message",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:304"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4661696c656420746f20726566756e642074686520666565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        ">",
+        [
+         "-",
+         [
+          "-",
+          [
+           "env",
+           "msg.value"
+          ],
+          [
+           "call",
+           "IL1MessageQueue.estimateCrossDomainMessageFee",
+           [
+            "caller"
+           ],
+           [
+            "param",
+            "_gasLimit"
+           ]
+          ]
+         ],
+         [
+          "param",
+          "_value"
+         ]
+        ],
+        0
+       ]
+      ],
+      [
+       "at",
+       0,
+       [
+        "call",
+        "address.call",
+        [
+         "caller"
+        ],
+        [
+         "str",
+         ""
+        ],
+        [
+         "value",
+         [
+          "-",
+          [
+           "-",
+           [
+            "env",
+            "msg.value"
+           ],
+           [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+             "caller"
+            ],
+            [
+             "param",
+             "_gasLimit"
+            ]
+           ]
+          ],
+          [
+           "param",
+           "_value"
+          ]
+         ]
+        ]
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4661696c656420746f20726566756e642074686520666565"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "!",
+         [
+          ">",
+          [
+           "-",
+           [
+            "-",
+            [
+             "env",
+             "msg.value"
+            ],
+            [
+             "call",
+             "IL1MessageQueue.estimateCrossDomainMessageFee",
+             [
+              "caller"
+             ],
+             [
+              "param",
+              "_gasLimit"
+             ]
+            ]
+           ],
+           [
+            "param",
+            "_value"
+           ]
+          ],
+          0
+         ]
+        ],
+        [
+         "at",
+         0,
+         [
+          "call",
+          "address.call",
+          [
+           "caller"
+          ],
+          [
+           "str",
+           ""
+          ],
+          [
+           "value",
+           [
+            "-",
+            [
+             "-",
+             [
+              "env",
+              "msg.value"
+             ],
+             [
+              "call",
+              "IL1MessageQueue.estimateCrossDomainMessageFee",
+              [
+               "caller"
+              ],
+              [
+               "param",
+               "_gasLimit"
+              ]
+             ]
+            ],
+            [
+             "param",
+             "_value"
+            ]
+           ]
+          ]
+         ]
+        ]
+       ],
+       "seq": 16,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+       ]
+      }
+     ],
+     "reason": "Failed to refund the fee",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:314"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "whenNotPaused"
+   ],
+   "mstores": [],
+   "mutability": "payable",
+   "name": "sendMessage_b2267a7b",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:63",
+     0
+    ],
+    [
+     "call",
+     0
+    ],
+    [
+     "call",
+     1
+    ],
+    [
+     "panic",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:291",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:294",
+     0
+    ],
+    [
+     "call",
+     3
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:304",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:314",
+     0
+    ]
+   ],
+   "panics": [
+    {
+     "args": [
+      [
+       "call",
+       "IL1MessageQueue.estimateCrossDomainMessageFee",
+       [
+        "caller"
+       ],
+       [
+        "param",
+        "_gasLimit"
+       ]
+      ],
+      [
+       "param",
+       "_value"
+      ]
+     ],
+     "code": 17,
+     "expr": [
+      "fits",
+      256,
+      [
+       "+",
+       [
+        "call",
+        "IL1MessageQueue.estimateCrossDomainMessageFee",
+        [
+         "caller"
+        ],
+        [
+         "param",
+         "_gasLimit"
+        ]
+       ],
+       [
+        "param",
+        "_value"
+       ]
+      ]
+     ],
+     "op": "+",
+     "seq": 7,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:291",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+     ]
+    }
+   ],
+   "params": [
+    {
+     "location": "default",
+     "name": "_to",
+     "type": "address",
+     "width": 160
+    },
+    {
+     "location": "default",
+     "name": "_value",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "memory",
+     "name": "_message",
+     "type": "bytes",
+     "width": null
+    },
+    {
+     "location": "default",
+     "name": "_gasLimit",
+     "type": "uint256",
+     "width": 256
+    }
+   ],
+   "payable": true,
+   "post": {
+    "_status": 1,
+    "messageSendTimestamp": [
+     "store",
+     [
+      "storage",
+      "messageSendTimestamp"
+     ],
+     [
+      [
+       "map",
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     [
+      "env",
+      "block.timestamp"
+     ]
+    ]
+   },
+   "principal": null,
+   "returns": null,
+   "selector": "0xb2267a7b",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:102-109",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "_status",
+     "path": [],
+     "seq": 4,
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:66",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108",
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:281",
+      "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:56"
+     ],
+     "value": 2
+    },
+    {
+     "cond": 1,
+     "family": "messageSendTimestamp",
+     "path": [
+      [
+       "map",
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "seq": 13,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:305",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108"
+     ],
+     "value": [
+      "env",
+      "block.timestamp"
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "_status",
+     "path": [],
+     "seq": 17,
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:72",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:108",
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:281",
+      "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:58"
+     ],
+     "value": 1
+    }
+   ]
+  },
+  {
+   "calls": [
+    {
+     "args": [],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.nextCrossDomainMessageIndex",
+      [
+       "storage",
+       "messageQueue"
+      ]
+     ],
+     "fn": "IL1MessageQueue.nextCrossDomainMessageIndex",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 6,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:286",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+     ],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ]
+     ],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.estimateCrossDomainMessageFee",
+      [
+       "storage",
+       "messageQueue"
+      ],
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ]
+     ],
+     "fn": "IL1MessageQueue.estimateCrossDomainMessageFee",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 7,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:290",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+     ],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "str",
+       ""
+      ]
+     ],
+     "commit": false,
+     "cond": [
+      ">",
+      [
+       "call",
+       "IL1MessageQueue.estimateCrossDomainMessageFee",
+       [
+        "caller"
+       ],
+       [
+        "param",
+        "_gasLimit"
+       ]
+      ],
+      0
+     ],
+     "expr": 1,
+     "fn": "address.call",
+     "mutability": "payable",
+     "receiver": [
+      "storage",
+      "feeVault"
+     ],
+     "seq": 10,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+     ],
+     "value": [
+      "call",
+      "IL1MessageQueue.estimateCrossDomainMessageFee",
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ]
+     ]
+    },
+    {
+     "args": [
+      [
+       "storage",
+       "counterpart"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ],
+      [
+       "abi.encodeWithSignature",
+       [
+        "str",
+        "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+       ],
+       [
+        "caller"
+       ],
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_value"
+       ],
+       [
+        "call",
+        "IL1MessageQueue.nextCrossDomainMessageIndex"
+       ],
+       [
+        "param",
+        "_message"
+       ]
+      ]
+     ],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IL1MessageQueue.appendCrossDomainMessage",
+      [
+       "storage",
+       "messageQueue"
+      ],
+      [
+       "storage",
+       "counterpart"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ],
+      [
+       "abi.encodeWithSignature",
+       [
+        "str",
+        "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+       ],
+       [
+        "caller"
+       ],
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_value"
+       ],
+       [
+        "call",
+        "IL1MessageQueue.nextCrossDomainMessageIndex"
+       ],
+       [
+        "param",
+        "_message"
+       ]
+      ]
+     ],
+     "fn": "IL1MessageQueue.appendCrossDomainMessage",
+     "mutability": "nonpayable",
+     "receiver": [
+      "storage",
+      "messageQueue"
+     ],
+     "seq": 12,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:298",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+     ],
+     "value": 0
+    },
+    {
+     "args": [
+      [
+       "str",
+       ""
+      ]
+     ],
+     "commit": false,
+     "cond": [
+      ">",
+      [
+       "-",
+       [
+        "-",
+        [
+         "env",
+         "msg.value"
+        ],
+        [
+         "call",
+         "IL1MessageQueue.estimateCrossDomainMessageFee",
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_gasLimit"
+         ]
+        ]
+       ],
+       [
+        "param",
+        "_value"
+       ]
+      ],
+      0
+     ],
+     "expr": 1,
+     "fn": "address.call",
+     "mutability": "payable",
+     "receiver": [
+      "param",
+      "_refundAddress"
+     ],
+     "seq": 16,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+     ],
+     "value": [
+      "-",
+      [
+       "-",
+       [
+        "env",
+        "msg.value"
+       ],
+       [
+        "call",
+        "IL1MessageQueue.estimateCrossDomainMessageFee",
+        [
+         "caller"
+        ],
+        [
+         "param",
+         "_gasLimit"
+        ]
+       ]
+      ],
+      [
+       "param",
+       "_value"
+      ]
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      164
+     ],
+     "kind": "calldatasize",
+     "seq": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:112-120",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_to"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_to",
+     "seq": 1,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:113",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_refundAddress"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_refundAddress",
+     "seq": 2,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:117",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "L1CrossDomainMessenger",
+   "edges": [
+    {
+     "fn": "keccak256",
+     "kind": "HASH",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:301"
+    }
+   ],
+   "effects": [
+    {
+     "family": "_status",
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:66"
+    },
+    {
+     "family": "_status",
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:72"
+    },
+    {
+     "family": "messageSendTimestamp",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:305"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_to"
+      ],
+      [
+       "param",
+       "_value"
+      ],
+      [
+       "call",
+       "IL1MessageQueue.nextCrossDomainMessageIndex"
+      ],
+      [
+       "param",
+       "_gasLimit"
+      ],
+      [
+       "param",
+       "_message"
+      ]
+     ],
+     "cond": 1,
+     "event": "ICrossDomainMessenger.SentMessage",
+     "indexed": [
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+     ],
+     "seq": 15,
+     "signature": "SentMessage(address,address,uint256,uint256,uint256,bytes)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:307",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+     ],
+     "topic0": "0x104371f3b442861a2a7b82a070afbbaab748bb13757bf47769e170e37809ec1e",
+     "topics": [
+      [
+       "caller"
+      ],
+      [
+       "param",
+       "_to"
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "5061757361626c653a20706175736564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!",
+      [
+       "storage",
+       "_paused"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "5061757361626c653a20706175736564"
+        ]
+       ],
+       "expr": [
+        "!",
+        [
+         "storage",
+         "_paused"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:118",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:50"
+       ]
+      }
+     ],
+     "reason": "Pausable: paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "5265656e7472616e637947756172643a207265656e7472616e742063616c6c"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "storage",
+       "_status"
+      ],
+      2
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "5265656e7472616e637947756172643a207265656e7472616e742063616c6c"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "storage",
+         "_status"
+        ],
+        2
+       ],
+       "seq": 4,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:119",
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:281",
+        "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:56"
+       ]
+      }
+     ],
+     "reason": "ReentrancyGuard: reentrant call",
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:63"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "496e73756666696369656e74206d73672e76616c7565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.value"
+      ],
+      [
+       "+",
+       [
+        "call",
+        "IL1MessageQueue.estimateCrossDomainMessageFee",
+        [
+         "caller"
+        ],
+        [
+         "param",
+         "_gasLimit"
+        ]
+       ],
+       [
+        "param",
+        "_value"
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "496e73756666696369656e74206d73672e76616c7565"
+        ]
+       ],
+       "expr": [
+        ">=",
+        [
+         "env",
+         "msg.value"
+        ],
+        [
+         "+",
+         [
+          "call",
+          "IL1MessageQueue.estimateCrossDomainMessageFee",
+          [
+           "caller"
+          ],
+          [
+           "param",
+           "_gasLimit"
+          ]
+         ],
+         [
+          "param",
+          "_value"
+         ]
+        ]
+       ],
+       "seq": 9,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+       ]
+      }
+     ],
+     "reason": "Insufficient msg.value",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:291"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4661696c656420746f206465647563742074686520666565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        ">",
+        [
+         "call",
+         "IL1MessageQueue.estimateCrossDomainMessageFee",
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_gasLimit"
+         ]
+        ],
+        0
+       ]
+      ],
+      [
+       "at",
+       0,
+       [
+        "call",
+        "address.call",
+        [
+         "storage",
+         "feeVault"
+        ],
+        [
+         "str",
+         ""
+        ],
+        [
+         "value",
+         [
+          "call",
+          "IL1MessageQueue.estimateCrossDomainMessageFee",
+          [
+           "caller"
+          ],
+          [
+           "param",
+           "_gasLimit"
+          ]
+         ]
+        ]
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4661696c656420746f206465647563742074686520666565"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "!",
+         [
+          ">",
+          [
+           "call",
+           "IL1MessageQueue.estimateCrossDomainMessageFee",
+           [
+            "caller"
+           ],
+           [
+            "param",
+            "_gasLimit"
+           ]
+          ],
+          0
+         ]
+        ],
+        [
+         "at",
+         0,
+         [
+          "call",
+          "address.call",
+          [
+           "storage",
+           "feeVault"
+          ],
+          [
+           "str",
+           ""
+          ],
+          [
+           "value",
+           [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+             "caller"
+            ],
+            [
+             "param",
+             "_gasLimit"
+            ]
+           ]
+          ]
+         ]
+        ]
+       ],
+       "seq": 11,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+       ]
+      }
+     ],
+     "reason": "Failed to deduct the fee",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:294"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4475706c696361746564206d657373616765"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "map",
+       [
+        "storage",
+        "messageSendTimestamp"
+       ],
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4475706c696361746564206d657373616765"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "map",
+         [
+          "storage",
+          "messageSendTimestamp"
+         ],
+         [
+          "keccak256",
+          [
+           "abi.encodeWithSignature",
+           [
+            "str",
+            "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+           ],
+           [
+            "caller"
+           ],
+           [
+            "param",
+            "_to"
+           ],
+           [
+            "param",
+            "_value"
+           ],
+           [
+            "call",
+            "IL1MessageQueue.nextCrossDomainMessageIndex"
+           ],
+           [
+            "param",
+            "_message"
+           ]
+          ]
+         ]
+        ],
+        0
+       ],
+       "seq": 13,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+       ]
+      }
+     ],
+     "reason": "Duplicated message",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:304"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4661696c656420746f20726566756e642074686520666565"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        ">",
+        [
+         "-",
+         [
+          "-",
+          [
+           "env",
+           "msg.value"
+          ],
+          [
+           "call",
+           "IL1MessageQueue.estimateCrossDomainMessageFee",
+           [
+            "caller"
+           ],
+           [
+            "param",
+            "_gasLimit"
+           ]
+          ]
+         ],
+         [
+          "param",
+          "_value"
+         ]
+        ],
+        0
+       ]
+      ],
+      [
+       "at",
+       0,
+       [
+        "call",
+        "address.call",
+        [
+         "param",
+         "_refundAddress"
+        ],
+        [
+         "str",
+         ""
+        ],
+        [
+         "value",
+         [
+          "-",
+          [
+           "-",
+           [
+            "env",
+            "msg.value"
+           ],
+           [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+             "caller"
+            ],
+            [
+             "param",
+             "_gasLimit"
+            ]
+           ]
+          ],
+          [
+           "param",
+           "_value"
+          ]
+         ]
+        ]
+       ]
+      ]
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4661696c656420746f20726566756e642074686520666565"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "!",
+         [
+          ">",
+          [
+           "-",
+           [
+            "-",
+            [
+             "env",
+             "msg.value"
+            ],
+            [
+             "call",
+             "IL1MessageQueue.estimateCrossDomainMessageFee",
+             [
+              "caller"
+             ],
+             [
+              "param",
+              "_gasLimit"
+             ]
+            ]
+           ],
+           [
+            "param",
+            "_value"
+           ]
+          ],
+          0
+         ]
+        ],
+        [
+         "at",
+         0,
+         [
+          "call",
+          "address.call",
+          [
+           "param",
+           "_refundAddress"
+          ],
+          [
+           "str",
+           ""
+          ],
+          [
+           "value",
+           [
+            "-",
+            [
+             "-",
+             [
+              "env",
+              "msg.value"
+             ],
+             [
+              "call",
+              "IL1MessageQueue.estimateCrossDomainMessageFee",
+              [
+               "caller"
+              ],
+              [
+               "param",
+               "_gasLimit"
+              ]
+             ]
+            ],
+            [
+             "param",
+             "_value"
+            ]
+           ]
+          ]
+         ]
+        ]
+       ],
+       "seq": 17,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+       ]
+      }
+     ],
+     "reason": "Failed to refund the fee",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:314"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "whenNotPaused"
+   ],
+   "mstores": [],
+   "mutability": "payable",
+   "name": "sendMessage_5f7b1577",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:63",
+     0
+    ],
+    [
+     "call",
+     0
+    ],
+    [
+     "call",
+     1
+    ],
+    [
+     "panic",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:291",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:294",
+     0
+    ],
+    [
+     "call",
+     3
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:304",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:314",
+     0
+    ]
+   ],
+   "panics": [
+    {
+     "args": [
+      [
+       "call",
+       "IL1MessageQueue.estimateCrossDomainMessageFee",
+       [
+        "caller"
+       ],
+       [
+        "param",
+        "_gasLimit"
+       ]
+      ],
+      [
+       "param",
+       "_value"
+      ]
+     ],
+     "code": 17,
+     "expr": [
+      "fits",
+      256,
+      [
+       "+",
+       [
+        "call",
+        "IL1MessageQueue.estimateCrossDomainMessageFee",
+        [
+         "caller"
+        ],
+        [
+         "param",
+         "_gasLimit"
+        ]
+       ],
+       [
+        "param",
+        "_value"
+       ]
+      ]
+     ],
+     "op": "+",
+     "seq": 8,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:291",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+     ]
+    }
+   ],
+   "params": [
+    {
+     "location": "default",
+     "name": "_to",
+     "type": "address",
+     "width": 160
+    },
+    {
+     "location": "default",
+     "name": "_value",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "calldata",
+     "name": "_message",
+     "type": "bytes",
+     "width": null
+    },
+    {
+     "location": "default",
+     "name": "_gasLimit",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "default",
+     "name": "_refundAddress",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": true,
+   "post": {
+    "_status": 1,
+    "messageSendTimestamp": [
+     "store",
+     [
+      "storage",
+      "messageSendTimestamp"
+     ],
+     [
+      [
+       "map",
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     [
+      "env",
+      "block.timestamp"
+     ]
+    ]
+   },
+   "principal": null,
+   "returns": null,
+   "selector": "0x5f7b1577",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:112-120",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "_status",
+     "path": [],
+     "seq": 5,
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:66",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119",
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:281",
+      "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:56"
+     ],
+     "value": 2
+    },
+    {
+     "cond": 1,
+     "family": "messageSendTimestamp",
+     "path": [
+      [
+       "map",
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "seq": 14,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:305",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119"
+     ],
+     "value": [
+      "env",
+      "block.timestamp"
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "_status",
+     "path": [],
+     "seq": 18,
+     "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:72",
+     "stack": [
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:119",
+      "contracts/contracts/l1/L1CrossDomainMessenger.sol:281",
+      "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:58"
+     ],
+     "value": 1
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:110-116",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:110-116",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_status"
+      ],
+      2
+     ],
+     "kind": "abi",
+     "param": "_status",
+     "seq": 2,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:110",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "CrossDomainMessenger",
+   "edges": [],
+   "effects": [
+    {
+     "family": "_paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:107"
+    },
+    {
+     "family": "_paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:95"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "caller"
+      ]
+     ],
+     "cond": [
+      "param",
+      "_status"
+     ],
+     "event": "PausableUpgradeable.Paused",
+     "indexed": [
+      false
+     ],
+     "seq": 6,
+     "signature": "Paused(address)",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:96",
+     "stack": [
+      "contracts/contracts/libraries/CrossDomainMessenger.sol:112"
+     ],
+     "topic0": "0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258",
+     "topics": []
+    },
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "caller"
+      ]
+     ],
+     "cond": [
+      "!",
+      [
+       "param",
+       "_status"
+      ]
+     ],
+     "event": "PausableUpgradeable.Unpaused",
+     "indexed": [
+      false
+     ],
+     "seq": 9,
+     "signature": "Unpaused(address)",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:108",
+     "stack": [
+      "contracts/contracts/libraries/CrossDomainMessenger.sol:114"
+     ],
+     "topic0": "0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa",
+     "topics": []
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:110",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "5061757361626c653a20706175736564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "param",
+        "_status"
+       ]
+      ],
+      [
+       "!",
+       [
+        "storage",
+        "_paused"
+       ]
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "5061757361626c653a20706175736564"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "!",
+         [
+          "param",
+          "_status"
+         ]
+        ],
+        [
+         "!",
+         [
+          "storage",
+          "_paused"
+         ]
+        ]
+       ],
+       "seq": 4,
+       "stack": [
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:112",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:94",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:50"
+       ]
+      }
+     ],
+     "reason": "Pausable: paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "5061757361626c653a206e6f7420706175736564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "||",
+      [
+       "param",
+       "_status"
+      ],
+      [
+       "storage",
+       "_paused"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "5061757361626c653a206e6f7420706175736564"
+        ]
+       ],
+       "expr": [
+        "||",
+        [
+         "param",
+         "_status"
+        ],
+        [
+         "storage",
+         "_paused"
+        ]
+       ],
+       "seq": 7,
+       "stack": [
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:114",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:106",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:62"
+       ]
+      }
+     ],
+     "reason": "Pausable: not paused",
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "setPause",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:84",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_status",
+     "type": "bool",
+     "width": 8
+    }
+   ],
+   "payable": false,
+   "post": {
+    "_paused": [
+     "param",
+     "_status"
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0xbedb86fb",
+   "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:110-116",
+   "writes": [
+    {
+     "cond": [
+      "param",
+      "_status"
+     ],
+     "family": "_paused",
+     "path": [],
+     "seq": 5,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:95",
+     "stack": [
+      "contracts/contracts/libraries/CrossDomainMessenger.sol:112"
+     ],
+     "value": 1
+    },
+    {
+     "cond": [
+      "!",
+      [
+       "param",
+       "_status"
+      ]
+     ],
+     "family": "_paused",
+     "path": [],
+     "seq": 8,
+     "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:107",
+     "stack": [
+      "contracts/contracts/libraries/CrossDomainMessenger.sol:114"
+     ],
+     "value": 0
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "newOwner"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "newOwner",
+     "seq": 2,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "OwnableUpgradeable",
+   "edges": [],
+   "effects": [
+    {
+     "family": "_owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:85"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "param",
+       "newOwner"
+      ]
+     ],
+     "cond": 1,
+     "event": "OwnableUpgradeable.OwnershipTransferred",
+     "indexed": [
+      true,
+      true
+     ],
+     "seq": 6,
+     "signature": "OwnershipTransferred(address,address)",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:86",
+     "stack": [
+      "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:76"
+     ],
+     "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+     "topics": [
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "param",
+       "newOwner"
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a206e6577206f776e657220697320746865207a65726f2061646472657373"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "param",
+       "newOwner"
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a206e6577206f776e657220697320746865207a65726f2061646472657373"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "param",
+         "newOwner"
+        ],
+        0
+       ],
+       "seq": 4,
+       "stack": []
+      }
+     ],
+     "reason": "Ownable: new owner is the zero address",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:75"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "transferOwnership",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:75",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "newOwner",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {
+    "_owner": [
+     "param",
+     "newOwner"
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0xf2fde38b",
+   "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "_owner",
+     "path": [],
+     "seq": 5,
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:85",
+     "stack": [
+      "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:76"
+     ],
+     "value": [
+      "param",
+      "newOwner"
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:99-105",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:99-105",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_newFeeVault"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_newFeeVault",
+     "seq": 2,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:99",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "CrossDomainMessenger",
+   "edges": [],
+   "effects": [
+    {
+     "family": "feeVault",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:103"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "feeVault"
+      ],
+      [
+       "param",
+       "_newFeeVault"
+      ]
+     ],
+     "cond": 1,
+     "event": "CrossDomainMessenger.UpdateFeeVault",
+     "indexed": [
+      true,
+      true
+     ],
+     "seq": 6,
+     "signature": "UpdateFeeVault(address,address)",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:104",
+     "stack": [],
+     "topic0": "0x4aadc32827849f797733838c61302f7f56d2b6db28caa175eb3f7f8e5aba25f5",
+     "topics": [
+      [
+       "storage",
+       "feeVault"
+      ],
+      [
+       "param",
+       "_newFeeVault"
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "contracts/contracts/libraries/CrossDomainMessenger.sol:99",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "6665655661756c742063616e6e6f742062652061646472657373283029"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "param",
+       "_newFeeVault"
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "6665655661756c742063616e6e6f742062652061646472657373283029"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "param",
+         "_newFeeVault"
+        ],
+        0
+       ],
+       "seq": 4,
+       "stack": []
+      }
+     ],
+     "reason": "feeVault cannot be address(0)",
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:100"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "updateFeeVault",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/libraries/CrossDomainMessenger.sol:100",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_newFeeVault",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {
+    "feeVault": [
+     "param",
+     "_newFeeVault"
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0x2a6cccb2",
+   "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:99-105",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "feeVault",
+     "path": [],
+     "seq": 5,
+     "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:103",
+     "stack": [],
+     "value": [
+      "param",
+      "_newFeeVault"
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:263-269",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:263-269",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "L1CrossDomainMessenger",
+   "edges": [],
+   "effects": [
+    {
+     "family": "maxReplayTimes",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:266"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "maxReplayTimes"
+      ],
+      [
+       "param",
+       "_newMaxReplayTimes"
+      ]
+     ],
+     "cond": 1,
+     "event": "IL1CrossDomainMessenger.UpdateMaxReplayTimes",
+     "indexed": [
+      false,
+      false
+     ],
+     "seq": 5,
+     "signature": "UpdateMaxReplayTimes(uint256,uint256)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:268",
+     "stack": [],
+     "topic0": "0xd700562df02eb66951f6f5275df7ebd7c0ec58b3422915789b3b1877aab2e52b",
+     "topics": []
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 2,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:263",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "7265706c61792074696d6573206d7573742062652067726561746572207468616e2030"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      ">",
+      [
+       "param",
+       "_newMaxReplayTimes"
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "7265706c61792074696d6573206d7573742062652067726561746572207468616e2030"
+        ]
+       ],
+       "expr": [
+        ">",
+        [
+         "param",
+         "_newMaxReplayTimes"
+        ],
+        0
+       ],
+       "seq": 3,
+       "stack": []
+      }
+     ],
+     "reason": "replay times must be greater than 0",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:264"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "updateMaxReplayTimes",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:264",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_newMaxReplayTimes",
+     "type": "uint256",
+     "width": 256
+    }
+   ],
+   "payable": false,
+   "post": {
+    "maxReplayTimes": [
+     "param",
+     "_newMaxReplayTimes"
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0x407c1955",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:263-269",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "maxReplayTimes",
+     "path": [],
+     "seq": 4,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:266",
+     "stack": [],
+     "value": [
+      "param",
+      "_newMaxReplayTimes"
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:252-258",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:252-258",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_newRollup"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_newRollup",
+     "seq": 2,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:252",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "L1CrossDomainMessenger",
+   "edges": [],
+   "effects": [
+    {
+     "family": "rollup",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:255"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "rollup"
+      ],
+      [
+       "param",
+       "_newRollup"
+      ]
+     ],
+     "cond": 1,
+     "event": "IL1CrossDomainMessenger.UpdateRollup",
+     "indexed": [
+      false,
+      false
+     ],
+     "seq": 6,
+     "signature": "UpdateRollup(address,address)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:257",
+     "stack": [],
+     "topic0": "0x5272c8ad4bd643b1130291ea29bebd9b3bc583057a6e4d047eb7077039a95630",
+     "topics": []
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "contracts/contracts/l1/L1CrossDomainMessenger.sol:252",
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:41"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "726f6c6c757020616464726573732063616e6e6f742062652061646472657373283029"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "param",
+       "_newRollup"
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "726f6c6c757020616464726573732063616e6e6f742062652061646472657373283029"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "param",
+         "_newRollup"
+        ],
+        0
+       ],
+       "seq": 4,
+       "stack": []
+      }
+     ],
+     "reason": "rollup address cannot be address(0)",
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:253"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "updateRollup",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/L1CrossDomainMessenger.sol:253",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_newRollup",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {
+    "rollup": [
+     "param",
+     "_newRollup"
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0xd87e7df1",
+   "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:252-258",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "rollup",
+     "path": [],
+     "seq": 5,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:255",
+     "stack": [],
+     "value": [
+      "param",
+      "_newRollup"
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/libraries/common/Verify.sol:6-20",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      1124
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/libraries/common/Verify.sol:6-20",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": [
+     {
+      "iters": 32,
+      "loop": "contracts/contracts/libraries/common/Verify.sol:14-17"
+     }
+    ]
+   },
+   "declared_in": "Verify",
+   "edges": [
+    {
+     "fn": "keccak256",
+     "kind": "HASH",
+     "src": "contracts/contracts/libraries/common/Verify.sol:15"
+    },
+    {
+     "fn": "keccak256",
+     "kind": "HASH",
+     "src": "contracts/contracts/libraries/common/Verify.sol:16"
+    }
+   ],
+   "effects": [],
+   "events": [],
+   "guards": [],
+   "loops": [
+    {
+     "at_break": [],
+     "bound": 32,
+     "break": 0,
+     "carried": [
+      {
+       "entry": 0,
+       "name": "height",
+       "value": [
+        "iter",
+        "contracts/contracts/libraries/common/Verify.sol:14-17"
+       ]
+      },
+      {
+       "entry": [
+        "param",
+        "leafHash"
+       ],
+       "name": "node",
+       "value": [
+        "carried",
+        "contracts/contracts/libraries/common/Verify.sol:14-17",
+        "node"
+       ]
+      }
+     ],
+     "cond": 1,
+     "count": 32,
+     "exit": [
+      {
+       "name": "height",
+       "value": 32
+      },
+      {
+       "name": "node",
+       "value": [
+        "exit",
+        "contracts/contracts/libraries/common/Verify.sol:14-17",
+        "node"
+       ]
+      }
+     ],
+     "head": [
+      "<",
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Verify.sol:14-17"
+      ],
+      32
+     ],
+     "kind": "for",
+     "next": [
+      {
+       "name": "height",
+       "value": [
+        "+",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Verify.sol:14-17"
+        ],
+        1
+       ]
+      },
+      {
+       "name": "node",
+       "value": [
+        "?",
+        [
+         "==",
+         [
+          "&",
+          [
+           ">>",
+           [
+            "param",
+            "index"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Verify.sol:14-17"
+           ]
+          ],
+          1
+         ],
+         1
+        ],
+        [
+         "keccak256",
+         [
+          "abi.encodePacked",
+          [
+           "index",
+           [
+            "param",
+            "smtProof"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Verify.sol:14-17"
+           ]
+          ],
+          [
+           "carried",
+           "contracts/contracts/libraries/common/Verify.sol:14-17",
+           "node"
+          ]
+         ]
+        ],
+        [
+         "keccak256",
+         [
+          "abi.encodePacked",
+          [
+           "carried",
+           "contracts/contracts/libraries/common/Verify.sol:14-17",
+           "node"
+          ],
+          [
+           "index",
+           [
+            "param",
+            "smtProof"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Verify.sol:14-17"
+           ]
+          ]
+         ]
+        ]
+       ]
+      }
+     ],
+     "regions": [],
+     "returns": [],
+     "seq": 2,
+     "src": "contracts/contracts/libraries/common/Verify.sol:14-17",
+     "stack": [],
+     "steps": [
+      3,
+      4,
+      5
+     ]
+    }
+   ],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "pure",
+   "name": "verifyMerkleProof",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "loop",
+     0
+    ],
+    [
+     "panic",
+     0
+    ],
+    [
+     "panic",
+     1
+    ],
+    [
+     "panic",
+     2
+    ]
+   ],
+   "panics": [
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Verify.sol:14-17"
+      ],
+      32
+     ],
+     "code": 50,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "&&",
+        [
+         "<",
+         [
+          "iter",
+          "contracts/contracts/libraries/common/Verify.sol:14-17"
+         ],
+         32
+        ],
+        [
+         "==",
+         [
+          "&",
+          [
+           ">>",
+           [
+            "param",
+            "index"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Verify.sol:14-17"
+           ]
+          ],
+          1
+         ],
+         1
+        ]
+       ]
+      ],
+      [
+       "<",
+       [
+        "iter",
+        "contracts/contracts/libraries/common/Verify.sol:14-17"
+       ],
+       32
+      ]
+     ],
+     "loop": 2,
+     "op": "index",
+     "seq": 3,
+     "src": "contracts/contracts/libraries/common/Verify.sol:15",
+     "stack": []
+    },
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Verify.sol:14-17"
+      ],
+      32
+     ],
+     "code": 50,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "&&",
+        [
+         "<",
+         [
+          "iter",
+          "contracts/contracts/libraries/common/Verify.sol:14-17"
+         ],
+         32
+        ],
+        [
+         "!",
+         [
+          "==",
+          [
+           "&",
+           [
+            ">>",
+            [
+             "param",
+             "index"
+            ],
+            [
+             "iter",
+             "contracts/contracts/libraries/common/Verify.sol:14-17"
+            ]
+           ],
+           1
+          ],
+          1
+         ]
+        ]
+       ]
+      ],
+      [
+       "<",
+       [
+        "iter",
+        "contracts/contracts/libraries/common/Verify.sol:14-17"
+       ],
+       32
+      ]
+     ],
+     "loop": 2,
+     "op": "index",
+     "seq": 4,
+     "src": "contracts/contracts/libraries/common/Verify.sol:16",
+     "stack": []
+    },
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Verify.sol:14-17"
+      ],
+      1
+     ],
+     "code": 17,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "<",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Verify.sol:14-17"
+        ],
+        32
+       ]
+      ],
+      [
+       "fits",
+       256,
+       [
+        "+",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Verify.sol:14-17"
+        ],
+        1
+       ]
+      ]
+     ],
+     "loop": 2,
+     "op": "+",
+     "seq": 5,
+     "src": "contracts/contracts/libraries/common/Verify.sol:14",
+     "stack": []
+    }
+   ],
+   "params": [
+    {
+     "location": "default",
+     "name": "leafHash",
+     "type": "bytes32",
+     "width": 256
+    },
+    {
+     "location": "calldata",
+     "name": "smtProof",
+     "type": "bytes32[32]",
+     "width": null
+    },
+    {
+     "location": "default",
+     "name": "index",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "default",
+     "name": "root",
+     "type": "bytes32",
+     "width": 256
+    }
+   ],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": [
+    "==",
+    [
+     "exit",
+     "contracts/contracts/libraries/common/Verify.sol:14-17",
+     "node"
+    ],
+    [
+     "param",
+     "root"
+    ]
+   ],
+   "selector": "0x340735f7",
+   "src": "contracts/contracts/libraries/common/Verify.sol:6-20",
+   "writes": []
+  }
+ ],
+ "assumptions": [
+  {
+   "id": "A-env",
+   "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+  },
+  {
+   "id": "A-implicit",
+   "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+  },
+  {
+   "id": "A-loop",
+   "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+  },
+  {
+   "id": "A-reach",
+   "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+  },
+  {
+   "id": "A-reentrancy",
+   "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+  }
+ ],
+ "constants": {},
+ "contract": "L1CrossDomainMessenger",
+ "extraction": {
+  "frontend": "solidity",
+  "frontend_version": "holon-frontend-solidity/0.3",
+  "inputs": [
+   {
+    "sha256": "1fbf2a131b895514f0027866cc0deff151ea16424b4aed2b8c573d2275cfa9e8",
+    "unit": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol"
+   },
+   {
+    "sha256": "a2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+    "unit": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol"
+   },
+   {
+    "sha256": "c05b019a0b3bee8f3fac2da7c929f7d665b97d6d046aa35126615fff11205119",
+    "unit": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol"
+   },
+   {
+    "sha256": "26219dd6b9b574cf3e225ee00466bdf1b74fbcc1b24bd93ae3628c812a76333e",
+    "unit": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol"
+   },
+   {
+    "sha256": "db92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+    "unit": "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol"
+   },
+   {
+    "sha256": "5fb301961e45cb482fe4e05646d2f529aa449fe0e90c6671475d6a32356fa2d4",
+    "unit": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol"
+   },
+   {
+    "sha256": "436198049db21dc2566bc770dd213603311b105340f701d51cf281ebdeb856c3",
+    "unit": "contracts/contracts/l1/IL1CrossDomainMessenger.sol"
+   },
+   {
+    "sha256": "fc51f587a87886e2d57f855b857722754a33162d6fa6b402947563a341808177",
+    "unit": "contracts/contracts/l1/L1CrossDomainMessenger.sol"
+   },
+   {
+    "sha256": "59245b916ed1e966c5bf2fd25a76e42b7c38d144cce9967b6ef28e42d9496c1a",
+    "unit": "contracts/contracts/l1/rollup/IL1MessageQueue.sol"
+   },
+   {
+    "sha256": "24e4861d9a369b0e8fec7471d8150474a54de907709d4287e63457d9bf5ff327",
+    "unit": "contracts/contracts/l1/rollup/IRollup.sol"
+   },
+   {
+    "sha256": "ef2bd56d656392f7b6d4cc4be135c3c86183c4b267bb1592573ac8bb11829454",
+    "unit": "contracts/contracts/libraries/CrossDomainMessenger.sol"
+   },
+   {
+    "sha256": "f3daee0b979130801758dbeed44a33ce134aeca765c05b7671dcc3b0c66b8c04",
+    "unit": "contracts/contracts/libraries/ICrossDomainMessenger.sol"
+   },
+   {
+    "sha256": "79b0c2e7ffc82d1e99d1ed323d31c1ec90bb6d6f0f85a44553178ef0e6906704",
+    "unit": "contracts/contracts/libraries/callbacks/IMessageDropCallback.sol"
+   },
+   {
+    "sha256": "1e4ba0adfc535c017271765b516e8345d1aa71c370dbdfba71a0f7568665b9c2",
+    "unit": "contracts/contracts/libraries/common/Verify.sol"
+   },
+   {
+    "sha256": "c980393d90a24c070763acb77cfd0874175b185d55219069245d4227abe96b66",
+    "unit": "contracts/contracts/libraries/constants/Constants.sol"
+   },
+   {
+    "sha256": "01ecb3ef71d13449c1c977ace2e92c7c71f58f50ed6bdbebd54b7d1d39f189a2",
+    "unit": "contracts/contracts/libraries/constants/Predeploys.sol"
+   }
+  ],
+  "kind": "transitions",
+  "method": "extracted",
+  "settings": {
+   "evmVersion": "cancun",
+   "optimizer": {
+    "enabled": false
+   },
+   "outputSelection": {
+    "*": {
+     "": [
+      "ast"
+     ],
+     "*": [
+      "storageLayout"
+     ]
+    }
+   }
+  },
+  "sidecar": {
+   "path": "gen/M3/bundle/sidecars/messenger.json",
+   "sha256": "d0de1846330858c3299ad20595195f9d2ecb6ec009827c8b92a53f907e6dd70e"
+  },
+  "toolchain": {
+   "solc": {
+    "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+    "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+   }
+  }
+ },
+ "facts_version": "holon-facts/0.3",
+ "inherited_storage": [
+  {
+   "declared_in": "Initializable",
+   "kind": "scalar",
+   "name": "_initialized",
+   "offset": 0,
+   "slot": 0,
+   "value": "uint8",
+   "width": 8
+  },
+  {
+   "declared_in": "Initializable",
+   "kind": "scalar",
+   "name": "_initializing",
+   "offset": 1,
+   "slot": 0,
+   "value": "bool",
+   "width": 8
+  },
+  {
+   "declared_in": "ContextUpgradeable",
+   "kind": "array",
+   "length": 50,
+   "name": "__gap",
+   "offset": 0,
+   "slot": 1,
+   "value": "uint256",
+   "width": 256
+  },
+  {
+   "declared_in": "OwnableUpgradeable",
+   "kind": "scalar",
+   "name": "_owner",
+   "offset": 0,
+   "slot": 51,
+   "value": "address",
+   "width": 160
+  },
+  {
+   "declared_in": "OwnableUpgradeable",
+   "kind": "array",
+   "length": 49,
+   "name": "__gap",
+   "offset": 0,
+   "slot": 52,
+   "value": "uint256",
+   "width": 256
+  },
+  {
+   "declared_in": "PausableUpgradeable",
+   "kind": "scalar",
+   "name": "_paused",
+   "offset": 0,
+   "slot": 101,
+   "value": "bool",
+   "width": 8
+  },
+  {
+   "declared_in": "PausableUpgradeable",
+   "kind": "array",
+   "length": 49,
+   "name": "__gap",
+   "offset": 0,
+   "slot": 102,
+   "value": "uint256",
+   "width": 256
+  },
+  {
+   "declared_in": "ReentrancyGuardUpgradeable",
+   "kind": "scalar",
+   "name": "_status",
+   "offset": 0,
+   "slot": 151,
+   "value": "uint256",
+   "width": 256
+  },
+  {
+   "declared_in": "ReentrancyGuardUpgradeable",
+   "kind": "array",
+   "length": 49,
+   "name": "__gap",
+   "offset": 0,
+   "slot": 152,
+   "value": "uint256",
+   "width": 256
+  },
+  {
+   "declared_in": "CrossDomainMessenger",
+   "kind": "scalar",
+   "name": "xDomainMessageSender",
+   "offset": 0,
+   "slot": 201,
+   "value": "address",
+   "width": 160
+  },
+  {
+   "declared_in": "CrossDomainMessenger",
+   "kind": "scalar",
+   "name": "counterpart",
+   "offset": 0,
+   "slot": 202,
+   "value": "address",
+   "width": 160
+  },
+  {
+   "declared_in": "CrossDomainMessenger",
+   "kind": "scalar",
+   "name": "feeVault",
+   "offset": 0,
+   "slot": 203,
+   "value": "address",
+   "width": 160
+  },
+  {
+   "declared_in": "CrossDomainMessenger",
+   "kind": "array",
+   "length": 46,
+   "name": "__gap",
+   "offset": 0,
+   "slot": 204,
+   "value": "uint256",
+   "width": 256
+  }
+ ],
+ "storage": [
+  {
+   "key": "bytes32",
+   "kind": "mapping",
+   "name": "finalizedWithdrawals",
+   "offset": 0,
+   "slot": 250,
+   "value": "bool",
+   "width": 8
+  },
+  {
+   "key": "bytes32",
+   "kind": "mapping",
+   "name": "messageSendTimestamp",
+   "offset": 0,
+   "slot": 251,
+   "value": "uint256",
+   "width": 256
+  },
+  {
+   "key": "bytes32",
+   "kind": "mapping",
+   "name": "__isL1MessageDropped",
+   "offset": 0,
+   "slot": 252,
+   "value": "bool",
+   "width": 8
+  },
+  {
+   "kind": "scalar",
+   "name": "rollup",
+   "offset": 0,
+   "slot": 253,
+   "value": "address",
+   "width": 160
+  },
+  {
+   "kind": "scalar",
+   "name": "messageQueue",
+   "offset": 0,
+   "slot": 254,
+   "value": "address",
+   "width": 160
+  },
+  {
+   "kind": "scalar",
+   "name": "maxReplayTimes",
+   "offset": 0,
+   "slot": 255,
+   "value": "uint256",
+   "width": 256
+  },
+  {
+   "fields": [
+    {
+     "name": "times",
+     "offset": 0,
+     "slot": 0,
+     "type": "uint128",
+     "width": 128
+    },
+    {
+     "name": "lastIndex",
+     "offset": 16,
+     "slot": 0,
+     "type": "uint128",
+     "width": 128
+    }
+   ],
+   "key": "bytes32",
+   "kind": "mapping",
+   "name": "replayStates",
+   "offset": 0,
+   "slot": 256,
+   "value": "struct L1CrossDomainMessenger.ReplayState"
+  },
+  {
+   "key": "uint256",
+   "kind": "mapping",
+   "name": "prevReplayIndex",
+   "offset": 0,
+   "slot": 257,
+   "value": "uint256",
+   "width": 256
+  }
+ ],
+ "target": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph",
+  "scope": "bundle member messenger (L1CrossDomainMessenger)"
+ }
+}

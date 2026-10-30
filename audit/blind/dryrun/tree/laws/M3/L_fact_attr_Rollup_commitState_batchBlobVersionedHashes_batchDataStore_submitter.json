@@ -1,0 +1,55 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter",
+  "milestone": "M3",
+  "notes": "after a trace p, a call y of commitState taking the pin of batchBlobVersionedHashes records as batchDataStore.submitter (the argument of proveState calls[1] ISubmitter.slash) the chooser of the pinned content, or the content has no chooser (attribution: whose bond is at risk against who chose the content), under the premises; fact morph_rollup.extracted:attribution:commitState:batchBlobVersionedHashes:batchDataStore.submitter",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/1.6",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "p",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "y",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fact": "morph_rollup.extracted:attribution:commitState:batchBlobVersionedHashes:batchDataStore.submitter",
+          "on": [
+            {
+              "var": "p"
+            },
+            {
+              "var": "y"
+            },
+            {
+              "var": "keccak256"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "attribution"
+}
