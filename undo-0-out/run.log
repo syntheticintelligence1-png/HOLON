@@ -1,0 +1,48 @@
+2026-10-30T07:48:36Z start
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 446, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 159, in main
+    rc = _main(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 305, in _main
+    rc = _typed_run(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 153, in _typed_run
+    return undo_run.main(argv)
+           ~~~~~~~~~~~~~^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 624, in main
+    rc = max(rc, run_main(a, undo_ids))
+                 ~~~~~~~~^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 502, in run_main
+    rec, rep = Decider(ctx).decide(lid, real)
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 335, in decide
+    tc = ctx.trace(e["facts"])
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 149, in trace
+    self.traces[doc_rel] = TraceCtx(self, doc_rel)
+                           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 118, in __init__
+    self.cev = E3.Evaluator.build(cp, self.docm)
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/sorts/evaluate3.py", line 152, in build
+    e.start()
+    ~~~~~~~^^
+  File "/home/runner/work/HOLON/HOLON/holon/sorts/evaluate3.py", line 186, in start
+    self.proc = subprocess.Popen([node, "--stack-size=65500", str(DRIVER), str(self.compiled())],
+                                                                               ~~~~~~~~~~~~~^^
+  File "/home/runner/work/HOLON/HOLON/holon/sorts/evaluate3.py", line 176, in compiled
+    raise EvalError(f"bend failed to compile {self.model_path}: {r.out[-2000:]}")
+holon.sorts.evaluate3.EvalError: bend failed to compile /home/runner/.holon/cache/undo3/3faab05f2f8b9f2743d9fbc247173d51/combined.bend: SOME PROOFS FAIL
+Error:
+- expected : SK
+- observed : W
+Context:
+- st : HSt
+Location: ux_sc_lastCommittedBatchIndex
+15792 | def ux_sc_lastCommittedBatchIndex(+st: HSt) -> W:
+15793>|   sload(st, W{158, 0, 0, 0, 0, 0, 0, 0})
+      |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15794 | 
+
