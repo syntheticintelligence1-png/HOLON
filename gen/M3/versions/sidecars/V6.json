@@ -1,0 +1,29 @@
+{
+  "compiler": {
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      }
+    },
+    "version": "0.8.24"
+  },
+  "doc": "I19 (Solidity frontend II) instrument, frozen in the I19 prereg. It names what to extract, never what the extraction says: the contract whose storage families and external/public functions are extracted (guards, effects, cost terms, principal predicates, hash and commit edges, coverage), the compiler settings, and the interfaces whose external calls count as COMMIT edges. It holds no slot, width, guard, reason or line.",
+  "frontend": "solidity",
+  "output": "gen/M3/versions/documents/V6.json",
+  "sidecar_version": 1,
+  "sources": [
+    "contracts/contracts/l1/rollup/Rollup.sol"
+  ],
+  "target": {
+    "commit": "a1e77833a79c02927519c23f2397adacf870964a",
+    "repo": "morph-l2/morph",
+    "scope": "rollup contract: storage families, transitions of every external/public function, cost terms, principal predicates, hash/commit edges, coverage"
+  },
+  "transitions": {
+    "commit_interfaces": [
+      "IRollupVerifier"
+    ],
+    "contract": "Rollup"
+  }
+}
