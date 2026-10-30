@@ -308,7 +308,9 @@ class Trace:
                      f"    case Val_{bf}{{{an}}} Val_{bf}{{{bn}}}:\n      {eq}")
         for f in scal:
             fam = self.family(f)
-            code = self.code(self.mm.read_word("st", wlit(fam.slot), fam.offset, fam.type))
+            # (I68) a structural model keys the scalar's slot SK{slot, 0, []}, a raw one by the slot's word
+            slot = Loc(fam.slot).code() if getattr(self.mm, "sk", False) else wlit(fam.slot)
+            code = self.code(self.mm.read_word("st", slot, fam.offset, fam.type))
             self.add(f"# the value of the scalar {f}\ndef ux_sc_{bname(f)}(+st: {HSt}) -> {W}:\n  {code}")
 
     # ---------------------------------------------------------- the laws
