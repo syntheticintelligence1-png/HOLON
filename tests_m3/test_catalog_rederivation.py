@@ -62,10 +62,10 @@ class TestCatalogRederivation(unittest.TestCase):
     def test_the_80_par_laws_each_have_one_line(self):
         """F30's bump (holon-rules/1.1 -> 1.2) has one line per PAR law; every later bump's lines (F39: I27, I31 and
         I26 bumped the catalog again) are lines of the same kind, each between the two catalogs its sides name. The PAR
-        laws are those over the linked codec document (I67's laws over a Go-op document, derived after F30, have no F30
-        line)."""
+        laws are those over the linked codec document (I67's laws over a Go-op document and I84's link_domain laws over
+        the adopted Rollup document, derived after F30, have no F30 line)."""
         par = sorted(p.stem for p in (ROOT / "laws" / "M3").glob("L_par_*.json")
-                     if not str(json.loads(p.read_text()).get("facts") or "").startswith("gen/M3/goops/"))
+                     if str(json.loads(p.read_text()).get("facts") or "").startswith("gen/M3/codec/"))
         self.assertEqual(len(par), 80)
         f30 = [e for e in self.lines if (e["old_catalog"], e["new_catalog"]) == (OLD_CATALOG, NEW_CATALOG)]
         self.assertEqual(sorted(e["law_id"] for e in f30), par)
