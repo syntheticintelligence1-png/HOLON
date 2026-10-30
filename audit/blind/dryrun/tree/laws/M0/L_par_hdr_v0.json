@@ -1,0 +1,69 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_par_hdr_v0",
+  "milestone": "M0",
+  "rule": "PAR",
+  "subform": "cross_component_codec",
+  "evidence": [
+    "E1"
+  ],
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "statement": {
+    "forall": [
+      {
+        "name": "h",
+        "type": "Header"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "field": "version",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x00"
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "field": "sequencerSetVerifyHash",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "call": "enc_sol",
+          "args": [
+            {
+              "var": "h"
+            }
+          ]
+        },
+        {
+          "call": "enc_go_v0",
+          "args": [
+            {
+              "var": "h"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Solidity commit-path encoder vs Go BatchHeaderV0.Bytes at version 0. sequencerSetVerifyHash is pinned to 0 because Solidity always writes bytes32(0) there (see L_par_hdr_ssvh)."
+}

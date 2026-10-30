@@ -52,6 +52,10 @@
                                                         (rule OWN's carrier documents gen/<M>/own/<pkg>_<T>.json; I35)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
                                                         (the back-test across documents, results/M3/backtest.json; I24)
+  python -m holon report --milestone M3 [--root DIR] [--check] [--results SET=DIR ..]
+                                                        (spec/M3/appendixA_map.json and docs/M3_COMPARISON.md; I82)
+  python -m holon compare --blind DIR [--lead DIR] [--milestone M[,M..]] [--out FILE] [--threshold X]
+  python -m holon compare --snapshot SRC --into DST [--milestone M[,M..]]   (blind_agreement; I82)
   python -m holon profile --milestone T32 [--root DIR]   (discharge profiles, DISCH II, I32)
   python -m holon lossy --milestone M3 [--root DIR] [--out DIR] [--review PATH] [--records DIR] [--codec PATH ...]
                         [--gen-dir DIR] [--check]       (PAR-lossy and injective pushing: gen/<M>/par_lossy/,
@@ -206,6 +210,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["coverage"]:  # likewise for holon.coverage (I19)
         from . import coverage
         return coverage.main(argv[1:])
+    if argv[:1] == ["bundle"]:  # likewise for holon.bundle (a bundle of linked contracts; outside every closure)
+        from . import bundle
+        return bundle.main(argv[1:])
     if argv[:1] == ["link"]:  # likewise for holon.frontends.link (I19)
         from .frontends import link
         return link.main(argv[1:])
@@ -248,9 +255,18 @@ def _main(argv: list) -> int:
     if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
         from . import profile
         return profile.main(argv[1:])
+    if argv[:1] == ["rank"]:  # likewise for holon.rank (Def 6.13's measures and §10.10's ranking, I81)
+        from . import rank
+        return rank.main(argv[1:])
     if argv[:1] == ["backtest"]:  # likewise for holon.backtest (the back-test across documents, I24)
         from . import backtest
         return backtest.main(argv[1:])
+    if argv[:1] == ["report"]:  # likewise for holon.report (I82: the map to section 11's ids and the M3 comparison)
+        from . import report
+        return report.main(argv[1:])
+    if argv[:1] == ["compare"]:  # likewise for holon.blind (I82: blind_agreement, and the projection of a tree)
+        from . import blind
+        return blind.main(argv[1:])
     if argv[:1] == ["lossy"]:  # likewise for holon.rules.par_lossy (PAR-lossy and injective pushing, I25)
         from .rules import par_lossy
         return par_lossy.main(argv[1:])
