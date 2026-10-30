@@ -730,8 +730,9 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
                     and set(defs) <= set(e.get("defs") or [])
                     and (hashes is None or (br.get("old"), br.get("new")) == tuple(hashes)))
         return e.get("kind") in ("strengthening", "weakening", "reextraction")
-    return (e.get("kind") == "binding_change" and isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"])
-            and set(defs) <= set(e.get("defs") or []))
+    # a fixed statement: a binding_change, or (I83) a model_extension, naming every changed definition
+    return (e.get("kind") in ("binding_change", "model_extension") and isinstance(e.get("old"), dict)
+            and core(e["old"]) == core(e["new"]) and set(defs) <= set(e.get("defs") or []))
 
 
 def hash_only_change(x: dict, y: dict) -> bool:
@@ -757,7 +758,8 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
                                  + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
                                     "catalog_rederivation when nothing else in its binding changed" if sc else
-                                    f"its statement is fixed: a binding_change naming {law_defs[lid]}") + ")"))
+                                    f"its statement is fixed: a binding_change or a model_extension naming "
+                                    f"{law_defs[lid]}") + ")"))
         else:
             covered[lid] = n
     return covered, missing

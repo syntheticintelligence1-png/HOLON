@@ -675,6 +675,8 @@ class Gen:
 
     # arithmetic
     def t_add(self, t, sc):
+        if any(self.is_input_bytes(s, sc) for s in _sum_terms(t)):
+            return self.copy_offset(t, sc)        # I83 L3: a pointer into an input bytes value's memory copy
         return self.arith("+", t, sc)
 
     def t_sub(self, t, sc):
@@ -773,7 +775,7 @@ class Gen:
             if isinstance(x, int) and not isinstance(x, bool) and 0 < x < (1 << 32):
                 if x & (x - 1) == 0:
                     return f"{self.shl(x.bit_length() - 1)}({y})", "w"
-                return f"w_mul_small({y}, {x})", "w"
+                return self.const_mul(y, x), "w"      # I83 L6: a product by a literal, zero limbs skipped
         return f"w_mul({a}, {b})", "w"
 
     def t_div(self, t, sc):
@@ -807,13 +809,13 @@ class Gen:
 
     def t_shl(self, t, sc):
         if not isinstance(t[2], int):
-            raise GenError(f"{sc.action}: a shift by a non-constant amount")
+            return self.var_shift("l", t, sc)       # I83 L5: a shift by a non-constant amount
         fn = self.shl(int(t[2]))
         return (f"{fn}({self.w(t[1], sc)})" if fn else "w0()"), "w"
 
     def t_shr(self, t, sc):
         if not isinstance(t[2], int):
-            raise GenError(f"{sc.action}: a shift by a non-constant amount")
+            return self.var_shift("r", t, sc)       # I83 L5: a shift by a non-constant amount
         fn = self.shr(int(t[2]))
         return (f"{fn}({self.w(t[1], sc)})" if fn else "w0()"), "w"
 
@@ -847,7 +849,7 @@ class Gen:
         elif op == "-":
             ok, val = f"w_sub_ok({a}, {b})", f"w_sub({a}, {b})"
         else:
-            ok, val = f"w_mul_ok({a}, {b})", f"w_mul({a}, {b})"
+            ok, val = self.mul_check(inner, a, b)       # I83 L6: a checked product by a literal is a comparison
         if n >= 256:
             return ok, "bool"
         return f"Bool.and({ok}, w_lt({val}, {wlit(1 << n)}))", "bool"
@@ -1014,6 +1016,8 @@ class Gen:
         return f"m_slice({self.b(t[1], sc)}, {self.w(t[2], sc)}, {self.w(t[3], sc)})", "b"
 
     def t_mload(self, t, sc):
+        if _is_unknown_memory(t[1]):
+            return self.copy_read(t, sc)          # I83 L3
         return f"b_word({self.b(t[1], sc)}, {self.nat(t[2], sc)})", "w"
 
     def t_abi_encode(self, t, sc):
@@ -1108,7 +1112,9 @@ class Gen:
             c, k = self.value(x, sc)
             if EV._is_dynamic(p):
                 if p.get("type") not in ("bytes", "string"):
-                    raise GenError(f"{sc.action}: {fn}: a dynamic argument of type {p.get('type')}")
+                    heads.append(None)
+                    tails.append(self.word_list_arg(fn, p, c, k, sc))      # I83 L2
+                    continue
                 heads.append(None)
                 tails.append(self.to_bytes(c, k))
             else:
@@ -1116,6 +1122,8 @@ class Gen:
                     raise GenError(f"{sc.action}: {fn}: a tuple argument")
                 heads.append(f"b_of_w({self.to_w(c, k)})")
         sel = bytes.fromhex(sig["selector"][2:])
+        if any(isinstance(x, tuple) for x in tails):
+            return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat_lists(heads, tails)})"   # I83 L2
         return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat(heads, tails)})"
 
     def answer(self, fn: str, receiver, args: list, sc: Scope) -> str:
@@ -1157,6 +1165,8 @@ class Gen:
         return f"a_ok({self.answer(fn, receiver, args, sc)})", "bool"
 
     def t_at(self, t, sc):
+        if isinstance(t[2], list) and t[2][:1] == ["abi.decode"]:
+            return self.decode_component(t, sc)      # I83 L1
         c, k = self.tx(t[2], sc)
         if k != "a":
             raise GenError(f"{sc.action}: a component of a value that is not a call answer")
@@ -1518,7 +1528,10 @@ class Machine(Gen):
             if s.src and str(s.src) not in msg:
                 msg = f"{msg} (at {s.src})"
             raise GenError(msg) from None
-        guarded = self.call_guards(terms, sc, body, i)
+        if _has_decode(terms):
+            guarded = self.effect_guards(terms, sc, body, i)     # I83 L1: decodes and calls in evaluation order
+        else:
+            guarded = self.call_guards(terms, sc, body, i)
         name = f"s_{ba}_{i}"
         info = {"i": i, "name": name, "kind": type(s).__name__.lower(), "calls": guarded != body,
                 "cond": None, "expr": None, "code": None, "next": nxt, "top": not sc.loops or s.entry.get("loop") is None}
@@ -2512,3 +2525,464 @@ def main(argv=None) -> int:
             if not r.ok:
                 return 1
     return 0
+
+
+# ================================================================================================ I83: L1-L4
+# Generic language constructs the earlier commit actions of a versioned deployment need (BUILD_PLAN I83; the contract is
+# the docstring of tests_m3/test_versions_debt.py, rules L1-L4). They are methods of the generator attached here, in a
+# block of their own; a model that uses none of them is written byte for byte as before: every Bend helper below is
+# emitted only into a model that uses it (after the shift definitions, above every action), and the hooks above (t_mload,
+# calldata, t_at, statement) take their old path unless the term is one of these.
+#
+#   L1 ["abi.decode", X, ["tuple", T..]] (or one T), each T a value type or a dynamic array of one; ["at", i, D] its
+#      component i: a value type's word at head word i, a dynamic array's words after its length word at the offset head
+#      word i holds. The decoder's checks (solc 0.8.24's tuple decoder over calldata or memory): the head fits in X; a
+#      dynamic component's offset is at most 2^64 - 1 and leaves room for its length word, its length is at most
+#      2^64 - 1 and its elements end within X; every narrow value or element is clean. A statement whose terms evaluate
+#      the decode reverts with empty revert data, code DECODE_CODE, when the decoder rejects X, in the evaluation order
+#      of its terms with their external calls (effect_guards). A-implicit's exception is kept: a length that would raise
+#      solc's Panic 0x41 fails the bounds check here (empty revert data).
+#   L2 a dynamic array of value types as an external call's argument: abi_wlist, its ABI encoding.
+#   L3 ["mload", ["unknown", s, "memory"], P], P the sum of one input bytes value X and word terms O: the word at O of
+#      X's memory copy (its length word, then its bytes), zero-padded; refused in an action with a memory write at an
+#      unresolved address (a write that could alias the copy).
+#   L4 ["calldataload", P], P the sum of ["cdoff", X] (X input bytes) and word terms O: the word at O of X, zero-padded.
+#   L5 [">>" | "<<", a, n] with n not a literal: EVM SHR/SHL (n >= 256 gives 0), by the constant shifts of n's bits. (L1-L4
+#      are the contract's; the build found this fifth construct in the same commit actions: I83's report says so.)
+#   L6 the kernel's evaluation shape of a product by a literal c (A30's rule: the values are the old ones, only how the
+#      BendTT kernel reaches them changes; no model that compiled before has such a product, so none moves): the checked
+#      product's overflow test (["fits", n, ["*", a, c]]) is a <= (2^256 - 1) // c, one comparison, where w_mul_ok
+#      multiplied all 64 limb pairs (the pinned kernel's fuel ran out on a commit action with three of them), and the
+#      product by c < 2^32 skips the zero limbs of a (w_mulc; w_mul_small's value on every input).
+#   A pointer into input bytes' memory copy (X + O in a word context: a loop-carried pointer) is its offset O, as a
+#   pointer into a region is (t_ptr); L3 finds X in the read's own address term.
+
+DECODE_CODE = 4294967293     # a step whose abi.decode term's data the ABI decoder rejects: no check of the document
+_U64 = (1 << 64) - 1
+_VALUE_TYPE = re.compile(r"^(u?int(\d*)|address( payable)?|bool|bytes(\d+))$")
+
+
+def _is_unknown_memory(t) -> bool:
+    return isinstance(t, list) and len(t) == 3 and t[0] == "unknown" and t[2] == "memory"
+
+
+def _input_term(t) -> bool:
+    """An entry parameter, or a member of one (the terms whose value is the action's input)."""
+    if not isinstance(t, list) or len(t) < 2:
+        return False
+    if t[0] == "param" and isinstance(t[1], str):
+        return True
+    return t[0] == "member" and len(t) == 3 and _input_term(t[1])
+
+
+def _sum_terms(t) -> list:
+    if isinstance(t, list) and len(t) == 3 and t[0] == "+":
+        return _sum_terms(t[1]) + _sum_terms(t[2])
+    return [t]
+
+
+def _type_of_spec(x) -> str | None:
+    if isinstance(x, list) and len(x) == 2 and x[0] == "type" and isinstance(x[1], str):
+        m = re.fullmatch(r"type\((.*)\)", x[1].strip())
+        ty = (m.group(1) if m else x[1]).strip()
+        return ty if _VALUE_TYPE.match(ty) else None
+    return None
+
+
+def decode_shape(spec) -> list | None:
+    """[(kind, type)] of an abi.decode's types: ("v", T) a value type, ("a", T) a dynamic array of one; None when a
+    type is anything else."""
+    items = spec[1:] if isinstance(spec, list) and spec[:1] == ["tuple"] else [spec]
+    out = []
+    for x in items:
+        ty = _type_of_spec(x)
+        if ty is not None:
+            out.append(("v", ty))
+            continue
+        if isinstance(x, list) and len(x) == 3 and x[0] == "index" and x[2] is None:
+            el = _type_of_spec(x[1])
+            if el is not None:
+                out.append(("a", el))
+                continue
+        return None
+    return out
+
+
+def _clean_test(ty: str, w: str) -> str | None:
+    """The Bend Bool that a word w is the clean ABI encoding of a value of type ty (None: every word is)."""
+    m = _VALUE_TYPE.match(ty)
+    if ty.startswith("address"):
+        return f"w_lt({w}, {wlit(1 << 160)})"
+    if ty == "bool":
+        return f"w_lt({w}, {wlit(2)})"
+    if m and m.group(4):
+        n = int(m.group(4))
+        if not 0 < n <= 32:
+            raise GenError(f"abi.decode of a {ty}")
+        return None if n == 32 else f"w_eq(w_and({w}, {wlit((1 << (8 * (32 - n))) - 1)}), w0())"
+    bits = int(m.group(2) or 256) if m else 256
+    if not 0 < bits <= 256 or bits % 8:
+        raise GenError(f"abi.decode of a {ty}")
+    if bits == 256:
+        return None
+    if ty.startswith("uint"):
+        return f"w_lt({w}, {wlit(1 << bits)})"
+    return f"Bool.or(w_lt({w}, {wlit(1 << (bits - 1))}), w_ge({w}, {wlit((1 << 256) - (1 << (bits - 1)))}))"
+
+
+def _effects_in(t, pc: list, out: list) -> None:
+    """The external call terms and abi.decode terms a term evaluates, in evaluation order, each with the conditions
+    under which it is evaluated ("?", && and || evaluate lazily, as _calls_in reads them): [(kind, term, [(cond, pol)])]."""
+    if not isinstance(t, list) or not t or not isinstance(t[0], str):
+        if isinstance(t, list):
+            for x in t:
+                _effects_in(x, pc, out)
+        return
+    h = t[0]
+    if h == "mloop":
+        return
+    if h == "?" and len(t) == 4:
+        _effects_in(t[1], pc, out)
+        _effects_in(t[2], pc + [(t[1], True)], out)
+        _effects_in(t[3], pc + [(t[1], False)], out)
+        return
+    if h in ("&&", "||"):
+        acc = list(pc)
+        for x in t[1:]:
+            _effects_in(x, acc, out)
+            acc = acc + [(x, h == "&&")]
+        return
+    if h == "abi.decode":
+        _effects_in(t[1], pc, out)
+        key = canonical(["decode", t, pc])
+        if key not in [canonical([k, a, b]) for k, a, b in out]:
+            out.append(("decode", t, pc))
+        return
+    for x in t[1:]:
+        _effects_in(x, pc, out)
+    if h == "call" and not str(t[1]).startswith("address."):
+        key = canonical(["call", t, pc])
+        if key not in [canonical([k, a, b]) for k, a, b in out]:
+            out.append(("call", t, pc))
+
+
+def _has_decode(t) -> bool:
+    if isinstance(t, list):
+        if t and t[0] == "abi.decode":
+            return True
+        return any(_has_decode(x) for x in t)
+    if isinstance(t, tuple):
+        return any(_has_decode(x) for x in t)
+    return False
+
+
+def _ext_helpers(self) -> dict:
+    h = getattr(self, "_ext_defs", None)
+    if h is None:
+        h = self._ext_defs = {}
+    return h
+
+
+def _ext_helper(self, name: str, text: str) -> str:
+    h = _ext_helpers(self)
+    if name not in h:
+        h[name] = text.rstrip("\n") + "\n"
+    return name
+
+
+def _tag(ty: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]+", "_", ty).strip("_")
+
+
+def _decode_dyn_ok(self, ty: str) -> str:
+    """abi_dok_<tag>(d, off): the decoder's checks of a dynamic array of ty at head offset off of d (L1)."""
+    tag = _tag(ty)
+    name = f"abi_dok_{tag}"
+    if name in _ext_helpers(self):
+        return name
+    test = _clean_test(ty, "b_word(Con{h, t}, 0n)")
+    if test is None:
+        els = "True{}"
+    else:
+        en = _ext_helper(self, f"abi_els_{tag}",
+                         f"def abi_els_{tag}(n: Nat, +xs: List<&2, U32>) -> Bool:\n  match n xs:\n    case 0n _:\n"
+                         f"      True{{}}\n    case 1n+p Nil{{}}:\n      False{{}}\n    case 1n+p Con{{h, t}}:\n"
+                         f"      Bool.and({test}, abi_els_{tag}(p, b_drop(Con{{h, t}}, 32n)))\n")
+        els = f"{en}(n_of_w(n), b_drop(d, n_of_w(w_add(off, w_u(32)))))"
+    _ext_helper(self, f"{name}_c", f"def {name}_c(ok: Bool, +d: List<&2, U32>, +off: W, +n: W) -> Bool:\n  match ok:\n"
+                                   f"    case True{{}}:\n      {els}\n    case False{{}}:\n      False{{}}\n")
+    _ext_helper(self, f"{name}_b", f"def {name}_b(+d: List<&2, U32>, +off: W, +n: W) -> Bool:\n"
+                                   f"  {name}_c(Bool.and(w_le(n, {wlit(_U64)}), w_le(w_add(w_add(off, w_u(32)), "
+                                   f"{self.shl(5)}(n)), w_u(b_len(d)))), d, off, n)\n")
+    _ext_helper(self, f"{name}_a", f"def {name}_a(ok: Bool, +d: List<&2, U32>, +off: W) -> Bool:\n  match ok:\n"
+                                   f"    case True{{}}:\n      {name}_b(d, off, b_word(d, n_of_w(off)))\n"
+                                   f"    case False{{}}:\n      False{{}}\n")
+    _ext_helper(self, name, f"def {name}(+d: List<&2, U32>, +off: W) -> Bool:\n"
+                            f"  {name}_a(Bool.and(w_le(off, {wlit(_U64)}), w_le(w_add(off, w_u(32)), w_u(b_len(d)))), d, "
+                            "off)\n")
+    return name
+
+
+def _decode_ok_fn(self, shape: list) -> str:
+    """abi_ok_<k>(d): the decoder accepts d for this shape (L1); k numbers the shapes in order of first use."""
+    reg = getattr(self, "_ext_shapes", None)
+    if reg is None:
+        reg = self._ext_shapes = {}
+    key = canonical(shape)
+    if key in reg:
+        return reg[key]
+    name = f"abi_ok_{len(reg) + 1}"
+    parts = []
+    for i, (kind, ty) in enumerate(shape):
+        w = f"b_word(d, {natlit(32 * i)})"
+        if kind == "a":
+            parts.append(f"{_decode_dyn_ok(self, ty)}(d, {w})")
+        else:
+            test = _clean_test(ty, w)
+            if test is not None:
+                parts.append(test)
+    body = "True{}"
+    for p in reversed(parts):
+        body = p if body == "True{}" else f"Bool.and({p}, {body})"
+    _ext_helper(self, f"{name}_h", f"def {name}_h(ok: Bool, +d: List<&2, U32>) -> Bool:\n  match ok:\n"
+                                   f"    case True{{}}:\n      {body}\n    case False{{}}:\n      False{{}}\n")
+    _ext_helper(self, name, f"def {name}(+d: List<&2, U32>) -> Bool:\n"
+                            f"  {name}_h(w_le(w_u({32 * len(shape)}), w_u(b_len(d))), d)\n")
+    reg[key] = name
+    return name
+
+
+def _decode_parts(self, t, sc) -> tuple[str, list]:
+    if len(t) != 3:
+        raise GenError(f"{sc.action}: an abi.decode term of {len(t) - 1} operands")
+    shape = decode_shape(t[2])
+    if shape is None:
+        raise GenError(f"{sc.action}: abi.decode into types outside value types and their dynamic arrays: "
+                       f"{canonical(t[2])[:120]}")
+    return self.b(t[1], sc), shape
+
+
+def _t_abi_decode(self, t, sc):
+    """A decode used whole: one value type, its word (a tuple is read through ["at", i, D])."""
+    xc, shape = _decode_parts(self, t, sc)
+    if len(shape) != 1 or shape[0][0] != "v":
+        raise GenError(f"{sc.action}: an abi.decode into a tuple used whole")
+    return f"b_word({xc}, 0n)", "w"
+
+
+def _decode_component(self, t, sc):
+    xc, shape = _decode_parts(self, t[2], sc)
+    if not (isinstance(t[1], int) and not isinstance(t[1], bool) and 0 <= t[1] < len(shape)):
+        raise GenError(f"{sc.action}: component {t[1]} of an abi.decode of {len(shape)} types")
+    kind, _ty = shape[t[1]]
+    w = f"b_word({xc}, {natlit(32 * t[1])})"
+    if kind == "v":
+        return w, "w"
+    _ext_helper(self, "abi_ws", "def abi_ws(n: Nat, +xs: List<&2, U32>) -> List<&2, W>:\n  match n xs:\n    case 0n _:\n"
+                                "      Nil{}\n    case 1n+p Nil{}:\n      Nil{}\n    case 1n+p Con{h, t}:\n"
+                                "      Con{b_word(Con{h, t}, 0n), abi_ws(p, b_drop(Con{h, t}, 32n))}\n")
+    _ext_helper(self, "abi_warr", "def abi_warr(+d: List<&2, U32>, +off: W) -> List<&2, W>:\n"
+                                  "  abi_ws(n_of_w(b_word(d, n_of_w(off))), b_drop(d, n_of_w(w_add(off, w_u(32)))))\n")
+    return f"abi_warr({xc}, {w})", "l:W"
+
+
+def _decode_ok(self, t, sc) -> str:
+    xc, shape = _decode_parts(self, t, sc)
+    return f"{_decode_ok_fn(self, shape)}({xc})"
+
+
+def _effect_guards(self, terms: list, sc: Scope, body: str, i: int) -> str:
+    """call_guards with the decoder's checks: every external call and abi.decode a statement's terms evaluate, in
+    evaluation order, the first to fail reverting the step (a call with its revert data, a decode with none)."""
+    effects: list = []
+    for t, pc in terms:
+        _effects_in(t, list(pc), effects)
+    a = sc.action
+    ba = bname(a)
+    X = self.xt(a)
+    for n in range(len(effects) - 1, -1, -1):
+        kind, t, pc = effects[n]
+        if kind == "call":
+            ans = self.answer(t[1], None, self.split_value(t[2:]), sc)
+            name = f"cq_{ba}_{i}_{n}"
+            self.add(f"def {name}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n"
+                     f"      xf_{ba}(x, {CALL_CODE}, a_ret({ans}))\n    case False{{}}:\n      {body}\n")
+            cond = f"Bool.not(a_ok({ans}))"
+        else:
+            name = f"dq_{ba}_{i}_{n}"
+            self.add(f"def {name}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n"
+                     f"      xf_{ba}(x, {DECODE_CODE}, Nil{{}})\n    case False{{}}:\n      {body}\n")
+            cond = f"Bool.not({_decode_ok(self, t, sc)})"
+        for ct, pol in reversed(pc):
+            cc = self.cond(ct, sc)
+            cond = f"Bool.and({cc if pol else f'Bool.not({cc})'}, {cond})"
+        body = f"{name}({cond}, x)"
+    return body
+
+
+def _word_sum(self, terms: list, sc) -> str:
+    out = None
+    for x in terms:
+        w = self.w(x, sc)
+        out = w if out is None else f"w_add({out}, {w})"
+    return out or "w0()"
+
+
+def _is_input_bytes(self, t, sc) -> bool:
+    """Whether t is an input bytes value: a parameter of ABI type bytes or string, or such a member of a parameter (read
+    from the action's ABI, statically: nothing is compiled)."""
+    if not _input_term(t):
+        return False
+    path = []
+    while t[0] == "member":
+        path.append(t[2])
+        t = t[1]
+    p = next((x for x in self.m.params(sc.action) or [] if x.get("name") == t[1]), None)
+    for name in reversed(path):
+        if p is None or p.get("type") != "tuple":
+            return False
+        p = next((c for c in p.get("components") or [] if c.get("name") == name), None)
+    return p is not None and p.get("type") in ("bytes", "string")
+
+
+def _input_bytes(self, t, sc) -> str | None:
+    """The code of t when it is an input bytes value, else None."""
+    if not _is_input_bytes(self, t, sc):
+        return None
+    c, k = self.value(t, sc)
+    return c if k == "b" else None
+
+
+def _copy_offset(self, t, sc):
+    """L3: a pointer into the memory copy of one input bytes value X (X + O, in a word context) is its offset O from
+    the copy's start, as model3 represents a pointer into a region by its offset (["ptr", region, o]: t_ptr); L3's reads
+    find X in the read's own address term."""
+    summ = _sum_terms(t)
+    xs = [j for j, s in enumerate(summ) if _is_input_bytes(self, s, sc)]
+    if len(xs) != 1:
+        raise GenError(f"{sc.action}: a sum of {len(xs)} input bytes values")
+    return _word_sum(self, [s for k, s in enumerate(summ) if k != xs[0]], sc), "w"
+
+
+def _copy_read(self, t, sc):
+    """L3: the word at offset O of the memory copy of input bytes X (["mload", unknown memory, X + O])."""
+    summ = _sum_terms(t[2])
+    xs = [(j, c) for j, s in enumerate(summ) for c in [_input_bytes(self, s, sc)] if c is not None]
+    if len(xs) != 1:
+        raise GenError(f"{sc.action}: an unknown term {canonical(t[1])[:100]} (its value is no environment member)")
+    unresolved = [r for r in (self.m.actions.get(sc.action) or {}).get("mstores") or [] if r.get("region") is None]
+    if unresolved:
+        raise GenError(f"{sc.action}: an unknown term {canonical(t[1])[:100]} (a memory write at an unresolved address, "
+                       f"{unresolved[0].get('src')}, could alias the copy of input bytes it reads)")
+    j, xc = xs[0]
+    off = _word_sum(self, [s for k, s in enumerate(summ) if k != j], sc)
+    return f"b_word(List.append(&2, U32, b_of_u(b_len({xc})), {xc}), n_of_w({off}))", "w"
+
+
+def _t_calldataload(self, t, sc):
+    """L4: the word at offset O of input bytes X (["calldataload", ["cdoff", X] + O]), zero-padded."""
+    summ = _sum_terms(t[1])
+    cds = [j for j, s in enumerate(summ) if isinstance(s, list) and s[:1] == ["cdoff"] and len(s) == 2]
+    xc = _input_bytes(self, summ[cds[0]][1], sc) if len(cds) == 1 else None
+    if xc is None:
+        raise GenError(f"{sc.action}: term 'calldataload' is outside the M3 generator's language: "
+                       f"{canonical(t)[:160]}")
+    off = _word_sum(self, [s for k, s in enumerate(summ) if k != cds[0]], sc)
+    return f"b_word({xc}, n_of_w({off}))", "w"
+
+
+def _word_list_arg(self, fn: str, p: dict, c: str, k: str, sc):
+    """L2: a dynamic array of value types as an external call's argument (its words, encoded by abi_wlist)."""
+    ty = str(p.get("type", ""))
+    if not re.fullmatch(r"(u?int\d*|address|bool|bytes\d+)\[\]", ty) or k != "l:W":
+        raise GenError(f"{sc.action}: {fn}: a dynamic argument of type {p.get('type')}")
+    return ("w", c)
+
+
+def _abi_concat_lists(self, heads: list, tails: list) -> str:
+    """abi_concat with word-list tails (L2): a ("w", code) tail is encoded by abi_wlist, a bytes tail by abi_dyn."""
+    n = len(heads)
+    parts, tail_parts = [], []
+    off = f"w_u({32 * n})"
+    it = iter(tails)
+    for h in heads:
+        if h is None:
+            tl = next(it)
+            enc = f"abi_wlist({tl[1]})" if isinstance(tl, tuple) else f"abi_dyn({tl})"
+            parts.append(f"b_of_w({off})")
+            tail_parts.append(enc)
+            off = f"w_add({off}, w_u(b_len({enc})))"
+        else:
+            parts.append(h)
+    out = "Nil{}"
+    for x in reversed(parts + tail_parts):
+        out = f"List.append(&2, U32, {x}, {out})"
+    return out
+
+
+def _var_shift(self, d: str, t, sc):
+    """L5: a shift by a non-constant amount n (EVM SHL/SHR: n >= 256 gives 0): the constant shifts by 2^b for every set
+    bit b of n below 256, in order (w_shrv / w_shlv, emitted only into a model that shifts by a non-constant amount)."""
+    name = f"w_sh{d}v"
+    if name not in _ext_helpers(self):
+        lines = [f"def {name}(+a: W, +n: W) -> W:"]
+        prev = "a"
+        for b in range(8):
+            fn = self.shr(1 << b) if d == "r" else self.shl(1 << b)
+            lines.append(f"  +s{b} = {{ite(W, w_nz(w_and(n, {wlit(1 << b)})), {fn}({prev}), {prev}) : W}}")
+            prev = f"s{b}"
+        lines.append(f"  ite(W, w_lt(n, {wlit(256)}), {prev}, w0())")
+        _ext_helper(self, name, "\n".join(lines) + "\n")
+    return f"{name}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+def _const_mul(self, y: str, c: int) -> str:
+    """L6: y * c for a literal 0 < c < 2^32, not a power of two: w_mul_small's value on every input, with the product of
+    a zero limb skipped (mul_k(0, c, k) is 0 and mul_c(0, c, k) is k; a small factor has seven zero limbs)."""
+    _ext_helper(self, "mul_kz", "def mul_kz(+x: U32, +c: U32, +k: U32) -> U32:\n"
+                                "  ite(U32, U32.is_eq(x, 0), 0, mul_k(x, c, k))\n")
+    _ext_helper(self, "mul_cz", "def mul_cz(+x: U32, +c: U32, +k: U32) -> U32:\n"
+                                "  ite(U32, U32.is_eq(x, 0), k, mul_c(x, c, k))\n")
+    lines = ["def w_mulc(a: W, +c: U32) -> W:", "  match a:", "    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:"]
+    for i in range(1, 8):
+        lines.append(f"      +k{i} = mul_kz(a{i - 1}, c, {'0' if i == 1 else f'k{i - 1}'})")
+    lines.append("      W{" + ", ".join(f"mul_cz(a{i}, c, {'0' if i == 0 else f'k{i}'})" for i in range(8)) + "}")
+    _ext_helper(self, "w_mulc", "\n".join(lines) + "\n")
+    return f"w_mulc({y}, {c})"
+
+
+def _mul_check(self, inner, a: str, b: str) -> tuple[str, str]:
+    """L6: (the no-overflow test, the value) of a checked product a * b (inner = ["*", x, y], a and b their word codes):
+    with a literal factor c the test is the other factor <= (2^256 - 1) // c (a * c < 2^256 exactly then; True for c 0)
+    and the value is t_mul's; otherwise w_mul_ok and w_mul, as before."""
+    for k, (x, other) in enumerate(((inner[1], b), (inner[2], a))):
+        if isinstance(x, int) and not isinstance(x, bool) and 0 <= x <= MASK:
+            ok = "True{}" if x == 0 else f"w_le({other}, {wlit(MASK // x)})"
+            if 0 < x < (1 << 32):
+                val = (f"{self.shl(x.bit_length() - 1)}({other})" if x & (x - 1) == 0 else self.const_mul(other, x))
+            else:
+                val = f"w_mul({a}, {b})"
+            return ok, val
+    return f"w_mul_ok({a}, {b})", f"w_mul({a}, {b})"
+
+
+_shift_defs_before_ext = Gen.shift_defs
+
+
+def _shift_defs_and_helpers(self) -> list[str]:
+    return _shift_defs_before_ext(self) + list(_ext_helpers(self).values())
+
+
+Gen.t_abi_decode = _t_abi_decode
+Gen.decode_component = _decode_component
+Gen.effect_guards = _effect_guards
+Gen.copy_read = _copy_read
+Gen.t_calldataload = _t_calldataload
+Gen.word_list_arg = _word_list_arg
+Gen.is_input_bytes = _is_input_bytes
+Gen.var_shift = _var_shift
+Gen.copy_offset = _copy_offset
+Gen.abi_concat_lists = _abi_concat_lists
+Gen.const_mul = _const_mul
+Gen.mul_check = _mul_check
+Gen.shift_defs = _shift_defs_and_helpers

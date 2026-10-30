@@ -24,6 +24,15 @@ A frozen statement may change only through an entry that this module accepts:
                    the statement names must be unchanged or proven extensionally equal old vs new, by bend and
                    BendTT. A proof carried by the entry is never read. `python -m holon.statement_diff rebind
                    --milestone M [--append]` builds the entries (binding_change_entries).
+  model_extension  (I83) the bound model gained behaviours under a fixed statement: a mechanical conservative-
+                   extension check of the old model files (at bound_commit) against the new ones (extension_problems:
+                   old datatypes keep their constructors and fields, old clauses stay byte-identical once the fields a
+                   constructor gained are erased, only arms of added constructors and new definitions are added) and
+                   the law's verdict re-established on the new model by Bend and BendTT (verdict_problems: REFUTED
+                   stays REFUTED, PROVED stays PROVED or becomes REFUTED, UNKNOWN may become any status; the record is
+                   the new model's). Unsigned; the strengthening direction only (no claim, statement or registry hash
+                   moves). `python -m holon.statement_diff extend --milestone M [--append]` builds the entries
+                   (model_extension_entries).
   strengthening    a kernel-checked S' => S (holon.gen.implication generates the obligation and its proof;
                    Bend, and BendTT when available, must accept it).
   weakening        a gpg signature verifiable against a public key in keys/ (Q3) and an auditor review. A
@@ -89,11 +98,12 @@ from pathlib import Path
 
 from . import ir
 
-KINDS = ("reextraction", "binding_change", "strengthening", "weakening", "cross_milestone", "catalog_rederivation")
+KINDS = ("reextraction", "binding_change", "strengthening", "weakening", "cross_milestone", "catalog_rederivation",
+         "model_extension")
 KEY_SUFFIXES = (".asc", ".gpg", ".pub", ".key")
 LOG = Path("laws") / "STATEMENT_DIFF.jsonl"
 STATEMENT_KINDS = ("reextraction", "binding_change", "strengthening", "weakening",
-                   "catalog_rederivation")   # kinds that change one law
+                   "catalog_rederivation", "model_extension")   # kinds that change one law
 CATALOG_KEY = "rule_catalog_version"   # the one IR key a catalog_rederivation may change
 # what identifies a statement (the hashed keys of every IR version, and the facts file it is about)
 _CORE = tuple(dict.fromkeys(ir.HASHED_KEYS + ir.HASHED_KEYS_03 + ("facts",)))
@@ -237,7 +247,7 @@ def check_entry(entry: dict, root: Path | None = None) -> dict:
     old, new = entry.get("old"), entry.get("new")
     if not (_is_law(old) and _is_law(new)):
         return _res(False, "an entry carries the old and the new statement as law IR")
-    if kind in ("reextraction", "binding_change", "strengthening", "catalog_rederivation"):
+    if kind in ("reextraction", "binding_change", "strengthening", "catalog_rederivation", "model_extension"):
         lid = entry.get("law_id", old["law_id"])
         if not old["law_id"] == new["law_id"] == lid:
             return _res(False, f"a {kind} changes one law: old, new and law_id must name the same law")
@@ -261,6 +271,8 @@ def check_entry(entry: dict, root: Path | None = None) -> dict:
                 return _res(True, f"binding_change: {why}")
             return _res(False, f"binding_change: {why}")
         return _binding_change(entry, old, new, root)
+    if kind == "model_extension":   # I83: unsigned only, every rule recomputed here
+        return _model_extension(entry, old, new, root)
     if kind == "cross_milestone" and old.get("milestone") == new.get("milestone"):
         return _res(False, "a cross_milestone entry links laws of two milestones (a change within one is a strengthening)")
     # strengthening, cross_milestone: a checked new => old
@@ -905,6 +917,9 @@ def acceptance(entry: dict, result: dict, root: Path) -> dict:
                               "roots": {i["root"]: i.get("class") for i in eqv.get("roots") or []}}
         if eqv.get("catalog_bridge"):
             acc["equivalence"]["catalog_bridge"] = eqv["catalog_bridge"]
+    ext = result.get("extension") or {}
+    if entry.get("kind") == "model_extension" and ext:   # I83: what the check compared and re-ran
+        acc["extension"] = ext
     if entry.get("signature"):
         acc["signature"] = "verified against keys/"
     return acc
@@ -1050,6 +1065,10 @@ def _verify_committed(e, acc, commit: str, root: Path, recheck: bool = True) -> 
         return "a signed weakening also needs an auditor review (\"review\"), as check_entry requires"
     if e.get("kind") == "binding_change" and not signed:
         why = _verify_equivalence(e, acc.get("equivalence"), commit, root, kernels=recheck)   # F31
+        if why:
+            return why
+    if e.get("kind") == "model_extension":   # I83: the files it compared and re-checked, as they were at the commit
+        why = _verify_extension_record(acc.get("extension"), commit, root)
         if why:
             return why
     if e.get("kind") == "reextraction" and e.get("facts") not in acc["facts"]:
@@ -1426,6 +1445,458 @@ def check_cross_milestone(derivation: dict, laws: dict, entries: list, root: Pat
     return problems
 
 
+# ---------------------------------------------------------------- model_extension (I83)
+# A bound model that gains behaviours under a fixed statement (the versioned layer when model3 compiles more of its
+# documents): the contract is the docstring of tests_m3/test_versions_debt.py, rules X0-X5. The strengthening direction
+# only: no claim, statement or registry hash moves; old behaviours stay, byte for byte; the law's verdict is re-checked.
+import re  # noqa: E402  (this block's own; the module above needs none)
+
+_TOPLINE = re.compile(r"^(def|type)\s+([A-Za-z_][\w.]*)")
+_IMPORT_ALIAS = re.compile(r"^import\s+\./([A-Za-z0-9_-]+\.bend)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$")
+_CTOR_LINE = re.compile(r"^\s+([A-Za-z_][A-Za-z0-9_]*)\{(.*)\}\s*$")
+_CTOR_USE = re.compile(r"(?<![\w.])((?:[A-Za-z_][A-Za-z0-9_]*\.)?[A-Za-z_][A-Za-z0-9_]*)\{")
+_IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
+def _split_top(s: str) -> list[str]:
+    """s split at its top-level commas (brackets of every kind nest)."""
+    out, depth, cur = [], 0, ""
+    for ch in s:
+        if ch == "," and depth == 0:
+            out.append(cur.strip())
+            cur = ""
+            continue
+        depth += ch in "<({["
+        depth -= ch in ">)}]"
+        cur += ch
+    if cur.strip():
+        out.append(cur.strip())
+    return out
+
+
+def _bend_blocks(text: str) -> tuple[dict, dict]:
+    """({name: (kind, [lines])}, {alias: file}) of a generated Bend file's top-level definitions and local imports;
+    comment lines and blank lines aside."""
+    blocks, imports, cur = {}, {}, None
+    for raw in text.splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        m = _TOPLINE.match(raw)
+        if m:
+            cur = m.group(2)
+            if cur in blocks:
+                raise ValueError(f"{cur} is defined twice")
+            blocks[cur] = (m.group(1), [raw.rstrip()])
+            continue
+        if raw[0] not in (" ", "\t"):
+            cur = None
+            im = _IMPORT_ALIAS.match(raw)
+            if im:
+                imports[im.group(2)] = im.group(1)
+            continue
+        if cur is not None:
+            blocks[cur][1].append(raw.rstrip())
+    return blocks, imports
+
+
+def _ctors(lines: list) -> list | None:
+    """[(name, [field])] of a datatype's constructor lines, or None when a line is not one."""
+    out = []
+    for ln in lines[1:]:
+        m = _CTOR_LINE.match(ln)
+        if not m:
+            return None
+        out.append((m.group(1), _split_top(m.group(2))))
+    return out
+
+
+def _gained(old: list, new: list) -> list | None:
+    """The positions of new's entries outside a left-to-right alignment that matches every entry of old in order, or
+    None when old is not an ordered subsequence of new."""
+    pos, j = [], 0
+    for i, f in enumerate(new):
+        if j < len(old) and old[j] == f:
+            j += 1
+        else:
+            pos.append(i)
+    return pos if j == len(old) else None
+
+
+def _erase(text: str, ctors: dict) -> tuple[str, list]:
+    """text with the gained positions of every extended constructor use erased ({token: positions}, the token the
+    file names it by: K or Alias.K), and the erased components that are bare binders."""
+    out, i, binders = [], 0, []
+    while True:
+        m = _CTOR_USE.search(text, i)
+        if not m:
+            out.append(text[i:])
+            break
+        tok = m.group(1)
+        if tok not in ctors:
+            out.append(text[i:m.end()])
+            i = m.end()
+            continue
+        k, depth = m.end(), 1
+        while k < len(text) and depth:
+            depth += {"{": 1, "}": -1}.get(text[k], 0)
+            k += 1
+        inner = text[m.end():k - 1]
+        parts = _split_top(inner)
+        keep = [x for n, x in enumerate(parts) if n not in ctors[tok]]
+        for n in ctors[tok]:
+            if n < len(parts) and re.fullmatch(r"[+-]?[A-Za-z_][A-Za-z0-9_]*", parts[n]):
+                binders.append(parts[n].lstrip("+-"))
+        out.append(text[i:m.end()] + _erase(", ".join(keep), ctors)[0] + "}")
+        i = k
+    return "".join(out), binders
+
+
+def _arms(lines: list) -> tuple[list, list] | None:
+    """(the head lines: the signature and the match line, [(pattern line, [body lines])]) of a definition whose body is
+    one match, or None."""
+    if len(lines) < 3 or not lines[1].strip().startswith("match ") or not lines[1].rstrip().endswith(":"):
+        return None
+    ind = len(lines[1]) - len(lines[1].lstrip()) + 2
+    arms = []
+    for ln in lines[2:]:
+        lead = len(ln) - len(ln.lstrip())
+        if lead == ind and ln.strip().startswith("case ") and ln.rstrip().endswith(":"):
+            arms.append((ln, []))
+        elif lead > ind and arms:
+            arms[-1][1].append(ln)
+        else:
+            return None
+    return lines[:2], arms
+
+
+def extension_problems(old: dict, new: dict) -> list[str]:
+    """X3: what keeps `new` ({file name: generated Bend text}) from being a conservative extension of `old` ([] when it
+    is one): every old top-level definition is in the new file of the same name; an old datatype keeps its header and
+    its constructors in order, each with its old fields an ordered subsequence of its new ones (new constructors may be
+    added; a constructor whose fields grew is extended); every old definition, with the gained fields of every use of an
+    extended constructor erased from the new text (K{..} in its own file, A.K{..} through an import alias A) and no
+    erased binder read, is the old text, or both are one match with the same head, every old arm a new arm, and every
+    other new arm's pattern a use of an added constructor."""
+    probs: list[str] = []
+    parsed_old, parsed_new = {}, {}
+    for f in sorted(old):
+        if f not in new:
+            probs.append(f"{f}: missing from the new model")
+            continue
+        try:
+            parsed_old[f], parsed_new[f] = _bend_blocks(old[f]), _bend_blocks(new[f])
+        except ValueError as e:
+            probs.append(f"{f}: {e}")
+    if probs:
+        return probs
+    added, extended = set(), {}          # (file, ctor); {(file, ctor): gained positions}
+    for f, (ob, _oi) in parsed_old.items():
+        nb = parsed_new[f][0]
+        for name, (kind, lines) in ob.items():
+            if kind != "type":
+                continue
+            if name not in nb or nb[name][0] != "type":
+                probs.append(f"{f}: type {name} is gone")
+                continue
+            nl = nb[name][1]
+            if lines == nl:
+                continue
+            oc, nc = _ctors(lines), _ctors(nl)
+            if lines[0] != nl[0] or oc is None or nc is None:
+                probs.append(f"{f}: type {name} changed beyond adding constructors or fields")
+                continue
+            names_new = [c for c, _ in nc]
+            if [c for c in names_new if c in dict(oc)] != [c for c, _ in oc]:
+                probs.append(f"{f}: type {name} drops, renames or reorders a constructor")
+                continue
+            ncd = dict(nc)
+            for c, fields in oc:
+                g = _gained(fields, ncd[c])
+                if g is None:
+                    probs.append(f"{f}: {name}.{c} changes or drops a field")
+                elif g:
+                    extended[(f, c)] = g
+            added |= {(f, c) for c in names_new if c not in dict(oc)}
+    if probs:
+        return probs
+    for f, (ob, _oi) in parsed_old.items():
+        nb, ni = parsed_new[f]
+        toks = {c: g for (ff, c), g in extended.items() if ff == f}
+        for alias, target in ni.items():
+            toks.update({f"{alias}.{c}": g for (ff, c), g in extended.items() if ff == target})
+        known = {c for (ff, c) in added if ff == f}
+        for alias, target in ni.items():
+            known |= {f"{alias}.{c}" for (ff, c) in added if ff == target}
+        for name, (kind, lines) in ob.items():
+            if kind != "def":
+                continue
+            if name not in nb or nb[name][0] != "def":
+                probs.append(f"{f}: def {name} is gone")
+                continue
+            text, binders = _erase("\n".join(nb[name][1]), toks)
+            read = sorted({b for b in binders if re.search(rf"(?<![\w.]){re.escape(b)}(?!\w)", text)})
+            if read:
+                probs.append(f"{f}: def {name} reads a gained field ({', '.join(read)})")
+                continue
+            new_lines = text.split("\n")
+            if new_lines == lines:
+                continue
+            oa, na = _arms(lines), _arms(new_lines)
+            if oa is None or na is None or oa[0] != na[0]:
+                probs.append(f"{f}: def {name} changed beyond adding arms")
+                continue
+            have = [(p, b) for p, b in na[1]]
+            for arm in oa[1]:
+                if arm not in have:
+                    probs.append(f"{f}: def {name} changes its arm `{arm[0].strip()}`")
+                    break
+            else:
+                for p_, b_ in have:
+                    if (p_, b_) in oa[1]:
+                        continue
+                    uses = set(_CTOR_USE.findall(p_))
+                    if not uses & known:
+                        probs.append(f"{f}: def {name} adds the arm `{p_.strip()}`, which matches no added constructor")
+                        break
+    return probs
+
+
+def verdict_problems(old_status: str, new_record: dict | None, recheck: dict | None, model_sha256: str,
+                     verdict_available: bool) -> list[str]:
+    """X4: what keeps the law's verdict from being re-established on the new model ([] when it is): its record names the
+    new model; its status moves in the honest direction only; a PROVED or REFUTED record's proof is accepted by Bend and,
+    whenever the verdict is available, by BendTT (recheck: the check's own runs)."""
+    if not isinstance(new_record, dict):
+        return ["the law has no record on the tree"]
+    probs = []
+    st = new_record.get("status")
+    if new_record.get("model_sha256") != model_sha256:
+        probs.append("the record does not name the new model (its model_sha256)")
+    allowed = {"REFUTED": ("REFUTED",), "PROVED": ("PROVED", "REFUTED"),
+               "UNKNOWN": ("PROVED", "REFUTED", "UNKNOWN")}.get(old_status)
+    if allowed is None:
+        probs.append(f"the bound record's status is {old_status!r}")
+    elif st not in allowed:
+        probs.append(f"the status moves from {old_status} to {st}: a conservative extension keeps a refuted law's witness")
+    if st in ("PROVED", "REFUTED"):
+        b = (recheck or {}).get("bend")
+        if not isinstance(b, dict):
+            probs.append("no re-check by Bend")
+        elif (b.get("exit_code"), b.get("marker")) != (0, "ALL PROOFS CHECK"):
+            probs.append(f"Bend does not accept the proof on the new model ({b.get('marker')})")
+        if verdict_available:
+            v = (recheck or {}).get("bendtt")
+            if not isinstance(v, dict):
+                probs.append("no re-check by BendTT")
+            elif (v.get("exit_code"), v.get("marker")) != (0, "ALL PROOFS CHECK"):
+                probs.append(f"BendTT does not accept the proof on the new model ({v.get('marker')})")
+    return probs
+
+
+def _model_files_at(root: Path, commit: str | None, rel: str) -> dict | None:
+    """{repo-relative path: text} of a model file and the modules of its directory it imports, transitively, at a
+    commit (read-only git, following a link) or on the tree (commit None)."""
+    from .bindings import _LOCAL_IMPORT
+    root = Path(root)
+    if commit is None:
+        top = (root / rel).resolve()
+        try:
+            top_rel = top.relative_to(root.resolve()).as_posix()
+        except ValueError:
+            return None
+        read = (lambda r: (root / r).read_text(encoding="utf-8") if (root / r).is_file() else None)
+    else:
+        b = model_at(root, commit, rel)
+        if b is None:
+            return None
+        top_rel = rel
+        ls = _git(root, "ls-tree", commit, "--", rel).stdout.decode().split()
+        if ls and ls[0] == "120000":
+            top_rel = (Path(rel).parent / (blob_at(root, commit, rel) or b"").decode().strip()).as_posix()
+        read = (lambda r: (blob_at(root, commit, r) or b"").decode("utf-8") or None)
+    out, todo, base = {}, [top_rel], Path(top_rel).parent
+    while todo:
+        r = todo.pop()
+        if r in out:
+            continue
+        text = read(r)
+        if text is None:
+            return None
+        out[r] = text
+        todo.extend((base / name).as_posix() for name in _LOCAL_IMPORT.findall(text))
+    return dict(sorted(out.items()))
+
+
+def _recheck(proof: Path, cfg=None) -> dict:
+    from . import bend
+    r = bend.check(proof, cfg)
+    v = bend.check_verdict(proof, cfg) if bend.verdict_enabled(cfg) else None
+    return {"bend": {"exit_code": r.code, "marker": r.marker},
+            "bendtt": {"exit_code": v.code, "marker": v.marker} if v is not None else None}
+
+
+def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
+    """X0-X4 (I83): an unsigned model_extension is accepted only when its statement is fixed, its binding changes in its
+    cone alone, the new model files are a conservative extension of the bound ones and the law's verdict is
+    re-established on the new model by both kernels; every rule is recomputed here, nothing is read from the entry but
+    its law, milestone, bound_commit and defs."""
+    from . import bend
+    from . import bindings as B
+    if core(old) != core(new):
+        return _res(False, "a model_extension keeps the statement fixed (X1), and this entry changes it")
+    m, lid, commit_b = entry.get("milestone"), new["law_id"], entry.get("bound_commit")
+    if not isinstance(m, str) or not isinstance(commit_b, str) or not isinstance(entry.get("defs"), list):
+        return _res(False, "a model_extension carries milestone, bound_commit and defs (X0)")
+    if entry.get("signature"):
+        return _res(False, "a model_extension is unsigned: its rules are checked, never signed for")
+    if not in_git(root):
+        return _res(False, "a model_extension is checked against the bound model at bound_commit, which needs the git "
+                           "history (a copied tree cannot check it)")
+    if _git(root, "merge-base", "--is-ancestor", commit_b, "HEAD").returncode != 0:
+        return _res(False, f"bound_commit {commit_b[:12]} is not a commit in HEAD's history")
+    cur = root / "laws" / m / f"{lid}.json"
+    law = _json_or_none(cur.read_bytes()) if cur.is_file() else None
+    if not _is_law(law) or core(law) != core(new):
+        return _res(False, f"the entry's statement is not {lid}'s statement on the tree (X1)")
+    ob = _binding_at(root, commit_b, m, lid)
+    if ob is None:
+        return _res(False, f"spec/bindings/{m}.json at {commit_b[:12]} binds no {lid} (X2)")
+    try:
+        nb = B.bind_law(law, m, root)
+    except Exception as e:  # noqa: BLE001
+        return _res(False, f"{lid} cannot be bound on the tree: {type(e).__name__}: {e}")
+    moved = [k for k in BINDING_KEYS if ob.get(k) != nb.get(k)]
+    if moved:
+        return _res(False, f"the binding of {lid} changes {moved}, not only its cone (X2)")
+    changed = B.changed_defs(ob, nb)
+    if not changed:
+        return _res(False, f"the binding of {lid} at {commit_b[:12]} is the binding on the tree: nothing changed")
+    if sorted(entry["defs"]) != changed:
+        return _res(False, f"the entry's defs are not the changed definitions of {lid}'s binding ({len(changed)})")
+    of, nf = _model_files_at(root, commit_b, ob["model"]), _model_files_at(root, None, nb["model"])
+    if of is None or nf is None:
+        return _res(False, f"the model files of {ob['model']} cannot be read at {commit_b[:12]} or on the tree")
+    tmp = Path(tempfile.mkdtemp(prefix="holon-model-extension-"))
+    try:   # X2: the bound model files give the bound cone (BendTT's translation of the files read at bound_commit)
+        for r, text in of.items():
+            (tmp / Path(r).name).write_text(text, encoding="utf-8")
+        eo = B.layer_entries(tmp / Path(_top_of(root, commit_b, ob["model"])).name)
+    except Exception as e:  # noqa: BLE001
+        return _res(False, f"the bound model does not translate to BendTT: {type(e).__name__}: {e}")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    bad = sorted(d for d, h in ob["cone"].items() if d not in eo or hashlib.sha256(eo[d].encode()).hexdigest() != h)
+    if bad:
+        return _res(False, f"the model files at {commit_b[:12]} are not the bound model ({', '.join(bad[:5])}) (X2)")
+    short = {Path(r).name: t for r, t in of.items()}
+    probs = extension_problems(short, {Path(r).name: t for r, t in nf.items()})
+    if probs:
+        return _res(False, "not a conservative extension (X3): " + "; ".join(probs[:6]))
+    rel = f"results/{m}/{lid}.json"
+    old_rec, new_rec = _json_or_none(blob_at(root, commit_b, rel)), _json_or_none((root / rel).read_bytes()) \
+        if (root / rel).is_file() else None
+    old_status = (old_rec or {}).get("status") if isinstance(old_rec, dict) else None
+    model_sha = hashlib.sha256((root / nb["model"]).resolve().read_bytes()).hexdigest()
+    recheck, proof_rel = None, None
+    if isinstance(new_rec, dict) and new_rec.get("status") in ("PROVED", "REFUTED"):
+        proof_rel = (new_rec.get("artifacts") or {}).get("proof")
+        if isinstance(proof_rel, str) and (root / proof_rel).is_file():
+            recheck = _recheck(root / proof_rel, bend.config(root))
+    vp = verdict_problems(old_status, new_rec, recheck, model_sha, bend.verdict_enabled(bend.config(root)))
+    if vp:
+        return _res(False, "the verdict is not re-established on the new model (X4): " + "; ".join(vp))
+    ext = {"bound_commit": commit_b,
+           "models": {"old": {r: _sha(t) for r, t in of.items()}, "new": {r: _sha(t) for r, t in nf.items()}},
+           "record": {"path": rel, "sha256": _sha((root / rel).read_bytes()), "old_status": old_status,
+                      "new_status": new_rec.get("status")},
+           "proof": ({"path": proof_rel, "sha256": _sha((root / proof_rel).read_bytes())} if proof_rel else None),
+           "recheck": recheck}
+    out = _res(True, f"model_extension: {lid}'s statement is fixed; its model {nb['model']} is a conservative extension "
+                     f"of the one bound at {commit_b[:12]} ({len(changed)} definitions of its cone changed or added); "
+                     f"its verdict {old_status} -> {new_rec.get('status')} re-established on the new model"
+                     + (" by Bend and BendTT" if recheck and recheck.get("bendtt") else
+                        " by Bend" if recheck else ""))
+    out["extension"] = ext
+    return out
+
+
+def _top_of(root: Path, commit: str, rel: str) -> str:
+    """The file the model path names among the files read at a commit (its link's target)."""
+    ls = _git(Path(root), "ls-tree", commit, "--", rel).stdout.decode().split()
+    if ls and ls[0] == "120000":
+        return (Path(rel).parent / (blob_at(Path(root), commit, rel) or b"").decode().strip()).as_posix()
+    return rel
+
+
+def _verify_extension_record(ext, commit: str, root: Path) -> str | None:
+    """A committed model_extension line is not re-checked: its record must name the new model files, the record and the
+    proof as they were at the commit that appended it, and kernels' runs that accepted the proof."""
+    if not isinstance(ext, dict) or not isinstance(ext.get("models"), dict) or not isinstance(ext.get("record"), dict):
+        return "its acceptance record names no model_extension check"
+    for r, sha in sorted((ext["models"].get("new") or {}).items()):
+        b = blob_at(root, commit, r)
+        if b is None or _sha(b) != sha:
+            return f"its acceptance record's {r} is not the file at {commit[:7]}"
+    rec = ext["record"]
+    b = blob_at(root, commit, rec.get("path") or "")
+    if b is None or _sha(b) != rec.get("sha256"):
+        return f"its acceptance record's {rec.get('path')} is not the file at {commit[:7]}"
+    pf = ext.get("proof")
+    if pf is not None:
+        b = blob_at(root, commit, pf.get("path") or "")
+        if b is None or _sha(b) != pf.get("sha256"):
+            return f"its acceptance record's proof {pf.get('path')} is not the file at {commit[:7]}"
+    rc = ext.get("recheck")
+    if rec.get("new_status") in ("PROVED", "REFUTED"):
+        if not isinstance(rc, dict) or (rc.get("bend") or {}).get("exit_code") != 0:
+            return "its acceptance record names no Bend run that accepted the proof"
+    return None
+
+
+def model_extension_entries(milestone: str, root: Path) -> tuple[list, list]:
+    """The model_extension entries a milestone's bindings need: every bound law whose binding changed in its cone alone
+    under a fixed statement, bound at the newest commit that still holds its current binding."""
+    from . import bindings as B
+    root = Path(root)
+    p = B.path(milestone, root)
+    if not p.exists() or not in_git(root):
+        return [], [f"{p} or the git history is missing"]
+    cur = json.loads(p.read_text()).get("laws", {})
+    rel = p.relative_to(root).as_posix()
+    hist = _git(root, "log", "--topo-order", "--format=%H", "HEAD", "--", rel).stdout.decode().split()
+    out, notes = [], []
+    for law in ir.load_laws_any(milestone, root):
+        lid = law["law_id"]
+        if lid not in cur:
+            continue
+        try:
+            nb = B.bind_law(law, milestone, root)
+        except Exception as e:  # noqa: BLE001
+            notes.append(f"{lid}: cannot be bound on the tree: {type(e).__name__}: {e}")
+            continue
+        ob = cur[lid]
+        changed = B.changed_defs(ob, nb)
+        if not changed:
+            continue
+        if [k for k in BINDING_KEYS if ob.get(k) != nb.get(k)]:
+            notes.append(f"{lid}: its binding changes beyond the cone: not a model extension")
+            continue
+        commit_b = None
+        for c in hist:
+            x = _binding_at(root, c, milestone, lid)
+            if ir.canonical_json(x) != ir.canonical_json(ob):
+                break
+            commit_b = c
+        if commit_b is None:
+            notes.append(f"{lid}: no commit holds its current binding (commit spec/bindings/{milestone}.json first)")
+            continue
+        out.append({"kind": "model_extension", "law_id": lid, "milestone": milestone, "old": law, "new": law,
+                    "bound_commit": commit_b, "defs": changed,
+                    "reason": f"{lid}: its model {nb['model']} gained behaviours under the fixed statement "
+                              f"({len(changed)} definitions of its cone changed or added); bound at {commit_b[:12]}"})
+    return out, notes
+
+
 # ---------------------------------------------------------------- CLI
 def main(argv: list[str] | None = None) -> int:
     """python -m holon.statement_diff append ENTRY.json [--root DIR]: check the entry against the working tree and
@@ -1434,7 +1905,7 @@ def main(argv: list[str] | None = None) -> int:
     ones of) the reextraction / catalog_rederivation entries the milestone needs."""
     import argparse
     ap = argparse.ArgumentParser(prog="python -m holon.statement_diff")
-    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog", "rebind"))
+    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog", "rebind", "extend"))
     ap.add_argument("entry", nargs="?")
     ap.add_argument("--root", default=str(ir.ROOT))
     ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
@@ -1467,6 +1938,18 @@ def main(argv: list[str] | None = None) -> int:
         if a.report:
             Path(a.report).write_text(json.dumps(report, indent=1, sort_keys=True) + "\n")
         print(f"{len(es)} binding_change entries, {bad} rejected; {len(notes)} laws need another kind")
+        return 0 if not bad else 1
+    if a.command == "extend":   # I83: the model_extension entries of laws whose bound model gained behaviours
+        es, notes = model_extension_entries(a.milestone, root)
+        bad = 0
+        for e in es:
+            r = append(e, root) if a.append else check_entry(e, root)
+            print(f"{e['law_id']}: {'accepted' if r['ok'] else 'REJECTED'}{' and appended' if r['ok'] and a.append else ''}"
+                  f": {r['reason']}")
+            bad += not r["ok"]
+        for n in notes:
+            print(f"no model_extension entry: {n}")
+        print(f"{len(es)} model_extension entries, {bad} rejected")
         return 0 if not bad else 1
     if a.command == "recatalog":   # F30: the catalog_rederivation entries of the milestone's uncovered registry changes
         es, notes = catalog_rederivation_entries(a.milestone, root)

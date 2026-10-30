@@ -392,6 +392,24 @@ class TestLifecycle(unittest.TestCase):
     def test_x3_rejects_a_removed_definition(self):
         self.assertNotEqual(self.problems(new_m=NEW_M.replace("def h() -> W:\n  w0()\n", "")), [])
 
+    # Added after C_K (new tests; the C_K tests above are unchanged): the coordinator's condition (a) on the field-gain
+    # variant of X3. Erasing the gained fields must leave every old clause byte-identical, and no old clause may read a
+    # gained field.
+    def test_x3_rejects_an_old_clause_reading_a_gained_field(self):
+        """g reads R's gained field z: rejected."""
+        old_g = "    case R{p, z, q}:\n      p\n\ndef h"
+        self.assertIn(old_g, NEW_M)
+        self.assertNotEqual(self.problems(new_m=NEW_M.replace(old_g, "    case R{p, z, q}:\n      z\n\ndef h")), [])
+
+    def test_x3_rejects_a_gained_binder_shadowing_an_old_one(self):
+        """g binds the gained position with the name its old body reads (R{p, p, q}): after erasure its text is the old
+        text, but the name would read the gained field. Rejected."""
+        old_g = "    case R{p, z, q}:\n      p\n\ndef h"
+        self.assertIn(old_g, NEW_M)
+        problems = self.problems(new_m=NEW_M.replace(old_g, "    case R{p, p, q}:\n      p\n\ndef h"))
+        self.assertNotEqual(problems, [])
+        self.assertTrue(any("gained field" in p for p in problems), problems)
+
     def test_x1_rejects_a_statement_change(self):
         S = sd()
         self.assertIn("model_extension", S.KINDS)
