@@ -52,6 +52,17 @@ class NoProof(ValueError):
     """The class does not apply, or cannot prove a conjunct (named)."""
 
 
+class Stuck(NoProof):
+    """(a probe) A store whose key meets the fact's key in a word pair no evaluation decides."""
+
+    def __init__(self, kw: str, v: str, at: tuple):
+        super().__init__(f"a store at {kw[:120]} meets the key")
+        self.kw, self.v, self.at = kw, v, at
+
+
+PROBE: list = []      # non-empty while a probe runs: Chain.conclude records end states, a stuck store raises Stuck
+
+
 def _sub(t: str, ren: dict) -> str:
     """t with the identifiers of ren renamed (whole names, not fields or qualified names)."""
     if not ren:
@@ -62,6 +73,14 @@ def _sub(t: str, ren: dict) -> str:
 
 def _strip(t: str) -> str:
     return re.sub(r"\s+", " ", t.strip())
+
+
+def fuel_lit(t: str) -> str:
+    """A loop's fuel U32.to_nat(n) written as the Nat literal n: the same value, but the checker compares two literals
+    at once where it would walk two unary numerals built apart (a conversion at a loop statement compares the
+    model's fuel with the proof's)."""
+    m = re.fullmatch(r"U32\.to_nat\((\d+)\)", t.strip())
+    return f"{int(m.group(1))}n" if m else t.strip()
 
 
 # ------------------------------------------------------------------------------------------------ the model
@@ -275,6 +294,8 @@ class Walk:
                 pf = f"st_same_k({o}, {kw}, {v}, {K}, {{==}})" if rel == "same" else f"st_same({o}, {K}, {v})"
                 state = ("eq", _strip(v))
             else:
+                if PROBE:
+                    raise Stuck(kw, v, at)
                 pf, state = self.split(o, kw, v, at, pf, state)
             o = f"M.sstore({o}, {kw}, {v})"
         return pf, state
@@ -355,6 +376,9 @@ class Chain(Walk):
         return self.conclude(vals["ov"], pf2, st2)
 
     def conclude(self, ov: str, pf: str, state: tuple) -> str:
+        if PROBE:
+            PROBE[-1].add(state)
+            return "{==}"
         g = self.f.goal
         if state == g:
             return pf
@@ -515,9 +539,9 @@ class Loops:
         sep = ", " if pa else ""
         ov = vals["ov"]
         ls = f"M.ls_{ab}_{node.L}({ch.rec(vals)})"
-        y = f"M.lp_{ab}_{node.L}({node.fuel}, {node.d}, {ls})"
+        y = f"M.lp_{ab}_{node.L}({fuel_lit(node.fuel)}, {node.d}, {ls})"
         ref = f"{O}{{st, ar, e, kh, M.sload({ov}, {f.K})}}"
-        hy = f"{p}_lp({node.fuel}, {node.d}, {pa}{sep}{ls}, {ref}, {{==}})"
+        hy = f"{p}_lp({fuel_lit(node.fuel)}, {node.d}, {pa}{sep}{ls}, {ref}, {{==}})"
         ch.nb += 1
         cname = f"{ch.p}_c{ch.nb}"
         aname = self.after(ch, node.n, state)
@@ -586,12 +610,12 @@ class Loops:
         ab, X, q, O, ob = ch.ab, ch.X, acc.q, acc.n("Ob"), acc.n("ob")
         OV, CD = vals["ov"], vals["cd"]
         ls = f"M.ls_{ab}_{node.L}({ch.rec(vals)})"
-        y = f"M.lp_{ab}_{node.L}({node.fuel}, {node.d}, {ls})"
+        y = f"M.lp_{ab}_{node.L}({fuel_lit(node.fuel)}, {node.d}, {ls})"
         inv0 = f"{acc.n('inv')}({q}, st, {OV}, st, M.w0())"
         oT = f"{O}{{st, ar, e, kh, True{{}}}}"
         h0 = (f"(%Equal.sym(Bool, Bool.or(M.u_nz({CD}), {inv0}), True{{}}, or_r(M.u_nz({CD}), {inv0}, "
               f"{acc.n('init')}({q}, st, {OV}, {pf}))) : {{{O}{{st, ar, e, kh, _}} == {oT} : {O}}}\n        {{==}})")
-        hy = f"{acc.p}_lp({node.fuel}, {node.d}, {q}, {ls}, st, ar, e, kh, {h0})"
+        hy = f"{acc.p}_lp({fuel_lit(node.fuel)}, {node.d}, {q}, {ls}, st, ar, e, kh, {h0})"
         ch.nb += 1
         cname = f"{ch.p}_c{ch.nb}"
         aname = self.after_acc(ch, acc, node.n)
@@ -1075,3 +1099,353 @@ class Acc:
                  f"M.ite(M.HSt, _, {a1}, {b1}), {d[self.IX]}) == True{{}} : Bool}}\n      {s})")
         big = f"(%Equal.sym(Bool, M.u_nz(v_cd), False{{}}, {elc}) : {{Bool.or(_, {invl}) == True{{}} : Bool}}\n      {step1})"
         return f"(%Equal.sym(Bool, Bool.or(M.u_nz(v_cd), {invl}), True{{}}, {big}) : {ob1('_')}\n      {{==}})"
+
+
+# ------------------------------------------------------------------------------------------------ the law
+class Plan:
+    """The facts a law needs: per (action, key) a chain and its step lemma, generated once."""
+
+    def __init__(self, md: Model, defs: list):
+        self.md, self.defs = md, defs
+        self.loops = Loops(md, defs)
+        self.steps: dict = {}
+        self.n = 0
+
+    def probe(self, ab: str, key: str, params: list) -> tuple:
+        """("states", {end states}) of the key through the action, or ("stuck", Stuck): a dry run, nothing kept."""
+        fact = Fact(key, params, ("eq", f"M.sload(st, {key})"))
+        scratch: list = []
+        ch = Chain(self.md, ab, fact, "probe", scratch, Loops(self.md, scratch))
+        PROBE.append(set())
+        try:
+            ch.top()
+            return "states", PROBE[-1]
+        except Stuck as e:
+            return "stuck", e
+        finally:
+            PROBE.pop()
+
+    def fact(self, ab: str, key: str, params: list, bound_ok: bool) -> Fact:
+        """The fact of the key through the action: kept or transported (one end state), or bounded by the budget a
+        split store or an accumulating loop adds (bound_ok)."""
+        kind, r = self.probe(ab, key, params)
+        if kind == "states":
+            if len(r) != 1:
+                raise NoProof(f"{ab}: the word at {key[:120]} differs by path ({len(r)} end states)")
+            return Fact(key, params, next(iter(r)))
+        if not bound_ok:
+            raise NoProof(f"{ab}: it stores at {r.kw[:120]}, which meets {key[:120]} when {r.at[0][:80]} == "
+                          f"{r.at[1][:80]}, and the conjunct keeps the word")
+        v = as_call(norm_value(r.v))
+        rd = as_call(v[1][0].strip()) if v and v[0] == "M.w_add" and len(v[1]) == 2 else None
+        if not rd or rd[0] != "M.sload" or _strip(rd[1][1]) != _strip(r.kw):
+            raise NoProof(f"{ab}: its store at {r.kw[:120]} is not a sum w_add(sload(.., key), D): no bound")
+        D = _strip(v[1][1])
+        if re.search(r"(?<![\w.])v_\w+", D):
+            raise NoProof(f"{ab}: the bound its store adds reads its own context ({D[:120]})")
+        return Fact(key, params, ("le", f"M.sload(st, {_strip(key)})", D))
+
+    def step(self, ab: str, fact: Fact) -> str:
+        """The step lemma of the fact (generated once): {name}(g, ar, e, kh, params.., hz)."""
+        key = (ab, fact.K, fact.goal)
+        if key not in self.steps:
+            self.n += 1
+            p = f"r{self.n}"
+            ch = Chain(self.md, ab, fact, p, self.defs, self.loops)
+            text = step_lemma(ch, f"{p}_g")
+            self.defs.append(text)
+            self.steps[key] = f"{p}_g"
+        return self.steps[key]
+
+
+def _claims(law: dict) -> list:
+    c = law["statement"]["claim"]
+    return list(c["all"]) if isinstance(c, dict) and "all" in c else [c]
+
+
+def _is_wnat_read(t) -> bool:
+    return isinstance(t, dict) and set(t) == {"wnat"} and isinstance(t["wnat"], dict) and "sread" in t["wnat"]
+
+
+def prove(law: dict, facts: dict, model_text: str, tables: list, model_import: str, laws_import: str):
+    """(PROOF.bend text, a note) of the law, or NoProof."""
+    if law.get("ir_version") != "holon-ir/0.3" or law.get("subform") != C3.SUBFORM:
+        raise NoProof("not a typed contract law (holon-ir/0.3, intended_weak)")
+    if list(tables) != ["kh"]:
+        raise NoProof(f"the law's hash tables are {tables}, not keccak256 alone")
+    md = Model(model_text)
+    st = law["statement"]
+    tys = {b["name"]: b["type"] for b in st.get("binders") or []}
+    reach = [n for n, ty in tys.items() if ty == "Reach"]
+    acts = [n for n, ty in tys.items() if ty == "Act"]
+    if len(reach) != 1 or len(acts) != 2 or any(ty not in ("Reach", "Act", "Word") for ty in tys.values()):
+        raise NoProof("the law's binders are not one Reach, two Act and Words")
+    s = reach[0]
+    # the premises: is[A](x), ok(x, s), is[B](y), ok(y, step(x, s))
+    isa, oks = {}, {}
+    for p in st.get("assume") or []:
+        a, b = p.get("eq") or [None, None]
+        if b != {"bool": True} or not isinstance(a, dict):
+            raise NoProof("a premise that is not a boolean term made true")
+        if set(a) == {"is", "act"}:
+            isa[a["act"]["var"]] = a["is"]
+        elif set(a) == {"ok", "from"}:
+            oks[a["ok"]["var"]] = a["from"]
+        else:
+            raise NoProof(f"a premise {sorted(a)} (residue_bound takes is[A] and ok premises)")
+    order = [x for x in acts if oks.get(x) == {"var": s}]
+    if len(order) != 1:
+        raise NoProof("no first action ok at s")
+    x = order[0]
+    y = [a for a in acts if a != x][0]
+    if oks.get(y) != {"from": {"var": s}, "step": {"var": x}} or set(isa) != {x, y}:
+        raise NoProof("the second action is not ok after the first")
+    A, B = bname(isa[x]), bname(isa[y])
+    for ab in (A, B):
+        if f"def xr_{ab}(" not in model_text:
+            raise NoProof(f"the typed model has no action {ab}")
+    S1 = {"step": {"var": x}, "from": {"var": s}}
+    S2 = {"step": {"var": y}, "from": S1}
+    words = [n for n, ty in tys.items() if ty == "Word"]
+    # the law's terms as the law file states them (helpers ct_.., args s, x, y, words, kh)
+    tm = C3.Terms(law, facts, tables)
+    prem = [tm.prop(p) for p in st.get("assume") or []]
+    cl = [tm.prop(p) for p in _claims(law)]
+    targs = tm.args()
+    Sx, Xx, Yx = "M.GSt{st0, g1}", f"M.A_{A}{{ar1, en1}}", f"M.A_{B}{{ar2, en2}}"
+    sub_args = ", ".join({bname(s): Sx, bname(x): Xx, bname(y): Yx}.get(a.strip(), a.strip()) for a in targs.split(","))
+    lawt = lambda txt: re.sub(r"(?<![\w.])(ct_[0-9a-f]+)\(" + re.escape(targs) + r"\)", lambda m: f"Laws.{m.group(1)}({sub_args})", txt)
+    # a key: the read's SK with each step word a param of the chains (its value at the law)
+    env_of = {bname(x): "en1", bname(y): "en2"}
+
+    def word(t) -> str:
+        if isinstance(t, dict) and "var" in t and tys.get(t["var"]) == "Word":
+            return bname(t["var"])
+        if isinstance(t, dict) and set(t) == {"env", "of"}:
+            if t["env"] not in C3.ENV_FIELDS:
+                raise NoProof(f"env {t['env']!r}")
+            return f"M.ge_e_{t['env']}({env_of[bname(t['of']['var'])]})"
+        raise NoProof(f"a key word that is not a Word binder or an env word: {json.dumps(t)[:120]}")
+
+    def read(t, frm) -> tuple:
+        """(key template over params q0.., [(param, value)]) of a whole-word sread at the state frm."""
+        if t.get("from") != frm:
+            raise NoProof(f"a read at another state than expected: {json.dumps(t)[:120]}")
+        tm2 = C3.Terms(law, facts, tables)
+        tm2.word = word
+        tm2.state = lambda _t: "S"
+        w = tm2.sread(t)
+        c = as_call(w)
+        if not c or c[0] != "M.sload" or _strip(c[1][0]) != "M.gh_get_st(S)":
+            raise NoProof(f"a read of a packed field ({w[:120]}): whole words only")
+        from ..disch.proofs import sk_parts
+        k = _strip(c[1][1])
+        parts = sk_parts(k)
+        if parts is None:
+            raise NoProof(f"a key that is not structural: {k[:120]}")
+        b, o, steps = parts
+        params, vals = [], []
+        for i, (kw, o2) in enumerate(steps):
+            params.append(f"q{i}")
+            vals.append(kw)
+        tmpl = f"M.SK{{{b}, {o}, " + ("[" + ", ".join(f"M.SP_m{{q{i}, {o2}}}" for i, (_k, o2) in enumerate(steps)) + "]"
+                                       if steps else "Nil{}") + "}"
+        return _strip(tmpl), [(p_, "M.W") for p_ in params], vals
+
+    defs: list = []
+    plan = Plan(md, defs)
+    comp = {"st": "M.gh_get_st(M.GSt{st0, g1})", "ar": "ar1", "e": "en1", "kh": "kh"}
+    G1 = f"M.gh_step({Xx}, {Sx}, kh)"
+    hzA, hzB = "hzA", "hzB"
+    stepA = lambda name, pv: f"{name}({Sx}, ar1, en1, kh{''.join(', ' + v for v in pv)}, {hzA})"
+    stepB = lambda name, pv: f"{name}({G1}, ar2, en2, kh{''.join(', ' + v for v in pv)}, {hzB})"
+    st0t, st1t = comp["st"], f"M.gh_get_st({G1})"
+    st2t = f"M.gh_get_st(M.gh_step({Yx}, {G1}, kh))"
+    comps, notes = [], []
+
+    def through(t: str) -> tuple:
+        """t, a term of B's pre-state (S1), read at the state A leaves: (its value as a term of A's context, a proof of
+        {t at st1 == the value} at the composition, None when t reads nothing), each read through A's fact at its key."""
+        t = _strip(t)
+        if not re.search(r"(?<![\w.])S1(?![\w{])", t):
+            return t, None
+        c = as_call(t)
+        if not c or c[0] != "M.sload" or _strip(c[1][0]) != "S1":
+            raise NoProof(f"a bound that is not a read of the state ({t[:120]})")
+        from ..disch.proofs import sk_parts
+        parts = sk_parts(_strip(c[1][1]))
+        if parts is None:
+            raise NoProof(f"a bound read at a key that is not structural ({t[:120]})")
+        b, o, steps = parts
+        vals_, proofs = [], []
+        for kw, _o2 in steps:
+            v, pv = through(kw)
+            vals_.append(v)
+            proofs.append(pv)
+        live = [i for i, pv in enumerate(proofs) if pv is not None]
+        if len(live) > 1:
+            raise NoProof("a bound read whose key reads the state twice")
+        sk = lambda ws: f"M.SK{{{b}, {o}, " + ("[" + ", ".join(f"M.SP_m{{{w}, {o2}}}" for w, (_k, o2) in zip(ws, steps))
+                                               + "]" if steps else "Nil{}") + "}"
+        key2 = sk(vals_)
+        f = plan.fact(A, key2, [], False)
+        if f.goal[0] != "eq":
+            raise NoProof("a bound read through a bounded fact")
+        pf = stepA(plan.step(A, f), [])
+        if not live:
+            return f.goal[1], pf
+        i = live[0]
+        cw = lambda w: _comp_s1(w, st1t, comp)
+        hole = sk([("z" if j == i else cw(w)) for j, w in enumerate(vals_)])
+        pk = f"Equal.cong(M.W, M.W, z => M.sload({st1t}, {hole}), {cw(steps[i][0])}, {cw(vals_[i])}, {proofs[i]})"
+        lhs, mid = f"M.sload({st1t}, {cw(sk([w for w, _o in steps]))})", f"M.sload({st1t}, {cw(key2)})"
+        return f.goal[1], f"Equal.trans(M.W, {lhs}, {mid}, {cw(f.goal[1])}, {pk}, {pf})"
+
+    for j, (prop, (a_t, b_t, ty)) in enumerate(zip(_claims(law), cl)):
+        a, b = prop["eq"]
+        if ty == "Nat" and _is_wnat_read(a) and _is_wnat_read(b):
+            post, pre, T = a["wnat"], b["wnat"], None
+        elif isinstance(a, dict) and set(a) == {"cmp", "args"} and a["cmp"] == "<=" and b == {"bool": True}:
+            l_, r_ = a["args"]
+            pl = r_.get("plus") if isinstance(r_, dict) else None
+            if not (_is_wnat_read(l_) and pl and len(pl) == 2 and _is_wnat_read(pl[0]) and isinstance(pl[1], dict)
+                    and set(pl[1]) == {"wnat"}):
+                raise NoProof(f"conjunct {j}: not N(read after) <= N(read before) + N(T)")
+            post, pre, T = l_["wnat"], pl[0]["wnat"], pl[1]["wnat"]
+        else:
+            raise NoProof(f"conjunct {j}: not a kept or bounded word")
+        if {k_: v_ for k_, v_ in post.items() if k_ != "from"} != {k_: v_ for k_, v_ in pre.items() if k_ != "from"}:
+            raise NoProof(f"conjunct {j}: the reads before and after are not at the same key")
+        K, params, pvals = read(post, S2)
+        read(pre, {"var": s})
+        pv_c = pvals    # the params' values at the composition (words of the law's binders and env)
+        fB = plan.fact(B, K, params, T is not None)
+        fA = plan.fact(A, K, params, T is not None)
+        Kc = _sub(K, dict(zip([p_ for p_, _t in params], pv_c)))
+        r0 = f"M.sload({st0t}, {Kc})"
+        r1 = f"M.sload({st1t}, {Kc})"
+        r2 = f"M.sload({st2t}, {Kc})"
+        if fB.goal != ("eq", f"M.sload(st, {K})") and fB.goal[0] == "eq":
+            raise NoProof(f"conjunct {j}: {B} writes the key {K[:120]} ({fB.goal[1][:120]})")
+        if fA.goal != ("eq", f"M.sload(st, {K})") and fA.goal[0] == "eq":
+            raise NoProof(f"conjunct {j}: {A} writes the key {K[:120]} ({fA.goal[1][:120]})")
+        gB, gA = stepB(plan.step(B, fB), pv_c), stepA(plan.step(A, fA), pv_c)
+        name = f"cj{j}"
+        if T is None:
+            if fB.goal[0] != "eq" or fA.goal[0] != "eq":
+                raise NoProof(f"conjunct {j}: the word is kept but a step adds to it")
+            body = (f"Equal.cong(M.W, Nat, z => {N}(z), {r2}, {r0}, Equal.trans(M.W, {r2}, {r1}, {r0}, {gB}, {gA}))")
+            notes.append(f"conjunct {j}: kept by {B} and {A}")
+        else:
+            if T.get("env") is not None:
+                if T.get("of") != {"var": x}:
+                    raise NoProof(f"conjunct {j}: the bound is an env word of another action than the first")
+                Tt = f"M.ge_e_{T['env']}(e)"
+            else:
+                Tk, _tp, _tv = read(T, {"var": s})
+                if _tp:
+                    raise NoProof(f"conjunct {j}: a bound read at a mapping key")
+                Tt = f"M.sload(st, {Tk})"
+            Tc = _sub(Tt, comp)
+            if fB.goal[0] == "eq" and fA.goal[0] == "eq":
+                body = (f"(%Equal.sym(M.W, {r2}, {r0}, Equal.trans(M.W, {r2}, {r1}, {r0}, {gB}, {gA})) : "
+                        f"{{Nat.is_le({N}(_), Nat.add({N}({r0}), {N}({Tc}))) == True{{}} : Bool}}\n  "
+                        f"n_le_add({N}({r0}), {N}({Tc})))")
+                notes.append(f"conjunct {j}: kept by {B} and {A}")
+            elif fB.goal[0] == "eq" and fA.goal[0] == "le":
+                if _strip(fA.goal[2]) != _strip(Tt):
+                    raise NoProof(f"conjunct {j}: {A} adds {fA.goal[2][:120]}, the claim allows {Tt[:120]}")
+                body = (f"(%Equal.sym(M.W, {r2}, {r1}, {gB}) : {{Nat.is_le({N}(_), Nat.add({N}({r0}), {N}({Tc}))) == "
+                        f"True{{}} : Bool}}\n  {gA})")
+                notes.append(f"conjunct {j}: kept by {B}, bounded by {A}'s accumulating loop")
+            elif fB.goal[0] == "le" and fA.goal[0] == "eq":
+                D = fB.goal[2]
+                val, pd = through(_sub(D, {"st": "S1"}))
+                if _strip(val) != _strip(Tt):
+                    raise NoProof(f"conjunct {j}: {B} adds {D[:120]}, which is {val[:120]} after {A}, not the claim's "
+                                  f"{Tt[:120]}")
+                Dc = _sub(D, {"st": st1t})
+                body = f"le_rw({r2}, {r1}, {r0}, {Dc}, {Tc}, {gB}, {gA}, {pd})"
+                notes.append(f"conjunct {j}: bounded by {B}'s split store, its bound transported through {A}")
+            else:
+                raise NoProof(f"conjunct {j}: both steps add to the word")
+        comps.append((name, lawt(f"{{{a_t} == {b_t} : {ty}}}"), body))
+    # the assembly
+    hdr = (f"+kh: List<&2, M.HKB>, +st0: M.HSt, +g1: {_gst_rest(md)}, +ar1: M.AR_{A}, +en1: M.HEnv, +ar2: M.AR_{B}, "
+           f"+en2: M.HEnv" + "".join(f", +{bname(w)}: M.W" for w in words) +
+           f", +hzA: {{M.u_nz(M.gx_{A}_cd(M.xr_{A}({st0t}, ar1, en1, kh))) == False{{}} : Bool}}"
+           f", +hzB: {{M.u_nz(M.gx_{B}_cd(M.xr_{B}({st1t}, ar2, en2, kh))) == False{{}} : Bool}}")
+    cargs = "kh, st0, g1, ar1, en1, ar2, en2" + "".join(f", {bname(w)}" for w in words) + ", hzA, hzB"
+    for name, ty, body in comps:
+        defs.append(f"def {name}({hdr}) -> {ty}:\n  {body}\n")
+    out = [HEADER, f"# law_id: {law['law_id']}   proof class: {CLASS}", "import Base", f"import {model_import} as M",
+           f"import {laws_import} as Laws", "", DL.library(True), ORDER.text("M.", True),
+           RL.library("M.", "Laws.c3_shn", "Laws.c3_wnat"), helpers([]),
+           action_helpers(md, A, md.mirror(A).field_names)]
+    if B != A:
+        out.append(action_helpers(md, B, md.mirror(B).field_names))
+    out += defs
+    out.append(_law_proof(law, tm, md, A, B, s, x, y, words, prem, cl, lawt, comps, cargs, Sx, Xx, Yx))
+    return "\n".join(out) + "\n", "; ".join(notes)
+
+
+def _comp_s1(t: str, st1t: str, comp: dict) -> str:
+    """A term of B's pre-state placeholder S1 and A's context, at the composition."""
+    return _sub(_sub(t, comp), {"S1": st1t})
+
+
+def _gst_rest(md: Model) -> str:
+    m = re.search(r"(?m)^type GSt is Data:\n  GSt\{(.*)\}$", md.text)
+    fs = [x.split(":", 1) for x in split_top(m.group(1))] if m else []
+    if len(fs) != 2 or fs[0][0].strip() != "st":
+        raise NoProof("the augmented state GSt is not {st, one table}")
+    return md.mtype(fs[1][1].strip())
+
+
+def _law_proof(law, tm, md, A, B, s, x, y, words, prem, cl, lawt, comps, cargs, Sx, Xx, Yx) -> str:
+    """Laws.<law>(..): open s, x, y; other actions contradict is[A](x) or is[B](y); the conjuncts' lemmas paired."""
+    params = ["kh"]
+    for n, ty in tm.binders:
+        params += [bname(n), f"r_{bname(n)}"] if ty == "Reach" else [bname(n)]
+    params += [f"h{i}" for i in range(len(prem))]
+    hisx = hisy = hokx = hoky = None
+    for i, p in enumerate(law["statement"]["assume"]):
+        a = p["eq"][0]
+        if set(a) == {"is", "act"}:
+            if a["act"]["var"] == x:
+                hisx = f"h{i}"
+            else:
+                hisy = f"h{i}"
+        elif a["from"] == {"var": s}:
+            hokx = f"h{i}"
+        else:
+            hoky = f"h{i}"
+    acts = re.findall(r"(?m)^  (A_\w+)\{ar: AR_\w+, en: HEnv\}$", md.text)
+
+    def tup(items):
+        return items[0] if len(items) == 1 else f"({items[0]}, {tup(items[1:])})"
+
+    def other(sv, xv, yv, e):
+        sub = lambda t: re.sub(r"Laws\.(ct_[0-9a-f]+)\(M\.GSt\{st0, g1\}, M\.A_\w+\{ar1, en1\}, M\.A_\w+\{ar2, en2\}",
+                               lambda m: f"Laws.{m.group(1)}({sv}, {xv}, {yv}", t)
+        return tup([f"efq({sub(ty)}, ez)" for _n, ty, _b in comps])
+
+    sp = "  "
+    lines = [f"def Laws.{C3.law_name(law['law_id'])}({', '.join(params)}):",
+             f"{sp}match {bname(s)}:", f"{sp * 2}case M.GSt{{+st0, +g1}}:", f"{sp * 3}match {bname(x)}:"]
+    for a in acts:
+        if a == f"A_{A}":
+            lines += [f"{sp * 4}case M.{a}{{+ar1, +en1}}:", f"{sp * 5}match {bname(y)}:"]
+            for b in acts:
+                if b == f"A_{B}":
+                    lines += [f"{sp * 6}case M.{b}{{+ar2, +en2}}:",
+                              f"{sp * 7}+hzA = okz_{A}(M.gh_get_st({Sx}), ar1, en1, kh, {hokx})",
+                              f"{sp * 7}+hzB = okz_{B}(M.gh_get_st(M.gh_step({Xx}, {Sx}, kh)), ar2, en2, kh, {hoky})",
+                              f"{sp * 7}{tup([f'{n}({cargs})' for n, _t, _b in comps])}"]
+                else:
+                    lines += [f"{sp * 6}case M.{b}{{+b1, +b2}}:", f"{sp * 7}+ez = false_ne_true({hisy})",
+                              f"{sp * 7}{other(Sx, Xx, f'M.{b}{{b1, b2}}', 'ez')}"]
+        else:
+            lines += [f"{sp * 4}case M.{a}{{+a1, +a2}}:", f"{sp * 5}+ez = false_ne_true({hisx})",
+                      f"{sp * 5}{other(Sx, f'M.{a}{{a1, a2}}', bname(y), 'ez')}"]
+    return "\n".join(lines) + "\n"
