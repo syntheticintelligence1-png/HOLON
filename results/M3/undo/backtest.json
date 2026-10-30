@@ -1,9 +1,7 @@
 {
   "against": "M1",
   "document": "undo_backtest",
-  "gaps": [
-    "L_undo_cancel"
-  ],
+  "gaps": [],
   "rows": [
     {
       "analogue": "L_undo_res_Rollup_revertBatch_batchDataStore",
@@ -30,12 +28,12 @@
       "same_status": false
     },
     {
-      "analogue": null,
-      "analogue_status": null,
+      "analogue": "L_undo_cancel_Rollup_challengeState_setPause",
+      "analogue_status": "REFUTED",
       "m1_law": "L_undo_cancel",
       "m1_status": "REFUTED",
-      "reason": "(challengeState, setPause) is not an undo pair of the extracted document (no restore with a criterion: U3, U4): a back-test miss, an open rule gap",
-      "same_status": false
+      "reason": "L_undo_cancel_Rollup_challengeState_setPause decides the cancel basis of the extracted document (static class live); the same status as M1",
+      "same_status": true
     }
   ]
 }
