@@ -271,17 +271,24 @@ def main(root: Path, milestone: str, check: bool = False) -> int:
 
 
 def cli(argv: list[str]) -> int:
-    """`holon sym --milestone M [--root DIR] [--check]`: exit 0 written (or --check reproduced), 1 --check differs,
-    2 refused (no typed milestone of one sorted document)."""
+    """`holon sym --milestone M [--root DIR] [--check] [--aggregate]`: exit 0 written (or --check reproduced), 1
+    --check differs, 2 refused (no typed milestone of one sorted document). --aggregate also rebuilds, from the SYM
+    records alone, the split documents, races.json, the route (ii) requests and the SYM replay report
+    (holon.symd.run.write_splits: a sharded run's jobs write per-law records only)."""
     import argparse
     import sys
     ap = argparse.ArgumentParser(prog="holon sym")
     ap.add_argument("--milestone", required=True)
     ap.add_argument("--root", default=".")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--aggregate", action="store_true")
     a = ap.parse_args(argv)
     try:
-        return main(Path(a.root), a.milestone, check=a.check)
+        rc = main(Path(a.root), a.milestone, check=a.check)
+        if rc == 0 and a.aggregate and not a.check:
+            from .symd.run import write_splits
+            write_splits(a.milestone, Path(a.root).resolve())
+        return rc
     except (SymError, OSError, ValueError) as e:
         print(f"holon sym: {e}", file=sys.stderr)
         return 2

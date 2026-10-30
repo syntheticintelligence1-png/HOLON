@@ -516,14 +516,18 @@ class Decider:
             nv = self.inhabit(el, law, sc)
         rec = self.record(law, e, el, sc, status, wj if status == "REFUTED" else None, attempts, lp, prim,
                           bound if status == "UNKNOWN" else None, diag, nv)
+        rs = [{"law_id": r["law"], "a": r["a"], "b": r["b"], "disabled": r["disabled"], "code": r["code"],
+               "witness": {"prefix": self.steps_json(sc, r["prefix"]), "x": self.steps_json(sc, [r["x"]])[0],
+                           "y": self.steps_json(sc, [r["y"]])[0]}} for r in races]
+        rec["sym"]["races"] = rs
+        if status == "REFUTED" and rep:
+            rec["sym"]["replay"] = rep
         if status == "REFUTED":
             rec["replay"] = ({"status": rep.get("status", "failed"), "detail": f"model {rep['model']}, real {rep['real']}"}
                              if rep else {"status": "not_applicable", "detail": "no binding: no real side"})
         else:
             rec["replay"] = {"status": "not_applicable", "detail": f"{status}: no witness to replay"}
-        return rec, rep, [{"law_id": r["law"], "a": r["a"], "b": r["b"], "disabled": r["disabled"], "code": r["code"],
-                           "witness": {"prefix": self.steps_json(sc, r["prefix"]), "x": self.steps_json(sc, [r["x"]])[0],
-                                       "y": self.steps_json(sc, [r["y"]])[0]}} for r in races]
+        return rec, rep, rs
 
     def site_of(self, el: dict, sc: SymCtx, witness: dict) -> str | None:
         """The comparison of a Time word against a constant a REFUTED tau witness crosses (J7, P5), as "<action>:<where>"
@@ -640,7 +644,22 @@ def families_doc(m: str, root: Path) -> dict:
                   for _k, v in sorted(rows.items(), key=lambda kv: str(kv[0]))] for sub, rows in out.items()}
 
 
-def write_splits(m: str, root: Path, races: list) -> None:
+def write_splits(m: str, root: Path, races: list | None = None) -> None:
+    """Every aggregate of the SYM records, rebuilt from results/<M>/L_sym_*.json alone (a sharded run's jobs write
+    per-law records only): the split documents, the route (ii) requests, races.json (each record's sym.races) and
+    replay/<M>/sym/report.json (each REFUTED record's sym.replay)."""
+    recs = [json.loads(p.read_text()) for p in sorted((root / "results" / m).glob("L_sym_*.json"))]
+    races = [rc for r in recs for rc in (r.get("sym") or {}).get("races") or []]
+    rp = root / "replay" / m / "sym" / "report.json"
+    rp.parent.mkdir(parents=True, exist_ok=True)
+    rp.write_text(dumps({"document": "sym_replay", "milestone": m,
+                         "laws": {r["law_id"]: r["sym"]["replay"] for r in recs
+                                  if r.get("status") == "REFUTED" and (r.get("sym") or {}).get("replay")}}),
+                  encoding="utf-8")
+    _write_splits(m, root, races)
+
+
+def _write_splits(m: str, root: Path, races: list) -> None:
     d = root / "results" / m / "sym"
     d.mkdir(parents=True, exist_ok=True)
     fams = families_doc(m, root)
@@ -655,12 +674,8 @@ def write_splits(m: str, root: Path, races: list) -> None:
                 req = {"split": key, "eq": sp["eq"], "break": sp["break"],
                        "hypotheses": ["minority deviates", "majority deviates"], "answer": None}
                 (ad / f"{key}.json").write_text(dumps(req), encoding="utf-8")
-    rp = d / "races.json"
-    cur = json.loads(rp.read_text()) if rp.is_file() else {"document": "sym_races", "milestone": m, "races": []}
-    keep = {r["law_id"]: r for r in cur.get("races") or []}
-    for r in races:
-        keep[r["law_id"]] = r
-    rp.write_text(dumps(dict(cur, races=[keep[k] for k in sorted(keep)])), encoding="utf-8")
+    (d / "races.json").write_text(dumps({"document": "sym_races", "milestone": m,
+                                          "races": sorted(races, key=lambda r: r["law_id"])}), encoding="utf-8")
 
 
 # ------------------------------------------------------------------------------------------------ the command
@@ -693,14 +708,7 @@ def run_main(a, ids: list[str] | None = None) -> int:
             if rep is not None and rec["status"] == "REFUTED":
                 report["laws"][lid] = rep
         if own:
-            cur = json.loads(rp.read_text()) if rp.is_file() else dict(report, laws={})
-            for lid in lids:
-                cur["laws"].pop(lid, None)
-                if lid in report["laws"]:
-                    cur["laws"][lid] = report["laws"][lid]
-            rp.parent.mkdir(parents=True, exist_ok=True)
-            rp.write_text(dumps(dict(cur, laws=dict(sorted(cur["laws"].items())))), encoding="utf-8")
-            write_splits(ctx.m, ctx.root, races)
+            write_splits(ctx.m, ctx.root)
     finally:
         if real is not None:
             real.close()
