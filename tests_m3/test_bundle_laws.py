@@ -503,9 +503,12 @@ class TestConservation(unittest.TestCase):
             checked(self, lid, rec)
             replayed(self, lid, rec)
         ann = record("L_sort_cons_Rollup_receive")
-        self.assertEqual(ann.get("triage"), "annotated")
+        # amended at the build (spec/M3/amendments.jsonl): the frozen record schema (schemas/result_record.schema.json)
+        # has no triage value "annotated", so RC2's mark is the annotation's triage and the record keeps its own
+        self.assertEqual((ann.get("annotation") or {}).get("triage"), "annotated")
         self.assertEqual((ann.get("annotation") or {}).get("source"), need(SIDE)["annotations"][0]["source"])
-        self.assertNotEqual(record("L_sort_cons_L1CrossDomainMessenger_receive").get("triage"), "annotated")
+        other = record("L_sort_cons_L1CrossDomainMessenger_receive")
+        self.assertNotEqual((other.get("annotation") or {}).get("triage"), "annotated")
 
     def test_p6_the_other_inflows_are_unknown_with_their_dependencies(self):
         b = basis()
