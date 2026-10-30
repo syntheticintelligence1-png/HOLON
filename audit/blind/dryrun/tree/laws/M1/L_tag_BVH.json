@@ -1,0 +1,44 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_tag_BVH",
+  "milestone": "M1",
+  "rule": "SORT",
+  "subform": "ghost_tag",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "tags_ok",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Prop 6.19 ghost-tag exactness: the header blob field of every committed batch carries the sort its version implies (aggregate keccak iff version 2). The ghost tag records which writer produced batchBlobVersionedHashes.",
+  "maps_to": "O26 (F6)",
+  "evidence": [
+    "E2",
+    "E5"
+  ],
+  "predicted": "REFUTED"
+}

@@ -1,0 +1,150 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_undo_cancel",
+  "milestone": "M1",
+  "rule": "UNDO",
+  "subform": "undo_pair",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "j",
+        "type": "Nat"
+      },
+      {
+        "q": "forall",
+        "name": "q",
+        "type": "Trace"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "last_ok",
+            "args": [
+              {
+                "step": {
+                  "act": "challengeState",
+                  "args": {
+                    "who": {
+                      "nat": 4
+                    },
+                    "idx": {
+                      "var": "j"
+                    },
+                    "value": {
+                      "nat": 1
+                    }
+                  }
+                },
+                "from": {
+                  "run": {
+                    "var": "p"
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "run": {
+              "trace": [
+                {
+                  "act": "challengeState",
+                  "args": {
+                    "who": {
+                      "nat": 4
+                    },
+                    "idx": {
+                      "var": "j"
+                    },
+                    "value": {
+                      "nat": 1
+                    }
+                  }
+                },
+                {
+                  "act": "setPause",
+                  "args": {
+                    "who": {
+                      "nat": 1
+                    },
+                    "status": {
+                      "bool": true
+                    }
+                  }
+                }
+              ]
+            },
+            "from": {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            }
+          }
+        },
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "run": {
+              "trace": [
+                {
+                  "act": "setPause",
+                  "args": {
+                    "who": {
+                      "nat": 1
+                    },
+                    "status": {
+                      "bool": true
+                    }
+                  }
+                }
+              ]
+            },
+            "from": {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": "Undo pair (challengeState, setPause(true)): pausing cancels an open challenge; afterwards the system should behave as if the challenge had never been opened and the owner had just paused.",
+  "maps_to": "O12 (N2)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED"
+}

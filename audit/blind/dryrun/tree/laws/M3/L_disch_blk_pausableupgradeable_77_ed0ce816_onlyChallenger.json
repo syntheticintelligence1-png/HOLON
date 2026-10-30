@@ -1,0 +1,66 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger",
+  "milestone": "M3",
+  "notes": "Thm 6.10's invariant: while the blocked condition holds at a time no later than the step's, every step of an action of the class's closure under it (with the class's permission) keeps it, and time keeps it; morph_rollup.extracted:blocking:pausableupgradeable_77_ed0ce816:onlyChallenger",
+  "rule": "DISCH",
+  "rule_catalog_version": "holon-rules/1.6",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "t",
+        "q": "forall",
+        "type": "Word"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "e",
+        "q": "forall",
+        "type": "Env"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "at": {
+            "var": "t"
+          },
+          "disch": "morph_rollup.extracted:blocking:pausableupgradeable_77_ed0ce816:onlyChallenger",
+          "env": {
+            "var": "e"
+          },
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "blocking"
+}

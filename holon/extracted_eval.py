@@ -772,10 +772,45 @@ class Eval:
         return int.from_bytes(x[k:k + 32].ljust(32, b"\0"), "big")
 
     def t_cdoff(self, t):
-        raise Unsupported("the calldata offset of an input depends on its ABI encoding position")
+        """bundle (M1): x.offset of a calldata input, when env gives the raw calldata ("msg.data"): a dynamic input's
+        data (after its length word), a static input's first head word."""
+        data = self.env.get("msg.data")
+        x = t[1]
+        if data is None or not (isinstance(x, list) and x[:1] == ["param"]):
+            raise Unsupported("the calldata offset of an input depends on its ABI encoding position")
+        data = to_bytes(data)
+        pos = 4
+        for p in (self.m.params(self.action) if hasattr(self.m, "params") else None) or []:
+            if p.get("name") == x[1]:
+                if _is_dynamic(p):
+                    return 4 + int.from_bytes(data[pos:pos + 32].ljust(32, b"\0"), "big") + 32
+                return pos
+            pos += 32 * (1 if _is_dynamic(p) else _static_words(p))
+        raise Unsupported(f"no input {x[1]} for its calldata offset")
+
+    def t_calldataload(self, t):
+        """bundle (M1): the 32-byte word of the raw calldata (env "msg.data") at an offset, zero past its end."""
+        data = self.env.get("msg.data")
+        if data is None:
+            raise Unsupported("raw calldata is not an argument")
+        o = self.iv(t[1])
+        b = to_bytes(data)
+        return int.from_bytes(b[o:o + 32].ljust(32, b"\0"), "big") if o < len(b) else 0
 
     def t_calldata(self, t):
         raise Unsupported("raw calldata is not an argument")
+
+    def t_update(self, t):
+        """bundle (M1): ["update", base, target, v], the struct value base with the member target names set to v."""
+        base = self.value(self.ev(t[1]))
+        tgt = t[2]
+        if not (isinstance(tgt, list) and len(tgt) == 3 and tgt[0] == "member" and isinstance(tgt[2], str)):
+            raise Unsupported("an update of a value at a path deeper than one member")
+        if isinstance(base, int) and base == 0:
+            base = {}
+        if not isinstance(base, dict):
+            raise Unsupported(f"an update of a {type(base).__name__}")
+        return {**base, tgt[2]: self.value(self.ev(t[3]))}
 
     def t_struct(self, t):
         return {m: self.value(self.ev(v)) for m, v in t[2]}
@@ -908,6 +943,21 @@ class Eval:
                 out += hd
         return out + b"".join(tails)
 
+    def t_abi_encodeWithSignature(self, t):
+        """bundle (M1): the first four bytes of keccak256 of the literal signature, then the ABI encoding of the arguments
+        by the signature's types."""
+        sig = self.as_bytes(self.ev(t[1])).decode("utf-8", "replace")
+        ps = signature_types(sig)
+        vals = [self.value(self.ev(x)) for x in t[2:]]
+        if len(vals) != len(ps):
+            raise Unsupported(f"abi.encodeWithSignature({sig}) with {len(vals)} arguments")
+        return keccak(sig.encode()).to_bytes(32, "big")[:4] + abi_encode([norm(v, p) for v, p in zip(vals, ps)], ps)
+
+    def t_wbyte(self, t):
+        """bundle (M1): byte n of the word x, 0 the most significant (Yul byte(n, x)); 0 past the word."""
+        x, n = self.iv(t[1]), self.iv(t[2])
+        return (x >> (8 * (31 - n))) & 0xFF if n < 32 else 0
+
     def t_abi_encodePacked(self, t):
         """Packed encoding: bytes and strings as they are, a word in its type's width (module docstring)."""
         out = b""
@@ -944,6 +994,17 @@ class Eval:
                 if p.get("name") == t[1]:
                     return p.get("type")
             return None
+        if h == "index" and isinstance(t[1], list) and t[1][:1] == ["param"]:
+            # bundle (M2's twin): an element of an array input has the element type
+            ty = self.term_type(t[1])
+            return re.sub(r"\[\d*\]$", "", ty) if isinstance(ty, str) and ty.endswith("]") else None
+        if h == "carried":
+            # bundle: a loop-carried name has its entry's type, confirmed by its next value's
+            return self.carried_type(t)
+        if h == "?":
+            # bundle: a conditional whose two branches have one type has that type
+            a, b = self.term_type(t[2]), self.term_type(t[3])
+            return a if a is not None and a == b else None
         if h in ("storage", "map", "member", "index"):
             try:
                 ref = self._ref_of(t)
@@ -954,6 +1015,21 @@ class Eval:
                 return "address"
             return "uint8" if lab.startswith("enum ") else lab
         return None
+
+    def carried_type(self, t) -> str | None:
+        span, name = t[1], t[2]
+        r = t[3] if len(t) > 3 and isinstance(t[3], int) else 0
+        loops = [lp for lp in (self.m.actions.get(self.action) or {}).get("loops") or [] if lp.get("src") == span]
+        if r >= len(loops):
+            return None
+        lp = loops[r]
+        ent = next((c for c in lp.get("carried") or [] if c.get("name") == name), None)
+        nxt = next((c for c in lp.get("next") or [] if c.get("name") == name), None)
+        if ent is None:
+            return None
+        a = self.term_type(ent.get("entry"))
+        b = self.term_type(nxt.get("value")) if nxt is not None else a
+        return a if a is not None and a == b else None
 
     def _ref_of(self, t) -> SRef:
         """The storage location a storage read term names."""
@@ -1101,6 +1177,10 @@ class Eval:
         sig = self.m.call_signature(fn) if hasattr(self.m, "call_signature") else None
         ins = (sig or {}).get("inputs")
         mine = [self.value(a) for a in args]
+        hook = self.env.get("call_hook")
+        if callable(hook):        # a linked machine answers the call by running its callee (holon.bundle, bundle)
+            ok, data = hook(self, fn, receiver, mine, sig, None)
+            return ok, data, sig
         hits = []
         for c in self._calls():
             if c.get("fn") != fn:
@@ -1140,6 +1220,10 @@ class Eval:
             raise Unsupported(f"{fn} without a receiver")
         to = self.as_int(args[0])
         data = self.as_bytes(args[1]) if len(args) > 1 else b""
+        hook = self.env.get("call_hook")
+        if callable(hook):        # a linked machine's answer (holon.bundle, bundle)
+            ok, ret = hook(self, fn, to, data, None, self.iv(value) if value is not None else 0)
+            return self._low_answer(kind, ok, ret, status_only)
         hits = []
         for c in self._calls():
             try:
@@ -1156,13 +1240,16 @@ class Eval:
         if len(answers) != 1:
             raise Unsupported(f"{fn} to {to:#x}: env gives {'no' if not answers else 'several'} answers")
         ok, ret = answers.pop()
+        return self._low_answer(kind, ok, to_bytes(ret), status_only)
+
+    def _low_answer(self, kind: str, ok: bool, ret: bytes, status_only: bool):
         if status_only:
             if not ok:
                 self.failed_call = to_bytes(ret)
             return ok
         if kind == "transfer":
             if not ok:
-                raise CallReverted(b"", fn)
+                raise CallReverted(b"", f"address.{kind}")
             return []
         if kind == "send":
             return int(ok)
@@ -1265,9 +1352,44 @@ class Eval:
 
     def write(self, w) -> None:
         path = tuple(self.path(w.path))
+        v0 = w.value
+        if isinstance(v0, list) and v0 and v0[0] in ("push", "pop"):
+            return self.array_write(SRef(w.family, path), v0)
         val = self.value(self.ev(w.value))
         slot, off, tid = self.locate(SRef(w.family, path))
         self._write_at(slot, off, tid, val)
+
+    def array_write(self, ref: SRef, v) -> None:
+        """bundle (M1): a storage dynamic array after ["push", array, value] or ["pop", array]: the length at its slot,
+        the element at keccak256(slot) by the compiler's packing (the pushed value, or zero for the popped one)."""
+        slot, _off, tid = self.locate(ref)
+        t = self.m.type_of(tid)
+        if t.get("encoding") != "dynamic_array" or "base" not in t:
+            raise Unsupported(f"{v[0]} on a storage {t.get('label')}")
+        bt = self.m.type_of(t["base"])
+        if bt.get("encoding") != "inplace" or "members" in bt or "base" in bt:
+            raise Unsupported(f"{v[0]} of a {bt.get('label')} element")
+        n = self.overlay.get(slot, self.state.get(slot, 0))
+        size = int(bt["numberOfBytes"])
+        base = keccak(slot.to_bytes(32, "big"))
+        if v[0] == "push":
+            i, val, newlen = n, self.value(self.ev(v[2])), n + 1
+        else:
+            if n == 0:
+                raise Unsupported("pop of an empty array (a panic the document does not place)")
+            i, val, newlen = n - 1, 0, n - 1
+        if size <= 16:
+            per = 32 // size
+            es, eo = base + i // per, (i % per) * size
+        else:
+            es, eo = base + i * ((size + 31) // 32), 0
+        self._write_at(es & MASK, eo, t["base"], val)
+        self._write_len(slot, newlen)
+
+    def _write_len(self, slot: int, n: int) -> None:
+        self.overlay[slot] = n & MASK
+        if slot not in self.touched:
+            self.touched.append(slot)
 
     def _write_at(self, slot: int, off: int, tid: str, value) -> None:
         t = self.m.type_of(tid)
@@ -1421,4 +1543,30 @@ def step(model, state, action: str, args: dict, env: dict) -> dict:
     except (ArithmeticError, RecursionError) as x:
         return _result("unsupported", reason=f"{action}: {type(x).__name__}: {x}")
     wd = {h32(k): h32(e.overlay[k]) for k in sorted(e.touched)}
-    return _result("ok", None, wd, e.events, None)
+    if not env.get("return_data"):
+        return _result("ok", None, wd, e.events, None)
+    try:              # bundle (M1): the action's return value as ABI-encoded return data, when env asks for it
+        ret = return_data(model, e, action)
+    except Unsupported as x:
+        return _result("unsupported", reason=f"{action}: return data: {x}")
+    except (ArithmeticError, RecursionError) as x:
+        return _result("unsupported", reason=f"{action}: return data: {type(x).__name__}: {x}")
+    return _result("ok", None, wd, e.events, None, **{"return": hexb(ret)})
+
+
+def return_data(model, e: "Eval", action: str) -> bytes:
+    """The ABI encoding of an action's return value (its document's "returns" term) by its ABI outputs; empty for an
+    action that returns nothing."""
+    a = model.actions[action]
+    sel = a.get("selector") or a.get("name")
+    outs = ((model.info.get("functions") or {}).get(sel) or {}).get("outputs") if hasattr(model, "info") else None
+    if not outs:
+        return b""
+    t = a.get("returns")
+    if t is None:
+        raise Unsupported(f"the document records no return value of {action}")
+    v = e.ev(t)
+    vals = list(v) if len(outs) > 1 and isinstance(v, (list, tuple)) else [v]
+    if len(vals) != len(outs):
+        raise Unsupported(f"{action} returns {len(vals)} values for {len(outs)} outputs")
+    return abi_encode([norm(e.value(x), p) for x, p in zip(vals, outs)], outs)
