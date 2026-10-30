@@ -570,11 +570,12 @@ class _Morph(unittest.TestCase):
     def derived(self) -> dict:
         """The PAR laws derive wrote but those of sub-form init_chain (later M3 iterations add laws of other rules, and I28
         a PAR law of the sub-form init_chain over the versioned document; I24's checks are about I24's PAR laws. Amended
-        at the I28 prereg, spec/M3/amendments.jsonl) and those over a Go-op document (I67's, gen/M3/goops/; amended at
-        the I67 prereg)."""
+        at the I28 prereg, spec/M3/amendments.jsonl), those over a Go-op document (I67's, gen/M3/goops/; amended at
+        the I67 prereg) and those of the sub-form push (I86's, over a bundle member's document; amended at I86's
+        build)."""
         self.assertEqual(self.r.code, 0, self.r.log)
         return {k: v for k, v in self.r.law_docs().items()
-                if v.get("rule") == "PAR" and v.get("subform") != "init_chain"
+                if v.get("rule") == "PAR" and v.get("subform") not in ("init_chain", "push")
                 and not str(v.get("facts") or "").startswith("gen/M3/goops/")}
 
 
@@ -598,13 +599,13 @@ class TestRegistry(unittest.TestCase):
             self.assertEqual(sorted(rules.CATALOGS), ["holon-rules/1.0", "holon-rules/1.1"])
         else:          # from I30 on: a later catalog for M3 that keeps holon-rules/1.1's PAR producers unchanged (the
             #            same objects; I28 adds PAR's sub-form init_chain, and only it, beside them: amended at the I28
-            #            prereg, spec/M3/amendments.jsonl)
+            #            prereg, spec/M3/amendments.jsonl; I86 adds PAR's sub-form push: amended at I86's build)
             self.assertNotIn(cv, ("holon-rules/1.0", "holon-rules/1.1"))
             base = rules.CATALOGS["holon-rules/1.1"]["PAR"]
             self.assertEqual({s: p for s, p in rules.CATALOGS[cv]["PAR"].items() if s in base}, base)
             for s, p in base.items():
                 self.assertIs(rules.CATALOGS[cv]["PAR"][s], p, s)
-            self.assertLessEqual(set(rules.CATALOGS[cv]["PAR"]) - set(base), {"init_chain"})
+            self.assertLessEqual(set(rules.CATALOGS[cv]["PAR"]) - set(base), {"init_chain", "push"})
 
     def test_m2_derivation_is_unchanged(self):
         """I24-R2: PAR is not in M2's catalog; derive --milestone M2 reproduces laws/M2 and gen/M2/sorts/obstructions.json
@@ -857,7 +858,8 @@ class TestDeriveM3(_Morph):
                 self.assertEqual(canonical_json(ls[lid]["statement"]), canonical_json(want["statement"]))
         goops = {p.stem for p in (ROOT / "gen" / "M3" / "goops").glob("*.json")}
         self.assertEqual(I.basis_rows([b for b in dv["par_basis"] if b["model"] not in goops]), I.basis_rows(exp["basis"]))
-        entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR" and e.get("subform") != "init_chain"
+        entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR"
+                   and e.get("subform") not in ("init_chain", "push")
                    and not str(e.get("facts") or "").startswith("gen/M3/goops/")}
         self.assertEqual(sorted(entries), sorted(ls))
         for lid, e in entries.items():

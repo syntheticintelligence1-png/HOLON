@@ -394,11 +394,12 @@ class TestPreregInstruments(unittest.TestCase):
                 self.assertFalse([s for s in subs if "lossy" in s.lower()], f"{v}: {rule}")
         cv = rules.catalog_version("M3")
         # I24's PAR producers, the same objects (I28 adds PAR's sub-form init_chain, and only it, beside them: amended
-        # at the I28 prereg, spec/M3/amendments.jsonl)
+        # at the I28 prereg, spec/M3/amendments.jsonl; I86 adds PAR's sub-form push, the law of I25's deferred pushing
+        # candidate D7: amended at I86's build)
         base = rules.CATALOGS["holon-rules/1.1"]["PAR"]
         for sub, prod in base.items():
             self.assertIs(rules.CATALOGS[cv]["PAR"].get(sub), prod, sub)
-        self.assertLessEqual(set(rules.CATALOGS[cv]["PAR"]) - set(base), {"init_chain"})
+        self.assertLessEqual(set(rules.CATALOGS[cv]["PAR"]) - set(base), {"init_chain", "push"})
 
 
 # ---------------------------------------------------------------------------------------------- Morph (the build)
