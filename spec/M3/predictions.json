@@ -3907,6 +3907,184 @@
         ],
         "disclosure": "Only I81-P1 counts toward prediction accuracy: its outcome rests on the layout bound, which nobody computed before this commit. The others are recorded, not counted: the author read most of what decides them (observed_before_prereg), and the rest follow from the preregistered policy applied to committed data. A miss in any of them is still reported as a miss."
       }
+    },
+    "I82": {
+      "title": "I82 (= I46a): the blind pack, the comparison generator and the agreement metric (I46 keeps its number for the blind rerun and the M3 exit): tools/blind_pack.py (I46's sealed bundle, byte-identical for a given commit, with a manifest, sha256s and a leak list that is reported, never filtered), holon/report.py writing spec/M3/appendixA_map.json and docs/M3_COMPARISON.md under G1 (each section 11.8 row, a cell for every F1-F14, Appendix A's items mapped to law ids), and the blind_agreement metric (holon compare --blind) over the statuses of alpha-equivalent statements, dry-run on the lead's own regenerated records and on synthetic perturbations",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I82)",
+      "prompt": "prompts/I82_blind_tooling.md",
+      "predictions": [
+        {
+          "id": "I82-P1",
+          "claim": "The pack holds exactly I46's protocol (K1-K4, K6, K9): python tools/blind_pack.py --commit <HEAD> --out DIR exits 0 and bundle.tar's members are exactly the instrument's: target/<p> for each of the 1080 blobs of morph-l2/morph at 3e44e795586af3e11285b603ab642c67823add51 (its one gitlink, go-ethereum, listed under excluded.target and not packed), tooling/<p> for every blob of the packed commit under .github/ci/, config/, holon/, schemas/ and tools/ and the files .gitattributes, .gitignore and requirements-dev.txt, less tools/blind_pack.py and tools/casestudy.py (excluded.holon.path), and tooling/whitepaper.md redacted; each member's bytes and mode equal its git blob's (0o755 for a 100755 blob); no member lies under facts/, spec/, laws/, gen/, results/, replay/, docs/, prompts/, tests/, tests_m*/ or audit/, and none is a maps_to sidecar or policy_hints.mjs (checked from the protocol's own list, not the sidecar's); members are sorted, with mtime 0, uid and gid 0 and empty owner names; manifest.json lists exactly those members with size and sha256, the exclusions by rule, the redactions, the leak summary and the bundle's sha256, in K8's form, and records no absolute path of the packing machine. Derivation: K3 over the sidecar's lists; the target's tree was counted with git ls-tree at the prereg (1055 blobs of mode 100644, 25 of 100755, 1 gitlink).",
+          "check": "tests_m3/test_blind.py::TestPack::test_p1_the_bundle_holds_exactly_the_protocols_members"
+        },
+        {
+          "id": "I82-P2",
+          "claim": "The pack is deterministic (K7): packing the same commit again from another working directory into another output directory, under TZ=Pacific/Kiritimati and LC_ALL=C, gives byte-identical bundle.tar, manifest.json and leaks.json. Derivation: every byte comes from git objects and the sidecar, every tar header field is fixed, every list is sorted, and no output records a time or a path of the machine.",
+          "check": "tests_m3/test_blind.py::TestPack::test_p2_the_pack_is_byte_identical_across_runs_and_environments"
+        },
+        {
+          "id": "I82-P3",
+          "claim": "The whitepaper is redacted exactly as the protocol says (K5): tooling/whitepaper.md equals the instrument's redaction of the packed commit's whitepaper.md, which removes exactly four sections (## 2 Motivating Example, ## 11 Case Study, ## Appendix A., ## Appendix B., each once) and the seven Morph instances lists of section 5 (each with its items and the blank line after it), and nothing else; no removed heading and no '**Morph instances:**' line is left; the manifest's redactions equal the instrument's spans.",
+          "check": "tests_m3/test_blind.py::TestPack::test_p3_the_whitepaper_is_redacted_as_the_protocol_says"
+        },
+        {
+          "id": "I82-P4",
+          "claim": "The leak scan reports leaks, and they are the instrument's (L1-L6): leaks.json equals the instrument's scan of the bundle's tooling/ members, and it is not empty. In the redacted whitepaper it finds the case_id O12 on section 5.9's 'Example (O12)' line (the protocol leaves section 5.9's worked example), the law_name L_dom_v0 (section 15.1's day-one list) and a section_ref to section 11.8 (section 12's L8 row and section 15.1 keep it); in tooling/holon it finds at least 5 files with a section_ref match, at least 5 files with an O-id case_id match outside rule context, and at least one code_site and one law_name match (holon/ docstrings quote the case study). So the bundle I46's protocol defines is not leak-free, and I46's blind rerun must state these leaks. Derivation and disclosure: the whitepaper sites were read before the prereg; a grep before the prereg over holon/, tools/, config/, schemas/ and bend/ found 10 files with a section 11, Appendix A/B or section 2.x reference and 19 with O-id-shaped tokens (rule names among them, e.g. tests_m3/test_o12.py's rules O1-O6), so the thresholds sit below those counts; the full scan was not run before the prereg.",
+          "check": "tests_m3/test_blind.py::TestPack::test_p4_the_leak_scan_finds_what_the_instrument_finds_and_it_is_not_empty"
+        },
+        {
+          "id": "I82-P5",
+          "claim": "The map links every item from its sources (A2-A7): spec/M3/appendixA_map.json equals the instrument's derivation in version, inputs, sets, unmapped, absent and every item; the catalog parses to exactly O1-O37, D1-D9, N1-N4, F1-F14 and R1-R14; every link's source is sidecar, maps_to, ledger, name or backtest; at the base every sidecar link's law has a record (absent is empty). The links themselves are derived data, not predictions.",
+          "check": "tests_m3/test_blind.py::TestMap::test_p5_the_map_links_every_item_by_its_generated_and_sidecar_sources"
+        },
+        {
+          "id": "I82-P6",
+          "claim": "The comparison regenerates byte-identically and G1 covers it (A1, G1): holon report --milestone M3 --check exits 0 on the committed tree; with a copy of results/M3 in place of the M3 set, --check exits 0 on an unflipped copy and 1 when the copy flips the decided status of the first counted M3 link's law; holon/gate.py's G1 calls holon.report.regenerate_check.",
+          "check": "tests_m3/test_blind.py::TestMap::test_p6_the_comparison_regenerates_byte_identically_and_g1_covers_it"
+        },
+        {
+          "id": "I82-P7",
+          "claim": "Every F-id has a cell, and every verdict follows the rules (A8, A9): docs/M3_COMPARISON.md has exactly one table line, with A9's columns, for each of R1-R14, F1-F14, O1-O37, D1-D9 and N1-N4; each verdict cell equals the instrument's A8 verdict and each link cell its rendering over the committed records ('not mechanized' allowed); the document states the contamination caveat. The verdicts are derived data, not predictions.",
+          "check": "tests_m3/test_blind.py::TestMap::test_p7_every_f_id_has_a_cell_and_every_verdict_follows_the_rules"
+        },
+        {
+          "id": "I82-P8",
+          "claim": "The dry run agrees fully (B1-B6; the prompt's steps 1-5): with the lead's M0 and M1 records re-made in full and M3's re-made for every PAR law outside PAR-init (84 laws at this key's base) into a scratch tree, projected into audit/blind/dryrun/tree and compared with the lead's projection at the same base (audit/blind/dryrun/lead), blind_agreement is 1.0 for M0, M1 and M3 and pooled; matched_fraction is 1.0 for M0 (8 classes) and M1 (16) and, for M3, the fraction of the lead's classes that hold a PAR law outside PAR-init (84 of 136 at the base); compare.json equals holon compare's output on the two committed trees and the instrument's recomputation; the lead tree is the projection of the lead at dryrun.json's base; the tree's laws are the lead's and its M3 records are exactly those PAR laws'. Derivation: the generators are deterministic and G1 checks them byte for byte; every one of these statuses is decided by a proof or counter-law check or, for the four UNKNOWN PAR laws, by a fixed probe set or candidate list, none by a time budget. The least certain part: the local checker is not the pinned build, so a re-made status could differ; that would be a miss, and a finding about environment sensitivity.",
+          "check": "tests_m3/test_blind.py::TestMetric::test_p8_the_dry_run_on_the_leads_regenerated_records_agrees_fully"
+        },
+        {
+          "id": "I82-P9",
+          "claim": "Synthetic perturbations move the metric exactly (B2-B5): on trees the instrument builds from the lead's M0, M1 and M3 projections, holon compare reports identity: agreement 1.0, matched fraction 1.0; alpha (every binder renamed, every law id renamed, premises and conjuncts reordered, eq sides swapped): the same; flip (3 M3 and 1 M1 singleton statuses flipped): agree lower by exactly 3 and 1; drop (5 M3 records removed): matched and blind keys lower by 5, agreement 1.0; change (one M1 claim strengthened): that law alone lead_only and blind_only; mixed (an M0 law duplicated under a new id with another status): one disagreement whose blind status is MIXED:<both>; empty (no blind record): matched 0, blind_agreement null, matched_fraction 0.0; --threshold 0.9 exits 0 on identity and 1 on empty; a blind tree without laws/M3 exits 2; and every report equals the instrument's own B2-B4 recomputation.",
+          "check": "tests_m3/test_blind.py::TestMetric::test_p9_synthetic_perturbations_move_the_metric_exactly"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I82-R0",
+          "claim": "The contract docstring, the instrument and the two sidecars keep the sha256 pinned in thresholds.",
+          "check": "tests_m3/test_blind.py::TestRegressions::test_r0_the_prereg_pins_hold"
+        },
+        {
+          "id": "I82-R1",
+          "claim": "I82's own commits (rule R) change only the files rule R allows: no law, record, generated model, frozen file or sidecar, and no other test.",
+          "check": "tests_m3/test_blind.py::TestRegressions::test_r1_own_commits_touch_only_what_the_contract_allows"
+        },
+        {
+          "id": "I82-R2",
+          "claim": "holon audit prereg passes for M2 and M3.",
+          "check": "tests_m3/test_blind.py::TestRegressions::test_r2_the_prereg_audits_pass"
+        },
+        {
+          "id": "I82-R3",
+          "claim": "No own commit changes a generator closure file (so no record is re-made), and holon/report.py and holon/blind.py hold no law-id literal, import no test module and are in no closure.",
+          "check": "tests_m3/test_blind.py::TestRegressions::test_r3_no_generator_closure_file_changes_and_holon_names_no_law"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M3/appendixA_map.json",
+        "docs/M3_COMPARISON.md",
+        "audit/blind/",
+        "docs/iterations/I82.md"
+      ],
+      "tests": [
+        "tests_m3/test_blind.py"
+      ],
+      "thresholds": {
+        "base": "00b12f7083ac3ed886c73af17a05a447edcc1f66 (the lead after I28's build merge, PR #50), with BUILD_PLAN's row I82 (d037c410) committed before this commit",
+        "instrument": "tests_m3/_i82.py",
+        "instrument_sha256": "3d446a12056fb1203cba3086e2d4f43e0385e003a5a27e394dba20bc1ae4e2c9",
+        "contract_docstring_sha256": "47ec12dc2fcd13847116137addb775632b93dfa96604a596dbf049c82cec51c7",
+        "pack_sidecar": {
+          "path": "spec/M3/lib/blind_pack.json",
+          "sha256": "3e8dfad1395d1b9f5e66e576fda5ed49d33192ec61ffee3da3251e4a8b9430a9"
+        },
+        "map_sidecar": {
+          "path": "spec/M3/lib/appendixA.json",
+          "sha256": "ac4cf55ea9937eb04c1ee805be83316c89df891542e46dca72d98aa3b1141599"
+        },
+        "target": {
+          "repo": "morph-l2/morph",
+          "commit": "3e44e795586af3e11285b603ab642c67823add51",
+          "blobs": 1080,
+          "gitlinks": [
+            "go-ethereum"
+          ]
+        },
+        "redaction": {
+          "sections": [
+            "## 2 ",
+            "## 11 ",
+            "## Appendix A.",
+            "## Appendix B."
+          ],
+          "morph_instances_lists": 7
+        },
+        "leaks": {
+          "whitepaper": {
+            "case_id": "O12",
+            "law_name": "L_dom_v0",
+            "section_ref": "§11.8"
+          },
+          "holon_section_ref_files_min": 5,
+          "holon_case_id_O_files_min": 5,
+          "holon_code_site_min": 1,
+          "holon_law_name_min": 1
+        },
+        "dry_run": {
+          "milestones": [
+            "M0",
+            "M1",
+            "M3"
+          ],
+          "m3_subset": "every PAR law of laws/M3 whose subform is not init_chain",
+          "m3_laws_at_base": 84,
+          "m3_classes_at_base": 136,
+          "m0_classes": 8,
+          "m1_classes": 16,
+          "blind_agreement": 1.0
+        },
+        "perturbations": {
+          "flip": {
+            "M3": 3,
+            "M1": 1
+          },
+          "drop": {
+            "M3": 5
+          },
+          "change": {
+            "M1": 1
+          },
+          "mixed": {
+            "M0": 1
+          },
+          "threshold": 0.9
+        },
+        "counted_predictions": [
+          "I82-P1",
+          "I82-P2",
+          "I82-P3",
+          "I82-P4",
+          "I82-P6",
+          "I82-P8",
+          "I82-P9"
+        ],
+        "not_counted": {
+          "I82-P5": "the map is derived data: the prediction is the instrument's equality and coverage, which the instrument's derivation over the committed data, run before the prereg to check it parses, already showed",
+          "I82-P7": "the verdicts are derived data: the prediction is the instrument's equality and one cell per id"
+        },
+        "observed_before_prereg": {
+          "I82-P4": "the whitepaper's leak sites, by reading; a grep over the tooling directories (counts in the claim); the instrument's scan run on a synthetic three-member tar only",
+          "I82-P5": "the instrument's catalog parse and map derivation over the committed data (no tool existed): 78 items, no absent sidecar link, 110 unmapped M3 laws and 11 unmapped M2 laws",
+          "I82-P8": "the instrument's class count over the committed laws (8, 16 and 136 classes, all singletons; 84 PAR laws outside PAR-init, 84 classes); no record was re-made",
+          "records": "the lead's committed records, which the comparison reads, were read while writing the sidecar (e.g. results/T32 holds one REFUTED law of five; I31's DISCH records and I27's UNDO records differ from their keys' predictions at the base)"
+        },
+        "sources_without_links": {
+          "I48's corpus": "spec/eval/corpus.json holds no Morph entry (its collectors excluded Scroll and Morph material), so it contributes no link"
+        },
+        "closures": "holon.records.generator_files (every IR version), holon.profile.generator_files and the generator_sha256 closures of holon.sorts.run3, holon.undo.run, holon.fact.run, holon.disch.run and holon.versions.run; at the base none holds holon/gate.py or holon/__main__.py",
+        "known_reds_at_base": "LANE_RULES' base items (tests_m3.test_undo 11, tests_m3.test_disch_profile 3, tests_m2 groups 2 and 3, I43-R1, the local-checker items) and, since I28's merge, gate-M3-partial's G11V in-flight clause with test_fact TestGate.test_partial_gate_on_a_copy, test_sort_types TestRecordsAndGate.test_gate_m3_passes and test_disch TestGateAndRegressions.test_gate_m3_passes_and_rejects_the_disch_canaries"
+      }
     }
   }
 }

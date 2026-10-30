@@ -1,0 +1,43 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_own_txspayload",
+  "milestone": "M1",
+  "rule": "OWN",
+  "subform": "alias",
+  "facts": "spec/M1/facts/morph_batchdata.json",
+  "facts_sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "view_intact",
+          "of": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "OWN-alias (whitepaper \u00a75.8): while a caller holds the slice TxsPayloadV2 returned, no later write may reach its backing region except through the view. Conditional: the obstruction needs a caller that holds the view across an Append.",
+  "maps_to": "O36 (F9 sub-item)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED"
+}
