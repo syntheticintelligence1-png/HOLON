@@ -40,12 +40,16 @@ answer model, so the engine's code and every result it gave before stay as they 
      member's storage, and the last step reverts with the target check's revert data; a path whose replay fails is
      unknown, with the replay's account.
   Q4 results/<M>/bundle_laws/bmc.json: {"bmc_version", "settings", "targets": {id: {"kind", "verdict", "k", "path",
-     "reason", "replay", "bound"}}}; --check re-runs everything and compares.
+     "reason", "replay", "bound"}}}; --check re-runs everything and compares. A target whose search did not finish
+     has no verdict: "not_run", with why (I40's crash guard fired or the solver crashed, which is never a verdict; or
+     the document was written with --cached-only before a run finished it). --check does not search a target the
+     checked document records as not run: it carries no verdict to reproduce.
   Q5 No law and no I40 output changes.
 
 holon.bundle.linkbmc_out replays the paths and writes the document (Q3's replay, Q4); this module is the search
-(Q1, Q2, Q3's verdicts), and its results may be cached under the digest of its code and inputs (cache_digest), so an
-interrupted run resumes. Exit codes as holon bundle's. Nothing here names a target.
+(Q1, Q2, Q3's verdicts). Its results may be cached under the digest of its code and inputs (cache_digest), a run's and
+a check's apart, so an interrupted run or check resumes; --cached-only writes the document from a run's cache alone.
+Exit codes as holon bundle's. Nothing here names a target.
 """
 from __future__ import annotations
 
@@ -479,34 +483,70 @@ def cache_digest(s: Setup) -> str:
     return h.hexdigest()
 
 
-def search_all(s: Setup, log=print, cache: str | None = None) -> dict:
-    """Each target's search with I40's engine (iterative deepening k = 1..H, the cone's levels): {id: result}. With a
-    cache directory (holon bundle bmc without --check, the environment's HOLON_BUNDLE_BMC_CACHE), a target's result
-    is kept there under the code's and inputs' digest, so an interrupted run resumes; --check never reads it."""
+def not_run(t: dict, why: str) -> dict:
+    """A target without a verdict: its search did not finish (Q3 has no verdict for it)."""
+    return {"verdict": "not_run", "length": None, "path": None, "largest_k": None, "queries": [], "approx": [],
+            "reason": why, "kind": t["kind"], "action": t["action"]}
+
+
+def search_all(s: Setup, log=print, cache: str | None = None, *, check: bool = False, cached_only: bool = False,
+               skip: dict | None = None, jobs: int = 1) -> dict:
+    """Each target's search with I40's engine (iterative deepening k = 1..H, the cone's levels): {id: result}.
+
+    cache: a directory (the environment's HOLON_BUNDLE_BMC_CACHE) where each finished search is kept under the digest
+    of the code and the inputs, so an interrupted run resumes. A run and a check keep separate entries (a check's are
+    named check-<digest>): a check reads only its own recomputations, never a run's, so an interrupted check resumes
+    too. cached_only: no search; a target without an entry is not run. skip: {id: why}, targets not searched but
+    recorded as not run with that why (--check: the targets the checked document records as not run, which carry no
+    verdict to reproduce).
+
+    Each target's search builds its own Problem, so jobs > 1 searches targets side by side with the same results. A
+    search that the solver's crash guard aborts (I40's watchdog), or whose solver crashes, gives no verdict: the target
+    is not run and nothing is cached (I40's rule: a crash is never a verdict)."""
     import json
+    import os
+    from concurrent.futures import ThreadPoolExecutor
     from .. import bmc as BMC
-    p = s.problem()
-    out = {}
+    from ..smt.run import SolverCrash, WatchdogAbort
     dig = cache_digest(s) if cache else None
-    for t in s.targets():
-        log(f"{t['id']} ({t['kind']})")
-        cf = Path(cache) / f"{dig[:16]}-{t['id'].replace('/', '_').replace('#', '_').replace(':', '_')}.json" \
+    pre = ("check-" if check else "") + (dig[:16] if dig else "")
+
+    def one(t):
+        if skip and t["id"] in skip:
+            log(f"{t['id']} ({t['kind']}): not searched (the checked document records it not run)")
+            return t["id"], not_run(t, skip[t["id"]])
+        cf = Path(cache) / f"{pre}-{t['id'].replace('/', '_').replace('#', '_').replace(':', '_')}.json" \
             if cache else None
         if cf is not None and cf.is_file():
-            out[t["id"]] = json.loads(cf.read_text(encoding="utf-8"))
-            log(f"  cached: {out[t['id']]['verdict']}")
-            continue
-        r = BMC.search(p, {"kind": "check", "action": t["action"], "check": t["id"]}, s.side["solver"], qdir=None,
-                       name=t["id"].replace("#", "_").replace("/", "_").replace(":", "_"), log=log)
-        out[t["id"]] = dict(r, kind=t["kind"], action=t["action"])
-        if r["verdict"] == "path":
-            rr = realistic(p, {"kind": "check", "action": t["action"], "check": t["id"]}, r, s.side["solver"], log)
-            if rr is not None:
-                out[t["id"]]["realistic"] = list(rr)
+            r = json.loads(cf.read_text(encoding="utf-8"))
+            log(f"{t['id']} ({t['kind']}): cached, {r['verdict']}")
+            return t["id"], r
+        if cached_only:
+            log(f"{t['id']} ({t['kind']}): not run (no cached result)")
+            return t["id"], not_run(t, "not run: this document was written from the cache alone, and no run had "
+                                       "finished this target's search")
+        log(f"{t['id']} ({t['kind']})")
+        p = s.problem()
+        tgt = {"kind": "check", "action": t["action"], "check": t["id"]}
+        try:
+            r = BMC.search(p, tgt, s.side["solver"], qdir=None,
+                           name=t["id"].replace("#", "_").replace("/", "_").replace(":", "_"), log=log)
+            out = dict(r, kind=t["kind"], action=t["action"])
+            if r["verdict"] == "path":
+                rr = realistic(p, tgt, r, s.side["solver"], log)
+                if rr is not None:
+                    out["realistic"] = list(rr)
+        except (WatchdogAbort, SolverCrash) as x:
+            log(f"{t['id']}: not run ({x})")
+            return t["id"], not_run(t, f"not run: {x} (a crash is never a verdict; nothing was cached)")
         if cf is not None:
             cf.parent.mkdir(parents=True, exist_ok=True)
-            cf.write_text(json.dumps(out[t["id"]], sort_keys=True), encoding="utf-8")
-    return out
+            tmp = cf.with_name(cf.name + f".{os.getpid()}.part")
+            tmp.write_text(json.dumps(out, sort_keys=True), encoding="utf-8")
+            os.replace(tmp, cf)
+        return t["id"], out
+    with ThreadPoolExecutor(max_workers=max(1, jobs)) as ex:
+        return dict(ex.map(one, s.targets()))
 
 
 def realistic(p, target: dict, r: dict, solver: dict, log=print):

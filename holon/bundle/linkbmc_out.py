@@ -193,11 +193,14 @@ class Replay:
 
 
 # ------------------------------------------------------------------------------------------------ Q4: the document
-def build(ctx: Ctx, log=print, jobs: int = 0, cache: str | None = None) -> dict:
+def build(ctx: Ctx, log=print, jobs: int = 0, cache: str | None = None, *, check: bool = False,
+          cached_only: bool = False, skip: dict | None = None) -> dict:
+    """The document: every target's search (holon.bundle.linkbmc.search_all, jobs targets side by side), the paths
+    replayed, the settings."""
     from .. import bmc as BMC
     from ..machine import document_programs
     s = Setup(ctx)
-    res = search_all(s, log, cache)
+    res = search_all(s, log, cache, check=check, cached_only=cached_only, skip=skip, jobs=max(1, jobs))
     checks = {c.id: c for prog in document_programs(s.adoc).values() for c in prog.checks()}
     for r in res.values():
         rr = r.get("realistic")
@@ -259,10 +262,22 @@ def build(ctx: Ctx, log=print, jobs: int = 0, cache: str | None = None) -> dict:
     return {"bmc_version": BMC_VERSION, "settings": settings, "targets": targets}
 
 
-def main(ctx: Ctx, check: bool, log=print, jobs: int = 0) -> int:
+def main(ctx: Ctx, check: bool, log=print, jobs: int = 0, cached_only: bool = False) -> int:
+    """Write (or --check) the document. With the environment's HOLON_BUNDLE_BMC_CACHE, a run and a check each resume
+    from their own cached searches; --cached-only searches nothing. --check does not search a target the checked
+    document records as not run (it carries no verdict to reproduce) and compares everything else."""
+    import json
     import os
     out = f"results/{ctx.milestone}/bundle_laws/bmc.json"
-    doc = build(ctx, log, jobs, None if check else (os.environ.get(CACHE_ENV) or None))
+    skip = None
+    if check:
+        try:
+            old = json.loads((ctx.root / out).read_text(encoding="utf-8"))
+            skip = {tid: t["reason"] for tid, t in sorted((old.get("targets") or {}).items())
+                    if isinstance(t, dict) and t.get("verdict") == "not_run"}
+        except (OSError, ValueError):
+            skip = None
+    doc = build(ctx, log, jobs, os.environ.get(CACHE_ENV) or None, check=check, cached_only=cached_only, skip=skip)
     for tid, t in sorted(doc["targets"].items()):
         log(f"{tid}: {t['verdict']} (k {t['k']}, replay {t['replay']['status']})")
     return write_or_check(ctx, {out: render(doc)}, check, log=log)

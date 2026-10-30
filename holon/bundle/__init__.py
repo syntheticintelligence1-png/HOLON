@@ -152,6 +152,8 @@ def main(argv=None) -> int:
     ap.add_argument("--root")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--jobs", type=int, default=0)
+    ap.add_argument("--cached-only", action="store_true",
+                    help="bmc: no search; the document from the cached searches (a target without one is not run)")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else ROOT
 
@@ -180,7 +182,7 @@ def main(argv=None) -> int:
             return replay_laws.main(ctx, a.check, log, jobs=a.jobs)
         if a.step == "bmc":              # I86: Q28's BMC over the linked queue (rules Q1-Q5)
             from . import linkbmc_out
-            return linkbmc_out.main(ctx, a.check, log, jobs=a.jobs)
+            return linkbmc_out.main(ctx, a.check, log, jobs=a.jobs, cached_only=a.cached_only)
         from . import acquire
         return getattr(acquire, f"main_{a.step}")(ctx, a.check, log)
     except (Refused, FRefused) as e:
