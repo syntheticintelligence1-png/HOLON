@@ -370,8 +370,10 @@ class SymSearch(US.UndoSearch):
                 try:
                     for xs, _gx in xs_:
                         for ys, _gy in ys_:
-                            if self.hit(n, [{"$ref": g}, self.m.act(xs), self.m.act(ys)], xs):
-                                return {"law": e["law_id"], "subform": sub, "prefix": list(trace), "x": xs, "y": ys}
+                            for x1, y1, _own in self.clocks(g, xs, ys):  # as the refutation search pairs them
+                                if self.hit(n, [{"$ref": g}, self.m.act(x1), self.m.act(y1)], x1):
+                                    return {"law": e["law_id"], "subform": sub, "prefix": list(trace), "x": x1,
+                                            "y": y1}
                 finally:
                     self.m.drop([h for _s, h in xs_] + [h for _s, h in ys_])
                 return None
