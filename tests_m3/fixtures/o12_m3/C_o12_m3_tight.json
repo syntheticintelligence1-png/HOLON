@@ -1,0 +1,271 @@
+{
+  "contract_version": "holon-contract/0.1",
+  "evidence": [
+    "E2"
+  ],
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "id": "C_o12_m3_tight",
+  "kind": "intended",
+  "l_weak": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "act": {
+              "var": "x"
+            },
+            "is": "challengeState"
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "from": {
+              "var": "s"
+            },
+            "ok": {
+              "var": "x"
+            }
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "act": {
+              "var": "y"
+            },
+            "is": "setPause"
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "from": {
+              "from": {
+                "var": "s"
+              },
+              "step": {
+                "var": "x"
+              }
+            },
+            "ok": {
+              "var": "y"
+            }
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "y",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "k",
+        "q": "forall",
+        "type": "Word"
+      }
+    ],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "wnat": {
+                    "from": {
+                      "from": {
+                        "from": {
+                          "var": "s"
+                        },
+                        "step": {
+                          "var": "x"
+                        }
+                      },
+                      "step": {
+                        "var": "y"
+                      }
+                    },
+                    "keys": [
+                      {
+                        "var": "k"
+                      }
+                    ],
+                    "member": "finalizeTimestamp",
+                    "sread": "batchDataStore"
+                  }
+                },
+                {
+                  "plus": [
+                    {
+                      "wnat": {
+                        "from": {
+                          "var": "s"
+                        },
+                        "keys": [
+                          {
+                            "var": "k"
+                          }
+                        ],
+                        "member": "finalizeTimestamp",
+                        "sread": "batchDataStore"
+                      }
+                    },
+                    {
+                      "wnat": {
+                        "from": {
+                          "var": "s"
+                        },
+                        "keys": [],
+                        "sread": "proofWindow"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "cmp": "<="
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "wnat": {
+                "from": {
+                  "from": {
+                    "from": {
+                      "var": "s"
+                    },
+                    "step": {
+                      "var": "x"
+                    }
+                  },
+                  "step": {
+                    "var": "y"
+                  }
+                },
+                "keys": [
+                  {
+                    "var": "k"
+                  }
+                ],
+                "member": "originTimestamp",
+                "sread": "batchDataStore"
+              }
+            },
+            {
+              "wnat": {
+                "from": {
+                  "var": "s"
+                },
+                "keys": [
+                  {
+                    "var": "k"
+                  }
+                ],
+                "member": "originTimestamp",
+                "sread": "batchDataStore"
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "wnat": {
+                    "from": {
+                      "from": {
+                        "from": {
+                          "var": "s"
+                        },
+                        "step": {
+                          "var": "x"
+                        }
+                      },
+                      "step": {
+                        "var": "y"
+                      }
+                    },
+                    "keys": [
+                      {
+                        "env": "caller",
+                        "of": {
+                          "var": "x"
+                        }
+                      }
+                    ],
+                    "sread": "batchChallengeReward"
+                  }
+                },
+                {
+                  "wnat": {
+                    "from": {
+                      "var": "s"
+                    },
+                    "keys": [
+                      {
+                        "env": "caller",
+                        "of": {
+                          "var": "x"
+                        }
+                      }
+                    ],
+                    "sread": "batchChallengeReward"
+                  }
+                }
+              ],
+              "cmp": "<="
+            },
+            {
+              "bool": true
+            }
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "maps_to": "O12 (N2)",
+  "milestone": "M3",
+  "rationale": "A planted false bound (never registered): the reward conjunct of C_o12_m3 without x's msg.value. The refund setPause credits makes it false whenever msg.value >= 1, which every replayable witness has (the submitter stand-in's challengeDeposit is 1).",
+  "rule": "UNDO",
+  "scope": {
+    "laws": [
+      "L_undo_cancel_Rollup_challengeState_setPause"
+    ]
+  }
+}

@@ -709,16 +709,23 @@ class TestRegressions(unittest.TestCase):
         """I64-R1 (part): no committed contract names M0-M3, and no M0-M3 record is marked intended_bounded or carries
         intended. Amended by I65 (tests_m3/test_o12.py rule O8; spec/M3/amendments.jsonl): a contract may name a real
         milestone exactly when the I65 key registers its id for that milestone (C_o12 on M2); the record check over
-        results/M0-M3 is unchanged."""
+        results/M0-M3 is unchanged. Amended by I33 (tests_m3/test_o12_m3.py rules B8 and B12; spec/M3/amendments.jsonl):
+        the I33 key registers C_o12_m3 on M3 too, and a results/M3 record may carry the mark exactly when I33's
+        instrument says C_o12_m3 must mark it (tests_m3/_i33.expected_marks); every other record check is unchanged."""
         item("I64", "I64-R1")
         I = instrument()
         later = predictions("I65")["thresholds"]["registered_contracts"]   # {id: milestone}, I65's O8
+        later = {**later, **predictions("I33")["thresholds"]["registered_contracts"]}   # I33's B12
+        import tests_m3._i33 as I33
+        licensed = set(I33.expected_marks(ROOT))   # record paths: file stems relative to results/M3
         for p, c in I.contract_docs(ROOT):
             m = c.get("milestone") if isinstance(c, dict) else None
             if m in ("M0", "M1", "M2", "M3"):
                 self.assertEqual(later.get(c.get("id")), m, p.name)
         for m in ("M0", "M1", "M2", "M3"):
             for p in sorted((ROOT / "results" / m).glob("L*.json")):
+                if m == "M3" and p.stem in licensed:
+                    continue
                 r = load_json(p)
                 self.assertNotEqual(r.get("filter_bin"), "intended_bounded", p)
                 self.assertNotIn("intended", r, p)

@@ -5110,6 +5110,140 @@
         },
         "fold": "docs/iterations/I69_prereg_fold.json (M1-M5, m1-m9 and n1-n3 of docs/iterations/I69_prereg_review.json, each with what changed); the review and the fold notes are a separate own commit after C_K (docs/ only)"
       }
+    },
+    "I33": {
+      "title": "O12's intent contract on M3, the typed extracted Rollup: C_o12_m3 bounds the residue of one cancellation (challengeState then setPause) locally, over I68's structural store, with six additive typed IR 0.3 terms, a typed runner for contract laws on M3 and the proof class residue_bound; it marks I71's scope record intended_bounded and makes G10 meaningful on M3",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I33)",
+      "prompt": "prompts/I33_o12_m3.md",
+      "tests": [
+        "tests_m3/test_o12_m3.py"
+      ],
+      "predictions": [
+        {
+          "id": "I33-P1",
+          "claim": "L_contract_C_o12_m3 (B3's L_weak over spec/M2/facts/morph_rollup.extracted.json) is PROVED on the structural typed model by residue_bound: bend accepts its PROOF.bend (rechecked by the test), BendTT's verdict is checked, its statement hash is laws/M3/REGISTRY.json's, and A-keccak-structural is among its model assumptions.",
+          "check": "tests_m3/test_o12_m3.py::TestPredictions::test_p1_the_l_weak_is_proved_by_residue_bound"
+        },
+        {
+          "id": "I33-P2",
+          "claim": "Its non-vacuity is a checked inhabitant (B7): a reachable prefix s, a successful challengeState x, a successful setPause y and a word k, an attempt of kind inhabitant with exit code 0, non_vacuity status inhabited.",
+          "check": "tests_m3/test_o12_m3.py::TestPredictions::test_p2_the_law_is_inhabited"
+        },
+        {
+          "id": "I33-P3",
+          "claim": "I71's record L_undo_cancel_Rollup_challengeState_setPause (REFUTED) is marked intended_bounded by C_o12_m3 (intended {contract C_o12_m3, l_weak L_contract_C_o12_m3, replaces its unmarked bin}) and changes in nothing else; results/M3/contracts.json is K5's document; the marks are exactly the instrument's.",
+          "check": "tests_m3/test_o12_m3.py::TestPredictions::test_p3_the_mark_lands_on_the_scope_record"
+        },
+        {
+          "id": "I33-P4",
+          "claim": "G10 passes on M3 in the typed gate and by the instrument, naming C_o12_m3 proved and its mark.",
+          "check": "tests_m3/test_o12_m3.py::TestPredictions::test_p4_g10_on_m3_passes_and_names_the_mark"
+        },
+        {
+          "id": "I33-P5",
+          "claim": "C_o12_m3_tight (the refund conjunct without x's msg.value), registered in a copy, is REFUTED by the typed refuter with a refund witness (x a challengeState with msg.value >= 1, y a setPause(true), s a reachable prefix) replayed on the real Rollup, and marks nothing.",
+          "check": "tests_m3/test_o12_m3.py::TestPredictions::test_p5_the_tight_refund_bound_is_refuted_and_replayed"
+        },
+        {
+          "id": "I33-P6",
+          "claim": "GEVID passes on M3 with the contract law in it, and the law's record lists E2 among its computed evidence levels.",
+          "check": "tests_m3/test_o12_m3.py::TestPredictions::test_p6_gevid_covers_the_law"
+        },
+        {
+          "id": "I33-P7",
+          "claim": "Recorded, not counted (the typed search's depth for a two-commit prefix is not known at the prereg): C_o12_m3_deadline_tight (the deadline conjunct without W), registered in a copy, is REFUTED with k in the window of a prefix of at least two commits, or UNKNOWN with its bound named.",
+          "check": "tests_m3/test_o12_m3.py::TestPredictions::test_p7_the_deadline_tight_bound"
+        },
+        {
+          "id": "I33-P8",
+          "claim": "Recorded, not counted (a construction check of the class, as I65's C_o12_open): C_o12_m3_open, registered in a copy, is PROVED by residue_bound.",
+          "check": "tests_m3/test_o12_m3.py::TestPredictions::test_p8_the_class_proves_a_second_claim"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I33-R1",
+          "claim": "No own commit changes holon/rules/ or adds or changes an M3 law file other than L_contract_C_o12_m3 (no producer, no catalog change, no catalog_rederivation line).",
+          "check": "tests_m3/test_o12_m3.py::TestRegressions::test_r1_the_catalog_and_laws"
+        },
+        {
+          "id": "I33-R2",
+          "claim": "Every record an own commit changes, but the contract law's, keeps its status; I71's record changes in filter_bin and intended alone; M1, M2 and T32 records change in generator_sha256 and keys named seconds alone.",
+          "check": "tests_m3/test_o12_m3.py::TestRegressions::test_r2_records_change_only_as_allowed"
+        },
+        {
+          "id": "I33-R3",
+          "claim": "C_o12 on M2 stays proved with its mark; G10 on M2 passes by the instrument.",
+          "check": "tests_m3/test_o12_m3.py::TestRegressions::test_r3_c_o12_on_m2_stays_proved"
+        },
+        {
+          "id": "I33-R4",
+          "claim": "holon/ names none of I33's ids (AGENTS rule 2), and no own commit touches a frozen root.",
+          "check": "tests_m3/test_o12_m3.py::TestRegressions::test_r4_holon_names_no_i33_id_and_no_frozen_root_changes"
+        }
+      ],
+      "outcome_paths": [
+        "laws/CONTRACTS/C_o12_m3.json",
+        "laws/M3/L_contract_C_o12_m3.json",
+        "results/M3/L_contract_C_o12_m3.json",
+        "results/M3/contracts.json",
+        "gen/M3/laws/L_contract_",
+        "gen/M3/proofs/L_contract_",
+        "docs/iterations/I33.md"
+      ],
+      "thresholds": {
+        "base": "01ee73f7a818afc75dd371b2de64ef415ea25d50 (the lead after I82 and I69). I68 (structural storage keys) and I71 (UNDO cancel, the scope law) are not yet on the lead: I33's build merges them when they land, and every outcome is computed after both.",
+        "instrument": "tests_m3/_i33.py",
+        "instrument_sha256": "3f506db7be841efbf78f64c7c5662d6bb5ddcf62e5ec9dd9324bbc94741398a6",
+        "contract_docstring_sha256": "20519b9a91b932e7987e80a46774e7223133099f8a369f27133c8443e5c84a7d",
+        "fixtures_sha256": {
+          "C_o12_m3.json": "ac422a7e1c3b011ef7067f8f7b8ab281c1478433f233e6e25c192b6a4971ec43",
+          "C_o12_m3_tight.json": "dced0a5f2ee6a7f81c4e6b52d1e976b2bbd94d0eecf6447adedac0411c2791b4",
+          "C_o12_m3_deadline_tight.json": "13daae8b01400cd474786ee8ab056017999938715badaf911aaaca71d479f98a",
+          "C_o12_m3_open.json": "b8fdd4dc5ef55b55bd5d29f936c461a9e212bab75f845970408441b52501e786"
+        },
+        "scope_law": "L_undo_cancel_Rollup_challengeState_setPause",
+        "reads": [
+          [
+            "batchChallengeReward",
+            null,
+            1
+          ],
+          [
+            "batchDataStore",
+            "finalizeTimestamp",
+            1
+          ],
+          [
+            "batchDataStore",
+            "originTimestamp",
+            1
+          ],
+          [
+            "proofWindow",
+            null,
+            0
+          ]
+        ],
+        "new_terms": [
+          "t_sread",
+          "t_wnat",
+          "t_cmp",
+          "t_ok",
+          "t_is",
+          "t_env"
+        ],
+        "new_class": "residue_bound",
+        "disclosure": "The design (the lead's I33 design note) probed the bottom of the Word library in both kernels before this prereg: Word.cmp as Nat.cmp of to_nat, and Word.adc as Nat addition with a carry out. No outcome of this key (no contract law, record or mark) existed before this commit. I71's scope record was REFUTED through the deposit refund before this prereg, which is why the contract has the refund conjunct (c), and P5's tight fixture targets it.",
+        "questions": [
+          "Q-A: the local L_weak (L2: the residue of one cancellation) or BUILD_PLAN I33's global form G (f_j <= commit_j + F + W * #challenges over traces)? On M3, G needs five premises (no re-parameterisation, no re-initialisation, the open challenge started in the past at every commit inside it, and the deployment's slots) and a 33-action invariant; L2 needs none. I33 states L2 and records G as a follow-up.",
+          "Q-B: the contract law's record lists A-keccak-structural (I68's model assumption). Is a proved L_weak under that named idealisation enough to mark the scope record, or should G10 require the assumption to be discharged by the keys check (gen/M3/sorts/keys.json, no collision)?",
+          "Q-C: the bound (c) covers x's caller alone. A stronger form bounds every address's reward (others unchanged). Should the contract say so?"
+        ],
+        "registered_contracts": {
+          "C_o12_m3": "M3"
+        }
+      }
     }
   }
 }
