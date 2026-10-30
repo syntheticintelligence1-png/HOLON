@@ -98,7 +98,7 @@
     },
     "witness_provenance": {"type": ["object", "null"],
                            "additionalProperties": {"enum": ["public_schedule", "internal_harness", "emulated_storage", "library_api"]}},
-    "filter_bin": {"enum": ["finding", "model_defect", "known_limitation", "pending", "intended_bounded", null]},
+    "filter_bin": {"enum": ["finding", "model_defect", "known_limitation", "pending", "intended_bounded", "split_pending", null]},
     "intended": {"type": "object", "required": ["contract", "l_weak", "replaces"], "additionalProperties": false,
                  "description": "I64 (whitepaper 5.9; K5, tests_m3/test_contracts.py): the intent contract whose proved L_weak licenses filter_bin intended_bounded on this REFUTED record, its derived law, and the bin the mark replaced",
                  "properties": {"contract": {"type": "string", "pattern": "^C_[A-Za-z0-9_]+$"},

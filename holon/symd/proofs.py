@@ -231,13 +231,14 @@ def sentinel_proof(law: dict, n: int, site_term, action: str, actions: list[str]
 
 
 # ------------------------------------------------------------------------------------------------ the split counter-law
-def _generic(sub: str, n: int, act: str, role: str, a_act: str, b_act: str) -> tuple[str, list, list]:
+def _generic(sub: str, n: int, act: str, role: str, a_act: str, b_act: str, hit: bool = False) -> tuple[str, list, list]:
     """The generic lemma gz of a counter-law over variables only (no literal: both kernels check it by rewriting and
     one unfolding of the claim), and the shape it is applied at: ([(hypothesis name, its type over the variables)],
     [(literal name, its Bend type, the term its lemma equates with it, over the variables)]). gz proves
     {sy_ok_<n>(g, binders.., kh) == False} from each hypothesis {term == literal} and the last one, {the claim's body
     over the literals == False}, rewriting top-level positions of the goal (Equal.cong with a function argument is
-    not accepted by BendTT, these are)."""
+    not accepted by BendTT, these are). With hit (omega only), the lemma hz proves {sy_hit_<n>(..) == True} the same
+    way: the inhabitant's runs are the counter-law's four."""
     if sub in ("tau", "pi"):
         if sub == "tau":
             bs = [("d", "M.W")]
@@ -264,18 +265,23 @@ def _generic(sub: str, n: int, act: str, role: str, a_act: str, b_act: str) -> t
         oks = "Bool.and(U32.is_eq(U.sy_code(ux), 0), U32.is_eq(U.sy_code(uy), 0))"
         lits = [("ux", "U.UOS", "U.ux_ostep(x, g, kh)"), ("uy", "U.UOS", "U.ux_ostep(y, g, kh)"),
                 ("uxy", "U.UOS", "U.ux_ostep(y, U.sy_post(ux), kh)"), ("uyx", "U.UOS", "U.ux_ostep(x, U.sy_post(uy), kh)")]
-        fin = f"U.ux_imp({prem}, U.ux_imp({oks}, U.sy_om_{n}_c(uxy, uyx)))"
+        # the claim's outer connectives: ux_imp for the counter-law's sy_ok, Bool.and for the inhabitant's sy_hit
+        f, md = ("Bool.and", "h") if hit else ("U.ux_imp", "c")
+        fin = f"{f}({prem}, {f}({oks}, U.sy_om_{n}_{md}(uxy, uyx)))"
         chain = [("efin", "_"),
-                 ("euyx", f"U.ux_imp({prem}, U.ux_imp({oks}, U.sy_om_{n}_c(uxy, _)))"),
-                 ("euxy", f"U.ux_imp({prem}, U.ux_imp({oks}, U.sy_om_{n}_c(_, U.ux_ostep(x, U.sy_post(uy), kh))))"),
-                 ("euy", f"U.ux_imp({prem}, U.sy_om_{n}_c2(ux, _, x, y, kh))"),
-                 ("eux", f"U.ux_imp({prem}, U.sy_om_{n}_c2(_, U.ux_ostep(y, g, kh), x, y, kh))")]
+                 ("euyx", f"{f}({prem}, {f}({oks}, U.sy_om_{n}_{md}(uxy, _)))"),
+                 ("euxy", f"{f}({prem}, {f}({oks}, U.sy_om_{n}_{md}(_, U.ux_ostep(x, U.sy_post(uy), kh))))"),
+                 ("euy", f"{f}({prem}, U.sy_om_{n}_{md}2(ux, _, x, y, kh))"),
+                 ("eux", f"{f}({prem}, U.sy_om_{n}_{md}2(_, U.ux_ostep(y, g, kh), x, y, kh))")]
+    if hit and sub != "omega":
+        raise ValueError("the split inhabitant is written for omega (tau's and pi's sy_hit is their premise alone)")
+    fn, val, lemma = ("sy_hit", "True", "hz") if hit else ("sy_ok", "False", "gz")
     names = ["g", "x"] + [b for b, _t in bs] + ["kh"]
     sig = (["-g: M.GSt", "-x: M.HAct"] + [f"-{b}: {t}" for b, t in bs] + ["-kh: List<&2, M.HKB>"]
            + [f"-{k}: {t}" for k, t, _e in lits])
-    hyps = [(f"e{k}", f"{{{term} == {k} : {t}}}") for k, t, term in lits] + [("efin", f"{{{fin} == False{{}} : Bool}}")]
-    sy = f"U.sy_ok_{n}({', '.join(names)})"
-    lines = [f"def gz({', '.join(sig + [f'{h}: {ty}' for h, ty in hyps])}) -> {{{sy} == False{{}} : Bool}}:"]
+    hyps = [(f"e{k}", f"{{{term} == {k} : {t}}}") for k, t, term in lits] + [("efin", f"{{{fin} == {val}{{}} : Bool}}")]
+    sy = f"U.{fn}_{n}({', '.join(names)})"
+    lines = [f"def {lemma}({', '.join(sig + [f'{h}: {ty}' for h, ty in hyps])}) -> {{{sy} == {val}{{}} : Bool}}:"]
     for h, hole in chain:
         lines.append(f"  %{h} : {{{sy} == {hole} : Bool}}")
     lines.append("  {==}")
@@ -289,12 +295,28 @@ def counter_proof_split(law: dict, n: int, sub: str, model_import: str, sym_impo
     and each generator's image, a lemma {term == literal} by computation over literals only (the kernels share
     nothing: an image passed unevaluated would be recomputed at every read of the state); the last lemma compares
     literals; gz (_generic) assembles them into sy_ok_<n> == False at the witness."""
+    return _split(law, n, sub, model_import, sym_import, laws_import, hashes, prefix, states, values, tables, lit, runs,
+                  basis, note, hit=False)
+
+
+def inhabitant_proof_split(law: dict, n: int, model_import: str, sym_import: str, laws_import: str, hashes: list,
+                           prefix: list, states: list, values: dict, tables: dict, lit, runs: dict, basis: dict,
+                           note: str) -> str:
+    """The omega inhabitant's proof in the counter-law's split shape: sy_hit_<n> == True at the inhabitant by hz, the
+    four runs each one conversion (the plain proof's single conversion of sy_hit is one BendTT does not accept)."""
+    return _split(law, n, "omega", model_import, sym_import, laws_import, hashes, prefix, states, values, tables, lit,
+                  runs, basis, note, hit=True)
+
+
+def _split(law: dict, n: int, sub: str, model_import: str, sym_import: str, laws_import: str, hashes: list,
+           prefix: list, states: list, values: dict, tables: dict, lit, runs: dict, basis: dict, note: str,
+           hit: bool) -> str:
     lid = law["law_id"]
     tb = P3.tabs_binders(hashes)
     if [t for t, _h in tb] != ["kh"]:
         raise ValueError("the split counter-law is written for one keccak256 table")
     lines = [PHEADER, "import Base", f"import {model_import} as M", f"import {sym_import} as U",
-             f"import {laws_import} as Laws", "", f"# class counter_split: {note}"]
+             f"import {laws_import} as Laws", "", f"# class {'inhabitant_split' if hit else 'counter_split'}: {note}"]
     lines += P3._table_defs(tb, tables, lit)
     body, chain, state = UP._prefix_defs(tb, prefix, states, lit)
     lines += body
@@ -302,7 +324,7 @@ def counter_proof_split(law: dict, n: int, sub: str, model_import: str, sym_impo
     lines += bl
     act = bname(basis.get("action") or "")
     gz, hyps, lits = _generic(sub, n, act, bname(basis.get("role") or ""), bname(basis.get("a") or ""),
-                              bname(basis.get("b") or ""))
+                              bname(basis.get("b") or ""), hit=hit)
     lines += [gz]
     sub_map = {"g": state, "x": "b_x()", "kh": "t_kh()"}
     for b, _t in binders(law)[1:]:
@@ -319,13 +341,18 @@ def counter_proof_split(law: dict, n: int, sub: str, model_import: str, sym_impo
         lines += [f"def {h}() -> {inst(ty)}:\n  {{==}}", ""]
     names = ["g", "x"] + [b for b, _t in binders(law)[1:]] + ["kh"]
     args = [sub_map[v] for v in names] + [f"l_{k}()" for k, _t, _e in lits] + [f"{h}()" for h, _ty in hyps]
-    lines += [f"def cz() -> {{{call('sy_ok', n, [state] + bnames, ['t_kh()'])} == False{{}} : Bool}}:\n"
-              f"  gz({', '.join(args)})", ""]
-    lines += ["def true_ne_false(p: {True{} == False{} : Bool}) -> Empty:\n  (%p : M.is_true(_)\n  Unit{})", ""]
-    tup = "e => true_ne_false((%e : {_ == False{} : Bool}\n  cz()))"
+    if hit:
+        lines += [f"def ch() -> {{{call('sy_hit', n, [state] + bnames, ['t_kh()'])} == True{{}} : Bool}}:\n"
+                  f"  hz({', '.join(args)})", ""]
+        tup = "ch()"
+    else:
+        lines += [f"def cz() -> {{{call('sy_ok', n, [state] + bnames, ['t_kh()'])} == False{{}} : Bool}}:\n"
+                  f"  gz({', '.join(args)})", ""]
+        lines += ["def true_ne_false(p: {True{} == False{} : Bool}) -> Empty:\n  (%p : M.is_true(_)\n  Unit{})", ""]
+        tup = "e => true_ne_false((%e : {_ == False{} : Bool}\n  cz()))"
     for b in reversed(bnames):
         tup = f"({b}, {tup})"
     tup = f"({state}, ({chain}, {tup}))"
     tup = f"(t_kh(), {tup})"
-    lines.append(f"def Laws.{law_name(lid, True)}():\n  {tup}")
+    lines.append(f"def Laws.{('nv_' + lid.lower()) if hit else law_name(lid, True)}():\n  {tup}")
     return "\n".join(lines) + "\n"

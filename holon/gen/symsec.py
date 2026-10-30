@@ -297,13 +297,6 @@ class SymSection(Trace):
         weq, ite = self.Q("w_eq"), self.Q("ite")
         self.add(f"def sy_pw(+w: {W}, +a: {W}, +b: {W}) -> {W}:\n"
                  f"  {ite}({W}, {weq}(w, a), b, {ite}({W}, {weq}(w, b), a, w))")
-        self.add(f"def sy_pf_go(+w: {W}, +old: {W}, +a: {W}, +b: {W}, +p: {W}) -> {W}:\n"
-                 f"  {self.Q('w_add')}({self.Q('w_sub')}(w, {self.Q('w_mul')}(old, p)), "
-                 f"{self.Q('w_mul')}(sy_pw(old, a, b), p))")
-        self.add(f"# the field (w / p) mod q of w swapped (a <-> b): w - old * p + new * p\n"
-                 f"def sy_pf(+w: {W}, +a: {W}, +b: {W}, +p: {W}, +q: {W}) -> {W}:\n"
-                 f"  sy_pf_go(w, {self.Q('w_mod')}({self.Q('w_div')}(w, p), q), a, b, p)")
-        self.add(f"def sy_fld(+w: {W}, +p: {W}, +q: {W}) -> {W}:\n  {self.Q('w_mod')}({self.Q('w_div')}(w, p), q)")
         # key shapes: depth 0 (a scalar's literal key), depth 1 (a one-level mapping's register, any key word)
         self.add(f"def sy_p0(p: List<&2, {SP}>) -> Bool:\n  match p:\n    case Nil{{}}:\n      True{{}}\n"
                  "    case Con{h, t}:\n      False{}")

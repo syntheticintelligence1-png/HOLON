@@ -39,6 +39,64 @@ def _int(v) -> int:
     return int(v or 0)
 
 
+class Learned(S3.Hints):
+    """The corpus's hints with the deployment's own answers first. The real-side check (holon.symd.run) learns every
+    external call a real run of a refused witness made, with its step's clock, so the model's later candidates meet
+    the calls as the deployment answers them. A learned call answers by exact calldata, else by selector when every
+    learned call of it got one answer or the clock. An answer that equals its step's clock at every learned call is
+    answered with the step's clock: one such call is enough here, where the corpus's hints need two different values,
+    since a learned call comes from the deployment the witness must run on. The corpus's hints answer every other call.
+    reset() forgets what was learned, so each law's search starts from the hints alone and no law's outcome depends on
+    the laws decided before it in the same process."""
+
+    def __init__(self, doc: dict | None):
+        super().__init__(doc)
+        self.reset()
+
+    def reset(self) -> None:
+        self.learned: list = []
+        self.l_data: dict = {}
+        self.l_sel: dict = {}
+
+    def learn(self, calls: list) -> int:
+        """Adds the calls ({to, data, ok, ret, timestamp}) not learned yet; returns how many were new."""
+        n = 0
+        for c in calls:
+            c = {"to": "0x" + str(c["to"])[-40:].lower(), "data": str(c["data"]).lower(), "ok": bool(c["ok"]),
+                 "ret": str(c["ret"]).lower(), "timestamp": int(c["timestamp"])}
+            if c in self.learned:
+                continue
+            self.learned.append(c)
+            self.l_data.setdefault(c["data"], []).append(c)
+            self.l_sel.setdefault(c["data"][:10], []).append(c)
+            n += 1
+        return n
+
+    @staticmethod
+    def _clock(cs: list) -> bool:
+        return bool(cs) and all(c["ok"] and len(c["ret"]) == 66 and int(c["ret"], 16) == c["timestamp"] for c in cs)
+
+    def answer(self, to: str | None, data: str, ts: int):
+        if to is not None:
+            to = "0x" + to[-40:].lower()
+        cs = self.l_data.get(data.lower()) or []
+        if not cs:
+            cs = self.l_sel.get(data[:10].lower()) or []
+            if len({(c["ok"], c["ret"]) for c in cs}) != 1 and not self._clock(cs):
+                cs = []
+        if to is not None and cs:
+            cs = [c for c in cs if c["to"] == to]
+        if not cs:
+            return super().answer(to, data, ts)
+        if self._clock(cs):
+            return {"to": to or cs[0]["to"], "data": data, "ok": True, "ret": "0x%064x" % int(ts)}
+        n: dict = {}
+        for c in cs:
+            n[(c["ok"], c["ret"], c["to"])] = n.get((c["ok"], c["ret"], c["to"]), 0) + 1
+        ok, ret, cto = sorted(n.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+        return {"to": to or cto, "data": data, "ok": ok, "ret": ret}
+
+
 class SymSearch(US.UndoSearch):
     """One milestone document's SYM search. fn: {law id: n} (the section's function index)."""
 

@@ -110,7 +110,7 @@ class SymCtx:
         self.combined = ct
         self.cev = E3.Evaluator.build(cp, self.docm)
         hp = rc.root / "results" / rc.m / "sorts" / "refinement" / "hints.json"
-        self.hints = S3.Hints(json.loads(hp.read_text()) if hp.is_file() else None)
+        self.hints = SY.Learned(json.loads(hp.read_text()) if hp.is_file() else None)
         self.recs = E3.records(ct)
         self.mine = set(E3.records(mt))
         self.actions = act_constructors(self.text)
@@ -268,8 +268,12 @@ class Decider:
         return bool(r["out"])
 
     def real_check(self, real, sc: SymCtx, el: dict, w: dict):
-        """None when the witness runs on the deployment as on the model (see the module docstring), else the reason;
-        and the replay entry."""
+        """(None when the witness runs on the deployment as on the model (see the module docstring), else the reason;
+        the replay entry; the witness accepted). Every external call the real runs make is learned (SY.Learned), so the
+        model's later candidates meet it as the deployment answers it; a refusal that taught the model new answers is
+        never counted toward the search's streak of refusals for one act. An omega witness comes back repaired: each
+        step answers its calls as its real runs did (one answer per call in both orders, else it is no witness), and
+        the model must still find the claim false at it."""
         sub = w["subform"]
         pre = list(w.get("prefix") or [])
         m = sc.factory()
@@ -277,8 +281,7 @@ class Decider:
         for st in pre:
             code, g, _c = m.run_step(g, US.fresh_step(st), save=True)
             if code != 0:
-                return "a prefix step does not succeed on the model from Reach's initial state", None
-        o = US.Obs(m)
+                return "a prefix step does not succeed on the model from Reach's initial state", None, None
         n0 = len(pre)
         if sub in SPLIT:
             gx = g_step(w["x"], w, sc.doc)
@@ -296,39 +299,85 @@ class Decider:
         try:
             res = real_outcomes(real, sc, traces)
         except Exception as e:  # noqa: BLE001: a witness the real side cannot run is no witness
-            return f"the real side cannot run it: {type(e).__name__}: {str(e)[:200]}", None
+            return f"the real side cannot run it: {type(e).__name__}: {str(e)[:200]}", None, None
+        learned = sc.hints.learn([dict(c, timestamp=tr[i].timestamp) for tr, r in zip(traces, res)
+                                  for i, cs in enumerate(r[1]) for c in cs])
         outs = res[0][0]
         if any(x != "ok" for x in outs[:n0]):
-            return f"a prefix step does not succeed on the deployment ({outs[:n0]})", None
+            return self._learned(f"a prefix step does not succeed on the deployment ({outs[:n0]})", learned), None, None
         if sub == "omega":
             got = [res[0][0][n0:] == ["ok", "ok"], res[1][0][n0:] == ["ok", "ok"]]
+            # the acts from s: x first in the run x;y, y first in the run y;x
+            first = [(w["x"], res[0][0][n0]), (w["y"], res[1][0][n0])]
         else:
             got = [x == "ok" for x in outs[n0:]]
         rep = {"law": el["law_id"], "subform": sub, "model": model, "real": got,
                "outcomes": [r[0][n0:] for r in res], "pokes": len(pk) if sub in SPLIT else 0}
         if got != model:
-            if got[0] != model[0]:     # x itself (from s, as the model runs it) does not run on the deployment as on the model
-                return (f"x:{w['x'].action}: the deployment's outcomes {got} are not the model's {model} "
-                        f"({[r[0][n0:] for r in res]})"), rep
-            return f"the deployment's outcomes {got} are not the model's {model} ({[r[0][n0:] for r in res]})", rep
+            outs_txt = [r[0][n0:] for r in res]
+            if sub == "omega":  # the first act from s that fails on the deployment (both succeed from s on the model)
+                bad = next((st for st, o in first if o != "ok"), None)
+            else:               # x itself (from s, as the model runs it) does not run on the deployment as on the model
+                bad = w["x"] if got[0] != model[0] else None
+            if bad is not None:
+                why = f"x:{bad.action}: the deployment's outcomes {got} are not the model's {model} ({outs_txt})"
+            else:
+                why = f"the deployment's outcomes {got} are not the model's {model} ({outs_txt})"
+            return self._learned(why, learned), rep, None
+        if sub == "omega":
+            w = self.repaired(w, n0, res[0][1], res[1][1])
+            if w is None:
+                return ("an act's external call is answered differently in the two orders on the deployment (an act "
+                        "carries one answer per call)"), rep, None
         if self.model_value(sc, el, w) is not False:
-            return "with the deployment's call answers the model finds the claim true", rep
+            return self._learned("with the deployment's call answers the model finds the claim true", learned), rep, None
         rep["status"] = "passed"
-        return None, rep
+        return None, rep, w
+
+    @staticmethod
+    def _learned(why: str, learned: int) -> str:
+        return f"learned {learned} of the deployment's call answers: {why}" if learned else why
+
+    @staticmethod
+    def repaired(w: dict, n0: int, c1: list, c2: list) -> dict | None:
+        """The omega witness with each step's external calls answered as the deployment answered them: the prefix as
+        in the run x;y, x as in both runs (step n0 of x;y, n0 + 1 of y;x), y likewise; None when one act's call (to,
+        calldata) got two different answers."""
+        def env_of(st, *lists):
+            calls, seen = [], {}
+            for cs in lists:
+                for c in cs:
+                    k = ("0x" + c["to"][-40:].lower(), c["data"])
+                    a = {"to": k[0], "data": c["data"], "ok": bool(c["ok"]), "ret": c["ret"]}
+                    if k in seen:
+                        if seen[k] != a:
+                            return None
+                        continue
+                    seen[k] = a
+                    calls.append(a)
+            env = json.loads(json.dumps(st.env))
+            env.pop("_unanswered", None)
+            env["calls"] = calls
+            return S3.Step(st.action, json.loads(json.dumps(st.args)), env)
+        pre = [env_of(st, c1[i]) for i, st in enumerate(w.get("prefix") or [])]
+        x, y = env_of(w["x"], c1[n0], c2[n0 + 1]), env_of(w["y"], c1[n0 + 1], c2[n0])
+        if x is None or y is None or any(st is None for st in pre):
+            return None
+        return dict(w, prefix=pre, x=x, y=y)
 
     def search(self, sc: SymCtx, el: dict, real=None):
         kept = {}
         accept = None
         if real is not None:
             def accept(w):
-                why, rep = self.real_check(real, sc, el, w)
+                why, rep, w2 = self.real_check(real, sc, el, w)
                 if why is None:
-                    kept["rep"] = rep
+                    kept["rep"], kept["w"] = rep, w2
                 return why
         s = SY.SymSearch(sc.factory, sc.doc, self.ctx.sorts_of(sc.doc_rel), BUDGET, sc.fn, log=self.ctx.log,
                          accept=accept, deadline=self.ctx.deadline)
         w, bound = s.decide(el)
-        return w, bound, kept.get("rep"), s.races
+        return (kept.get("w") or w if w is not None else None), bound, kept.get("rep"), s.races
 
     def settle_runs(self, sc: SymCtx, el: dict, w: dict, kh: dict, sh: dict) -> dict:
         """The decoded result (UOS) of each run sy_ok_<n> makes at the witness, on a model holding exactly the settled
@@ -458,9 +507,18 @@ class Decider:
         lp = nd / "LAWS.bend"
         lp.write_text(SP.inhabitant_law(law, n, sh, mi, si, sc.hashes), encoding="utf-8")
         p = nd / "PROOF.bend"
-        p.write_text(SP.inhabitant_proof(law, n, mi, si, "./LAWS.bend", sc.hashes, [m.act(x) for x in w["prefix"]],
-                                         states, self.values(el, w, m), {"keccak256": kh, "sha256": shh},
-                                         UP.Lit(sc.recs, sc.mine)), encoding="utf-8")
+        if el["subform"] == "omega":  # sy_hit runs both orders: the split shape, one conversion per run (as gz)
+            text = SP.inhabitant_proof_split(law, n, mi, si, "./LAWS.bend", sc.hashes, [m.act(x) for x in w["prefix"]],
+                                             states, self.values(el, w, m), {"keccak256": kh, "sha256": shh},
+                                             SP.SymLit(sc.recs, sc.mine, SP.constructors(sc.text)),
+                                             self.settle_runs(sc, el, w, kh, shh), el["basis"],
+                                             f"the inhabitant (omega: prefix {len(w['prefix'])} steps), every premise "
+                                             "by computation, one conversion per run")
+        else:
+            text = SP.inhabitant_proof(law, n, mi, si, "./LAWS.bend", sc.hashes, [m.act(x) for x in w["prefix"]],
+                                       states, self.values(el, w, m), {"keccak256": kh, "sha256": shh},
+                                       UP.Lit(sc.recs, sc.mine))
+        p.write_text(text, encoding="utf-8")
         checker, verdict = run3.check_file(p)
         ok = checker["marker"] == "ALL PROOFS CHECK" and verdict == "checked"
         return {**base, "status": "inhabited" if ok else "unknown", "law": run3.rel(lp, self.ctx.root),
@@ -474,6 +532,7 @@ class Decider:
         law = json.loads((ctx.rc.laws_dir / f"{lid}.json").read_text())
         sc = ctx.sec(e["facts"])
         el = next(x for x in sc.elements if x["law_id"] == lid)
+        sc.hints.reset()
         lp = self.write_law(law, sc, counter=False)
         shutil.rmtree(self.paths(lid)["proofs"], ignore_errors=True)
         attempts = []
@@ -561,7 +620,9 @@ class Decider:
         sub = el["subform"]
         bin_ = None
         if status == "REFUTED":
-            bin_ = "split_pending" if sub in SPLIT else "finding"
+            # a split's broken member waits for route (i) or (ii) (J8); omega's and sentinel's take the final filter's
+            # usual bin (holon refute --only filter), pending until then
+            bin_ = "split_pending" if sub in SPLIT else "pending"
         premises = []
         if sub == "sentinel" and ["env", "block.timestamp"] in list(R.S._walk(
                 next((v for a, src, v in R.S.write_values(sc.doc, el["basis"]["register"])

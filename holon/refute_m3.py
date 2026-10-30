@@ -488,6 +488,10 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             # a record an intent contract marks (I65 = I33b, tests_m3/test_o12.py rule O6): the final rule's bin is
             # the one the mark replaces, and the mark stays (holon.contracts owns it)
             new = dict(rec, intended=dict(rec["intended"], replaces=fb), concretization=conc)
+        elif rec.get("filter_bin") == "split_pending" and isinstance(rec.get("sym"), dict):
+            # a symmetry split's broken member (I34, tests_m3/test_sym.py rule J8): an obstruction only by route (i) or
+            # (ii), so the record keeps split_pending, and the final rule's bin is the one the mark replaces
+            new = dict(rec, sym=dict(rec["sym"], replaces=fb), concretization=conc)
         else:
             new = dict(rec, filter_bin=fb, concretization=conc)
         if new != rec:

@@ -404,6 +404,8 @@ def computed_bin(r: dict):
     i = r.get("intended")
     if r.get("filter_bin") == "intended_bounded" and isinstance(i, dict):
         return i.get("replaces")
+    if r.get("filter_bin") == "split_pending" and isinstance(r.get("sym"), dict):
+        return r["sym"].get("replaces")  # a symmetry split's broken member (I34 rule J8; spec/M3/amendments.jsonl)
     return r.get("filter_bin")
 
 

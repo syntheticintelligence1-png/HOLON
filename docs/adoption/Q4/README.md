@@ -6,7 +6,7 @@ Prepared by I64 (= I33a), rule K10 of `tests_m3/test_contracts.py`. It answers h
 
 | File in this package | Copied to | What it is |
 |---|---|---|
-| `schemas/result_record_v2.schema.json` | `schemas/result_record_v2.schema.json` | The v2 result record, additive to the frozen v1 `schemas/result_record.schema.json`. Since I64 it admits `filter_bin: "intended_bounded"` and the field `intended {contract, l_weak, replaces}` on REFUTED records (K8). |
+| `schemas/result_record_v2.schema.json` | `schemas/result_record_v2.schema.json` | The v2 result record, additive to the frozen v1 `schemas/result_record.schema.json`. Since I64 it admits `filter_bin: "intended_bounded"` and the field `intended {contract, l_weak, replaces}` on REFUTED records (K8). Since I34 it admits `filter_bin: "split_pending"` on the REFUTED records of a symmetry split (rule SYM's tau and pi laws, tests_m3/test_sym.py J8), the final filter's bin in `sym.replaces`. |
 | `schemas/law_ir_0_3.schema.json` | `schemas/law_ir_0_3.schema.json` | The IR 0.3 law format, including the INTENT rule, (since I26) rule FACT's additive `fact` term, (since I28) rule PAR's additive `init` term (sub-form init_chain) and (since I34) rule SYM's additive `sym` term. |
 
 Both files are byte-equal to `spec/schemas/` (I26 re-copied the IR schema after adding the `fact` term, I28 after adding the `init` term, and I34 after adding the `sym` term); `TestSchemaAndAdoption.test_the_q4_package` checks this.
