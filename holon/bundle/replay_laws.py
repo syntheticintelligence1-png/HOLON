@@ -4,7 +4,7 @@
 
 Every REFUTED bundle law and every PROVED existential one is replayed on the real bundle (RP1): its witness's trace,
 as the bundle corpus's rows up to the witness frame (the frame's value replaced for a value-variant witness), through
-I69's harness (holon.bundle.harness) from a fresh deployment, with the extra calls the observation needs:
+the bundle harness (holon.bundle.harness) from a fresh deployment, with the extra calls the observation needs:
 
   payer         the queue's fee estimate for the caller and for the key, read at the frame's pre-state (two view calls
                 of the price call's function, with the frame's gas argument), then the frame: it succeeds, and the
@@ -31,7 +31,7 @@ REPLAY_VERSION = "holon-bundle-laws-replay/0.1"
 
 
 def _raw_call(enc, caller: str, value: int, warp: int, to_member: str, data: bytes) -> bytes:
-    """A harness call step (I69's kind 2) with its calldata as given."""
+    """A harness call step (the harness's kind 2) with its calldata as given."""
     from .harness import _enc
     payload = _enc([enc.resolve(caller), value, warp, enc.member_addr[to_member], data],
                    ["address", "uint256", "uint256", "address", "bytes"])

@@ -8,7 +8,7 @@ The six sub-forms of holon.rules.bundle are decided over each law's law model (L
 compiles a model with its section) and run by I30's evaluator (holon.sorts.evaluate3) with the real keccak256 of every
 key they look up.
 
-  search (W1-W4)  the bundle corpus run once by I69's harness (forge, holon.bundle.harness; cached outside the
+  search (W1-W4)  the bundle corpus run once by the bundle harness (forge, holon.bundle.harness; cached outside the
                   repository by the inputs' sha256) and by the linked machine (holon.bundle.machine): a candidate is a
                   top-level frame of the law's member, with its input, environment and call answers as the linked
                   machine gave them; its state is the law model's own state chain over the trace's earlier top-level
@@ -86,7 +86,7 @@ def keccak_int(b: bytes) -> int:
 
 # ------------------------------------------------------------------------------------------------ the context
 class LawCtx:
-    """The milestone's bundle (I69's context), the bundle-laws basis and the derived entries of the six sub-forms."""
+    """The milestone's bundle context, the bundle-laws basis and the derived entries of the six sub-forms."""
 
     def __init__(self, root: Path, milestone: str):
         from . import context
@@ -259,7 +259,7 @@ def corpus_key(bctx) -> str:
 
 
 def corpus_run(bctx, jobs: int, log=print) -> tuple:
-    """(the deployment record, the harness's per-trace records) of the bundle corpus: one forge run (I69's harness),
+    """(the deployment record, the harness's per-trace records) of the bundle corpus: one forge run (the harness),
     cached outside the repository by its inputs' sha256. The deployment must be the committed one (rule C1)."""
     import tempfile
     from . import harness as H
