@@ -3907,6 +3907,189 @@
         ],
         "disclosure": "Only I81-P1 counts toward prediction accuracy: its outcome rests on the layout bound, which nobody computed before this commit. The others are recorded, not counted: the author read most of what decides them (observed_before_prereg), and the rest follow from the preregistered policy applied to committed data. A miss in any of them is still reported as a miss."
       }
+    },
+    "I84": {
+      "title": "= I37b: Bundle II's laws over I80's extraction: rule catalog holon-rules/1.10 adds PAR link_domain (O3: a proof call the Rollup admits reaches a verifier the router resolves, the router constructed as the target's deploy script constructs it), FACT public_input (O23: ker(PI) within ker(c) for each parent-header field the extracted Go derivation reads, F(PI, parent lbn) in bits) and DISCH self_controlled (O35: challengeState in En_G, its cost calibrated against forge gas, G from spec/M3/lib/refute.json); tools/calibrate_gas.py fits c0 + c1 * iters over E5's backlog loop on fit backlogs disjoint from the evaluated ones; the frontend records a break-only local (the router's found) as carried with its pre-loop value, closing I80's Q-I80-e; every witness replays on the real Rollup and router",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I84)",
+      "prompt": "prompts/I84_bundle2_laws.md",
+      "predictions": [
+        {
+          "id": "I84-P1",
+          "claim": "The frontend's loop rule FR1 closes I80's gap on the router: after `holon bundle2 extract` re-extracts the router under FR1, every name of every loop record's at_break and exit is carried, `found` is carried once per loop record with entry 0, and the document differs from I80's committed one only in its loop records' carried and next lists (and its extraction section); `holon bundle2 model` then compiles all eight router actions with no model debt (gen/M3/bundle2/models/models.json debt []), the model defines run_getVerifier and run_verifyAggregateProof, holds no escape hatch, and the pinned Bend prints ALL PROOFS CHECK on it. Derivation: I80's report places model3's error ('exit found is not a name of loop :108-114') and the evaluator's refusal on the missing entry value; model3 already compiles carried names, loops with break, struct records and I80's dynamic-array extension, so an entry value is the one thing missing.",
+          "check": "tests_m3/test_bundle2_laws.py::TestFrontend::test_p1_the_router_carries_found_and_compiles"
+        },
+        {
+          "id": "I84-P2",
+          "claim": "I80's corpus re-run under FR1 (`holon bundle2 refine`): the linked machine has no disagreement and no unsupported step on all 365 traces (I80-P4's two unsupported S1_router steps, getVerifier(7, 3) and verifyAggregateProof(7, 3), now agree with the real router's ErrorVerifierNotFound revert), and the router's model has no unsupported step and exactly one disagreement, one of I80's committed model disagreement ids: the S5_rollup_word step-3 status disagreement of I80's Surprise 1 (callok without the ABI decoder, Q-I80-d), which FR1 does not touch. Derivation: the two unsupported linked steps end the search loop by its head with found's entry value 0; the model's 164 unsupported steps are exactly the two debt actions' steps, whose code paths are the loop, a custom-error revert and the stand-in's answered call, each of which model3 already handles on the adopted Rollup.",
+          "check": "tests_m3/test_bundle2_laws.py::TestRefinement::test_p2_the_refinement_rerun"
+        },
+        {
+          "id": "I84-P3",
+          "claim": "BUILD_PLAN I37's calibration prediction (K1-K5): the calibrated cost c0 + c1 * iters of the state-indexed cost site (challengeState's loop, Rollup.sol:489-493), fitted by ordinary least squares on the fit backlogs {3, 6, 12, 24, 48} only, is within 5% of forge gas (intrinsic plus the call frame's gas before refunds) at every evaluated backlog k in {1, 2, 4, 8, 16, 32, 64}; results/M3/bundle2/calibration.json says calibrated. Derivation: under Cancun every loop iteration does the same cold SLOAD and dirty SSTORE of a distinct batchDataStore slot plus fixed loop overhead, and the challenged batch's skip is a constant, so the measured cost is affine in k up to a few hundred gas; extrapolating from 48 to 64 is the test.",
+          "check": "tests_m3/test_bundle2_laws.py::TestCalibration::test_p3_the_cost_is_calibrated_within_tolerance"
+        },
+        {
+          "id": "I84-P4",
+          "claim": "BUILD_PLAN I37's O35 prediction, registered as written: some submitter strategy with backlog k <= 64 pushes challengeState out of En_G at G = 30,000,000 (spec/M3/lib/refute.json gas_limit): the DISCH self_controlled law L_disch_self_Rollup_challengeState_489_493 is REFUTED by a kernel-checked counter-law whose witness's backlog (k*_model) is at most 64. Disclosed before any measurement: the agent expects this to miss (see I84-P5 and thresholds.estimate); it is kept because the plan's predictions are preregistered claims and dropping one after reading the code would be hindsight.",
+          "check": "tests_m3/test_bundle2_laws.py::TestO35::test_p4_plan_a_strategy_within_64_leaves_en_g"
+        },
+        {
+          "id": "I84-P5",
+          "claim": "The agent's O35 prediction (D2-D5): the least backlog at which the calibrated cost exceeds G, k*_model (tests_m3/_i84.py::kstar over the record's points), and the least backlog at which challengeState with a transaction gas limit of G fails on the real code while it succeeds with 2G, k*_real (D5's bisection), both lie in [5000, 6000]; the law is UNKNOWN, its attempts naming the calibration, k*_model and the 64-step kernel budget; the strategy (commits by the active submitter class, then the challenge) replays: k*_real - 1 succeeds within G, k*_real fails within G and succeeds within 2G. Derivation: thresholds.estimate (the gas schedule's per-iteration cost of about 5,150-5,600 and fixed cost of about 0.1-0.25 M put (G - c0) / c1 between about 5,300 and 5,800; the proxy's 63/64 forwarding lowers k*_real by under 2%).",
+          "check": "tests_m3/test_bundle2_laws.py::TestO35::test_p5_the_backlog_out_of_en_g_and_its_replay"
+        },
+        {
+          "id": "I84-P6",
+          "claim": "BUILD_PLAN I37's O23 prediction (FC1-FC3, FP1-FP4, FM1-FM3): the FACT public_input law L_fact_pi_Rollup_commitBatchWithProof_LastBlockNumber is REFUTED by a kernel-checked counter-law (two runs of commitBatchWithProof from reachable states with equal PI and parents whose last block numbers differ), its record's measure is F(PI, parent lbn) = 64 bits (kind value, class free), and its witness replays on the real Rollup (both runs succeed; the PI words at the router call are equal; the parents' last block numbers differ). Counted: the REFUTED status and the replay (decided by Bend and forge after the prereg); the 64 is the basis's field class (the instrument computed it at the prereg from the adopted document), so its equality is a construction check.",
+          "check": "tests_m3/test_bundle2_laws.py::TestO23::test_p6_the_parent_lbn_is_outside_the_public_input"
+        },
+        {
+          "id": "I84-P7",
+          "claim": "The same sub-form's laws for the derivation's other parent-header reads, L_fact_pi_Rollup_commitBatchWithProof_Version, _BatchIndex and _TotalL1MessagePopped, are REFUTED by kernel-checked counter-laws whose witnesses replay, and their measures are the basis's classes (Version: checked_joint, bound [1, 1.584963]; BatchIndex and TotalL1MessagePopped: computed, bounds [1, 64]). Derivation: PI reads header bytes 25..217 of the committed batch and nothing of its parent; two parents at different versions, indices or message totals with equal post roots give children with equal PI (a child with no L1 message hashes no queue entry), each within FP3's two-step prefixes.",
+          "check": "tests_m3/test_bundle2_laws.py::TestO23::test_p7_the_other_parent_reads_are_outside_too"
+        },
+        {
+          "id": "I84-P8",
+          "claim": "BUILD_PLAN I37's O3 prediction (LD1-LD5): under the laws' deployment, where the router is constructed as the target's deploy script constructs it (contracts/deploy/016-RollupInit.ts:38-40, versions [1]), the three link_domain laws (commitBatchWithProof, proveCommittedBatchState and proveState into verifyAggregateProof) are REFUTED by kernel-checked counter-laws; each witness's (version, index) lies outside the router's domain by the instrument's rule (a version the deploy script does not configure, so getVerifier returns address(0) without entering the search loop), and each replays: the Rollup's proof call reverts on the real Rollup and router, and the real getVerifier returns address(0). Derivation: the Rollup's commit admits version <= 2 and checks nothing of the router; I80's harness configured versions 0-2 at start 0, under which the domain is total and stays so (updateVerifier only pushes legacy entries), which is why the laws' deployment is the deploy script's.",
+          "check": "tests_m3/test_bundle2_laws.py::TestO3::test_p8_commits_outside_the_router_domain"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I84-R1",
+          "claim": "FR2: the adopted Rollup document (sha256 thresholds.rollup_document_sha256) re-extracts byte for byte with its sidecar under FR1 (it holds no break-only local: every at_break and exit name of its eight loop records is carried, read at the prereg); holon coverage --milestone M2 and M3 --check pass; its typed and untyped M3 model texts regenerate byte for byte.",
+          "check": "tests_m3/test_bundle2_laws.py::TestFrontend::test_r1_the_rollup_document_and_models_do_not_move"
+        },
+        {
+          "id": "I84-R2",
+          "claim": "Judged one by one against its first parent, no own commit changes a frozen root, an earlier M3 law but in rule_catalog_version, or an earlier M3 record's status; at end every record directly under results/M1, results/M2 and results/T32 carries a generator_sha256 other than at the prereg (re-made: holon/frontends/ and holon/rules/ are in their closures).",
+          "check": "tests_m3/test_bundle2_laws.py::TestRegressions::test_r2_own_commits_move_no_earlier_outcome"
+        },
+        {
+          "id": "I84-R3",
+          "claim": "holon audit prereg passes for M2 and M3 (tested). On CI, on the build head: gate-M0, gate-M1 and gate-M2 pass; gate-M3-partial and gate-M3-G2 fail only on the base's items (G11V's in-flight clause since I28's build); the frozen suite, freeze-check and both audits pass.",
+          "check": "tests_m3/test_bundle2_laws.py::TestRegressions::test_r3_the_prereg_audits_pass"
+        },
+        {
+          "id": "I84-R4",
+          "claim": "The modules I84 adds (holon/bundle2/laws*.py, holon/rules/bundle2*.py, tools/calibrate_gas.py) name no contract, function, storage variable, address or host of the target outside docstrings and comments: every one comes from the documents, the declaration or the sidecars.",
+          "check": "tests_m3/test_bundle2_laws.py::TestRegressions::test_r4_the_new_code_names_no_target"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/bundle2/",
+        "results/M3/bundle2/",
+        "replay/M3/bundle2/",
+        "laws/M3/L_par_ldom_",
+        "laws/M3/L_fact_pi_",
+        "laws/M3/L_disch_self_",
+        "results/M3/L_par_ldom_",
+        "results/M3/L_fact_pi_",
+        "results/M3/L_disch_self_",
+        "gen/M3/laws/L_par_ldom_",
+        "gen/M3/laws/L_fact_pi_",
+        "gen/M3/laws/L_disch_self_",
+        "gen/M3/proofs/L_par_ldom_",
+        "gen/M3/proofs/L_fact_pi_",
+        "gen/M3/proofs/L_disch_self_",
+        "docs/iterations/I84.md"
+      ],
+      "tests": [
+        "tests_m3/test_bundle2_laws.py"
+      ],
+      "thresholds": {
+        "base": "92c98e40b17a8bdbe516c67e46190098a898f270 (the lead after I80, 873cb0d9, I81, 3da104c1, and I72's build), with BUILD_PLAN's row I84 committed before this commit",
+        "base_commit": "92c98e40b17a8bdbe516c67e46190098a898f270",
+        "catalog": "holon-rules/1.10 (holon-rules/1.7 is I71's, 1.8 I29's, 1.9 I35's; the next free version); C1 chains it to the newest version at the build's base",
+        "instrument": "tests_m3/_i84.py",
+        "instrument_sha256": "3482a0d9f374876f68181db3701adb4848a4c80be87896acbb13cfd184478fec",
+        "contract_docstring_sha256": "e3d827a47d3cee34af6330b5e30af6c08c611105fb8b561adf095be79b3f9107",
+        "sidecar": "spec/M3/lib/bundle2_laws.json",
+        "sidecar_sha256": "d1af3a21a39f15cf1a0ebdb1b9c887af74f144a16912e54b0398d2c155b2db67",
+        "basis": "spec/M3/lib/bundle2_laws_basis.json",
+        "basis_sha256": "1817530a9d2744079b8de38a63c7089fd0e1de86c7da26ae4c85bc2a181d3b76",
+        "rollup_document_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+        "gas_ceiling": 30000000,
+        "k_star_band": [
+          5000,
+          6000
+        ],
+        "kernel_budget_steps": 64,
+        "calibration": {
+          "fit_backlogs": [
+            3,
+            6,
+            12,
+            24,
+            48
+          ],
+          "eval_backlogs": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64
+          ],
+          "tolerance": 0.05
+        },
+        "law_ids": {
+          "link_domain": [
+            "L_par_ldom_Rollup_commitBatchWithProof_MultipleVersionRollupVerifier_verifyAggregateProof",
+            "L_par_ldom_Rollup_proveCommittedBatchState_MultipleVersionRollupVerifier_verifyAggregateProof",
+            "L_par_ldom_Rollup_proveState_MultipleVersionRollupVerifier_verifyAggregateProof"
+          ],
+          "public_input": [
+            "L_fact_pi_Rollup_commitBatchWithProof_BatchIndex",
+            "L_fact_pi_Rollup_commitBatchWithProof_LastBlockNumber",
+            "L_fact_pi_Rollup_commitBatchWithProof_TotalL1MessagePopped",
+            "L_fact_pi_Rollup_commitBatchWithProof_Version"
+          ],
+          "self_controlled": [
+            "L_disch_self_Rollup_challengeState_489_493"
+          ]
+        },
+        "estimate": "Before any measurement, from the Cancun gas schedule (EIP-2929, EIP-2200, EIP-3529) over the source of challengeState (Rollup.sol:472-497): one backlog iteration reads batchDataStore[i].finalizeTimestamp, a distinct cold slot (2100), and writes it nonzero to nonzero for the first time in the transaction (2900), plus the warm reads of proofWindow and lastCommittedBatchIndex, the mapping-slot keccak, checked arithmetic and the loop's jumps: c1 about 5,150-5,600. The fixed part (intrinsic gas about 21,700, the proxy about 7,000, about a dozen cold reads, the submitter's challengeDeposit call, the challenge struct's three fresh slots and two fresh flags, the event) is about 0.1-0.25 M. Hence k* = (G - c0) / c1 is about 5,300-5,800 at G = 30 M, far above BUILD_PLAN's 64: I84-P4 is expected to miss and I84-P5's band is [5000, 6000].",
+        "counted_predictions": [
+          "I84-P1",
+          "I84-P2",
+          "I84-P3",
+          "I84-P4",
+          "I84-P5",
+          "I84-P6",
+          "I84-P7",
+          "I84-P8"
+        ],
+        "construction_checks": "the instruments' pins and the basis's recomputation (TestInstrument), the catalog and the law ids (test_c1, test_c2), the calibration's reproduction (test_c3), the REFUTED path of the DISCH decider under a planted ceiling (test_c4, D6), and inside P6 and P7 the equality of each record's measure with the basis's field class (computed by the instrument at the prereg)",
+        "build_plan_mapping": {
+          "O3": "I84-P8 (three link_domain laws under the deploy script's router configuration)",
+          "O23": "I84-P6 (F(PI, parent lbn) = 64 bits); I84-P7 for the derivation's three other parent reads",
+          "calibrated cost": "I84-P3",
+          "O35": "I84-P4 (as written: k <= 64) and I84-P5 (the agent's band and the replay)",
+          "HypC": "not a separate law: the router's verifyBatch call is answered by the stand-in (the circuit as an oracle) in LD3's environment and in every replay, as I80's harness answers it (Q-I80-a stays open)"
+        },
+        "known_red_at_base": [
+          "tests_m3.test_undo: 11 (UNDO records trail)",
+          "tests_m3.test_disch_profile: 3 (I32's misses)",
+          "tests_m2 group 2: 2 (solidity history.py honesty)",
+          "tests_m2 group 3: 14 failures and 6 errors",
+          "I43-R1 (tests_m3/test_lean_promoted.py), re-baselined by the lead",
+          "since I28's build: G11V's in-flight clause on M3; test_fact TestGate.test_partial_gate_on_a_copy; test_sort_types TestRecordsAndGate.test_gate_m3_passes; test_disch TestGateAndRegressions.test_gate_m3_passes_and_rejects_the_disch_canaries",
+          "since I80: tests_m3.test_bundle2_extraction P2, P4, P6 and test_the_generated_sidecars_and_the_action_sets (zkevm) (I80's misses; P4 and P6 are expected to turn green under FR1)",
+          "since I81: tests_m3.test_ranking test_p4, test_p6, test_p7",
+          "locally only: tests_m3.test_par_lossy.TestCore.test_inj_push_is_proved (the bun is not the pinned build)"
+        ],
+        "coordination": "holon-rules/1.7 (I71), 1.8 (I29) and 1.9 (I35) are pending in other lanes; C1 chains 1.10 to the newest at the build's base, and whoever merges second re-chains and regenerates. FR1 changes holon/frontends/solidity (a closure file): the build re-makes the M1, M2 and T32 records locally and the M3 records on CI runners, and regenerates I80's outputs. I69 (Bundle I, PR #52) also extends the frontend: if it lands first, the build re-extracts its documents under FR1 and reports any move.",
+        "deferred": [
+          "I81's ranking cells (F(PI, parent lbn), DISCH profiles and gas costs): I81's frozen sidecar measures FACT sub-form kernel only and names I37 for them (Q-I84-c)",
+          "a FACT public_input law for the proof actions (proveState, proveCommittedBatchState): they take no parent header, so FP1 states none; the same kernel pair reaches their batches only through the committed parentBatchHash",
+          "the deployed router's configuration (Q-I80-b, Q-I84-a): the laws use the deploy script's",
+          "calibrating the other cost sites (commit loops over L1 messages, finalizeBatch, revertBatch, the router's search): their counts read parameters or abstract counts, so they are not state-indexed (K1)",
+          "a counter-law over Reach longer than 64 steps (D4): its trace and keccak table grow with the backlog"
+        ],
+        "disclosure": "Read before this prereg: the router's, the Rollup's and the queue's sources at the head; contracts/deploy/016-RollupInit.ts; node/derivation/batch_info.go (ParseBatch) and verify_local.go (fetchBatchInfoOutline); common/batch/batch_header.go; I80's outputs, report and refinement records; the adopted Rollup document's loop and header-store records; the Go documents' decoders and call edges; I81's measures and ranking sidecar. Ran: the instrument's basis (tests_m3/_i84.py --write) and bend guide. Never ran before this prereg: forge, Bend, model3, the evaluator or the frontend on anything I84 measures or decides; no gas was measured (thresholds.estimate is arithmetic over the gas schedule)."
+      }
     }
   }
 }
