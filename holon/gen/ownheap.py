@@ -261,6 +261,7 @@ class Effect:
     kind: str                 # "store" | "transient"
     field: str
     src: tuple                # ("param", index) | ("field", name)
+    site: tuple = ()          # (file, line, column) of the store or write: effects run in source order
 
 
 @dataclass
@@ -298,6 +299,14 @@ def _bytes_src(t, recv: str, params: list, modelled: list):
     raise Unsupported(f"an append of {json.dumps(t)[:80]} (not a byte-slice parameter or a modelled field)")
 
 
+def _site(site) -> tuple:
+    """(file, line, column) of a Go document site "path:line:col", or () when it is not one."""
+    if not isinstance(site, str) or site.count(":") < 2:
+        return ()
+    path, line, col = site.rsplit(":", 2)
+    return (path, int(line), int(col)) if line.isdigit() and col.isdigit() else ()
+
+
 def _method(name: str, m: dict, doc: dict) -> Method:
     recv, modelled = m["receiver"], doc["modelled"]
     ps = (m.get("params") or [])[1:]
@@ -312,7 +321,7 @@ def _method(name: str, m: dict, doc: dict) -> Method:
         if f in modelled:
             if not (isinstance(v, list) and len(v) == 3 and v[0] == "append" and _field_ref(v[1], recv) == f):
                 raise Unsupported(f"{name}: the store into {f} is not an append onto {f}")
-            effects.append(Effect("store", f, _bytes_src(v[2], recv, params, modelled)))
+            effects.append(Effect("store", f, _bytes_src(v[2], recv, params, modelled), _site(s.get("site"))))
             stored.add(f)
         elif f in doc.get("abstracted") or []:
             if not (isinstance(v, list) and v[:1] == ["append"] and _field_ref(v[1], recv) == f):
@@ -327,7 +336,7 @@ def _method(name: str, m: dict, doc: dict) -> Method:
         if not (isinstance(to, list) and len(to) == 4 and to[:2] == ["op", "+"] and to[2] == ["len", ["field",
                 ["param", recv], f]] and isinstance(to[3], list) and to[3][:1] == ["len"]):
             raise Unsupported(f"{name}: the in-place write into {f} is not an append (to {json.dumps(to)[:80]})")
-        effects.append(Effect("transient", f, _bytes_src(to[3][1], recv, params, modelled)))
+        effects.append(Effect("transient", f, _bytes_src(to[3][1], recv, params, modelled), _site(w.get("site"))))
     view = None
     cases = [c for c in m.get("cases") or []]
     vfs = sorted({v["field"] for v in doc["views"] if v["method"] == name})
@@ -343,6 +352,9 @@ def _method(name: str, m: dict, doc: dict) -> Method:
             view = ("field", f)
         else:
             raise Unsupported(f"{name}: a view of {f} that is neither the field nor an append's result")
+    if any(not e.site for e in effects):
+        raise Unsupported(f"{name}: an effect without a source site (its order is unknown)")
+    effects.sort(key=lambda e: e.site)   # the method's straight-line order (a loop or branch is no store of this class)
     return Method(name, params, effects, view)
 
 
