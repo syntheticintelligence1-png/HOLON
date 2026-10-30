@@ -1,0 +1,128 @@
+{
+  "carrier": {
+    "id": "SliceHash",
+    "reach": "external: the L1 transaction hashes of an L2 block are the hashes of L1 messages, which any L1 account enqueues through L1MessageQueue and the sequencer must include in order; BatchCache.PackCurrentBlock hands each block's hashes (ParsingTxs) to BatchData.Append, which accumulates them for the batch it seals (whitepaper \u00a711.3 O28, Appendix A F12.7).",
+    "type": "[]github.com/morph-l2/go-ethereum/common.Hash"
+  },
+  "channels": {
+    "batch_BatchData_Append_l1TxHashes": {
+      "field": "l1TxHashes",
+      "kind": "item",
+      "param": "l1TxHashes",
+      "params": [
+        {
+          "name": "cks",
+          "type": "*morph-l2/common/batch.BatchData"
+        },
+        {
+          "name": "blockContext",
+          "type": "[]byte"
+        },
+        {
+          "name": "txsPayload",
+          "type": "[]byte"
+        },
+        {
+          "name": "l1TxHashes",
+          "type": "[]github.com/morph-l2/go-ethereum/common.Hash"
+        }
+      ],
+      "receiver": "cks",
+      "site": "common/batch/batch_data.go:39:7",
+      "source": "(*morph-l2/common/batch.BatchData).Append",
+      "store": [
+        "append",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "l1TxHashes"
+        ],
+        [
+          "call",
+          "(github.com/morph-l2/go-ethereum/common.Hash).Bytes",
+          [
+            [
+              "index",
+              [
+                "param",
+                "l1TxHashes"
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t14",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "width": 32
+    },
+    "batch_BatchData_Append_l1TxNum": {
+      "field": "l1TxNum",
+      "kind": "wrap",
+      "param": "l1TxHashes",
+      "params": [
+        {
+          "name": "cks",
+          "type": "*morph-l2/common/batch.BatchData"
+        },
+        {
+          "name": "blockContext",
+          "type": "[]byte"
+        },
+        {
+          "name": "txsPayload",
+          "type": "[]byte"
+        },
+        {
+          "name": "l1TxHashes",
+          "type": "[]github.com/morph-l2/go-ethereum/common.Hash"
+        }
+      ],
+      "receiver": "cks",
+      "site": "common/batch/batch_data.go:41:6",
+      "source": "(*morph-l2/common/batch.BatchData).Append",
+      "store": [
+        "op",
+        "+",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "l1TxNum"
+        ],
+        [
+          "convert",
+          "uint16",
+          [
+            "len",
+            [
+              "param",
+              "l1TxHashes"
+            ]
+          ]
+        ]
+      ],
+      "width": 16
+    }
+  },
+  "component": "l1_counts",
+  "count": "Len_SliceHash",
+  "document": "spec/M3/facts/morph_blob.go.extracted.json",
+  "document_sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e",
+  "gocount_version": "holon-gocount/0.1"
+}

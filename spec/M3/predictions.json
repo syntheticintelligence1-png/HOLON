@@ -5656,6 +5656,189 @@
         ],
         "disclosure": "P2, P3 and P4 count toward prediction accuracy: nobody computed their outcomes before this commit. P1 is recorded, not counted: the author read most of what decides it (observed_before_prereg). I87 builds machinery, so most of its claims are construction checks (R1-R13). A miss in any prediction is reported as a miss, never fixed by changing the policy or the instrument after the outcome."
       }
+    },
+    "I90": {
+      "title": "I90 (= I38b): O28 at 65,536 L1 messages, through the count channels of a Go component: a Go count component over the carrier []common.Hash whose two channels (BatchData.Append's l1TxHashes, one 32-byte item per element, and l1TxNum, the length realized in 16 bits) rule PAR's existing branch producer derives a law over, decided on a model whose carrier is a length (a Nat: parametric counts) at 65,536 in both kernels and replayed on the real Go code; D2 as the regression",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I90)",
+      "prompt": "prompts/I90_go_counts.md",
+      "predictions": [
+        {
+          "id": "I90-P1",
+          "claim": "O28: L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum, forall x: SliceHash. batch_BatchData_Append_l1TxHashes(x) == batch_BatchData_Append_l1TxNum(x), derived over gen/M3/goops/l1_counts.json, is REFUTED by holon run at x = 65536 (the first candidate, 2^16; no reduced N): its witness is {\"x\": 65536}, its difference 65536 (the item channel: 65,536 hashes in l1TxHashes) against 0 (the wrap channel: l1TxNum), the counter-law (exs x: Nat) accepted by bend with ALL PROOFS CHECK, and its record's kernel verdict checked by BendTT.",
+          "check": "tests_m3/test_go_counts.py::TestOutcomes::test_p1_o28_refuted_at_65536"
+        },
+        {
+          "id": "I90-P2",
+          "claim": "holon derive --milestone M3 derives over gen/M3/goops/l1_counts.json exactly one law, L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum (rule PAR, sub-form branch, the instrument's statement), with the catalog's PAR producers unchanged; DERIVATION's par_basis holds exactly two rows over the component: the branch row giving that law and the cycle row of the non-tree edge CODEC.batch_BatchData_Append_l1TxNum, recording L_par_cy_batch_BatchData_Append_l1TxNum as its duplicate; cycle_rank of l1_counts is E 2, V 2, kappa 1, rank 1; no commit of I90's changes the rule catalog.",
+          "check": "tests_m3/test_go_counts.py::TestDerivation::test_p2_one_law_and_the_duplicate"
+        },
+        {
+          "id": "I90-P3",
+          "claim": "holon replay-go --milestone M3 writes replay/M3/gocount/report.json with one side for L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum, passed, provenance library_api, obstruction observed, no panic: a generated internal test of morph-l2/common/batch calls Append once on new(BatchData) with 65,536 zero hashes and reads 65,536 items in l1TxHashes and l1TxNum 0, the model's values; the record's replay is passed and its witness_provenance {\"go\": \"library_api\"}; replay/M3/goops/report.json is not changed by I90's commits.",
+          "check": "tests_m3/test_go_counts.py::TestOutcomes::test_p3_replay_passed"
+        },
+        {
+          "id": "I90-P4",
+          "claim": "holon refute --milestone M3 --only filter gives the REFUTED record concretization kind go_only (result null, reason \"node-level public path needs I39\") and filter_bin pending (holon.filter.final_bin's F4), and results/M3/refute/filter.json lists it with before null and after pending.",
+          "check": "tests_m3/test_go_counts.py::TestOutcomes::test_p4_go_only_pending"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I90-R1",
+          "claim": "D2 (checked since I3): results/M2/hypotheses.json's Hyp-Z0-kzg entry stays checked; holon.oracles.zero_blob recomputes the zero blob's KZG versioned hash 0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014 and finds Morph's two constants (Rollup.sol ZERO_VERSIONED_HASH, common/blob EmptyVersionedHash) equal to it at the document's commit; no own commit of I90's changes the entry.",
+          "check": "tests_m3/test_go_counts.py::TestRegressions::test_r1_d2_still_checked"
+        },
+        {
+          "id": "I90-R2",
+          "claim": "Judged at each of I90's own commits against its first parent: under laws/M3, results/M3, gen/M3 and replay/M3 only the law, its record, its law and proof directories, gen/M3/goops/l1_counts.json, gen/M3/diagram/l1_counts.json, gen/M3/model/l1_counts.bend, replay/M3/gocount/report.json and what rule C9's recipe writes change (gen/M3/evidence.json, laws/M3/REGISTRY.json and DERIVATION.json gaining only the law, gen/M3/par_lossy/header_length.json in its evidence input sha256 alone, results/M3/summary.json, deps.json, splits.json, metrics.json, metrics_timing.json and ranking.json, results/M3/refute/concretization.json and filter.json gaining only the law's entries, and other M3 records in their stamps and filter fields alone); every other law's DERIVATION entry, statement hash included, is unchanged.",
+          "check": "tests_m3/test_go_counts.py::TestRegressions::test_r2_nothing_else_changes"
+        },
+        {
+          "id": "I90-R3",
+          "claim": "Construction honesty: holon/diagram/gocount.py and holon/gen/gocount.py hold no target name, field, span or count constant and import no test code; the count document and the model come from the sidecar, the Go document and its config alone; the witness comes from the compiled model.",
+          "check": "tests_m3/test_go_counts.py::TestComponent::test_c1_c4_no_target_vocabulary"
+        },
+        {
+          "id": "I90-R4",
+          "claim": "Judged at each of I90's own commits: a record of results/M1, results/M2 or results/T32 that an own commit changes equals its parent's version but for generator_sha256 and keys named seconds (holon run --milestone M1 and M2 and holon profile --milestone T32 re-make them for I90's generator closures, the filter stage writing their filter fields back in the same commit); no own commit changes laws/M0, results/M0, gen/M0 or replay/M0.",
+          "check": "tests_m3/test_go_counts.py::TestRegressions::test_r4_earlier_records_in_stamps_alone"
+        },
+        {
+          "id": "I90-R5",
+          "claim": "I67's Go-op component is untouched by I90's commits: no own commit changes gen/M3/goops/blob_ops.json, its diagram, its model, its four laws or replay/M3/goops/report.json, or the status, statement hash or witness of its four records; spec/M3/lib/go_frontend.json and spec/M3/lib/go_ops.json keep I67's pins.",
+          "check": "tests_m3/test_go_counts.py::TestRegressions::test_r5_the_go_op_component_is_unchanged"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/goops/l1_counts.json",
+        "gen/M3/diagram/l1_counts.json",
+        "gen/M3/model/l1_counts.bend",
+        "laws/M3/L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum.json",
+        "results/M3/L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum.json",
+        "gen/M3/laws/L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum/",
+        "gen/M3/proofs/L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum/",
+        "replay/M3/gocount/",
+        "docs/iterations/I90.md"
+      ],
+      "tests": [
+        "tests_m3/test_go_counts.py"
+      ],
+      "thresholds": {
+        "base": "ebcc2d52 (the lead claude/holon-v2-bend2-c6z3cd after I85's merge), with BUILD_PLAN's rows I90 and I91 (45d01fca)",
+        "instrument": "tests_m3/_i90.py",
+        "instrument_sha256": "2836e8ebe88a7d5702791bbf1513b0108816811716b895632a21bafba18d758f",
+        "go_instrument": "tests_m3/fixtures/go_counts/holon_i90_instrument.go.txt",
+        "go_instrument_sha256": "758fa2391a898488876f3c6262947de6b7e653010f2e0630f0755891b4c31659",
+        "contract_docstring_sha256": "083353453abd84a9b8468d958552a39fdea1e012b883726cd3b2665506f46309",
+        "sidecar": {
+          "path": "spec/M3/lib/go_counts.json",
+          "sha256": "142b6ff207942dde287c9e37b0158c36fb3fcf5ef929d1adb397de3987d0f992"
+        },
+        "document": {
+          "path": "spec/M3/facts/morph_blob.go.extracted.json",
+          "sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e"
+        },
+        "frontend_config": {
+          "path": "spec/M3/lib/go_frontend.json",
+          "sha256": "95aadbadb5c01bb823987c10d86f51229e95d91d7d5bef82f38fb3db799c1aa3"
+        },
+        "component": "l1_counts",
+        "carrier": {
+          "id": "SliceHash",
+          "type": "[]github.com/morph-l2/go-ethereum/common.Hash",
+          "count": "Len_SliceHash"
+        },
+        "channels": {
+          "batch_BatchData_Append_l1TxHashes": {
+            "source": "(*morph-l2/common/batch.BatchData).Append",
+            "field": "l1TxHashes",
+            "kind": "item",
+            "width": 32,
+            "site": "common/batch/batch_data.go:39:7"
+          },
+          "batch_BatchData_Append_l1TxNum": {
+            "source": "(*morph-l2/common/batch.BatchData).Append",
+            "field": "l1TxNum",
+            "kind": "wrap",
+            "width": 16,
+            "site": "common/batch/batch_data.go:41:6"
+          }
+        },
+        "laws": {
+          "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum": "REFUTED"
+        },
+        "duplicate": {
+          "L_par_cy_batch_BatchData_Append_l1TxNum": "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum"
+        },
+        "statuses": {
+          "PROVED": 0,
+          "REFUTED": 1,
+          "UNKNOWN": 0
+        },
+        "witness": {
+          "x": 65536,
+          "candidates": [
+            65536,
+            0
+          ],
+          "concretized": "one call of BatchData.Append on new(BatchData) with nil block context, nil payload and 65,536 zero L1 transaction hashes"
+        },
+        "difference": {
+          "lhs": 65536,
+          "rhs": 0
+        },
+        "replay": {
+          "provenance": "library_api",
+          "status": "passed",
+          "observed": {
+            "batch_BatchData_Append_l1TxHashes": 65536,
+            "batch_BatchData_Append_l1TxNum": 0
+          }
+        },
+        "filter": {
+          "kind": "go_only",
+          "filter_bin": "pending",
+          "why": "holon.filter.final_bin F4: a Go-only witness has no public path in the Solidity system; the node-level path (the submitter's BatchCache packing blocks whose L1 messages sum to 65,536) is I39's"
+        },
+        "rule_catalog_version": "unchanged by I90 (holon-rules/1.6 at the base; I71 holds 1.7 and later keys 1.8-1.13; whichever merges second re-derives laws/M3)",
+        "closures": "I90's code is in the holon-ir/0.2 and 0.3 closures (holon.codecrun, holon.records, holon.gen.refs, holon.diagram.evidence, holon.ir, holon.bindings) and in I32's, not in holon-ir/0.1's (M0)",
+        "model_check_probe": "before this commit a generic kernel probe (no law of I90's, no generated model, no counter-law file) measured Base's unary Nat at 65,536: Nat.divmod(n, n) checks in bend for n = 1024 to 65536 in under 0.6 s, while BendTT --verdict checks it at 1024 (0.4 s) and 4096 (1.8 s) and runs out of fuel from 16384 on; U32.to_nat(U32.and(U32.from_nat(65536n), 65535)) == 0n checks in bend (0.9 s) and BendTT (2.6 s); Nat.is_eq(65536n, 65536n) checks in both (BendTT 1.0 s). Rule C4's wrap expression was chosen from it.",
+        "real_code_at_prereg": "the instrument's 11 probes on the pinned checkout: after calls with hash counts summing to n from NewBatchData() or new(BatchData), l1TxNum is n mod 65536, len(l1TxHashes) is 32 n and blockNum the number of calls, with no panic: one call of 65,536 hashes, two of 32,768 and 64 of 1,024 each leave l1TxNum 0 and 2,097,152 bytes in l1TxHashes; one call of 65,535 leaves 65,535; one of 65,537 leaves 1; one of 131,072 leaves 0; 65,535 calls of one hash leave l1TxNum and blockNum 65,535",
+        "counted_predictions": [
+          "I90-P1",
+          "I90-P2",
+          "I90-P3",
+          "I90-P4"
+        ],
+        "observed_before_prereg": {
+          "I90-P1": "no run of I90's derivation, model, counter-law or kernel verdict; the generic kernel probe (model_check_probe) checked the wrap expression C4 prescribes at 65,536 in both kernels, which informed the claim's kernel-verdict half (a Question)",
+          "I90-P2": "nothing: derive was not run on an I90 diagram; the instrument writes P3 and P8 out from I24's contract",
+          "I90-P3": "the real code's counts at 65,536 (real_code_at_prereg, this key's instrument, as I67's instrument observed its clones); holon replay-go's count replay was not run",
+          "I90-P4": "nothing: the filter was not run on an I90 record"
+        },
+        "disclosure": "What was observed before this commit. (1) The generic kernel probe of model_check_probe, in the session's scratch directory, never committed. (2) This key's instrument on the pinned checkout (real_code_at_prereg) and its computation of the component, the law, the duplicate and the witness from the sidecar, the Go document and its config. (3) The base's I81 tests (tests_m3/test_ranking.py: 13 pass; P4, P6 and P7 fail at the base, the documented ranking misses) and I81-P1 under its amendment line. No derive, run, replay or filter of I90's ran before this commit: holon/ has no I90 code here.",
+        "known_red_at_base": "Documented on the lead: G11V's in-flight check (fixed by I83, merging) and I81's ranking misses (tests_m3/test_ranking.py TestRanking.test_p4_reach_against_impact, test_p6_persistence_and_cost, test_p7_order). I90 changes neither cause.",
+        "amendments": [
+          "tests_m3/test_ranking.py: TestMeasures.test_p1_par_cc_defects counts measure kinds over the base's laws (I81)"
+        ],
+        "deferred": [
+          "I91 (= I38c): HypZ and HypZ_len, O5, O6, D3",
+          "blockNum's uint16 wrap at the 65,536th Append: it counts calls, and no second channel records that count from a parameter (no count channel by C1)",
+          "the many-call form of O28 (the sum over a batch's Appends) as a law over call sequences: both channels are additive, so the one-call law is its first call; the instrument observes the sum's wrap over 2 and 64 calls",
+          "a proof route for count laws (an item channel against an item channel holds by computation; none is derived here)",
+          "the node-level public path that would make O28's bin a finding (I39)"
+        ],
+        "coordination": "I90's checks are judged at its own commits (rule C10). Keys merging onto the lead meanwhile (I71, I29, I83, I35, I68) change catalogs and closures; I90 merges the lead before its PR and regenerates what the merge leaves stale.",
+        "questions": [
+          "O28's rule in whitepaper §11.3 is SORT-width; I90 states it as a PAR law (P3 over two channels of one function) so the catalog does not move. Should a later key add a Go store channel to SORT-width (a catalog bump) and map O28 to a SORT law, or is the PAR law over the two channels the obligation?",
+          "Is P3 (branch: two paths of one function) the right sub-form for two stores of one call that each record one count, or should it be P9 (recompute: a value one path stores and another recomputes)?",
+          "The law is over one Append from the receiver's zero value with 65,536 hashes (one block); a real batch reaches 65,536 across blocks (the instrument shows 64 calls of 1,024 wrap the same way). Is the one-call law, with its witness, O28 as you mean it?",
+          "Counting: a generic kernel probe (Base's Nat and U32 at 65,536, no law of I90's) ran before this commit and informed P1's kernel-verdict half. Does it make P1 recorded rather than counted?",
+          "docs/M3_COMPARISON.md maps M3 laws to case-study rows through spec/M3/lib/appendixA.json; I90 adds no row there (the sidecar is I82's). Should O28's row cite I90's law?",
+          "From the brief, for I91: the K bound of HypZ, and whether zstd's real frame format is in scope; whether O5's 'omits contexts' half (the estimator's input against TxsPayloadV2) is a PAR-branch or a PAR-recompute law."
+        ]
+      }
     }
   }
 }

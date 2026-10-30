@@ -532,6 +532,7 @@ class _Closure:
 CODEC01_TEXT = ("meaning", "notes", "source", "preconditions")
 LINKED_PROVENANCE = ("document", "source")
 GOOPS_PROVENANCE = ("source", "span")
+GOCOUNT_PROVENANCE = ("source", "site")
 
 
 def _strip01(x):
@@ -559,6 +560,7 @@ class _CodecClosure:
         self.f, self.out = facts or {}, {}
         self.linked = self.f.get("linked_version") == "holon-linked/0.1"
         self.goops = self.f.get("goops_version") == "holon-goops/0.1"
+        self.gocount = self.f.get("gocount_version") == "holon-gocount/0.1"
 
     def put(self, key: str, obj) -> bool:
         if key in self.out:
@@ -567,7 +569,7 @@ class _CodecClosure:
         return True
 
     def record(self, name: str) -> None:
-        if self.goops:   # I67: the interface carrier, by its Go type (its reach is text)
+        if self.goops or self.gocount:   # I67: the interface carrier, by its Go type (its reach is text); I90 likewise
             c = self.f.get("carrier") or {}
             if c.get("id") == name:
                 self.put("carrier:" + name, {"id": c["id"], "type": c.get("type")})
@@ -582,6 +584,10 @@ class _CodecClosure:
             self.put("type:" + name, _strip01(t))
 
     def fn(self, name: str) -> None:
+        if self.gocount:   # I90 (rule C6e): a channel by its entry without source and site
+            e = (self.f.get("channels") or {}).get(name)
+            self.put("fn:" + name, None if e is None else {k: v for k, v in e.items() if k not in GOCOUNT_PROVENANCE})
+            return
         if self.goops:   # I67: an op (its domain predicate ok_<op>: the op) by its entry without source and span
             ops = self.f.get("ops") or {}
             key = name[3:] if name not in ops and name.startswith("ok_") and name[3:] in ops else name
@@ -623,11 +629,12 @@ class _CodecClosure:
 
 
 def codec_document(facts: dict) -> bool:
-    """A holon-facts/0.1 document, a linked codec document or (I67) a Go-op document: its laws use the codec terms
-    (I24)."""
+    """A holon-facts/0.1 document, a linked codec document, (I67) a Go-op document or (I90) a count document: its laws
+    use the codec terms (I24)."""
     return isinstance(facts, dict) and (facts.get("facts_version") == "holon-facts/0.1"
                                         or facts.get("linked_version") == "holon-linked/0.1"
-                                        or facts.get("goops_version") == "holon-goops/0.1")
+                                        or facts.get("goops_version") == "holon-goops/0.1"
+                                        or facts.get("gocount_version") == "holon-gocount/0.1")
 
 
 def refs(law: dict, facts: dict, oracles=None, lib=None, root: Path | str | None = None) -> dict:

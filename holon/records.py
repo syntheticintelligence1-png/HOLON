@@ -212,6 +212,7 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
             out += json.loads(side.read_text(encoding="utf-8"))["bundles"]
         out += _linked_bundles(Path(root), facts_path)
         out += _goops_bundles(Path(root), facts_path)
+        out += _gocount_bundles(Path(root), facts_path)
         out += _window_bundles(Path(root), facts_path)
         out += _versions_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
@@ -263,6 +264,27 @@ def _goops_bundles(root: Path, facts_path) -> list[dict]:
     if not is_goops(doc):
         return []
     from .gen.goloop import declared_bundle
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
+        else str(facts_path)
+    return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
+
+
+def _gocount_bundles(root: Path, facts_path) -> list[dict]:
+    """I90 (rule C6b of tests_m3/test_go_counts.py): the bundle of a count document (holon.diagram.gocount), generated
+    from it by holon.gen.gocount.declared_bundle: the assumptions its Go document declares and the model's own
+    A-gocount-* entries. Never hand-written: the document is itself generated (holon codecs), so its bundle follows it."""
+    p = Path(root) / facts_path
+    if p.suffix != ".json" or not p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+    except (OSError, ValueError):
+        return []
+    from .diagram.gocount import is_gocount
+    if not is_gocount(doc):
+        return []
+    from .gen.gocount import declared_bundle
     rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
         else str(facts_path)
     return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
