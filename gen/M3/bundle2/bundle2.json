@@ -1,0 +1,456 @@
+{
+ "bundle2_version": "holon-bundle2/0.1",
+ "cost_sites": [
+  [
+   "rollup",
+   "challengeState",
+   "contracts/contracts/l1/rollup/Rollup.sol:489-493",
+   17,
+   false,
+   [
+    "?",
+    [
+     "<=",
+     [
+      "+",
+      [
+       "storage",
+       "lastFinalizedBatchIndex"
+      ],
+      1
+     ],
+     [
+      "storage",
+      "lastCommittedBatchIndex"
+     ]
+    ],
+    [
+     "+",
+     [
+      "-",
+      [
+       "storage",
+       "lastCommittedBatchIndex"
+      ],
+      [
+       "+",
+       [
+        "storage",
+        "lastFinalizedBatchIndex"
+       ],
+       1
+      ]
+     ],
+     1
+    ],
+    0
+   ]
+  ],
+  [
+   "rollup",
+   "commitBatch",
+   "contracts/contracts/l1/rollup/Rollup.sol:901-908",
+   19,
+   true,
+   [
+    "count",
+    "contracts/contracts/l1/rollup/Rollup.sol:901-908"
+   ]
+  ],
+  [
+   "rollup",
+   "commitBatch",
+   "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+   42,
+   true,
+   [
+    "member",
+    [
+     "param",
+     "batchDataInput"
+    ],
+    "numL1Messages"
+   ]
+  ],
+  [
+   "rollup",
+   "commitBatchWithProof",
+   "contracts/contracts/l1/rollup/Rollup.sol:901-908",
+   20,
+   true,
+   [
+    "count",
+    "contracts/contracts/l1/rollup/Rollup.sol:901-908"
+   ]
+  ],
+  [
+   "rollup",
+   "commitBatchWithProof",
+   "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+   44,
+   true,
+   [
+    "member",
+    [
+     "param",
+     "batchDataInput"
+    ],
+    "numL1Messages"
+   ]
+  ],
+  [
+   "rollup",
+   "commitState",
+   "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+   40,
+   true,
+   [
+    "member",
+    [
+     "param",
+     "batchDataInput"
+    ],
+    "numL1Messages"
+   ]
+  ],
+  [
+   "rollup",
+   "finalizeBatch",
+   "contracts/contracts/l1/rollup/Rollup.sol:744-751",
+   23,
+   true,
+   [
+    "/",
+    [
+     "+",
+     [
+      ">>",
+      [
+       "word",
+       [
+        "param",
+        "_batchHeader"
+       ],
+       9
+      ],
+      192
+     ],
+     255
+    ],
+    256
+   ]
+  ],
+  [
+   "rollup",
+   "revertBatch",
+   "contracts/contracts/l1/rollup/Rollup.sol:444-467",
+   17,
+   false,
+   [
+    "count",
+    "contracts/contracts/l1/rollup/Rollup.sol:444-467"
+   ]
+  ],
+  [
+   "router",
+   "getVerifier",
+   "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+   2,
+   true,
+   [
+    "count",
+    "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+   ]
+  ],
+  [
+   "router",
+   "verifyAggregateProof",
+   "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+   2,
+   true,
+   [
+    "count",
+    "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+   ]
+  ]
+ ],
+ "coverage": [
+  {
+   "debt": [
+    {
+     "detail": "IRollup.lastFinalizedBatchIndex",
+     "kind": "external_call",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149"
+    }
+   ],
+   "document": "gen/M3/bundle2/documents/router.json",
+   "extracted": 51,
+   "statements": 51,
+   "unaccounted": []
+  }
+ ],
+ "debt": [
+  {
+   "member": "zkevm",
+   "reason": "ExtractionError: a term exceeds the size budget of 400000 nodes"
+  }
+ ],
+ "extracted_only": [
+  {
+   "commit": "3e44e795586af3e11285b603ab642c67823add51",
+   "contract": "ZkEvmVerifierV1",
+   "document": null,
+   "name": "zkevm",
+   "sidecar": {
+    "path": "gen/M3/bundle2/sidecars/zkevm.json",
+    "sha256": "0dfa45d5c899310b02d2a3918c76a2a28f010948df2a9b0cf520452ae7233a84"
+   }
+  }
+ ],
+ "links": [
+  [
+   "rollup",
+   "commitBatchWithProof",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   "router",
+   "action",
+   "verifyAggregateProof"
+  ],
+  [
+   "rollup",
+   "proveCommittedBatchState",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   "router",
+   "action",
+   "verifyAggregateProof"
+  ],
+  [
+   "rollup",
+   "proveState",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   "router",
+   "action",
+   "verifyAggregateProof"
+  ],
+  [
+   "router",
+   "updateVerifier",
+   "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149",
+   "IRollup.lastFinalizedBatchIndex",
+   "rollup",
+   "getter",
+   "lastFinalizedBatchIndex"
+  ]
+ ],
+ "members": [
+  {
+   "commit": "3e44e795586af3e11285b603ab642c67823add51",
+   "contract": "Rollup",
+   "document": {
+    "path": "spec/M2/facts/morph_rollup.extracted.json",
+    "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+   },
+   "name": "rollup",
+   "sidecar": null
+  },
+  {
+   "commit": "3e44e795586af3e11285b603ab642c67823add51",
+   "contract": "MultipleVersionRollupVerifier",
+   "document": {
+    "path": "gen/M3/bundle2/documents/router.json",
+    "sha256": "0cba4dec8629e0b269027ef3ad411ffa5bf98417e1b3e350f9c4834aaf1fd23c"
+   },
+   "name": "router",
+   "sidecar": {
+    "path": "gen/M3/bundle2/sidecars/router.json",
+    "sha256": "438a2680e6d439b4395d0b816953b1f98568b41c1028c4df315aa22ee509cb01"
+   }
+  }
+ ],
+ "public_input": [
+  {
+   "action": "commitBatchWithProof",
+   "args": [
+    {
+     "from": 0,
+     "input": "_batchHeader",
+     "length": 1
+    },
+    {
+     "from": 1,
+     "input": "_batchHeader",
+     "length": 8
+    },
+    {
+     "param": "_batchProof"
+    },
+    {
+     "hash": "keccak256",
+     "packed": [
+      {
+       "immutable": "LAYER_2_CHAIN_ID"
+      },
+      {
+       "from": 89,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 121,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 153,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 185,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 25,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 57,
+       "input": "_batchHeader",
+       "length": 32
+      }
+     ]
+    }
+   ],
+   "fn": "IRollupVerifier.verifyAggregateProof",
+   "member": "rollup",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+  },
+  {
+   "action": "proveCommittedBatchState",
+   "args": [
+    {
+     "from": 0,
+     "input": "_batchHeader",
+     "length": 1
+    },
+    {
+     "from": 1,
+     "input": "_batchHeader",
+     "length": 8
+    },
+    {
+     "param": "_batchProof"
+    },
+    {
+     "hash": "keccak256",
+     "packed": [
+      {
+       "immutable": "LAYER_2_CHAIN_ID"
+      },
+      {
+       "from": 89,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 121,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 153,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 185,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 25,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 57,
+       "input": "_batchHeader",
+       "length": 32
+      }
+     ]
+    }
+   ],
+   "fn": "IRollupVerifier.verifyAggregateProof",
+   "member": "rollup",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+  },
+  {
+   "action": "proveState",
+   "args": [
+    {
+     "from": 0,
+     "input": "_batchHeader",
+     "length": 1
+    },
+    {
+     "from": 1,
+     "input": "_batchHeader",
+     "length": 8
+    },
+    {
+     "param": "_batchProof"
+    },
+    {
+     "hash": "keccak256",
+     "packed": [
+      {
+       "immutable": "LAYER_2_CHAIN_ID"
+      },
+      {
+       "from": 89,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 121,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 153,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 185,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 25,
+       "input": "_batchHeader",
+       "length": 32
+      },
+      {
+       "from": 57,
+       "input": "_batchHeader",
+       "length": 32
+      }
+     ]
+    }
+   ],
+   "fn": "IRollupVerifier.verifyAggregateProof",
+   "member": "rollup",
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+  }
+ ],
+ "sidecar": {
+  "path": "spec/M3/lib/bundle2.json",
+  "sha256": "0f71fbf45bf567a4fb87b1cda673f9dec5494e4cb0e2623ee787ed252c876b47"
+ }
+}
