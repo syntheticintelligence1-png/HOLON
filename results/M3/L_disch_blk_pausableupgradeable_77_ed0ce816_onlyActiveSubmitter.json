@@ -4,35 +4,43 @@
     "law_name": "l_disch_blk_pausableupgradeable_77_ed0ce816_onlyactivesubmitter",
     "laws": "gen/M3/laws/L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter/LAWS.bend",
     "model": "gen/M3/sorts/models/morph_rollup.extracted.bend",
-    "proof": null
+    "proof": "gen/M3/proofs/L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter/PROOF.bend"
   },
   "attempts": [
     {
-      "error": "does not apply: initialize2: no route (chain_revert: initialize2: a path of its program ends without reverting before the check B makes 0; frame: initialize2: it stores at a slot that is not a literal (M.h_get(kh, List.append(&2, U32, M.b_of_w(M.sload(st, M.W{158, 0, 0, 0, 0, 0, 0,): a mapping or array slot goes through the law's keccak256 parameter, which the statement leaves unconstrained, so no frame separates it from B's slots)",
+      "checker": {
+        "bendtt": {
+          "exit_code": 0,
+          "output_tail": "ALL PROOFS CHECK\n",
+          "seconds": 3.092
+        },
+        "exit_code": 0,
+        "marker": "ALL PROOFS CHECK",
+        "seconds": 1.612
+      },
       "generator": "holon.disch.proofs",
       "kind": "proof",
-      "marker": null
-    },
-    {
-      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 417 of 3000 states; 834 last-step syntheses (initialize2, initialize3)",
-      "found": false,
-      "kind": "search",
-      "stage": "S1+S2"
-    },
-    {
-      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: 6929 neighbourhood prefixes of the witnesses of L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_ext_rollup_213_f2e7faf8_onlyOwner, L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_rollup_363_e11d8bb2_onlyOwner, L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_noext_rollup_213_f2e7faf8_onlyOwner, L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_noext_rollup_363_e11d8bb2_onlyOwner (one to 2 successful steps inserted at every position; max 20000 per entry point); B held at a candidate time in 1792 of 6929 neighbourhood states; 3584 S3 last-step syntheses (stopped by the run's time box before the budget: UNKNOWN by the time box); B held at a candidate time in 1792 of 6929 states; 3584 last-step syntheses (initialize2, initialize3)",
-      "found": false,
-      "kind": "search",
-      "stage": "S3",
-      "timebox": true
+      "marker": "ALL PROOFS CHECK",
+      "proof": "gen/M3/proofs/L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter/PROOF.bend",
+      "routes": {
+        "initialize2": "frame",
+        "initialize3": "frame"
+      },
+      "verdict": "checked"
     }
   ],
-  "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: 6929 neighbourhood prefixes of the witnesses of L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_ext_rollup_213_f2e7faf8_onlyOwner, L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_rollup_363_e11d8bb2_onlyOwner, L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_noext_rollup_213_f2e7faf8_onlyOwner, L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_noext_rollup_363_e11d8bb2_onlyOwner (one to 2 successful steps inserted at every position; max 20000 per entry point); B held at a candidate time in 1792 of 6929 neighbourhood states; 3584 S3 last-step syntheses (stopped by the run's time box before the budget: UNKNOWN by the time box); B held at a candidate time in 417 of 3000 states; 834 last-step syntheses (initialize2, initialize3)",
+  "bound": null,
   "checker": {
-    "exit_code": null,
-    "marker": "not_run"
+    "bendtt": {
+      "exit_code": 0,
+      "output_tail": "ALL PROOFS CHECK\n",
+      "seconds": 3.092
+    },
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 1.612
   },
-  "compiled_sha256": "37562c1fcace527b4db860dbb0449e2d521f48134ac358a7529291a77bf0316d",
+  "compiled_sha256": "f838c64a012f2b3c50f0a10a19dd21af80aa24664dca21312acf7a2153a89c3a",
   "cone": [
     "AR_addChallenger",
     "AR_batchChallengedSuccess",
@@ -77,8 +85,10 @@
     "HLog",
     "HSt",
     "KB",
-    "KW",
+    "KV",
     "Reach",
+    "SK",
+    "SP",
     "S_IRollup_BatchDataInput",
     "T_Dig_Agg",
     "T_Dig_Agg_Dig_VH",
@@ -722,9 +732,9 @@
     "k_updateVerifier_6",
     "k_updateVerifier_7",
     "kb_get",
-    "kw_get",
-    "kw_put",
-    "kw_set",
+    "kv_get",
+    "kv_put",
+    "kv_set",
     "l_add",
     "l_at",
     "l_hi_zero",
@@ -1322,7 +1332,10 @@
     "s_updateVerifier_5",
     "s_updateVerifier_6",
     "s_updateVerifier_7",
+    "sk_eq",
     "sload",
+    "sp_eq",
+    "sps_eq",
     "sstore",
     "sub_Time_Time",
     "sx_addChallenger_cd",
@@ -1845,18 +1858,26 @@
   "evidence_triage": "none",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": null,
-  "generator_sha256": "c20cb10859918b9ec26e17b2ed9b16cf1e2c953c3c8725377fd4c7f1c86d666c",
-  "independence_class": "none",
+  "generator_sha256": "a8f08934c8441674963d9ad24ac32f6cbc01ecf7f190f62100e0b617689de3ae",
+  "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
-    "verdict": "not_run",
+    "verdict": "checked",
     "version": "2.0.36"
   },
   "kernels": [
     {
       "name": "bend2",
-      "result": "not_run",
+      "result": "checked",
       "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
       "version": "2.0.36"
     }
   ],
@@ -1864,36 +1885,72 @@
   "ledger_match": "exact",
   "model_assumptions": [
     "A-env",
+    "A-keccak-structural",
     "A-reach"
   ],
-  "model_sha256": "5102c459bfde59a2ccc5d2c5c3ae78ee72a5d2dc95cc093a185a0f88aff545d7",
+  "model_sha256": "0b6f25426ff619e6320ceade30cc8826b392ae39f9722c72c05cc27776c55d46",
   "non_vacuity": {
-    "bound": "no proof",
-    "degenerate": null,
-    "law": null,
+    "bound": "a reachable state of 1 steps where B holds at t, and initialize2",
+    "degenerate": false,
+    "law": "gen/M3/L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter/nonvac/LAWS.bend",
     "parent_statement_hash": "sha256:f7c3013d5320d1404e707fc65d5dca22ed654c74a6f77458b9a7c214deedb314",
-    "reachable": null,
-    "status": "unknown",
-    "witness": null
+    "reachable": true,
+    "status": "inhabited",
+    "witness": {
+      "hashes": {
+        "keccak256": []
+      },
+      "steps": [
+        {
+          "action": "setPause",
+          "args": {
+            "_status": true
+          },
+          "calldata": "0xbedb86fb0000000000000000000000000000000000000000000000000000000000000001",
+          "env": {
+            "blobhash": [],
+            "block.timestamp": 1700000010,
+            "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496",
+            "calls": [],
+            "msg.value": 0
+          }
+        },
+        {
+          "action": "initialize2",
+          "args": {
+            "_prevStateRoot": 0
+          },
+          "calldata": "0x612672900000000000000000000000000000000000000000000000000000000000000000",
+          "env": {
+            "blobhash": [],
+            "block.timestamp": 1700000010,
+            "caller": "0x0000000000000000000000000000000000001002",
+            "calls": [],
+            "msg.value": 0
+          }
+        }
+      ],
+      "t": 1700000010
+    }
   },
   "premises": [],
   "prover": "generator",
   "record_version": "holon-record/0.2",
   "refinement_refs": [],
   "replay": {
-    "detail": "UNKNOWN: no witness to replay",
+    "detail": "PROVED: no witness to replay",
     "status": "not_applicable"
   },
   "rule": "DISCH",
   "scope": "unbounded",
   "scope_v2": {
     "at_state": null,
-    "horizon": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: 6929 neighbourhood prefixes of the witnesses of L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_ext_rollup_213_f2e7faf8_onlyOwner, L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_rollup_363_e11d8bb2_onlyOwner, L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_noext_rollup_213_f2e7faf8_onlyOwner, L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_noext_rollup_363_e11d8bb2_onlyOwner (one to 2 successful steps inserted at every position; max 20000 per entry point); B held at a candidate time in 1792 of 6929 neighbourhood states; 3584 S3 last-step syntheses (stopped by the run's time box before the budget: UNKNOWN by the time box); B held at a candidate time in 417 of 3000 states; 834 last-step syntheses (initialize2, initialize3)",
-    "kind": "bounded"
+    "horizon": null,
+    "kind": "unbounded"
   },
   "statement": "Thm 6.10's invariant: while the blocked condition holds at a time no later than the step's, every step of an action of the class's closure under it (with the class's permission) keeps it, and time keeps it; morph_rollup.extracted:blocking:pausableupgradeable_77_ed0ce816:onlyActiveSubmitter",
   "statement_hash": "sha256:f7c3013d5320d1404e707fc65d5dca22ed654c74a6f77458b9a7c214deedb314",
-  "status": "UNKNOWN",
+  "status": "PROVED",
   "subform": "blocking",
   "triage": "none",
   "witness_provenance": null

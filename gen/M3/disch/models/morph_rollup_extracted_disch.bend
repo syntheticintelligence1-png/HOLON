@@ -157,11 +157,11 @@ def blkv_initializable_120_b8d46c45(+v0: M.W, +t: M.W, +kh: List<&2, M.HKB>) -> 
   Bool.not(Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(v0), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(v0, M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{2, 0, 0, 0, 0, 0, 0, 0})))
 
 def blk_initializable_120_b8d46c45(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  blkv_initializable_120_b8d46c45(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), t, kh)
+  blkv_initializable_120_b8d46c45(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), t, kh)
 
 # c of initializable_120_b8d46c45: the representative check's expr
 def chk_initializable_120_b8d46c45(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{2, 0, 0, 0, 0, 0, 0, 0}))
+  Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{2, 0, 0, 0, 0, 0, 0, 0}))
 
 # the actions excluded under B (D8)
 def excl_initializable_120_b8d46c45(a: M.HAct) -> Bool:
@@ -238,11 +238,11 @@ def blkv_initializable_120_b95c70f1(+v0: M.W, +t: M.W, +kh: List<&2, M.HKB>) -> 
   Bool.not(Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(v0), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(v0, M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{3, 0, 0, 0, 0, 0, 0, 0})))
 
 def blk_initializable_120_b95c70f1(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  blkv_initializable_120_b95c70f1(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), t, kh)
+  blkv_initializable_120_b95c70f1(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), t, kh)
 
 # c of initializable_120_b95c70f1: the representative check's expr
 def chk_initializable_120_b95c70f1(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{3, 0, 0, 0, 0, 0, 0, 0}))
+  Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{3, 0, 0, 0, 0, 0, 0, 0}))
 
 # the actions excluded under B (D8)
 def excl_initializable_120_b95c70f1(a: M.HAct) -> Bool:
@@ -319,11 +319,11 @@ def blkv_initializable_120_d9a34b48(+v0: M.W, +t: M.W, +kh: List<&2, M.HKB>) -> 
   Bool.not(Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(v0), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(v0, M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0})))
 
 def blk_initializable_120_d9a34b48(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  blkv_initializable_120_d9a34b48(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), t, kh)
+  blkv_initializable_120_d9a34b48(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), t, kh)
 
 # c of initializable_120_d9a34b48: the representative check's expr
 def chk_initializable_120_d9a34b48(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0}))
+  Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0}))
 
 # the actions excluded under B (D8)
 def excl_initializable_120_d9a34b48(a: M.HAct) -> Bool:
@@ -400,11 +400,11 @@ def blkv_pausableupgradeable_77_ed0ce816(+v0: M.W, +t: M.W, +kh: List<&2, M.HKB>
   M.w_nz(M.w_and(v0, M.W{255, 0, 0, 0, 0, 0, 0, 0}))
 
 def blk_pausableupgradeable_77_ed0ce816(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  blkv_pausableupgradeable_77_ed0ce816(M.sload(st, M.W{101, 0, 0, 0, 0, 0, 0, 0}), t, kh)
+  blkv_pausableupgradeable_77_ed0ce816(M.sload(st, M.SK{M.W{101, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), t, kh)
 
 # c of pausableupgradeable_77_ed0ce816: the representative check's expr
 def chk_pausableupgradeable_77_ed0ce816(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.not(M.w_nz(M.w_and(M.sload(st, M.W{101, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.not(M.w_nz(M.w_and(M.sload(st, M.SK{M.W{101, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0})))
 
 # the actions excluded under B (D8)
 def excl_pausableupgradeable_77_ed0ce816(a: M.HAct) -> Bool:
@@ -481,11 +481,11 @@ def blkv_rollup_132_d953872f(+v0: M.W, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
   Bool.not(M.w_eq(v0, M.W{0, 0, 0, 0, 0, 0, 0, 0}))
 
 def blk_rollup_132_d953872f(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  blkv_rollup_132_d953872f(M.sload(st, M.W{168, 0, 0, 0, 0, 0, 0, 0}), t, kh)
+  blkv_rollup_132_d953872f(M.sload(st, M.SK{M.W{168, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), t, kh)
 
 # c of rollup_132_d953872f: the representative check's expr
 def chk_rollup_132_d953872f(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  M.w_eq(M.sload(st, M.W{168, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0})
+  M.w_eq(M.sload(st, M.SK{M.W{168, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{0, 0, 0, 0, 0, 0, 0, 0})
 
 # the actions excluded under B (D8)
 def excl_rollup_132_d953872f(a: M.HAct) -> Bool:
@@ -562,11 +562,11 @@ def blkv_rollup_213_f2e7faf8(+v0: M.W, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
   M.w_nz(M.w_and(v0, M.W{255, 0, 0, 0, 0, 0, 0, 0}))
 
 def blk_rollup_213_f2e7faf8(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  blkv_rollup_213_f2e7faf8(M.sload(st, M.W{166, 0, 0, 0, 0, 0, 0, 0}), t, kh)
+  blkv_rollup_213_f2e7faf8(M.sload(st, M.SK{M.W{166, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), t, kh)
 
 # c of rollup_213_f2e7faf8: the representative check's expr
 def chk_rollup_213_f2e7faf8(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.not(M.w_nz(M.w_and(M.sload(st, M.W{166, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.not(M.w_nz(M.w_and(M.sload(st, M.SK{M.W{166, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0})))
 
 # the actions excluded under B (D8)
 def excl_rollup_213_f2e7faf8(a: M.HAct) -> Bool:
@@ -639,12 +639,15 @@ def excl_rollup_213_f2e7faf8(a: M.HAct) -> Bool:
       False{}
 
 # B of rollup_228_79cc3e9a: importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0
+def blkv_rollup_228_79cc3e9a(+v0: M.W, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
+  Bool.not(M.w_eq(v0, M.W{0, 0, 0, 0, 0, 0, 0, 0}))
+
 def blk_rollup_228_79cc3e9a(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.not(M.w_eq(M.sload(st, M.h_get(kh, List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 160]))), M.W{0, 0, 0, 0, 0, 0, 0, 0}))
+  blkv_rollup_228_79cc3e9a(M.sload(st, M.SK{M.W{160, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0()}]}), t, kh)
 
 # c of rollup_228_79cc3e9a: the representative check's expr
 def chk_rollup_228_79cc3e9a(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  M.w_eq(M.sload(st, M.h_get(kh, List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 160]))), M.W{0, 0, 0, 0, 0, 0, 0, 0})
+  M.w_eq(M.sload(st, M.SK{M.W{160, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0()}]}), M.W{0, 0, 0, 0, 0, 0, 0, 0})
 
 # the actions excluded under B (D8)
 def excl_rollup_228_79cc3e9a(a: M.HAct) -> Bool:
@@ -717,12 +720,15 @@ def excl_rollup_228_79cc3e9a(a: M.HAct) -> Bool:
       False{}
 
 # B of rollup_363_e11d8bb2: commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1
+def blkv_rollup_363_e11d8bb2(+v0: M.W, +v1: M.W, +v2: M.W, +v3: M.W, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
+  Bool.and(M.w_nz(M.w_and(v0, M.W{255, 0, 0, 0, 0, 0, 0, 0})), Bool.and(Bool.not(M.is_some_T_Dur(M.realize_T_SDur(M.sub_Time_Time(M.add_Dur_Time(M.T_Dur{v1}, M.T_Time{v3}), M.T_Time{t})))), M.w_add_ok(M.pay_T_Dur(M.T_Dur{v1}), M.pay_T_Time(M.T_Time{v3}))))
+
 def blk_rollup_363_e11d8bb2(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.and(M.w_nz(M.w_and(M.sload(st, M.W{166, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0})), Bool.and(Bool.not(M.is_some_T_Dur(M.realize_T_SDur(M.sub_Time_Time(M.add_Dur_Time(M.T_Dur{M.sload(st, M.W{153, 0, 0, 0, 0, 0, 0, 0})}, M.T_Time{M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(M.sload(st, M.W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), M.W{2, 0, 0, 0, 0, 0, 0, 0}))}), M.T_Time{t})))), M.w_add_ok(M.pay_T_Dur(M.T_Dur{M.sload(st, M.W{153, 0, 0, 0, 0, 0, 0, 0})}), M.pay_T_Time(M.T_Time{M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(M.sload(st, M.W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), M.W{2, 0, 0, 0, 0, 0, 0, 0}))}))))
+  blkv_rollup_363_e11d8bb2(M.sload(st, M.SK{M.W{166, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.sload(st, M.SK{M.W{153, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.sload(st, M.SK{M.W{167, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.sload(st, M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.sload(st, M.SK{M.W{167, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{2, 0, 0, 0, 0, 0, 0, 0}}]}), t, kh)
 
 # c of rollup_363_e11d8bb2: the representative check's expr
 def chk_rollup_363_e11d8bb2(+st: M.HSt, +t: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.or(Bool.not(M.w_nz(M.w_and(M.sload(st, M.W{166, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.is_some_T_Dur(M.realize_T_SDur(M.sub_Time_Time(M.add_Dur_Time(M.T_Dur{M.sload(st, M.W{153, 0, 0, 0, 0, 0, 0, 0})}, M.T_Time{M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(M.sload(st, M.W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), M.W{2, 0, 0, 0, 0, 0, 0, 0}))}), M.T_Time{t}))))
+  Bool.or(Bool.not(M.w_nz(M.w_and(M.sload(st, M.SK{M.W{166, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.is_some_T_Dur(M.realize_T_SDur(M.sub_Time_Time(M.add_Dur_Time(M.T_Dur{M.sload(st, M.SK{M.W{153, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})}, M.T_Time{M.sload(st, M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.sload(st, M.SK{M.W{167, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{2, 0, 0, 0, 0, 0, 0, 0}}]})}), M.T_Time{t}))))
 
 # the actions excluded under B (D8)
 def excl_rollup_363_e11d8bb2(a: M.HAct) -> Bool:
@@ -1746,7 +1752,7 @@ def disch_blk_rollup_213_f2e7faf8_onlyChallenger(+a: M.HAct, +g: M.GSt, +t: M.W,
 def xcl_blk_rollup_228_79cc3e9a_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -1758,7 +1764,7 @@ def xcl_blk_rollup_228_79cc3e9a_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -1792,25 +1798,25 @@ def xcl_blk_rollup_228_79cc3e9a_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_blk_rollup_228_79cc3e9a_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_blk_rollup_228_79cc3e9a_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_rollup_228_79cc3e9a(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
@@ -1983,7 +1989,7 @@ def disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter(+a: M.HAct, +g: M.GSt, +t:
 def xcl_ext_pausableupgradeable_77_ed0ce816_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -1995,7 +2001,7 @@ def xcl_ext_pausableupgradeable_77_ed0ce816_onlyOwner(+st: M.HSt, a: M.HAct, +e:
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -2007,7 +2013,7 @@ def xcl_ext_pausableupgradeable_77_ed0ce816_onlyOwner(+st: M.HSt, a: M.HAct, +e:
     case M.A_finalizeBatch{_, _}:
       False{}
     case M.A_importGenesisBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
     case M.A_initialize{_, _}:
       False{}
     case M.A_initialize2{_, _}:
@@ -2029,25 +2035,25 @@ def xcl_ext_pausableupgradeable_77_ed0ce816_onlyOwner(+st: M.HSt, a: M.HAct, +e:
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_ext_pausableupgradeable_77_ed0ce816_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_ext_pausableupgradeable_77_ed0ce816_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_pausableupgradeable_77_ed0ce816(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
@@ -2062,7 +2068,7 @@ def disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner(+a: M.HAct, +g: M.GSt, +
 def xcl_ext_rollup_132_d953872f_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -2074,7 +2080,7 @@ def xcl_ext_rollup_132_d953872f_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -2086,7 +2092,7 @@ def xcl_ext_rollup_132_d953872f_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_finalizeBatch{_, _}:
       False{}
     case M.A_importGenesisBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
     case M.A_initialize{_, _}:
       False{}
     case M.A_initialize2{_, _}:
@@ -2108,25 +2114,25 @@ def xcl_ext_rollup_132_d953872f_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_ext_rollup_132_d953872f_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_ext_rollup_132_d953872f_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_rollup_132_d953872f(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
@@ -2220,7 +2226,7 @@ def disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter(+a: M.HAct, +g: M.GSt, +t:
 def xcl_ext_rollup_213_f2e7faf8_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -2232,7 +2238,7 @@ def xcl_ext_rollup_213_f2e7faf8_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -2244,7 +2250,7 @@ def xcl_ext_rollup_213_f2e7faf8_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_finalizeBatch{_, _}:
       True{}
     case M.A_importGenesisBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
     case M.A_initialize{_, _}:
       False{}
     case M.A_initialize2{_, _}:
@@ -2266,25 +2272,25 @@ def xcl_ext_rollup_213_f2e7faf8_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_ext_rollup_213_f2e7faf8_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_ext_rollup_213_f2e7faf8_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_rollup_213_f2e7faf8(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
@@ -2378,7 +2384,7 @@ def disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter(+a: M.HAct, +g: M.GSt, +t:
 def xcl_ext_rollup_363_e11d8bb2_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -2390,7 +2396,7 @@ def xcl_ext_rollup_363_e11d8bb2_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -2402,7 +2408,7 @@ def xcl_ext_rollup_363_e11d8bb2_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_finalizeBatch{_, _}:
       True{}
     case M.A_importGenesisBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
     case M.A_initialize{_, _}:
       False{}
     case M.A_initialize2{_, _}:
@@ -2424,25 +2430,25 @@ def xcl_ext_rollup_363_e11d8bb2_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_ext_rollup_363_e11d8bb2_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_ext_rollup_363_e11d8bb2_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_rollup_363_e11d8bb2(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
@@ -2457,7 +2463,7 @@ def disch_ext_rollup_363_e11d8bb2_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: 
 def xcl_noext_pausableupgradeable_77_ed0ce816_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -2469,7 +2475,7 @@ def xcl_noext_pausableupgradeable_77_ed0ce816_onlyOwner(+st: M.HSt, a: M.HAct, +
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -2481,7 +2487,7 @@ def xcl_noext_pausableupgradeable_77_ed0ce816_onlyOwner(+st: M.HSt, a: M.HAct, +
     case M.A_finalizeBatch{_, _}:
       False{}
     case M.A_importGenesisBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
     case M.A_initialize{_, _}:
       False{}
     case M.A_initialize2{_, _}:
@@ -2503,25 +2509,25 @@ def xcl_noext_pausableupgradeable_77_ed0ce816_onlyOwner(+st: M.HSt, a: M.HAct, +
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_noext_pausableupgradeable_77_ed0ce816_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_noext_pausableupgradeable_77_ed0ce816_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_pausableupgradeable_77_ed0ce816(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
@@ -2536,7 +2542,7 @@ def disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner(+a: M.HAct, +g: M.GSt,
 def xcl_noext_rollup_132_d953872f_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -2548,7 +2554,7 @@ def xcl_noext_rollup_132_d953872f_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -2560,7 +2566,7 @@ def xcl_noext_rollup_132_d953872f_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_finalizeBatch{_, _}:
       False{}
     case M.A_importGenesisBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
     case M.A_initialize{_, _}:
       False{}
     case M.A_initialize2{_, _}:
@@ -2582,25 +2588,25 @@ def xcl_noext_rollup_132_d953872f_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_noext_rollup_132_d953872f_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_noext_rollup_132_d953872f_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_rollup_132_d953872f(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
@@ -2694,7 +2700,7 @@ def disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter(+a: M.HAct, +g: M.GSt, +
 def xcl_noext_rollup_213_f2e7faf8_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -2706,7 +2712,7 @@ def xcl_noext_rollup_213_f2e7faf8_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -2718,7 +2724,7 @@ def xcl_noext_rollup_213_f2e7faf8_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_finalizeBatch{_, _}:
       True{}
     case M.A_importGenesisBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
     case M.A_initialize{_, _}:
       False{}
     case M.A_initialize2{_, _}:
@@ -2740,25 +2746,25 @@ def xcl_noext_rollup_213_f2e7faf8_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_noext_rollup_213_f2e7faf8_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_noext_rollup_213_f2e7faf8_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_rollup_213_f2e7faf8(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
@@ -2852,7 +2858,7 @@ def disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter(+a: M.HAct, +g: M.GSt, +
 def xcl_noext_rollup_363_e11d8bb2_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   match a:
     case M.A_addChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_addChallenger_st(M.x0_addChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_addChallenger_en(M.x0_addChallenger(st, ar, e, kh))))
     case M.A_batchChallengedSuccess{_, _}:
       False{}
     case M.A_batchExist{_, _}:
@@ -2864,7 +2870,7 @@ def xcl_noext_rollup_363_e11d8bb2_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_challengeState{_, _}:
       False{}
     case M.A_claimProveRemaining{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_claimProveRemaining_st(M.x0_claimProveRemaining(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_claimProveRemaining_en(M.x0_claimProveRemaining(st, ar, e, kh))))
     case M.A_claimReward{_, _}:
       False{}
     case M.A_commitBatch{_, _}:
@@ -2876,7 +2882,7 @@ def xcl_noext_rollup_363_e11d8bb2_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_finalizeBatch{_, _}:
       True{}
     case M.A_importGenesisBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_importGenesisBatch_st(M.x0_importGenesisBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_importGenesisBatch_en(M.x0_importGenesisBatch(st, ar, e, kh))))
     case M.A_initialize{_, _}:
       False{}
     case M.A_initialize2{_, _}:
@@ -2898,25 +2904,25 @@ def xcl_noext_rollup_363_e11d8bb2_onlyOwner(+st: M.HSt, a: M.HAct, +e: M.HEnv, +
     case M.A_receive{_, _}:
       False{}
     case M.A_removeChallenger{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_removeChallenger_st(M.x0_removeChallenger(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_removeChallenger_en(M.x0_removeChallenger(st, ar, e, kh))))
     case M.A_renounceOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_renounceOwnership_st(M.x0_renounceOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_renounceOwnership_en(M.x0_renounceOwnership(st, ar, e, kh))))
     case M.A_revertBatch{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_revertBatch_st(M.x0_revertBatch(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_revertBatch_en(M.x0_revertBatch(st, ar, e, kh))))
     case M.A_setPause{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_setPause_st(M.x0_setPause(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_setPause_en(M.x0_setPause(st, ar, e, kh))))
     case M.A_transferOwnership{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_transferOwnership_st(M.x0_transferOwnership(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_transferOwnership_en(M.x0_transferOwnership(st, ar, e, kh))))
     case M.A_updateFinalizePeriodSeconds{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateFinalizePeriodSeconds_st(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateFinalizePeriodSeconds_en(M.x0_updateFinalizePeriodSeconds(st, ar, e, kh))))
     case M.A_updateProofWindow{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateProofWindow_st(M.x0_updateProofWindow(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateProofWindow_en(M.x0_updateProofWindow(st, ar, e, kh))))
     case M.A_updateRewardPercentage{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRewardPercentage_st(M.x0_updateRewardPercentage(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRewardPercentage_en(M.x0_updateRewardPercentage(st, ar, e, kh))))
     case M.A_updateRollupDelayPeriod{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateRollupDelayPeriod_st(M.x0_updateRollupDelayPeriod(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateRollupDelayPeriod_en(M.x0_updateRollupDelayPeriod(st, ar, e, kh))))
     case M.A_updateVerifier{+ar, en}:
-      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
+      M.w_eq(M.w_and(M.sload(M.gx_updateVerifier_st(M.x0_updateVerifier(st, ar, e, kh)), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.ge_e_caller(M.gx_updateVerifier_en(M.x0_updateVerifier(st, ar, e, kh))))
 
 def prem_noext_rollup_363_e11d8bb2_onlyOwner(+a: M.HAct, +g: M.GSt, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(xcl_noext_rollup_363_e11d8bb2_onlyOwner(M.gh_get_st(g), a, e, kh), Bool.and(blk_rollup_363_e11d8bb2(M.gh_get_st(g), t, kh), M.w_le(t, d_time(e))))
