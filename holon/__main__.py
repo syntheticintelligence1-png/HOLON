@@ -279,6 +279,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["undo"]:  # likewise for holon.rules.undo (I27: undo pairs, residues, static deadness)
         from .rules import undo
         return undo.main(argv[1:])
+    if argv[:1] == ["sym"]:  # likewise for holon.sym (I34: rule SYM's families, roles, pairs and sentinel sites)
+        from . import sym
+        return sym.cli(argv[1:])
     if argv[:1] == ["types"]:  # likewise for holon.sorts.types3 (I30: nominal types and the ghost-taint check)
         from .sorts import types3
         return types3.main(argv[1:])
