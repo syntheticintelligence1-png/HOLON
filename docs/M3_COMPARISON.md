@@ -41,7 +41,7 @@ Bases. **hand**: the record sets M0, M1, T32 (laws over hand-written facts). **c
 | R8 | L_sort_remaining | SORT | REFUTED | L_sort_remaining (M1) REFUTED | held | L_sort_remaining (M2/view) REFUTED; L_sort_site_rollup_363_1fc7f88a (M2) REFUTED; L_sort_realize_rollup_363_4a64383b (M3) REFUTED | held |
 | R9 | L_tag_BVH | SORT | REFUTED | L_tag_BVH (M1) REFUTED | held | L_tag_BVH (M2/view) UNKNOWN; L_sort_tag_rollup_279_e01ea84a (M3) REFUTED | open |
 | R10 | L_disch_delay | DISCH | Profile {(c_msg, 0), (0, Δ_fin)} | L_disch_delay_nofree (M1) PROVED; L_disch_delay_pay (M1) PROVED; L_disch_delay_prove (M1) PROVED (context); L_disch_delay_wait (M1) PROVED; L_dp_delay_dominance (T32) PROVED; L_dp_delay_point_0_19 (T32) PROVED; L_dp_delay_point_1_0 (T32) REFUTED | missed | L_disch_delay_nofree (M2/view) REFUTED; L_disch_delay_pay (M2/view) PROVED; L_disch_delay_prove (M2/view) PROVED (context); L_disch_delay_wait (M2/view) PROVED | missed |
-| R11 | L_disch_stale | DISCH | Blocked for permissionless committers | L_disch_stale (M1) PROVED; L_disch_stale_commit (M1) PROVED | held | L_disch_stale (M2/view) PROVED; L_disch_stale_commit (M2/view) PROVED; L_disch_blk_rollup_363_e11d8bb2_anyone (M3) UNKNOWN; L_disch_rev_rollup_363_e11d8bb2 (M3) UNKNOWN | open |
+| R11 | L_disch_stale | DISCH | Blocked for permissionless committers | L_disch_stale (M1) PROVED; L_disch_stale_commit (M1) PROVED | held | L_disch_stale (M2/view) PROVED; L_disch_stale_commit (M2/view) PROVED; L_disch_blk_rollup_363_e11d8bb2_anyone (M3) UNKNOWN; L_disch_rev_rollup_363_e11d8bb2 (M3) PROVED | open |
 | R12 | L_fact_Z | FACT | REFUTED | L_fact_Z (M1) REFUTED | held | L_fact_Z (M2/view) REFUTED; L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash (M3) REFUTED | held |
 | R13 | L_sym_ω(zk, challenge) | SYM | REFUTED | L_sym_omega (M1) REFUTED | held | L_sym_omega (M2/view) REFUTED | held |
 | R14 | L_own_txspayload | OWN | REFUTED, conditional | L_own_txspayload (M1) REFUTED | held | — | not mechanized |
@@ -99,7 +99,7 @@ Bases. **hand**: the record sets M0, M1, T32 (laws over hand-written facts). **c
 | O28 | SORT-width | F12.7 | — | not mechanized | — | not mechanized | I38 |
 | O29 | SORT-payer | F8 | — | not mechanized | — | not mechanized | I36 |
 | O30 | SORT-conservation | F13 | — | not mechanized | — | not mechanized | I36 |
-| O31 | DISCH-external | F4 | L_disch_stale (M1) PROVED; L_disch_stale_commit (M1) PROVED | reproduced | L_disch_stale (M2/view) PROVED; L_disch_stale_commit (M2/view) PROVED; L_disch_blk_rollup_363_e11d8bb2_anyone (M3) UNKNOWN; L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter (M3) PROVED; L_disch_ext_rollup_363_e11d8bb2_onlyOwner (M3) PROVED; L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter (M3) REFUTED; L_disch_noext_rollup_363_e11d8bb2_onlyOwner (M3) REFUTED; L_disch_rev_rollup_363_e11d8bb2 (M3) UNKNOWN | reproduced | I31 |
+| O31 | DISCH-external | F4 | L_disch_stale (M1) PROVED; L_disch_stale_commit (M1) PROVED | reproduced | L_disch_stale (M2/view) PROVED; L_disch_stale_commit (M2/view) PROVED; L_disch_blk_rollup_363_e11d8bb2_anyone (M3) UNKNOWN; L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter (M3) PROVED; L_disch_ext_rollup_363_e11d8bb2_onlyOwner (M3) PROVED; L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter (M3) REFUTED; L_disch_noext_rollup_363_e11d8bb2_onlyOwner (M3) REFUTED; L_disch_rev_rollup_363_e11d8bb2 (M3) PROVED | reproduced | I31 |
 | O32 | DISCH-non-dischargeable | F2 | L_undo_BVH (M1) REFUTED (context) | open | L_undo_BVH (M2/view) REFUTED (context); L_undo_pair_Rollup_commitBatch_revertBatch (M3) REFUTED (context) | open | I31 |
 | O33 | DISCH-mixed | F7 | L_disch_delay_nofree (M1) PROVED; L_disch_delay_pay (M1) PROVED; L_disch_delay_prove (M1) PROVED (context); L_disch_delay_wait (M1) PROVED; L_dp_delay_abstraction (T32) PROVED (context); L_dp_delay_dominance (T32) PROVED; L_dp_delay_persistent_0_19 (T32) PROVED; L_dp_delay_point_0_19 (T32) PROVED; L_dp_delay_point_1_0 (T32) REFUTED | reproduced | L_disch_delay_nofree (M2/view) REFUTED; L_disch_delay_pay (M2/view) PROVED; L_disch_delay_prove (M2/view) PROVED (context); L_disch_delay_wait (M2/view) PROVED | reproduced | — |
 | O34 | DISCH-external | F8 | — | not mechanized | — | not mechanized | I36 |
@@ -147,7 +147,7 @@ None.
 
 | Path | sha256 |
 |---|---|
-| `docs/BUILD_PLAN.md` | `bfc7e4a08dc98591e0164bf487617581f8bce32a29f843381f6f1fbb15e4dcb1` |
+| `docs/BUILD_PLAN.md` | `ceb8aecfd96b8da88b4629d72edea18aaa91d2fa0dc46c297156ee2303e7626b` |
 | `predictions/M0.json` | `b3a52a4f4f88e90476c6d80a113d94eea53ee6c0a0fd45bf05f2261674e4531c` |
 | `results/M2/hypotheses.json` | `3009f14230cfdb6d295dc9fb192d1d7cec9eef962124c2b0c5ddb3653fa1960d` |
 | `results/M3/backtest.json` | `5df602b3fd8f662771f5232e02c877ae4c541d5aa99b92cb226c9a6a87bab4f4` |
