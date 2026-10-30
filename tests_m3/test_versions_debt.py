@@ -940,21 +940,61 @@ class TestStore(unittest.TestCase):
 
     def test_the_store_holds_every_named_file(self):
         """Positive, on the repository: every file the log's model_extension line names is stored and reads back, and the
-        store's generator (`python -m holon.statement_diff store`) finds nothing to add."""
+        store's generator in check mode (`python -m holon.statement_diff store --check`: every file regenerated from git
+        and compared byte for byte, writing nothing) finds nothing to write and no problem."""
         for sha, what in self.S.extension_named(self.ext):
             with self.subTest(what=what):
                 self.assertIsNone(self.S.store_read(ROOT, sha)[1])
-        self.assertEqual(self.S.extension_store_fill(ROOT), ([], []))
+        self.assertEqual(self.S.extension_store_fill(ROOT, check=True), ([], []))
+
+    def test_a_name_is_the_sha256_of_the_content_and_the_bytes_are_its_one_encoding(self):
+        """The hash basis: a stored file's name is the sha256 of its decompressed content, never of its gzip bytes, and
+        its bytes are store_bytes of that content (gzip level 9, no file name, mtime 0: AGENTS rule 7)."""
+        import gzip
+        files = sorted((ROOT / self.S.STORE).iterdir())
+        self.assertTrue(files)
+        for p in files:
+            with self.subTest(file=p.name):
+                b = p.read_bytes()
+                content = gzip.decompress(b)
+                self.assertEqual(p.name, hashlib.sha256(content).hexdigest() + ".gz")
+                self.assertNotEqual(p.name, hashlib.sha256(b).hexdigest() + ".gz")
+                self.assertEqual(b, self.S.store_bytes(content))
+                self.assertEqual(b[3] & 0x08, 0)        # FLG: no FNAME
+                self.assertEqual(b[4:8], b"\0\0\0\0")   # MTIME 0
+
+    def test_the_check_mode_compares_byte_for_byte(self):
+        """Off git the generator's check re-encodes each stored file from its verified content. A file re-encoded at
+        another level (a valid gzip of the right content, which G2 still reads) and a file no line names are problems;
+        the generator then rewrites the one encoding, and the check passes."""
+        import gzip
+        (self.root / LOG).write_text(json.dumps(self.line, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+        self.assertEqual(self.S.extension_store_fill(self.root, check=True), ([], []))
+        sha = self.ext["proof"]["sha256"]
+        p = self.root / self.S.STORE / f"{sha}.gz"
+        p.write_bytes(gzip.compress(gzip.decompress(p.read_bytes()), compresslevel=1, mtime=0))
+        (self.root / self.S.STORE / ("f" * 64 + ".gz")).write_bytes(self.S.store_bytes(b"named by no line"))
+        self.assertEqual(self.scan(self.line)["problems"], [])
+        done, problems = self.S.extension_store_fill(self.root, check=True)
+        self.assertEqual(done, [sha])
+        self.assertTrue(any("not store_bytes of its content" in x for x in problems), problems)
+        self.assertTrue(any("named by no model_extension line" in x for x in problems), problems)
+        (self.root / self.S.STORE / ("f" * 64 + ".gz")).unlink()
+        self.assertEqual(self.S.extension_store_fill(self.root), ([sha], []))
+        self.assertEqual(self.S.extension_store_fill(self.root, check=True), ([], []))
 
     def test_a_missing_file_fails_closed(self):
         sha = self.ext["models"]["old"][sorted(self.ext["models"]["old"])[0]]
         (self.root / self.S.STORE / f"{sha}.gz").unlink()
         self.rejected(self.line, "is missing")
+        self.assertTrue(any("is missing" in x for x in self.S.extension_store_fill(self.root, check=True)[1]))
 
-    def test_a_file_hashing_to_another_name_fails_closed(self):
+    def test_a_valid_gzip_whose_content_is_wrong_fails_closed(self):
+        """The file decompresses, and its content hashes to anything but its name: G2 decompresses, then hashes."""
         import gzip
         p = self.root / self.S.STORE / f"{self.ext['proof']['sha256']}.gz"
-        p.write_bytes(gzip.compress(gzip.decompress(p.read_bytes()) + b"\n# appended\n", mtime=0))
+        p.write_bytes(self.S.store_bytes(gzip.decompress(p.read_bytes()) + b"\n# appended\n"))
+        self.assertTrue(gzip.decompress(p.read_bytes()))
         self.rejected(self.line, "not its name")
 
     def test_a_file_that_is_no_gzip_fails_closed(self):

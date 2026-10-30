@@ -37,9 +37,10 @@ A frozen statement may change only through an entry that this module accepts:
                    moves). `python -m holon.statement_diff extend --milestone M [--append]` builds the entries
                    (model_extension_entries). Every file the check read and its acceptance record names (the old and
                    new model files, the record, the proof; in a line appended since the store exists, also the law
-                   file, the old record and the two bindings) is kept, gzip, under its sha256 in
-                   laws/STATEMENT_DIFF.store/ (append writes them;
-                   `python -m holon.statement_diff store` writes those of committed lines from git). So the line is
+                   file, the old record and the two bindings) is kept as <sha256 of its content>.gz in
+                   laws/STATEMENT_DIFF.store/, in one encoding (store_bytes: gzip level 9, no file name, mtime 0).
+                   append writes them; `python -m holon.statement_diff store [--check]` writes those of committed lines
+                   from git (or regenerates every one and compares byte for byte, writing nothing). So the line is
                    checkable from the working tree alone (_verify_extension_store: X0, X1, X2 on the stored bindings,
                    X3 on the stored models, X4 on the stored record and the recorded re-check; a file missing, or
                    hashing to anything but its name, fails closed), and the git history is a cross-check.
@@ -75,7 +76,7 @@ API:
   tie_problems(milestone, root, scanned) -> ([problem], note)      G2: every change covered by an accepted entry
   catalog_rederivation_entries(milestone, root) -> (entries, notes) the catalog_rederivation entries still needed
   store_read(root, sha256) -> (bytes, None) | (None, why)          a file of laws/STATEMENT_DIFF.store/, verified
-  extension_store_fill(root) -> (stored, problems)                 the files model_extension lines name, from git
+  extension_store_fill(root, check) -> (files, problems)           the store's generator (--check: byte for byte)
 
 Each line is checked once, against the tree it was appended to (audit F-M2-22). `python -m holon.statement_diff
 append ENTRY.json` runs check_entry on the working tree and, only when it accepts, appends the entry with an
@@ -104,6 +105,7 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import io
 import json
 import os
 import shutil
@@ -2224,8 +2226,9 @@ _STORE_MEMO: dict = {}   # (step, sha256s of its inputs) -> result: content-addr
 
 
 def store_read(root: Path, sha) -> tuple[bytes | None, str | None]:
-    """(the file of laws/STATEMENT_DIFF.store/ whose sha256 is sha, None), or (None, why): a file that is missing, is no
-    gzip or holds bytes hashing to anything but its name fails closed."""
+    """(the file of laws/STATEMENT_DIFF.store/ whose sha256 is sha, None), or (None, why). A name is the sha256 of the
+    file's content, never of its gzip bytes: the bytes are decompressed, then hashed. A file that is missing, is no gzip
+    or decompresses to content hashing to anything but its name fails closed."""
     if not isinstance(sha, str) or not _HEX64.match(sha):
         return None, f"{sha!r} names no file of {STORE.as_posix()}/ (a sha256)"
     p = Path(root) / STORE / f"{sha}.gz"
@@ -2240,14 +2243,23 @@ def store_read(root: Path, sha) -> tuple[bytes | None, str | None]:
     return b, None
 
 
+def store_bytes(data: bytes) -> bytes:
+    """The one encoding of a stored file (AGENTS rule 7): gzip at compresslevel 9 with no file name and mtime 0, so the
+    same content always gives the same bytes."""
+    buf = io.BytesIO()
+    with gzip.GzipFile(filename="", mode="wb", compresslevel=9, fileobj=buf, mtime=0) as f:
+        f.write(data)
+    return buf.getvalue()
+
+
 def store_write(root: Path, data: bytes) -> str:
-    """Keep a file in laws/STATEMENT_DIFF.store/ under its sha256 (gzip with no name and time 0, so the same file gives
-    the same bytes); a file already there, whole, is left as it is."""
+    """Keep a file in laws/STATEMENT_DIFF.store/ as <sha256 of its content>.gz, store_bytes of it (rewritten when the
+    bytes there are anything else); its sha256."""
     sha = _sha(data)
-    if store_read(root, sha)[0] is None:
-        p = Path(root) / STORE / f"{sha}.gz"
+    p, want = Path(root) / STORE / f"{sha}.gz", store_bytes(data)
+    if not p.is_file() or p.read_bytes() != want:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_bytes(gzip.compress(data, compresslevel=9, mtime=0))
+        p.write_bytes(want)
     return sha
 
 
@@ -2378,19 +2390,23 @@ def _verify_extension_store(e, acc, root: Path) -> str | None:
     return None
 
 
-def extension_store_fill(root: Path) -> tuple[list, list]:
-    """(stored sha256s, problems): keep in laws/STATEMENT_DIFF.store/ every file a model_extension line of the log names
-    and the store lacks, read from git (read-only): the old model files, the old record and the old binding at the line's
-    bound_commit, every other file at the commit that appended the line (on the tree for a line not yet committed); each
-    must hash as the line names it. `python -m holon.statement_diff store` (append writes them for a new line)."""
+def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
+    """The store's generator: (sha256s written, or with check those it would write, problems). Every file a
+    model_extension line of the log names is kept in laws/STATEMENT_DIFF.store/ as store_bytes of its content. The
+    content is read from git (read-only): the old model files, the old record and the old binding at the line's
+    bound_commit, every other file at the commit that appended the line (on the tree for a line not yet committed); a
+    file git cannot give (the new binding, which the check computed), and every file off git, is the stored one,
+    decompressed. Each content must hash as the line names it. check: write nothing; a named file that is missing or is
+    not store_bytes of its content, and a file of the store that no line names, are problems. `python -m
+    holon.statement_diff store [--check]`; append writes a new line's files."""
     root = Path(root)
     path = root / LOG
-    if not path.is_file() or not in_git(root):
-        return [], [f"{path} or the git history is missing"]
-    data = path.read_bytes()
-    spans, side, _ = merged_lines(data, path, root)
+    if not path.is_file():
+        return [], [f"{path} is missing"]
+    data, git = path.read_bytes(), in_git(root)
+    spans, side, _ = merged_lines(data, path, root) if git else ([], {}, [])
     committed_len = spans[-1][0] if spans else 0
-    done, probs, offset = [], [], 0
+    done, probs, named, offset = [], [], set(), 0
     for n, raw in enumerate(data.splitlines(keepends=True), start=1):
         start, offset = offset, offset + len(raw)
         e = _json_or_none(raw)
@@ -2407,28 +2423,49 @@ def extension_store_fill(root: Path) -> tuple[list, list]:
             return blob_at(root, c, rel) if c is not None else ((root / rel).read_bytes() if (root / rel).is_file()
                                                                   else None)
         source = {}
-        for r, sha in (ext.get("models") or {}).get("old", {}).items():
-            source[sha] = lambda r=r: at(bc, r)
-        for r, sha in (ext.get("models") or {}).get("new", {}).items():
-            source.setdefault(sha, lambda r=r: at(commit, r))
-        source.setdefault(rec.get("sha256"), lambda: at(commit, rec.get("path") or ""))
-        if "old_sha256" in rec:
-            source.setdefault(rec["old_sha256"], lambda: at(bc, rec.get("path") or ""))
-        for k in ("proof", "laws"):
-            if isinstance(ext.get(k), dict):
-                source.setdefault(ext[k].get("sha256"), lambda k=k: at(commit, ext[k].get("path") or ""))
-        if isinstance(ext.get("bindings"), dict):
-            source.setdefault(ext["bindings"].get("old"),
-                              lambda: ir.canonical_json(_binding_at(root, bc, str(e.get("milestone")),
-                                                                    str(e.get("law_id")))))
+        if git:
+            for r, sha in (ext.get("models") or {}).get("old", {}).items():
+                source[sha] = lambda r=r: at(bc, r)
+            for r, sha in (ext.get("models") or {}).get("new", {}).items():
+                source.setdefault(sha, lambda r=r: at(commit, r))
+            source.setdefault(rec.get("sha256"), lambda: at(commit, rec.get("path") or ""))
+            if "old_sha256" in rec:
+                source.setdefault(rec["old_sha256"], lambda: at(bc, rec.get("path") or ""))
+            for k in ("proof", "laws"):
+                if isinstance(ext.get(k), dict):
+                    source.setdefault(ext[k].get("sha256"), lambda k=k: at(commit, ext[k].get("path") or ""))
+            if isinstance(ext.get("bindings"), dict):
+                source.setdefault(ext["bindings"].get("old"),
+                                  lambda: ir.canonical_json(_binding_at(root, bc, str(e.get("milestone")),
+                                                                        str(e.get("law_id")))))
         for sha, what in extension_named(ext):
-            if store_read(root, sha)[0] is not None:
+            if sha in named:
                 continue
-            b = source[sha]() if sha in source else None
-            if b is None or _sha(b) != sha:
-                probs.append(f"line {n}: {what} ({str(sha)[:12]}..) cannot be read from git as the line names it")
+            named.add(sha)
+            if sha in source:
+                content = source[sha]()
+                if content is None or _sha(content) != sha:
+                    probs.append(f"line {n}: {what} ({str(sha)[:12]}..) cannot be read from git as the line names it")
+                    continue
+            else:
+                content, why = store_read(root, sha)
+                if content is None:
+                    probs.append(f"line {n}: {what}: {why}")
+                    continue
+            p = root / STORE / f"{sha}.gz"
+            if p.is_file() and p.read_bytes() == store_bytes(content):
                 continue
-            done.append(store_write(root, b))
+            if check:
+                probs.append(f"line {n}: {what}: {STORE.as_posix()}/{sha}.gz is "
+                             + ("missing" if not p.is_file() else "not store_bytes of its content (gzip level 9, no "
+                                                                  "file name, mtime 0)"))
+            else:
+                store_write(root, content)
+            done.append(sha)
+    d = root / STORE
+    for q in sorted(d.iterdir()) if d.is_dir() else []:
+        if not (q.name.endswith(".gz") and q.name[:-3] in named):
+            probs.append(f"{STORE.as_posix()}/{q.name} is named by no model_extension line")
     return sorted(set(done)), probs
 
 
@@ -2492,6 +2529,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", default=str(ir.ROOT))
     ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
     ap.add_argument("--append", action="store_true", help="reextract, recatalog, rebind: append every accepted entry")
+    ap.add_argument("--check", action="store_true", help="store: write nothing; exit 1 when a named file is missing or "
+                                                         "is not the one encoding of its content, or a stored file is "
+                                                         "named by no line")
     ap.add_argument("--report", help="rebind: write every entry's equivalence result (JSON) to this file, rewritten "
                                      "after each entry")
     ap.add_argument("--deadline", type=float, help="rebind: a time box in seconds for the whole run; when it fires, the "
@@ -2522,10 +2562,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{len(es)} binding_change entries, {bad} rejected; {len(notes)} laws need another kind")
         return 0 if not bad else 1
     if a.command == "store":   # I83: the files the model_extension lines name, read from git, into the store
-        done, probs = extension_store_fill(root)
+        done, probs = extension_store_fill(root, check=a.check)
         for x in probs:
-            print(f"not stored: {x}")
-        print(f"{len(done)} file(s) stored in {STORE.as_posix()}/; {len(probs)} problem(s)")
+            print(x)
+        print(f"{len(done)} file(s) {'to write' if a.check else 'written'} in {STORE.as_posix()}/; {len(probs)} "
+              f"problem(s){'; every stored file reproduces byte for byte' if a.check and not probs else ''}")
         return 0 if not probs else 1
     if a.command == "extend":   # I83: the model_extension entries of laws whose bound model gained behaviours
         es, notes = model_extension_entries(a.milestone, root)
