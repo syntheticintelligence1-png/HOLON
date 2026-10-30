@@ -256,24 +256,57 @@ class BSearch(FSR.FactSearch):
                 self.n += 1
                 yield t2, g2
 
-    def candidates(self, g: str, trace: list, a: str) -> list:
+    def candidates(self, g: str, trace: list, a: str, wide: bool = False) -> list:
+        """The action's candidate steps at g: S1's step and its variants over the focus value sets; with wide, then
+        each succeeding single-leaf variant of S1's step at a leaf outside the focus (FACT's variants1: S1's value
+        sets) and its variants over the focus value sets, in that order, each step once."""
         st = self.synth(g, a, trace)
         self.tick()
-        out = []
+        out, seen = [], set()
         if st is None:
             return out
-        first = US.fresh_step(st)
-        if self.succeeds(g, first):
-            out.append(first)
-        for c in self.variants(g, trace, st):
-            if c.key() != first.key() and self.succeeds(g, c):
+
+        def add(c) -> None:
+            if c.key() not in seen and self.succeeds(g, c):
+                seen.add(c.key())
                 out.append(c)
+        first = US.fresh_step(st)
+        add(first)
+        for c in self.variants(g, trace, st):
+            add(c)
+        if not wide:
+            return out
+        state, pools = self.ref.pools(g, trace)
+        sy = S3.Synth(self.m, pools, 0)
+        focus = {leaf for leaf, _t, _v in self.focus_leaves(sy, a)}
+        for v in self.variants1(g, trace, first):
+            if v.key() in seen:
+                continue
+            changed = [leaf for leaf, _ty in sy.leaves(a) if leaf not in focus and _leaf_value(v, leaf) !=
+                       _leaf_value(first, leaf)]
+            if not changed:
+                continue
+            v = US.fresh_step(v)
+            if not self.succeeds(g, v):
+                continue
+            add(v)
+            for c in self.variants(g, trace, v):
+                add(c)
         return out
 
     def x0(self, g: str, st: S3.Step) -> dict:
         act = self.m.act(st)
         a = bname(st.action)
         return {"$call": f"x0_{a}", "args": [self.st_of(g), act["f"]["ar"], act["f"]["en"]] + self.m.tables()}
+
+
+def _leaf_value(st: S3.Step, leaf):
+    if leaf[0] == "env":
+        return json.dumps(st.env.get(leaf[1]), sort_keys=True, default=str)
+    v = st.args
+    for k in leaf[1:]:
+        v = (v or {}).get(k) if isinstance(v, dict) else None
+    return json.dumps(v, sort_keys=True, default=str)
 
 
 # ------------------------------------------------------------------------------------------------ the real side
@@ -654,7 +687,7 @@ class Decider:
         stop = None
         try:
             for d, trace, g in S.states(a):
-                for st in S.candidates(g, trace, a):
+                for st in S.candidates(g, trace, a, wide=True):
                     S.tick()
                     S.m.run_step(g, st, save=False)
                     pi = S.o.word(f"fx_pi_{LC.fact_x(lids[0])}", [S.x0(g, st)])
@@ -727,8 +760,9 @@ class Decider:
         traces = [list(r["prefix"]) + [r["x"]] for r in w["runs"]]
         keys = [tuple(st.key() for st in t) for t in traces]
         for j, k in enumerate(keys):
-            if k in self.bad_runs:
-                return f"run {j + 1}: {self.bad_runs[k]} (refused before)", w
+            for n in range(1, len(k) + 1):
+                if k[:n] in self.bad_runs:
+                    return f"run {j + 1}: {self.bad_runs[k[:n]]} (refused before)", w
         sjs = [steps_json(dc, m, t) for t in traces]
         try:
             runs = dc.forge().traces([[real_call(s) for s in sj] for sj in sjs], jobs=2, tag="pi")
@@ -739,8 +773,9 @@ class Decider:
             execs = [e for e in run.execs if e.id != "d"]
             bad = [i for i, e in enumerate(execs) if not e.ok]
             if bad:
-                self.bad_runs[keys[j]] = f"step {bad[0]} ({traces[j][bad[0]].action}) reverts on the deployment"
-                return f"run {j + 1}: {self.bad_runs[keys[j]]}", w
+                pre = keys[j][:bad[0] + 1]   # every run that starts with these steps reverts there too
+                self.bad_runs[pre] = f"step {bad[0]} ({traces[j][bad[0]].action}) reverts on the deployment"
+                return f"run {j + 1}: {self.bad_runs[pre]}", w
             member = run.members[0]
             reps.append([with_calls(st, raw_calls(execs[i], member)) for i, st in enumerate(traces[j])])
         x = LC.fact_x(lid)
