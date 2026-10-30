@@ -394,7 +394,9 @@ class TestDecisions(unittest.TestCase):
                 self.assertEqual(a1["engine"], "product-evaluator")
                 self.assertIsNone(r["witness"])
                 self.assertEqual(r["independence_class"], "none")
-                self.assertEqual(sorted(r["model_assumptions"]), sorted(set(I.hyp_names(e))))
+                # amended (spec/M3/amendments.jsonl): the record schema's model_assumptions ids are letters, digits
+                # and '-', so a record names each hypothesis with every '_' written '-'
+                self.assertEqual(sorted(r["model_assumptions"]), sorted({h.replace("_", "-") for h in I.hyp_names(e)}))
                 self.assertEqual(len(r["premises"]), len(e["statement"]["assume"]))
                 self.assertEqual(r["replay"]["status"], "not_applicable")
 
@@ -551,6 +553,16 @@ class TestRegressions(unittest.TestCase):
         for c, changes in own_commits():
             for st, path in changes:
                 with self.subTest(commit=c[:12], path=path):
+                    if path == "spec/M3/amendments.jsonl" and st == "M":
+                        # amended (spec/M3/amendments.jsonl): the contract's route for a wrong instrument appends
+                        # lines of iteration I88, of kind instrument_inconsistency, and nothing else
+                        old, new = git("show", f"{c}^:{path}"), git("show", f"{c}:{path}")
+                        self.assertTrue(new.startswith(old), "amendments.jsonl changed, not appended")
+                        for ln in new[len(old):].splitlines():
+                            d = json.loads(ln)
+                            self.assertEqual((d.get("iteration"), d.get("kind")), (KEY, "instrument_inconsistency"),
+                                             "an appended line is not an I88 instrument_inconsistency")
+                        continue
                     self.assertFalse(path.startswith(frozen), "a frozen root")
                     if path.startswith("laws/"):
                         self.assertTrue(path.startswith("laws/M3/derivation/"), "laws/ outside the law set")
