@@ -178,9 +178,10 @@ def main(argv=None) -> int:
         if a.step == "replay-laws":      # I86: the witnesses of the bundle's laws on the real bundle
             from . import replay_laws
             return replay_laws.main(ctx, a.check, log, jobs=a.jobs)
-        if a.step == "bmc":              # I86: Q28's BMC over the linked queue
-            from . import bmc_linked
-            return bmc_linked.main(ctx, a.check, log)
+        if a.step == "bmc":              # I86: Q28's BMC over the linked queue (rules Q1-Q5), not built
+            raise Refused("Q28's BMC over the linked queue (tests_m3/test_bundle_laws.py rules Q1-Q5) is not built: "
+                          "the queue's storage in the BMC state, its programs answering the Rollup's calls and the "
+                          "enqueue move are missing from holon.bmc (docs/iterations/I86.md, Not done)")
         from . import acquire
         return getattr(acquire, f"main_{a.step}")(ctx, a.check, log)
     except (Refused, FRefused) as e:

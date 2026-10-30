@@ -866,7 +866,7 @@ class Decider:
                 if kind == "exists":   # an existential law's checked proof is its own inhabitant (G11V)
                     nonvac = {"status": "inhabited", "law": self.rel(lp), "witness": witness, "reachable": True,
                               "degenerate": False, "parent_statement_hash": self.registry["statements"][lid],
-                              "checker": chk["checker"], "bound": "the checked existential proof is its own inhabitant"}
+                              "bound": "the checked existential proof is its own inhabitant"}
         elif sub == "push" or (sub == "payer" and all(k == ["caller"] for k in site["keys"])):
             lp = self.write_law(lid, sub, site, mname, "forall", p["laws"])
             p["proof"].parent.mkdir(parents=True, exist_ok=True)
@@ -881,6 +881,8 @@ class Decider:
                 status = "PROVED"
                 prim = {"proof": self.rel(p["proof"]), "checker": chk["checker"], "verdict": chk["verdict"]}
                 nonvac = self.inhabit(lid, sub, site, mname, lm)
+                attempts.append({"kind": "inhabitant", "law": nonvac.get("law"), "status": nonvac.get("status"),
+                                 "checker": nonvac.pop("_checker", None)})
                 bound = None
         if status == "UNKNOWN":
             if expressible and not p["laws"].exists():
@@ -938,9 +940,9 @@ class Decider:
             reach = True
         chk = check(p["nv_proof"])
         if not chk["ok"]:
-            return {**base, "status": "unknown", "witness": w_json, "reachable": reach,
+            return {**base, "status": "unknown", "witness": w_json, "reachable": reach, "_checker": chk["checker"],
                     "bound": f"the inhabitant does not check: {chk['checker'].get('failing', '')[-400:]}"}
-        return {**base, "status": "inhabited", "witness": w_json, "reachable": reach, "checker": chk["checker"],
+        return {**base, "status": "inhabited", "witness": w_json, "reachable": reach, "_checker": chk["checker"],
                 "bound": "a checked inhabitant of the premises"}
 
     def first_ok(self, lm: LawModel, site: dict) -> Witness | None:
@@ -983,7 +985,10 @@ class Decider:
         lid = law["law_id"]
         sh = self.registry["statements"][lid]
         mtext = module_text(lctx, mname)
-        cone = R.cone(re.sub(r"(?<![\w.])C\.", "M.", lp.read_text(encoding="utf-8")), mtext) if lp else []
+        if lp is not None:
+            cone = R.cone(re.sub(r"(?<![\w.])C\.", "M.", lp.read_text(encoding="utf-8")), mtext)
+        else:   # a claim the M3 model cannot express (CS3's outflow class): the cone of the law's premise ok
+            cone = R.cone(f"M.chk_{bname(site['action'])}(s, ar, en, kh)", mtext)
         rec = {"law_id": lid, "statement_hash": sh, "facts_sha256": law["facts_sha256"], "status": status,
                "scope": "unbounded", "premises": [],
                "kernel": {"name": "bend", "version": bend_version(), "verdict": (prim or {}).get("verdict", "not_run")},
@@ -1003,15 +1008,17 @@ class Decider:
         if status == "REFUTED":
             rec["difference"] = {"lhs": False, "rhs": True}
         ann = next((a for a in lctx.side.get("annotations") or [] if a.get("law") == lid), None)
-        if ann is not None:   # CS5/RC2: the whitepaper's annotation marks the record, and changes no statement
-            rec["triage"] = "annotated"
-            rec["annotation"] = {"source": ann["source"], "text": ann.get("why") or ann.get("text") or ""}
+        if ann is not None:   # CS5/RC2: the whitepaper's annotation marks the record, and changes no statement; the
+            # frozen record schema's triage has no value "annotated", so the mark is the annotation's (the record keeps
+            # its triage; amended at the build, spec/M3/amendments.jsonl)
+            rec["annotation"] = {"triage": "annotated", "source": ann["source"],
+                                 "text": ann.get("why") or ann.get("text") or ""}
         try:
             b, match = R.resolve_bundle(rec["facts_sha256"], law["facts"], self.root, mtext, set(cone), lctx.m)
             assumptions = R.model_assumptions(b["facts_sha256"], set(cone), self.root, law["facts"])
         except R.LedgerError:
             match, assumptions = "none", []
-        compiled = self.models[mname].ev.compiled() if mname in self.models else None
+        compiled = self.model(mname).ev.compiled()
         rec.update({"record_version": R.RECORD_VERSION, "prover": "generator",
                     "model_sha256": sha256_file(lctx.model_path(mname)),
                     "claims_sha256": sha256_file(lctx.claims_path(mname)),
