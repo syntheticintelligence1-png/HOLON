@@ -14,6 +14,11 @@ tests_m3/test_derivation_extraction.py).
            parent, the derived batch of each committed batch                                     holon.derivation.product
   refine   every corpus and product case on the consumer model and on the real code (the generated Go replay)
                                                                                                   holon.derivation.refine
+  laws     the plan-stated product laws of a law set's sidecar (default spec/M3/lib/derivation_laws.json, option
+           --laws-sidecar), their refs and registry (I88)                                     holon.derivation.laws
+  decide   the law set's evaluator-level witness search, its replay on the real code, the records and the hypothesis
+           split report (I88); --model MODULE plugs in a consumer model whose verdicts replace UNKNOWN
+                                                                                              holon.derivation.decide
 
   bend     the consumer compiled to a Bend model (I89: holon.derivation.bendgen, holon.derivation.bendrun)
   bend-refine  HypB's instance (the real blob layer) checked, and the compiled model refined on the 169 cases
@@ -95,13 +100,20 @@ def write_or_check(root: Path, outputs: dict, check: bool) -> int:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="holon derivation")
-    ap.add_argument("command", choices=("extract", "corpus", "product", "refine", "bend", "bend-refine"))
+    ap.add_argument("command", choices=("extract", "corpus", "product", "refine", "laws", "decide", "bend",
+                                        "bend-refine"))
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--sidecar", default=SIDECAR)
+    ap.add_argument("--laws-sidecar", default=None)
+    ap.add_argument("--model", default=None,
+                    help="decide: a module whose consumer_model(root) returns the consumer's model (holon.derivation."
+                         "laws.verdict's model); without it every law of the set is UNKNOWN")
     ap.add_argument("--bend-sidecar", default="spec/M3/lib/derivation_bend.json")
     ap.add_argument("--root")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else ROOT
+    if a.command in ("laws", "decide"):
+        return _law_set(a, root)
     if a.command in ("bend", "bend-refine"):
         from . import bendgen, bendrun
         try:
@@ -131,6 +143,38 @@ def main(argv=None) -> int:
         else:
             from . import refine
             outputs = refine.run(root, side, a.sidecar, check=a.check)
+    except Refused as e:
+        print(f"holon derivation {a.command}: refused: {e}", file=sys.stderr)
+        return 2
+    except DerivationError as e:
+        print(f"holon derivation {a.command}: error: {e}", file=sys.stderr)
+        return 3
+    return write_or_check(root, outputs, a.check)
+
+
+def _law_set(a, root: Path) -> int:
+    """`holon derivation laws|decide` (I88): the law set of a laws sidecar."""
+    from . import laws as LW
+    rel = a.laws_sidecar or LW.LAWS_SIDECAR
+    try:
+        side = LW.side_of(root, rel)
+        if a.command == "laws":
+            outputs = LW.outputs(root, side)
+            bad = LW.stray(root, side, outputs)
+            if bad:
+                for b in bad:
+                    print(f"holon derivation laws: {b} is not a law of the set", file=sys.stderr)
+                if a.check:
+                    return 1
+                for b in bad:
+                    (root / b).unlink()
+        else:
+            from . import decide
+            model = None
+            if a.model:
+                import importlib
+                model = importlib.import_module(a.model).consumer_model(root)
+            outputs = decide.run(root, side, rel, check=a.check, model=model)
     except Refused as e:
         print(f"holon derivation {a.command}: refused: {e}", file=sys.stderr)
         return 2
