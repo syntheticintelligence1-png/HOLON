@@ -12,7 +12,7 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.514
+      "seconds": 0.299
     },
     {
       "bound": "record fills (ones, counting, 0xff, zeros, one field 0xff, 8 random with seed 20261013), the premises applied, kept when the named encoders' ok atoms over record fields hold (32 candidates); hit: ones",
@@ -26,49 +26,22 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.622
+      "seconds": 0.375
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 1.45
+      "seconds": 0.599
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.622
+    "seconds": 0.375
   },
   "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
-  "concretization": {
-    "bound": {
-      "H": 8,
-      "rlimit": 200000000
-    },
-    "kind": "commit_class",
-    "length": 1,
-    "reason": "a commit at version 0 from R0 (rule K3, the M0 commit-path rule): sat at k = 1 (the first sat depth); unrealistic clock (> 2^64): block.timestamp up to 68754308293964614497325394576238816644664092751891569308604359083597582303224",
-    "result": "path",
-    "sides": {
-      "go": {
-        "obstruction_observed": true,
-        "provenance": "library_api",
-        "status": "passed"
-      },
-      "solidity": {
-        "obstruction_observed": true,
-        "provenance": "public_schedule",
-        "status": "passed"
-      }
-    },
-    "target": null,
-    "tests": [
-      "gen/M3/tests/foundry/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.t.sol",
-      "gen/M3/tests/go/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_test.go"
-    ]
-  },
   "cone": [
     "BatchHeaderV0_Bytes",
     "R_BatchHeaderV0",
@@ -88,8 +61,8 @@
   "evidence_override": null,
   "evidence_triage": "finding",
   "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
-  "filter_bin": "finding",
-  "generator_sha256": "68296ef073b11d18c2758651c67ce838f020be2e567e313ca409cbd76dced936",
+  "filter_bin": "pending",
+  "generator_sha256": "75dbc9954d4167ba1a2b26c8448d492b68fb50ecef5bb540652395cc1a7e0e4c",
   "independence_class": "I2",
   "kernel": {
     "name": "bend",
@@ -146,7 +119,7 @@
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0/LAWS.bend",
-    "parent_statement_hash": "sha256:6ea112b4e5ec01708e922c38da8bc0d0e0bf2e4757f14b3c06e575ef255ea9ae",
+    "parent_statement_hash": "sha256:10a511509af233adcb9d1b2fd450b1f80c91f33d088850481c82e3852cd7cc0b",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -178,7 +151,7 @@
     "kind": "unbounded"
   },
   "statement": "\u2200 h: BatchHeaderV0, \u2200 k: Header. k.version == 0x00 \u2227 h.BatchIndex == k.batchIndex \u2227 h.BlobVersionedHash == k.blobVersionedHash \u2227 h.DataHash == k.dataHash \u2227 h.L1MessagePopped == k.l1MessagePopped \u2227 h.ParentBatchHash == k.parentBatchHash \u2227 h.PostStateRoot == k.postStateHash \u2227 h.PrevStateRoot == k.prevStateHash \u2227 h.TotalL1MessagePopped == k.totalL1MessagePopped \u2227 h.WithdrawalRoot == k.withdrawRootHash \u21d2 BatchHeaderV0_Bytes(h) == enc_sol(k)",
-  "statement_hash": "sha256:6ea112b4e5ec01708e922c38da8bc0d0e0bf2e4757f14b3c06e575ef255ea9ae",
+  "statement_hash": "sha256:10a511509af233adcb9d1b2fd450b1f80c91f33d088850481c82e3852cd7cc0b",
   "statement_scope": {
     "kind": "unbounded"
   },
