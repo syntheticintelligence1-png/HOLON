@@ -20,8 +20,8 @@ A contract law here is an intended_weak law (holon.contracts K3) over a holon-fa
      x and after the last step: passed when every step succeeds, the real words are the model's and the conjunct is
      false on them;
   5. non-vacuity (B7) of a PROVED law: the first candidate whose premises hold (a reachable prefix and the binders),
-     its inhabitant law nv_<id> and proof at gen/<M>/proofs/<id>/nonvac/, checked by bend; an attempt of kind
-     "inhabitant" and the record's non_vacuity block;
+     its inhabitant law nv_<id> and proof at gen/<M>/<id>/nonvac/ (never under proofs/: G3), checked by bend; an
+     attempt of kind "inhabitant" and the record's non_vacuity block;
   6. the record (G9's v1 and v2 shape, over the structural typed model: its ledger's model assumptions).
 
 A law with no proof and no witness is UNKNOWN, its record naming the bound searched. The run's last step applies the
@@ -475,7 +475,7 @@ class Run:
 
     def paths(self, lid: str) -> dict:
         g = self.gen
-        return {"laws": g / "laws" / lid / "LAWS.bend", "proofs": g / "proofs" / lid}
+        return {"laws": g / "laws" / lid / "LAWS.bend", "proofs": g / "proofs" / lid, "nonvac": g / lid / "nonvac"}
 
     def model_import(self, d: Doc, at: Path) -> str:
         return rel(d.import_file, at)
@@ -581,8 +581,7 @@ class Run:
         acts = dict(zip(shape.order, w["steps"]))
         values = {n: (m.act(acts[n]) if ty == "Act" else int(w["words"][n])) for n, ty in law_binders(law)[1:]}
         lid = law["law_id"]
-        sub = "witness" if kind == "counter" else "nonvac"
-        dd = self.paths(lid)["proofs"] / sub
+        dd = self.paths(lid)["proofs"] / "witness" if kind == "counter" else self.paths(lid)["nonvac"]
         dd.mkdir(parents=True, exist_ok=True)
         if kind == "counter":
             lp = self.write_law(d, law, sh, "counter", w["conjunct"])
@@ -711,6 +710,7 @@ class Run:
     def _decide(self, d: Doc, law: dict, sh: str, residue) -> dict:
         lid = law["law_id"]
         shutil.rmtree(self.paths(lid)["proofs"], ignore_errors=True)
+        shutil.rmtree(self.paths(lid)["nonvac"].parent, ignore_errors=True)
         lp = self.write_law(d, law, sh)
         attempts, status, prim, wj, rep, bound, nonvac, diag = [], "UNKNOWN", None, None, None, None, None, None
         shape = Shape(law)

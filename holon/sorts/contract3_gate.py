@@ -5,7 +5,7 @@ joined by holon.sorts.gate3 into its checks of the same name (as holon.fact.gate
         by Bend; G7 the same files by BendTT (--verdict)
   G11   every contract law has a record whose statement hash is the registry's and whose artifacts exist
   G11V  every PROVED contract law carries a checked, reachable inhabitant of its premises
-        (gen/<M>/proofs/<id>/nonvac/, the law nv_<id>)
+        (gen/<M>/<id>/nonvac/, the law nv_<id>)
   G6    every REFUTED contract law's record carries a passed replay on the real contract
   G9    every contract law's record is valid under the v1 and v2 schemas
 
@@ -43,7 +43,7 @@ class ContractGate:
         return out
 
     def nonvac(self, lid: str) -> Path:
-        return self.gen / "proofs" / lid / "nonvac"
+        return self.gen / lid / "nonvac"
 
     def proofs(self) -> list:
         out = []
