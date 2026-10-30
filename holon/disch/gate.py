@@ -45,7 +45,10 @@ class DischGate:
         self.na: dict = {}
         self.canaries: list = []
         dv = json.loads((self.root / "laws" / self.m / "DERIVATION.json").read_text())
-        self.entries = {e["law_id"]: e for e in dv["laws"] if e.get("rule") == "DISCH"}
+        # I31's DISCH laws: the sub-forms holon.disch.run decides (I86's keyed DISCH laws are the bundle laws', with
+        # their own checks: holon.bundle.gate)
+        from .run import SUBFORMS
+        self.entries = {e["law_id"]: e for e in dv["laws"] if e.get("rule") == "DISCH" and e.get("subform") in SUBFORMS}
 
     def records(self) -> dict:
         out = {}

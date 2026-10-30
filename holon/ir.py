@@ -21,7 +21,8 @@ HASHED_KEYS_03 = ("ir_version", "law_id", "rule", "rule_catalog_version", "state
 # (the 0.3 schema's law_id pattern ^L[0-9]?_). Every glob over laws/<m>/ or results/<m>/ uses this one.
 LAW_GLOB = "L*.json"
 # binder types every IR version may use; 0.3 adds Fn<A,B>, Bytes(n), List<Nat> and record refs (a facts type)
-BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>", "Word", "Env")
+# (I86: Args, the input of an action, its arguments as the law model's AR_<action> record holds them)
+BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>", "Word", "Env", "Args")
 
 
 class IRError(ValueError):
@@ -242,6 +243,12 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I30): a SORT coercion term, every hit of coercion ID while action A runs from state S is Some
     if "coerce" in t and "on" in t and "from" in t:
         return f"coerce_ok[{t['coerce']}]({render_term(t['on'])}, {render_term(t['from'])})"
+    # holon-ir/0.3 (I86): a bundle-law term, bundle_ok[ID](..) (or a premise of it, bundle_<premise>[ID](..)) over
+    # its member's law model (holon.rules.bundle)
+    if isinstance(t.get("bundle"), str):
+        args = [t[k] for k in ("on", "from", "at", "env") if k in t]
+        flat = [x for a in args for x in (a if isinstance(a, list) else [a])]
+        return f"bundle_{t.get('premise') or 'ok'}[{t['bundle']}]({', '.join(render_term(a) for a in flat)})"
     # holon-ir/0.3 (I31): a DISCH term, disch_ok[ID](A, S, T, E) (holon.rules.disch)
     if "disch" in t and "on" in t and "from" in t:
         return (f"disch_ok[{t['disch']}]({render_term(t['on'])}, {render_term(t['from'])}, "

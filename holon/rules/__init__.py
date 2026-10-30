@@ -87,16 +87,28 @@ INIT_CHAIN_CATALOG_VERSION = "holon-rules/1.6"
 CATALOGS[INIT_CHAIN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[FACT_CATALOG_VERSION].items()}}
 CATALOGS[INIT_CHAIN_CATALOG_VERSION]["PAR"] = {**CATALOGS[FACT_CATALOG_VERSION]["PAR"],
                                                _par_init.SUBFORM: _par_init.PRODUCERS[_par_init.SUBFORM]}
+#   holon-rules/1.11  I86's: the rules of the newest version before it unchanged (the same producer objects), plus SORT's
+#                    payer and conservation, DISCH's keyed_blocking, keyed_external and keyed_external_none, and PAR's
+#                    push (holon.rules.bundle: the laws of a bundle of linked contracts over the milestone's bundle-laws
+#                    sidecar, run by derive's bundle part, _bundle_part); M3 and later. 1.7-1.10 are I71's, I29's, I35's
+#                    and I84's: whichever lands after this one is chained by whoever merges second.
+from . import bundle as _bundle  # noqa: E402
+BUNDLE_CATALOG_VERSION = "holon-rules/1.11"
+_BUNDLE_BASE = max((v for v in CATALOGS if v.startswith("holon-rules/1.")),
+                   key=lambda v: tuple(int(x) for x in v.split("/")[1].split(".")))
+CATALOGS[BUNDLE_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_BUNDLE_BASE].items()}
+for _sub, _rule in _bundle.RULE_SUBFORMS.items():
+    CATALOGS[BUNDLE_CATALOG_VERSION].setdefault(_rule, {})[_sub] = _bundle.PRODUCERS[_sub]
 
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.6 for the typed target milestones (M3 and
-    later: I27's UNDO, I31's DISCH, I26's FACT and I28's PAR/init_chain); holon-rules/1.2 for the typed test milestones
+    """The rule-catalog version a milestone derives with: holon-rules/1.11 for the typed target milestones (M3 and
+    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain and I86's bundle sub-forms); holon-rules/1.2 for the typed test milestones
     (T<n> with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A
     test milestone's catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return INIT_CHAIN_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return BUNDLE_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -293,6 +305,8 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
     try:
         for rule in _typed_rules(catalog):
             for sub in sorted(catalog[rule]):
+                if getattr(catalog[rule][sub], "bundle", False):   # derive's bundle part runs these (I86)
+                    continue
                 pairs += catalog[rule][sub].produce(ctx)
     except (_sort.SortRuleError, _undo.UndoError, _fact.FactError) as e:
         raise DeriveError(str(e)) from e
@@ -685,6 +699,35 @@ def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
     return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
 
 
+def _bundle_part(milestone: str, root: Path, cv: str) -> dict | None:
+    """derive's part for the bundle sub-forms (I86, holon.rules.bundle), when the catalog holds them and the milestone
+    has a bundle-laws sidecar: every bundle producer of the catalog, in sub-form order, over the bundle's documents,
+    read through its own input list (DERIVATION.json lists it). Returns the laws, their DERIVATION entries, the inputs
+    read and the documents' sha256, or None."""
+    from ..gen import refs as R
+    prods = [(sub, (CATALOGS[cv].get(rule) or {}).get(sub)) for sub, rule in _bundle.RULE_SUBFORMS.items()]
+    prods = [(sub, p) for sub, p in prods if p is not None]
+    if not prods or not _bundle.has_sidecar(root, milestone):
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for _sub, prod in sorted(prods):
+            pairs += prod(ctx)
+    except (_bundle.BundleLawError, KeyError, ValueError) as e:
+        raise DeriveError(f"the bundle laws: {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
 def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
                     codecs: list[str] | None = None, assignment: str | None = None, sidecar: str | None = None,
                     disch: str | None = None, undo_sidecar: str | None = None,
@@ -725,8 +768,11 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
     init = _init_chain_part(milestone, root, cv) if not given else None
     if init is not None:
         inputs.files.update(init["inputs"].files)
+    bpart = _bundle_part(milestone, root, cv) if not given else None
+    if bpart is not None:
+        inputs.files.update(bpart["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed, init):
+    for part in (par, typed, init, bpart):
         if part is None:
             continue
         for lid, law in part["laws"].items():

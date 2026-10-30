@@ -1,0 +1,58 @@
+{
+  "facts": "gen/M3/bundle/documents/messenger.json",
+  "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner",
+  "milestone": "M3",
+  "notes": "the forall-negation of keyed_external (an existential law is never REFUTED); messenger:keyed_external_none:l1crossdomainmessenger_226_18a62741:onlyOwner",
+  "rule": "DISCH",
+  "rule_catalog_version": "holon-rules/1.11",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "k",
+        "q": "forall",
+        "type": "Word"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "at": {
+            "var": "k"
+          },
+          "bundle": "messenger:keyed_external_none:l1crossdomainmessenger_226_18a62741:onlyOwner",
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "keyed_external_none"
+}

@@ -5656,6 +5656,257 @@
         ],
         "disclosure": "P2, P3 and P4 count toward prediction accuracy: nobody computed their outcomes before this commit. P1 is recorded, not counted: the author read most of what decides it (observed_before_prereg). I87 builds machinery, so most of its claims are construction checks (R1-R13). A miss in any prediction is reported as a miss, never fixed by changing the policy or the instrument after the outcome."
       }
+    },
+    "I86": {
+      "title": "= I36b: Bundle I's laws over the current deployment, over I69's extraction: rule catalog holon-rules/1.11 adds SORT payer (O29: a fee waiver keyed on the principal that bears the cost), SORT conservation (O30 and D8's inflow half: every inflow accounted for), DISCH keyed_blocking, keyed_external and keyed_external_none (O34's replay budget and D9's relay at most once, guards that read a mapping at a key computed from the inputs) and PAR push (D7: the Merkle check's truncated index pushed through the leaf under CF); model3 pays the messenger's model debt (abi.encodeWithSignature, Verify.sol's fold); the laws are decided by the pinned Bend over I69's member models, witnesses come from I69's corpus and replay on the real bundle; Q28's BMC reruns with the queue linked. Laws that need I68's structural keys are predicted UNKNOWN, naming I68 (the coordinator's ruling).",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I86)",
+      "prompt": "prompts/I86_bundle_laws.md",
+      "predictions": [
+        {
+          "id": "I86-P1",
+          "claim": "DB1 pays the messenger's model debt: after `holon bundle model` (DB3), gen/M3/bundle/models/models.json lists no debt of the messenger and exactly the queue's four (thresholds.queue_debt); the messenger's model defines run_<a> for the five actions I69 left as debt (thresholds.messenger_debt_paid), holds no escape hatch, and on I69's corpus (`holon bundle refine`, M4) no messenger step is model debt and no step of those five actions disagrees with the real code but in I69's 'no return data' class (status, revert key, every touched slot and the logs agree). Decided on I69's re-made outputs, which are not I86's outcome paths (I69's own commits write them after this prereg, prereg rule 4); I86-R2 checks that I86's own commits re-made them. Derivation: model3 already builds selectors and ABI head/tail encodings for calls, loops with carried names and packed hashing of typed words; the first GenError of each debt action is the construct DB1 adds.",
+          "check": "tests_m3/test_bundle_laws.py::TestDebt::test_p1_the_messengers_model_compiles_and_refines"
+        },
+        {
+          "id": "I86-P2",
+          "claim": "BUILD_PLAN I36's O29 (whitepaper §7.5, Appendix A F8): L_sort_payer_L1CrossDomainMessenger_replayMessage_201 is REFUTED by a kernel-checked counter-law whose witness comes from I69's corpus (W1-W4: a replayMessage frame that succeeds with a caller other than its _from), and the witness replays on the real bundle: the frame succeeds, and the real queue's estimateCrossDomainMessageFee for the caller differs from its estimate for the key (_from) at the frame's pre-state (RP2). Derivation: replayMessage prices the replay with estimateCrossDomainMessageFee(_from, _newGasLimit) and takes the payment from msg.value; I69's seed trace S1_messaging (an input of I69's prereg) has @w8 replay @w5's message after @w5 is whitelisted and l2BaseFee is 1000, and no replayMessage frame precedes it in corpus order.",
+          "check": "tests_m3/test_bundle_laws.py::TestPayer::test_p2_o29_the_replay_waiver_is_keyed_on_the_origin"
+        },
+        {
+          "id": "I86-P3",
+          "claim": "The two sendMessage payer laws (L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291 and _5f7b1577_291) are PROVED by PY4's proof (their key is the caller term) with a checked reachable inhabitant of their success premise from the corpus (D2). Derivation: _sendMessage prices with estimateCrossDomainMessageFee(_msgSender(), _gasLimit); the corpus's m1 rows send messages that succeed.",
+          "check": "tests_m3/test_bundle_laws.py::TestPayer::test_p3_the_send_waivers_are_keyed_on_the_payer"
+        },
+        {
+          "id": "I86-P4",
+          "claim": "BUILD_PLAN I36's O30 (Appendix A F13): L_sort_cons_Rollup_commitBatch is REFUTED by a kernel-checked counter-law (a reachable Rollup state where commitBatch succeeds with msg.value > 0: the corpus, else W1's value variant of its first successful commitBatch frame), and the witness replays: the real commitBatch succeeds with that value, the Rollup's balance grows by it, and the frame's storage writes equal those of the same frame with value 0. Derivation: commitBatch is payable (Rollup.sol:257) and msg.value reaches no write and no value call of it (CS2: class unaccounted); I69's m1 rows commit with value 0.",
+          "check": "tests_m3/test_bundle_laws.py::TestConservation::test_p4_o30_value_attached_to_commit_is_unaccounted"
+        },
+        {
+          "id": "I86-P5",
+          "claim": "D8's other unaccounted inflows: L_sort_cons_Rollup_receive (the whitepaper's annotated slash receive; its record's triage annotated, CS5) and L_sort_cons_L1CrossDomainMessenger_receive (onlyOwner; not among the whitepaper's D8 exceptions) are each REFUTED by a kernel-checked counter-law and replayed (balance grows, writes equal the value-0 frame's). Derivation: both receives are payable with empty bodies (class unaccounted); the messenger's restricts the caller to the owner, which leaves the inflow unrecorded. The messenger's REFUTED law is a D8 discrepancy against whitepaper §11.6, predicted here.",
+          "check": "tests_m3/test_bundle_laws.py::TestConservation::test_p5_the_receives_are_unaccounted"
+        },
+        {
+          "id": "I86-P6",
+          "claim": "The other five conservation laws are UNKNOWN, each naming its dependencies (CS4): L_sort_cons_Rollup_challengeState and L_sort_cons_Submitter_stake name I68 (msg.value is credited to a mapping cell: challenges, stakeOf); L_sort_cons_L1CrossDomainMessenger_replayMessage and both sendMessage laws name outflow (msg.value is forwarded by value calls the M3 model does not record). Each records its search bound (no witness in the corpus or the value variants) and that no proof was attempted. D8 as a whole is therefore UNKNOWN (with its debit half not stated by I86).",
+          "check": "tests_m3/test_bundle_laws.py::TestConservation::test_p6_the_other_inflows_are_unknown_with_their_dependencies"
+        },
+        {
+          "id": "I86-P7",
+          "claim": "BUILD_PLAN I36's 'O34 ... the owner strategy PROVED' (whitepaper §5.7, the replay budget, external: owner): L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner is PROVED by a kernel-checked witness from the corpus (an onlyOwner frame after which a key's replay budget, exhausted before it, is no longer exhausted) and its forall twin L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner is REFUTED by the same witness; the witness replays: the guarded replayMessage at the key reverts at the budget check before the owner's step and passes it after. Derivation: updateMaxReplayTimes (onlyOwner) is the only live writer of maxReplayTimes, and I69's S1_messaging raises it to 4 after three replays of one message.",
+          "check": "tests_m3/test_bundle_laws.py::TestKeyed::test_p7_o34_the_owner_can_raise_the_replay_budget"
+        },
+        {
+          "id": "I86-P8",
+          "claim": "BUILD_PLAN I36's 'O34 blocking PROVED' is predicted UNKNOWN by the coordinator's ruling: L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone is UNKNOWN, naming I68 (it frames replayStates at a quantified key under the quantified keccak table), with no witness in the corpus and no proof attempted.",
+          "check": "tests_m3/test_bundle_laws.py::TestKeyed::test_p8_o34_blocking_waits_on_i68"
+        },
+        {
+          "id": "I86-P9",
+          "claim": "BUILD_PLAN I36's 'D9 PROVED' (relay at most once) is predicted UNKNOWN by the coordinator's ruling: the keyed obligation at L1CrossDomainMessenger.sol:141 has two blocked classes (anyone, onlyOwner: no live writer sets finalizedWithdrawals back) and no discharging one, and both L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone and _onlyOwner are UNKNOWN, naming I68, with no witness in the corpus and no proof attempted.",
+          "check": "tests_m3/test_bundle_laws.py::TestKeyed::test_p9_d9_relay_at_most_once_waits_on_i68"
+        },
+        {
+          "id": "I86-P10",
+          "claim": "BUILD_PLAN I36's 'D7 PROVED through injective pushing under CF (I25)': L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154 (the candidate I25 deferred to I36: the Merkle fold reads bits 0..31 of _nonce) is PROVED by PP5's proof (core_inj_push's step, then congruence) with a checked inhabitant of its premises (x1 = x2), so the leaf binds the index's whole 32-byte field, not only its low 32 bits.",
+          "check": "tests_m3/test_bundle_laws.py::TestPush::test_p10_d7_the_leaf_binds_the_whole_index"
+        },
+        {
+          "id": "I86-P11",
+          "claim": "Q28's BMC rerun over the linked queue (docs/HUMAN_ANSWERS.md Q28; Q1-Q5): the three callok targets (commitBatch :263#0, commitState :281#0, commitBatchWithProof :393#0) are no_path (the queue's view never reverts), and the delay guards commitBatch#...Rollup.sol:265#1 and commitBatchWithProof#...Rollup.sol:398#1 ('l1msg delay', unreachable under I40's empty queue) are path, each replayed on the real bundle (a message enqueued through the messenger, the delay elapsed, a commit with no L1 message reverts at the guard).",
+          "check": "tests_m3/test_bundle_laws.py::TestQ28::test_p11_bmc_over_the_linked_queue"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I86-R1",
+          "claim": "DB2: the adopted Rollup's typed M3 model regenerates byte for byte, its untyped M3 model's sha256 is thresholds.rollup_untyped_model_sha256, `holon bundle2 model --check` (I80's router) passes, I69's queue, whitelist and Submitter models keep the sha256 of I69's models record (thresholds.i69_model_sha256), and `holon bundle model --check` reproduces the re-made record.",
+          "check": "tests_m3/test_bundle_laws.py::TestDebt::test_r1_earlier_models_compile_byte_for_byte"
+        },
+        {
+          "id": "I86-R2",
+          "claim": "Judged one by one against its first parent, no own commit changes a frozen root, an earlier M3 law but in rule_catalog_version, or an earlier M3 record's status; at end every record directly under results/M1, results/M2 and results/T32 carries a generator_sha256 other than at the prereg (re-made: holon/sorts/model3.py and holon/rules/ are in their closures).",
+          "check": "tests_m3/test_bundle_laws.py::TestRegressions::test_r2_own_commits_move_no_earlier_outcome"
+        },
+        {
+          "id": "I86-R3",
+          "claim": "holon audit prereg passes for M2 and M3 (tested). On CI, on the build head: gate-M0, gate-M1 and gate-M2 pass; gate-M3-partial and gate-M3-G2 fail only on the base's items (G11V's in-flight clause since I28's build); the frozen suite, freeze-check and both audits pass.",
+          "check": "tests_m3/test_bundle_laws.py::TestRegressions::test_r3_the_prereg_audits_pass"
+        },
+        {
+          "id": "I86-R4",
+          "claim": "The lines I86's own commits add under holon/ name no contract, distinctive function or storage name, or address of the target outside comments and docstring openings: every one comes from the documents, the declaration or the sidecars.",
+          "check": "tests_m3/test_bundle_laws.py::TestRegressions::test_r4_the_new_code_names_no_target"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/bundle_laws/",
+        "results/M3/bundle_laws/",
+        "replay/M3/bundle_laws/",
+        "laws/M3/L_sort_payer_",
+        "laws/M3/L_sort_cons_",
+        "laws/M3/L_disch_kblk_",
+        "laws/M3/L_disch_kext_",
+        "laws/M3/L_disch_knoext_",
+        "laws/M3/L_par_push_",
+        "results/M3/L_sort_payer_",
+        "results/M3/L_sort_cons_",
+        "results/M3/L_disch_kblk_",
+        "results/M3/L_disch_kext_",
+        "results/M3/L_disch_knoext_",
+        "results/M3/L_par_push_",
+        "gen/M3/laws/L_sort_payer_",
+        "gen/M3/laws/L_sort_cons_",
+        "gen/M3/laws/L_disch_kblk_",
+        "gen/M3/laws/L_disch_kext_",
+        "gen/M3/laws/L_disch_knoext_",
+        "gen/M3/laws/L_par_push_",
+        "gen/M3/proofs/L_sort_payer_",
+        "gen/M3/proofs/L_sort_cons_",
+        "gen/M3/proofs/L_disch_kblk_",
+        "gen/M3/proofs/L_disch_kext_",
+        "gen/M3/proofs/L_disch_knoext_",
+        "gen/M3/proofs/L_par_push_",
+        "gen/M3/L_sort_payer_",
+        "gen/M3/L_sort_cons_",
+        "gen/M3/L_disch_kblk_",
+        "gen/M3/L_disch_kext_",
+        "gen/M3/L_disch_knoext_",
+        "gen/M3/L_par_push_",
+        "docs/iterations/I86.md"
+      ],
+      "tests": [
+        "tests_m3/test_bundle_laws.py"
+      ],
+      "thresholds": {
+        "base": "92c98e40b17a8bdbe516c67e46190098a898f270 (the lead after I80, I81 and I72's build), with BUILD_PLAN's row I86 committed before this commit",
+        "base_commit": "92c98e40b17a8bdbe516c67e46190098a898f270",
+        "i69_rev": "6576c56a0cad786f9a1cbf6afb2b44ac0e0c0594",
+        "i69_note": "I69 (PR #52) has not merged at the base; the basis reads I69's outputs (gen/M3/bundle/) from its pushed head i69_rev. The build starts after I69 merges; TestInstrument recomputes the basis from the merged tree.",
+        "catalog": "holon-rules/1.11",
+        "catalog_note": "1.7 is I71's, 1.8 I29's, 1.9 I35's, 1.10 I84's; C1 chains 1.11 to the newest version at the build's base",
+        "instrument": "tests_m3/_i86.py",
+        "instrument_sha256": "08457234c30ed460ac32c4b5a71d8eb104f4eac741b5efc3a58b7eb55aa4662d",
+        "contract_docstring_sha256": "9dbefd1e6a2e27aeef8eedb52a2ae799264951d60bccf00c6cf6fb03de6ca55d",
+        "sidecar": "spec/M3/lib/bundle_laws.json",
+        "sidecar_sha256": "a17b8b246e3f7e243acba169d078fc96ad589e9f53655e72b2b8468bc7ee6525",
+        "basis": "spec/M3/lib/bundle_laws_basis.json",
+        "basis_sha256": "7446b68db5d4ff9e009b30b7bb7197db73ef504091eb6b64d80066d9dc7347ee",
+        "rollup_untyped_model_sha256": "df4a6c73802ff45053eee00b8ebeb590fccd260e68d8387de31fc66cbd0eb15c",
+        "i69_model_sha256": {
+          "queue": "99d7c0213411227b8122bd608e879165b49236e5c61d02c23bee19a593773a1b",
+          "submitter": "5baac692c64ddb11417555155b57711988b6bf2b951e2f72de809e4e5ce7ab08",
+          "whitelist": "c67e38492a0fd2101ae9206e3bb15ea3283d354efe25c105c3e44bffe2bb120e"
+        },
+        "queue_debt": [
+          "appendCrossDomainMessage",
+          "appendEnforcedTransaction",
+          "computeTransactionHash",
+          "getCrossDomainMessage"
+        ],
+        "messenger_debt_paid": [
+          "proveAndRelayMessage",
+          "replayMessage",
+          "sendMessage_5f7b1577",
+          "sendMessage_b2267a7b",
+          "verifyMerkleProof"
+        ],
+        "law_ids": {
+          "conservation": [
+            "L_sort_cons_L1CrossDomainMessenger_receive",
+            "L_sort_cons_L1CrossDomainMessenger_replayMessage",
+            "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577",
+            "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b",
+            "L_sort_cons_Rollup_challengeState",
+            "L_sort_cons_Rollup_commitBatch",
+            "L_sort_cons_Rollup_receive",
+            "L_sort_cons_Submitter_stake"
+          ],
+          "keyed_blocking": [
+            "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone",
+            "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_onlyOwner",
+            "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone"
+          ],
+          "keyed_external": [
+            "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner"
+          ],
+          "keyed_external_none": [
+            "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner"
+          ],
+          "payer": [
+            "L_sort_payer_L1CrossDomainMessenger_replayMessage_201",
+            "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291",
+            "L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291"
+          ],
+          "push": [
+            "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154"
+          ]
+        },
+        "expected_status": {
+          "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone": "UNKNOWN",
+          "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_onlyOwner": "UNKNOWN",
+          "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone": "UNKNOWN",
+          "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner": "PROVED",
+          "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner": "REFUTED",
+          "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154": "PROVED",
+          "L_sort_cons_L1CrossDomainMessenger_receive": "REFUTED",
+          "L_sort_cons_L1CrossDomainMessenger_replayMessage": "UNKNOWN",
+          "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577": "UNKNOWN",
+          "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b": "UNKNOWN",
+          "L_sort_cons_Rollup_challengeState": "UNKNOWN",
+          "L_sort_cons_Rollup_commitBatch": "REFUTED",
+          "L_sort_cons_Rollup_receive": "REFUTED",
+          "L_sort_cons_Submitter_stake": "UNKNOWN",
+          "L_sort_payer_L1CrossDomainMessenger_replayMessage_201": "REFUTED",
+          "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291": "PROVED",
+          "L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291": "PROVED"
+        },
+        "i68_dependent": [
+          "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone",
+          "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_onlyOwner",
+          "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone",
+          "L_sort_cons_Rollup_challengeState",
+          "L_sort_cons_Submitter_stake"
+        ],
+        "outflow_dependent": [
+          "L_sort_cons_L1CrossDomainMessenger_replayMessage",
+          "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577",
+          "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b"
+        ],
+        "coordinator_ruling": "2026-10-30, from the lead session: I68 (Q21's structural storage keys) is several hours away and lands after I35; predict every I68-dependent law UNKNOWN, naming I68 in the key; predict the laws that do not need I68 normally.",
+        "q28_paths": [
+          "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:265#1",
+          "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:398#1"
+        ],
+        "counted_predictions": [
+          "I86-P1",
+          "I86-P2",
+          "I86-P3",
+          "I86-P4",
+          "I86-P5",
+          "I86-P6",
+          "I86-P7",
+          "I86-P8",
+          "I86-P9",
+          "I86-P10",
+          "I86-P11"
+        ],
+        "construction_checks": "the instruments' pins and the basis's recomputation (TestInstrument), the catalog and the law ids (test_c1, test_c2), PP6's index field (test_pp6), and inside each decided law's test the G11 law name and the Bend re-check",
+        "build_plan_mapping": {
+          "O29": "I86-P2 (REFUTED); I86-P3 for the two keyed-on-the-payer siblings",
+          "O34 blocking": "I86-P8 (UNKNOWN, I68: the coordinator's ruling)",
+          "O34 owner strategy": "I86-P7 (keyed_external PROVED, keyed_external_none REFUTED)",
+          "D7": "I86-P10 (PROVED through core_inj_push under CF)",
+          "D9": "I86-P9 (UNKNOWN, I68: the coordinator's ruling)",
+          "O30": "I86-P4 (REFUTED)",
+          "D8": "I86-P5 (the exceptions REFUTED: the annotated slash receive and the messenger's owner receive) and I86-P6 (the other inflow laws UNKNOWN); D8 as a whole UNKNOWN; its debit half not stated (prompt, Deviations)",
+          "Q28 BMC rerun": "I86-P11",
+          "stand-in label (Q12)": "not applicable to the current deployment (no legacy staking contract; I70's)",
+          "O13, O20 economic half": "I70 (= I36c)",
+          "model debt (I69-P5's messenger part)": "I86-P1"
+        }
+      }
     }
   }
 }

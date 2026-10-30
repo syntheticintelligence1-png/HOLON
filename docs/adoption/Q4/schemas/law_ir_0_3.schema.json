@@ -397,6 +397,9 @@
     },
     {
      "$ref": "#/$defs/t_init"
+    },
+    {
+     "$ref": "#/$defs/t_bundle"
     }
    ]
   },
@@ -1009,6 +1012,49 @@
      "$ref": "#/$defs/term"
     },
     "from": {
+     "$ref": "#/$defs/term"
+    },
+    "env": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_bundle": {
+   "type": "object",
+   "required": [
+    "bundle"
+   ],
+   "additionalProperties": false,
+   "description": "a bundle-law term (I86, holon.rules.bundle): the id <member>:<sub-form>:<site>[:<class>] of a site of the bundle's laws (SORT payer and conservation, DISCH keyed_blocking, keyed_external and keyed_external_none, PAR push) applied to the law's binders: the Bool claim of the sub-form over its member's law model and claims module, rendered bundle_ok[ID](..); with premise, one of the law's premises (ok: the step's checks hold; enc: a push law's leaf preimage; leaf: its leaf), rendered bundle_<premise>[ID](..); its statement ref bundle:ID hashes the site recomputed from the milestone's bundle-laws sidecar, declaration and documents (holon.gen.refs)",
+   "properties": {
+    "bundle": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_]+:(payer|conservation|keyed_blocking|keyed_external|keyed_external_none|push):[A-Za-z0-9_]+(:[A-Za-z0-9_]+)?$"
+    },
+    "premise": {
+     "enum": [
+      "ok",
+      "enc",
+      "leaf"
+     ]
+    },
+    "on": {
+     "oneOf": [
+      {
+       "$ref": "#/$defs/term"
+      },
+      {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/term"
+       }
+      }
+     ]
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    },
+    "at": {
      "$ref": "#/$defs/term"
     },
     "env": {

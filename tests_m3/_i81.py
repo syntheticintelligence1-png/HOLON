@@ -314,7 +314,9 @@ def persistence_of(law: dict, root: Path = ROOT) -> str:
     if law["rule"] == "PAR" and not any(b.get("type") == "Reach" for b in st.get("binders") or []):
         return "code"
     if law["rule"] == "DISCH":
-        did = st["claim"]["eq"][0]["disch"]
+        did = st["claim"]["eq"][0].get("disch")
+        if not isinstance(did, str):   # amended (spec/M3/amendments.jsonl, I86): a keyed DISCH law states a bundle
+            return "undecided"         # term, no disch term, so no I32 class of a basis element decides it
         _model, sub, tag, cls = did.split(":")
         entries = load(root / "gen" / M / "disch" / "classification.json")["entries"]
         mine = [e for e in entries if e["tag"] == tag and (sub != "blocking" or e["class"] == cls)]

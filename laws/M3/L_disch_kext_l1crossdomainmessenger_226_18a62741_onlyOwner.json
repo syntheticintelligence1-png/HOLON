@@ -1,0 +1,58 @@
+{
+  "facts": "gen/M3/bundle/documents/messenger.json",
+  "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner",
+  "milestone": "M3",
+  "notes": "external dependence at a key: a reachable state where the blocked condition holds at k and a successful step of the class after which it does not; messenger:keyed_external:l1crossdomainmessenger_226_18a62741:onlyOwner",
+  "rule": "DISCH",
+  "rule_catalog_version": "holon-rules/1.11",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "exists",
+        "type": "Reach"
+      },
+      {
+        "name": "k",
+        "q": "exists",
+        "type": "Word"
+      },
+      {
+        "name": "a",
+        "q": "exists",
+        "type": "Act"
+      },
+      {
+        "name": "keccak256",
+        "q": "exists",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "at": {
+            "var": "k"
+          },
+          "bundle": "messenger:keyed_external:l1crossdomainmessenger_226_18a62741:onlyOwner",
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "keyed_external"
+}

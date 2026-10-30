@@ -752,6 +752,39 @@ def adopted_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, by
     return out
 
 
+def bundle_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, bytes, dict]]:
+    """(path, bytes, document) of every transitions document a law of the milestone's bundle laws is over (I86): the
+    members of the bundle declaration beside the corpus spec/<gm>/lib/bundle_laws.json names, each document the
+    facts of one of the milestone's bundle laws (laws/<gm>/DERIVATION.json entries with a member)."""
+    side = root / "spec" / gm / "lib" / "bundle_laws.json"
+    der = root / "laws" / gm / "DERIVATION.json"
+    if not side.exists() or not der.exists():
+        return []
+    sc = inp.read_json(side)
+    corpus = ((sc.get("witnesses") or {}).get("corpus") if isinstance(sc, dict) else None)
+    if not isinstance(corpus, str):
+        return []
+    decl_p = root / Path(corpus).parent / "bundle.json"
+    if not decl_p.is_file():
+        return []
+    decl = inp.read_json(decl_p)
+    dv = json.loads(der.read_text(encoding="utf-8"))
+    facts = {e.get("facts") for e in dv.get("laws") or [] if isinstance(e, dict) and e.get("member")}
+    out = []
+    for m in decl.get("members") or []:
+        rel = ((m.get("document") or {}).get("path") if isinstance(m, dict) else None)
+        if not isinstance(rel, str) or rel not in facts:
+            continue
+        raw = inp.read_bytes(root / rel)
+        try:
+            d = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError) as e:
+            raise EvidenceError(f"{rel}: not JSON ({e})") from e
+        if isinstance(d, dict) and d.get("facts_version") == FACTS03:
+            out.append((rel, raw, d))
+    return sorted(out, key=lambda x: x[0])
+
+
 def versioned_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, bytes, dict, dict]]:
     """(path, bytes, document, anchors) of the versioned document spec/<gm>/lib/versions.json writes (I28,
     holon.versions), anchors only: the transitions anchors of its versions' documents (each one the sidecar's
@@ -918,6 +951,20 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
                        "diagram": None, "anchors": an}
         if diagrams is None and re.fullmatch(r"M\d+", milestone or ""):   # I72: E2 over the document (rule Z4)
             atoms += transitions_atoms(key, d)
+    # I86: the documents of the milestone's bundle laws that are not models yet (bundle_documents), no diagram,
+    # anchors only
+    for rel, raw, d in (bundle_documents(gm, root, inp) if adopted and milestone is not None else []):
+        key = Path(rel).name[:-len(".json")]
+        if any(x.get("facts") == rel for x in models.values()):
+            continue
+        if key in models:
+            raise EvidenceError(f"two documents share the model name {key}")
+        try:
+            an = transitions_anchors(d)
+        except (KeyError, TypeError) as e:
+            raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
+        models[key] = {"facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(), "facts_version": FACTS03,
+                       "diagram": None, "anchors": an}
     # I28: the milestone's versioned document, no diagram, anchors only (versioned_documents)
     for rel, raw, d, an in (versioned_documents(gm, root, inp) if adopted and milestone is not None else []):
         key = Path(rel).name[:-len(".json")]

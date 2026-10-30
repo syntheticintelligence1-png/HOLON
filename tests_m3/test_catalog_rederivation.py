@@ -63,9 +63,10 @@ class TestCatalogRederivation(unittest.TestCase):
         """F30's bump (holon-rules/1.1 -> 1.2) has one line per PAR law; every later bump's lines (F39: I27, I31 and
         I26 bumped the catalog again) are lines of the same kind, each between the two catalogs its sides name. The PAR
         laws are those over the linked codec document (I67's laws over a Go-op document, derived after F30, have no F30
-        line)."""
+        line; nor has I86's push law over a bundle member's document: amended at I86's build)."""
         par = sorted(p.stem for p in (ROOT / "laws" / "M3").glob("L_par_*.json")
-                     if not str(json.loads(p.read_text()).get("facts") or "").startswith("gen/M3/goops/"))
+                     if not str(json.loads(p.read_text()).get("facts") or "").startswith("gen/M3/goops/")
+                     and json.loads(p.read_text()).get("subform") != "push")
         self.assertEqual(len(par), 80)
         f30 = [e for e in self.lines if (e["old_catalog"], e["new_catalog"]) == (OLD_CATALOG, NEW_CATALOG)]
         self.assertEqual(sorted(e["law_id"] for e in f30), par)

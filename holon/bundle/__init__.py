@@ -1,6 +1,7 @@
 """A bundle of linked contracts (the bundle contract: the docstring of tests_m3/test_bundle_extraction.py).
 
   python -m holon bundle extract|model|corpus|refine|history|fetch|timeline [--milestone M3] [--root DIR] [--check]
+  python -m holon bundle laws|replay-laws|bmc [--milestone M3] [--root DIR] [--check]   (I86: the bundle's laws)
 
 A milestone's bundle sidecar (spec/<M>/lib/bundle.json) names the members (one adopted transitions document, the
 others extracted from their sources), the wiring a deployment sets (which storage or immutable variable of a member
@@ -141,7 +142,7 @@ def write_or_check(ctx: Ctx, files: dict, check: bool, owned: list | None = None
     return 0
 
 
-STEPS = ("extract", "model", "corpus", "refine", "history", "fetch", "timeline")
+STEPS = ("extract", "model", "corpus", "refine", "history", "fetch", "timeline", "laws", "replay-laws", "bmc")
 
 
 def main(argv=None) -> int:
@@ -171,6 +172,16 @@ def main(argv=None) -> int:
         if a.step == "refine":
             from . import refine
             return refine.main(ctx, a.check, log, jobs=a.jobs)
+        if a.step == "laws":             # I86: the laws' analysis, claims modules and the adopted member's law model
+            from . import laws
+            return laws.main(ctx, a.check, log)
+        if a.step == "replay-laws":      # I86: the witnesses of the bundle's laws on the real bundle
+            from . import replay_laws
+            return replay_laws.main(ctx, a.check, log, jobs=a.jobs)
+        if a.step == "bmc":              # I86: Q28's BMC over the linked queue (rules Q1-Q5), not built
+            raise Refused("Q28's BMC over the linked queue (tests_m3/test_bundle_laws.py rules Q1-Q5) is not built: "
+                          "the queue's storage in the BMC state, its programs answering the adopted member's calls "
+                          "and the enqueue move are missing from holon.bmc (docs/iterations/I86.md, Not done)")
         from . import acquire
         return getattr(acquire, f"main_{a.step}")(ctx, a.check, log)
     except (Refused, FRefused) as e:

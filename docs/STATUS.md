@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 24 | 154 | 129 | 24 |
+| M3 | 25 | 165 | 133 | 24 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -71,6 +71,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I81 | M3 | I81 (= I44a): Def 6.13's measures (holon/measures.py, one interface over PAR's holonomy defect size, NAT's naturality d… | `prompts/I81_measures_ranking.md` | 7 | 7 | 1 | `docs/iterations/I81.md` |
 | I82 | M3 | I82 (= I46a): the blind pack, the comparison generator and the agreement metric (I46 keeps its number for the blind rer… | `prompts/I82_blind_tooling.md` | 9 | 4 | 1 | `docs/iterations/I82.md` |
 | I85 | M3 | = I39a: the Go derivation extracted (ParseBatch as an extracted consumer: I18's skeleton document of node/derivation pl… | `prompts/I85_derivation_extraction.md` | 6 | 4 | 1 | `docs/iterations/I85.md` |
+| I86 | M3 | = I36b: Bundle I's laws over the current deployment, over I69's extraction: rule catalog holon-rules/1.11 adds SORT pay… | `prompts/I86_bundle_laws.md` | 11 | 4 | 1 | none |
 | I87 | M3 | I87 (= I45a): the audit-loop machinery (round records with the auditor's family, Q9's labels and the convergence rule, … | `prompts/I87_audit_loop.md` | 4 | 13 | 1 | `docs/iterations/I87.md` |
 
 ## Reports without a predictions key

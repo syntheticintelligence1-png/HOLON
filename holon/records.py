@@ -214,6 +214,7 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
         out += _goops_bundles(Path(root), facts_path)
         out += _window_bundles(Path(root), facts_path)
         out += _versions_bundles(Path(root), facts_path)
+        out += _bundle_member_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
     for i, b in enumerate(out):
         for x in exts:
@@ -298,6 +299,57 @@ def _window_bundles(root: Path, facts_path) -> list[dict]:
     rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
         else str(facts_path)
     return [{**b, "facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest()}]
+
+
+def _bundle_member_bundles(root: Path, facts_path) -> list[dict]:
+    """I86 (tests_m3/test_bundle_laws.py, rule RC1): the bundle of a bundle member's document (a generated transitions
+    document beside its bundle's declaration, <dir>/documents/<member>.json and <dir>/bundle.json: I69's extraction),
+    generated, never hand-written: the bundle of the same bundle's adopted member document (the declaration's member
+    with no generated sidecar, as the ledger registers it now), whose generator and declared assumptions the member
+    document shares, re-keyed to the member document's path and sha256, each declared entry's source pointing at the
+    member document's own assumption of the same id and text. [] for any other document, when the member document
+    declares other assumptions than the adopted one, and when the ledger has no bundle for the adopted document as it
+    is now."""
+    p = Path(root) / facts_path
+    decl_p = p.parent.parent / "bundle.json"
+    if p.suffix != ".json" or p.parent.name != "documents" or not p.is_file() or not decl_p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+        decl = json.loads(decl_p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not p.resolve().is_relative_to(Path(root).resolve()):
+        return []
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix()
+    members = [m for m in decl.get("members") or [] if isinstance(m, dict)] if isinstance(decl, dict) else []
+    if not any((m.get("document") or {}).get("path") == rel and m.get("sidecar") is not None for m in members):
+        return []
+    adopted = [m for m in members if m.get("sidecar") is None]
+    if len(adopted) != 1:
+        return []
+    arel = (adopted[0].get("document") or {}).get("path")
+    try:
+        araw = (Path(root) / arel).read_bytes()
+        adoc = json.loads(araw)
+    except (OSError, ValueError, TypeError):
+        return []
+    a_sha = hashlib.sha256(araw).hexdigest()
+    base = [b for b in all_bundles(root) if b.get("facts") == arel and b.get("facts_sha256") == a_sha]
+    mine = doc.get("assumptions") if isinstance(doc, dict) else None
+    if len(base) != 1 or not isinstance(mine, list) or mine != adoc.get("assumptions"):
+        return []
+    b = base[0]
+    entries = []
+    for e in b["entries"]:
+        src = str(e.get("source") or "")
+        if src.startswith(f"{arel}#/assumptions/"):
+            e = dict(e, source=f"{rel}#/assumptions/{src.rsplit('/', 1)[1]}")
+        entries.append(e)
+    return [dict(b, facts=rel, facts_sha256=hashlib.sha256(raw).hexdigest(), entries=entries,
+                 doc=f"I86: generated from the bundle of {arel}, the adopted member of the same bundle "
+                     "(holon.records._bundle_member_bundles); the member document declares the same assumptions")]
 
 
 def _versions_bundles(root: Path, facts_path) -> list[dict]:
