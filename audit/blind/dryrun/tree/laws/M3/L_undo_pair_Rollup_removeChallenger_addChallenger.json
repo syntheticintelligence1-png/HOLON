@@ -1,0 +1,71 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_undo_pair_Rollup_removeChallenger_addChallenger",
+  "milestone": "M3",
+  "notes": "after a call x of removeChallenger and a call y of addChallenger, both succeeding and restoring every register the pair restores, every trace t observes the same outputs as from the state before x (App. F's undo law; Thm 6.9); undo morph_rollup.extracted:pair:removeChallenger:addChallenger",
+  "rule": "UNDO",
+  "rule_catalog_version": "holon-rules/1.6",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "y",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "t",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            },
+            {
+              "var": "y"
+            },
+            {
+              "var": "t"
+            },
+            {
+              "var": "keccak256"
+            }
+          ],
+          "undo": "morph_rollup.extracted:pair:removeChallenger:addChallenger"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "pair"
+}

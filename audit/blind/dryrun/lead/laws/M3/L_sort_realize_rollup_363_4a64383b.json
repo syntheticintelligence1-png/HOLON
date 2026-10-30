@@ -1,0 +1,50 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sort_realize_rollup_363_4a64383b",
+  "milestone": "M3",
+  "notes": "every hit of the realization of a signed difference is Some (Thm 6.18: the sign obligation as a hole-free coercion premise at its site); coercion morph_rollup.extracted:realize:contracts/contracts/l1/rollup/Rollup.sol:363:4a64383b",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.6",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "coerce": "morph_rollup.extracted:realize:contracts/contracts/l1/rollup/Rollup.sol:363:4a64383b",
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "realize"
+}
