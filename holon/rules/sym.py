@@ -4,14 +4,16 @@
 Basis (holon.sym's analysis of a typed milestone's facts and sort assignment):
 
   tau        an action whose guards, writes, returns or checks read block.timestamp or a storage family holding a Time
-             word: L_sym_tau_<contract>_<action>; binders s: Reach, x: Act, d: Nat.
+             word: law id <prefix>tau_<contract>_<action>; binders s: Reach, x: Act, d: Nat.
   pi         an action and a set role it is gated by (the role's predicate), writes (the role's register) or reads (a
-             member or scalar read of the role's register): L_sym_pi_<contract>_<action>_<role>; binders s: Reach,
+             member or scalar read of the role's register): <prefix>pi_<contract>_<action>_<role>; binders s: Reach,
              x: Act, a: Word, b: Word.
-  omega      an eligible pair (a, b), a < b: L_sym_omega_<contract>_<a>_<b>; binders s: Reach, x: Act, y: Act.
+  omega      an eligible pair (a, b), a < b: <prefix>omega_<contract>_<a>_<b>; binders s: Reach, x: Act, y: Act.
   sentinel   a Time sentinel register and one of its non-literal write sites:
-             L_sym_sentinel_<contract>_<register, "." as "_">_<action>_<first line of the site's span>; binders s: Reach,
+             <prefix>sentinel_<contract>_<register, "." as "_">_<action>_<first line of the site's span>; binders s: Reach,
              x: Act.
+
+<prefix> is LAW_PREFIX, "L_sym_": a law id is the prefix, the sub-form and the basis words joined by "_" (law_id()).
 
 Statement (holon-ir/0.3, facts: the typed document): the claim {"sym": <sym id>, "on": [binders]} == true, the sym id
 "<model>:<subform>:<basis words joined by ':'>". The generated section (holon.gen.symsec) gives the term its meaning:
@@ -33,6 +35,7 @@ from .. import sym as S
 ROOT = Path(__file__).resolve().parents[2]
 RULE = "SYM"
 SUBFORMS = ("tau", "pi", "omega", "sentinel")
+LAW_PREFIX = "L_sym_"
 TEMPLATE_VERSION = 1
 
 
@@ -93,6 +96,11 @@ def _line(src) -> str:
     return m.group(1) if m else "x"
 
 
+def law_id(sub: str, *words) -> str:
+    """The law id of a basis element: LAW_PREFIX, the sub-form and the words, joined by "_"."""
+    return LAW_PREFIX + "_".join([sub, *[str(w) for w in words]])
+
+
 def elements(facts: dict, assignment: dict, doc_rel: str) -> list:
     """The basis elements, sorted by law id: {law_id, subform, sym_id, basis}."""
     model, contract = model_of(doc_rel), _contract(facts)
@@ -106,21 +114,21 @@ def elements(facts: dict, assignment: dict, doc_rel: str) -> list:
     if fam["tau"]["status"] == "admitted":
         for a in acts:
             if _touches_time(facts, a, assignment):
-                add(f"L_sym_tau_{contract}_{a['name']}", "tau", [a["name"]],
+                add(law_id("tau", contract, a["name"]), "tau", [a["name"]],
                     {"action": a["name"], "time_words": fam["tau"]["time_words"]})
     if fam["pi"]["status"] == "admitted":
         for role in fam["pi"]["roles"]:
             for a in acts:
                 if _role_touched(facts, a, role):
-                    add(f"L_sym_pi_{contract}_{a['name']}_{role}", "pi", [a["name"], role],
+                    add(law_id("pi", contract, a["name"], role), "pi", [a["name"], role],
                         {"action": a["name"], "role": role})
     if fam["omega"]["status"] == "admitted":
         for x, y in fam["omega"]["pairs"]:
-            add(f"L_sym_omega_{contract}_{x}_{y}", "omega", [x, y], {"a": x, "b": y})
+            add(law_id("omega", contract, x, y), "omega", [x, y], {"a": x, "b": y})
     for sn in S.sentinels(facts, assignment):
         for site in sn["sites"]:
             reg = sn["register"]
-            add(f"L_sym_sentinel_{contract}_{reg.replace('.', '_')}_{site['action']}_{_line(site['src'])}", "sentinel",
+            add(law_id("sentinel", contract, reg.replace(".", "_"), site["action"], _line(site["src"])), "sentinel",
                 [reg, site["action"], _line(site["src"])],
                 {"register": reg, "constant": sn["constant"], "action": site["action"], "src": site["src"],
                  "compares": sn["compares"]})

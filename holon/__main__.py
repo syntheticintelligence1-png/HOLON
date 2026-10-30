@@ -119,9 +119,10 @@ def _untyped_laws(argv: list) -> bool:
         return False
     entries = {e.get("law_id"): e for e in dv.get("laws") or [] if isinstance(e, dict)}
     typed_subforms = ("as_member", "realize", "reinterpret")
-    # rules UNDO (I27) and FACT (I26) are decided on the typed model too (holon.undo.run, holon.fact.run)
+    # rules UNDO (I27), FACT (I26) and SYM (I34) are decided on the typed model too (holon.undo.run, holon.fact.run,
+    # holon.symd.run)
     return all(i in entries and not (entries[i].get("rule") == "SORT" and entries[i].get("subform") in typed_subforms)
-               and entries[i].get("rule") not in ("UNDO", "FACT") for i in ids)
+               and entries[i].get("rule") not in ("UNDO", "FACT", "SYM") for i in ids)
 
 
 def _disch_milestone(argv: list) -> bool:

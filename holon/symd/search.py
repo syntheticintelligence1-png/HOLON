@@ -47,6 +47,23 @@ class SymSearch(US.UndoSearch):
         super().__init__(model_f, doc, sorts, budget, log=log, accept=accept, deadline=deadline)
         self.fn = fn
         self.races: list = []
+        base = self.ref.successors
+
+        def successors(g, trace, entry, limit, *a, **k):
+            """The refuter's successors, a step whose bytes arguments the model's hints answer generically replaced by
+            its variant on byte strings the deployment's recorded calls carried, when that variant succeeds: only
+            such a prefix can run on the deployment (every witness's prefix is replayed there)."""
+            out = []
+            for t2, g2 in base(g, trace, entry, limit, *a, **k):
+                st = t2[-1]
+                vs = self.byte_variants(g, trace, st.action, [st])
+                if vs:
+                    self.m.drop([g2] + [h for _c, h in vs[1:]])
+                    out.append((list(t2[:-1]) + [vs[0][0]], vs[0][1]))
+                else:
+                    out.append((t2, g2))
+            return out
+        self.ref.successors = successors
 
     def accepted(self, w: dict) -> bool:
         why = None if self.accept is None else self.accept(w)

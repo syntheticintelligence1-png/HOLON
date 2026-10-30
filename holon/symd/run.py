@@ -402,6 +402,8 @@ class Decider:
                "hashes": {h: [["0x" + k[2:], "0x%064x" % v] for k, v in sorted((tables.get(h) or {}).items())]
                           for h in ("keccak256", "sha256")}}
         sub = el["subform"]
+        if w.get("codes"):
+            out["codes"] = list(w["codes"])
         if sub == "tau":
             out["d"] = int(w["d"])
         elif sub == "pi":
@@ -519,8 +521,30 @@ class Decider:
                              if rep else {"status": "not_applicable", "detail": "no binding: no real side"})
         else:
             rec["replay"] = {"status": "not_applicable", "detail": f"{status}: no witness to replay"}
-        return rec, rep, [dict(r, x=self.steps_json(sc, [r["x"]])[0], y=self.steps_json(sc, [r["y"]])[0],
-                               prefix=self.steps_json(sc, r["prefix"])) for r in races]
+        return rec, rep, [{"law_id": r["law"], "a": r["a"], "b": r["b"], "disabled": r["disabled"], "code": r["code"],
+                           "witness": {"prefix": self.steps_json(sc, r["prefix"]), "x": self.steps_json(sc, [r["x"]])[0],
+                                       "y": self.steps_json(sc, [r["y"]])[0]}} for r in races]
+
+    def site_of(self, el: dict, sc: SymCtx, witness: dict) -> str | None:
+        """The comparison of a Time word against a constant a REFUTED tau witness crosses (J7, P5), as "<action>:<where>"
+        (a guard's src, or "returns" for a view's): the guard whose check fails in one run alone when the two runs' check
+        codes differ, else the action's only such comparison, else its view's return."""
+        a = el["basis"]["action"]
+        tw = set(R.S.time_words(sc.assignment, sc.doc))
+        sites = sorted({f"{act}:{where}" for act, where, _op, path, _c in R.S.constant_compares(sc.doc)
+                        if act == a and f"storage:{path}" in tw})
+        codes = (witness or {}).get("codes") or []
+        act = next((x for x in sc.doc.get("actions") or [] if x["name"] == a), {})
+        if len(codes) == 2 and codes[0] != codes[1]:
+            failing = max(codes)
+            guards = act.get("guards") or []
+            if 0 < failing <= len(guards):
+                cand = f"{a}:{guards[failing - 1].get('src') or 'guard'}"
+                if cand in sites:
+                    return cand
+        if len(sites) == 1:
+            return sites[0]
+        return f"{a}:returns" if f"{a}:returns" in sites else None
 
     def record(self, law: dict, e: dict, el: dict, sc: SymCtx, status: str, witness: dict | None, attempts: list,
                lp: Path, prim: dict | None, bound: str | None, diag: str | None, nv: dict | None) -> dict:
@@ -552,7 +576,8 @@ class Decider:
                "triage": "finding" if status == "REFUTED" else "none",
                "replay": {"status": "not_run", "detail": ""}, "attempts": attempts, "rule": R.RULE,
                "subform": sub, "sym": {"subform": sub, "sym_id": el["sym_id"], "basis": el["basis"],
-                                       "section": SS.SECTION_VERSION, "notes": list(sc.notes)},
+                                       "section": SS.SECTION_VERSION, "notes": list(sc.notes),
+                                       **({"site": self.site_of(el, sc, witness)} if sub == "tau" and witness else {})},
                "witness": witness, "bound": bound}
         if status == "REFUTED":
             rec["difference"] = {"lhs": False, "rhs": True}
@@ -588,48 +613,53 @@ class Decider:
 
 # ------------------------------------------------------------------------------------------------ splits and requests
 def families_doc(m: str, root: Path) -> dict:
-    """results/<M>/sym/<family>.json contents per family: A_eq, A_break (witness, the site or principal localized),
-    A_unknown, per role (pi) or "time" (tau)."""
+    """{family: [split]} of results/<M>/sym/<family>.json (J8): one split per role (pi) or one for the clock (tau),
+    {role, eq (PROVED), break (REFUTED), unknown, witnesses: {action: (law, witness, the site or principal it
+    localizes)}}."""
     out: dict = {}
     for p in sorted((root / "results" / m).glob("L_sym_*.json")):
         r = json.loads(p.read_text())
         sub = r.get("subform")
         if sub not in SPLIT:
             continue
-        b = (r.get("sym") or {}).get("basis") or {}
-        group = b.get("role") if sub == "pi" else "time"
-        row = out.setdefault(sub, {}).setdefault(group, {"A_eq": [], "A_break": [], "A_unknown": []})
+        sy = r.get("sym") or {}
+        b = sy.get("basis") or {}
+        role = b.get("role") if sub == "pi" else None
+        rows = out.setdefault(sub, {})
+        row = rows.setdefault(role, {"role": role, "eq": [], "break": [], "unknown": [], "witnesses": {}})
         a = b.get("action")
         if r["status"] == "PROVED":
-            row["A_eq"].append(a)
+            row["eq"].append(a)
         elif r["status"] == "REFUTED":
-            row["A_break"].append({"action": a, "law": r["law_id"], "witness": r.get("witness"),
-                                   "localizes": (f"principal {b.get('role')}" if sub == "pi" else "a Time comparison")})
+            row["break"].append(a)
+            row["witnesses"][a] = {"law": r["law_id"], "witness": r.get("witness"),
+                                   "localizes": sy.get("site") if sub == "tau" else f"principal {role}"}
         else:
-            row["A_unknown"].append(a)
-    return out
+            row["unknown"].append(a)
+    return {sub: [dict(v, eq=sorted(v["eq"]), unknown=sorted(v["unknown"]), **{"break": sorted(v["break"])})
+                  for _k, v in sorted(rows.items(), key=lambda kv: str(kv[0]))] for sub, rows in out.items()}
 
 
 def write_splits(m: str, root: Path, races: list) -> None:
     d = root / "results" / m / "sym"
     d.mkdir(parents=True, exist_ok=True)
     fams = families_doc(m, root)
-    for fam in ("tau", "pi"):
-        doc = {"document": "sym_split", "milestone": m, "family": fam, "groups": fams.get(fam, {})}
+    for fam in SPLIT:
+        doc = {"document": "sym_split", "milestone": m, "family": fam, "splits": fams.get(fam, [])}
         (d / f"{fam}.json").write_text(dumps(doc), encoding="utf-8")
-        for group, row in sorted(fams.get(fam, {}).items()):
-            if row["A_break"] and (row["A_eq"] or row["A_unknown"]):
+        for sp in fams.get(fam, []):
+            if sp["break"]:
                 ad = root / "audit" / "sym_adjudications"
                 ad.mkdir(parents=True, exist_ok=True)
-                req = {"split": f"{fam}_{group}", "eq": sorted(row["A_eq"]),
-                       "break": sorted(x["action"] for x in row["A_break"]),
+                key = f"{fam}_{sp['role'] or 'time'}"
+                req = {"split": key, "eq": sp["eq"], "break": sp["break"],
                        "hypotheses": ["minority deviates", "majority deviates"], "answer": None}
-                (ad / f"{fam}_{group}.json").write_text(dumps(req), encoding="utf-8")
+                (ad / f"{key}.json").write_text(dumps(req), encoding="utf-8")
     rp = d / "races.json"
     cur = json.loads(rp.read_text()) if rp.is_file() else {"document": "sym_races", "milestone": m, "races": []}
-    keep = {r["law"]: r for r in cur.get("races") or []}
+    keep = {r["law_id"]: r for r in cur.get("races") or []}
     for r in races:
-        keep[r["law"]] = {k: v for k, v in r.items()}
+        keep[r["law_id"]] = r
     rp.write_text(dumps(dict(cur, races=[keep[k] for k in sorted(keep)])), encoding="utf-8")
 
 
