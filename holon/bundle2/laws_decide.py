@@ -694,7 +694,7 @@ class Decider:
                         break
                 if len(found) == len(lids):
                     break
-                self.log(f"  public_input: {d} {len(cands)} candidates, decided {sorted(found)}")
+                dc.log(f"  public_input: depth {d}, {len(cands)} candidates, decided {sorted(found)}")
         except (US.Budget, US.TimeBox) as ex:
             stop = f"{type(ex).__name__}"
         res = {}
