@@ -107,10 +107,11 @@ class Forge:
         return {k: self.tc[k] for k in ("forge_sha256", "sol_deps_sha256", "solc_sha256") if k in self.tc}
 
     # ------------------------------------------------------------------ concrete traces (the law replay harness)
-    def traces(self, traces: list, jobs: int = 2, tag: str = "laws") -> list:
+    def traces(self, traces: list, jobs: int = 2, tag: str = "laws", per: int = 1) -> list:
         """Each trace (a list of concrete calls {"to": 1 (member 0) | 2 (member 1), "caller", "value", "timestamp",
-        "data", "blobs"}) through the law replay harness from a fresh laws' deployment each; the parsed runs
-        (holon.bundle2.harness.B2Run), in trace order. A trace with no call records the deployment alone."""
+        "data", "blobs"}) through the law replay harness from a fresh laws' deployment each (per traces to a forge run,
+        at most jobs runs at a time); the parsed runs (holon.bundle2.harness.B2Run), in trace order. A trace with no
+        call records the deployment alone."""
         import json
         from . import harness as H
         datas: list = []
@@ -128,7 +129,8 @@ class Forge:
                 rows.append([100, caller, int(c.get("value") or 0), int(c.get("timestamp") or 0), int(c["to"]),
                              index[d], len(blobs)] + blobs)
             rows_of.append(rows)
-        parts = [(i, i + 1) for i in range(len(rows_of))]
+        per = max(1, int(per))
+        parts = [(i, min(i + per, len(rows_of))) for i in range(0, len(rows_of), per)]
         runs: list = [None] * len(rows_of)
         pending = []
         for k, (a, b) in enumerate(parts):

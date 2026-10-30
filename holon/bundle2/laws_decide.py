@@ -19,7 +19,11 @@ gen/<M>/proofs/<id>/witness/PROOF.bend a counter-law's proof, and the record res
                    message count drawn from the search's value sets), the action's candidates at each, bucketed by the
                    public input the model computes (fx_pi); the first bucket holding two field values (fx_fh, fx_fv)
                    whose pair the model's fact_<x> finds false and the real side accepts (both runs succeed on the laws'
-                   deployment, each step's external calls answered as the deployment answers them leave fact_<x> false)
+                   deployment, each step's external calls answered as the deployment answers them leave fact_<x> false).
+                   A pair the deployment refuses at a run's last step is repaired, at most MAX_REPAIRS times per law:
+                   the same single-leaf variant of both last steps (a leaf outside the value sets, at S1's values:
+                   FACT's variants1), every pair that still witnesses on the model run on the deployment in one batch,
+                   the first it accepts in variant order taken
   self_controlled  D4: uncalibrated: UNKNOWN; calibrated and k*_model within o35.kernel_budget_steps: the strategy (the
                    S1 step of the first action that writes the count's families, repeated k*_model times from the
                    deployment, then the action's S1 step and its single-leaf variants), the first candidate at which
@@ -256,42 +260,31 @@ class BSearch(FSR.FactSearch):
                 self.n += 1
                 yield t2, g2
 
-    def candidates(self, g: str, trace: list, a: str, wide: bool = False) -> list:
-        """The action's candidate steps at g: S1's step and its variants over the focus value sets; with wide, then
-        each succeeding single-leaf variant of S1's step at a leaf outside the focus (FACT's variants1: S1's value
-        sets) and its variants over the focus value sets, in that order, each step once."""
+    def candidates(self, g: str, trace: list, a: str) -> list:
+        """The action's candidate steps at g: S1's step and its variants over the focus value sets, each once."""
         st = self.synth(g, a, trace)
         self.tick()
         out, seen = [], set()
         if st is None:
             return out
-
-        def add(c) -> None:
+        for c in [US.fresh_step(st)] + self.variants(g, trace, st):
             if c.key() not in seen and self.succeeds(g, c):
                 seen.add(c.key())
                 out.append(c)
-        first = US.fresh_step(st)
-        add(first)
-        for c in self.variants(g, trace, st):
-            add(c)
-        if not wide:
-            return out
+        return out
+
+    def leaf_variants(self, g: str, trace: list, st: S3.Step) -> dict:
+        """st's single-leaf variants outside the focus value sets (FACT's variants1: S1's value sets at g), keyed by the
+        leaves each changes with their new values, in variant order."""
         state, pools = self.ref.pools(g, trace)
         sy = S3.Synth(self.m, pools, 0)
-        focus = {leaf for leaf, _t, _v in self.focus_leaves(sy, a)}
-        for v in self.variants1(g, trace, first):
-            if v.key() in seen:
-                continue
-            changed = [leaf for leaf, _ty in sy.leaves(a) if leaf not in focus and _leaf_value(v, leaf) !=
-                       _leaf_value(first, leaf)]
-            if not changed:
-                continue
-            v = US.fresh_step(v)
-            if not self.succeeds(g, v):
-                continue
-            add(v)
-            for c in self.variants(g, trace, v):
-                add(c)
+        focus = {leaf for leaf, _t, _v in self.focus_leaves(sy, st.action)}
+        leaves = [leaf for leaf, _ty in sy.leaves(st.action)]
+        out: dict = {}
+        for v in self.variants1(g, trace, st):
+            ch = tuple((leaf, _leaf_value(v, leaf)) for leaf in leaves if _leaf_value(v, leaf) != _leaf_value(st, leaf))
+            if ch and not any(leaf in focus for leaf, _v in ch):
+                out.setdefault(ch, US.fresh_step(v))
         return out
 
     def x0(self, g: str, st: S3.Step) -> dict:
@@ -477,6 +470,8 @@ def claim_counter_proof(dc: DCtx, law: dict, d: Path, li: str, prefix: list, sta
 
 CHECK_TIMEOUT = 900       # seconds of bend2 per proof file (holon.bend's default is 180: a loaded machine needs more)
 MAX_REJECTED = 6          # counter-laws the kernels do not both accept before a search stops (each is an attempt)
+MAX_REPAIRS = 6           # model witnesses refused at a last step that a public_input search tries to repair, per law
+REPAIR_BATCH = 128        # repaired witness pairs run on the deployment in one batch (at most)
 
 
 def check(p: Path) -> tuple[dict, str]:
@@ -681,24 +676,24 @@ class Decider:
         found: dict = {}
         refused = {lid: [] for lid in lids}
         counters = {lid: [] for lid in lids}
-        self.bad_runs = {}   # a run (its steps' keys) the deployment refused: every pair holding it is refused
+        repairs = {lid: 0 for lid in lids}
+        self.bad_runs = {}    # a run prefix the deployment refused (its steps' keys): every run holding it is refused
+        self.real_cache = {}  # the deployment's run of a trace (its steps' keys)
+        self.leaf_cache = {}  # a step's single-leaf variants at a state
         t0 = time.time()
-        cands = []           # (trace, g, st) of every succeeding candidate, in order
+        cands = []            # (trace, g, st) of every succeeding candidate, in order
         stop = None
         try:
             for d, trace, g in S.states(a):
-                for st in S.candidates(g, trace, a, wide=True):
+                for st in S.candidates(g, trace, a):
                     S.tick()
-                    S.m.run_step(g, st, save=False)
-                    pi = S.o.word(f"fx_pi_{LC.fact_x(lids[0])}", [S.x0(g, st)])
+                    pi = self.pi_word(S, lids[0], g, st)
                     cands.append((trace, g, st))
                     for lid in lids:
                         if lid in found:
                             continue
                         x = LC.fact_x(lid)
-                        fh = S.o.word(f"fx_fh_{x}", [S.x0(g, st)])
-                        fv = S.o.word(f"fx_fv_{x}", [S.x0(g, st)]) if fh else None
-                        fval = None if not fh else fv
+                        fval = self.field_word(S, lid, g, st)
                         b = buckets[lid].setdefault(pi, [])
                         for (t1, g1, s1, f1) in b:
                             if f1 == fval:
@@ -708,7 +703,14 @@ class Decider:
                                 continue
                             w = {"runs": [{"prefix": list(t1), "x": s1}, {"prefix": list(trace), "x": st}],
                                  "pi": pi, "field": [f1, fval]}
-                            why, w2 = self.accept_pi(lid, w)
+                            why, w2, at_x = self.accept_pi(lid, w)
+                            if why is not None and at_x and repairs[lid] < MAX_REPAIRS:
+                                repairs[lid] += 1
+                                why2, w3 = self.repair_pi(S, lid, w, g1, g)
+                                if why2 is None:
+                                    why, w2 = None, w3
+                                else:
+                                    why = f"{why}; repaired: {why2}"
                             if why is not None:
                                 refused[lid].append(why)
                                 continue
@@ -739,7 +741,8 @@ class Decider:
                      f"({getattr(S, 'visited', 0)} states visited), "
                      f"{len(cands)} succeeding candidates of {a} bucketed by the public input (versions "
                      f"{focus['versions']}, last block numbers {focus['last_block_numbers']}, L1 message counts "
-                     f"{focus['num_l1_messages']}); {len(refused[lid])} model witnesses refused by the real side; "
+                     f"{focus['num_l1_messages']}); {len(refused[lid])} model witnesses refused by the real side "
+                     f"({repairs[lid]} repairs tried, at most {MAX_REPAIRS}); "
                      f"{nrej} counter-laws the kernels did not both accept" + (f"; stopped: {stop}" if stop else ""))
             attempts = [{"kind": "refute", "engine": "holon.bundle2.laws_decide (FP3)", "found": rec is not None,
                          "bound": bound, "seconds": round(time.time() - t0, 1), "refused": refused[lid][:8]}]
@@ -751,10 +754,42 @@ class Decider:
                 res[lid] = rec
         return res
 
-    def accept_pi(self, lid: str, w: dict) -> tuple[str | None, dict]:
+    @staticmethod
+    def pi_word(S: BSearch, lid: str, g: str, st: S3.Step):
+        """E4's hash argument of the action at (g, st) on the model (its tables filled by the step's own run)."""
+        S.m.run_step(g, st, save=False)
+        return S.o.word(f"fx_pi_{LC.fact_x(lid)}", [S.x0(g, st)])
+
+    @staticmethod
+    def field_word(S: BSearch, lid: str, g: str, st: S3.Step):
+        """The law's field: the decoder's read of the parent header input, None when the header is too short."""
+        x = LC.fact_x(lid)
+        fh = S.o.word(f"fx_fh_{x}", [S.x0(g, st)])
+        return S.o.word(f"fx_fv_{x}", [S.x0(g, st)]) if fh else None
+
+    def real_runs(self, traces: list) -> list:
+        """The deployment's run of each trace (the law replay harness, from a fresh deployment each), cached by the
+        trace's steps; every trace not yet run goes to forge in one batch."""
+        dc = self.dc
+        keys = [tuple(st.key() for st in t) for t in traces]
+        todo, seen = [], set()
+        for i, k in enumerate(keys):
+            if k not in self.real_cache and k not in seen:
+                seen.add(k)
+                todo.append(i)
+        if todo:
+            m = dc.factory()
+            calls = [[real_call(s) for s in steps_json(dc, m, traces[i])] for i in todo]
+            per = max(1, -(-len(calls) // 2))
+            runs = dc.forge().traces(calls, jobs=2, tag="pi", per=per)
+            for i, r in zip(todo, runs):
+                self.real_cache[keys[i]] = r
+        return [self.real_cache[k] for k in keys]
+
+    def accept_pi(self, lid: str, w: dict) -> tuple[str | None, dict, bool]:
         """The real side: both runs succeed on the laws' deployment; each step's external calls answered as the
         deployment answers them, the model still finds fact_<x> false; the public input each run passes to the callee
-        (from the call's calldata) is recorded."""
+        (from the call's calldata) is recorded. The third value says whether a refusal is at a run's last step."""
         dc = self.dc
         m = dc.factory()
         traces = [list(r["prefix"]) + [r["x"]] for r in w["runs"]]
@@ -762,12 +797,11 @@ class Decider:
         for j, k in enumerate(keys):
             for n in range(1, len(k) + 1):
                 if k[:n] in self.bad_runs:
-                    return f"run {j + 1}: {self.bad_runs[k[:n]]} (refused before)", w
-        sjs = [steps_json(dc, m, t) for t in traces]
+                    return f"run {j + 1}: {self.bad_runs[k[:n]]} (refused before)", w, n == len(k)
         try:
-            runs = dc.forge().traces([[real_call(s) for s in sj] for sj in sjs], jobs=2, tag="pi")
+            runs = self.real_runs(traces)
         except Exception as ex:  # noqa: BLE001
-            return f"the real side cannot run it: {type(ex).__name__}: {str(ex)[:160]}", w
+            return f"the real side cannot run it: {type(ex).__name__}: {str(ex)[:160]}", w, False
         reps = []
         for j, run in enumerate(runs):
             execs = [e for e in run.execs if e.id != "d"]
@@ -775,7 +809,7 @@ class Decider:
             if bad:
                 pre = keys[j][:bad[0] + 1]   # every run that starts with these steps reverts there too
                 self.bad_runs[pre] = f"step {bad[0]} ({traces[j][bad[0]].action}) reverts on the deployment"
-                return f"run {j + 1}: {self.bad_runs[pre]}", w
+                return f"run {j + 1}: {self.bad_runs[pre]}", w, bad[0] == len(keys[j]) - 1
             member = run.members[0]
             reps.append([with_calls(st, raw_calls(execs[i], member)) for i, st in enumerate(traces[j])])
         x = LC.fact_x(lid)
@@ -785,11 +819,11 @@ class Decider:
             for st in rep[:-1]:
                 code, g, _c = m.run_step(g, st, save=True)
                 if code != 0:
-                    return "with the deployment's call answers a prefix step fails on the model", w
+                    return "with the deployment's call answers a prefix step fails on the model", w, False
             gs.append(g)
         o = US.Obs(m)
         if o.pred(f"fact_{x}", [{"$ref": gs[0]}, m.act(reps[0][-1]), {"$ref": gs[1]}, m.act(reps[1][-1])]):
-            return "with the deployment's call answers the model finds fact true", w
+            return "with the deployment's call answers the model finds fact true", w, False
         pis = []
         from .laws import view_hash_index
         hidx = view_hash_index(dc.L.I, dc.cl.laws[lid])
@@ -800,7 +834,50 @@ class Decider:
             pis.append(("0x" + hits[0][10 + 64 * hidx: 10 + 64 * (hidx + 1)]) if hits else None)
         w2 = {"runs": [{"prefix": rep[:-1], "x": rep[-1]} for rep in reps], "pi": w["pi"], "field": w["field"],
               "real": {"runs": ["ok", "ok"], "pi": pis}}
-        return None, w2
+        return None, w2, False
+
+    def repair_pi(self, S: BSearch, lid: str, w: dict, g1: str, g2: str) -> tuple[str | None, dict | None]:
+        """A model witness whose last step the deployment refuses, tried again with the same single-leaf variant of
+        both runs' last steps (BSearch.leaf_variants: a leaf outside the focus value sets, at S1's values), each pair
+        that still witnesses on the model (both succeed, equal public input, different fields, fact false), at most
+        REPAIR_BATCH of them, run on the deployment in one batch; the first the deployment accepts, in variant order."""
+        x = LC.fact_x(lid)
+        (r1, r2), gs = w["runs"], (g1, g2)
+        maps = []
+        for r, g in zip((r1, r2), gs):
+            k = (g, r["x"].key())
+            if k not in self.leaf_cache:
+                self.leaf_cache[k] = S.leaf_variants(g, list(r["prefix"]), r["x"])
+            maps.append(self.leaf_cache[k])
+        pairs = []
+        for key, v1 in maps[0].items():
+            v2 = maps[1].get(key)
+            if v2 is None:
+                continue
+            S.timebox()
+            if not (S.succeeds(g1, v1) and S.succeeds(g2, v2)):
+                continue
+            pi1, pi2 = self.pi_word(S, lid, g1, v1), self.pi_word(S, lid, g2, v2)
+            if pi1 != pi2:
+                continue
+            f1, f2 = self.field_word(S, lid, g1, v1), self.field_word(S, lid, g2, v2)
+            if f1 == f2 or S.o.pred(f"fact_{x}", [{"$ref": g1}, S.m.act(v1), {"$ref": g2}, S.m.act(v2)]):
+                continue
+            pairs.append({"runs": [{"prefix": list(r1["prefix"]), "x": v1}, {"prefix": list(r2["prefix"]), "x": v2}],
+                          "pi": pi1, "field": [f1, f2]})
+            if len(pairs) >= REPAIR_BATCH:
+                break
+        if not pairs:
+            return f"none of {len(maps[0])} single-leaf variants keeps the model witness", None
+        try:
+            self.real_runs([list(r["prefix"]) + [r["x"]] for p in pairs for r in p["runs"]])
+        except Exception as ex:  # noqa: BLE001
+            return f"the real side cannot run the repairs: {type(ex).__name__}: {str(ex)[:160]}", None
+        for p in pairs:
+            why, w2, _at_x = self.accept_pi(lid, p)
+            if why is None:
+                return None, w2
+        return f"the deployment refuses all {len(pairs)} repaired witnesses", None
 
     def emit_pi(self, lid: str, e: dict, w: dict, attempts: list) -> dict:
         dc = self.dc
