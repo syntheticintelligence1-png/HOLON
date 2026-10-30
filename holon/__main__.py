@@ -225,6 +225,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["bundle2"]:  # likewise for holon.bundle2 (Bundle II's extraction and linked machine, I80)
         from . import bundle2
         return bundle2.main(argv[1:])
+    if argv[:1] == ["derivation"]:  # likewise for holon.derivation (the Go consumer and the product machine, I85)
+        from . import derivation
+        return derivation.main(argv[1:])
     if argv[:1] == ["history"]:  # likewise for holon.frontends.solidity.history (deployment history, I63)
         from .frontends.solidity import history
         return history.main(argv[1:])
