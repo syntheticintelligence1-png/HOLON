@@ -20,10 +20,12 @@ gen/<M>/proofs/<id>/witness/PROOF.bend a counter-law's proof, and the record res
                    public input the model computes (fx_pi); the first bucket holding two field values (fx_fh, fx_fv)
                    whose pair the model's fact_<x> finds false and the real side accepts (both runs succeed on the laws'
                    deployment, each step's external calls answered as the deployment answers them leave fact_<x> false).
-                   A pair the deployment refuses at a run's last step is repaired, at most MAX_REPAIRS times per law:
-                   the same single-leaf variant of both last steps (a leaf outside the value sets, at S1's values:
-                   FACT's variants1), every pair that still witnesses on the model run on the deployment in one batch,
-                   the first it accepts in variant order taken
+                   A pair's two steps are each taken as the deployment accepts them (Decider.validated, once per state
+                   and step): the step itself when its run succeeds there; when it reverts at that step, a single-leaf
+                   variant outside the value sets (S1's values: FACT's variants1) whose run succeeds there and which
+                   succeeds on the model, the (leaf, value) changes that worked before first, then at most
+                   VALIDATE_VARIANTS others, those at a leaf whose value the failing calls carry first; the pair is then
+                   checked again on the model
   self_controlled  D4: uncalibrated: UNKNOWN; calibrated and k*_model within o35.kernel_budget_steps: the strategy (the
                    S1 step of the first action that writes the count's families, repeated k*_model times from the
                    deployment, then the action's S1 step and its single-leaf variants), the first candidate at which
@@ -470,8 +472,8 @@ def claim_counter_proof(dc: DCtx, law: dict, d: Path, li: str, prefix: list, sta
 
 CHECK_TIMEOUT = 900       # seconds of bend2 per proof file (holon.bend's default is 180: a loaded machine needs more)
 MAX_REJECTED = 6          # counter-laws the kernels do not both accept before a search stops (each is an attempt)
-MAX_REPAIRS = 6           # model witnesses refused at a last step that a public_input search tries to repair, per law
-REPAIR_BATCH = 128        # repaired witness pairs run on the deployment in one batch (at most)
+FORGE_PER_RUN = 8         # traces per forge run of the law replay harness (holon.bundle2.laws_forge.Forge.traces)
+VALIDATE_VARIANTS = 32    # single-leaf variants a public_input candidate the deployment refuses is tried with, at most
 
 
 def check(p: Path) -> tuple[dict, str]:
@@ -676,12 +678,13 @@ class Decider:
         found: dict = {}
         refused = {lid: [] for lid in lids}
         counters = {lid: [] for lid in lids}
-        repairs = {lid: 0 for lid in lids}
-        self.bad_runs = {}    # a run prefix the deployment refused (its steps' keys): every run holding it is refused
-        self.real_cache = {}  # the deployment's run of a trace (its steps' keys)
-        self.leaf_cache = {}  # a step's single-leaf variants at a state
+        self.bad_runs = {}     # a run prefix the deployment refused (its steps' keys): every run holding it is refused
+        self.real_cache = {}   # the deployment's run of a trace that succeeds there (its steps' keys)
+        self.valid_cache = {}  # a candidate (state, step) as the deployment accepts it, or None
+        self.learned = []      # the (leaf, value) changes that made a candidate acceptable, in order of discovery
+        self.repaired = 0
         t0 = time.time()
-        cands = []            # (trace, g, st) of every succeeding candidate, in order
+        cands = []             # (trace, g, st) of every succeeding candidate, in order
         stop = None
         try:
             for d, trace, g in S.states(a):
@@ -689,8 +692,9 @@ class Decider:
                     S.tick()
                     pi = self.pi_word(S, lids[0], g, st)
                     cands.append((trace, g, st))
+                    dead = False   # st has no step the deployment accepts: no pair holding it is a witness
                     for lid in lids:
-                        if lid in found:
+                        if lid in found or dead:
                             continue
                         x = LC.fact_x(lid)
                         fval = self.field_word(S, lid, g, st)
@@ -701,18 +705,13 @@ class Decider:
                             act1, act2 = S.m.act(s1), S.m.act(st)
                             if S.o.pred(f"fact_{x}", [{"$ref": g1}, act1, {"$ref": g}, act2]):
                                 continue
-                            w = {"runs": [{"prefix": list(t1), "x": s1}, {"prefix": list(trace), "x": st}],
-                                 "pi": pi, "field": [f1, fval]}
-                            why, w2, at_x = self.accept_pi(lid, w)
-                            if why is not None and at_x and repairs[lid] < MAX_REPAIRS:
-                                repairs[lid] += 1
-                                why2, w3 = self.repair_pi(S, lid, w, g1, g)
-                                if why2 is None:
-                                    why, w2 = None, w3
-                                else:
-                                    why = f"{why}; repaired: {why2}"
+                            w, why, dead = self.valid_pair(S, lid, (t1, g1, s1, f1), (trace, g, st, fval), pi)
+                            if w is not None:
+                                why, w2, _at_x = self.accept_pi(lid, w)
                             if why is not None:
                                 refused[lid].append(why)
+                                if dead:
+                                    break
                                 continue
                             att = []
                             rec = self.emit_pi(lid, dc.cl.laws[lid], w2, att)
@@ -723,7 +722,7 @@ class Decider:
                             if len(counters[lid]) >= MAX_REJECTED:
                                 found[lid] = None
                                 break
-                        if lid not in found:
+                        if lid not in found and not dead:
                             b.append((trace, g, st, fval))
                     if len(found) == len(lids):
                         break
@@ -741,8 +740,9 @@ class Decider:
                      f"({getattr(S, 'visited', 0)} states visited), "
                      f"{len(cands)} succeeding candidates of {a} bucketed by the public input (versions "
                      f"{focus['versions']}, last block numbers {focus['last_block_numbers']}, L1 message counts "
-                     f"{focus['num_l1_messages']}); {len(refused[lid])} model witnesses refused by the real side "
-                     f"({repairs[lid]} repairs tried, at most {MAX_REPAIRS}); "
+                     f"{focus['num_l1_messages']}); {len(self.valid_cache)} candidates run on the deployment "
+                     f"({self.repaired} accepted as a single-leaf variant); {len(refused[lid])} model witnesses refused "
+                     "by the real side; "
                      f"{nrej} counter-laws the kernels did not both accept" + (f"; stopped: {stop}" if stop else ""))
             attempts = [{"kind": "refute", "engine": "holon.bundle2.laws_decide (FP3)", "found": rec is not None,
                          "bound": bound, "seconds": round(time.time() - t0, 1), "refused": refused[lid][:8]}]
@@ -768,8 +768,8 @@ class Decider:
         return S.o.word(f"fx_fv_{x}", [S.x0(g, st)]) if fh else None
 
     def real_runs(self, traces: list) -> list:
-        """The deployment's run of each trace (the law replay harness, from a fresh deployment each), cached by the
-        trace's steps; every trace not yet run goes to forge in one batch."""
+        """The deployment's run of each trace (the law replay harness, from a fresh deployment each); a run that succeeds
+        at every step is kept by the trace's steps, and every trace not kept goes to forge in one batch."""
         dc = self.dc
         keys = [tuple(st.key() for st in t) for t in traces]
         todo, seen = [], set()
@@ -780,10 +780,14 @@ class Decider:
         if todo:
             m = dc.factory()
             calls = [[real_call(s) for s in steps_json(dc, m, traces[i])] for i in todo]
-            per = max(1, -(-len(calls) // 2))
-            runs = dc.forge().traces(calls, jobs=2, tag="pi", per=per)
+            runs = dc.forge().traces(calls, jobs=2, tag="pi", per=FORGE_PER_RUN)
+            fresh = {}
             for i, r in zip(todo, runs):
-                self.real_cache[keys[i]] = r
+                r.code, r.impl = {}, {}   # the members' code is not read again; a batch holds many deployments
+                fresh[keys[i]] = r
+                if all(e.ok for e in r.execs if e.id != "d"):
+                    self.real_cache[keys[i]] = r
+            return [self.real_cache.get(k) or fresh[k] for k in keys]
         return [self.real_cache[k] for k in keys]
 
     def accept_pi(self, lid: str, w: dict) -> tuple[str | None, dict, bool]:
@@ -836,48 +840,105 @@ class Decider:
               "real": {"runs": ["ok", "ok"], "pi": pis}}
         return None, w2, False
 
-    def repair_pi(self, S: BSearch, lid: str, w: dict, g1: str, g2: str) -> tuple[str | None, dict | None]:
-        """A model witness whose last step the deployment refuses, tried again with the same single-leaf variant of
-        both runs' last steps (BSearch.leaf_variants: a leaf outside the focus value sets, at S1's values), each pair
-        that still witnesses on the model (both succeed, equal public input, different fields, fact false), at most
-        REPAIR_BATCH of them, run on the deployment in one batch; the first the deployment accepts, in variant order."""
+    def validated(self, S: BSearch, trace: list, g: str, st: S3.Step):
+        """st as the laws' deployment accepts it after trace, or None (the answer kept per state and step): st itself
+        when its run succeeds there; when that run reverts at st, a single-leaf variant of st outside the search's value
+        sets (BSearch.leaf_variants: S1's value sets at g) whose run succeeds there and which succeeds on the model: first
+        the variants at a (leaf, value) that made an earlier step acceptable, run with st itself; then at most
+        VALIDATE_VARIANTS others, those changing a leaf whose value the reverting step's failing calls carry in their
+        calldata (Decider.carried) first, each group in variant order, 2 * FORGE_PER_RUN runs at a time, the first
+        accepted in that order taken."""
+        k = (g, st.key())
+        if k in self.valid_cache:
+            return self.valid_cache[k]
+        tk = tuple(c.key() for c in trace)
+        out = None
+        if not any(tk[:n] in self.bad_runs for n in range(1, len(tk) + 1)):
+            vmap = S.leaf_variants(g, list(trace), st)
+            learned = [v for ch, v in vmap.items() if ch in self.learned]
+            out, fails, dead = self.first_accepted(S, trace, g, st, [st] + learned)
+            if out is None and not dead and fails is not None:
+                tys = dict(S3.Synth(S.m, S.ref.pools(g, list(trace))[1], 0).leaves(st.action))
+                rest = [(ch, v) for ch, v in vmap.items() if ch not in self.learned]
+                hot = [i for i, (ch, _v) in enumerate(rest) if self.carried(st, ch, tys, fails)]
+                order = hot + [i for i in range(len(rest)) if i not in set(hot)]
+                tries = [rest[i] for i in order][:VALIDATE_VARIANTS]
+                for j in range(0, len(tries), 2 * FORGE_PER_RUN):
+                    chunk = tries[j:j + 2 * FORGE_PER_RUN]
+                    out, _f, dead = self.first_accepted(S, trace, g, st, [v for _ch, v in chunk])
+                    if out is not None:
+                        self.learned.append(next(ch for ch, v in chunk if v is out))
+                    if out is not None or dead:
+                        break
+        self.valid_cache[k] = out
+        if out is not None and out is not st:
+            self.repaired += 1
+        return out
+
+    def first_accepted(self, S: BSearch, trace: list, g: str, st: S3.Step, cs: list) -> tuple:
+        """The runs of trace + [c] for each c in cs on the deployment (one batch): (the first c, in order, whose run
+        succeeds and which succeeds on the model (st itself needs no model check), the calldata of the failing calls of
+        st's own last step when st is in cs and reverts there, whether a step of trace reverts)."""
+        tk = tuple(c.key() for c in trace)
+        fails = None
+        for c, run in zip(cs, self.real_runs([list(trace) + [c] for c in cs])):
+            ex = [e for e in run.execs if e.id != "d"]
+            bad = [i for i, e in enumerate(ex) if not e.ok]
+            if bad and bad[0] < len(trace):   # a prefix step reverts: every candidate at this state reverts there
+                self.bad_runs[tk[:bad[0] + 1]] = f"step {bad[0]} ({trace[bad[0]].action}) reverts on the deployment"
+                return None, None, True
+            if bad:
+                if c is st:
+                    fails = [str(d).lower() for _f, _t, d, _v, ok, _r in ex[-1].calls if not ok]
+                continue
+            if c is st or S.succeeds(g, c):
+                return c, fails, False
+        return None, fails, False
+
+    @staticmethod
+    def carried(st: S3.Step, ch: tuple, tys: dict, fails: list) -> bool:
+        """Whether a leaf the variant changes holds, in st, a value whose ABI form a failing call's calldata carries (a
+        byte string's length word and content; a non-zero static value's word)."""
+        for leaf, _new in ch:
+            v = json.loads(_leaf_value(st, leaf))
+            t = str(tys.get(leaf) or "")
+            pat = None
+            if isinstance(v, str) and v.startswith("0x") and len(v) % 2 == 0:
+                h = v[2:].lower()
+                if t in ("bytes", "string"):
+                    pat = "%064x" % (len(h) // 2) + h
+                elif t.startswith("bytes") and h.strip("0"):
+                    pat = h.ljust(64, "0")
+                elif t == "address" and h.strip("0"):
+                    pat = h.rjust(64, "0")
+            elif isinstance(v, int) and not isinstance(v, bool) and v > 0 and t.startswith(("uint", "int")):
+                pat = "%064x" % v
+            if pat and any(pat in d for d in fails):
+                return True
+        return False
+
+    def valid_pair(self, S: BSearch, lid: str, e1: tuple, e2: tuple, pi) -> tuple[dict | None, str | None, bool]:
+        """A model witness (two bucket entries (trace, state, step, field)) as the deployment accepts it: each step
+        validated (Decider.validated); when either is a variant, the pair checked again on the model (both public
+        inputs equal, the fields different, fact false). The third value says that e2's step has no accepted form."""
         x = LC.fact_x(lid)
-        (r1, r2), gs = w["runs"], (g1, g2)
-        maps = []
-        for r, g in zip((r1, r2), gs):
-            k = (g, r["x"].key())
-            if k not in self.leaf_cache:
-                self.leaf_cache[k] = S.leaf_variants(g, list(r["prefix"]), r["x"])
-            maps.append(self.leaf_cache[k])
-        pairs = []
-        for key, v1 in maps[0].items():
-            v2 = maps[1].get(key)
-            if v2 is None:
-                continue
-            S.timebox()
-            if not (S.succeeds(g1, v1) and S.succeeds(g2, v2)):
-                continue
-            pi1, pi2 = self.pi_word(S, lid, g1, v1), self.pi_word(S, lid, g2, v2)
-            if pi1 != pi2:
-                continue
+        (t1, g1, s1, f1), (t2, g2, s2, f2) = e1, e2
+        v2 = self.validated(S, t2, g2, s2)
+        if v2 is None:
+            return None, "run 2: neither its last step nor a single-leaf variant runs on the deployment", True
+        v1 = self.validated(S, t1, g1, s1)
+        if v1 is None:
+            return None, "run 1: neither its last step nor a single-leaf variant runs on the deployment", False
+        if v1 is not s1 or v2 is not s2:
+            p1, p2 = self.pi_word(S, lid, g1, v1), self.pi_word(S, lid, g2, v2)
             f1, f2 = self.field_word(S, lid, g1, v1), self.field_word(S, lid, g2, v2)
-            if f1 == f2 or S.o.pred(f"fact_{x}", [{"$ref": g1}, S.m.act(v1), {"$ref": g2}, S.m.act(v2)]):
-                continue
-            pairs.append({"runs": [{"prefix": list(r1["prefix"]), "x": v1}, {"prefix": list(r2["prefix"]), "x": v2}],
-                          "pi": pi1, "field": [f1, f2]})
-            if len(pairs) >= REPAIR_BATCH:
-                break
-        if not pairs:
-            return f"none of {len(maps[0])} single-leaf variants keeps the model witness", None
-        try:
-            self.real_runs([list(r["prefix"]) + [r["x"]] for p in pairs for r in p["runs"]])
-        except Exception as ex:  # noqa: BLE001
-            return f"the real side cannot run the repairs: {type(ex).__name__}: {str(ex)[:160]}", None
-        for p in pairs:
-            why, w2, _at_x = self.accept_pi(lid, p)
-            if why is None:
-                return None, w2
-        return f"the deployment refuses all {len(pairs)} repaired witnesses", None
+            if p1 != p2 or f1 == f2:
+                return None, "the accepted variants' public inputs differ or their fields agree", False
+            if S.o.pred(f"fact_{x}", [{"$ref": g1}, S.m.act(v1), {"$ref": g2}, S.m.act(v2)]):
+                return None, "fact holds at the accepted variants", False
+            pi = p1
+        return ({"runs": [{"prefix": list(t1), "x": v1}, {"prefix": list(t2), "x": v2}], "pi": pi, "field": [f1, f2]},
+                None, False)
 
     def emit_pi(self, lid: str, e: dict, w: dict, attempts: list) -> dict:
         dc = self.dc

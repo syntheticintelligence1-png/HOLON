@@ -176,18 +176,19 @@ class BundleLawsGate:
 
     def g9(self):
         from .. import schema as S
-        bad = []
+        bad, n = [], 0
         v1 = json.loads((self.root / "schemas" / "result_record.schema.json").read_text())
         v2 = json.loads((self.root / "spec" / "schemas" / "result_record_v2.schema.json").read_text())
         for lid, r in self.records().items():
             if r is None:
                 continue
+            n += 1
             for name, sch in (("v1", v1), ("v2", v2)):
                 errs = S.errors(r, sch)
                 if errs:
                     bad.append(f"{lid}: {name} {errs[:2]}")
-        self.checks["G9"] = _res(not bad, f"{len(self.entries)} bundle-law records valid under v1 and v2" if not bad
-                                 else "; ".join(bad[:6]))
+        self.checks["G9"] = _res(not bad, f"{n} bundle-law records (of {len(self.entries)} laws) valid under v1 and v2"
+                                 if not bad else "; ".join(bad[:6]))
 
     def run(self, only: list | None) -> None:
         for k in CHECKS:

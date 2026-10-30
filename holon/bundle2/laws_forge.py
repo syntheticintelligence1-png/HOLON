@@ -110,27 +110,31 @@ class Forge:
     def traces(self, traces: list, jobs: int = 2, tag: str = "laws", per: int = 1) -> list:
         """Each trace (a list of concrete calls {"to": 1 (member 0) | 2 (member 1), "caller", "value", "timestamp",
         "data", "blobs"}) through the law replay harness from a fresh laws' deployment each (per traces to a forge run,
-        at most jobs runs at a time); the parsed runs (holon.bundle2.harness.B2Run), in trace order. A trace with no
+        at most jobs runs at a time: the harness holds every trace of a run in memory, and a run of about thirty
+        exceeds forge's memory limit); the parsed runs (holon.bundle2.harness.B2Run), in trace order. A trace with no
         call records the deployment alone."""
         import json
         from . import harness as H
-        datas: list = []
-        index: dict = {}
-        rows_of = []
-        for t in traces:
-            rows = []
-            for c in t:
-                d = str(c["data"]).lower()
-                if d not in index:
-                    index[d] = len(datas)
-                    datas.append(d)
-                blobs = [int(b, 16) if isinstance(b, str) else int(b) for b in c.get("blobs") or []]
-                caller = int(c["caller"], 16) if isinstance(c["caller"], str) else int(c["caller"])
-                rows.append([100, caller, int(c.get("value") or 0), int(c.get("timestamp") or 0), int(c["to"]),
-                             index[d], len(blobs)] + blobs)
-            rows_of.append(rows)
         per = max(1, int(per))
-        parts = [(i, min(i + per, len(rows_of))) for i in range(0, len(rows_of), per)]
+        parts = [(i, min(i + per, len(traces))) for i in range(0, len(traces), per)]
+        rows_of: list = []
+        datas_of: list = []   # each run's own calldata list (the harness parses it again for every trace it runs)
+        for a, b in parts:
+            datas: list = []
+            index: dict = {}
+            for t in traces[a:b]:
+                rows = []
+                for c in t:
+                    d = str(c["data"]).lower()
+                    if d not in index:
+                        index[d] = len(datas)
+                        datas.append(d)
+                    blobs = [int(x, 16) if isinstance(x, str) else int(x) for x in c.get("blobs") or []]
+                    caller = int(c["caller"], 16) if isinstance(c["caller"], str) else int(c["caller"])
+                    rows.append([100, caller, int(c.get("value") or 0), int(c.get("timestamp") or 0), int(c["to"]),
+                                 index[d], len(blobs)] + blobs)
+                rows_of.append(rows)
+            datas_of.append(datas)
         runs: list = [None] * len(rows_of)
         pending = []
         for k, (a, b) in enumerate(parts):
@@ -138,7 +142,7 @@ class Forge:
             fin.write_text(json.dumps({"lens": [len(t) for t in rows_of[a:b]],
                                        "steps": [H._encode(r) for t in rows_of[a:b] for r in t],
                                        "slot_members": [], "slots": [], "init": [int(x) for x in self.init],
-                                       "calldata": datas}))
+                                       "calldata": datas_of[k]}))
             fout.unlink(missing_ok=True)
             env = self.env({"HOLON_STEPS_IN": fin.name, "HOLON_STEPS_OUT": fout.name, "HOLON_LO": 0,
                             "HOLON_HI": b - a})
