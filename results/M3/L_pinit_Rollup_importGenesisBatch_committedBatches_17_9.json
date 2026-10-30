@@ -20,11 +20,11 @@
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 4.698,
+        "seconds": 4.347,
         "verdict": {
           "exit_code": 0,
           "marker": "ALL PROOFS CHECK",
-          "seconds": 14.671
+          "seconds": 12.048
         }
       },
       "evaluator": "the claim is false at the witness",
@@ -36,30 +36,14 @@
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 4.698,
+    "seconds": 4.347,
     "verdict": {
       "exit_code": 0,
       "marker": "ALL PROOFS CHECK",
-      "seconds": 14.671
+      "seconds": 12.048
     }
   },
   "compiled_sha256": "a88a650028b7a2ec1bf0abdcbb7f0602ecae125610381c799d22f58c772dfa35",
-  "concretization": {
-    "bound": null,
-    "kind": "direct",
-    "length": 3,
-    "reason": "the witness is a schedule of public calls (its replay is the record's side)",
-    "result": "path",
-    "sides": {
-      "solidity": {
-        "obstruction_observed": true,
-        "provenance": "public_schedule",
-        "status": "passed"
-      }
-    },
-    "target": null,
-    "tests": []
-  },
   "cone": [
     "HCall",
     "HKB",
@@ -1305,7 +1289,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
   "filter_bin": "finding",
-  "generator_sha256": "0d796563520c407c131ee5f09e0986b3887f27fb2d11bb29212c201d7535af2a",
+  "generator_sha256": "b535b0851a5a79cf340da878d2689dc6ba2a563997ea6fdfd2d1a6ba24db4b5c",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -1345,7 +1329,7 @@
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_pinit_Rollup_importGenesisBatch_committedBatches_17_9/LAWS.bend",
-    "parent_statement_hash": "sha256:dba75639f295544d493e5559239f7742a66f475e505da5fe5db2dae04cbd461d",
+    "parent_statement_hash": "sha256:26fa93b2e66136147b43b5aa225a2c10f260e3f9ddf11e6aa60e0376b0cd1d68",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -1365,9 +1349,9 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 27.052,
+  "seconds": 24.506,
   "statement": "initialization coherence (whitepaper §5.1): when a is a successful call of importGenesisBatch (the root site of the chain committedBatches) at the reachable state s with environment e, the header it commits has cell 17 (shift 192) equal to its cell 9: the running sum the successor sites carry starts at the first header's own increment; init morph_rollup.versions:chain:committedBatches:17:9",
-  "statement_hash": "sha256:dba75639f295544d493e5559239f7742a66f475e505da5fe5db2dae04cbd461d",
+  "statement_hash": "sha256:26fa93b2e66136147b43b5aa225a2c10f260e3f9ddf11e6aa60e0376b0cd1d68",
   "status": "REFUTED",
   "subform": "init_chain",
   "triage": "finding",

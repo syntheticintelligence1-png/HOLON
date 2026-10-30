@@ -23,7 +23,7 @@
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 3.197
+        "seconds": 2.734
       },
       "evaluator": "undo is false at the witness",
       "kind": "counter",
@@ -34,28 +34,9 @@
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 3.197
+    "seconds": 2.734
   },
   "compiled_sha256": "4e09265a9589f841a6be07f0e49578392db721f541373ef8ae97a4b294b120a5",
-  "concretization": {
-    "bound": null,
-    "kind": "direct",
-    "length": 1,
-    "reason": "the witness is a schedule of public calls; its emitted tests are its side",
-    "result": "path",
-    "sides": {
-      "solidity": {
-        "obstruction_observed": true,
-        "provenance": "public_schedule",
-        "status": "passed"
-      }
-    },
-    "target": null,
-    "tests": [
-      "gen/M3/tests/foundry/M3/L_undo_cancel_Rollup_challengeState_setPause__with.t.sol",
-      "gen/M3/tests/foundry/M3/L_undo_cancel_Rollup_challengeState_setPause__without.t.sol"
-    ]
-  },
   "cone": [
     "AR_addChallenger",
     "AR_batchChallengedSuccess",
@@ -2075,7 +2056,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": "finding",
-  "generator_sha256": "42a04bfbd235b12e1959595be6e2fd4bc9a59c47a795c7cbd4b0241ac8febd7d",
+  "generator_sha256": "59febca3262899597b0260eab011a4fef984e362be00f0de324d824bc000c9ab",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -2110,7 +2091,7 @@
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_undo_cancel_Rollup_challengeState_setPause/LAWS.bend",
-    "parent_statement_hash": "sha256:1a76b90415c93cdda84b25ab31b86ab83d082bbde96e7e0333c2030c7240cbf6",
+    "parent_statement_hash": "sha256:b8edc6442a87a86097b2eff06365ce29281b9332b46711170bbe8c0bf8a34032",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -2133,7 +2114,7 @@
     "kind": "unbounded"
   },
   "statement": "after a call x of challengeState and a call y of setPause that cancels it (x succeeding, y succeeding both after x and alone, and restoring every register the cancellation restores), every trace t observes the same outputs as after y alone (the cancellation's undo law); undo morph_rollup.extracted:cancel:challengeState:setPause",
-  "statement_hash": "sha256:1a76b90415c93cdda84b25ab31b86ab83d082bbde96e7e0333c2030c7240cbf6",
+  "statement_hash": "sha256:b8edc6442a87a86097b2eff06365ce29281b9332b46711170bbe8c0bf8a34032",
   "status": "REFUTED",
   "subform": "cancel",
   "triage": "finding",
