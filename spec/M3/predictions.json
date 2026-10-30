@@ -5656,6 +5656,131 @@
         ],
         "disclosure": "P2, P3 and P4 count toward prediction accuracy: nobody computed their outcomes before this commit. P1 is recorded, not counted: the author read most of what decides it (observed_before_prereg). I87 builds machinery, so most of its claims are construction checks (R1-R13). A miss in any prediction is reported as a miss, never fixed by changing the policy or the instrument after the outcome."
       }
+    },
+    "I70": {
+      "title": "= I36c: the cutover x slash laws, O13 and O20's economic half, over the real legacy staking code (Q12): the legacy registry's explorer-verified source compile-matched to its deployed implementation; its model3 model; the Rollup's versioned machine linked with the legacy registry at V10 and the new registry at V11, refined on the real code; and two laws under two new sub-forms (NAT slash, SORT slash) at the one cutover slash site pair the versioned machine's MIG-edge data yields, both predicted REFUTED by a vacuous slash of an in-flight batch, replayed on the real code",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I70)",
+      "prompt": "prompts/I70_cutover_slash.md",
+      "predictions": [
+        {
+          "id": "I70-P1",
+          "claim": "The legacy registry's source is explorer-verified and compile-matched (Q12; rules A1-A3), decided by tests_m3/_i70.py::decide_p1 on the committed explorer record: Etherscan (chain 1) holds a verified source for the registry implementation 0xdb0734109051daab5c32e45e9a5ad0548b2df714 (the implementation of proxy 0x0dc417f8af88388737c5053ff73f345f080543f7 from block 20999722 through the cutover block 26031669, I69's timeline) as contract L1Staking; its source set holds contracts/l1/staking/L1Staking.sol with text equal to v0.6.1's blob 165fec18 (sha256 213211b3...8585); and its sources compiled by the pinned solc with the explorer's recorded settings give L1Staking a runtime code whose identity (I63's rule: immutable ranges zeroed, CBOR metadata stripped) equals the on-chain code's. So the acquisition's label is 'real code, explorer-verified and compile-matched' and no bytecode-level model or stand-in is used. Derivation: I69 matched the on-chain code to the v0.6.1 tag build under the hardhat configuration alone (metadata stripped), the registry was deployed in the hardhat era (every pre-cutover Rollup implementation matched under hardhat), and this prereg assumes, without having queried the explorer, that the launch-era implementations were verified when deployed; the unit is one blob from v0.4.0 to v0.6.1, so a verified source that compiles to that code holds that text. Not read before this prereg: the explorer was not queried.",
+          "check": "tests_m3/test_cutover_slash.py::TestAcquisition::test_p1_the_registry_source_is_verified_and_compile_matched"
+        },
+        {
+          "id": "I70-P2",
+          "claim": "The legacy registry's model (M1-M2): holon cutover model compiles I69's v0.6.1 document of L1Staking with holon.sorts.model3's untyped compiler into gen/M3/cutover/models/l1staking.bend, with no model debt in any action the corpus calls on it (updateWhitelist, register, withdraw, claimWithdrawal, and slash, isActiveStaker, isStaker, getStakerBitmap, verifySignature and the challengeDeposit getter through the Rollup's calls), and on every corpus step whose frames include the registry the model agrees with the real code (status, revert key, return data, the registry's storage at every slot either side writes, its logs): results/M3/cutover/refinement_models.json records l1staking with steps > 0, 0 disagreements and 0 unsupported. Derivation: reading the v0.6.1 source and the document, its constructs are storage dynamic arrays with push and pop (deleteList), a static array of addresses (stakerSet), mappings with address and bytes keys, abi.encodeCall into the messenger and bounded loops, which I69's, I83's and I86's model3 extensions cover or a generic extension of M1 adds; any further construct a corpus action needs is added generically, never left as debt.",
+          "check": "tests_m3/test_cutover_slash.py::TestModelAndLink::test_p2_the_registry_model_compiles_and_refines"
+        },
+        {
+          "id": "I70-P3",
+          "claim": "The linked cutover machine refines the real code (L1-L4): over the sidecar's planted traces T1-T4 (gen/M3/cutover/corpus.json), run on the linked machine (I69's rules L1-L8 with the Rollup member versioned: V10's document until the cutover step, V11's after it; the legacy registry linked at V10, the Submitter at V11) and on the real code (V10's and V11's implementations built from their commits behind one OpenZeppelin 4.9.3 proxy, the v0.6.1 L1Staking behind its own, I69's head members), every step agrees: results/M3/cutover/refinement.json's totals equal the instrument's recount of results/M3/cutover/steps.json, with 0 disagreements and 0 unsupported steps, steps at V10 and at V11, every planted trace present, and ok frames on the four link rows rollup->l1staking, rollup->submitter, l1staking->messenger and l1staking->rollup (the slash's reward transfer to the Rollup's receive). Derivation: the members' documents are the code the harness deploys (I28's per-version extraction, I69's matches), I69's machine refines the head bundle with 0 disagreements, and the versioned member changes only which document answers.",
+          "check": "tests_m3/test_cutover_slash.py::TestModelAndLink::test_p3_the_linked_cutover_machine_refines_the_real_code"
+        },
+        {
+          "id": "I70-P4",
+          "claim": "The generator emits exactly the basis (S1-S4): holon's analysis gen/M3/cutover/slash.json holds the instrument's one site pair (edge V10->V11, op proveState: at V10 the call IL1Staking.slash on the registry word l1StakingContract reading batchDataStore.signedSequencersBitmap, Rollup.sol:837; at V11 ISubmitter.slash on submitterContract reading batchDataStore.submitter, Rollup.sol:806; each credited to batchChallengeReward), and holon derive --milestone M3 writes exactly two slash laws, L_nat_slash_Rollup_V10_V11_proveState (rule NAT, sub-form slash) and L_sort_slash_Rollup_V10_V11_proveState (rule SORT, sub-form slash), each claiming the slash term equal to true. A different site or law count at build time is a miss. Derivation: the instrument's basis over the committed versioned document (computed at the prereg: spec/M3/lib/cutover_slash_basis.json); the only MIG edge with retyped and reinterpreted in-flight types is the cutover, and of the V11 actions with a same-selector V10 action only proveState calls the registry with an in-flight argument and credits the result.",
+          "check": "tests_m3/test_cutover_slash.py::TestLaws::test_p4_the_generator_emits_the_basis"
+        },
+        {
+          "id": "I70-P5",
+          "claim": "O13 (F10): L_nat_slash_Rollup_V10_V11_proveState is REFUTED (S5-S6, RP1-RP2): the witness search over the compiled models finds a linked state at V10 in which a batch k committed by a registered legacy staker is in flight (the corpus trace T2 up to its V10 commit), where the V11 slash site's answer after the cutover is (ok, 0) and the V10 slash site's answer at the state is (ok, R) with R = stakingValue * rewardPercentage / 100 > 0; its counter-law is accepted by Bend and by BendTT (the verdict); and both replay runs pass on the real code, the left run (cutover, challenge of k at V11, the proof window, proveState by an active Submitter principal) crediting the challenger exactly its deposit (observed reward 0) and the right run (challenge of k at V10, the window, proveState by an active staker) crediting deposit + R. Derivation: at V11 the site's argument is the low 160 bits of the legacy word, the bitmap 1 << stakerIndexes[s1] (here 2), an address the new registry never registered, whose stake is 0, so Submitter.slash returns 0 (Submitter.sol:146-159); at V10 L1Staking.slash removes the bitmap's staker and returns its share of stakingValue (L1Staking.sol:217-246).",
+          "check": "tests_m3/test_cutover_slash.py::TestLaws::test_p5_o13_the_slash_naturality_law_is_refuted"
+        },
+        {
+          "id": "I70-P6",
+          "claim": "O20's economic half: L_sort_slash_Rollup_V10_V11_proveState is REFUTED at a witness of the same kind as P5's: the V10 slash site's return word for the in-flight batch is R > 0 and the V11 site's after the cutover is 0 (a slash on a pre-cutover batch transfers zero); its counter-law is accepted by Bend and BendTT, and its two replay runs pass with observed rewards 0 (left) and R (right). Derivation: as P5; the SORT claim fails exactly when the V11 return word is 0 while the V10 one is not, which the vacuous slash of P5 gives.",
+          "check": "tests_m3/test_cutover_slash.py::TestLaws::test_p6_o20_economic_half_the_slash_value_law_is_refuted"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I70-R1",
+          "claim": "Earlier outputs do not move: the inputs of thresholds.inputs_sha256 keep their sha256 (I28's versioned document and its V10 and V11 documents, I69's L1Staking and Submitter documents, declaration, timeline and deployment record, and I69's and I28's sidecars), and holon bundle extract --check and holon versions extract --check reproduce. Any model3 extension leaves every model model3 compiled before byte-identical.",
+          "check": "tests_m3/test_cutover_slash.py::TestRegressions::test_r1_earlier_outputs_do_not_move"
+        },
+        {
+          "id": "I70-R2",
+          "claim": "I70's own commits (the contract's one-PR definition: the non-merge commits of git log --first-parent <C_K>..<end>, end the oldest commit adding docs/iterations/I70.md) write no frozen root and none of I28's, I69's, I29's or I86's outputs (gen/M3/versions/, gen/M3/history/, results/M3/history/, replay/M3/versions/, holon/versions/, gen/M3/bundle/, results/M3/bundle/, replay/M3/bundle/, gen/M3/nat/, gen/M3/bundle_laws/), nor I70's sidecar or basis after the prereg.",
+          "check": "tests_m3/test_cutover_slash.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I70-R3",
+          "claim": "holon audit prereg passes for M3 and M2 at the build head; in CI on the PR every job that passes at the lead passes, and a job fails only on a base item of LANE_RULES.",
+          "check": "tests_m3/test_cutover_slash.py::TestRegressions::test_r3_prereg_audits_pass"
+        },
+        {
+          "id": "I70-R4",
+          "claim": "Target-agnostic code: no holon file I70's own commits add or change is among the failures of tests_m2.test_target_agnostic_exhaustive (the site predicate names no target identifier, law id or action).",
+          "check": "tests_m3/test_cutover_slash.py::TestRegressions::test_r4_own_code_names_no_target"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/cutover/",
+        "results/M3/cutover/",
+        "replay/M3/cutover/",
+        "laws/M3/L_nat_slash_",
+        "laws/M3/L_sort_slash_",
+        "gen/M3/laws/L_nat_slash_",
+        "gen/M3/laws/L_sort_slash_",
+        "gen/M3/proofs/L_nat_slash_",
+        "gen/M3/proofs/L_sort_slash_",
+        "results/M3/L_nat_slash_",
+        "results/M3/L_sort_slash_",
+        "docs/iterations/I70.md"
+      ],
+      "tests": [
+        "tests_m3/test_cutover_slash.py"
+      ],
+      "thresholds": {
+        "base": "f30e0dd5 (the lead after I87's build merge)",
+        "base_commit": "f30e0dd5eda2a96a1b908379648d26367d9bb276",
+        "instrument": "tests_m3/_i70.py",
+        "instrument_sha256": "82b6de36e3275da143d17cbc966f4ebcc782ff0eca0c3dc574de98e9055f7e30",
+        "sidecar": "spec/M3/lib/cutover_slash.json",
+        "sidecar_sha256": "84ee8684897e7c5b3d2aa570b551f06774bafe7827218be5315b4a2f0c82b850",
+        "basis": "spec/M3/lib/cutover_slash_basis.json",
+        "basis_sha256": "2bb6d96fa04b4c4d9bcf8ce7869879d86def1e20591a18bb4f23fc47ad8293b6",
+        "contract_docstring_sha256": "b6d44c0859bdb7bc2b14b6eeb23e56e3d643d88fe15f56162f057bf9578028ad",
+        "law_ids": [
+          "L_nat_slash_Rollup_V10_V11_proveState",
+          "L_sort_slash_Rollup_V10_V11_proveState"
+        ],
+        "catalog": "the next free holon-rules version when I70's predecessor in the chain lands, holding every earlier catalog's producers as the same objects (expected holon-rules/1.12, after I86's 1.11; the version after I34's if the lead's I34 lands first); fixed and disclosed at the re-derive",
+        "depends_on": {
+          "I29": "PR #51, catalog holon-rules/1.8",
+          "I83": "PR #57",
+          "I86": "PR #61, catalog holon-rules/1.11"
+        },
+        "inputs_sha256": {
+          "gen/M3/versions/morph_rollup.versions.json": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
+          "gen/M3/versions/documents/V10.json": "b3329d0f5ae7cde0f8128f7624cfe1ee1f9ccec201c3d655263ec99692b8860f",
+          "gen/M3/versions/documents/V11.json": "a4a61f6269a8b243695c1d861bb25dc1a37e97f20ee9eb61251e4826ae13c5cd",
+          "gen/M3/bundle/documents/l1staking.json": "fa1b32ee17983fc8e1baa0ec08668110166ae46db97fd39fd9c33ba355d6dcad",
+          "gen/M3/bundle/documents/submitter.json": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2",
+          "gen/M3/bundle/bundle.json": "e857b0e853b31945ceb8306c1451e43941bdf05aa1a3fb8491ced6423ff0e800",
+          "results/M3/bundle/timeline.json": "3e396465311cdf4fc1f730a0d19e619b35c6cbe1bddcec018e34cd50dff465da",
+          "results/M3/bundle/code/0xdb0734109051daab5c32e45e9a5ad0548b2df714.hex": "e3b4f63006ba3dd20a7ef1a4f6dc8107bd80a30ad7bb5c7ff5aab8842b38277c",
+          "replay/M3/bundle/deployment.json": "0dd4e8d058871fc2f11086eff42ac2f97389041c0ea47f616e2f96fae576a031",
+          "spec/M3/lib/bundle.json": "f6c91cab9f4d1941f8999b6ba2378dd488b7224891b477d9e731b8034e380a40",
+          "spec/M3/lib/versions.json": "aa6ea949281bef01a33d052ab6c2fe1ad810a5074c0046ec53e3e63899097ac7",
+          "results/M3/history/timeline.json": "7d2d67c63dd834b6acdfb8e838f380419ee653762ec1847179f12677987eac72",
+          "tests_m3/_i63.py": "64b8c1115e2604cf986a61f353613a5a6cfc26834fc822b224abdc7d7aa3acb5"
+        },
+        "target": {
+          "repo": "morph-l2/morph",
+          "head": "3e44e795586af3e11285b603ab642c67823add51",
+          "l1staking": {
+            "tag": "v0.6.1",
+            "commit": "4a1607dbe3288643827154738e28e5ef0734dccf",
+            "blob": "165fec18d4e904ef95809d3220ea2669a18d3139"
+          },
+          "rollup": {
+            "V10": "55272a512fb0f0c378e78852b0cfbd92c6a02826",
+            "V11": "5edbc693d4edc72597b444a9b75424661fd536cf"
+          }
+        }
+      }
     }
   }
 }
