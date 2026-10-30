@@ -881,6 +881,10 @@ def build(ctx: Ctx) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    from .hostile import milestone_of
+    if milestone_of(argv) not in (None, "M2"):   # I87: M3 and later get the audit loop's A4
+        return a4_main(argv)
     ap = argparse.ArgumentParser(prog="holon audit vacuity", description=__doc__.split("\n\n")[0])
     ap.add_argument("--milestone", default="M2")
     ap.add_argument("--round", type=int, default=2)
@@ -929,6 +933,362 @@ def main(argv: list[str] | None = None) -> int:
     if not a.work:
         shutil.rmtree(work, ignore_errors=True)
     return 0
+
+# ====================================================================== I87: the audit loop's A4 (M3 and later)
+# The contract is the docstring of tests_m3/test_audit_loop.py ("A4, vacuity and over-strength"):
+#
+#   python -m holon audit vacuity --milestone M --round n [--target COMMIT] [--out PATH] [--work DIR] [--check]
+#
+# writes audit/rounds/<M>/round<n>/a4.json (holon-audit-a4/0.1), every input read from the target commit's tree; --check
+# rebuilds from the committed file's target and compares byte for byte. It reuses G11V's records (non_vacuity),
+# holon.inhabit.premised, G11V's in-flight clause (holon.versions.inhabit.clause), the codec inhabitant generators
+# (holon.codecrun, holon.gen.linked) and the checker G11V's inhabitants pass (holon.inhabit._check); it re-implements no
+# gate check. M2 keeps I21's A4 instrument above. Nothing in this section names a law or a target.
+A4_VERSION = "holon-audit-a4/0.1"
+CLASSES = ("no_premises", "not_decided", "counter_witness", "vacuous", "degenerate", "unreadable", "ok")
+STATE_TYPES = ("State", "Reach")
+
+
+def _field_term(t):
+    if isinstance(t, dict) and set(t) == {"field", "of"} and isinstance(t["of"], dict) and set(t["of"]) == {"var"}:
+        return (t["of"]["var"], t["field"])
+    return None
+
+
+def premise_classes(law: dict):
+    """(find, fixed): the premises' field equalities as classes over (binder, field); a pin "field == bytes" fixes its
+    class."""
+    parent: dict = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    pins = []
+    for p in law["statement"].get("assume") or []:
+        if not isinstance(p, dict) or not isinstance(p.get("eq"), list) or len(p["eq"]) != 2:
+            continue
+        a, b = p["eq"]
+        fa, fb = _field_term(a), _field_term(b)
+        if fa and fb:
+            parent[find(fa)] = find(fb)
+        elif fa and isinstance(b, dict) and "bytes" in b:
+            pins.append(fa)
+        elif fb and isinstance(a, dict) and "bytes" in a:
+            pins.append(fb)
+    return find, {find(x) for x in pins}
+
+
+def _all_zero(h) -> bool:
+    return isinstance(h, str) and h.startswith("0x") and set(h[2:]) <= {"0"}
+
+
+def degenerate_rules(law: dict, w) -> tuple[set, bool]:
+    """(the D-rules that hold at the inhabitant w, whether w has a shape the rules read): the contract's D1-D3."""
+    binders = law["statement"].get("binders") or []
+    states = [b for b in binders if b.get("type") in STATE_TYPES]
+    rules: set = set()
+    if not isinstance(w, dict):
+        return rules, False
+    if states:
+        if isinstance(w.get("steps"), list):              # a run ending with the law's own step
+            if len(w["steps"]) <= 1:
+                rules.add("D1")
+            return rules, True
+        if "prefix" in w and "x" in w:                    # one run, used for every state binder
+            if not w["prefix"]:
+                rules.add("D1")
+            if len(states) >= 2:
+                rules.add("D2")
+            return rules, True
+        if isinstance(w.get("runs"), list):
+            runs = w["runs"]
+            if runs and all(isinstance(r, dict) and not r.get("prefix") for r in runs):
+                rules.add("D1")
+            if len(states) >= 2 and len(runs) >= 2 and runs[0] == runs[1]:
+                rules.add("D2")
+            return rules, True
+        vals = [w.get(b["name"]) for b in states]
+        if all(isinstance(v, dict) and isinstance(v.get("run"), list) for v in vals):
+            if all(not v["run"] for v in vals):
+                rules.add("D1")
+            if len(vals) >= 2 and vals[0]["run"] == vals[1]["run"]:
+                rules.add("D2")
+            return rules, True
+        return rules, False
+    find, fixed = premise_classes(law)
+    readable, zero = True, True
+    for b in binders:
+        v = w.get(b["name"])
+        if isinstance(v, dict):
+            for f, h in v.items():
+                if not isinstance(h, str) or not h.startswith("0x"):
+                    readable = False
+                    continue
+                if find((b["name"], f)) not in fixed:
+                    zero = zero and _all_zero(h)
+        elif isinstance(v, str) and v.startswith("0x"):
+            zero = zero and _all_zero(v)
+    if readable and zero:
+        rules.add("D3")
+    return rules, readable
+
+
+RULE_WHY = {"D1": "the inhabitant's state is the initial state (D1)", "D2": "its two runs are identical (D2)",
+            "D3": "every byte the premises leave free is zero (D3)"}
+
+
+def classify(law: dict, rec: dict, registry_hash, tree: Path) -> tuple[str, list, str]:
+    """(class, D-rules, why): V1-V7 of the contract, from the law, its record (G11V's non_vacuity) and the registry."""
+    from ..inhabit import premised
+    if not premised(law):
+        return "no_premises", [], "no assume premise and no Reach binder"
+    st = rec.get("status")
+    if st == "UNKNOWN":
+        return "not_decided", [], "UNKNOWN: the law claims nothing yet"
+    if st == "REFUTED":
+        return "counter_witness", [], "REFUTED: the accepted counter-law inhabits the premises"
+    if st != "PROVED":
+        return "vacuous", [], f"status {st!r}: no inhabitant can be read"
+    nv = rec.get("non_vacuity") or {}
+    if nv.get("status") != "inhabited":
+        return "vacuous", [], f"PROVED without an inhabitant (non_vacuity {nv.get('status')!r}: {nv.get('bound')})"
+    if nv.get("parent_statement_hash") != rec.get("statement_hash"):
+        return "vacuous", [], "the inhabitant is for another statement than the record's"
+    if rec.get("statement_hash") != registry_hash:
+        return "vacuous", [], "the record's statement hash is not the registry's"
+    if nv.get("witness") is None:
+        return "vacuous", [], "the inhabitant has no witness"
+    if not isinstance(nv.get("law"), str) or not (Path(tree) / nv["law"]).is_file():
+        return "vacuous", [], f"the inhabitant's file {nv.get('law')} does not exist"
+    rules, readable = degenerate_rules(law, nv["witness"])
+    if not readable:
+        return "unreadable", sorted(rules), "the inhabitant's witness has none of the shapes D1-D3 read"
+    if rules:
+        return "degenerate", sorted(rules), "; ".join(RULE_WHY[r] for r in sorted(rules))
+    return "ok", [], "inhabited, and no degenerate rule holds"
+
+
+def _kernel_verdict(ok: bool, why: str, dual: bool) -> dict:
+    """The kernels' verdicts on an inhabitant holon.inhabit._check judged (its reason's first words, never the
+    checker's raw output, which can name scratch paths)."""
+    if ok:
+        return {"bend2": "ALL PROOFS CHECK", "bendtt": "checked" if dual else "not_run"}
+    if why.startswith("BendTT rejected"):
+        return {"bend2": "ALL PROOFS CHECK", "bendtt": "rejected"}
+    if why.startswith("bend rejected"):
+        return {"bend2": "rejected", "bendtt": "not_run"}
+    return {"bend2": "not_run", "bendtt": "not_run", "refused": "the file states another law or uses an escape hatch"}
+
+
+class _Codec:
+    """The linked codec documents of a tree and the scratch model directory their inhabitants import."""
+
+    def __init__(self, tree: Path, inp, milestone: str, work: Path, cfg: dict):
+        self.tree, self.inp, self.m, self.work, self.cfg = Path(tree), inp, milestone, Path(work), cfg
+        self.docs: dict = {}
+
+    def kind(self, law: dict) -> str | None:
+        from ..codecrun import codec_kind
+        return codec_kind(law, self.tree)
+
+    def doc(self, rel: str) -> dict:
+        if rel not in self.docs:
+            self.docs[rel] = self.inp.json(rel)
+        return self.docs[rel]
+
+    def check(self, law: dict, witness: dict, note: str, tag: str) -> tuple[bool, str]:
+        """Write the law's inhabitant at witness with the law's own generator (holon.codecrun.inhabitant) beside a copy
+        of the tree's committed model, and check it as G11V's inhabitants are (holon.inhabit._check)."""
+        from ..codecrun import inhabitant
+        from ..inhabit import _check
+        doc = self.doc(law["facts"])
+        stem = doc["role"]
+        base = self.work / tag
+        mp = base / "model" / f"{stem}.bend"
+        if not mp.is_file():
+            mp.parent.mkdir(parents=True, exist_ok=True)
+            mp.write_bytes(self.inp.bytes(f"gen/{self.m}/model/{stem}.bend"))
+        name, laws_text, proof = inhabitant(law, "linked", doc, stem, witness, note)
+        return _check(base / law["law_id"] / "nonvac", name, laws_text, proof, self.cfg)
+
+    def fill(self, law: dict, fill_name: str) -> dict:
+        """holon.gen.linked's fill of that name with the law's premise classes applied."""
+        from ..gen import linked as GL
+        doc = self.doc(law["facts"])
+        em = GL.emit(law, doc, "../../model/x.bend")
+        raw = dict(GL.fills(doc, em.binders))[fill_name]
+        return GL.apply_classes(doc, dict(em.binders), em.classes, raw)
+
+
+def representative(law: dict, rec: dict, codec: _Codec, fill_name: str, dual: bool) -> dict:
+    if codec.kind(law) != "linked":
+        return {"status": "not_searched",
+                "why": "I87 has no representative search for this inhabitant (only for laws over a linked codec "
+                       "document); the I45 round's A4 auditor searches"}
+    try:
+        w = codec.fill(law, fill_name)
+        ok, why = codec.check(law, w, rec["statement_hash"], "rep")
+    except Exception as e:  # noqa: BLE001  (a generator that cannot write the representative finds none)
+        return {"status": "not_found", "fill": fill_name, "witness": None, "kernels": None,
+                "why": f"the generator refused the representative: {type(e).__name__}"}
+    rules, readable = degenerate_rules(law, w)
+    found = ok and readable and not rules
+    if found:
+        why = "accepted by the kernels; no degenerate rule holds at it"
+    elif ok:
+        why = "accepted, but it is itself degenerate: " + ", ".join(sorted(rules)) if rules else "accepted, unreadable"
+    else:
+        why = why.split(":")[0]
+    return {"status": "found" if found else "not_found", "fill": fill_name, "witness": w,
+            "kernels": _kernel_verdict(ok, why if not ok else "", dual), "why": why}
+
+
+def zero_free(law: dict, w: dict) -> dict:
+    """w with every byte the premises leave free set to zero (the classes fixed by a pin keep their bytes)."""
+    find, fixed = premise_classes(law)
+    out = copy.deepcopy(w)
+    for b, v in out.items():
+        if isinstance(v, dict):
+            for f, h in v.items():
+                if isinstance(h, str) and h.startswith("0x") and find((b, f)) not in fixed:
+                    v[f] = "0x" + "0" * (len(h) - 2)
+    return out
+
+
+def a4_canaries(laws: dict, recs: dict, entries: dict, codec: _Codec, tables_of) -> list[dict]:
+    out = []
+    # unsatisfiable_premise: a second pin of a one-byte pinned field, to the next byte value
+    cand = None
+    for lid in sorted(entries):
+        e = entries[lid]
+        if e["class"] not in ("degenerate", "ok") or codec.kind(laws[lid]) != "linked":
+            continue
+        for p in laws[lid]["statement"].get("assume") or []:
+            a, b = p.get("eq") or [None, None]
+            fa = _field_term(a)
+            if fa and isinstance(b, dict) and isinstance(b.get("bytes"), str) and len(b["bytes"]) == 4:
+                cand = (lid, a, b["bytes"])
+                break
+        if cand:
+            break
+    if cand:
+        lid, term, bx = cand
+        nb = "0x%02x" % ((int(bx, 16) + 1) % 256)
+        law2 = copy.deepcopy(laws[lid])
+        law2["statement"]["assume"].append({"eq": [copy.deepcopy(term), {"bytes": nb}]})
+        try:
+            from ..codecrun import inhabitant_witness
+            w = inhabitant_witness(law2, "linked", codec.doc(law2["facts"]))
+            ok, why = codec.check(law2, w, recs[lid]["statement_hash"], "canary")
+            detected, how = not ok, (why.split(":")[0] if not ok else "the inhabitant checked")
+        except Exception as e:  # noqa: BLE001  (no inhabitant can be generated: the premises are classified vacuous)
+            detected, how = True, f"no inhabitant generated ({type(e).__name__})"
+        out.append({"kind": "unsatisfiable_premise", "detected": detected, "why": how,
+                    "what": f"a copy of {lid} with a second premise {term['of']['var']}.{term['field']} == {nb} "
+                            f"beside its pin to {bx}: classified vacuous iff no inhabitant checks"})
+    else:
+        out.append({"kind": "unsatisfiable_premise", "detected": False, "why": "no candidate law",
+                    "what": "no inhabited law over a linked codec document with a one-byte pin"})
+    # degenerate_state: the first ok inhabitant with a {steps} witness, cut to its last step
+    st = next((lid for lid in sorted(entries) if entries[lid]["class"] == "ok"
+               and isinstance(((recs[lid].get("non_vacuity") or {}).get("witness") or {}).get("steps"), list)), None)
+    if st:
+        w = copy.deepcopy(recs[st]["non_vacuity"]["witness"])
+        w["steps"] = w["steps"][-1:]
+        rules, _r = degenerate_rules(laws[st], w)
+        out.append({"kind": "degenerate_state", "detected": "D1" in rules, "why": ", ".join(sorted(rules)) or "none",
+                    "what": f"{st}'s inhabitant cut to its last step"})
+    else:
+        out.append({"kind": "degenerate_state", "detected": False, "why": "no candidate",
+                    "what": "no ok inhabitant with a {steps} witness"})
+    # degenerate_pure: the first found representative with every free byte zero
+    rp = next((lid for lid in sorted(entries) if (entries[lid].get("representative") or {}).get("status") == "found"),
+              None)
+    if rp:
+        w = zero_free(laws[rp], entries[rp]["representative"]["witness"])
+        rules, _r = degenerate_rules(laws[rp], w)
+        out.append({"kind": "degenerate_pure", "detected": "D3" in rules, "why": ", ".join(sorted(rules)) or "none",
+                    "what": f"{rp}'s representative with every free byte set to zero"})
+    else:
+        out.append({"kind": "degenerate_pure", "detected": False, "why": "no candidate",
+                    "what": "no found representative"})
+    # false_oracle: the first oracle-table entry with the last hex digit of its word changed
+    from .oracles import entry_agrees
+    first = next(((lid, t) for lid in sorted(recs) for t in tables_of(recs[lid])), None)
+    if first:
+        lid, (where, o, k, wd) = first
+        bad = wd[:-1] + ("1" if wd[-1:] == "0" else "0") if isinstance(wd, str) and wd else "0x1"
+        out.append({"kind": "false_oracle", "detected": not entry_agrees(o, k, bad),
+                    "why": "O3 reports a mismatch" if not entry_agrees(o, k, bad) else "O3 accepts it",
+                    "what": f"{lid}'s first {o} table entry ({where}) with its word's last hex digit changed"})
+    else:
+        out.append({"kind": "false_oracle", "detected": False, "why": "no candidate", "what": "no oracle-table entry"})
+    return sorted(out, key=lambda c: c["kind"])
+
+
+def a4(tree: Path, milestone: str, rnd: int, commit: str, work: Path) -> dict:
+    from .. import bend
+    from . import oracles as OR
+    from .hostile import Inputs, laws_records, load_policy_at, policy_rel
+    inp = Inputs(tree)
+    pol = load_policy_at(inp, milestone)
+    laws, recs, reg = laws_records(inp, milestone)
+    cfg = bend.config(ROOT)
+    dual = bend.verdict_enabled(cfg)
+    codec = _Codec(tree, inp, milestone, work, cfg)
+    fill_name = pol["vacuity"]["representative"]["linked_fill"]
+    entries: dict = {}
+    for lid, law in sorted(laws.items()):
+        rec = recs.get(lid) or {}
+        cls, rules, why = classify(law, rec, reg.get(lid), tree)
+        e = {"class": cls, "rule": rec.get("rule", law.get("rule")), "subform": rec.get("subform", law.get("subform")),
+             "status": rec.get("status"), "rules": rules, "representative": None, "why": why}
+        if cls == "degenerate":
+            e["representative"] = representative(law, rec, codec, fill_name, dual)
+            print(f"vacuity: {lid}: degenerate ({', '.join(rules)}), representative "
+                  f"{e['representative']['status']}", file=sys.stderr, flush=True)
+        entries[lid] = e
+    counts = {c: sum(1 for e in entries.values() if e["class"] == c) for c in CLASSES}
+    try:
+        from ..versions.inhabit import clause
+        cl = clause(milestone, tree, cfg)
+        in_flight = None if cl is None else {"ok": bool(cl[0]), "detail": cl[1]}
+    except Exception as e:  # noqa: BLE001  (a clause that cannot be checked is a failed clause, as in G11V)
+        in_flight = {"ok": False, "detail": f"in-flight: the clause could not be checked: {type(e).__name__}"}
+    orc, files = OR.report(tree, milestone)
+    for f in files:
+        inp.bytes(Path(f).relative_to(tree).as_posix())
+    cans = a4_canaries(laws, recs, entries, codec, OR.table_entries)
+    return {"a4_version": A4_VERSION, "milestone": milestone, "round": rnd, "target_commit": commit,
+            "policy": {"path": policy_rel(milestone), "sha256": inp.read[policy_rel(milestone)]},
+            "inputs": inp.listing(), "laws": entries, "counts": counts, "in_flight": in_flight, "oracles": orc,
+            "canaries": cans}
+
+
+def a4_main(argv: list[str]) -> int:
+    from .hostile import at_target
+    ap = argparse.ArgumentParser(prog="holon audit vacuity", description="I87: auditor A4 of an audit round (M3 and "
+                                                                         "later)")
+    ap.add_argument("--milestone", required=True)
+    ap.add_argument("--round", type=int, required=True)
+    ap.add_argument("--target", help="the audited commit (default: the target_commit of the committed a4.json)")
+    ap.add_argument("--out", help="default: audit/rounds/<M>/round<n>/a4.json")
+    ap.add_argument("--work", help="scratch directory (default: a fresh temporary directory, removed after)")
+    ap.add_argument("--check", action="store_true", help="rebuild from the committed file's target commit and "
+                                                         "compare byte for byte")
+    a = ap.parse_args(argv)
+    if a.round < 1:
+        print("vacuity: rounds are numbered from 1", file=sys.stderr)
+        return 2
+    out = Path(a.out) if a.out else Path("audit") / "rounds" / a.milestone / f"round{a.round}" / "a4.json"
+
+    def build_text(tree, commit, work):
+        os.environ["HOLON_BUILD_DIR"] = str(Path(work) / "build")
+        return canonical(a4(tree, a.milestone, a.round, commit, Path(work) / "a4"))
+    return at_target("vacuity", out, a.target, a.check, a.work, build_text)
 
 
 if __name__ == "__main__":

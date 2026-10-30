@@ -9,6 +9,12 @@
   python -m holon audit regress --from A --to B [--json] [--root DIR]
   python -m holon audit hostile --milestone M2 --round 2 [--surface S ..] [--checkout PATH] [--snapshot DIR] [--check]
   python -m holon audit vacuity --milestone M2 --round 2 [--out FILE] [--check]   (auditors A2 and A4, round M2/2; I21)
+  python -m holon audit hostile|vacuity --milestone M3 --round N [--target C] [--out F] [--check]
+                                                        (the hostile-review packet and auditor A4 of a round; I87)
+  python -m holon audit round|converge|oracles --milestone M [--root DIR] ...   (rounds, convergence, A4's oracle
+                                                        half: results/<M>/audit_status.json; I87)
+  python -m holon audit gaps [--root DIR] [--json]      (rule-gap records and the L7 admission rule; I87)
+  python -m holon coordinator status|prompt|audit-prompt ...   (docs/STATUS.md and session prompts; I87)
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
   python -m holon oracle check --milestone M2 [--root DIR]   (oracle sidecar hypotheses: A4, G11V; I12)
@@ -49,6 +55,10 @@
                                                          replay/<M>/goops/report.json; I67)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
                                                         (the back-test across documents, results/M3/backtest.json; I24)
+  python -m holon report --milestone M3 [--root DIR] [--check] [--results SET=DIR ..]
+                                                        (spec/M3/appendixA_map.json and docs/M3_COMPARISON.md; I82)
+  python -m holon compare --blind DIR [--lead DIR] [--milestone M[,M..]] [--out FILE] [--threshold X]
+  python -m holon compare --snapshot SRC --into DST [--milestone M[,M..]]   (blind_agreement; I82)
   python -m holon profile --milestone T32 [--root DIR]   (discharge profiles, DISCH II, I32)
   python -m holon lossy --milestone M3 [--root DIR] [--out DIR] [--review PATH] [--records DIR] [--codec PATH ...]
                         [--gen-dir DIR] [--check]       (PAR-lossy and injective pushing: gen/<M>/par_lossy/,
@@ -205,6 +215,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["coverage"]:  # likewise for holon.coverage (I19)
         from . import coverage
         return coverage.main(argv[1:])
+    if argv[:1] == ["bundle"]:  # likewise for holon.bundle (a bundle of linked contracts; outside every closure)
+        from . import bundle
+        return bundle.main(argv[1:])
     if argv[:1] == ["link"]:  # likewise for holon.frontends.link (I19)
         from .frontends import link
         return link.main(argv[1:])
@@ -220,6 +233,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["bundle2"]:  # likewise for holon.bundle2 (Bundle II's extraction and linked machine, I80)
         from . import bundle2
         return bundle2.main(argv[1:])
+    if argv[:1] == ["derivation"]:  # likewise for holon.derivation (the Go consumer and the product machine, I85)
+        from . import derivation
+        return derivation.main(argv[1:])
     if argv[:1] == ["history"]:  # likewise for holon.frontends.solidity.history (deployment history, I63)
         from .frontends.solidity import history
         return history.main(argv[1:])
@@ -253,6 +269,12 @@ def _main(argv: list) -> int:
     if argv[:1] == ["backtest"]:  # likewise for holon.backtest (the back-test across documents, I24)
         from . import backtest
         return backtest.main(argv[1:])
+    if argv[:1] == ["report"]:  # likewise for holon.report (I82: the map to section 11's ids and the M3 comparison)
+        from . import report
+        return report.main(argv[1:])
+    if argv[:1] == ["compare"]:  # likewise for holon.blind (I82: blind_agreement, and the projection of a tree)
+        from . import blind
+        return blind.main(argv[1:])
     if argv[:1] == ["lossy"]:  # likewise for holon.rules.par_lossy (PAR-lossy and injective pushing, I25)
         from .rules import par_lossy
         return par_lossy.main(argv[1:])
@@ -353,8 +375,14 @@ def _main(argv: list) -> int:
                                       "law, result and prediction was first committed (A3); "
                                       "`audit hostile|vacuity --milestone M2 --round 2 [--check]` are auditors A2 "
                                       "and A4 of audit round M2/2 (I21)")
-    au.add_argument("what", choices=["prereg", "status", "regress", "hostile", "vacuity"])
+    au.add_argument("what", choices=["prereg", "status", "regress", "hostile", "vacuity", "round", "converge",
+                                     "oracles", "gaps"])
     au.add_argument("rest", nargs=argparse.REMAINDER)
+    co = sub.add_parser("coordinator", help="the coordinator (I87): `coordinator status` renders docs/STATUS.md, "
+                                            "`coordinator prompt --key I<n>` a session prompt from BUILD_PLAN, "
+                                            "`coordinator audit-prompt` an auditor's prompt for a round")
+    co.add_argument("what", choices=["status", "prompt", "audit-prompt"])
+    co.add_argument("rest", nargs=argparse.REMAINDER)
     rp = sub.add_parser("replay", help="replay REFUTED witnesses on the real Go and Solidity code")
     rp.add_argument("--milestone", default="M0")
     rp.add_argument("--morph", help="morph-l2/morph checkout at the facts' commit (default: config replay.morph)")
@@ -427,8 +455,15 @@ def _main(argv: list) -> int:
         if a.what == "vacuity":
             from .audit import vacuity
             return vacuity.main(a.rest)
+        if a.what in ("round", "converge", "oracles", "gaps"):   # I87
+            import importlib
+            mod = {"round": "rounds", "converge": "converge", "oracles": "oracles", "gaps": "gaps"}[a.what]
+            return importlib.import_module(f".audit.{mod}", __package__).main(a.rest)
         from .audit import prereg
         return prereg.main(a.rest)
+    if a.cmd == "coordinator":   # I87
+        from . import coordinator
+        return coordinator.main([a.what] + a.rest)
     if a.cmd == "replay":
         from .replay import main_replay
         return main_replay(a)

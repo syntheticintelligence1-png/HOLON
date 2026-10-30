@@ -3,6 +3,158 @@
     {
       "debt": [
         {
+          "detail": "IRollup.withdrawalRoots",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:147"
+        },
+        {
+          "detail": "address.call",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:161"
+        },
+        {
+          "detail": "address.call",
+          "kind": "value_transfer",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:161"
+        },
+        {
+          "detail": "IL1MessageQueue.estimateCrossDomainMessageFee",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:198"
+        },
+        {
+          "detail": "address.call",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:203"
+        },
+        {
+          "detail": "address.call",
+          "kind": "value_transfer",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:203"
+        },
+        {
+          "detail": "IL1MessageQueue.nextCrossDomainMessageIndex",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:208"
+        },
+        {
+          "detail": "IL1MessageQueue.appendCrossDomainMessage",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:209"
+        },
+        {
+          "detail": "address.call",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:240"
+        },
+        {
+          "detail": "address.call",
+          "kind": "value_transfer",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:240"
+        },
+        {
+          "detail": "IL1MessageQueue.nextCrossDomainMessageIndex",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:286"
+        },
+        {
+          "detail": "IL1MessageQueue.estimateCrossDomainMessageFee",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:290"
+        },
+        {
+          "detail": "address.call",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293"
+        },
+        {
+          "detail": "address.call",
+          "kind": "value_transfer",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293"
+        },
+        {
+          "detail": "IL1MessageQueue.appendCrossDomainMessage",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:298"
+        },
+        {
+          "detail": "address.call",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+        },
+        {
+          "detail": "address.call",
+          "kind": "value_transfer",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+        },
+        {
+          "detail": "IL1MessageQueue.nextCrossDomainMessageIndex",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:320"
+        }
+      ],
+      "document": "gen/M3/bundle/documents/messenger.json",
+      "extracted": 169,
+      "statements": 171,
+      "unaccounted": []
+    },
+    {
+      "debt": [
+        {
+          "detail": "IWhitelist.isSenderAllowed",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:115"
+        }
+      ],
+      "document": "gen/M3/bundle/documents/queue.json",
+      "extracted": 81,
+      "statements": 81,
+      "unaccounted": []
+    },
+    {
+      "debt": [
+        {
+          "detail": "IRollupSubmitterView.lastFinalizedBatchIndex",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:134"
+        },
+        {
+          "detail": "IRollupSubmitterView.lastCommittedBatchIndex",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:172"
+        },
+        {
+          "detail": "address.call",
+          "kind": "external_call",
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:178"
+        },
+        {
+          "detail": "address.call",
+          "kind": "value_transfer",
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:178"
+        }
+      ],
+      "document": "gen/M3/bundle/documents/submitter.json",
+      "extracted": 115,
+      "statements": 115,
+      "unaccounted": []
+    },
+    {
+      "debt": [
+        {
+          "detail": "isWhitelisted",
+          "kind": "loop_storage_write",
+          "src": "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+        }
+      ],
+      "document": "gen/M3/bundle/documents/whitelist.json",
+      "extracted": 14,
+      "statements": 15,
+      "unaccounted": []
+    },
+    {
+      "debt": [
+        {
           "detail": "ISubmitter.isActive",
           "kind": "external_call",
           "src": "contracts/contracts/l1/rollup/Rollup.sol:120"
