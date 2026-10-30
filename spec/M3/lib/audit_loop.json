@@ -1,0 +1,48 @@
+{
+  "policy_version": "holon-audit-loop/0.1",
+  "doc": "I87 (= I45a): the audit loop's policy (whitepaper §9.1, §9.2(6), §9.5, §12.3, L7, L19; BUILD_PLAN I45 and row I87; HUMAN_ANSWERS Q9). The contract is the docstring of tests_m3/test_audit_loop.py. It names no law, action, register or target: everything it selects is selected by rule, subform, binder type or witness shape.",
+  "convergence": {
+    "k": 3,
+    "k_why": "BUILD_PLAN I45's exit: 3 consecutive rounds with no high-priority finding",
+    "auditor_types": ["A1", "A2", "A3", "A4"],
+    "counted_family": "different",
+    "high_priority_severities": ["high"],
+    "same_family": "HUMAN_ANSWERS Q9: a same-family round is labelled \"same\" and never counted; a high-priority finding it lists still resets the streak (CV3), and an open high finding still blocks (CV4)",
+    "fresh_session": "L19: a counted round's auditor session differs from the session of every earlier round of the milestone",
+    "findings_file": {"default": "audit/<M>_findings.jsonl", "M0": "audit/findings.jsonl", "M1": "audit/findings.jsonl"}
+  },
+  "auditor_types": {
+    "A1": {"name": "mutation", "categories": ["mutation_adequacy"],
+           "what": "Plant realistic misimplementations in the real code the facts documents are extracted from (off-by-one offsets, missing clears, wrong masks, swapped cursors), re-extract, and confirm the corresponding obstruction appears. A miss is an extraction gap or a rule gap (whitepaper §9.5 A1)."},
+    "A2": {"name": "hostile input", "categories": ["model_vs_code"],
+           "subforms": {"PAR": ["totality", "domain_coherence", "weak", "round_trip", "cross_component_codec"]},
+           "what": "Attack R^ext at every interface carrier through public entry points: totality and panic defects, and whether the model's partiality matches the code's (whitepaper §9.5 A2)."},
+    "A3": {"name": "regression", "categories": ["statement_fidelity"],
+           "what": "Compare law sets, premises and proof strengths across commits: dropped laws, strengthened hypotheses, drifted constants (whitepaper §9.5 A3; holon audit regress)."},
+    "A4": {"name": "vacuity and over-strength", "categories": ["vacuity", "bindings_ledger"],
+           "what": "Check that premises are satisfiable and their inhabitants representative rather than degenerate, and that oracle hypotheses survive tests against the real oracles (whitepaper §9.5 A4, §12.3)."}
+  },
+  "vacuity": {
+    "classes": ["no_premises", "not_decided", "counter_witness", "vacuous", "degenerate", "ok"],
+    "state_binder_types": ["State", "Reach"],
+    "degenerate_rules": {
+      "D1": "a law with a State or Reach binder: the inhabitant's state is the initial state (a {steps} witness has one step, the law's own; a {prefix, x} witness has an empty prefix; a witness of state binders has every run empty)",
+      "D2": "a law with two state binders: its two runs are identical (a {prefix, x} witness names one run, used for both; {runs: [r1, r2]} with r1 == r2; two state binders with equal runs)",
+      "D3": "a law with no State or Reach binder: every byte the premises leave free is zero (the premises' field equalities taken as classes; a pin field == bytes fixes its class)"
+    },
+    "representative": {
+      "linked_fill": "counting",
+      "linked_fill_why": "holon.gen.linked's deterministic fill (i mod 255) + 1: every byte nonzero before the premise classes apply",
+      "state": "not searched by I87: no state-law representative search exists here; the I45 round's A4 auditor searches"
+    },
+    "hash_oracles": {
+      "keccak256": "Ethereum Keccak-256 (holon/keccak.py; the instrument uses tests_m2/_keccak.py)",
+      "sha256": "SHA-256 (hashlib)"
+    }
+  },
+  "rule_gaps": {
+    "path": "audit/rule_gaps.jsonl",
+    "min_instances": 2,
+    "approval": "a gpg signature over the candidate line without its approval field (holon.statement_diff.signed_payload), verified against a key the human froze (holon.statement_diff.verify_signature); agents never freeze a key (AGENTS.md rule 1), so no agent can approve"
+  }
+}
