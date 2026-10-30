@@ -271,9 +271,17 @@ class TestInstrument(unittest.TestCase):
         self.assertEqual(file_sha256(ROOT / "tests_m3" / "_i83.py"), th["instrument_sha256"])
         self.assertEqual(file_sha256(ROOT / SIDECAR), th["sidecar_sha256"])
         self.assertEqual(hashlib.sha256(__doc__.encode("utf-8")).hexdigest(), th["contract_docstring_sha256"])
+        # Amended (spec/M3/amendments.jsonl, instrument_inconsistency): a pinned input under one of the key's own
+        # outcome_paths is the base's input, which P1 itself changes; it is compared at thresholds.base_commit.
+        outcome = tuple(predictions(KEY).get("outcome_paths") or [])
         for rel, sha in th["inputs_sha256"].items():
             with self.subTest(input=rel):
-                self.assertEqual(file_sha256(ROOT / rel), sha)
+                if rel.startswith(outcome):
+                    blob = subprocess.run(["git", "-C", str(ROOT), "show", f"{th['base_commit']}:{rel}"],
+                                          capture_output=True, check=True).stdout
+                    self.assertEqual(hashlib.sha256(blob).hexdigest(), sha)
+                else:
+                    self.assertEqual(file_sha256(ROOT / rel), sha)
 
     def test_the_instrument_states_the_thresholds(self):
         """tests_m3/_i83.py::basis_doc over the committed inputs is the key's basis: the traces' labels and lengths
