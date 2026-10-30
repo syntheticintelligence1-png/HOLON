@@ -1,0 +1,7650 @@
+{
+ "contract": {
+  "build_paths": [
+   "contracts"
+  ],
+  "name": "L1Staking",
+  "source": "contracts/contracts/l1/staking/L1Staking.sol"
+ },
+ "edges": [
+  {
+   "compatible": true,
+   "from": "V1",
+   "in_flight": [
+    {
+     "entry": "Initializable._initialized",
+     "kind": "unchanged",
+     "reads": [
+      "Initializable._initialized"
+     ]
+    },
+    {
+     "entry": "Initializable._initializing",
+     "kind": "unchanged",
+     "reads": [
+      "Initializable._initializing"
+     ]
+    },
+    {
+     "entry": "L1Staking.blsKeys",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.blsKeys"
+     ]
+    },
+    {
+     "entry": "L1Staking.deleteList",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.deleteList"
+     ]
+    },
+    {
+     "entry": "L1Staking.deleteableHeight",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.deleteableHeight"
+     ]
+    },
+    {
+     "entry": "L1Staking.gasLimitAddStaker",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.gasLimitAddStaker"
+     ]
+    },
+    {
+     "entry": "L1Staking.gasLimitRemoveStakers",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.gasLimitRemoveStakers"
+     ]
+    },
+    {
+     "entry": "L1Staking.removedList",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.removedList"
+     ]
+    },
+    {
+     "entry": "L1Staking.rewardPercentage",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.rewardPercentage"
+     ]
+    },
+    {
+     "entry": "L1Staking.rollupContract",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.rollupContract"
+     ]
+    },
+    {
+     "entry": "L1Staking.slashRemaining",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.slashRemaining"
+     ]
+    },
+    {
+     "entry": "L1Staking.stakerIndexes",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.stakerIndexes"
+     ]
+    },
+    {
+     "entry": "L1Staking.stakerSet",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.stakerSet"
+     ]
+    },
+    {
+     "entry": "L1Staking.stakers",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.stakers"
+     ]
+    },
+    {
+     "entry": "L1Staking.stakingValue",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.stakingValue"
+     ]
+    },
+    {
+     "entry": "L1Staking.tmKeys",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.tmKeys"
+     ]
+    },
+    {
+     "entry": "L1Staking.whitelist",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.whitelist"
+     ]
+    },
+    {
+     "entry": "L1Staking.withdrawalLockBlocks",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.withdrawalLockBlocks"
+     ]
+    },
+    {
+     "entry": "L1Staking.withdrawals",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.withdrawals"
+     ]
+    },
+    {
+     "entry": "OwnableUpgradeable._owner",
+     "kind": "unchanged",
+     "reads": [
+      "OwnableUpgradeable._owner"
+     ]
+    },
+    {
+     "entry": "ReentrancyGuardUpgradeable._status",
+     "kind": "unchanged",
+     "reads": [
+      "ReentrancyGuardUpgradeable._status"
+     ]
+    }
+   ],
+   "introduced": [],
+   "layout": {
+    "added": [
+     {
+      "contract": "L1Staking",
+      "label": "challengeDeposit",
+      "offset": 0,
+      "slot": 422
+     }
+    ],
+    "compatible": true,
+    "gap_resized": [],
+    "moved": [],
+    "overlap": [],
+    "persisted": [
+     {
+      "contract": "ContextUpgradeable",
+      "label": "__gap"
+     },
+     {
+      "contract": "Initializable",
+      "label": "_initialized"
+     },
+     {
+      "contract": "Initializable",
+      "label": "_initializing"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "blsKeys"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "deleteList"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "deleteableHeight"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "gasLimitAddStaker"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "gasLimitRemoveStakers"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "removedList"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "rewardPercentage"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "rollupContract"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "slashRemaining"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "stakerIndexes"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "stakerSet"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "stakers"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "stakingValue"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "tmKeys"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "whitelist"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "withdrawalLockBlocks"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "withdrawals"
+     },
+     {
+      "contract": "OwnableUpgradeable",
+      "label": "__gap"
+     },
+     {
+      "contract": "OwnableUpgradeable",
+      "label": "_owner"
+     },
+     {
+      "contract": "ReentrancyGuardUpgradeable",
+      "label": "__gap"
+     },
+     {
+      "contract": "ReentrancyGuardUpgradeable",
+      "label": "_status"
+     }
+    ],
+    "removed": [],
+    "retyped": []
+   },
+   "to": "V2"
+  },
+  {
+   "compatible": true,
+   "from": "V2",
+   "in_flight": [
+    {
+     "entry": "Initializable._initialized",
+     "kind": "unchanged",
+     "reads": [
+      "Initializable._initialized"
+     ]
+    },
+    {
+     "entry": "Initializable._initializing",
+     "kind": "unchanged",
+     "reads": [
+      "Initializable._initializing"
+     ]
+    },
+    {
+     "entry": "L1Staking.blsKeys",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.blsKeys"
+     ]
+    },
+    {
+     "entry": "L1Staking.challengeDeposit",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.challengeDeposit"
+     ]
+    },
+    {
+     "entry": "L1Staking.deleteList",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.deleteList"
+     ]
+    },
+    {
+     "entry": "L1Staking.deleteableHeight",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.deleteableHeight"
+     ]
+    },
+    {
+     "entry": "L1Staking.gasLimitAddStaker",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.gasLimitAddStaker"
+     ]
+    },
+    {
+     "entry": "L1Staking.gasLimitRemoveStakers",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.gasLimitRemoveStakers"
+     ]
+    },
+    {
+     "entry": "L1Staking.removedList",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.removedList"
+     ]
+    },
+    {
+     "entry": "L1Staking.rewardPercentage",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.rewardPercentage"
+     ]
+    },
+    {
+     "entry": "L1Staking.rollupContract",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.rollupContract"
+     ]
+    },
+    {
+     "entry": "L1Staking.slashRemaining",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.slashRemaining"
+     ]
+    },
+    {
+     "entry": "L1Staking.stakerIndexes",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.stakerIndexes"
+     ]
+    },
+    {
+     "entry": "L1Staking.stakerSet",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.stakerSet"
+     ]
+    },
+    {
+     "entry": "L1Staking.stakers",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.stakers"
+     ]
+    },
+    {
+     "entry": "L1Staking.stakingValue",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.stakingValue"
+     ]
+    },
+    {
+     "entry": "L1Staking.tmKeys",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.tmKeys"
+     ]
+    },
+    {
+     "entry": "L1Staking.whitelist",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.whitelist"
+     ]
+    },
+    {
+     "entry": "L1Staking.withdrawalLockBlocks",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.withdrawalLockBlocks"
+     ]
+    },
+    {
+     "entry": "L1Staking.withdrawals",
+     "kind": "unchanged",
+     "reads": [
+      "L1Staking.withdrawals"
+     ]
+    },
+    {
+     "entry": "OwnableUpgradeable._owner",
+     "kind": "unchanged",
+     "reads": [
+      "OwnableUpgradeable._owner"
+     ]
+    },
+    {
+     "entry": "ReentrancyGuardUpgradeable._status",
+     "kind": "unchanged",
+     "reads": [
+      "ReentrancyGuardUpgradeable._status"
+     ]
+    }
+   ],
+   "introduced": [],
+   "layout": {
+    "added": [],
+    "compatible": true,
+    "gap_resized": [],
+    "moved": [],
+    "overlap": [],
+    "persisted": [
+     {
+      "contract": "ContextUpgradeable",
+      "label": "__gap"
+     },
+     {
+      "contract": "Initializable",
+      "label": "_initialized"
+     },
+     {
+      "contract": "Initializable",
+      "label": "_initializing"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "blsKeys"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "challengeDeposit"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "deleteList"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "deleteableHeight"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "gasLimitAddStaker"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "gasLimitRemoveStakers"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "removedList"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "rewardPercentage"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "rollupContract"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "slashRemaining"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "stakerIndexes"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "stakerSet"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "stakers"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "stakingValue"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "tmKeys"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "whitelist"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "withdrawalLockBlocks"
+     },
+     {
+      "contract": "L1Staking",
+      "label": "withdrawals"
+     },
+     {
+      "contract": "OwnableUpgradeable",
+      "label": "__gap"
+     },
+     {
+      "contract": "OwnableUpgradeable",
+      "label": "_owner"
+     },
+     {
+      "contract": "ReentrancyGuardUpgradeable",
+      "label": "__gap"
+     },
+     {
+      "contract": "ReentrancyGuardUpgradeable",
+      "label": "_status"
+     }
+    ],
+    "removed": [],
+    "retyped": []
+   },
+   "to": "V3"
+  }
+ ],
+ "history_version": "holon-history/0.1",
+ "refs": [
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        814,
+        32
+       ],
+       [
+        1492,
+        32
+       ],
+       [
+        8735,
+        32
+       ],
+       [
+        9171,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1335,
+        32
+       ],
+       [
+        8782,
+        32
+       ],
+       [
+        9218,
+        32
+       ]
+      ]
+     },
+     "length": 12022,
+     "ranges": [
+      [
+       814,
+       32
+      ],
+      [
+       1335,
+       32
+      ],
+      [
+       1492,
+       32
+      ],
+      [
+       8735,
+       32
+      ],
+      [
+       8782,
+       32
+      ],
+      [
+       9171,
+       32
+      ],
+      [
+       9218,
+       32
+      ]
+     ],
+     "sha256": "37bbd488f639eacc93d6770a2d5bae88704c246f5e1f8113025f3d76d211cc9a"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        947,
+        32
+       ],
+       [
+        1638,
+        32
+       ],
+       [
+        10904,
+        32
+       ],
+       [
+        11550,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1468,
+        32
+       ],
+       [
+        10964,
+        32
+       ],
+       [
+        11610,
+        32
+       ]
+      ]
+     },
+     "length": 15424,
+     "ranges": [
+      [
+       947,
+       32
+      ],
+      [
+       1468,
+       32
+      ],
+      [
+       1638,
+       32
+      ],
+      [
+       10904,
+       32
+      ],
+      [
+       10964,
+       32
+      ],
+      [
+       11550,
+       32
+      ],
+      [
+       11610,
+       32
+      ]
+     ],
+     "sha256": "0e6c815e9ae36e30a410316c6c2a2bbc91e3c9c23598728f037747e08413e270"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        934,
+        32
+       ],
+       [
+        1612,
+        32
+       ],
+       [
+        9329,
+        32
+       ],
+       [
+        9897,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1455,
+        32
+       ],
+       [
+        9376,
+        32
+       ],
+       [
+        9944,
+        32
+       ]
+      ]
+     },
+     "length": 13446,
+     "ranges": [
+      [
+       934,
+       32
+      ],
+      [
+       1455,
+       32
+      ],
+      [
+       1612,
+       32
+      ],
+      [
+       9329,
+       32
+      ],
+      [
+       9376,
+       32
+      ],
+      [
+       9897,
+       32
+      ],
+      [
+       9944,
+       32
+      ]
+     ],
+     "sha256": "66af182e141caac4fb4aa3860dcdc075a9f108c0f15d2a637f9e70400c2bfced"
+    }
+   },
+   "commit": "c648a45542dca038fe4df83287c21c3c67f717cb",
+   "error": null,
+   "ref": "v0.2.0-beta",
+   "time": 1722576179
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        953,
+        32
+       ],
+       [
+        1662,
+        32
+       ],
+       [
+        9768,
+        32
+       ],
+       [
+        10294,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1505,
+        32
+       ],
+       [
+        9815,
+        32
+       ],
+       [
+        10341,
+        32
+       ]
+      ]
+     },
+     "length": 13882,
+     "ranges": [
+      [
+       953,
+       32
+      ],
+      [
+       1505,
+       32
+      ],
+      [
+       1662,
+       32
+      ],
+      [
+       9768,
+       32
+      ],
+      [
+       9815,
+       32
+      ],
+      [
+       10294,
+       32
+      ],
+      [
+       10341,
+       32
+      ]
+     ],
+     "sha256": "31e7740482fb6743a61ebf296124b7e99ddaacdf572761746787eafe4095c023"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1086,
+        32
+       ],
+       [
+        1808,
+        32
+       ],
+       [
+        12100,
+        32
+       ],
+       [
+        12875,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1638,
+        32
+       ],
+       [
+        12160,
+        32
+       ],
+       [
+        12935,
+        32
+       ]
+      ]
+     },
+     "length": 17745,
+     "ranges": [
+      [
+       1086,
+       32
+      ],
+      [
+       1638,
+       32
+      ],
+      [
+       1808,
+       32
+      ],
+      [
+       12100,
+       32
+      ],
+      [
+       12160,
+       32
+      ],
+      [
+       12875,
+       32
+      ],
+      [
+       12935,
+       32
+      ]
+     ],
+     "sha256": "3c6d9be5870a257969874479b7d5783cff051249c5a21a6f6d6f0521567c95d6"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1073,
+        32
+       ],
+       [
+        1782,
+        32
+       ],
+       [
+        10317,
+        32
+       ],
+       [
+        10945,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1625,
+        32
+       ],
+       [
+        10364,
+        32
+       ],
+       [
+        10992,
+        32
+       ]
+      ]
+     },
+     "length": 15245,
+     "ranges": [
+      [
+       1073,
+       32
+      ],
+      [
+       1625,
+       32
+      ],
+      [
+       1782,
+       32
+      ],
+      [
+       10317,
+       32
+      ],
+      [
+       10364,
+       32
+      ],
+      [
+       10945,
+       32
+      ],
+      [
+       10992,
+       32
+      ]
+     ],
+     "sha256": "650cc4e1b7be8240a3fcd6e7ecdc49241d2286cad3cb94564a69f759085f3627"
+    }
+   },
+   "commit": "7ea5bea884f416ef861fa467e4bc9e68edfa73a9",
+   "error": null,
+   "ref": "v0.2.1",
+   "time": 1725513778
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "24b616b9943a9754b1ae25a8a7a127d0247f84ab",
+   "error": null,
+   "ref": "v0.4.0",
+   "time": 1729504013
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "e608d89e45b8ea31d98eaa4c5425d75c42874d2f",
+   "error": null,
+   "ref": "v0.4.1",
+   "time": 1732632961
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "af4158b30577833649d9466dbc40ed77d12db579",
+   "error": null,
+   "ref": "v0.4.2",
+   "time": 1735638228
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "a1e77833a79c02927519c23f2397adacf870964a",
+   "error": null,
+   "ref": "v0.4.3",
+   "time": 1744711350
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "9ee2c201469c73a778e0d0f8881710d567a10279",
+   "error": null,
+   "ref": "v0.4.4",
+   "time": 1745565838
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "2223d9836827b3c13ec0fbd7f769fed4b5235a9a",
+   "error": null,
+   "ref": "v0.4.5",
+   "time": 1760947973
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "de901b6acfcc8af1c5578cc7ff3f16269b2f58b6",
+   "error": null,
+   "ref": "v0.4.6",
+   "time": 1762869272
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "3cb4687bca674b093a715fc7d328327c35b6e99c",
+   "error": null,
+   "ref": "v0.4.7",
+   "time": 1763085210
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "9392ad97225dc0760edb24d95db98b92cef2a6d6",
+   "error": null,
+   "ref": "v0.4.8",
+   "time": 1766126149
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "1f4e42cf4c0e6680285770885477bc7450e5e900",
+   "error": null,
+   "ref": "v0.4.9",
+   "time": 1767771602
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "3f2350b340c432de5d6331a8866578173e16e18f",
+   "error": null,
+   "ref": "v0.4.10",
+   "time": 1769065716
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "128d56920ef83c05b9c03d1a3446d772c2853e4f",
+   "error": null,
+   "ref": "v0.4.11",
+   "time": 1770803381
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "86cd1bb84f95e7606d93f45c6f5087a36548f559",
+   "error": null,
+   "ref": "v0.5.0",
+   "time": 1773397709
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "1d16588e4aad0cbe2845e487388f30514bc28655",
+   "error": null,
+   "ref": "v0.5.1",
+   "time": 1773643896
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "83e4e8ba44cd30e1b54f6b3a7a4fec449ce2c970",
+   "error": null,
+   "ref": "v0.5.2",
+   "time": 1773736052
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "a20bbfa25014a20ba229ca0c9621001d6b334b44",
+   "error": null,
+   "ref": "v0.5.3",
+   "time": 1774587814
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "fef33f9df2052522bec93ae6733651e2e7b5193b",
+   "error": null,
+   "ref": "v0.5.4",
+   "time": 1777023291
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "4fb95dc92911e80806c9a01e9a1335bde716375b",
+   "error": null,
+   "ref": "v0.5.5",
+   "time": 1778060389
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "cafa07d19de8a5a36c8510890a72533c8e0e52e5",
+   "error": null,
+   "ref": "v0.5.6",
+   "time": 1779331191
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "55272a512fb0f0c378e78852b0cfbd92c6a02826",
+   "error": null,
+   "ref": "v0.5.7",
+   "time": 1780029174
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "0b3f19eed0ea9d5216272b71ed1276aa2eb2e687",
+   "error": null,
+   "ref": "v0.6.0",
+   "time": 1783588147
+  },
+  {
+   "builds": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "4a1607dbe3288643827154738e28e5ef0734dccf",
+   "error": null,
+   "ref": "v0.6.1",
+   "time": 1786438345
+  }
+ ],
+ "sidecar": {
+  "path": "spec/M3/lib/bundle.json",
+  "sha256": "f6c91cab9f4d1941f8999b6ba2378dd488b7224891b477d9e731b8034e380a40"
+ },
+ "target": {
+  "head": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph"
+ },
+ "version_config": "hardhat",
+ "versions": [
+  {
+   "code": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        814,
+        32
+       ],
+       [
+        1492,
+        32
+       ],
+       [
+        8735,
+        32
+       ],
+       [
+        9171,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1335,
+        32
+       ],
+       [
+        8782,
+        32
+       ],
+       [
+        9218,
+        32
+       ]
+      ]
+     },
+     "length": 12022,
+     "ranges": [
+      [
+       814,
+       32
+      ],
+      [
+       1335,
+       32
+      ],
+      [
+       1492,
+       32
+      ],
+      [
+       8735,
+       32
+      ],
+      [
+       8782,
+       32
+      ],
+      [
+       9171,
+       32
+      ],
+      [
+       9218,
+       32
+      ]
+     ],
+     "sha256": "37bbd488f639eacc93d6770a2d5bae88704c246f5e1f8113025f3d76d211cc9a"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        947,
+        32
+       ],
+       [
+        1638,
+        32
+       ],
+       [
+        10904,
+        32
+       ],
+       [
+        11550,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1468,
+        32
+       ],
+       [
+        10964,
+        32
+       ],
+       [
+        11610,
+        32
+       ]
+      ]
+     },
+     "length": 15424,
+     "ranges": [
+      [
+       947,
+       32
+      ],
+      [
+       1468,
+       32
+      ],
+      [
+       1638,
+       32
+      ],
+      [
+       10904,
+       32
+      ],
+      [
+       10964,
+       32
+      ],
+      [
+       11550,
+       32
+      ],
+      [
+       11610,
+       32
+      ]
+     ],
+     "sha256": "0e6c815e9ae36e30a410316c6c2a2bbc91e3c9c23598728f037747e08413e270"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        934,
+        32
+       ],
+       [
+        1612,
+        32
+       ],
+       [
+        9329,
+        32
+       ],
+       [
+        9897,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1455,
+        32
+       ],
+       [
+        9376,
+        32
+       ],
+       [
+        9944,
+        32
+       ]
+      ]
+     },
+     "length": 13446,
+     "ranges": [
+      [
+       934,
+       32
+      ],
+      [
+       1455,
+       32
+      ],
+      [
+       1612,
+       32
+      ],
+      [
+       9329,
+       32
+      ],
+      [
+       9376,
+       32
+      ],
+      [
+       9897,
+       32
+      ],
+      [
+       9944,
+       32
+      ]
+     ],
+     "sha256": "66af182e141caac4fb4aa3860dcdc075a9f108c0f15d2a637f9e70400c2bfced"
+    }
+   },
+   "commit": "c648a45542dca038fe4df83287c21c3c67f717cb",
+   "id": "V1",
+   "layout": [
+    {
+     "bytes": 1,
+     "contract": "Initializable",
+     "label": "_initialized",
+     "offset": 0,
+     "slot": 0,
+     "type": {
+      "bytes": 1,
+      "encoding": "inplace",
+      "label": "uint8"
+     }
+    },
+    {
+     "bytes": 1,
+     "contract": "Initializable",
+     "label": "_initializing",
+     "offset": 1,
+     "slot": 0,
+     "type": {
+      "bytes": 1,
+      "encoding": "inplace",
+      "label": "bool"
+     }
+    },
+    {
+     "bytes": 1600,
+     "contract": "ContextUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 1,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1600,
+      "encoding": "inplace",
+      "label": "uint256[50]"
+     }
+    },
+    {
+     "bytes": 20,
+     "contract": "OwnableUpgradeable",
+     "label": "_owner",
+     "offset": 0,
+     "slot": 51,
+     "type": {
+      "bytes": 20,
+      "encoding": "inplace",
+      "label": "address"
+     }
+    },
+    {
+     "bytes": 1568,
+     "contract": "OwnableUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 52,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1568,
+      "encoding": "inplace",
+      "label": "uint256[49]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "ReentrancyGuardUpgradeable",
+     "label": "_status",
+     "offset": 0,
+     "slot": 101,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 1568,
+     "contract": "ReentrancyGuardUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 102,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1568,
+      "encoding": "inplace",
+      "label": "uint256[49]"
+     }
+    },
+    {
+     "bytes": 20,
+     "contract": "L1Staking",
+     "label": "rollupContract",
+     "offset": 0,
+     "slot": 151,
+     "type": {
+      "bytes": 20,
+      "encoding": "inplace",
+      "label": "address"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakingValue",
+     "offset": 0,
+     "slot": 152,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "withdrawalLockBlocks",
+     "offset": 0,
+     "slot": 153,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "rewardPercentage",
+     "offset": 0,
+     "slot": 154,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "gasLimitAddStaker",
+     "offset": 0,
+     "slot": 155,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "gasLimitRemoveStakers",
+     "offset": 0,
+     "slot": 156,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "slashRemaining",
+     "offset": 0,
+     "slot": 157,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "whitelist",
+     "offset": 0,
+     "slot": 158,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "removedList",
+     "offset": 0,
+     "slot": 159,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 8160,
+     "contract": "L1Staking",
+     "label": "stakerSet",
+     "offset": 0,
+     "slot": 160,
+     "type": {
+      "base": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "bytes": 8160,
+      "encoding": "inplace",
+      "label": "address[255]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakerIndexes",
+     "offset": 0,
+     "slot": 415,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint8)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "uint8"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "deleteList",
+     "offset": 0,
+     "slot": 416,
+     "type": {
+      "base": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "bytes": 32,
+      "encoding": "dynamic_array",
+      "label": "address[]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "deleteableHeight",
+     "offset": 0,
+     "slot": 417,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint256)",
+      "value": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakers",
+     "offset": 0,
+     "slot": 418,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => struct Types.StakerInfo)",
+      "value": {
+       "bytes": 96,
+       "encoding": "inplace",
+       "label": "struct Types.StakerInfo",
+       "members": [
+        {
+         "label": "addr",
+         "offset": 0,
+         "slot": 0,
+         "type": {
+          "bytes": 20,
+          "encoding": "inplace",
+          "label": "address"
+         }
+        },
+        {
+         "label": "tmKey",
+         "offset": 0,
+         "slot": 1,
+         "type": {
+          "bytes": 32,
+          "encoding": "inplace",
+          "label": "bytes32"
+         }
+        },
+        {
+         "label": "blsKey",
+         "offset": 0,
+         "slot": 2,
+         "type": {
+          "bytes": 32,
+          "encoding": "bytes",
+          "label": "bytes"
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "blsKeys",
+     "offset": 0,
+     "slot": 419,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 32,
+       "encoding": "bytes",
+       "label": "bytes"
+      },
+      "label": "mapping(bytes => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "tmKeys",
+     "offset": 0,
+     "slot": 420,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "bytes32"
+      },
+      "label": "mapping(bytes32 => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "withdrawals",
+     "offset": 0,
+     "slot": 421,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint256)",
+      "value": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      }
+     }
+    }
+   ],
+   "layout_sha256": "8c8b654be87714defb523a6e0c867548c086bf832f332c6d02476288a892a4a6",
+   "refs": [
+    "v0.2.0-beta"
+   ],
+   "reinitializers": [
+    {
+     "line": 103,
+     "name": "initialize",
+     "version": 1
+    }
+   ],
+   "source_sha256": "576767d66403dde5f22b59bf92d4b3b17df4372782951c7c9a2d1a6b50c8e17b",
+   "time": 1722576179
+  },
+  {
+   "code": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        953,
+        32
+       ],
+       [
+        1662,
+        32
+       ],
+       [
+        9768,
+        32
+       ],
+       [
+        10294,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1505,
+        32
+       ],
+       [
+        9815,
+        32
+       ],
+       [
+        10341,
+        32
+       ]
+      ]
+     },
+     "length": 13882,
+     "ranges": [
+      [
+       953,
+       32
+      ],
+      [
+       1505,
+       32
+      ],
+      [
+       1662,
+       32
+      ],
+      [
+       9768,
+       32
+      ],
+      [
+       9815,
+       32
+      ],
+      [
+       10294,
+       32
+      ],
+      [
+       10341,
+       32
+      ]
+     ],
+     "sha256": "31e7740482fb6743a61ebf296124b7e99ddaacdf572761746787eafe4095c023"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1086,
+        32
+       ],
+       [
+        1808,
+        32
+       ],
+       [
+        12100,
+        32
+       ],
+       [
+        12875,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1638,
+        32
+       ],
+       [
+        12160,
+        32
+       ],
+       [
+        12935,
+        32
+       ]
+      ]
+     },
+     "length": 17745,
+     "ranges": [
+      [
+       1086,
+       32
+      ],
+      [
+       1638,
+       32
+      ],
+      [
+       1808,
+       32
+      ],
+      [
+       12100,
+       32
+      ],
+      [
+       12160,
+       32
+      ],
+      [
+       12875,
+       32
+      ],
+      [
+       12935,
+       32
+      ]
+     ],
+     "sha256": "3c6d9be5870a257969874479b7d5783cff051249c5a21a6f6d6f0521567c95d6"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1073,
+        32
+       ],
+       [
+        1782,
+        32
+       ],
+       [
+        10317,
+        32
+       ],
+       [
+        10945,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1625,
+        32
+       ],
+       [
+        10364,
+        32
+       ],
+       [
+        10992,
+        32
+       ]
+      ]
+     },
+     "length": 15245,
+     "ranges": [
+      [
+       1073,
+       32
+      ],
+      [
+       1625,
+       32
+      ],
+      [
+       1782,
+       32
+      ],
+      [
+       10317,
+       32
+      ],
+      [
+       10364,
+       32
+      ],
+      [
+       10945,
+       32
+      ],
+      [
+       10992,
+       32
+      ]
+     ],
+     "sha256": "650cc4e1b7be8240a3fcd6e7ecdc49241d2286cad3cb94564a69f759085f3627"
+    }
+   },
+   "commit": "7ea5bea884f416ef861fa467e4bc9e68edfa73a9",
+   "id": "V2",
+   "layout": [
+    {
+     "bytes": 1,
+     "contract": "Initializable",
+     "label": "_initialized",
+     "offset": 0,
+     "slot": 0,
+     "type": {
+      "bytes": 1,
+      "encoding": "inplace",
+      "label": "uint8"
+     }
+    },
+    {
+     "bytes": 1,
+     "contract": "Initializable",
+     "label": "_initializing",
+     "offset": 1,
+     "slot": 0,
+     "type": {
+      "bytes": 1,
+      "encoding": "inplace",
+      "label": "bool"
+     }
+    },
+    {
+     "bytes": 1600,
+     "contract": "ContextUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 1,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1600,
+      "encoding": "inplace",
+      "label": "uint256[50]"
+     }
+    },
+    {
+     "bytes": 20,
+     "contract": "OwnableUpgradeable",
+     "label": "_owner",
+     "offset": 0,
+     "slot": 51,
+     "type": {
+      "bytes": 20,
+      "encoding": "inplace",
+      "label": "address"
+     }
+    },
+    {
+     "bytes": 1568,
+     "contract": "OwnableUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 52,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1568,
+      "encoding": "inplace",
+      "label": "uint256[49]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "ReentrancyGuardUpgradeable",
+     "label": "_status",
+     "offset": 0,
+     "slot": 101,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 1568,
+     "contract": "ReentrancyGuardUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 102,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1568,
+      "encoding": "inplace",
+      "label": "uint256[49]"
+     }
+    },
+    {
+     "bytes": 20,
+     "contract": "L1Staking",
+     "label": "rollupContract",
+     "offset": 0,
+     "slot": 151,
+     "type": {
+      "bytes": 20,
+      "encoding": "inplace",
+      "label": "address"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakingValue",
+     "offset": 0,
+     "slot": 152,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "withdrawalLockBlocks",
+     "offset": 0,
+     "slot": 153,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "rewardPercentage",
+     "offset": 0,
+     "slot": 154,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "gasLimitAddStaker",
+     "offset": 0,
+     "slot": 155,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "gasLimitRemoveStakers",
+     "offset": 0,
+     "slot": 156,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "slashRemaining",
+     "offset": 0,
+     "slot": 157,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "whitelist",
+     "offset": 0,
+     "slot": 158,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "removedList",
+     "offset": 0,
+     "slot": 159,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 8160,
+     "contract": "L1Staking",
+     "label": "stakerSet",
+     "offset": 0,
+     "slot": 160,
+     "type": {
+      "base": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "bytes": 8160,
+      "encoding": "inplace",
+      "label": "address[255]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakerIndexes",
+     "offset": 0,
+     "slot": 415,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint8)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "uint8"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "deleteList",
+     "offset": 0,
+     "slot": 416,
+     "type": {
+      "base": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "bytes": 32,
+      "encoding": "dynamic_array",
+      "label": "address[]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "deleteableHeight",
+     "offset": 0,
+     "slot": 417,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint256)",
+      "value": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakers",
+     "offset": 0,
+     "slot": 418,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => struct Types.StakerInfo)",
+      "value": {
+       "bytes": 96,
+       "encoding": "inplace",
+       "label": "struct Types.StakerInfo",
+       "members": [
+        {
+         "label": "addr",
+         "offset": 0,
+         "slot": 0,
+         "type": {
+          "bytes": 20,
+          "encoding": "inplace",
+          "label": "address"
+         }
+        },
+        {
+         "label": "tmKey",
+         "offset": 0,
+         "slot": 1,
+         "type": {
+          "bytes": 32,
+          "encoding": "inplace",
+          "label": "bytes32"
+         }
+        },
+        {
+         "label": "blsKey",
+         "offset": 0,
+         "slot": 2,
+         "type": {
+          "bytes": 32,
+          "encoding": "bytes",
+          "label": "bytes"
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "blsKeys",
+     "offset": 0,
+     "slot": 419,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 32,
+       "encoding": "bytes",
+       "label": "bytes"
+      },
+      "label": "mapping(bytes => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "tmKeys",
+     "offset": 0,
+     "slot": 420,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "bytes32"
+      },
+      "label": "mapping(bytes32 => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "withdrawals",
+     "offset": 0,
+     "slot": 421,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint256)",
+      "value": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "challengeDeposit",
+     "offset": 0,
+     "slot": 422,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    }
+   ],
+   "layout_sha256": "0845f95bab890ecb5983dbf4435f5d83b1d802704555affdd346961d79b34fa6",
+   "refs": [
+    "v0.2.1"
+   ],
+   "reinitializers": [
+    {
+     "line": 109,
+     "name": "initialize",
+     "version": 1
+    }
+   ],
+   "source_sha256": "7e710e5a190dd484012bda2afdb15ba08ce199a5a234366acb20d895e0f20e76",
+   "time": 1725513778
+  },
+  {
+   "code": {
+    "deployed": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        964,
+        32
+       ],
+       [
+        1673,
+        32
+       ],
+       [
+        9855,
+        32
+       ],
+       [
+        10381,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1516,
+        32
+       ],
+       [
+        9902,
+        32
+       ],
+       [
+        10428,
+        32
+       ]
+      ]
+     },
+     "length": 14046,
+     "ranges": [
+      [
+       964,
+       32
+      ],
+      [
+       1516,
+       32
+      ],
+      [
+       1673,
+       32
+      ],
+      [
+       9855,
+       32
+      ],
+      [
+       9902,
+       32
+      ],
+      [
+       10381,
+       32
+      ],
+      [
+       10428,
+       32
+      ]
+     ],
+     "sha256": "7a7d5e44b00751eb003af541bcab37a678f768ebf02fd50db95c1dcf1429a288"
+    },
+    "foundry": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1097,
+        32
+       ],
+       [
+        1819,
+        32
+       ],
+       [
+        12341,
+        32
+       ],
+       [
+        13116,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1649,
+        32
+       ],
+       [
+        12401,
+        32
+       ],
+       [
+        13176,
+        32
+       ]
+      ]
+     },
+     "length": 18016,
+     "ranges": [
+      [
+       1097,
+       32
+      ],
+      [
+       1649,
+       32
+      ],
+      [
+       1819,
+       32
+      ],
+      [
+       12341,
+       32
+      ],
+      [
+       12401,
+       32
+      ],
+      [
+       13116,
+       32
+      ],
+      [
+       13176,
+       32
+      ]
+     ],
+     "sha256": "d8d76a05bf4dcb13734e3fd596c799c77eeced7e85dc791d4e07e7f9353bc5c0"
+    },
+    "hardhat": {
+     "immutables": {
+      "MESSENGER": [
+       [
+        1084,
+        32
+       ],
+       [
+        1793,
+        32
+       ],
+       [
+        10532,
+        32
+       ],
+       [
+        11160,
+        32
+       ]
+      ],
+      "OTHER_STAKING": [
+       [
+        1636,
+        32
+       ],
+       [
+        10579,
+        32
+       ],
+       [
+        11207,
+        32
+       ]
+      ]
+     },
+     "length": 15490,
+     "ranges": [
+      [
+       1084,
+       32
+      ],
+      [
+       1636,
+       32
+      ],
+      [
+       1793,
+       32
+      ],
+      [
+       10532,
+       32
+      ],
+      [
+       10579,
+       32
+      ],
+      [
+       11160,
+       32
+      ],
+      [
+       11207,
+       32
+      ]
+     ],
+     "sha256": "dc8d013c1aef7343ab9f429f6f846fafb474c3035ddf866f918596355fb2bbaa"
+    }
+   },
+   "commit": "24b616b9943a9754b1ae25a8a7a127d0247f84ab",
+   "id": "V3",
+   "layout": [
+    {
+     "bytes": 1,
+     "contract": "Initializable",
+     "label": "_initialized",
+     "offset": 0,
+     "slot": 0,
+     "type": {
+      "bytes": 1,
+      "encoding": "inplace",
+      "label": "uint8"
+     }
+    },
+    {
+     "bytes": 1,
+     "contract": "Initializable",
+     "label": "_initializing",
+     "offset": 1,
+     "slot": 0,
+     "type": {
+      "bytes": 1,
+      "encoding": "inplace",
+      "label": "bool"
+     }
+    },
+    {
+     "bytes": 1600,
+     "contract": "ContextUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 1,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1600,
+      "encoding": "inplace",
+      "label": "uint256[50]"
+     }
+    },
+    {
+     "bytes": 20,
+     "contract": "OwnableUpgradeable",
+     "label": "_owner",
+     "offset": 0,
+     "slot": 51,
+     "type": {
+      "bytes": 20,
+      "encoding": "inplace",
+      "label": "address"
+     }
+    },
+    {
+     "bytes": 1568,
+     "contract": "OwnableUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 52,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1568,
+      "encoding": "inplace",
+      "label": "uint256[49]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "ReentrancyGuardUpgradeable",
+     "label": "_status",
+     "offset": 0,
+     "slot": 101,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 1568,
+     "contract": "ReentrancyGuardUpgradeable",
+     "label": "__gap",
+     "offset": 0,
+     "slot": 102,
+     "type": {
+      "base": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      },
+      "bytes": 1568,
+      "encoding": "inplace",
+      "label": "uint256[49]"
+     }
+    },
+    {
+     "bytes": 20,
+     "contract": "L1Staking",
+     "label": "rollupContract",
+     "offset": 0,
+     "slot": 151,
+     "type": {
+      "bytes": 20,
+      "encoding": "inplace",
+      "label": "address"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakingValue",
+     "offset": 0,
+     "slot": 152,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "withdrawalLockBlocks",
+     "offset": 0,
+     "slot": 153,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "rewardPercentage",
+     "offset": 0,
+     "slot": 154,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "gasLimitAddStaker",
+     "offset": 0,
+     "slot": 155,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "gasLimitRemoveStakers",
+     "offset": 0,
+     "slot": 156,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "slashRemaining",
+     "offset": 0,
+     "slot": 157,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "whitelist",
+     "offset": 0,
+     "slot": 158,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "removedList",
+     "offset": 0,
+     "slot": 159,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 8160,
+     "contract": "L1Staking",
+     "label": "stakerSet",
+     "offset": 0,
+     "slot": 160,
+     "type": {
+      "base": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "bytes": 8160,
+      "encoding": "inplace",
+      "label": "address[255]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakerIndexes",
+     "offset": 0,
+     "slot": 415,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint8)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "uint8"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "deleteList",
+     "offset": 0,
+     "slot": 416,
+     "type": {
+      "base": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "bytes": 32,
+      "encoding": "dynamic_array",
+      "label": "address[]"
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "deleteableHeight",
+     "offset": 0,
+     "slot": 417,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint256)",
+      "value": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "stakers",
+     "offset": 0,
+     "slot": 418,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => struct Types.StakerInfo)",
+      "value": {
+       "bytes": 96,
+       "encoding": "inplace",
+       "label": "struct Types.StakerInfo",
+       "members": [
+        {
+         "label": "addr",
+         "offset": 0,
+         "slot": 0,
+         "type": {
+          "bytes": 20,
+          "encoding": "inplace",
+          "label": "address"
+         }
+        },
+        {
+         "label": "tmKey",
+         "offset": 0,
+         "slot": 1,
+         "type": {
+          "bytes": 32,
+          "encoding": "inplace",
+          "label": "bytes32"
+         }
+        },
+        {
+         "label": "blsKey",
+         "offset": 0,
+         "slot": 2,
+         "type": {
+          "bytes": 32,
+          "encoding": "bytes",
+          "label": "bytes"
+         }
+        }
+       ]
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "blsKeys",
+     "offset": 0,
+     "slot": 419,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 32,
+       "encoding": "bytes",
+       "label": "bytes"
+      },
+      "label": "mapping(bytes => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "tmKeys",
+     "offset": 0,
+     "slot": 420,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "bytes32"
+      },
+      "label": "mapping(bytes32 => bool)",
+      "value": {
+       "bytes": 1,
+       "encoding": "inplace",
+       "label": "bool"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "withdrawals",
+     "offset": 0,
+     "slot": 421,
+     "type": {
+      "bytes": 32,
+      "encoding": "mapping",
+      "key": {
+       "bytes": 20,
+       "encoding": "inplace",
+       "label": "address"
+      },
+      "label": "mapping(address => uint256)",
+      "value": {
+       "bytes": 32,
+       "encoding": "inplace",
+       "label": "uint256"
+      }
+     }
+    },
+    {
+     "bytes": 32,
+     "contract": "L1Staking",
+     "label": "challengeDeposit",
+     "offset": 0,
+     "slot": 422,
+     "type": {
+      "bytes": 32,
+      "encoding": "inplace",
+      "label": "uint256"
+     }
+    }
+   ],
+   "layout_sha256": "0845f95bab890ecb5983dbf4435f5d83b1d802704555affdd346961d79b34fa6",
+   "refs": [
+    "v0.4.0",
+    "v0.4.1",
+    "v0.4.2",
+    "v0.4.3",
+    "v0.4.4",
+    "v0.4.5",
+    "v0.4.6",
+    "v0.4.7",
+    "v0.4.8",
+    "v0.4.9",
+    "v0.4.10",
+    "v0.4.11",
+    "v0.5.0",
+    "v0.5.1",
+    "v0.5.2",
+    "v0.5.3",
+    "v0.5.4",
+    "v0.5.5",
+    "v0.5.6",
+    "v0.5.7",
+    "v0.6.0",
+    "v0.6.1"
+   ],
+   "reinitializers": [
+    {
+     "line": 109,
+     "name": "initialize",
+     "version": 1
+    }
+   ],
+   "source_sha256": "213211b3212705d2e67e3f8a1976a549a22eb21f3b317e57bf38e652659a8585",
+   "time": 1729504013
+  }
+ ]
+}
