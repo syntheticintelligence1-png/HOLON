@@ -1097,8 +1097,9 @@ def _outcome(obs) -> str:
 def direct_items(root: Path) -> list[dict]:
     """Rule K4's emitted tests for the direct REFUTED records of M3 that have no I4 side: each schedule the record's
     rule replayed (replay/M3/<rule>/report.json: a SORT entry point's trace, a DISCH trace, an UNDO pair's runs with
-    and without x;y) as a Foundry test from its calldata, asserting the model's outcome at every step (the replay
-    report's model column, never the real one). Generic: the schedules are read from the reports' shapes."""
+    and without x;y, a cancel law's with x;y and with y alone) as a Foundry test from its calldata, asserting the
+    model's outcome at every step (the replay report's model column, never the real one). Generic: the schedules are
+    read from the reports' shapes."""
     from .gen.foundry import sanitize
     recs = records(root)
     sides = i4_sides(root)
@@ -1228,7 +1229,9 @@ def direct_side(items: list[dict], tests_out: dict) -> dict:
         pre, t_at = len(wo) - (len(w) - int(e["t_at"])), int(e["t_at"])
         dm = next((i for i in range(len(w) - t_at) if w[t_at + i] != wo[pre + i]), None)
         obs = passed and rule_ok and dm is not None and dm == e.get("diverges_at")
-        basis = (f"the two emitted runs (with and without x;y) diverge at t[{dm}] in the outcomes they assert"
+        # a cancel law's run without x keeps y (I71: the replay entry carries t_at_without)
+        runs = "with x;y and with y alone" if "t_at_without" in e else "with and without x;y"
+        basis = (f"the two emitted runs ({runs}) diverge at t[{dm}] in the outcomes they assert"
                  if dm is not None else "the runs diverge only in logs or calls, which the tests do not assert")
     return {"status": "passed" if passed else "failed", "provenance": "public_schedule", "obstruction_observed": obs,
             "test": items[0]["test"], "tests": [it["test"] for it in items],

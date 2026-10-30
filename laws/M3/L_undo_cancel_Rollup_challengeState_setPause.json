@@ -1,0 +1,71 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_undo_cancel_Rollup_challengeState_setPause",
+  "milestone": "M3",
+  "notes": "after a call x of challengeState and a call y of setPause that cancels it (x succeeding, y succeeding both after x and alone, and restoring every register the cancellation restores), every trace t observes the same outputs as after y alone (the cancellation's undo law); undo morph_rollup.extracted:cancel:challengeState:setPause",
+  "rule": "UNDO",
+  "rule_catalog_version": "holon-rules/1.7",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "y",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "t",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            },
+            {
+              "var": "y"
+            },
+            {
+              "var": "t"
+            },
+            {
+              "var": "keccak256"
+            }
+          ],
+          "undo": "morph_rollup.extracted:cancel:challengeState:setPause"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "cancel"
+}

@@ -27,7 +27,8 @@ The DISCH laws (I31) and the FACT laws (I26) have their own checks (holon.disch.
 
 The UNDO laws (I27, holon.undo.run): G1 also regenerates their analysis (holon undo), records, trace section and law
 and proof files and compares the classification regenerated from the records with results/<M>/undo/classification.json;
-G6 binds every REFUTED UNDO record to a passed entry of replay/<M>/undo/report.json. Every report carries "warnings":
+G6 binds every REFUTED UNDO record to a passed entry of replay/<M>/undo/report.json (a cancel law's run without x is
+prefix + [y] + t: I71). Every report carries "warnings":
 one {"check": "GUNDO", "law"} per UNDO law whose static class differs from its kernel class (holon.rules.undo
 .classification), whether or not a check fails; the law is blocked from window and shadow generation.
 
@@ -277,12 +278,14 @@ class Gate3:
             x = (rep.get("laws") or {}).get(lid)
             w = r.get("witness") or {}
             pre = list(w.get("prefix") or [])
+            # the run without x: prefix + t, or prefix + [y] + t for a cancel law (I71: y alone)
+            alone = [w.get("y")] if self.undo_entries[lid].get("subform") == "cancel" else []
             if x is None:
                 bad.append(f"{lid}: not replayed")
             elif x.get("status") != "passed" or not x.get("calls_agree"):
                 bad.append(f"{lid}: replay {x.get('status')}")
             elif (x.get("with") or {}).get("trace") != pre + [w.get("x"), w.get("y")] + list(w.get("t") or []) or \
-                    (x.get("without") or {}).get("trace") != pre + list(w.get("t") or []):
+                    (x.get("without") or {}).get("trace") != pre + alone + list(w.get("t") or []):
                 bad.append(f"{lid}: the replayed runs are not the record's witness")
             elif (r.get("replay") or {}).get("status") != "passed":
                 bad.append(f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}")
