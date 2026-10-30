@@ -1,0 +1,2608 @@
+{
+ "blob_layer": {
+  "path": "replay/M3/derivation/bend/blob_layer.json",
+  "sha256": "3923c98d0e5cafec27adcba5536748c4bffb89ac0e6afc2c247cf1659769affd"
+ },
+ "cases": {
+  "planted/bad_tx_type": {
+   "agree": true,
+   "model": {
+    "error": "not supported tx type: 5",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/blob_contexts_short": {
+   "agree": true,
+   "model": {
+    "error": "decompressed batch too short for block contexts: have 120, need 5 blocks",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/blob_high_byte": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 5",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/blob_high_byte_late": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": "runtime error: index out of range [126976] with length 126976",
+    "status": "panic"
+   }
+  },
+  "planted/calldata_prefix_short": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short for block count prefix: have 1, need 2",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/calldata_short": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 62, need 122",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/compressed_empty": {
+   "agree": true,
+   "model": {
+    "error": "decompress batch bytes error:morph da zstd decode: invalid frame",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/compressed_garbage": {
+   "agree": true,
+   "model": {
+    "error": "decompress batch bytes error:morph da zstd decode: invalid frame",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/dequeue_short": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 101
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/lbn_below_parent": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: lastBlockNumber 99 < parent lastBlockNumber 100",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/no_blobs": {
+   "agree": true,
+   "model": {
+    "error": "blobs length can not be zero",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/ok_basefee_zero": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 701,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 702,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 702
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/ok_calldata_v0": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 5000,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 5001,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 5001
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/ok_calldata_v1": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 6000,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 6001,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 6001
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/ok_empty_blocks": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 801,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      },
+      {
+       "Number": 802,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      }
+     ],
+     "lastBlockNumber": 802
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/ok_l1_messages": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 901,
+       "l1MsgNum": 2,
+       "txsNum": 3
+      },
+      {
+       "Number": 902,
+       "l1MsgNum": 1,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 902
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/ok_padded_second_blob": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 951,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 951
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/ok_transition": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 1000,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 1001,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      },
+      {
+       "Number": 1002,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 1002
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/ok_v1": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 2001,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 2002,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 2003,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 2003
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/ok_v2_two_blobs": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 3001,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 3002,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 3002
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "planted/parent_bad_length": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/parent_bad_version": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes version",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/parent_empty": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:empty BatchHeaderBytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/transition_lbn_below": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: lastBlockNumber 499 < start block 500",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/transition_short": {
+   "agree": true,
+   "model": {
+    "error": "decompressed batch too short for start block context: have 10, need 60",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/tx_size_overflow": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 4294967295 exceeds remaining 2 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/txsnum_below_l1": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:1,l1MsgNum:2",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 101
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/zero_block_count_equal": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "planted/zero_block_count_v0": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "product/01/1": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 1,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 1
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/01/2": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 2,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 3,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 3
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/01/3": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 4,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 5,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      },
+      {
+       "Number": 6,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 6
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/02/1": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "product/02/2": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 2,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 2
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/02/3": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 3,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 4,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 4
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/03/1": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 1,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      },
+      {
+       "Number": 2,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 2
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/03/2": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 3,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 4,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 4
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/03/3": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 5,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 6,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 6
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/04/1": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 1,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 1
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/04/2": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 2,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      }
+     ],
+     "lastBlockNumber": 2
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/05/1": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 1,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      },
+      {
+       "Number": 2,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 3,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 3
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/05/2": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 4,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 4
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/05/3": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 5,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 6,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 7,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 7
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/05/4": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 8,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 8
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/06/1": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "product/06/2": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "product/06/3": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 5,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 6,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 6
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/07/1": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 1,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 1
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "product/08/1": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 1,
+       "l1MsgNum": 0,
+       "txsNum": 6
+      },
+      {
+       "Number": 2,
+       "l1MsgNum": 0,
+       "txsNum": 6
+      }
+     ],
+     "lastBlockNumber": 2
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/000": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:3,l1MsgNum:4",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/001": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 22, need 62",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/002": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 170",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/003": {
+   "agree": true,
+   "model": {
+    "error": "blobs length can not be zero",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/004": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 138 exceeds remaining 105 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/005": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 38044,
+       "l1MsgNum": 1,
+       "txsNum": 3
+      },
+      {
+       "Number": 38045,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 38046,
+       "l1MsgNum": 0,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 38046
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/006": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 169",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/007": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 22",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/008": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 458811,
+       "l1MsgNum": 0,
+       "txsNum": 3
+      },
+      {
+       "Number": 458812,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 458813,
+       "l1MsgNum": 0,
+       "txsNum": 3
+      },
+      {
+       "Number": 458814,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      }
+     ],
+     "lastBlockNumber": 458814
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/009": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 52, need 62",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/010": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 134",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/011": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 0",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 533590
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/012": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 159 exceeds remaining 119 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/013": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 164",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/014": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 39",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/015": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/016": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 2",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 823593
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/017": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 41152,
+       "l1MsgNum": 2,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 41152
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/018": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:0,l1MsgNum:1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 252096
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/019": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 46905
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/020": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 734385,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 734386,
+       "l1MsgNum": 2,
+       "txsNum": 4
+      },
+      {
+       "Number": 734387,
+       "l1MsgNum": 2,
+       "txsNum": 4
+      }
+     ],
+     "lastBlockNumber": 734387
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/021": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 196, need 242",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/022": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/023": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 220 exceeds remaining 199 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/024": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:5,l1MsgNum:6",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/025": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 780471,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 780471
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/026": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:1,l1MsgNum:2",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/027": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 593425,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 593425
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/028": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/029": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 86",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/030": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 6099381,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 790966,
+       "l1MsgNum": 2,
+       "txsNum": 5
+      },
+      {
+       "Number": 790967,
+       "l1MsgNum": 0,
+       "txsNum": 3
+      },
+      {
+       "Number": 790968,
+       "l1MsgNum": 2,
+       "txsNum": 4
+      }
+     ],
+     "lastBlockNumber": 790968
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/031": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 594676,
+       "l1MsgNum": 2,
+       "txsNum": 2
+      },
+      {
+       "Number": 594677,
+       "l1MsgNum": 2,
+       "txsNum": 2
+      },
+      {
+       "Number": 594678,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 594678
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/032": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/033": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/034": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/035": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 593291,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 593292,
+       "l1MsgNum": 1,
+       "txsNum": 3
+      },
+      {
+       "Number": 593293,
+       "l1MsgNum": 0,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 593293
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/036": {
+   "agree": true,
+   "model": {
+    "error": "blobs length can not be zero",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/037": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 16, need 62",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/038": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/039": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 175, need 182",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/040": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 238 exceeds remaining 202 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/041": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/042": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 20791,
+       "l1MsgNum": 2,
+       "txsNum": 3
+      },
+      {
+       "Number": 20792,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      },
+      {
+       "Number": 20793,
+       "l1MsgNum": 0,
+       "txsNum": 3
+      },
+      {
+       "Number": 20794,
+       "l1MsgNum": 2,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 20794
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/043": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:1,l1MsgNum:2",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/044": {
+   "agree": true,
+   "model": {
+    "error": "rlp: expected input string or byte for uint64, decoding into (types.LegacyTx).Nonce",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/045": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:4,l1MsgNum:5",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 521932
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/046": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 180",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/047": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/048": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 45862,
+       "l1MsgNum": 2,
+       "txsNum": 3
+      },
+      {
+       "Number": 45863,
+       "l1MsgNum": 2,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 45863
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/049": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 53, need 62",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/050": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 558007
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/051": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/052": {
+   "agree": true,
+   "model": {
+    "error": "blobs length can not be zero",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/053": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 131, need 182",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/054": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/055": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 35837,
+       "l1MsgNum": 2,
+       "txsNum": 4
+      }
+     ],
+     "lastBlockNumber": 35837
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/056": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/057": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 285567,
+       "l1MsgNum": 0,
+       "txsNum": 3
+      },
+      {
+       "Number": 285568,
+       "l1MsgNum": 1,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 285568
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/058": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 2",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 316934
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/059": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 36, need 62",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/060": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 203428,
+       "l1MsgNum": 1,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 203428
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/061": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 167",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/062": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/063": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 229 exceeds remaining 213 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/064": {
+   "agree": true,
+   "model": {
+    "error": "decompress batch bytes error:morph da zstd decode: invalid frame",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/065": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 703480,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      },
+      {
+       "Number": 703481,
+       "l1MsgNum": 2,
+       "txsNum": 4
+      }
+     ],
+     "lastBlockNumber": 703481
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/066": {
+   "agree": true,
+   "model": {
+    "error": "blobs length can not be zero",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/067": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 396757,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      }
+     ],
+     "lastBlockNumber": 396757
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/068": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 114728,
+       "l1MsgNum": 2,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 114728
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/069": {
+   "agree": true,
+   "model": {
+    "error": "blobs length can not be zero",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/070": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 89, need 122",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/071": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 34520,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      }
+     ],
+     "lastBlockNumber": 34520
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/072": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 34",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/073": {
+   "agree": true,
+   "model": {
+    "error": "decompress batch bytes error:morph da zstd decode: content size mismatch",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/074": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 58",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/075": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/076": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 114, need 122",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/077": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 962728,
+       "l1MsgNum": 1,
+       "txsNum": 2
+      },
+      {
+       "Number": 962729,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      },
+      {
+       "Number": 962730,
+       "l1MsgNum": 2,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 962730
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/078": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 172, need 182",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/079": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 118 exceeds remaining 88 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/080": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:2,l1MsgNum:3",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 354847
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/081": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 158 exceeds remaining 128 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/082": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:0,l1MsgNum:1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 302559
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/083": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 205, need 242",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/084": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 33, need 62",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/085": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 774771,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 774772,
+       "l1MsgNum": 1,
+       "txsNum": 3
+      },
+      {
+       "Number": 774773,
+       "l1MsgNum": 2,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 774773
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/086": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/087": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/088": {
+   "agree": true,
+   "model": {
+    "error": "blobs length can not be zero",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/089": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 234 exceeds remaining 194 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/090": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 238, need 242",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/091": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/092": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 87",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/093": {
+   "agree": true,
+   "model": {
+    "error": "decompressed batch too short for start block context: have 44, need 60",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/094": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 156, need 182",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/095": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 2",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 556306
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/096": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 918287
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/097": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 144, need 182",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/098": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 199588
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/099": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 0",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 347753
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/100": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 330665,
+       "l1MsgNum": 2,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 330665
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/101": {
+   "agree": true,
+   "model": {
+    "error": "blobs length can not be zero",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/102": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 523525,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      },
+      {
+       "Number": 523526,
+       "l1MsgNum": 0,
+       "txsNum": 1
+      },
+      {
+       "Number": 523527,
+       "l1MsgNum": 0,
+       "txsNum": 3
+      }
+     ],
+     "lastBlockNumber": 523527
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/103": {
+   "agree": true,
+   "model": {
+    "error": "declared tx size 136 exceeds remaining 129 bytes",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/104": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/105": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/106": {
+   "agree": true,
+   "model": {
+    "error": "calldata block contexts too short: have 94, need 122",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/107": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/108": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 1",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/109": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 99",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/110": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 183662,
+       "l1MsgNum": 1,
+       "txsNum": 2
+      },
+      {
+       "Number": 1822063,
+       "l1MsgNum": 0,
+       "txsNum": 2
+      }
+     ],
+     "lastBlockNumber": 1822063
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/111": {
+   "agree": true,
+   "model": {
+    "error": "invalid blob, found non-zero high order byte 0 of field element 124",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/112": {
+   "agree": true,
+   "model": {
+    "error": "decode txsPayload error:invalid txNum,must small than 0",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 338136
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/113": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/114": {
+   "agree": true,
+   "model": {
+    "error": "decompressed batch too short for block contexts: have 30, need 1 blocks",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/115": {
+   "agree": true,
+   "model": {
+    "error": null,
+    "info": {
+     "blockContexts": [
+      {
+       "Number": 545637,
+       "l1MsgNum": 1,
+       "txsNum": 4
+      },
+      {
+       "Number": 545638,
+       "l1MsgNum": 0,
+       "txsNum": 0
+      }
+     ],
+     "lastBlockNumber": 545638
+    },
+    "panic": null,
+    "status": "ok"
+   }
+  },
+  "random/116": {
+   "agree": true,
+   "model": {
+    "error": "decode batch header index error:invalid BatchHeaderBytes length",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/117": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/118": {
+   "agree": true,
+   "model": {
+    "error": "invalid batch: zero block count",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 0
+    },
+    "panic": null,
+    "status": "error"
+   }
+  },
+  "random/119": {
+   "agree": true,
+   "model": {
+    "error": "txsNum must be or equal to or greater than l1MsgNum,txsNum:2,l1MsgNum:3",
+    "info": {
+     "blockContexts": null,
+     "lastBlockNumber": 194169
+    },
+    "panic": null,
+    "status": "error"
+   }
+  }
+ },
+ "model": {
+  "path": "gen/M3/derivation/bend/consumer.bend",
+  "sha256": "d36fb8e73efe99f7058260aafbaa96754b1992047a1351f3e0ca10a4a1dcca1f"
+ },
+ "refinement_version": "holon-derivation-bend-refinement/0.1",
+ "sidecar": {
+  "path": "spec/M3/lib/derivation_bend.json",
+  "sha256": "227bd14b058626ecacd74141d4cf427cefd4bb36ccf9a3006d489025485d9d38"
+ },
+ "totals": {
+  "agree": 169,
+  "cases": 169,
+  "disagree": 0,
+  "fuel": 0,
+  "unanswered": 0,
+  "unsupported": 0
+ }
+}
