@@ -108,8 +108,7 @@ class Section(T.Trace):
     def reg_words(self, f: str, st: str, key: str) -> list[str]:
         """The raw words of F's register at key in state st (one per slot of its value type)."""
         _slot, _kt, _vt, n = self.slots_of(f)
-        base = self.base_slot(f, key)
-        return [f"{self.Q('sload')}({st}, {self.slot_i(base, i)})" for i in range(n)]
+        return [f"{self.Q('sload')}({st}, {self.reg_slot(f, key, i)})" for i in range(n)]
 
     def member_word(self, f: str, member: str, st: str, key: str) -> str:
         """The value of member m of F's struct register at key, in state st, as a word."""
@@ -119,7 +118,7 @@ class Section(T.Trace):
         mem = next((m for m in vt.get("members") or [] if m.get("label") == member), None)
         if mem is None:
             raise GenError(f"{f}: no member {member}")
-        slot = self.slot_i(self.base_slot(f, key), int(mem["slot"]))
+        slot = self.reg_slot(f, key, int(mem["slot"]))
         code = self.code(self.mm.read_word(st, slot, int(mem.get("offset") or 0), mem["type"]))
         used = {n for n in __import__("re").findall(r"(?<![\w.])([A-Za-z_]\w*)\s*[({]", code)}
         missing = sorted(n for n in used if n not in self.names and n not in ("Nil", "Con", "True", "False", "st", "k"))

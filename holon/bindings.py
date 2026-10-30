@@ -47,8 +47,10 @@ bindings of new laws and drops those of laws no longer in laws/<m>, but it chang
 only through the statement lifecycle (I10; audit F-M2-09): every changed law needs an accepted entry of
 laws/STATEMENT_DIFF.jsonl (holon.statement_diff.scan) for exactly that law and its current statement, either a
 statement change (strengthening, weakening, reextraction) when its statement hash changed, a catalog_rederivation
-(F30) when the statement hash is all that changed in the binding, or a binding_change naming every definition whose
-kernel form changed under the fixed statement. --accept-change "<reason>" is the
+(F30) when the statement hash is all that changed in the binding, a binding_change naming every definition whose
+kernel form changed under the fixed statement, or (I68) a remodel of the law's model, which its own check
+(holon.statement_diff._remodel) accepts only when nothing but the cone changed; --remodel LICENSE appends those entries
+first (holon.statement_diff.remodel_entries, each checked before it is appended). --accept-change "<reason>" is the
 human-readable reason, logged with the covering entry line numbers; it is no longer sufficient on its own. Gate G2
 re-derives the bindings from the committed models and checks that every change line logged after the log was
 introduced (holon.statement_diff.cutoff_commit) maps to such accepted entries (check_change_log). Off git that
@@ -650,6 +652,21 @@ def main_bind(args) -> int:
         print(f"wrote {p.relative_to(root)}: {len(new['laws'])} laws bound (logged in {CHANGES})")
         return 0
     old = json.loads(p.read_text())
+    if getattr(args, "remodel", None):   # I68: the remodel entries first, each checked by holon.statement_diff.append
+        from .statement_diff import append as sd_append, remodel_entries
+        es, notes = remodel_entries(m, root, args.remodel)
+        for n in notes:
+            print(f"no remodel entry: {n}", file=sys.stderr)
+        rejected = []
+        for e in es:
+            r = sd_append(e, root)
+            print(f"{e['law_id']}: remodel {'appended' if r['ok'] else 'REJECTED'}: {r['reason']}")
+            if not r["ok"]:
+                rejected.append(e["law_id"])
+        if rejected or notes:
+            print(f"refusing to rebind: {len(rejected)} remodel entries rejected, {len(notes)} laws need another kind",
+                  file=sys.stderr)
+            return 1
     only = [x.strip() for x in (getattr(args, "laws", None) or "").split(",") if x.strip()]
     if only:   # rebind only these laws: every other law keeps its current binding, or stays unbound
         unknown = sorted(set(only) - set(new["laws"]))
@@ -715,7 +732,8 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
     definition, emitted statement, counter-law or model changed; anything more needs its own entry). F33: a
     binding_change whose statement hash moved with an accepted catalog_rederivation (its "statement_hash" bridge, which
     its own acceptance verified) covers a rebinding that changes the hash and the cone together; hashes: (bound,
-    current) statement hashes, which must then be the bridge's (None: not compared)."""
+    current) statement hashes, which must then be the bridge's (None: not compared). I68: an accepted remodel covers a
+    rebinding that changes the cone alone (its check compared the two bindings, _remodel (a))."""
     from .statement_diff import core
     if not isinstance(e, dict) or (e.get("law_id") or (e.get("new") or {}).get("law_id")) != lid:
         return False
@@ -730,6 +748,8 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
                     and set(defs) <= set(e.get("defs") or [])
                     and (hashes is None or (br.get("old"), br.get("new")) == tuple(hashes)))
         return e.get("kind") in ("strengthening", "weakening", "reextraction")
+    if e.get("kind") == "remodel":   # I68: its check accepted a change of the cone alone (holon.statement_diff._remodel)
+        return isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"]) and bool(defs)
     return (e.get("kind") == "binding_change" and isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"])
             and set(defs) <= set(e.get("defs") or []))
 
@@ -757,7 +777,8 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
                                  + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
                                     "catalog_rederivation when nothing else in its binding changed" if sc else
-                                    f"its statement is fixed: a binding_change naming {law_defs[lid]}") + ")"))
+                                    f"its statement is fixed: a binding_change naming {law_defs[lid]}, or a "
+                                    "licensed remodel") + ")"))
         else:
             covered[lid] = n
     return covered, missing

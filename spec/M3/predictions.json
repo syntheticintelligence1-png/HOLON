@@ -5505,6 +5505,628 @@
         "disclosed": "Read before this prereg: node/derivation/batch_info.go in full; derivation.go's fetch, UnPackData, unpackModernRollupCall, parseBatch, handleL1Message and derive; common/batch's BatchHeaderBytes getters and validate, RetrieveBlobBytes, DecodeTxsFromBytes and its helpers; common/codec/zstd; node/types DecodeBlockContext; the go-ethereum fork's RPCRollupBatch and SafeL2Data and the DA codec's Go binding (module cache); Rollup.sol's commit path, _commitBatch and _computeBlobVersionedHash; the queue's getFirstUnfinalizedMessageEnqueueTime; I18's derivation document (ParseBatch: paths null, reason loop; its sites); the adopted Rollup document's commitBatch record (calls, parameter, the committedBatches write term); I17's header document; I20's harness (header rule, genesis, actors); I80's deployment record. Run: go build ./derivation/ in a scratch copy of the workspace with the proxy off (66 s, success: the plan's dependency risk does not hold locally); the instrument's corpus and genesis check; an RLP self-check of the generated transactions with a session-only decoder; git show of batch_info.go; the generator closures with holon's functions. Never run on the target: ssadump, the frontend, the interpreter, the Go replay, the oracle, the compressor, or holon.extracted_eval on commitBatch."
       }
     },
+    "I68": {
+      "title": "Structural storage keys in the M3 model (the Q21 fix): mapping storage keyed as (base slot, key path) instead of a lookup in the law's keccak256 table, the deployment converted, the evaluator mapping keys to real slots only against real traces and in replay, a generated keys check, A-keccak-structural in the ledger, and the proof routes the store opens (SK frames, key split, convoy, loop frames, bit-field lemmas, tag_exact)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I68)",
+      "prompt": "prompts/I68_structural_keys.md",
+      "predictions": [
+        {
+          "id": "I68-P1",
+          "claim": "R5 on the structural typed model: holon fragments with it as the step evaluator compares I20's corpus (460 traces, 3013 steps, 8894 storage comparisons) with 0 disagreements and 0 unexplained, I20's statuses per action and I20's panics (0x11 at Rollup.sol:363 on 27 steps, :368 on 2, :439 on 2, :636 on 6), its evaluator_sha256 the committed model's. It fails if the canonical form has a hole: two compiler-generated accesses to one real slot compiled to different keys, or a key cleaned differently from solc's hashing.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p1_r5_agrees"
+        },
+        {
+          "id": "I68-P2",
+          "claim": "The keys check is clean: gen/M3/sorts/keys.json lists the two raw slots (EIP-1967 implementation and admin), the 9 literal and 7 structural s0 entries and every structural key the R5 corpus and the committed witnesses and inhabitants of the M3 typed records (rule S11) touch, each real slot as the instrument computes it, and no collision.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p2_the_keys_check_is_clean"
+        },
+        {
+          "id": "I68-P3",
+          "claim": "The toy T30: L_sort_tag_toytypes_83_33f98e53 is PROVED by tag_exact (a Reach induction of the kept-register invariant over the structural store) with a checked, reachable inhabitant, and the other four toy laws and the keepg-guard mutation are decided as I30 designed (REFUTED at recommit, commitT and commitQ; PROVED by coercion_guard at elapsed; the mutation REFUTED through keepg): I30's TestToy.test_toy_statuses and test_toy_kept_register_without_its_version_guard_is_refuted pass.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p3_the_toys_tag_exact_law"
+        },
+        {
+          "id": "I68-P4",
+          "claim": "DISCH: the 14 laws of thresholds.flips are PROVED, each accepted attempt a proof checked by bend2 and BendTT: blk_pausableupgradeable_77 x3 and blk_rollup_132 x4 (frames by evaluation and key splits over SK), blk_initializable_120 TI3 and TI4 and blk_rollup_213 x2 (with loop frames), blk_rollup_228 (a key split with the convoy: finalizeBatch's store at finalizedStateRoots[_batchIndex] contradicts B at _batchIndex == 0 by the passed check), rev_rollup_363 (loop frames), and TI2 (bit-field lemmas over slot 0's packed _initialized update). L_disch_blk_rollup_363_e11d8bb2_anyone stays UNKNOWN, its record naming a monotone transport (finalizeBatch's delete of challenges[_batchIndex - 1] at B's family needs startTime := 0 to keep B); L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter stays REFUTED. DISCH totals: 27 PROVED, 7 REFUTED, 1 UNKNOWN (13, 7 and 15 at the prereg).",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p4_disch_statuses"
+        },
+        {
+          "id": "I68-P5",
+          "claim": "Non-vacuity: every law of thresholds.flips has a checked, reachable inhabitant, TI4's (L_disch_blk_initializable_120_d9a34b48_caller_rollup_210) included: since F40, initialize4 succeeds in one step from s0 and leaves _initialized == 4, as its rev twin's inhabitant at the prereg shows (the Q21 design note's 'TI4 unknown' predates F40).",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p5_non_vacuity"
+        },
+        {
+          "id": "I68-P6",
+          "claim": "G4: the M3 gate's DISCH G4 holds a disch_writer canary per PROVED DISCH blocking law with a named class (adding one non-X writer of its class), and every canary is rejected: I31's exit criterion met for the first time.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p6_g4_writer_canaries"
+        },
+        {
+          "id": "I68-P7",
+          "claim": "Every proof and counter-law of the 51 remade typed records checks in bend2 and BendTT within the per-file budget: no attempt stops on fuel or times out.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p7_kernels_within_budget"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I68-R1",
+          "claim": "No own commit changes a law file, REGISTRY.json or DERIVATION.json under laws/, a file under gen/M3/laws/, a LAWS.bend or the rule catalog: the typed laws' statements are byte-identical; laws/STATEMENT_DIFF.jsonl only gains remodel lines (R7), and no catalog_rederivation line is needed.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r1_statements_unchanged"
+        },
+        {
+          "id": "I68-R2",
+          "claim": "Every typed M3 law outside thresholds.flips keeps its status at the prereg (SORT 279 and 363 REFUTED, 406 UNKNOWN; DISCH ext x6 PROVED, noext x6 REFUTED, rev x7 PROVED, blk_363_onlyActiveSubmitter REFUTED, blk_363_anyone UNKNOWN; UNDO 3 REFUTED, 5 UNKNOWN; FACT 4 REFUTED, 1 PROVED), every REFUTED one with a replay that passed; a typed law another key adds before the run (rule S11) keeps the status its record had before I68 remade it.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r2_every_other_status_unchanged"
+        },
+        {
+          "id": "I68-R3",
+          "claim": "Each own commit that changes a record of results/M0-M2, results/T32 or a PAR record of results/M3 leaves it equal to its parent's version but for generator_sha256 and keys named seconds; no own commit changes gen/M0, gen/M1, gen/M2 or gen/M3/model/.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r3_other_records_stamps_only"
+        },
+        {
+          "id": "I68-R4",
+          "claim": "F32's eight helpers (w_eq, w_add, w_add_ok, w_sub, u_b4, u_be4, h_get, kw_set) have, in every structural model and section, exactly their text in the prelude at the prereg (holon.sorts.prelude3's PRELUDE), and spec/M2/ledger.json is unchanged.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r4_helpers_and_ledger"
+        },
+        {
+          "id": "I68-R5",
+          "claim": "A-keccak-structural is listed by every record over the typed model or a section (the 51 typed laws, and any typed law of rule S11 another key adds: SORT and DISCH in model_assumptions, UNDO and FACT in ledger_assumptions) and by no other record of results/M0-M3 or T32 (PAR laws, I28's records over its raw versioned machine); spec/M3/ledger.json introduces it by SK, sk_eq, sload and sstore.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r5_the_assumption_where_it_belongs"
+        },
+        {
+          "id": "I68-R6",
+          "claim": "Construction: the key pins the instrument and the contract docstring; the instrument classifies the Rollup's captured deployment as thresholds.s0 pins (9 literal, 7 structural, 2 raw), each structural slot the real slot of its key, with a clean keys check.",
+          "check": "tests_m3/test_structural_keys.py::TestPrereg::test_r6_the_instrument_on_the_capture"
+        },
+        {
+          "id": "I68-R7",
+          "claim": "Rule S11: laws/STATEMENT_DIFF.jsonl gains one remodel entry per typed law of rule S11 (the 51, and any typed law another key adds before the run), each accepted by holon.statement_diff.check_entry and naming Q21, the model versions and A-keccak-structural; spec/bindings/M3.json binds them to the structural models, and CI's gate-M3-G2 accepts them.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r7_the_remodel_lines"
+        },
+        {
+          "id": "I68-R8",
+          "claim": "I30-P8 keeps passing on the structural models: tests_m3/test_sort_types.py's TestTermSize.test_nominal_types_cost_at_most_the_frozen_ratio, run as it stands (the typed cone of the :363 realize law at most 1.5 times the untyped one; both models change their storage alike).",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r8_i30s_term_ratio_holds"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/sorts/keys.json",
+        "docs/iterations/I68.md"
+      ],
+      "tests": [
+        "tests_m3/test_structural_keys.py"
+      ],
+      "thresholds": {
+        "base": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874 (the lead after the I25 commit-test fix; its CI run 40116936084 passed every job)",
+        "instrument": "tests_m3/_i68.py",
+        "instrument_sha256": "e0923a557d881dbf1eee0c62e8ec44bbb95c081ef63f6808c0df5efac0e98520",
+        "contract_docstring_sha256": "d0aa99e8be1211ffd1dfa1d34596557bfae953c45fde012db15e7fc37a2bff8d",
+        "design": "The Q21 design note (read-only; made by the other session's design pass on fde1f819, with scratch Bend probes: the SK store, the frame library, a Reach induction of a kept-register invariant, each checked in bend2 and BendTT, and planted errors failing), and the I33 design note's section on what a law over mapping state may rely on.",
+        "s0": {
+          "literal": [
+            "0x0",
+            "0x33",
+            "0x97",
+            "0x98",
+            "0x99",
+            "0x9b",
+            "0x9c",
+            "0xa9",
+            "0xac"
+          ],
+          "raw": [
+            "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+            "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+          ],
+          "structural": {
+            "0x32ae1b88a7d4f92d7e214b63c8ea04cd13e2faaa60c50f499f2254336d98f882": [
+              "committedBatches",
+              "0x0",
+              0
+            ],
+            "0x4349cffe87970a0651906fe7ec1bc02f3b34df90df0775d75683dcdbf56c2585": [
+              "batchBlobVersionedHashes",
+              "0x0",
+              0
+            ],
+            "0x8fa6f0ecb9543d3381552e96aa43533c7f086066e38816919ea0cfae371b342a": [
+              "batchDataStore",
+              "0x0",
+              0
+            ],
+            "0x8fa6f0ecb9543d3381552e96aa43533c7f086066e38816919ea0cfae371b342b": [
+              "batchDataStore",
+              "0x0",
+              1
+            ],
+            "0xb84a74ec6ef4d0e83b6006dfaa014ab4026f9f3b97d186e604d29998a4e808ea": [
+              "finalizedStateRoots",
+              "0x0",
+              0
+            ],
+            "0xc1647f4ea6f20cdfcb68a5eb1fed20b17c4e8580b1f072b3399ec8b9d82ec564": [
+              "isChallenger",
+              "0x1004",
+              0
+            ],
+            "0xc5d43c4a2513442e32494a8634f103d73dcf3a2851465bd0d02221eac0820c02": [
+              "committedStateRoots",
+              "0x0",
+              0
+            ]
+          }
+        },
+        "r5": {
+          "traces": 460,
+          "steps": 3013,
+          "storage_slots": 8894,
+          "by_action": {
+            "addChallenger": {
+              "ok": 0,
+              "revert": 10
+            },
+            "batchChallengedSuccess": {
+              "ok": 0,
+              "revert": 4
+            },
+            "batchExist": {
+              "ok": 0,
+              "revert": 4
+            },
+            "batchInChallenge": {
+              "ok": 0,
+              "revert": 4
+            },
+            "batchInsideChallengeWindow": {
+              "ok": 0,
+              "revert": 4
+            },
+            "challengeState": {
+              "ok": 140,
+              "revert": 67
+            },
+            "claimProveRemaining": {
+              "ok": 0,
+              "revert": 8
+            },
+            "claimReward": {
+              "ok": 0,
+              "revert": 8
+            },
+            "commitBatch": {
+              "ok": 796,
+              "revert": 407
+            },
+            "commitBatchWithProof": {
+              "ok": 18,
+              "revert": 256
+            },
+            "commitState": {
+              "ok": 36,
+              "revert": 360
+            },
+            "finalizeBatch": {
+              "ok": 12,
+              "revert": 263
+            },
+            "importGenesisBatch": {
+              "ok": 0,
+              "revert": 8
+            },
+            "initialize": {
+              "ok": 0,
+              "revert": 12
+            },
+            "initialize2": {
+              "ok": 0,
+              "revert": 6
+            },
+            "initialize3": {
+              "ok": 0,
+              "revert": 6
+            },
+            "initialize4": {
+              "ok": 0,
+              "revert": 8
+            },
+            "isBatchFinalized": {
+              "ok": 0,
+              "revert": 4
+            },
+            "owner": {
+              "ok": 0,
+              "revert": 2
+            },
+            "paused": {
+              "ok": 0,
+              "revert": 2
+            },
+            "proveCommittedBatchState": {
+              "ok": 0,
+              "revert": 14
+            },
+            "proveState": {
+              "ok": 10,
+              "revert": 142
+            },
+            "removeChallenger": {
+              "ok": 0,
+              "revert": 10
+            },
+            "renounceOwnership": {
+              "ok": 0,
+              "revert": 4
+            },
+            "revertBatch": {
+              "ok": 73,
+              "revert": 40
+            },
+            "setPause": {
+              "ok": 199,
+              "revert": 24
+            },
+            "transferOwnership": {
+              "ok": 0,
+              "revert": 10
+            },
+            "updateFinalizePeriodSeconds": {
+              "ok": 0,
+              "revert": 8
+            },
+            "updateProofWindow": {
+              "ok": 0,
+              "revert": 8
+            },
+            "updateRewardPercentage": {
+              "ok": 0,
+              "revert": 8
+            },
+            "updateRollupDelayPeriod": {
+              "ok": 0,
+              "revert": 8
+            },
+            "updateVerifier": {
+              "ok": 0,
+              "revert": 10
+            }
+          },
+          "panics": [
+            {
+              "code": "0x11",
+              "model_src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+              "real_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+              "site_agrees": true,
+              "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+              "steps": 27
+            },
+            {
+              "code": "0x11",
+              "model_src": "contracts/contracts/l1/rollup/Rollup.sol:368",
+              "real_site": "contracts/contracts/l1/rollup/Rollup.sol:368",
+              "site_agrees": true,
+              "src": "contracts/contracts/l1/rollup/Rollup.sol:368",
+              "steps": 2
+            },
+            {
+              "code": "0x11",
+              "model_src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+              "real_site": "contracts/contracts/l1/rollup/Rollup.sol:439",
+              "site_agrees": true,
+              "src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+              "steps": 2
+            },
+            {
+              "code": "0x11",
+              "model_src": "contracts/contracts/l1/rollup/Rollup.sol:636",
+              "real_site": "contracts/contracts/l1/rollup/Rollup.sol:636",
+              "site_agrees": true,
+              "src": "contracts/contracts/l1/rollup/Rollup.sol:636",
+              "steps": 6
+            }
+          ]
+        },
+        "flips": [
+          "L_disch_blk_initializable_120_b8d46c45_anyone",
+          "L_disch_blk_initializable_120_b95c70f1_anyone",
+          "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger",
+          "L_disch_blk_rollup_132_d953872f_anyone",
+          "L_disch_blk_rollup_132_d953872f_caller_rollup_210",
+          "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter",
+          "L_disch_blk_rollup_132_d953872f_onlyChallenger",
+          "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210",
+          "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger",
+          "L_disch_blk_rollup_228_79cc3e9a_onlyOwner",
+          "L_disch_rev_rollup_363_e11d8bb2"
+        ],
+        "statuses_at_prereg": {
+          "L_disch_blk_initializable_120_b8d46c45_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_initializable_120_b95c70f1_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_132_d953872f_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_132_d953872f_caller_rollup_210": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_132_d953872f_onlyChallenger": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_228_79cc3e9a_onlyOwner": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_363_e11d8bb2_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": [
+            "DISCH",
+            "blocking",
+            "REFUTED"
+          ],
+          "L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_132_d953872f_onlyOwner": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_213_f2e7faf8_onlyOwner": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_363_e11d8bb2_onlyOwner": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_132_d953872f_onlyOwner": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_213_f2e7faf8_onlyOwner": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_363_e11d8bb2_onlyOwner": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_rev_initializable_120_b8d46c45": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_initializable_120_b95c70f1": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_initializable_120_d9a34b48": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_pausableupgradeable_77_ed0ce816": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_rollup_132_d953872f": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_rollup_213_f2e7faf8": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_rollup_228_79cc3e9a": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_rollup_363_e11d8bb2": [
+            "DISCH",
+            "revert",
+            "UNKNOWN"
+          ],
+          "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter": [
+            "FACT",
+            "attribution",
+            "REFUTED"
+          ],
+          "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter": [
+            "FACT",
+            "attribution",
+            "REFUTED"
+          ],
+          "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash": [
+            "FACT",
+            "kernel",
+            "REFUTED"
+          ],
+          "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash": [
+            "FACT",
+            "kernel",
+            "REFUTED"
+          ],
+          "L_fact_kernel_Rollup_commitState_committedBatches_blobhash": [
+            "FACT",
+            "kernel",
+            "PROVED"
+          ],
+          "L_sort_realize_rollup_363_4a64383b": [
+            "SORT",
+            "realize",
+            "REFUTED"
+          ],
+          "L_sort_tag_rollup_279_e01ea84a": [
+            "SORT",
+            "as_member",
+            "REFUTED"
+          ],
+          "L_sort_tag_rollup_406_e01ea84a": [
+            "SORT",
+            "as_member",
+            "UNKNOWN"
+          ],
+          "L_undo_pair_Rollup_addChallenger_removeChallenger": [
+            "UNDO",
+            "pair",
+            "UNKNOWN"
+          ],
+          "L_undo_pair_Rollup_commitBatchWithProof_revertBatch": [
+            "UNDO",
+            "pair",
+            "UNKNOWN"
+          ],
+          "L_undo_pair_Rollup_commitBatch_revertBatch": [
+            "UNDO",
+            "pair",
+            "REFUTED"
+          ],
+          "L_undo_pair_Rollup_commitState_revertBatch": [
+            "UNDO",
+            "pair",
+            "UNKNOWN"
+          ],
+          "L_undo_pair_Rollup_removeChallenger_addChallenger": [
+            "UNDO",
+            "pair",
+            "UNKNOWN"
+          ],
+          "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": [
+            "UNDO",
+            "residue",
+            "REFUTED"
+          ],
+          "L_undo_res_Rollup_revertBatch_batchDataStore": [
+            "UNDO",
+            "residue",
+            "REFUTED"
+          ],
+          "L_undo_res_Rollup_revertBatch_committedStateRoots": [
+            "UNDO",
+            "residue",
+            "UNKNOWN"
+          ]
+        },
+        "disch_totals_at_prereg": {
+          "PROVED": 13,
+          "REFUTED": 7,
+          "UNKNOWN": 15
+        },
+        "disch_totals_predicted": {
+          "PROVED": 27,
+          "REFUTED": 7,
+          "UNKNOWN": 1
+        },
+        "counted_predictions": [
+          "I68-P1",
+          "I68-P2",
+          "I68-P3",
+          "I68-P4",
+          "I68-P5",
+          "I68-P6",
+          "I68-P7"
+        ],
+        "scope": "Core (the store, canonical keys, raw slots, storage modes, the deployment, the evaluator, the keys check, the ledger entry, the SK frame library, key split, convoy, loop frames, tag_exact) plus F, the bit-field lemmas (TI2; groundwork for I33's W2 and I36's O34). Not K-mono, the monotone transport (blk_rollup_363_anyone stays UNKNOWN, named), and not I36's arrays and bytes keys (SP_d and SP_b stay GenErrors).",
+        "order": "The prereg commit is pushed on claude/ci-i68 before any build code; the build's code is written and validated while I28's build is in flight; the outcome run (the typed records of rule S11, R5, the keys check, the remodel lines) is made after I28's build is on the lead and merged into I68's branch, so the typed records are remade once over holon-rules/1.6's statement hashes. I71 (UNDO's cancel sub-form) may merge before the run: its typed law is then remade and remodelled with the 51 (rule S11), and reported.",
+        "disclosure": "What was known before this commit. (1) The Q21 design note's outcomes are readings of the code and the committed records, not runs: its Bend probes were self-contained scratch files over the real prelude (the SK store, the frame library, five frame facts, and a Reach induction of a kept-register invariant on a two-action machine, each checked in bend2 and BendTT, planted errors failing), and no generator, refuter, gate or forge ran on the subject. (2) In this session, before this commit: the instrument classified the committed capture (9 literal, 7 structural, 2 raw; keys check clean); the 51 typed records' statuses and fields were read; the model's store, compiler, evaluator, search, DISCH routes, UNDO trace section and I28's versioned generator (PR #50's head, abb834b) were read; I30's TestTermSize.test_nominal_types_cost_at_most_the_frozen_ratio was run at the base (passed, 8 s), and I30's committed term_size.json was read (I30-P7's :363 law_terms 1107, red). (3) The independent prereg review was started and then stopped by the human's pause after about fifteen minutes, before it reported; the author's adversarial self-check replaced it (docs/iterations/I68_prereg_review.json, committed after this commit, with its fold). No build code for I68 exists at this commit, and no M3 model with structural keys was built or run.",
+        "known_red_at_base": "Red at the base and not caused or hidden by I68: tests_m3/test_e2_transitions.py's tests that need I72's build (I72's prereg is on the lead; its build lands after I28's), I30's TestToy.test_toy_statuses (I30-R6's toy clause, which I68 predicts green) and test_gate_m3_passes, I30's TestTermSize.test_every_i30_law_is_within_the_term_budget (I30-P7: :363's law_terms 1107 > 1000; it stays red and grows on the structural model: S13), I31's blocking predictions (scored MISS by I31; I68 scores its own), I43's sidecar and baseline checks (I26's Question 5), and I26's commit-rule test. Locally, without the pinned checker, every gate check is skipped (GENV).",
+        "questions": [
+          "H1: accept the unsigned lifecycle kind remodel with rule S11's criteria (a)-(e), licensed by Q21, or name another channel; without one G2 stays red on the typed laws, labelled pending.",
+          "H2: I28's versioned machine stays on the raw store (option A1, rule S4). I28's V6 says the versioned model follows the adopted document's storage representation, so after I68 that sentence does not hold; converting the versioned layer (its KW conversions and table reads; vread's layout coordinates make SK reads direct) is a later key's, I29's or a fix key's. Confirm, or name the key.",
+          "L5: I43's sidecar re-baseline after I68's remake (precedent 4bcf535d), with one amendment line for the DISCH status changes."
+        ]
+      }
+    },
     "I34": {
       "title": "Rule SYM on M3, the typed extracted Rollup: families admitted by sorts (τ over the Time words, π over the set roles; ι and μ vacuous for want of an Idx or Amt sort), per-action equivariance laws, ω reorder pairs with disabling races classified apart, the Rollup's Time sentinel, splits promoted only by route (i) or (ii); O21 and the messenger's sentinels move to I34b",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I34)",

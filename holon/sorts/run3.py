@@ -41,6 +41,7 @@ from ..gen.mlaws import law_name
 from ..machine_bend import bname
 from . import evaluate3 as E3
 from . import proofs3 as P3
+from . import tag_exact as TE
 from . import search3 as S3
 from .envcode3 import with_code
 from .model3 import generate, importable, init_of, model_name, write_model_file
@@ -571,15 +572,16 @@ class Decider:
         pdir = self.paths(lid)["proofs"]
         shutil.rmtree(pdir, ignore_errors=True)
         att = {"kind": "proof", "generator": gen_name, "marker": None}
-        if gen_name != "coercion_guard":
-            att["error"] = ("does not apply: no " + gen_name + " generator over the M3 model (its mapping slots go "
-                            "through the law's hash parameter, which the statement leaves unconstrained)")
+        if gen_name == "reach_invariant":
+            att["error"] = ("does not apply: no reach_invariant generator over the M3 model (a reinterpretation's "
+                            "cursor invariant is not built)")
             return att
         model_text = ctx.model_path(doc_rel).read_text(encoding="utf-8")
+        make = P3.coercion_guard if gen_name == "coercion_guard" else TE.tag_exact
         try:
-            text = P3.coercion_guard(law, mm, model_text, P3.rel_import(pdir, ctx.import_path(doc_rel)),
-                                     P3.rel_import(pdir, lp), hashes)
-        except P3.NoProof as ex:
+            text = make(law, mm, model_text, P3.rel_import(pdir, ctx.import_path(doc_rel)), P3.rel_import(pdir, lp),
+                        hashes)
+        except (P3.NoProof, TE.NoProof) as ex:
             att["error"] = f"does not apply: {ex}"
             return att
         pdir.mkdir(parents=True, exist_ok=True)
@@ -672,7 +674,7 @@ class Decider:
         try:
             b, match = R.resolve_bundle(rec["facts_sha256"], base_facts, ctx.root, mp.read_text(encoding="utf-8"),
                                         set(cone), ctx.m)
-            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, base_facts)
+            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, base_facts, ctx.m)
         except R.LedgerError:
             match, assumptions = "none", []
         compiled = ev.compiled()

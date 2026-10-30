@@ -38,12 +38,21 @@ import re
 from ..machine_bend import bname
 from ..sorts.proofs3 import PHEADER
 from . import order as ORDER
-from .lemmas import LIBRARY
-from .mirror import Branch, Final, Mirror, NoMirror, Next, as_call, split_top
+from .lemmas import library
+from .mirror import LOOP_PARTS, Branch, Final, Loop, Mirror, NoMirror, Next, Record, _match_close, as_call, split_top
 
 
 class NoProof(ValueError):
     """The route does not apply (named)."""
+
+
+class NeedSplit(NoProof):
+    """(I68) A store's key meets one of B's keys in the words (x, y) and no fact in scope decides w_eq(x, y): a route
+    that may split the path there (holon.sorts.tag_exact) catches it."""
+
+    def __init__(self, x: str, y: str):
+        super().__init__(f"a store meets B's key where {x[:80]} and {y[:80]} may be equal")
+        self.x, self.y = x, y
 
 
 _CONN = {"Bool.and": 2, "Bool.or": 2, "Bool.not": 1}
@@ -194,6 +203,195 @@ def literal_word(t: str) -> int | None:
     return None
 
 
+_M256 = (1 << 256) - 1
+
+
+def closed_word(t: str) -> int | None:
+    """The value of a closed word term (literals, w0, w_and, w_or, w_not, w_add, w_shl_<n>, w_shr_<n>), else None."""
+    v = literal_word(t)
+    if v is not None:
+        return v
+    c = as_call(t.strip())
+    if not c or c[2] != "(":
+        return None
+    xs = [closed_word(x) for x in c[1]]
+    if any(x is None for x in xs):
+        return None
+    op = c[0]
+    if op == "M.w_and" and len(xs) == 2:
+        return xs[0] & xs[1]
+    if op == "M.w_or" and len(xs) == 2:
+        return xs[0] | xs[1]
+    if op == "M.w_not" and len(xs) == 1:
+        return ~xs[0] & _M256
+    m = re.fullmatch(r"M\.w_sh([lr])_(\d+)", op)
+    if m and len(xs) == 1:
+        n = int(m.group(2))
+        return (xs[0] << n) & _M256 if m.group(1) == "l" else xs[0] >> n
+    return None
+
+
+def word_text(v: int) -> str:
+    return "M.W{" + ", ".join(str((v >> (32 * i)) & 0xFFFFFFFF) for i in range(8)) + "}"
+
+
+def masked(v: str, inner: str):
+    """(m, x) when v is a masked write w_or(w_and(inner, m), x) of the word inner with closed m and x, else None."""
+    c = as_call(v.strip())
+    if not c or c[0] != "M.w_or" or len(c[1]) != 2:
+        return None
+    a = as_call(c[1][0].strip())
+    if not a or a[0] != "M.w_and" or len(a[1]) != 2 or a[1][0].strip() != inner.strip():
+        return None
+    m, x = a[1][1].strip(), c[1][1].strip()
+    return (m, x) if closed_word(m) is not None and closed_word(x) is not None else None
+
+
+def bf_value(t: str, k: str):
+    """(value, proof of {w_and(t, k) == value}) when t is a chain of masked writes whose last write of k's bits wrote
+    a closed word (w_bf_read there, w_bf_keep through the writes of other bits), else None (I68's bit-field lemmas)."""
+    kv = closed_word(k)
+    c = as_call(t.strip())
+    if kv is None or not c or c[0] != "M.w_or" or len(c[1]) != 2:
+        return None
+    a = as_call(c[1][0].strip())
+    if not a or a[0] != "M.w_and" or len(a[1]) != 2:
+        return None
+    x, m, v = a[1][0].strip(), a[1][1].strip(), c[1][1].strip()
+    mv, vv = closed_word(m), closed_word(v)
+    if mv is None or vv is None:
+        return None
+    if mv & kv == 0:
+        return vv & kv, f"w_bf_read({x}, {m}, {v}, {k}, {{==}})"
+    if mv & kv == kv and vv & kv == 0:
+        r = bf_value(x, k)
+        if r is not None:
+            return r[0], (f"Equal.trans(M.W, M.w_and({t.strip()}, {k}), M.w_and({x}, {k}), {word_text(r[0])}, "
+                          f"w_bf_keep({x}, {m}, {v}, {k}, {{==}}, {{==}}), {r[1]})")
+    return None
+
+
+def sk_parts(t: str):
+    """(b, o, [(k, o2)..]) of a structural key term M.SK{b, o, p} whose path is a list literal (Nil{} or [M.SP_m{k,
+    o2}, ..]), else None (I68)."""
+    c = as_call(t.strip())
+    if not c or c[0] != "M.SK" or c[2] != "{" or len(c[1]) != 3:
+        return None
+    b, o, p = (x.strip() for x in c[1])
+    if p == "Nil{}":
+        return b, o, []
+    if not (p.startswith("[") and p.endswith("]")):
+        return None
+    steps = []
+    for x in (split_top(p[1:-1]) if p[1:-1].strip() else []):
+        cs = as_call(x)
+        if not cs or cs[0] != "M.SP_m" or cs[2] != "{" or len(cs[1]) != 2:
+            return None
+        steps.append((cs[1][0].strip(), cs[1][1].strip()))
+    return b, o, steps
+
+
+def key_cmp(kw: str, k: str, structural: bool) -> tuple:
+    """How Bend decides a store key kw against a read key k: ("same", None) when the key equality evaluates to True,
+    ("differ", None) when it evaluates to False (st_frame's two hypotheses are then {==}), ("stuck", (x, y)) when the
+    evaluation stops at the comparison of the words x (of kw) and y (of k). A raw key is a word (w_eq); a structural
+    key is compared as sk_eq evaluates (the base, the offset, then each step's offset and key word, a step missing on
+    one side deciding False)."""
+    if not structural:
+        a, b = literal_word(kw), literal_word(k)
+        if a is None or b is None:
+            return "stuck", (kw.strip(), k.strip())
+        return ("same" if a == b else "differ"), None
+    pa, pb = sk_parts(kw), sk_parts(k)
+    if pa is None or pb is None:
+        return "stuck", (kw.strip(), k.strip())
+    pairs = [(pa[0], pb[0]), (pa[1], pb[1])]
+    for i in range(max(len(pa[2]), len(pb[2]))):
+        if i >= len(pa[2]) or i >= len(pb[2]):   # one path ends first: sps_eq is False there
+            r = _cmp_pairs(pairs)
+            return ("differ", None) if r[0] == "same" else r
+        pairs += [(pa[2][i][1], pb[2][i][1]), (pa[2][i][0], pb[2][i][0])]
+    return _cmp_pairs(pairs)
+
+
+def _cmp_pairs(pairs: list) -> tuple:
+    """The first comparison of word pairs that does not evaluate to True decides: False ("differ"), or stuck."""
+    for x, y in pairs:
+        a, b = literal_word(x), literal_word(y)
+        if a is None or b is None:
+            return "stuck", (x, y)
+        if a != b:
+            return "differ", None
+    return "same", None
+
+
+def _sps_text(steps: list) -> str:
+    return ("[" + ", ".join(f"M.SP_m{{{k}, {o}}}" for k, o in steps) + "]") if steps else "Nil{}"
+
+
+def sk_ne_proof(kw: str, k: str, hyp: str) -> str | None:
+    """A proof of {sk_eq(kw, k) == False} from hyp : {w_eq(x, y) == False}, (x, y) the first comparison of their words
+    that does not evaluate (key_cmp's stuck pair, x of kw); every comparison before it is {==} (holon.disch.lemmas'
+    sk_ne_*, I68's key split). None when either is not a structural key with a list path."""
+    pa, pb = sk_parts(kw), sk_parts(k)
+    if pa is None or pb is None:
+        return None
+    (ab, ao, ap), (bb, bo, bp) = pa, pb
+    args = f"{ab}, {ao}, {_sps_text(ap)}, {bb}, {bo}, {_sps_text(bp)}"
+    if literal_word(ab) is None or literal_word(bb) is None:
+        return f"sk_ne_b({args}, {hyp})"
+    if literal_word(ao) is None or literal_word(bo) is None:
+        return f"sk_ne_o({args}, {{==}}, {hyp})"
+
+    def sps(xa: list, xb: list):
+        if not xa or not xb:
+            return None
+        (k1, o1), (k2, o2) = xa[0], xb[0]
+        x, y, xs, ys = f"M.SP_m{{{k1}, {o1}}}", f"M.SP_m{{{k2}, {o2}}}", _sps_text(xa[1:]), _sps_text(xb[1:])
+        if literal_word(o1) is None or literal_word(o2) is None:
+            return f"sps_ne_h({x}, {xs}, {y}, {ys}, sp_ne_o({k1}, {o1}, {k2}, {o2}, {hyp}))"
+        if literal_word(k1) is None or literal_word(k2) is None:
+            return f"sps_ne_h({x}, {xs}, {y}, {ys}, sp_ne_k({k1}, {o1}, {k2}, {o2}, {{==}}, {hyp}))"
+        rest = sps(xa[1:], xb[1:])
+        return f"sps_ne_t({x}, {xs}, {y}, {ys}, {{==}}, {rest})" if rest else None
+    rest = sps(ap, bp)
+    return f"sk_ne_p({args}, {{==}}, {{==}}, {rest})" if rest else None
+
+
+def sk_eq_proof(kw: str, k: str, hyp: str) -> str | None:
+    """A proof of {sk_eq(kw, k) == True} from hyp : {w_eq(x, y) == True}, (x, y) key_cmp's stuck pair (x of kw), every
+    other comparison evaluating to True (and_intro over sk_eq's conjunctions); None otherwise."""
+    pa, pb = sk_parts(kw), sk_parts(k)
+    if pa is None or pb is None or len(pa[2]) != len(pb[2]):
+        return None
+    pairs = [(pa[0], pb[0]), (pa[1], pb[1])] + [q for (k1, o1), (k2, o2) in zip(pa[2], pb[2]) for q in ((o1, o2), (k1, k2))]
+    used = False
+    pfs = []
+    for x, y in pairs:
+        a, b = literal_word(x), literal_word(y)
+        if a is not None and b is not None and a == b:
+            pfs.append("{==}")
+        elif not used and (a is None or b is None):
+            pfs.append(hyp)
+            used = True
+        else:
+            return None
+    # sk_eq: and(w_eq(b), and(w_eq(o), sps)); sps: and(sp_eq, sps_rest) per step, Nil: True; sp_eq: and(w_eq(o), w_eq(k))
+    def sps(i: int) -> tuple[str, str]:
+        if i == len(pa[2]):
+            return "M.sps_eq(Nil{}, Nil{})", "{==}"
+        (k1, o1), (k2, o2) = pa[2][i], pb[2][i]
+        sp = f"M.sp_eq(M.SP_m{{{k1}, {o1}}}, M.SP_m{{{k2}, {o2}}})"
+        spp = f"and_intro(M.w_eq({o1}, {o2}), M.w_eq({k1}, {k2}), {pfs[2 + 2 * i]}, {pfs[3 + 2 * i]})"
+        rest, rp = sps(i + 1)
+        xs, ys = _sps_text(pa[2][i + 1:]), _sps_text(pb[2][i + 1:])
+        return (f"M.sps_eq({_sps_text(pa[2][i:])}, {_sps_text(pb[2][i:])})",
+                f"and_intro({sp}, M.sps_eq({xs}, {ys}), {spp}, {rp})")
+    st, sp_pf = sps(0)
+    return (f"and_intro(M.w_eq({pa[0]}, {pb[0]}), Bool.and(M.w_eq({pa[1]}, {pb[1]}), {st}), {pfs[0]}, "
+            f"and_intro(M.w_eq({pa[1]}, {pb[1]}), {st}, {pfs[1]}, {sp_pf}))")
+
+
 def stores(term: str, base: str) -> list | None:
     """[(key, value)..] when term is sstore(..sstore(base, k1, v1).., kn, vn) (innermost first), else None."""
     out = []
@@ -214,6 +412,7 @@ class Gen:
 
     def __init__(self, model_text: str, sec, an: dict):
         self.text = model_text
+        self.sk = "\ntype SK is Data:\n" in model_text      # a structural store (I68): keys are SK terms
         self.sec = sec
         self.an = an
         self.names = sec.names
@@ -261,11 +460,25 @@ class ActionProof:
     step), within one law's proof file."""
 
     def __init__(self, g: Gen, tag: str, action: str, route: str, prefix: str):
-        self.g = g
+        self._common(g, action, route, prefix)
         self.tag = tag
+        blk = g.sec.blk[tag]
+        # a B that reads the clock is used at the step's time (the time monotonicity lemma tl_<tag> gives it there
+        # from the premise's t <= time(e)): T is the time B is stated at in every hypothesis
+        self.time = bool(blk["time"])
+        self.T = "D.d_time(e)" if self.time else "t"
+        self.b_code = at_time(blk["code"], self.T) if self.time else blk["code"]
+        self.keys = blk["keys"]
+        if route == "frame" and blk["v"] is None:
+            raise NoProof("B reads a slot whose key reads the state (a key that is not closed): no frame by slots"
+                          if g.sk else "B reads a slot that is not a literal (a mapping or array slot): no frame by slots")
+
+    def _common(self, g: Gen, action: str, route: str, prefix: str) -> None:
+        self.g = g
         self.action = action
         self.ab = bname(action)
         self.route = route
+        self.tracks = route in ("frame", "loop")   # the route carries invariants of B's slots on the overlay
         self.p = prefix                     # lemma name prefix (unique in the file)
         self.mi = g.mirror(self.ab)
         self.fields = self.mi.field_names
@@ -277,17 +490,16 @@ class ActionProof:
         self.nbs: dict = {}
         self.nb_count = 0
         self.br_count = 0
-        blk = g.sec.blk[tag]
-        # a B that reads the clock is used at the step's time (the time monotonicity lemma tl_<tag> gives it there
-        # from the premise's t <= time(e)): T is the time B is stated at in every hypothesis
-        self.time = bool(blk["time"])
-        self.T = "D.d_time(e)" if self.time else "t"
-        self.b_code = at_time(blk["code"], self.T) if self.time else blk["code"]
-        self.keys = blk["keys"]
-        if route == "frame" and blk["v"] is None:
-            raise NoProof("B reads a slot that is not a literal (a mapping or array slot): no frame by slots")
+        self.loops: dict = {}               # loop L -> its LoopProof (I68, the loop frames L1)
+        self.splits = False                 # a stuck store raises NeedSplit (I68: holon.sorts.tag_exact's step lemmas)
+        self.loop_extra: list = []          # [(name, type)]: variables B's keys mention besides st (I68, tag_exact's k)
 
     # ------------------------------------------------------------------ text pieces
+    def hb_param(self) -> str:
+        return f", +hb: {{D.blk_{self.tag}(st, {self.T}{self.g.targs}) == True{{}} : Bool}}"
+
+    def hb_arg(self) -> str:
+        return ", hb"
     def fixed_params(self) -> str:
         out = f"+st: M.HSt, +ar: M.AR_{self.ab}, +e: M.HEnv{self.g.tparams}, +t: M.W"
         if self.route == "frame":
@@ -306,8 +518,8 @@ class ActionProof:
     def hyp_params(self, state: tuple = ()) -> str:
         """hb, and for a frame or transport route each of B's slots' invariant on the overlay: the pre-state's word
         (frame) or the literal word a store put there (transport)."""
-        out = f", +hb: {{D.blk_{self.tag}(st, {self.T}{self.g.targs}) == True{{}} : Bool}}"
-        if self.route == "frame":
+        out = self.hb_param()
+        if self.tracks:
             for j, k in enumerate(self.keys):
                 out += f", +inv{j}: {{M.sload(v_ov, {k}) == {state[j]} : M.W}}"
         return out
@@ -328,25 +540,33 @@ class ActionProof:
                 f"{self.g.targs}) == True{{}} : Bool}}")
 
     # ------------------------------------------------------------------ statements
-    def stmt(self, i: int, state: tuple = ()) -> str:
-        """The lemma of statement i under the invariants' state (generated once per state); returns its name."""
-        key = (i, state)
+    def stmt(self, i: int, state: tuple = (), conds: tuple = ()) -> str:
+        """The lemma of statement i under the invariants' state and the passed checks carried to it (generated once
+        per state and carried checks); returns its name."""
+        key = (i, state, conds)
         if key in self.done:
             return self.done[key]
-        k = len([1 for (j, _s) in self.done if j == i])
+        k = len([1 for (j, _s, _c) in self.done if j == i])
         name = f"{self.p}_s{i}" + (f"_{k}" if k else "")
         self.done[key] = name
         node = self.mi.step(i, [self.fixed[f] if f in self.fixed else f"v_{f}" for f in self.fields])
         body = self.emit(node, {f: f"v_{f}" for f in self.var_fields},
-                         invs=[(f"inv{j}", state[j]) for j in range(len(self.keys))] if self.route == "frame" else [])
-        self.defs.append(f"def {name}({self.fixed_params()}{self.var_params()}{self.hyp_params(state)}) -> "
+                         invs=[(f"inv{j}", state[j]) for j in range(len(self.keys))] if self.tracks else [],
+                         carried=tuple((f"hc{q}", c) for q, c in enumerate(conds)))
+        self.defs.append(f"def {name}({self.fixed_params()}{self.var_params()}{self.hyp_params(state)}"
+                         f"{self.carried_params(conds)}) -> "
                          f"{self.goal(f'M.s_{self.ab}_{i}({self.var_record()})')}:\n  {body}\n")
         return name
 
-    def call(self, name: str, vals: dict, invs: list) -> str:
-        args = self.fixed_args() + "".join(f", {vals[f]}" for f in self.var_fields) + ", hb"
-        if self.route == "frame":
+    @staticmethod
+    def carried_params(conds) -> str:
+        return "".join(f", +hc{q}: {{{c} == True{{}} : Bool}}" for q, c in enumerate(conds))
+
+    def call(self, name: str, vals: dict, invs: list, carried: tuple = ()) -> str:
+        args = self.fixed_args() + "".join(f", {vals[f]}" for f in self.var_fields) + self.hb_arg()
+        if self.tracks:
             args += "".join(f", {x}" for x, _r in invs)
+        args += "".join(f", {x}" for x, _c in carried)
         return f"{name}({args})"
 
     def check_fixed(self, fields: list) -> dict:
@@ -356,27 +576,36 @@ class ActionProof:
                 raise NoProof(f"{self.action}: the program changes its context's {f}")
         return {f: vals[f] for f in self.var_fields}
 
-    def emit(self, node, cur: dict, invs: list) -> str:
-        """The proof term of the goal at node (cur: the current variables of the varying fields)."""
+    def emit(self, node, cur: dict, invs: list, nonzero: str | None = None, carried: tuple = ()) -> str:
+        """The proof term of the goal at node (cur: the current variables of the varying fields; nonzero: a code term
+        the enclosing branch's equation ec says is not 0, u_nz(code) == True; carried: the passed checks' equations
+        in scope, [(proof, condition)], the convoy)."""
         if isinstance(node, Next):
+            if node.ctx is not None:
+                raise NoProof(f"{self.action}: a loop body's statement outside its loop")
             vals = self.check_fixed(node.fields)
-            new_invs = self.frame_invs(cur["ov"], vals["ov"], invs) if self.route == "frame" else invs
-            return self.call(self.stmt(node.j, tuple(r for _x, r in new_invs)), vals, new_invs)
+            new_invs = self.frame_invs(cur["ov"], vals["ov"], invs, carried) if self.tracks else invs
+            return self.call(self.stmt(node.j, tuple(r for _x, r in new_invs), tuple(c for _x, c in carried)), vals,
+                             new_invs, carried)
+        if isinstance(node, Loop):
+            return self.loop(node, cur, invs, carried)
         if isinstance(node, Final):
             vals = self.check_fixed(node.fields)
             cd = vals["cd"].strip()
             if re.fullmatch(r"\d+", cd) and int(cd) != 0:
                 return "{==}" if self.route == "revert" else "hb"
+            if self.route == "revert" and nonzero == cd:   # a code the enclosing branch knows is not 0
+                return "ec"
             if self.route == "revert":
                 raise NoProof(f"{self.action}: a path of its program ends without reverting before the check B "
                               "makes 0")
-            new_invs = self.frame_invs(cur["ov"], vals["ov"], invs)
+            new_invs = self.frame_invs(cur["ov"], vals["ov"], invs, carried)
             return self.end(vals, new_invs)
         if isinstance(node, Branch):
-            return self.branch(node, cur, invs)
+            return self.branch(node, cur, invs, carried)
         raise NoProof(f"{self.action}: an evaluation result the mirror cannot state ({type(node).__name__})")
 
-    def branch(self, br: Branch, cur: dict, invs: list) -> str:
+    def branch(self, br: Branch, cur: dict, invs: list, carried: tuple = ()) -> str:
         self.br_count += 1
         name = f"{self.p}_b{self.br_count}"
         fn = br.fn
@@ -388,29 +617,108 @@ class ActionProof:
                 nb, atoms, imps = target
                 goal_t = self.goal(f"{fn}(True{{}}, {args})")
                 then_term = f"efq({goal_t}, {nb}({''.join(a + ', ' for a in atoms)}hb, ec{imp_args(imps)}))"
+        inner = tuple((f"hc{q}", c) for q, (_x, c) in enumerate(carried))
         if then_term is None:
-            then_term = self.emit(br.then, cur, invs)
-        else_term = self.emit(br.other, cur, invs)
+            mz = re.fullmatch(r"M\.u_nz\((.*)\)", br.cond.strip())
+            passed = inner + (("ec", br.cond.strip()),) if self.convoy(br, inner) else inner
+            then_term = self.emit(br.then, cur, invs, nonzero=mz.group(1).strip() if mz else None, carried=passed)
+        else_term = self.emit(br.other, cur, invs, carried=inner)
         inv_params = ""
-        if self.route == "frame":
+        if self.tracks:
             inv_params = "".join(f", +{x}: {{M.sload({cur['ov']}, {k}) == {r} : M.W}}"
                                  for (x, r), k in zip(invs, self.keys))
         vp = "".join(f", +v_{f}: {self.types[self.fields.index(f)]}" for f in self.var_fields)
+        lp, la = self.local_params(invs)
         self.defs.append(
-            f"def {name}(c: Bool, {self.fixed_params()}{vp}, +hb: {{D.blk_{self.tag}(st, {self.T}{self.g.targs}) == True{{}} : "
-            f"Bool}}{inv_params}, ec: {{{br.cond} == c : Bool}}) -> {self.goal(f'{fn}(c, {args})')}:\n"
+            f"def {name}(c: Bool, {self.fixed_params()}{vp}{lp}{self.hb_param()}{inv_params}"
+            f"{self.carried_params([c for _x, c in carried])}, ec: {{{br.cond} == c : Bool}}) "
+            f"-> {self.goal(f'{fn}(c, {args})')}:\n"
             f"  match c:\n    case True{{}}:\n      {then_term}\n    case False{{}}:\n      {else_term}\n")
-        call_args = self.fixed_args() + "".join(f", {cur[f]}" for f in self.var_fields) + ", hb"
-        if self.route == "frame":
+        call_args = self.fixed_args() + "".join(f", {cur[f]}" for f in self.var_fields) + la + self.hb_arg()
+        if self.tracks:
             call_args += "".join(f", {x}" for x, _r in invs)
+        call_args += "".join(f", {x}" for x, _c in carried)
         return f"{name}({br.cond}, {call_args}, {{==}})"
+
+    def local_params(self, invs: list) -> tuple[str, str]:
+        """(params, args) of the lemma-local words the invariants' right sides name (I68: tag_exact's transported
+        words); the DISCH routes have none."""
+        return "", ""
+
+    def convoy(self, br: Branch, carried: tuple) -> bool:
+        """(I68, the convoy) Is a passed check's equation carried down the chain? On the frame route over a structural
+        store: a check of the action whose condition reads one of B's mapping families (a read at the base of a B key
+        with a path) and no varying field of the context, so that a later store in that family, split on its key
+        word, may find its equal case contradicting B by the check (key_split); at most six at a time."""
+        if self.route != "frame" or not self.g.sk or not br.fn.startswith(f"M.k_{self.ab}_") or len(carried) >= 6:
+            return False
+        if re.search(r"(?<![\w.])v_\w+", br.cond):
+            return False
+        bases = {sk_parts(k)[0] for k in self.keys if sk_parts(k) and sk_parts(k)[2]}
+        return any(f"M.sload(st, M.SK{{{b}," in br.cond for b in bases)
+
+    @staticmethod
+    def split_fact(at: tuple, carried: tuple):
+        """("eq", {w_eq(x, y) == True}) or ("ne", {w_eq(x, y) == False}) when a carried fact decides the words (x, y) =
+        at (a split's or a passed check's), else None."""
+        x, y = at
+        for pc, cond in carried:
+            c = cond.strip()
+            if c == f"M.w_eq({x}, {y})":
+                return "eq", pc
+            if c == f"Bool.not(M.w_eq({x}, {y}))":
+                return "ne", f"not_t(M.w_eq({x}, {y}), {pc})"
+        return None
+
+    def nb_for(self, atoms: list, sb: str, sc: str, imps: list) -> str:
+        """The boolean lemma of a contradiction (one per skeletons and implications)."""
+        key = (sb, sc, len(atoms), tuple((i, j) for i, j, _p in imps))
+        if key not in self.nbs:
+            self.nb_count += 1
+            nm = f"{self.p}_nb{self.nb_count}"
+            self.nbs[key] = nm
+            self.defs.append(nb_lemma(nm, atoms, sb, sc, imps))
+        return self.nbs[key]
+
+    def key_split(self, o: str, kw: str, v: str, k: str, at: tuple, carried: tuple) -> str | None:
+        """(I68, the key split) {sload(sstore(o, kw, v), k) == sload(o, k)} for a store at kw that B's key k differs from
+        only in the words (x, y) = at, by cases on w_eq(x, y): when they are equal, a passed check carried here (the
+        convoy) contradicts B with x read as y; otherwise the keys differ (sk_ne_*) and st_frame applies. None when no
+        carried check closes the equal case."""
+        x, y = at
+        for pc, cond in carried:
+            if x not in cond:
+                continue
+            c2 = cond.replace(x, y)
+            r = contradicts(self.b_code, c2.replace("M.ge_e_block_timestamp(e)", self.T) if self.time else c2)
+            ne1, ne2 = sk_ne_proof(kw, k, "ec"), sk_ne_proof(k, kw, f"w_ne_sym({x}, {y}, ec)")
+            if r is None or ne1 is None or ne2 is None:
+                continue
+            atoms, sb, sc, imps = r
+            nb = self.nb_for(atoms, sb, sc, imps)
+            self.br_count += 1
+            name = f"{self.p}_ks{self.br_count}"
+            vp, args = self.var_params(), self.fixed_args() + "".join(f", v_{f}" for f in self.var_fields)
+            self.defs.append(f"def {name}r({self.fixed_params()}{vp}, ec: {{M.w_eq({x}, {y}) == True{{}} : Bool}}, "
+                             f"hc: {{{cond} == True{{}} : Bool}}) -> {{{c2} == True{{}} : Bool}}:\n"
+                             f"  (%w_refl({x}, {y}, ec) : {{{cond.replace(x, '_')} == True{{}} : Bool}}\n  hc)\n")
+            goal = f"{{M.sload(M.sstore({o}, {kw}, {v}), {k}) == M.sload({o}, {k}) : M.W}}"
+            true_t = f"efq({goal}, {nb}({''.join(a + ', ' for a in atoms)}hb, {name}r({args}, ec, hc){imp_args(imps)}))"
+            self.defs.append(f"def {name}(c: Bool, {self.fixed_params()}{vp}{self.hb_param()}, +hc: {{{cond} == True{{}} "
+                             f": Bool}}, +ec: {{M.w_eq({x}, {y}) == c : Bool}}) -> {goal}:\n  match c:\n"
+                             f"    case True{{}}:\n      {true_t}\n    case False{{}}:\n"
+                             f"      st_frame({o}, {kw}, {v}, {k}, {ne1}, {ne2})\n")
+            return f"{name}(M.w_eq({x}, {y}), {args}{self.hb_arg()}, {pc}, {{==}})"
+        return None
 
     def contradiction(self, br: Branch):
         """(the boolean lemma, its atoms) when the branch is a check whose condition B makes 0 (the chain_revert
         target), else None."""
         if not br.fn.startswith(f"M.k_{self.ab}_"):
             return None
-        r = contradicts(self.b_code, br.cond)
+        # B is stated at the step's time D.d_time(e), which is the check's block.timestamp by definition: one atom
+        cond = br.cond.replace("M.ge_e_block_timestamp(e)", self.T) if self.time else br.cond
+        r = contradicts(self.b_code, cond)
         if r is None:
             return None
         atoms, sb, sc, imps = r
@@ -423,36 +731,70 @@ class ActionProof:
         return self.nbs[key], atoms, imps
 
     # ------------------------------------------------------------------ frame
-    def frame_invs(self, old_ov: str, new_ov: str, invs: list) -> list:
+    def frame_invs(self, old_ov: str, new_ov: str, invs: list, carried: tuple = ()) -> list:
         """The invariants of the new overlay, [(proof, word)]: each of B's slots holds the pre-state's word (frame:
         stores at other literal slots, st_frame) or the literal word a store put there (transport: st_same, a store of
         a literal word at a slot B reads; the end of the path then shows B of the stored words)."""
-        if self.route != "frame" or new_ov.strip() == old_ov.strip():
+        if not self.tracks or new_ov.strip() == old_ov.strip():
             return invs
         ss = stores(new_ov, old_ov.strip())
         if ss is None:
             raise NoProof(f"{self.action}: its overlay changes other than by stores")
         out = list(invs)
         for j, K in enumerate(self.keys):
-            kv = literal_word(K)
             o = old_ov.strip()
             proof, rhs = out[j]
             for kw, v in ss:
-                w = literal_word(kw)
-                if w is None:
+                rel, at = key_cmp(kw, K, self.g.sk)
+                if rel == "stuck" and not self.g.sk:
                     raise NoProof(f"{self.action}: it stores at a slot that is not a literal ({kw[:80]}): a mapping "
                                   "or array slot goes through the law's keccak256 parameter, which the statement leaves "
                                   "unconstrained, so no frame separates it from B's slots")
+                fr = f"st_frame({o}, {kw}, {v}, {K}, {{==}}, {{==}})"
+                fact = self.split_fact(at, carried) if rel == "stuck" and self.splits else None
+                if fact is not None and fact[0] == "eq":   # (I68, tag_exact) a split's fact: the store is at B's key
+                    keq = sk_eq_proof(kw, K, fact[1])
+                    if keq is None:
+                        raise NoProof(f"{self.action}: the store at {kw.strip()[:120]} meets B's key {K[:120]} in more "
+                                      "than the split words")
+                    o2 = f"M.sstore({o}, {kw}, {v})"
+                    proof, rhs = f"st_same_k({o}, {kw}, {v}, {K}, {keq})", v.strip()
+                    o = o2
+                    continue
+                if fact is not None:                        # (I68, tag_exact) a split's fact: the keys differ
+                    ne1, ne2 = sk_ne_proof(kw, K, fact[1]), sk_ne_proof(K, kw, f"w_ne_sym({at[0]}, {at[1]}, {fact[1]})")
+                    fr = f"st_frame({o}, {kw}, {v}, {K}, {ne1}, {ne2})" if ne1 and ne2 else None
+                elif rel == "stuck":
+                    if self.splits:
+                        raise NeedSplit(*at)
+                    fr = self.key_split(o, kw, v, K, at, carried) if self.route == "frame" else None
+                if fr is None and self.route == "loop":
+                    raise NoProof(f"{self.action}: its loop {self.L} stores at {kw.strip()[:160]}, which B's key {K} "
+                                  f"differs from only in words that are not literals ({at[0][:80]} against "
+                                  f"{at[1][:80]}): no loop frame by evaluation")
+                if fr is None:
+                    raise NoProof(f"{self.action}: keeping B through its store at {kw.strip()[:160]} needs a monotone "
+                                  f"transport (not built): the store is at B's key {K[:160]} when {at[0][:80]} == "
+                                  f"{at[1][:80]}, and no passed check excludes that")
                 o2 = f"M.sstore({o}, {kw}, {v})"
-                if w == kv:
+                if rel == "same" and self.route == "loop":
+                    raise NoProof(f"{self.action}: its loop {self.L} stores at B's key {K}: no loop frame")
+                bf = masked(v, f"M.sload({o}, {K})") if rel == "same" and self.g.sk else None
+                if rel == "same" and bf is not None:
+                    # (I68) a masked write of B's packed slot: the word there is the write over the word it held
+                    m, x = bf
+                    v2 = f"M.w_or(M.w_and({rhs}, {m}), {x})"
+                    proof = (f"Equal.trans(M.W, M.sload({o2}, {K}), {v.strip()}, {v2}, st_same({o}, {kw}, {v}), "
+                             f"Equal.cong(M.W, M.W, z => M.w_or(M.w_and(z, {m}), {x}), M.sload({o}, {K}), {rhs}, {proof}))")
+                    rhs = v2
+                elif rel == "same":
                     if literal_word(v) is None:
                         raise NoProof(f"{self.action}: it stores a word that is not a literal at a slot B reads ({K}: "
-                                      f"{v.strip()[:80]}): transport states B of literal stored words only (a "
-                                      "bit-field update of a packed slot needs bit-field lemmas, not built)")
+                                      f"{v.strip()[:80]}): transport states B of literal stored words and of masked "
+                                      "writes of a packed slot only")
                     proof, rhs = f"st_same({o}, {kw}, {v})", v.strip()
                 else:
-                    proof = (f"Equal.trans(M.W, M.sload({o2}, {K}), M.sload({o}, {K}), {rhs}, "
-                             f"st_frame({o}, {kw}, {v}, {K}, {{==}}, {{==}}), {proof})")
+                    proof = f"Equal.trans(M.W, M.sload({o2}, {K}), M.sload({o}, {K}), {rhs}, {fr}, {proof})"
                 o = o2
             out[j] = (proof, rhs)
         return out
@@ -469,8 +811,21 @@ class ActionProof:
         ip = "".join(f", +inv{j}: {{M.sload(v_ov, {k}) == {state[j]} : M.W}}" for j, k in enumerate(self.keys))
         n = len(self.keys)
         body = "hb" if all(state[j] == self.same(j) for j in range(n)) else self.transported(state)
+        # a key that reads B's earlier keys (I68) is read in the post-state at the post-state's words: those slots must
+        # keep the pre-state's (framed), so that rewriting them turns the key back into the pre-state's key
+        tpl = self.g.sec.blk[self.tag].get("tpl") or list(self.keys)
+        var = re.compile(r"(?<![\w.])v(\d+)(?![\w{])")
+        for m in range(n):
+            for i in {int(x) for x in var.findall(tpl[m])}:
+                if state[i] != self.same(i):
+                    raise NoProof(f"{self.action}: B's key {self.keys[m]} reads the slot {self.keys[i]}, which a path of "
+                                  "the action changes")
+
+        def at(m: int, j: int) -> str:   # key m in the goal while component j is rewritten
+            return var.sub(lambda q: f"M.sload(st, {self.keys[int(q.group(1))]})" if int(q.group(1)) < j else "_"
+                           if int(q.group(1)) == j else f"M.sload(v_ov, {at(int(q.group(1)), j)})", tpl[m])
         for j in range(n - 1, -1, -1):
-            args = [state[i] for i in range(j)] + ["_"] + [f"M.sload(v_ov, {self.keys[i]})" for i in range(j + 1, n)]
+            args = [state[i] for i in range(j)] + ["_"] + [f"M.sload(v_ov, {at(i, j)})" for i in range(j + 1, n)]
             motive = f"{{D.blkv_{self.tag}({', '.join(args)}, D.d_time(e){self.g.targs}) == True{{}} : Bool}}"
             body = (f"(%Equal.sym(M.W, M.sload(v_ov, {self.keys[j]}), {state[j]}, inv{j}) "
                     f": {motive}\n      {body})")
@@ -494,6 +849,23 @@ class ActionProof:
             old = re.sub(rf"(?<![\w.])v{j}(?![\w{{])", f"M.sload(st, {self.keys[j]})", old)
             new = re.sub(rf"(?<![\w.])v{j}(?![\w{{])", state[j], new)
         old, new = at_time(old, T), at_time(new, T)
+        # (I68) a field of a packed slot the path wrote with masked writes reads as the word it wrote last there
+        subs = []
+        for j in range(len(self.keys)):
+            if literal_word(state[j]) is not None or state[j] == self.same(j):
+                continue
+            i = new.find(f"M.w_and({state[j]}, ")
+            while i >= 0:
+                e = _match_close(new, i + len("M.w_and"))
+                parts = split_top(new[i + len("M.w_and("):e])
+                field = new[i:e + 1]
+                r = bf_value(state[j], parts[1]) if len(parts) == 2 else None
+                if r is not None and field not in [f for f, _l, _p in subs]:
+                    subs.append((field, word_text(r[0]), r[1]))
+                i = new.find(f"M.w_and({state[j]}, ", i + 1)
+        full = new
+        for field, lit, _p in subs:
+            new = new.replace(field, lit)
         atoms: list = []
         so = skeleton(old, atoms, keep=_closed)
         sn = skeleton(new, atoms, keep=_closed)
@@ -518,7 +890,15 @@ class ActionProof:
                 else:
                     rows.append(f"    case {pat}:\n      {{==}}\n")
             self.defs.append("".join(rows))
-        return f"{nm}({''.join(a + ', ' for a in atoms)}hb)"
+        body = f"{nm}({''.join(a + ', ' for a in atoms)}hb)"
+        for q in range(len(subs) - 1, -1, -1):
+            cur = full
+            for f, lit, _p in subs[:q]:
+                cur = cur.replace(f, lit)
+            field, lit, pf = subs[q]
+            body = (f"(%Equal.sym(M.W, {field}, {lit}, {pf}) : {{{cur.replace(field, '_')} == True{{}} : Bool}}\n"
+                    f"      {body})")
+        return body
 
     # ------------------------------------------------------------------ the action's term
     def term(self) -> str:
@@ -531,6 +911,220 @@ class ActionProof:
             invs = [("{==}", self.same(j)) for j in range(len(self.keys))]    # the overlay starts as the pre-state
         first = self.stmt(self.mi.first, tuple(r for _x, r in invs))
         return self.call(first, vals, invs)
+
+    # ------------------------------------------------------------------ loops (I68, the loop frames L1)
+    def loop(self, node: Loop, cur: dict, invs: list, carried: tuple = ()) -> str:
+        """A loop statement lg_<a>_<n>: Bend reduces it to la_<a>_<n>(u_nz(code(y)), y) with y the loop's run
+        lp_<a>_<L>(fuel, d, ls_<a>_<L>(x)). The loop's lemma (LoopProof) shows that y has x's fixed fields and, on a
+        route that carries invariants, x's words at B's keys; a continuation lemma opens y, rewrites its fixed fields to
+        the context's and steps la_<a>_<n> on the opened record (a revert keeps the state; otherwise the next
+        statement)."""
+        vals = self.check_fixed(node.rec.fields)
+        new_invs = self.frame_invs(cur["ov"], vals["ov"], invs, carried) if self.tracks else invs
+        conds = [c for _x, c in carried]
+        lp = self.loop_proof(node.L)
+        self.br_count += 1
+        name = f"{self.p}_c{self.br_count}"
+        X = f"M.X_{self.ab}"
+        ys = {f: (f"y_{f}" if f in self.fixed else f"v_{f}") for f in self.fields}
+        canon = [self.fixed[f] if f in self.fixed else f"v_{f}" for f in self.fields]
+        keys = self.keys if self.tracks else []
+        obs_y = lp.obs([ys[f] for f in lp.fixed_order], [f"M.sload(v_ov, {k})" for k in keys])
+        obs_x = lp.obs([self.fixed[f] for f in lp.fixed_order], [f"M.sload(o1, {k})" for k in keys])
+        # the opened record's fixed fields rewritten to the context's, one at a time (outermost first)
+        inner = self.after_loop_lemma(node.n, name, [r for _x, r in new_invs], conds)
+        args = self.fixed_args() + "".join(f", v_{f}" for f in self.var_fields) + self.hb_arg()
+        for j, (k, (_x, r)) in enumerate(zip(keys, new_invs)):
+            gi = len(lp.fixed_order) + j
+            args += (f", Equal.trans(M.W, M.sload(v_ov, {k}), M.sload(o1, {k}), {r}, Equal.cong({lp.O}, M.W, "
+                     f"{lp.getter(gi)}, {obs_y}, {obs_x}, hy), i{j})")
+        args += "".join(f", hc{q}" for q in range(len(conds)))
+        body = f"{inner}({args})"
+        fs = [ys[f] for f in self.fields]
+        for i in range(len(lp.fixed_order) - 1, -1, -1):
+            f = lp.fixed_order[i]
+            at = self.fields.index(f)
+            hole = [canon[q] if q < at and self.fields[q] in self.fixed else fs[q] for q in range(len(fs))]
+            hole[at] = "_"
+            rec = f"{X}{{{', '.join(hole)}}}"
+            ty = self.types[at]
+            eq = (f"Equal.sym({ty}, {ys[f]}, {self.fixed[f]}, Equal.cong({lp.O}, {ty}, {lp.getter(i)}, {obs_y}, "
+                  f"{obs_x}, hy))")
+            body = f"(%{eq} : {self.goal(f'M.la_{self.ab}_{node.n}(M.u_nz(v_cd), {rec})')}\n      {body})"
+        ip = "".join(f", +i{j}: {{M.sload(o1, {k}) == {r} : M.W}}" for j, (k, (_x, r)) in enumerate(zip(keys, new_invs)))
+        pat = f"{X}{{{', '.join('+' + ys[f] for f in self.fields)}}}"
+        self.defs.append(f"def {name}({self.fixed_params()}, +o1: M.HSt, y: {X}{self.hb_param()}{ip}"
+                         f"{self.carried_params(conds)}, +hy: {{{lp.ob}(st{lp.xa}, y) == {obs_x} : {lp.O}}}) -> "
+                         f"{self.goal(f'M.la_{self.ab}_{node.n}(M.u_nz(M.gx_{self.ab}_cd(y)), y)')}:\n"
+                         f"  match y:\n    case {pat}:\n      {body}\n")
+        ls = f"M.ls_{self.ab}_{node.L}({X}{{{', '.join(node.rec.fields)}}})"
+        y = f"M.lp_{self.ab}_{node.L}({node.fuel}, {node.d}, {ls})"
+        hy = f"{lp.lp}({node.fuel}, {node.d}, st{lp.xa}, {ls}, {lp.ob}(st{lp.xa}, {ls}), {{==}})"
+        call = f"{name}({self.fixed_args()}, {vals['ov']}, {y}{self.hb_arg()}"
+        call += "".join(f", {x}" for x, _r in new_invs) + "".join(f", {x}" for x, _c in carried) + f", {hy})"
+        return call
+
+    def after_loop_lemma(self, n: int, name: str, refs: list, conds: list = ()) -> str:
+        """The lemma of la_<a>_<n> on the opened, rewritten record (its varying fields v_<f>; refs: the words at B's
+        keys the overlay holds; conds: the passed checks carried): a statement lemma for the loop statement's exit."""
+        nm = f"{name}a"
+        rec = [self.fixed[f] if f in self.fixed else f"v_{f}" for f in self.fields]
+        node = self.mi.after_loop(n, Record(f"X_{self.ab}", rec))
+        invs = [(f"inv{j}", r) for j, r in enumerate(refs)] if self.tracks else []
+        body = self.emit(node, {f: f"v_{f}" for f in self.var_fields}, invs,
+                         carried=tuple((f"hc{q}", c) for q, c in enumerate(conds)))
+        ip = "".join(f", +inv{j}: {{M.sload(v_ov, {kk}) == {r} : M.W}}" for j, ((_x, r), kk) in
+                     enumerate(zip(invs, self.keys)))
+        self.defs.append(f"def {nm}({self.fixed_params()}{self.var_params()}{self.hb_param()}{ip}"
+                         f"{self.carried_params(conds)}) -> "
+                         f"{self.goal(f'M.la_{self.ab}_{n}(M.u_nz(v_cd), M.X_{self.ab}{{{', '.join(rec)}}})')}:\n"
+                         f"  {body}\n")
+        return nm
+
+    def loop_proof(self, L: int) -> "LoopProof":
+        if L not in self.loops:
+            lp = LoopProof(self.g, self.action, L, self.keys if self.tracks else [], f"{self.p}L{L}",
+                           self.loop_extra if self.tracks else [])
+            self.loops[L] = lp
+            self.defs += lp.lemmas()
+        return self.loops[L]
+
+
+class LoopProof(ActionProof):
+    """(I68, the loop frames L1) One loop lp_<a>_<L> of an action keeps the context's fixed fields (the store st, the
+    arguments, the environment, the tables) and the word at each of the given keys of the overlay ov. Both are one
+    observation ob(x) = Ob{st, ar, en, tables.., sload(ov, K)..} of the record, and the lemma is
+
+      lp(f, d, x, o, h: {ob(x) == o}) : {ob(lp_<a>_<L>(f, d, x)) == o}
+
+    by induction on the fuel f (a run out of fuel only sets the code), from one iteration's li(x, o, h) :
+    {ob(li_<a>_<L>(x)) == o}. That one is the iteration stepped on the opened record: its head, the body's statement
+    chain inside lb_<a>_<L> (statement lemmas whose goal is the observation of lb's result) and the exits, each leaf
+    a record whose fixed fields are the context's and whose overlay keeps the words at the keys (frames by
+    evaluation, as the frame route: a store at one of the keys is refused). Nothing here names a target."""
+
+    def __init__(self, g: Gen, action: str, L: int, keys: list, prefix: str, extra: list = ()):
+        self._common(g, action, "loop", prefix)
+        self.tag = None
+        # variables the keys mention besides st (I68, tag_exact's step key k): parameters of every lemma and of ob
+        self.xp = "".join(f", +{n}: {t}" for n, t in extra)
+        self.xa = "".join(f", {n}" for n, _t in extra)
+        self.time = False
+        self.T = "t"
+        self.L = L
+        # the keys as terms of s0, the context's pre-state (a key that reads B's earlier keys reads st, I68), so that
+        # the iteration's lemmas keep them fixed whatever the record's own store field is called
+        self.keys = [re.sub(r"(?<![\w.])st(?![\w{])", "s0", k) for k in keys]
+        self.fixed_order = [f for f in self.fields if f in self.fixed]
+        self.O = f"Ob_{prefix}"
+        self.ob = f"ob_{prefix}"
+        self.lb = f"M.lb_{self.ab}_{L}"
+        self.lp = f"{prefix}_lp"
+        for part in ("li", "lb", "ls"):
+            if f"{part}_{self.ab}_{L}" not in self.mi.defs:
+                raise NoProof(f"{action}: its loop {L} has no {part}_{self.ab}_{L}")
+
+    # the observation and its parts
+    def obs(self, fixed_vals: list, key_vals: list) -> str:
+        return f"{self.O}{{{', '.join(list(fixed_vals) + list(key_vals))}}}"
+
+    def getter(self, i: int) -> str:
+        return f"{self.ob}_g{i}"
+
+    def ref(self) -> str:
+        """The observation the iteration keeps: the context's fixed fields and the words at the keys of o0."""
+        return self.obs([self.fixed[f] for f in self.fixed_order], [f"M.sload(o0, {k})" for k in self.keys])
+
+    # ActionProof's text pieces, without B
+    def hb_param(self) -> str:
+        return ""
+
+    def hb_arg(self) -> str:
+        return ""
+
+    def fixed_params(self) -> str:
+        return f"+st: M.HSt, +ar: M.AR_{self.ab}, +e: M.HEnv{self.g.tparams}, +o0: M.HSt, +s0: M.HSt{self.xp}"
+
+    def fixed_args(self) -> str:
+        return f"st, ar, e{self.g.targs}, o0, s0{self.xa}"
+
+    def goal(self, x: str) -> str:
+        """The observation of x, or of lb's result for a term of the body's statement chain."""
+        head = re.match(r"M\.(\w+)\(", x.strip())
+        own = head is not None and head.group(1).startswith(tuple(f"{q}_{self.ab}_" for q in LOOP_PARTS))
+        t = x if own else f"{self.lb}({x})"
+        return f"{{{self.ob}(s0{self.xa}, {t}) == {self.ref()} : {self.O}}}"
+
+    def emit(self, node, cur: dict, invs: list, nonzero: str | None = None, carried: tuple = ()) -> str:
+        if isinstance(node, Next):    # the body's chain (in lb: its result goes through the loop's exit)
+            vals = self.check_fixed(node.fields)
+            new_invs = self.frame_invs(cur["ov"], vals["ov"], invs)
+            return self.call(self.stmt(node.j, tuple(r for _x, r in new_invs)), vals, new_invs)
+        if isinstance(node, Final):   # the body's chain ended: lb on its record
+            return self.emit(self.mi.apply(self.lb[2:], [Record(f"X_{self.ab}", node.fields)]), cur, invs)
+        if isinstance(node, Record):  # an iteration's end: the observation of the record
+            return self.leaf(node.fields, cur, invs)
+        if isinstance(node, Loop):
+            raise NoProof(f"{self.action}: a loop inside its loop {self.L}")
+        return super().emit(node, cur, invs, nonzero)   # a branch (no convoy in a loop body)
+
+    def leaf(self, fields: list, cur: dict, invs: list) -> str:
+        vals = self.check_fixed(fields)
+        new_invs = self.frame_invs(cur["ov"], vals["ov"], invs)
+        ov = vals["ov"]
+        n = len(self.keys)
+        want = [r for _x, r in new_invs]
+        fx = [self.fixed[f] for f in self.fixed_order]
+        body = "{==}"
+        for j in range(n - 1, -1, -1):
+            comps = want[:j] + ["_"] + [f"M.sload({ov}, {self.keys[q]})" for q in range(j + 1, n)]
+            body = (f"(%Equal.sym(M.W, M.sload({ov}, {self.keys[j]}), {want[j]}, {new_invs[j][0]}) : "
+                    f"{{{self.obs(fx, comps)} == {self.ref()} : {self.O}}}\n      {body})")
+        return body
+
+    def lemmas(self) -> list:
+        """The observation type, its getters, the iteration's lemmas and the fuel induction."""
+        X = f"M.X_{self.ab}"
+        tys = [self.types[self.fields.index(f)] for f in self.fixed_order] + ["M.W"] * len(self.keys)
+        names = [f"x_{f}" for f in self.fields]
+        pat = f"{X}{{{', '.join('+' + v for v in names)}}}"
+        comps = [f"x_{f}" for f in self.fixed_order] + [f"M.sload(x_ov, {k})" for k in self.keys]
+        out = [f"type {self.O} is Data:\n  {self.O}{{{', '.join(f'f{i}: {t}' for i, t in enumerate(tys))}}}\n",
+               f"def {self.ob}(+s0: M.HSt{self.xp}, r: {X}) -> {self.O}:\n  match r:\n    case {pat}:\n      {self.obs(comps[:len(self.fixed_order)], comps[len(self.fixed_order):])}\n"]
+        gs = ", ".join(f"+a{i}" for i in range(len(tys)))
+        for i, t in enumerate(tys):
+            out.append(f"def {self.getter(i)}(o: {self.O}) -> {t}:\n  match o:\n    case {self.O}{{{gs}}}:\n      a{i}\n")
+        # one iteration from the opened record: li's head, the body's chain in lb, the exits
+        rec = [self.fixed[f] if f in self.fixed else f"v_{f}" for f in self.fields]
+        top = f"{self.p}_top"
+        node = self.mi.apply(f"li_{self.ab}_{self.L}", [Record(f"X_{self.ab}", rec)])
+        invs = [(f"inv{j}", f"M.sload(o0, {k})") for j, k in enumerate(self.keys)]
+        body = self.emit(node, {f: f"v_{f}" for f in self.var_fields}, invs)
+        ip = "".join(f", +inv{j}: {{M.sload(v_ov, {k}) == M.sload(o0, {k}) : M.W}}" for j, k in enumerate(self.keys))
+        self.defs.append(f"def {top}({self.fixed_params()}{self.var_params()}{ip}) -> "
+                         f"{self.goal(f'M.li_{self.ab}_{self.L}({X}{{{', '.join(rec)}}})')}:\n  {body}\n")
+        xrec = f"{X}{{{', '.join(names)}}}"
+        targs = "".join(f", x_{n}" for n in self.g.tabs)
+        call = (f"{top}(x_st, x_ar, x_en{targs}, x_ov, s0{self.xa}" + "".join(f", x_{f}" for f in self.var_fields)
+                + ", {==}" * len(self.keys) + ")")
+        s0x = f"s0{self.xa}"
+        li = (f"def {self.p}_li(+s0: M.HSt{self.xp}, +x: {X}, +o: {self.O}, h: {{{self.ob}({s0x}, x) == o : {self.O}}}) -> "
+              f"{{{self.ob}({s0x}, M.li_{self.ab}_{self.L}(x)) == o : {self.O}}}:\n  match x:\n    case {pat}:\n"
+              f"      Equal.trans({self.O}, {self.ob}({s0x}, M.li_{self.ab}_{self.L}({xrec})), {self.ob}({s0x}, {xrec}), o, "
+              f"{call}, h)\n")
+        ld = f"M.gx_{self.ab}_ld{self.L}"
+        if f"gx_{self.ab}_ld{self.L}" not in self.mi.defs:
+            raise NoProof(f"{self.action}: its loop {self.L} has no direction field ld{self.L}")
+        lp = (f"def {self.lp}(f: Nat, +d: Nat, +s0: M.HSt{self.xp}, +x: {X}, +o: {self.O}, h: {{{self.ob}({s0x}, x) == o : "
+              f"{self.O}}}) -> {{{self.ob}({s0x}, M.lp_{self.ab}_{self.L}(f, d, x)) == o : {self.O}}}:\n"
+              f"  match f:\n    case 0n:\n      match d:\n        case 0n:\n          h\n        case 1n+q:\n"
+              f"          match q:\n            case 0n:\n              match x:\n                case {pat}:\n"
+              f"                  h\n            case 1n+s:\n              h\n"
+              f"    case 1n+r:\n      match d:\n        case 0n:\n          h\n        case 1n+q:\n"
+              f"          match q:\n            case 0n:\n"
+              f"              {self.lp}(r, {ld}(M.li_{self.ab}_{self.L}(x)), {s0x}, M.li_{self.ab}_{self.L}(x), o, "
+              f"{self.p}_li({s0x}, x, o, h))\n            case 1n+s:\n              h\n")
+        return out + self.defs + [li, lp]
 
 
 # ------------------------------------------------------------------------------------------------ time monotonicity
@@ -703,7 +1297,7 @@ def law_proof(g: Gen, law: dict, model_import: str, section_import: str, laws_im
     if g.sec.blk[tag]["time"]:
         # time monotonicity: B at the premise's t, with t <= time(e), gives B at time(e), where every route states it
         tm = TimeMono(g, tag, "tl_blk")
-        defs += tm.defs + [NOT_LEMMAS]
+        defs += tm.defs + ([] if g.sk else [NOT_LEMMAS])   # (the structural library holds not_t and f_not)
     for i, act in enumerate(sorted(members)):
         ab = bname(act)
         p = f"r{i}"
@@ -791,7 +1385,7 @@ def law_proof(g: Gen, law: dict, model_import: str, section_import: str, laws_im
     head = [PHEADER, "import Base", f"import {model_import} as M", f"import {section_import} as D",
             f"import {laws_import} as Laws", "",
             f"# routes: {', '.join(f'{k}: {v}' for k, v in sorted(routes.items()))}"
-            + ("; time monotonicity" if tm is not None else ""), LIBRARY, ORDER.text("M.")]
+            + ("; time monotonicity" if tm is not None else ""), library(g.sk), ORDER.text("M.", g.sk)]
     main = (f"def Laws.{law_name}({params}):\n  match s:\n    case {gpat}:\n      match a:\n" + "".join(cases))
     return "\n".join(head + defs + [main]), routes
 

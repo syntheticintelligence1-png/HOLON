@@ -1094,6 +1094,9 @@ def run(args) -> int:
         write_json(hp, call_hints(runs, _rel(doc_path, root)))
     details = Path(args.details) if args.details else work / "details.json"
     write_json(details, run_details(runs, compared, log, view))
+    keys_of = getattr(model, "keys_document", None)
+    if callable(keys_of) and getattr(model, "sk", False):   # (I68) a structural model's keys, taken on the corpus
+        write_json(side / "keys.json", keys_of())
     print(f"fragments: {rec['traces']} traces, {rec['steps']} steps compared, {rec['storage_slots']} slot comparisons, "
           f"{len(rec['disagreements'])} disagreements ({rec['unexplained']} unexplained); reaches "
           f"{rec['guard_coverage']['reaches']}, falsified {rec['guard_coverage']['falsified']}; wrote {out}")
