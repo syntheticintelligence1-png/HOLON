@@ -1761,6 +1761,13 @@ class Walk:
                     break
                 new = [k for k in self._keys([before, res.next])
                        if k not in carried and self._get(res.next, k) != self._get(res.start, k)]
+                if not new and res.breaks:
+                    # a local the iteration changes on a break path only (a break-only flag such as a search's
+                    # `found`): carried too, so that its entry value (before the loop) is recorded and an exit by the
+                    # loop's head reads it; it is unchanged by a continuing iteration (its next value is itself)
+                    brk0 = merge_list(res.breaks, res.start)
+                    new = [k for k in self._keys([before, brk0])
+                           if k[0] in ("v", "y") and k not in carried and self._get(brk0, k) != self._get(res.start, k)]
                 if not new:
                     break
                 carried = carried + new
