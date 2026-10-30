@@ -26,6 +26,7 @@ from pathlib import Path
 
 from .. import bend
 from ..machine_bend import bname
+from ..rules.disch import SUBFORMS
 from ..sorts.proofs3 import rel_import
 from . import section as SEC
 
@@ -45,7 +46,7 @@ class DischGate:
         self.na: dict = {}
         self.canaries: list = []
         dv = json.loads((self.root / "laws" / self.m / "DERIVATION.json").read_text())
-        self.entries = {e["law_id"]: e for e in dv["laws"] if e.get("rule") == "DISCH"}
+        self.entries = {e["law_id"]: e for e in dv["laws"] if e.get("rule") == "DISCH" and e.get("subform") in SUBFORMS}
 
     def records(self) -> dict:
         out = {}

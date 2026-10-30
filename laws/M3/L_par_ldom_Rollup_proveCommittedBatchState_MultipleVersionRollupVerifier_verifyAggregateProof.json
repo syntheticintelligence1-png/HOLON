@@ -1,0 +1,63 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_ldom_Rollup_proveCommittedBatchState_MultipleVersionRollupVerifier_verifyAggregateProof",
+  "milestone": "M3",
+  "notes": "if a call x of proveCommittedBatchState succeeds from a reachable state s and makes its call IRollupVerifier.verifyAggregateProof at contracts/contracts/l1/rollup/Rollup.sol:779-784 (answered as an oracle), then router's resolution of the call's (version, index) by the view of x's input is defined and non-zero in every state the trace vt reaches from router's deployment (domain coherence at the interface, \u00a75.1); bundle morph_rollup.extracted:link_domain:proveCommittedBatchState:router:verifyAggregateProof",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.10",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "vt",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "bundle": "morph_rollup.extracted:link_domain:proveCommittedBatchState:router:verifyAggregateProof",
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            },
+            {
+              "var": "vt"
+            },
+            {
+              "var": "keccak256"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "link_domain"
+}

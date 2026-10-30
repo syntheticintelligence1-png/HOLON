@@ -642,7 +642,7 @@ def classification(milestone: str, root: Path, results: Path | None = None) -> d
     dv = json.loads((root / "laws" / milestone / "DERIVATION.json").read_text(encoding="utf-8"))
     laws, dis = {}, []
     for e in dv.get("laws") or []:
-        if e.get("rule") != RULE:
+        if e.get("rule") != RULE or e.get("subform") not in SUBFORMS:
             continue
         lid = e["law_id"]
         rp = results / f"{lid}.json"

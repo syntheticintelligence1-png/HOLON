@@ -295,6 +295,30 @@ def _main(argv: list) -> int:
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
     if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I84: the bundle laws (PAR link_domain, FACT public_input, DISCH self_controlled) a --laws list names are
+        # decided on the typed model at the laws' deployment (holon.bundle2.laws_decide); the list's other laws go on
+        # as before. A whole-milestone run decides them after every other law.
+        import os
+        from pathlib import Path
+        from .bundle2 import laws_decide as bundle_laws
+        from .versions.run import strip_args as _strip
+        split = bundle_laws.ids_of(argv, Path(__file__).resolve().parents[1])
+        if split is not None:
+            bids, others = split
+            rc = 0
+            if others:
+                rc = _main(_strip(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, bundle_laws.main(_strip(argv, ("--laws",)) + ["--laws", ",".join(bids)]))
+        if (_arg(argv, "--laws") is None and os.environ.get("HOLON_BUNDLE_LAWS") != "after"
+                and bundle_laws.bundle_entries(str(_arg(argv, "--milestone")),
+                                               Path(_arg(argv, "--root") or Path(__file__).resolve().parents[1]))):
+            os.environ["HOLON_BUNDLE_LAWS"] = "after"
+            try:
+                rc = _main(argv)
+            finally:
+                os.environ.pop("HOLON_BUNDLE_LAWS", None)
+            return max(rc, bundle_laws.main(argv))
+    if argv[:1] == ["run"] and _typed_milestone(argv):
         # I28: the PAR-init laws (rule PAR, sub-form init_chain) a --laws list names are decided over the versioned
         # model (holon.versions.run); the list's other laws go on as before
         from .versions import run as versions_run
