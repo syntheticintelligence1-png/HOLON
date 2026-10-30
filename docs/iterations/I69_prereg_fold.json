@@ -1,0 +1,188 @@
+{
+ "findings": [
+  {
+   "change": "Adopted LANE_RULES' one-PR rule and wrote its process conditions into the docstring ('Own commits'): the report is the branch's last own commit, written once (no draft report); a commit after the report is outside the rule and the process makes none. Lookups use --full-history (n2). Shown on toy repositories (toy_demo below).",
+   "id": "M1"
+  },
+  {
+   "change": "Same rule: prereg, fold, build, outcomes and report are commits of one branch whose first-parent line runs from C_K; the lead enters only by merge commits whose first parent is the branch, so no lead commit, merged or pushed directly, lies on that line; the branch reaches the lead as the second parent of a merge. Toy A shows a direct lead commit (spec/, laws/) and a merged PR before the branch's lead merge, and later lead commits after the merge (one editing the report), none counted.",
+   "id": "M2"
+  },
+  {
+   "change": "tests_m3/_i69.py::timeline now trusts none of holon's derived fields: logs inside [from_block, fetch_block], of the proxy and unique; proxy addresses equal the sidecar's, the messenger's the queue's last in-window implementation's MESSENGER word (sidecar acquisition.proxies.messenger.immutable); upgrades rebuilt from raw Upgraded logs, each confirmed by its committed receipt (transactionHash, blockNumber, status 0x1, the same log at its index) and decoded from it, its implementation matched on its committed code; the EIP-1967 implementation slot read at the fetch block must name the last Upgraded log's implementation (the scan's completeness at its end; A3 now scans to the fetch block, upgrades after the window listed apart); the whitelist address is the low 20 bytes of the queue's word at its whitelistChecker slot from solc's layout (sidecar acquisition.whitelist.slot_of). A3's snapshot format gains window, implementation_slot and the whitelist's proxy, slot and block. Probed on a fabricated snapshot with matching stubbed: the plumbing and seven refusals (slot, queue address, messenger address, whitelist slot, receipt log, log outside the window, fetch block).",
+   "id": "M3"
+  },
+  {
+   "change": "C3 now defines corpus.json's format and its three parts exactly: the m1 part's sha256 is pinned (thresholds.corpus.m1_sha256 = 0b82e5f5..., holon.mreplay.random_corpus run twice at the prereg, byte-identical: 300 traces, 2432 rows); the seed part is the sidecar's traces verbatim; the random part follows an exact rule (random.Random(20261023), a fixed draw order, pools from the sidecar and earlier uint arguments only, no event or return words) that tests_m3/_i69.py::random_corpus regenerates (its sha256 5e4ea3d5... recorded and tested). The sources are counted from corpus.json (corpus_differences). C6 adds results/M3/bundle/steps.json, per-step evidence with the harness's frames, and tests_m3/_i69.py::recount recounts traces, steps, frames_ok, by_member_action and links_ok from it; P6 and P7 read the recount.",
+   "id": "M4"
+  },
+  {
+   "change": "M4 compares the return data on two oks and the member's storage at every slot a write of the step touches on either side, besides status, revert key and logs; refinement_models.json records its observables, which P5's test checks.",
+   "id": "M5"
+  },
+  {
+   "change": "P4 keeps the loop records and cost spans; action names, own families, inherited counts and constants are construction facts (R5), computed now by tests_m3/_i69.py::interfaces/structure for all five documents (L1Staking's storage, inherited 7 and constants {} newly pinned) and checked against both the pins and the built documents (test_the_construction_pins_are_solc_s, test_the_documents_carry_solc_s_structure). P6 says its 16 non-Rollup rows are predicted and the Rollup's 12 are construction (thresholds.links_parts). P7's 49 is marked a count of rule E2. P1 discloses that OTHER_STAKING's value follows from the constructor. The review's computation is disclosed in thresholds.disclosed and the prompt.",
+   "id": "m1"
+  },
+  {
+   "change": "R4 scans holon/bundle/ and every line I69's own commits add to any other holon/ file, for the member contracts, member-specific functions and immutables, proxy addresses, the rpc hosts (url and second, and their distinctive labels), the target's name and I69 ids.",
+   "id": "m2"
+  },
+  {
+   "change": "R2 allows appended spec/M3/amendments.jsonl lines whose iteration is I69 (and nothing else under spec/). The fold is in the prereg commit itself; this file and the review are a separate own commit under docs/ only, which R2 allows.",
+   "id": "m3"
+  },
+  {
+   "change": "links_ok is decided from the harness's frames ([parent, caller, callee, selector, value, ok], C2): a row counts kept frames on its callee at its target's selector whose parent frame is on its member at its action's selector; the 28 rows have unique (member, action, callee, selector) (tested). C5 compares the machine's frames with the harness's; the frames are committed per step.",
+   "id": "m4"
+  },
+  {
+   "change": "A7's second read is the instrument's (python -m tests_m3._i69 --second-read, its only network read): it commits results/M3/bundle/second_read.json (host, methods, the log scan, receipt and code sha256s, slot words); test_the_second_read_agrees compares it with the snapshot, receipts and code; when it fails, P1 and P2 are UNKNOWN.",
+   "id": "m5"
+  },
+  {
+   "change": "The docstring states where ['code', a] and balance reads come from (the deployment record: members, w1, the verifier stand-in and the proxy admin have code; actors none; non-member balances from the harness's record), that L3's dispatcher revert is decided before L5, and the risk list names .code.length and forge's frame recording.",
+   "id": "m6"
+  },
+  {
+   "change": "Shared files and thresholds.coordination: a later key that changes the frontend, the evaluator, model3, evaluate3 or holon/bundle/ so that a bundle --check differs re-makes gen/M3/bundle/ and results/M3/bundle/ under its own commit rules; until then R5's --check tests are expected red.",
+   "id": "m7"
+  },
+  {
+   "change": "Row I69's dependencies name I66 as merged (a0bfc521); row I36's add I69 and the Q21 fix key; §4 I36's deliverables gain the split note naming I36 (= I36b) as the key that adopts the head members' documents, at spec/M3/facts/morph_<member>.extracted.json; the prompt's deviations say the same. No I68 or I70 row exists yet.",
+   "id": "m8"
+  },
+  {
+   "change": "R1 regenerates I20's M2 model gen/M2/extracted/{model.bend, layout.json, window_check.json} with holon.machine.write_model in scratch; M5 says the UNDO, FACT and DISCH section models are checked at the next M3 re-make.",
+   "id": "m9"
+  },
+  {
+   "change": "None (the readings stand; Q67 unchanged).",
+   "id": "n1"
+  },
+  {
+   "change": "prereg_commit and own_commits pass --full-history.",
+   "id": "n2"
+  },
+  {
+   "change": "Moot: I66's prereg merged (a0bfc521); the docstring cites the merge.",
+   "id": "n3"
+  }
+ ],
+ "fold_version": "holon-prereg-fold/0.1",
+ "green_red_at_prereg": "see the PR body: the green-at-prereg tests are TestInstrument (7) and R1, R3; the build-dependent tests are red on a missing build output or command",
+ "iteration": "I69",
+ "prereg_commit": "the prereg commit C_K, the parent of the commit adding this file (0286a54e at writing)",
+ "rebase": {
+  "conflicts": "docs/BUILD_PLAN.md (row I69 after the lead's I67 and I72 rows) and spec/M3/predictions.json (the key I69 appended after I72's); every other key byte-identical (checked: the merged file's text before the key equals the lead's)",
+  "from": "f0771d9f on f5534775 (the review read 2fefb519 on e215fbf5; the same content, rebased once before)",
+  "moved": {
+   "R1": "red at the new base as written: since F40 (5b369d4c) holon.sorts.run3 adds the deployment's code table init.code to the typed model's init, which holon model --milestone M3 does not write; R1 now compares that init less code (the .bend files byte for byte)",
+   "base_gate": "the lead's CI run 40116936084 on 2ef07b6d: all 11 jobs passed (gate-M3-partial's G11V passes since F40)",
+   "closures": {
+    "GEN3": [
+     122,
+     126
+    ],
+    "GEN3+GEN_DISCH": [
+     127,
+     131
+    ],
+    "GEN3+GEN_FACT": [
+     132,
+     136
+    ],
+    "GEN3+GEN_UNDO": [
+     125,
+     129
+    ],
+    "GEN_PROFILE": [
+     124,
+     127
+    ],
+    "holon-ir/0.2": [
+     122,
+     127
+    ],
+    "holon-ir/0.3": [
+     123,
+     128
+    ],
+    "note": "key values before (they were e215fbf5's; the f5534775 rebase did not update them) and at 2ef07b6d; I67 added holon/diagram/goops.py and holon/gen/goloop.py"
+   },
+   "pins": {
+    "base": {
+     "after (0286a54e on 2ef07b6d)": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874",
+     "before (f0771d9f on f5534775)": "e215fbf5fca5194646a08dc4e72ff0f15522aa64"
+    },
+    "basis_sha256": {
+     "after (0286a54e on 2ef07b6d)": "a765d06ff152bef9a7a9deef5d31fa4bda67862130296608363c3b85e682350a",
+     "before (f0771d9f on f5534775)": "ac5a171d9b9bc31e1c37b67eb3ebe8d25021a705709cbbfaffaeb6c3378e7e33"
+    },
+    "contract_docstring_sha256": {
+     "after (0286a54e on 2ef07b6d)": "098c67a0d189afb7386ddadd209710d4ce464b8b1123b16261405c6cfda38a6a",
+     "before (f0771d9f on f5534775)": "c217a9158cbea2e66587b969a0ae11b2e85c2416c933b7dfe7d14ea957840273"
+    },
+    "i63_instrument_sha256": {
+     "after (0286a54e on 2ef07b6d)": "64b8c1115e2604cf986a61f353613a5a6cfc26834fc822b224abdc7d7aa3acb5",
+     "before (f0771d9f on f5534775)": "64b8c1115e2604cf986a61f353613a5a6cfc26834fc822b224abdc7d7aa3acb5"
+    },
+    "instrument_sha256": {
+     "after (0286a54e on 2ef07b6d)": "cc810222f6dd2d4cf2fa6af9543167f40cebebc465745cd2e80ef9536fcd1c72",
+     "before (f0771d9f on f5534775)": "0fa28ac6f320578c1d48354085864d1e7c35b16a921c02e266e6532a46c3eac0"
+    },
+    "rollup_coverage_entry_sha256": {
+     "after (0286a54e on 2ef07b6d)": "d4d9f63cb80d048c2d6041935de5db9b14c823729dd6c6e249a3aa29f1048a88",
+     "before (f0771d9f on f5534775)": "d4d9f63cb80d048c2d6041935de5db9b14c823729dd6c6e249a3aa29f1048a88"
+    },
+    "sidecar_sha256": {
+     "after (0286a54e on 2ef07b6d)": "f6c91cab9f4d1941f8999b6ba2378dd488b7224891b477d9e731b8034e380a40",
+     "before (f0771d9f on f5534775)": "4bc9637403c1366842f1213d0e0ab1da2be0f561b19d3c56336170e0ce061d19"
+    }
+   },
+   "records": "M2 12 -> 13 (I65's derived law); M3 131 -> 135; T32 current at bd51e9b7 (was f043522b)"
+  },
+  "onto": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874 (origin/claude/holon-v2-bend2-c6z3cd: I66's build, F40, I65's build, I28's prereg, I67's prereg and build, I72's prereg, the I25 fix; I28's build, PR #50, had not merged)",
+  "unchanged": "the twelve pinned inputs, the sidecar's inputs, config/holon.json, gen/M3/coverage.json (the Rollup entry hash d4d9f63c...), I63's instrument (64b8c111...), tests_m3/_m3.py, tests_m2/_keccak.py; the basis's builds"
+ },
+ "review": "docs/iterations/I69_prereg_review.json (of 2fefb519 on e215fbf5; verdict: no sign-off)",
+ "toy_demo": {
+  "cases": "A1 the one-PR branch before the report; A2 after the report; A3 on the lead after the merge (the branch as second parent, a direct lead commit before it); A4 after later lead commits (one edits laws/ and the report); B an own commit edits laws/; C an own commit appends another key's amendment line; D an own commit changes a record's status; E an own commit drops a coverage entry",
+  "output": [
+   "A1. one-PR branch before the report (end = HEAD)",
+   "  own commits: ['I69 prereg review and fold notes', 'I69 build: extraction', 'I69 outcome: M1 records re-made', 'I69 amendment line']",
+   "  I69-R2: PASS",
+   "  as expected: own True, R2 True",
+   "A2. after the report",
+   "  own commits: ['I69 prereg review and fold notes', 'I69 build: extraction', 'I69 outcome: M1 records re-made', 'I69 amendment line', 'I69 report']",
+   "  I69-R2: PASS",
+   "  as expected: own True, R2 True",
+   "A3. on the lead after the merge (the branch is the merge's second parent)",
+   "  own commits: ['I69 prereg review and fold notes', 'I69 build: extraction', 'I69 outcome: M1 records re-made', 'I69 amendment line', 'I69 report']",
+   "  I69-R2: PASS",
+   "  as expected: own True, R2 True",
+   "A4. on the lead after later lead commits",
+   "  own commits: ['I69 prereg review and fold notes', 'I69 build: extraction', 'I69 outcome: M1 records re-made', 'I69 amendment line', 'I69 report']",
+   "  I69-R2: PASS",
+   "  as expected: own True, R2 True",
+   "B. an own commit edits laws/",
+   "  own commits: ['I69 prereg review and fold notes', 'I69 build: extraction', 'I69 outcome: M1 records re-made', 'I69 amendment line', 'I69 bad: laws', 'I69 report']",
+   "  I69-R2: FAIL (AssertionError: True is not false : a forbidden path)",
+   "  as expected: own True, R2 True",
+   "C. an own commit appends another key's amendment line",
+   "  own commits: ['I69 prereg review and fold notes', 'I69 build: extraction', 'I69 outcome: M1 records re-made', 'I69 amendment line', 'I69 bad: amendment', 'I69 report']",
+   "  I69-R2: FAIL ( : an appended line not I69's)",
+   "  as expected: own True, R2 True",
+   "D. an own commit changes a record's status",
+   "  own commits: ['I69 prereg review and fold notes', 'I69 build: extraction', 'I69 outcome: M1 records re-made', 'I69 amendment line', 'I69 bad: record', 'I69 report']",
+   "  I69-R2: FAIL (+ PROVED)",
+   "  as expected: own True, R2 True",
+   "E. an own commit drops a coverage entry",
+   "  own commits: ['I69 prereg review and fold notes', 'I69 build: extraction', 'I69 outcome: M1 records re-made', 'I69 amendment line', 'I69 bad: coverage', 'I69 report']",
+   "  I69-R2: FAIL (?                               ^^^ ++++ ^^^^^^^ +)",
+   "  as expected: own True, R2 True",
+   "ALL AS EXPECTED"
+  ],
+  "script": "a throwaway script (scratch toy_onepr.py) that builds git repositories outside the worktree and runs this key's own_commits() and test_r2_own_commits_touch_nothing_forbidden with the test module's ROOT redirected"
+ }
+}
