@@ -416,6 +416,13 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
         ss = dict(sides.get(key) or {})
         if not ss and key.startswith("M2/extracted_m1/"):
             ss = dict(sides.get("M1/" + key.rpartition("/")[2]) or {})
+        from .rules import par_init as PI
+        versioned = law.get("rule") == PI.RULE and law.get("subform") == PI.SUBFORM
+        if not ss and versioned:
+            # I28 (PI6): a PAR-init record's side is its run of the versions replay report (V9)
+            from .versions.replay import side as versions_side
+            vs = versions_side(root, key.rpartition("/")[0], key.rpartition("/")[2], rec.get("witness"))
+            ss = {"solidity": vs} if vs else {}
         kind = kind_of(rec, law, ss)
         gen = ((rep.get("records") or {}).get(key) or {}).get("sides") or {}
         final_sides = {**ss, **gen}
@@ -450,7 +457,8 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
                             reason=f"a commit at version {v} from R0 (rule K3, the M0 commit-path rule): {r['reason']}")
                 path = r["path"] if r["verdict"] == "path" else None
         elif kind == "direct":
-            conc.update(result="path", length=trace_length(rec),
+            conc.update(result="path", length=(len((rec.get("witness") or {}).get("trace") or []) or None) if versioned
+                        else trace_length(rec),
                         reason=("the witness is a schedule of public calls; its emitted tests are its side"
                                 if gen else "the witness is a schedule of public calls (its replay is the record's side)"))
         else:

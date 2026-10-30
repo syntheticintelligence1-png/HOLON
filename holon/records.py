@@ -213,6 +213,7 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
         out += _linked_bundles(Path(root), facts_path)
         out += _goops_bundles(Path(root), facts_path)
         out += _window_bundles(Path(root), facts_path)
+        out += _versions_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
     for i, b in enumerate(out):
         for x in exts:
@@ -297,6 +298,53 @@ def _window_bundles(root: Path, facts_path) -> list[dict]:
     rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
         else str(facts_path)
     return [{**b, "facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest()}]
+
+
+def _versions_bundles(root: Path, facts_path) -> list[dict]:
+    """I28 (holon.versions): the bundle of a versioned document, generated, never hand-written: the bundle of the adopted
+    document its versions sidecar names (as it is now; its model is the one every version's module is compiled as), with
+    the sidecar's proxy assumption (A-proxy: the migration steps of the versioned layer) and the layer's plumbing,
+    re-keyed to the versioned document's path and sha256. [] for any other document, and when the ledger has no bundle
+    for the adopted document as it is now."""
+    p = Path(root) / facts_path
+    if p.suffix != ".json" or not p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+    except (OSError, ValueError):
+        return []
+    if not isinstance(doc, dict) or "versions_version" not in doc or not isinstance(doc.get("sidecar"), dict):
+        return []
+    srel = doc["sidecar"].get("path")
+    try:
+        side = json.loads((Path(root) / srel).read_text(encoding="utf-8"))
+        adopted = side["inputs"]["adopted_document"]
+        a_sha = hashlib.sha256((Path(root) / adopted).read_bytes()).hexdigest()
+        text = side["proxy"]["assumption"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return []
+    base = [b for b in all_bundles(root) if b.get("facts") == adopted and b.get("facts_sha256") == a_sha]
+    if len(base) != 1:
+        return []
+    b = base[0]
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
+        else str(facts_path)
+    proxy = {"id": "A-proxy", "kind": "abstraction", "source": f"{srel}#/proxy/assumption", "text": text,
+             "introduced_by": ["vstep", "vok", "vrun", "vr0", "vu*", "vok_u_*", "vokua_*", "vokuc_*", "VStep", "UC_*",
+                               "VReach"]}
+    plumbing = {"defs": ["cw_*", "wc_*", "cl*_*", "lKW_*", "cst_*", "stc_*", "ckh_*", "env_*", "vis_*", "vpick",
+                         "ar_*", "VV", "VSt", "VEnv", "VP", "vadmin_slot", "vloc", "vread", "vc*", "vok_c_*",
+                         "vokca_*", "pinit_*", "pic_*", "pcell_*"],
+                "why": "the versioned layer's plumbing (holon.versions.model): the conversions between its values and "
+                       "each version module's, the version dispatch, argument and environment records, the layout "
+                       "reads and the init claims over the modules' runs; no modelling choice beyond A-proxy"}
+    # every assumption of the adopted document's model holds of each version's module, which the layer's definitions
+    # that run a module's actions reach whole (vfin_*, vokf_*: a run's outcome; step_*, run_*: its step and run)
+    runs = ["vfin_*", "vokf_*", "step_*", "run_*"]
+    entries = [{**e, "introduced_by": list(e["introduced_by"]) + runs} for e in b["entries"]]
+    return [{**b, "facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(),
+             "entries": entries + [proxy], "no_assumption": list(b["no_assumption"]) + [plumbing]}]
 
 
 def milestone_extensions(root: Path | str, milestone: str) -> list[dict]:
