@@ -200,5 +200,22 @@ class Forge:
                             "implementation": impl[0] if impl else None, "implementation_code": impl[1] if impl else None,
                             "immutables": imm,
                             "storage": {"0x%064x" % k: "0x%064x" % v for k, v in sorted(storage[m].items()) if v}})
-        return {"harness": run.harness, "members": members, "created": sorted(run.created),
-                "timestamp": d.timestamp, "number": d.number, "chainid": int(call.env.get("block.chainid") or 0)}
+        out = {"harness": run.harness, "members": members, "created": sorted(run.created),
+               "timestamp": d.timestamp, "number": d.number, "chainid": int(call.env.get("block.chainid") or 0)}
+        out["deploy_calls"] = self.deploy_calls()
+        return out
+
+    def deploy_calls(self) -> dict:
+        """The deployment's calls into member 0 and its writes to member 0's storage, in access order (deploy3's
+        capture form: calls [{entry, caller, value, data, reverted}], writes [[entry, slot, value, reverted]])."""
+        calls, writes = [], []
+        for ln in self.run("HolonBundle2LawReplayTest", "test_deploy_calls", {}, ("DC ", "DW ")):
+            f = ln.split(" ")
+            if f[0] == "DC":
+                calls.append({"entry": int(f[1]), "caller": f[2].lower(), "value": int(f[3]), "reverted": f[4] == "1",
+                              "data": f[5].lower()})
+            else:
+                writes.append([int(f[1]), "0x%064x" % int(f[2], 16), "0x%064x" % int(f[3], 16), f[4] == "1"])
+        if not calls:
+            raise BundleError("the deployment made no call into member 0")
+        return {"calls": calls, "writes": writes}

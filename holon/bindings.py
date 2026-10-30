@@ -314,6 +314,25 @@ def _pinit(law: dict) -> bool:
     return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == RULE and law.get("subform") == SUBFORM
 
 
+def _bundle(law: dict) -> bool:
+    """A bundle law (I84, holon.rules.bundle2: PAR link_domain, FACT public_input, DISCH self_controlled): a holon-ir/0.3
+    law whose claim is a bundle term. holon.bundle2.laws_decide decides it over the typed model at the laws' deployment
+    and the claims module (which holds the callee's model's copy), and writes its law file."""
+    def term(t) -> bool:
+        if isinstance(t, dict):
+            return "bundle" in t or any(term(v) for v in t.values())
+        return isinstance(t, list) and any(term(v) for v in t)
+    return law.get("ir_version") == "holon-ir/0.3" and term((law.get("statement") or {}).get("claim"))
+
+
+def _bundle_files(law: dict, m: str, root: Path) -> tuple[Path, Path]:
+    """(the typed model at the laws' deployment, the claims module) of a bundle law: the bundle-laws sidecar's
+    outputs.claims_dir (spec/<m>/lib/bundle2_laws.json)."""
+    side = json.loads((Path(root) / "spec" / m / "lib" / "bundle2_laws.json").read_text())
+    d = Path(root) / side["outputs"]["claims_dir"]
+    return d / "rollup.bend", d / "claims.bend"
+
+
 def _versions(name: str):
     """A holon.versions module, imported by name (as holon.fact.proofs is) so that the versioned layer's generator
     stays out of the M1-M3 records' closure."""
@@ -389,8 +408,29 @@ def _undo_kernel_text(law: dict, m: str, root: Path) -> str:
     return model.rstrip("\n") + "\n\n" + "\n".join(keep) + "\n"
 
 
+def _bundle_kernel_text(law: dict, m: str, root: Path) -> str:
+    """The kernel form's source of a bundle law: the typed model at the laws' deployment followed by the claims module
+    unqualified (its imports dropped, `M.` removed), one module BendTT translates whole, as a FACT law's."""
+    mp, cp = _bundle_files(law, m, root)
+    model = mp.read_text()
+    section = _M_QUAL.sub("", _IMPORT_LINE.sub("", cp.read_text()))
+    own = set(records.model_defs(model))
+    keep, drop = [], False
+    for line in section.splitlines():
+        top = _TOP.match(line)
+        if top:
+            drop = top.group(1) in own
+        elif line and not line[0].isspace() and not line.startswith("#"):
+            drop = False
+        if not drop:
+            keep.append(line)
+    return model.rstrip("\n") + "\n\n" + "\n".join(keep) + "\n"
+
+
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
+    if _bundle(law):   # I84: the claims module gen/<m>/bundle2/claims/claims.bend (its record's artifacts.model)
+        return _bundle_files(law, m, root)[1]
     if _pinit(law):   # I28: the versioned model gen/<m>/versions/models/<model>.bend (a link to the layer)
         return _versions("proofs").model_paths(m, root)[0]
     if _undo(law):   # I27: the trace section gen/<m>/undo/models/<model>.bend
@@ -418,6 +458,15 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
+    if _bundle(law):   # I84: as holon.bundle2.laws_decide writes it; imported by name, as FACT's emitter is
+        import importlib
+        from .sorts.proofs3 import rel_import
+        LD = importlib.import_module("holon.bundle2.laws_decide")
+        laws_dir = Path(root) / "gen" / m / "laws" / law["law_id"]
+        mp, cp = _bundle_files(law, m, root)
+        hashes = [b["name"] for b in law["statement"].get("binders", []) if str(b.get("type", "")).startswith("Fn<")]
+        return LD.law_text(law, statement_hash(law, m, root), rel_import(laws_dir, mp), rel_import(laws_dir, cp),
+                           hashes, counter)
     if _pinit(law):   # I28: emitted as holon.versions.run writes it (holon.versions.proofs.law_file)
         return _versions("proofs").law_file(law, m, root, statement_hash(law, m, root), counter)
     if _disch(law):   # I31: as holon.disch.run writes it (holon.disch.proofs.laws_text); an external law (an
@@ -560,7 +609,12 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
-    if _undo(law) or _fact(law):   # I27, I26: the typed model and the section as one module; U./F. roots are its own
+    if _bundle(law):   # I84: the typed model at the laws' deployment and the claims module as one module
+        cfg = cfg or bend.config(root)
+        entries = dict(_entries_cached(_bundle_kernel_text(law, m, root),
+                                       json.dumps(cfg, sort_keys=True) if cfg else "", mp.relative_to(root).as_posix()))
+        c = kernel_cone(_F_QUAL.sub("M.", statement_text(law, m, root)), entries)
+    elif _undo(law) or _fact(law):   # I27, I26: the typed model and the section as one module; U./F. roots are its own
         cfg = cfg or bend.config(root)
         entries = dict(_entries_cached(_undo_kernel_text(law, m, root), json.dumps(cfg, sort_keys=True) if cfg else "",
                                        mp.relative_to(root).as_posix()))

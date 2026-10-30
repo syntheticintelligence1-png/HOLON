@@ -181,8 +181,9 @@ class Claims:
         root = ctx.root
         mem = self.member(ctx.caller)
         self.init = {"binding": None, "target": mem["address"], "harness": dep["harness"], "storage": mem["storage"],
-                     "preimages": [], "immutables": dict(mem.get("immutables") or {}), "timestamp": dep["timestamp"],
-                     "number": dep["number"], "chainid": dep["chainid"], "calls": [],
+                     "preimages": list(dep.get("preimages") or []), "immutables": dict(mem.get("immutables") or {}),
+                     "timestamp": dep["timestamp"], "number": dep["number"], "chainid": dep["chainid"],
+                     "calls": list(dep.get("calls") or []),
                      "code": {k: v for k, v in ((mem["address"], mem["code"]),
                                                 (mem.get("implementation"), mem.get("implementation_code")))
                               if k and isinstance(v, str) and len(v) > 2}}
@@ -220,18 +221,16 @@ class Claims:
             cm = self.member(callees[0])
             res = resolver(ctx.callee_doc(callees[0]), targets[0])
             nargs = len(next(a for a in ctx.callee_doc(callees[0])["actions"] if a["name"] == res).get("params") or [])
-            self.router = {"member": callees[0], "storage": cm["storage"], "resolver": res,
-                           "env": {"caller": 0, "length": 4 + 32 * nargs}}
             self.callee_model = ctx.callee_model(callees[0])
+            self.router = {"member": callees[0], "storage": cm["storage"], "resolver": res,
+                           "env": {"caller": 0, "length": 4 + 32 * nargs},
+                           "model": self.callee_model.relative_to(root).as_posix()}
         self.model_path = self.dir / "rollup.bend"
         self.claims_path = self.dir / "claims.bend"
         mi = "./rollup.bend"
-        vi = None
-        if self.router is not None:
-            from ..sorts.proofs3 import rel_import
-            vi = rel_import(self.dir, self.callee_model)
+        vt = self.callee_model.read_text(encoding="utf-8") if self.router is not None else None
         self.module = LC.module_text(self.mm, self.text, self.doc, self.hashes, self.laws, self.router, self.cost, mi,
-                                     vi)
+                                     vt)
         self.combined = LC.combined_text(self.mm, self.text, self.doc, self.hashes, self.laws, self.cost)
 
     def member(self, name: str) -> dict:
@@ -297,10 +296,21 @@ def link_witness(ctx: LawsCtx, lid: str) -> dict | None:
 
 
 def capture(ctx: LawsCtx, work: Path | None) -> dict:
+    """The laws' deployment (holon.bundle2.laws_forge.Forge.deployment) with the byte strings it hashed in the caller
+    member (holon.sorts.deploy3.preimages over its calls into that member, unchanged): the hash preimages S1 offers to
+    a step's bytes arguments, as the typed model's own init holds them."""
+    from ..sorts import deploy3
     from .laws_calibrate import Laws
     from .laws_forge import Forge
     L = Laws(ctx.root)
-    return Forge(L.bctx, L.side, work).deployment()
+    dep = Forge(L.bctx, L.side, work).deployment()
+    mem = next(m for m in dep["members"] if m["name"] == ctx.caller)
+    dc = dep.pop("deploy_calls")
+    cap = {"calls": dc["calls"], "writes": [(e, int(s, 16), int(v, 16), r) for e, s, v, r in dc["writes"]],
+           "target": mem["address"], "timestamp": dep["timestamp"], "number": dep["number"], "chainid": dep["chainid"]}
+    dep["preimages"] = deploy3.preimages(ctx.root, ctx.doc_rel, cap)
+    dep["calls"] = [{k: c[k] for k in ("caller", "value", "data", "reverted")} for c in dc["calls"]]
+    return dep
 
 
 def run_laws(root: Path, check: bool, work: Path | None = None) -> int:

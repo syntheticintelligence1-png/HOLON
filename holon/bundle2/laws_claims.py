@@ -240,17 +240,50 @@ class Claims(FS.Section):
         return self.defs
 
 
+CALLEE_PREFIX = "v_"
+_TOPDEF = re.compile(r"(?m)^(?:def|type)\s+([A-Za-z_]\w*)")
+_CTOR = re.compile(r"^  ([A-Za-z_]\w*)\{")
+_V = re.compile(r"(?<![\w.])V\.")
+
+
+def callee_copy(text: str, prefix: str = CALLEE_PREFIX) -> str:
+    """The callee's model text as definitions of this module: every top-level definition, type and constructor of it
+    renamed with the prefix (its imports and comment lines dropped), so that one module holds the caller's claims and
+    the callee's machine and Bend's kernel form of it is one translation (holon.bindings)."""
+    names = set(_TOPDEF.findall(text))
+    in_type = False
+    for ln in text.splitlines():
+        if ln.startswith("type "):
+            in_type = True
+            continue
+        if in_type:
+            m = _CTOR.match(ln)
+            if m:
+                names.add(m.group(1))
+                continue
+            in_type = False
+    body = "\n".join(ln for ln in text.splitlines() if not ln.startswith("import ") and not ln.startswith("#"))
+    rx = re.compile(r"(?<![\w.])(" + "|".join(sorted(map(re.escape, names), key=len, reverse=True)) + r")(?!\w)")
+    return rx.sub(lambda m: prefix + m.group(1), body).strip("\n") + "\n"
+
+
 def module_text(mm, model_text: str, doc: dict, hashes: list, laws: dict, router: dict | None, cost: dict,
-                model_import: str, callee_import: str | None) -> str:
+                model_import: str, callee_text: str | None) -> str:
     sec = Claims(mm, model_text, doc, hashes, laws, router, cost)
     defs = sec.build()
     head = [HEADER, f"# {CLAIMS_VERSION}; laws: {', '.join(sorted(laws)) or 'none'}", "import Base",
-            f"import {model_import} as M"]
+            f"import {model_import} as M", ""]
+    parts = ["\n".join(head)]
     if sec.vdefs:
-        if not callee_import:
+        if not callee_text:
             raise GenError("the link_domain claims need the callee's model")
-        head.append(f"import {callee_import} as V")
-    return "\n".join(head + [""]) + "\n" + "\n".join(defs + sec.vdefs)
+        copy = callee_copy(callee_text)
+        clash = sorted(n for n in set(_TOPDEF.findall(copy)) if n in sec.mine)
+        if clash:
+            raise GenError(f"the callee's copy clashes with the claims section: {clash}")
+        parts.append(f"# ---- the callee's model ({router.get('model')}), its names prefixed {CALLEE_PREFIX}\n" + copy)
+    parts.append("# ---- the claims\n" + "\n".join(defs + [_V.sub(CALLEE_PREFIX, d) for d in sec.vdefs]))
+    return "\n".join(parts)
 
 
 def combined_text(mm, model_text: str, doc: dict, hashes: list, laws: dict, cost: dict) -> str:

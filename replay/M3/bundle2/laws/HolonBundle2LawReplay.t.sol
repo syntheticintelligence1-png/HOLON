@@ -8,9 +8,14 @@
 // number, to 1 for the Rollup proxy (member 0) and 2 for the router (member 1), data an index into the input file's
 // "calldata" array (the call's calldata, as the model's witness encodes it), and the blob-hash list of the call. A trace
 // with no step records the deployment alone (its lines T, M, A, K, Q, S d and W d: the members' storage and code).
+//
+// test_deploy_calls runs the laws' deployment alone under state-diff recording and logs, in access order, every call
+// into member 0 (DC <access> <caller> <value> <reverted 0|1> <calldata>) and every storage write to it (DW <access>
+// <slot> <value> <reverted 0|1>): the input of holon.sorts.deploy3.preimages (the byte strings the deployment hashed).
 pragma solidity =0.8.24;
 
-import {HolonBundle2Base} from "./HolonBundle2Base.sol";
+import {console} from "forge-std/Test.sol";
+import {HolonBundle2Base, HolonB2Vm} from "./HolonBundle2Base.sol";
 import {HolonBundle2LawsBase} from "./HolonBundle2LawsBase.sol";
 
 contract HolonBundle2LawReplayTest is HolonBundle2Base, HolonBundle2LawsBase {
@@ -49,5 +54,26 @@ contract HolonBundle2LawReplayTest is HolonBundle2Base, HolonBundle2LawsBase {
 
     function b2AbstractEnv(uint256, uint256, uint256[] memory) internal pure override {
         revert("HolonBundle2LawReplay: no environment rows");
+    }
+
+    function test_deploy_calls() public {
+        B2.pauseGasMetering();
+        uint256[] memory init = lawsInit();
+        B2.startStateDiffRecording();
+        lawsDeploy(0, init, LV.envUint("HOLON_VERSIONS", ","));
+        HolonB2Vm.AccountAccess[] memory acc = B2.stopAndReturnStateDiff();
+        address r = address(rollup);
+        for (uint256 i = 0; i < acc.length; i++) {
+            if (acc[i].kind == HolonB2Vm.AccountAccessKind.Call && acc[i].account == r) {
+                console.log(string.concat("DC ", b2dec(i), " ", b2ha(acc[i].accessor), " ", b2dec(acc[i].value),
+                                          acc[i].reverted ? " 1 " : " 0 ", b2hx(acc[i].data)));
+            }
+            HolonB2Vm.StorageAccess[] memory st = acc[i].storageAccesses;
+            for (uint256 j = 0; j < st.length; j++) {
+                if (!st[j].isWrite || st[j].account != r) continue;
+                console.log(string.concat("DW ", b2dec(i), " ", B2.toString(abi.encodePacked(st[j].slot)), " ",
+                                          B2.toString(abi.encodePacked(st[j].newValue)), st[j].reverted ? " 1" : " 0"));
+            }
+        }
     }
 }
