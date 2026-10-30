@@ -1,0 +1,97 @@
+{
+ "acquisition": {
+  "criterion": "Q12's compile match: the explorer's verified sources, compiled by the solc release the explorer records with the explorer's recorded settings (optimizer, runs, EVM version, libraries; the standard-JSON input when the explorer holds one), give the named contract a runtime bytecode whose code identity equals the on-chain code's: I63's rule (tests_m3/_i63.py strip_metadata then code_identity), the trailing CBOR metadata stripped and every immutable reference the compiler reports masked. The unit criterion: the verified source set holds the unit's path, and its text equals the pinned tag's blob byte for byte (CRLF read as LF).",
+  "doc": "Q12 for the legacy registry (docs/HUMAN_ANSWERS.md): the real code first. I69 matched the registry proxy's on-chain implementation to the v0.6.1 tag build (metadata stripped, hardhat configuration) and extracted the v0.6.1 unit; I70 reads the explorer's verified source of that implementation, once, and records the response verbatim. Never read scroll-tech/* or spec/heldout/.",
+  "eras": {
+   "V10": {"from_block": 25236554, "source": "gen/M3/versions/morph_rollup.versions.json deployments: V10 at 0xac3c379d772f3520b34690d32ba14510ab36c3fb", "to_block": 26031669},
+   "V11": {"from_block": 26031669, "source": "the same: V11 (the cutover) at 0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d"}
+  },
+  "explorer": {
+   "addresses": ["0xdb0734109051daab5c32e45e9a5ad0548b2df714"],
+   "chainid": "1",
+   "name": "etherscan",
+   "read": "the session's Etherscan connector, getsourcecode (get_contract_source), once per address, after the prereg commit is pushed",
+   "record": "results/M3/cutover/explorer/<address>.json: {\"address\", \"chainid\", \"explorer\", \"response\": the connector's result verbatim}"
+  },
+  "labels": {
+   "bytecode": "bytecode-level model (Q12; labelled): the verified source is absent or does not compile to the deployed code, and the tag build does not match either",
+   "standin": "stand-in (Q12; last resort, labelled): the code cannot be recovered",
+   "tag_matched": "real code, tag build matched (I69, metadata stripped); the explorer's source absent or not compile-matched",
+   "verified": "real code, explorer-verified and compile-matched (Q12), the unit equal to the tag's"
+  },
+  "registry": {
+   "code": "results/M3/bundle/code/0xdb0734109051daab5c32e45e9a5ad0548b2df714.hex",
+   "contract": "L1Staking",
+   "implementation": "0xdb0734109051daab5c32e45e9a5ad0548b2df714",
+   "match": ["V3", "hardhat"],
+   "proxy": "0x0dc417f8af88388737c5053ff73f345f080543f7",
+   "set_block": 20999722,
+   "set_tx": "0xda523669421a8ec4aa45ad0ef9a43d5bb42bfdf56ac9806c295fc8bf68405b1f",
+   "timeline": "results/M3/bundle/timeline.json"
+  },
+  "unit": {
+   "blob": "165fec18d4e904ef95809d3220ea2669a18d3139",
+   "commit": "4a1607dbe3288643827154738e28e5ef0734dccf",
+   "path": "contracts/contracts/l1/staking/L1Staking.sol",
+   "sha256": "213211b3212705d2e67e3f8a1976a549a22eb21f3b317e57bf38e652659a8585",
+   "tag": "v0.6.1"
+  }
+ },
+ "catalog": {
+  "doc": "Two new sub-forms, approved by the coordinator on 2026-10-30. The version is the next free holon-rules version when I70's predecessor in the chain lands, holding every earlier catalog's producers as the same objects (expected holon-rules/1.12, after I86's 1.11; the version after I34's if the lead's I34 lands first); the build fixes and discloses it at the re-derive.",
+  "subforms": {"NAT": ["slash"], "SORT": ["slash"]}
+ },
+ "cutover_slash_version": "holon-cutover-slash-sidecar/0.1",
+ "doc": "I70 (= I36c): the cutover x slash laws (whitepaper 5.3 NAT, 7.5 SORT, 11.3 O13 and O20, Appendix A F10) over the linked versioned machine: the Rollup's versioned layer (I28, I83) with the legacy registry linked at the old version and the new registry at the new one. The contract is the docstring of tests_m3/test_cutover_slash.py.",
+ "env": {
+  "premise": "A-env for the registries' own external calls: every call a registry's slash makes (a message to the messenger, the value transfer to the Rollup) answers ok. In the harness, the deployment whitelists the legacy registry in the queue's whitelist, so its zero-value message is fee-free."
+ },
+ "inputs": {
+  "bundle_declaration": "gen/M3/bundle/bundle.json",
+  "bundle_deployment": "replay/M3/bundle/deployment.json",
+  "bundle_sidecar": "spec/M3/lib/bundle.json",
+  "documents": {
+   "l1staking": "gen/M3/bundle/documents/l1staking.json",
+   "submitter": "gen/M3/bundle/documents/submitter.json"
+  },
+  "versioned": "gen/M3/versions/morph_rollup.versions.json"
+ },
+ "link": {
+  "a": {"doc": "at the old version of the edge: the Rollup's reinterpreted registry word names the legacy registry", "registry": "l1staking", "wiring": {"l1staking.MESSENGER": "messenger", "l1staking.rollupContract": "rollup", "rollup.<reads of the reinterpreted entry>": "l1staking"}},
+  "b": {"doc": "at the new version: the reinterpreted entry names the new registry, set by the edge's migration", "registry": "submitter", "wiring": {"rollup.<the reinterpreted entry>": "submitter", "submitter.rollupContract": "rollup"}},
+  "depth": 8,
+  "doc": "I69's rules L1-L8 over a bundle whose Rollup member is versioned: its program is the document of the state's version (gen/M3/versions/documents/<v>.json), and a migration step switches it. Every other member is I69's (head documents), plus the legacy registry (I69's v0.6.1 document)."
+ },
+ "outputs": {
+  "acquisition": "results/M3/cutover/acquisition.json",
+  "analysis": "gen/M3/cutover/slash.json",
+  "claims": "gen/M3/cutover/claims",
+  "corpus": "gen/M3/cutover/corpus.json",
+  "declaration": "gen/M3/cutover/cutover.json",
+  "deployment": "replay/M3/cutover/deployment.json",
+  "explorer": "results/M3/cutover/explorer",
+  "harness": "replay/M3/cutover",
+  "linked": "gen/M3/cutover/models/linked.bend",
+  "models": "gen/M3/cutover/models",
+  "model_refinement": "results/M3/cutover/refinement_models.json",
+  "refinement": "results/M3/cutover/refinement.json",
+  "replay": "replay/M3/cutover/report.json",
+  "steps": "results/M3/cutover/steps.json"
+ },
+ "corpus": {
+  "doc": "The planted cutover traces, verbatim by label; each step's arguments are filled by the build from the deployment and the earlier steps only (a commit's parent header is the last header the trace committed; a challenge names the last committed batch; time advances by the step's warp). Roles: owner (the deployment's owner of every member), admin (the proxies' admin), s1 and s2 (legacy stakers, whitelisted and registered at the legacy registry's staking value), p (a principal of the new registry, added and staked at its minimum stake), c (a challenger, added by the owner; its deposit is the registry's challengeDeposit at the step).",
+  "traces": {
+   "T1_legacy_slash": ["l1staking.updateWhitelist(s1,s2) by owner", "l1staking.register by s1", "l1staking.register by s2", "rollup@V10.commitBatch by s1", "rollup@V10.challengeState by c", "warp proofWindow", "rollup@V10.proveState by s2", "rollup@V10.claimReward by c"],
+   "T2_cutover_slash": ["l1staking.updateWhitelist(s1,s2) by owner", "l1staking.register by s1", "l1staking.register by s2", "rollup@V10.commitBatch by s1", "cutover by admin: upgradeToAndCall(V11, initialize4(submitter, lastCommittedBatchIndex))", "submitter.addSubmitter(p) by owner", "submitter.stake(p) by p", "rollup@V11.challengeState by c", "warp proofWindow", "rollup@V11.proveState by p", "rollup@V11.claimReward by c"],
+   "T3_native_slash": ["l1staking.updateWhitelist(s1,s2) by owner", "l1staking.register by s1", "cutover by admin", "submitter.addSubmitter(p) by owner", "submitter.stake(p) by p", "rollup@V11.commitBatch by p", "rollup@V11.challengeState by c", "warp proofWindow", "rollup@V11.proveState by p", "rollup@V11.claimReward by c"],
+   "T4_legacy_exit": ["l1staking.updateWhitelist(s1,s2) by owner", "l1staking.register by s1", "rollup@V10.commitBatch by s1", "cutover by admin", "l1staking.withdraw by s1", "warp withdrawalLockBlocks blocks", "l1staking.claimWithdrawal(s1) by s1"]
+  }
+ },
+ "search": {
+  "doc": "The witness search (stage 2), over the compiled models (bend -o .mjs) and never the oracle: the candidate states are the states at the edge's old version of the corpus traces, in corpus order and step order, each paired with every batch index in flight there (lastFinalizedBatchIndex < k <= lastCommittedBatchIndex), increasing; the migration is the edge's introduced initializer called with the corpus's cutover arguments (the new registry's address, the state's lastCommittedBatchIndex); the registries' environments answer every call ok. The first candidate at which the claim is false is the witness.",
+  "max_candidates": 64
+ },
+ "replay": {
+  "doc": "Every REFUTED witness replays on the real code through the cutover harness (the deployed path's V10 and V11 implementations, the real legacy registry and the real new registry behind OpenZeppelin 4.9.3 proxies), in two runs per law: left, the witness's trace, the cutover, the challenge of k at the new version, the proof window, the op by an active principal of the new registry; right, the witness's trace, the challenge of k at the old version, the proof window, the op by an active principal of the legacy registry. A run passes when every step's status agrees with the linked model and the reward each run credits the challenger (its batchChallengeReward less its deposit) equals the model's answer for its side."
+ }
+}

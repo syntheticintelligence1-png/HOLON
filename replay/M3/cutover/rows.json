@@ -1,0 +1,12 @@
+{
+ "doc": "The cutover harness's abstract rows (HolonCutover.t.sol), read by holon.cutover.corpus: the row op of each action of the versioned member, its argument template after [op, who], and the planted waits. Template tokens: k the trace's last committed batch index, k+1 the next one, root(k) and root(k+1) the post-state roots the corpus gives them (the genesis post-state root plus the index), deposit the challenge deposit of the version's registry; integers are literal.",
+ "roll": 11,
+ "rows": {
+  "challengeState": {"op": 5, "args": ["k", "deposit"]},
+  "claimReward": {"op": 22, "args": []},
+  "commitBatch": {"op": 1, "args": [0, "k", 0, "k+1", "root(k)", "root(k+1)", 0, 0, 0, 0], "commits": true},
+  "proveState": {"op": 6, "args": ["k", 0]}
+ },
+ "wait": 10,
+ "waits": {"proofWindow": "W", "withdrawalLockBlocks": "a.lock_blocks"}
+}
