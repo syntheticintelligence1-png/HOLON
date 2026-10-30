@@ -3403,6 +3403,511 @@
         "known_red_at_base": "Red at the base 2d173e3 and not caused or hidden by I72: tests_m3/test_par_lossy.py::TestGateAndRegressions.test_i25_outcome_commits_touch_no_frozen_or_earlier_output, on I67's commits 1ebec02 and d106a83 (each changes gen/M3/par_lossy/ together with laws/M3/DERIVATION.json, gen/M3/evidence.json and gen/M3/diagram/blob_ops.json; found by the prereg review, M3; I72 commits holon lossy's output alone, rule Z6); tests_m3/test_lean_promoted.py's sidecar and baseline checks (I26's Question 5: 107 laws/M3 input pins, the typed records' baselines and the F40 bend files; I43's re-baseline is planned after the M3 keys in flight land); and tests_m3/test_refute.py::TestRecordsAndShared.test_outcome_commits_touch_no_earlier_milestone on I26's commits e122e7a and 4784042. Locally, without the pinned checker, every gate check is skipped (GENV); CI runs them with the pinned checker."
       }
     },
+    "I80": {
+      "title": "= I37a: Bundle II's extraction and acquisition, no laws: the verifier router (MultipleVersionRollupVerifier) extracted at the pinned head, modelled (model3's untyped machine with a storage-dynamic-array extension outside every generator closure) and linked with the adopted Rollup into one machine in which the Rollup's proof checks run the router and the router's finalization check reads the Rollup, refined against a forge harness of the real Rollup and router; the zkEVM verifier (ZkEvmVerifierV1 with its SP1 and Plonk bases), the circuit oracle of HypC, extracted only with its debt named; the public-input view and the cost sites read from the documents; acquisition notes from committed records and git objects, no network read",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I80)",
+      "prompt": "prompts/I80_bundle2_extraction.md",
+      "predictions": [
+        {
+          "id": "I80-P1",
+          "claim": "The router is extracted as read (E1, E2): gen/M3/bundle2/documents/router.json exists and the declaration lists no debt for it; its coverage has no unaccounted statement and exactly one debt entry, the external_call IRollup.lastFinalizedBatchIndex at MultipleVersionRollupVerifier.sol:149 (thresholds.debt.router); its actions are the eight of thresholds.structure.router (five own, three of OpenZeppelin's Ownable 4.9: owner, renounceOwnership, transferOwnership), its own families rollup, legacyVerifiers and latestVerifier in that order with one inherited entry (_owner) and no constant; getVerifier and verifyAggregateProof (which inlines it) each have one loop record and one cost term, both the linear search at :108-114; verifyAggregateProof has the one COMMIT edge IZkEvmVerifier.verifyBatch. Derivation: reading the source under I19's rules: the verifyBatch call is a COMMIT edge (IZkEvmVerifier is the router's commit interface, as IRollupVerifier is the Rollup's), so the one call that is not is the Rollup getter's; the search loop reads storage and writes none, so it is a cost term, not debt; the constructor's loop is not an action; struct copies, member assignments on a memory struct, an index into a storage array of structs and a push are in the walk's term language (holon.frontends.solidity.transitions: member, index, len, push), so none of them is unsupported.",
+          "check": "tests_m3/test_bundle2_extraction.py::TestExtraction::test_p1_the_router_is_extracted_as_read"
+        },
+        {
+          "id": "I80-P2",
+          "claim": "The zkEVM verifier is extracted with named debt (E1, E2): its extraction ends within the sidecar's budget (1800 s) with a document and no member debt; its actions are the eight of thresholds.structure.zkevm (verifyBatch and verifyPlonk; SP1Verifier's VERSION, VERIFIER_HASH, VK_ROOT, hashPublicValues and verifyProof; PlonkVerifier's Verify); its coverage has no unaccounted statement; its external_call debt is exactly the three external self calls this.verifyPlonk (ZkEvmVerifierV1.sol:23), this.verifyProof (:27) and this.Verify (SP1VerifierPlonk.sol:81); and its debt holds at least one unsupported entry in PlonkVerifier.sol (the Yul staticcalls to the SHA-256, ecAdd, ecMul, pairing and modexp precompiles are builtins the walk does not represent). Derivation: reading the sources under I19's rules; the Plonk check is the circuit, the oracle I37 states as HypC, so its debt is named here and never modelled. This is the least certain prediction: the walk has never run on 1100 lines of Yul with nested functions and loops, and an extraction error or a timeout misses it.",
+          "check": "tests_m3/test_bundle2_extraction.py::TestExtraction::test_p2_the_zkevm_verifier_is_extracted_with_named_debt"
+        },
+        {
+          "id": "I80-P3",
+          "claim": "The declaration's static links (L2) are the four rows of thresholds.links: the Rollup's three proof checks (commitBatchWithProof, proveCommittedBatchState and proveState, the COMMIT call at Rollup.sol:779-784) into the router's action verifyAggregateProof, and the router's updateVerifier call at :149 into the Rollup's getter lastFinalizedBatchIndex; they are the instrument's rule over the committed documents. Derivation: the Rollup's three rows are rule L2 on the committed document (a disclosed construction fact; only their callee kind needs the router's document); the router's row is from reading (rollup is a storage family wired to the Rollup, which has no action of that name but a public family).",
+          "check": "tests_m3/test_bundle2_extraction.py::TestLink::test_p3_the_static_links_are_as_read"
+        },
+        {
+          "id": "I80-P4",
+          "claim": "The linked machine refines the real Rollup and router (L1-L8, C1-C6): on the whole corpus, 300 m1, 5 seed and 60 random traces (thresholds.corpus_traces), every compared step agrees in status, revert key, return data, every member's storage at every touched slot, the members' logs and the frames: no disagreement, no unsupported step, and results/M3/bundle2/disagreements.json lists none. Derivation: I20 refined the Rollup's document with no disagreement on its corpus; the router's verifyAggregateProof is a view whose only external call goes to a stand-in (answered from the record), and its updateVerifier reads the Rollup through a getter while the Rollup is not on the stack, so no step re-enters a writing member (L5); the harness's stand-ins accept as I20's verifier stand-in did, so the m1 traces reach the Rollup's guards as in I20.",
+          "check": "tests_m3/test_bundle2_extraction.py::TestLink::test_p4_the_linked_machine_refines_the_bundle"
+        },
+        {
+          "id": "I80-P5",
+          "claim": "The corpus reaches every link and every router action, recounted by the instrument from the harness's frames (steps.json): each of the four link rows is executed with a persisted frame at least once (the m1 traces' proof-backed commits and proofs and the seed traces S2 and S3 for the Rollup rows; S1, S2 and S4 for the getter row), and each of the router's eight actions ends in a persisted frame at least once (initialize through S4 and S5's poked steps; renounceOwnership in S4). Derivation: the seed traces were planted past the guards as the sources read (the owner is the harness; batch 1 is committed with the genesis post root 100 and finalized after F + 1 seconds; the stand-in Z1 accepts proof byte 1, Z2 byte 2).",
+          "check": "tests_m3/test_bundle2_extraction.py::TestLink::test_p5_the_corpus_reaches_every_link_and_router_action"
+        },
+        {
+          "id": "I80-P6",
+          "claim": "The router's model compiles and refines (M1-M3): gen/M3/bundle2/models/models.json lists the router with no model debt; the model holds no escape hatch and the pinned Bend prints ALL PROOFS CHECK on it (no law: a type and termination check); and on every compared top-level router step of the corpus, its compiled model (holon.sorts.evaluate3) agrees with the real router in status, revert key, storage writes and logs: no disagreement, no unsupported step. Derivation: model3 compiles the adopted Rollup's mappings, structs, packing, loops with break, custom errors and calls; what the router adds is storage dynamic arrays (an index into legacyVerifiers[v], its length and a push), which the prereg assigns to an additive extension under holon/bundle2/.",
+          "check": "tests_m3/test_bundle2_extraction.py::TestModel::test_p6_the_router_model_compiles_and_refines"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I80-R1",
+          "claim": "Earlier extractions and models do not move (E3; green at the prereg): the inputs of thresholds.inputs_sha256 keep their sha256; the adopted Rollup document re-extracts byte for byte with its sidecar; holon coverage --milestone M2 --check and --milestone M3 --check pass; the typed and untyped M3 model texts (.bend) of the adopted document regenerate byte for byte (its init.json is written by holon run since F40, with a code table holon model does not write, so it is not compared).",
+          "check": "tests_m3/test_bundle2_extraction.py::TestRegressions::test_r1_earlier_extractions_and_models_regenerate"
+        },
+        {
+          "id": "I80-R2",
+          "claim": "I80's own commits (the contract's definition) change only what the contract allows: at least one adds gen/M3/bundle2/bundle2.json; none changes a frozen root, laws/, spec/, holon/rules/, holon/frontends/, a file of thresholds.closures (the generator closures at the prereg: 149 files), a file under replay/ outside replay/M3/bundle2/, a file under gen/ outside gen/M3/bundle2/, or a file under results/ outside results/M3/bundle2/. So no record is re-made and every committed record stays current.",
+          "check": "tests_m3/test_bundle2_extraction.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I80-R3",
+          "claim": "holon audit prereg passes for M2 and M3 (tested). On CI, on the build head: gate-M0, gate-M1 and gate-M2 pass; gate-M3-partial and gate-M3-G2 fail only on the base's items (thresholds.base_gate_M3), its G3 scanning the router's model; tests-m3-catalog, the frozen suite, freeze-check and both audits pass. The full M3 gate is not claimed.",
+          "check": "tests_m3/test_bundle2_extraction.py::TestRegressions::test_r3_the_prereg_audits_pass"
+        },
+        {
+          "id": "I80-R4",
+          "claim": "holon/bundle2/ (construction) exists, imports no test module, names no target contract, address or host, and no file of it is in any generator closure at HEAD.",
+          "check": "tests_m3/test_bundle2_extraction.py::TestRegressions::test_r4_holon_bundle2_is_generic_and_outside_every_closure"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/bundle2/",
+        "results/M3/bundle2/",
+        "replay/M3/bundle2/",
+        "docs/iterations/I80.md"
+      ],
+      "tests": [
+        "tests_m3/test_bundle2_extraction.py"
+      ],
+      "thresholds": {
+        "base": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874 (the lead), with BUILD_PLAN's row I80 committed before this commit",
+        "instrument": "tests_m3/_i80.py",
+        "instrument_sha256": "8fd9b541fb3f1788df5fdc895c5056e17539a0b6f9e973c9392dc4625e46935e",
+        "i63_instrument": "tests_m3/_i63.py",
+        "i63_instrument_sha256": "64b8c1115e2604cf986a61f353613a5a6cfc26834fc822b224abdc7d7aa3acb5",
+        "contract_docstring_sha256": "3e73fa703448168ccc9bc4bb1718add4b5c003b381cc9bcc05d1cf20a97bd503",
+        "sidecar": "spec/M3/lib/bundle2.json",
+        "sidecar_sha256": "0f71fbf45bf567a4fb87b1cda673f9dec5494e4cb0e2623ee787ed252c876b47",
+        "basis": "spec/M3/lib/bundle2_basis.json",
+        "basis_sha256": "666eba07d97148f05568652017b846a38673ab51352e3d976d7fed7f93edbe7b",
+        "inputs_sha256": {
+          "replay/M1/solidity/HolonTraceReplay.t.sol": "3e651a254861603f30c9614ee85ccaa85b6b012d3c2bf88e2aa8813b26959853",
+          "replay/M2/solidity/HolonStepBase.sol": "d6b490fad4b5da0ae4438c32be6dab6a3e301eff1a06b7b111b470a6874f6334",
+          "replay/M2/solidity/HolonExtractedStep.t.sol": "8a4e31d7cc0cfd7b86db08c71e7ad27c618ec75808b67afa1fc8eecfbfa8a5da",
+          "replay/M2/fragments.json": "ec501c2be31737cb3ceffe910384e316b9ced7f1b2ccc58efb9c57b16fc10c9d",
+          "spec/M1/facts/morph_rollup.json": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+          "spec/M2/facts/morph_rollup.extracted.json": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+          "spec/M2/lib/extract_rollup.json": "73c1242801c3781193f744d14f7f67a5c96ef1d29c5574bf94bdc1208d6affef",
+          "results/M3/history/receipts/0xeb4cc4248a0b3f459f4d7ab5877114fd4f55fd073c78347df548a9f03013068e.json": "b100fab32a9f87405bce7dc8259d2393793c3c3c20a6366e9888ff40957cea0f",
+          "spec/M3/lib/history.json": "1e51846f539d5042d2c42e8a6c465b62a4b5252f6ce7c43106c00c9851b364a9",
+          "gen/M2/coverage.json": "4cb98748a2bf6200a39852d6d8ff7f6ce5923a0c30b4b5bb10eaa3966c8fb833",
+          "gen/M3/coverage.json": "4cb98748a2bf6200a39852d6d8ff7f6ce5923a0c30b4b5bb10eaa3966c8fb833"
+        },
+        "debt": {
+          "router": [
+            [
+              "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149",
+              "external_call",
+              "IRollup.lastFinalizedBatchIndex"
+            ]
+          ],
+          "zkevm_external_calls": [
+            [
+              "contracts/contracts/libraries/verifier/SP1VerifierPlonk.sol:81",
+              "external_call"
+            ],
+            [
+              "contracts/contracts/libraries/verifier/ZkEvmVerifierV1.sol:23",
+              "external_call"
+            ],
+            [
+              "contracts/contracts/libraries/verifier/ZkEvmVerifierV1.sol:27",
+              "external_call"
+            ]
+          ]
+        },
+        "structure": {
+          "router": {
+            "actions": [
+              "getVerifier",
+              "initialize",
+              "legacyVerifiersLength",
+              "owner",
+              "renounceOwnership",
+              "transferOwnership",
+              "updateVerifier",
+              "verifyAggregateProof"
+            ],
+            "storage": [
+              "rollup",
+              "legacyVerifiers",
+              "latestVerifier"
+            ],
+            "inherited": 1,
+            "constants": {},
+            "loops": {
+              "getVerifier": 1,
+              "verifyAggregateProof": 1
+            },
+            "cost": {
+              "getVerifier": [
+                "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+              ],
+              "verifyAggregateProof": [
+                "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+              ]
+            },
+            "commit_edges": {
+              "verifyAggregateProof": [
+                "IZkEvmVerifier.verifyBatch"
+              ]
+            }
+          },
+          "zkevm": {
+            "actions": [
+              "VERIFIER_HASH",
+              "VERSION",
+              "VK_ROOT",
+              "Verify",
+              "hashPublicValues",
+              "verifyBatch",
+              "verifyPlonk",
+              "verifyProof"
+            ]
+          }
+        },
+        "links": [
+          [
+            "rollup",
+            "commitBatchWithProof",
+            "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+            "IRollupVerifier.verifyAggregateProof",
+            "router",
+            "action",
+            "verifyAggregateProof"
+          ],
+          [
+            "rollup",
+            "proveCommittedBatchState",
+            "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+            "IRollupVerifier.verifyAggregateProof",
+            "router",
+            "action",
+            "verifyAggregateProof"
+          ],
+          [
+            "rollup",
+            "proveState",
+            "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+            "IRollupVerifier.verifyAggregateProof",
+            "router",
+            "action",
+            "verifyAggregateProof"
+          ],
+          [
+            "router",
+            "updateVerifier",
+            "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149",
+            "IRollup.lastFinalizedBatchIndex",
+            "rollup",
+            "getter",
+            "lastFinalizedBatchIndex"
+          ]
+        ],
+        "corpus_traces": {
+          "m1": 300,
+          "seed": 5,
+          "random": 60
+        },
+        "closures": [
+          "holon/__init__.py",
+          "holon/analysis/__init__.py",
+          "holon/analysis/abstraction.py",
+          "holon/analysis/closure.py",
+          "holon/analysis/deadness.py",
+          "holon/bend.py",
+          "holon/bindings.py",
+          "holon/codecrun.py",
+          "holon/consumers.py",
+          "holon/corpus.py",
+          "holon/diagram/__init__.py",
+          "holon/diagram/access.py",
+          "holon/diagram/build.py",
+          "holon/diagram/evidence.py",
+          "holon/diagram/goops.py",
+          "holon/diagram/linked.py",
+          "holon/diagram/model.py",
+          "holon/diagram/principals.py",
+          "holon/disch/__init__.py",
+          "holon/disch/lemmas.py",
+          "holon/disch/mirror.py",
+          "holon/disch/order.py",
+          "holon/disch/proofs.py",
+          "holon/disch/run.py",
+          "holon/disch/search.py",
+          "holon/disch/section.py",
+          "holon/evidence.py",
+          "holon/evm_abi.py",
+          "holon/extracted_eval.py",
+          "holon/fact/__init__.py",
+          "holon/fact/product.py",
+          "holon/fact/proofs.py",
+          "holon/fact/run.py",
+          "holon/fact/search.py",
+          "holon/fact/section.py",
+          "holon/facts.py",
+          "holon/filter.py",
+          "holon/fragments_corpus.py",
+          "holon/fragments_doc.py",
+          "holon/frontends/__init__.py",
+          "holon/frontends/go/document.py",
+          "holon/frontends/solidity/__init__.py",
+          "holon/frontends/solidity/ast.py",
+          "holon/frontends/solidity/compile.py",
+          "holon/frontends/solidity/layout_extract.py",
+          "holon/frontends/solidity/storage.py",
+          "holon/frontends/solidity/transitions.py",
+          "holon/gen/__init__.py",
+          "holon/gen/cdriver.py",
+          "holon/gen/codec01.py",
+          "holon/gen/coercion.py",
+          "holon/gen/core.py",
+          "holon/gen/eqlib.py",
+          "holon/gen/eqprove.py",
+          "holon/gen/eqsearch.py",
+          "holon/gen/eqterms.py",
+          "holon/gen/equivalence.py",
+          "holon/gen/goloop.py",
+          "holon/gen/implication.py",
+          "holon/gen/laws.py",
+          "holon/gen/lean_common.py",
+          "holon/gen/lean_laws.py",
+          "holon/gen/lean_linked.py",
+          "holon/gen/lean_machine.py",
+          "holon/gen/lean_mlaws.py",
+          "holon/gen/lean_model.py",
+          "holon/gen/lean_mproofs.py",
+          "holon/gen/lean_proofs.py",
+          "holon/gen/lean_sites.py",
+          "holon/gen/linked.py",
+          "holon/gen/machine.py",
+          "holon/gen/mlaws.py",
+          "holon/gen/model.py",
+          "holon/gen/mproofs.py",
+          "holon/gen/oracles.py",
+          "holon/gen/profile.py",
+          "holon/gen/proofs.py",
+          "holon/gen/refs.py",
+          "holon/gen/targetlib.py",
+          "holon/gen/trace_bound.py",
+          "holon/inhabit.py",
+          "holon/intake.py",
+          "holon/ir.py",
+          "holon/js/eval3.mjs",
+          "holon/js/profile.mjs",
+          "holon/keccak.py",
+          "holon/layout.py",
+          "holon/lean.py",
+          "holon/machine.py",
+          "holon/machine_bend.py",
+          "holon/measures_fact.py",
+          "holon/model_eval.py",
+          "holon/model_native.py",
+          "holon/mpipeline.py",
+          "holon/mreplay.py",
+          "holon/oracles/zero_blob.py",
+          "holon/pipeline.py",
+          "holon/profile.py",
+          "holon/records.py",
+          "holon/refinement.py",
+          "holon/refute.py",
+          "holon/replay.py",
+          "holon/replay_fragments.py",
+          "holon/rules/__init__.py",
+          "holon/rules/disch.py",
+          "holon/rules/disch_profile.py",
+          "holon/rules/fact.py",
+          "holon/rules/par.py",
+          "holon/rules/sort.py",
+          "holon/rules/undo.py",
+          "holon/schema.py",
+          "holon/sorts/__init__.py",
+          "holon/sorts/affine3.py",
+          "holon/sorts/assign.py",
+          "holon/sorts/check.py",
+          "holon/sorts/constraints.py",
+          "holon/sorts/core.py",
+          "holon/sorts/deploy3.py",
+          "holon/sorts/envcode3.py",
+          "holon/sorts/evaluate3.py",
+          "holon/sorts/extracted.py",
+          "holon/sorts/flow.py",
+          "holon/sorts/grammar.py",
+          "holon/sorts/model3.py",
+          "holon/sorts/prelude3.py",
+          "holon/sorts/prelude3_lemmas.py",
+          "holon/sorts/proofs3.py",
+          "holon/sorts/reextract.py",
+          "holon/sorts/run3.py",
+          "holon/sorts/search3.py",
+          "holon/sorts/sites.py",
+          "holon/sorts/solve.py",
+          "holon/sorts/termsize.py",
+          "holon/sorts/typed_sidecar.py",
+          "holon/sorts/unions.py",
+          "holon/sorts/width.py",
+          "holon/statement_diff.py",
+          "holon/undo/__init__.py",
+          "holon/undo/proofs.py",
+          "holon/undo/run.py",
+          "holon/undo/search.py",
+          "holon/undo/trace.py",
+          "holon/window.py",
+          "spec/M1/lib/morph_rollup.lib.json",
+          "spec/M1/lib/morph_rollup.pointwise.json",
+          "spec/M1/policy_hints.mjs",
+          "spec/M2/lib/oracles.json",
+          "spec/M2/lib/window_rollup.json",
+          "spec/lib/go_slices.lib.json"
+        ],
+        "base_gate_M3": "gate-M3-partial at the base fails G11V only (Q36's law L_disch_rev_initializable_120_d9a34b48, and after I28's build the in-flight edges); gate-M3-G2 passes. I80 adds no law, record or coverage entry, so its build may change neither.",
+        "known_red_at_base": [
+          "tests_m3.test_undo: 11 (UNDO records trail)",
+          "tests_m3.test_disch_profile: 3 (I32's misses)",
+          "tests_m2 group 2: 2 (solidity history.py honesty)",
+          "tests_m2 group 3: 14 failures and 6 errors (historical snapshot, extract toolchain, transitions, filter bins, historical exit)",
+          "I43-R1 (tests_m3/test_lean_promoted.py), re-baselined by the lead",
+          "locally: tests_m3.test_par_lossy.TestCore.test_inj_push_is_proved (the bun is not the pinned build)"
+        ],
+        "coordination": "I69 (= I36a, PR not yet open; worktree claude/brave-wright-2c5d0o-i36) writes gen/M3/bundle/, spec/M3/lib/bundle*.json (its sidecar and basis), holon/bundle/ and extends the frontend, holon.extracted_eval and model3 (push and pop among them); I80 writes gen/M3/bundle2/, spec/M3/lib/bundle2*.json and holon/bundle2/ and touches no closure file. Both edit holon/__main__.py's dispatch; whoever merges second reconciles. When I69's model3 and evaluator extensions land, the router's dynamic-array extension in holon/bundle2/ can be retired by a later key (not by I80).",
+        "deferred": [
+          "I37 proper: O3, O23 (F(PI, parent lbn) = 64 bits over E4's view), the calibrated cost (tools/calibrate_gas.py over E5's sites, forge gas at backlogs 1..64) and O35",
+          "the zkEVM verifier's model and link: it is the circuit oracle (HypC); the harness answers the router's verifyBatch with stand-ins",
+          "a Bend linked composition (the linked machine is evaluator-level; a law that needs it builds it)",
+          "on-chain acquisition (the router's code at the anchor, the router's UpdateVerifier logs, the verifiers' code and programVkey): acquisition.json lists what remains to read",
+          "coverage entries for the router and zkevm in gen/M3/coverage.json (G8): after I69's E5 lands, a later key generalizes it to every bundle sidecar"
+        ],
+        "disclosed": "Read before this prereg: the router's, ZkEvmVerifierV1's, SP1VerifierPlonk's and PlonkVerifier's sources and their interfaces at the head; Rollup.sol's _verifyProof, proof actions, commit and finalize logic; OpenZeppelin's Ownable 4.9; the adopted Rollup document's call records of IRollupVerifier.verifyAggregateProof (their receivers and argument terms: P3's Rollup rows and E4's view); I63's committed receipts (the anchor); the tag tree listings (no blob read but the head's units); the basis (the instrument's builds of the head units under I63's configurations). Run: the instrument's basis; a toy forge test of the state-diff 'reverted' flag (it is set for a frame whose enclosing frame reverted). Never run on a Bundle II member: the frontend, model3, the evaluator, forge or Bend."
+      }
+    },
+    "I81": {
+      "title": "I81 (= I44a): Def 6.13's measures (holon/measures.py, one interface over PAR's holonomy defect size, NAT's naturality defect mass, FACT's F(m, c), UNDO's residue liveness distance and DISCH's discharge profile) and §10.10's lexicographic ranking (holon/rank.py: sink class, persistence, reach class, adversary cost) over the M3 laws that exist today, written to results/M3/ranking.json by holon rank and compared with §11.3's Impact column",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I81)",
+      "prompt": "prompts/I81_measures_ranking.md",
+      "predictions": [
+        {
+          "id": "I81-P1",
+          "claim": "M-PAR on the three REFUTED cross-component codec laws (L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0, L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1, L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2: Go's header encoders against enc_sol, the analogues of M0's L_par_hdr_ssvh): each holonomy defect is exactly the 32 byte positions 185..216 (the field Go's encoders write where enc_sol writes constants), certified: the witness's sides differ exactly there and the two layouts, under the law's premises, can differ nowhere else. No REFUTED M3 PAR law's byte-string defect holds byte 0: the analogue of M0's L_par_hdr_v2 (BUILD_PLAN I44's '1 byte position, byte 0') does not exist on today's M3, whose Go encoders write the version byte enc_sol writes at every version a law pins. The other five REFUTED PAR laws compare a verdict or an outcome: one position each, certified. Observed before the prereg (thresholds.observed_before_prereg): the three records' differences (the lower bound); the layout bound was not computed.",
+          "check": "tests_m3/test_ranking.py::TestMeasures::test_p1_par_cc_defects"
+        },
+        {
+          "id": "I81-P2",
+          "claim": "M-UNDO: the residue liveness distance of the L_undo_BVH analogue (L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes), of L_undo_pair_Rollup_commitBatch_revertBatch and of L_undo_res_Rollup_revertBatch_batchDataStore is 1, certified minimal under the stated bound: lower 1 (an empty continuation observes nothing), upper 1 (in replay/M3/undo/report.json the model's observations of the two runs first differ at t[0], and Bend checked the counter-law over that one-step continuation). The five UNKNOWN UNDO laws get the bound [1, unbounded). Observed before the prereg: every witness's t has one step; the BVH entry's model observations were read (they differ at t[0]).",
+          "check": "tests_m3/test_ranking.py::TestMeasures::test_p2_undo_distance"
+        },
+        {
+          "id": "I81-P3",
+          "claim": "Sink classes (rules K1-K8 and the sidecar's channels) of the 24 REFUTED laws of the base: economic 2 (the FACT attribution laws), liveness 10 (the UNDO pair and BVH residue laws, the SORT realize law, the 7 DISCH laws), derivation 6 (the 3 cross-component codec laws, the header domain law, the 2 FACT kernel laws), state 2 (the PAR-init law, the SORT tag law), process 3 (the three Go-op laws over the clone pair), off-chain 1 (the batchDataStore residue law, whose first divergent step is a view), as tests_m3/_i81.py EXPECTED lists them. Against §11.3's Impact column (the instrument's IMPACT: 16 laws with an O-row analogue, O1, O4 x3, O9, O11 x2, O22 x2, O25 x2, O26, O27, O31 x3), the computed sink class matches for 14 and differs for 2: the PAR-init law (O9) and the SORT tag law (O26) are 'state' where §11.3 says finality, because a stored value's later reader is not traced. The 8 other REFUTED laws have no §11.3 row (the codec laws' sequencer-set field, the batchDataStore residue, which §11.6 D5 lists as dead, and five DISCH laws).",
+          "check": "tests_m3/test_ranking.py::TestRanking::test_p3_sink_classes"
+        },
+        {
+          "id": "I81-P4",
+          "claim": "Reach (RE1-RE3: the most privileged principal class the witness schedule needs) of the 24 REFUTED laws, as EXPECTED lists them; against §11.3 (the instrument's REACH_WORDS: onlyActiveSubmitter is bonded, onlyChallenger challenger, onlyOwner owner), the reach matches for 5 analogue laws (PAR-init: owner; the commitBatch FACT kernel law: bonded; the SORT realize law and the two rollup_363 DISCH laws whose schedules need the challenger: challenger) and differs for the other 11: the header domain law (undecided: no concretization path), the three Go-op laws (pending I39: no node-level path), the two O11 laws, the two O25 laws and the O26 law (owner: their schedules need the owner's revertBatch, where §11.3 names the bonded class), the commitBatchWithProof kernel law (anyone, where §11.3 says bonded) and the owner's rollup_363 DISCH law (owner, where §11.3 says challenger).",
+          "check": "tests_m3/test_ranking.py::TestRanking::test_p4_reach_against_impact"
+        },
+        {
+          "id": "I81-P5",
+          "claim": "Measure kinds over the base's 136 laws: value 87 (73 PROVED PAR laws at 0, 8 REFUTED PAR laws, 3 REFUTED UNDO laws, 3 FACT kernel laws), bound 9 (4 UNKNOWN PAR laws, 5 UNKNOWN UNDO laws), pending 35 (every DISCH law: pending I37, the profile needs a cost model), not_applicable 5 (2 FACT attribution laws, 3 SORT laws); no NAT law, and rules.NAT pending I29.",
+          "check": "tests_m3/test_ranking.py::TestMeasures::test_p5_measure_kinds"
+        },
+        {
+          "id": "I81-P6",
+          "claim": "Persistence (PE1-PE3) and cost (CO1) of the 24 REFUTED laws, as EXPECTED lists them: code for the 7 pure-function PAR laws, dischargeable for the onlyActiveSubmitter blocking law of rollup_363 (its I32 class), undecided for the other 16 (no DISCH class decides them: I31's blocking laws are UNKNOWN, and nothing links an UNDO, FACT, SORT or PAR-init divergence to a DISCH basis element); costs from 1 call (the v0 and v1 codec laws' concretization paths) to 5 (the attribution laws), unknown for the 5 PAR laws without a path. Against §11.3, the persistence matches for the 4 pure-function analogue laws (O1, O4 x3) only.",
+          "check": "tests_m3/test_ranking.py::TestRanking::test_p6_persistence_and_cost"
+        },
+        {
+          "id": "I81-P7",
+          "claim": "The ranking's order is EXPECTED's: the two FACT attribution laws first (economic), then the ten liveness laws (undecided persistence before the dischargeable blocking law; challenger before owner schedules; fewer calls first), the six derivation laws, the PAR-init and SORT tag laws, the three Go-op laws, and the batchDataStore residue law last.",
+          "check": "tests_m3/test_ranking.py::TestRanking::test_p7_order"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I81-R1",
+          "claim": "M-FACT is I26's F(m, c), recomputed: each FACT kernel law's value equals its record's fact.measure.bits (1.0, 1.0 and 0.0); the attribution laws are not_applicable.",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r1_fact_bits"
+        },
+        {
+          "id": "I81-R2",
+          "claim": "M-DISCH reads I32's classes: holon.profile.classification regenerates gen/M3/disch/classification.json exactly (1 dischargeable, 14 undecided entries), and every DISCH law is pending I37 with its class.",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r2_disch_classes"
+        },
+        {
+          "id": "I81-R3",
+          "claim": "Determinism: holon rank --milestone M3 --check passes on the committed results/M3/ranking.json, and two runs write the same bytes.",
+          "check": "tests_m3/test_ranking.py::TestCommand::test_r3_regenerates_byte_identically"
+        },
+        {
+          "id": "I81-R4",
+          "claim": "Construction honesty: holon/measures.py and holon/rank.py name no law, action, register, span or target and import no test code.",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r4_no_target_vocabulary"
+        },
+        {
+          "id": "I81-R5",
+          "claim": "Judged at each of I81's own commits: no law, record, generated or replay file changes except results/M3/ranking.json (no generator closure moves).",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r5_nothing_else_changes"
+        },
+        {
+          "id": "I81-R6",
+          "claim": "results/M3/ranking.json is valid against spec/schemas/ranking.schema.json, and every input it lists is the file on disk (its sha256).",
+          "check": "tests_m3/test_ranking.py::TestDocument::test_r6_schema and tests_m3/test_ranking.py::TestDocument::test_r6_inputs_are_current"
+        },
+        {
+          "id": "I81-R7",
+          "claim": "Construction: for every REFUTED law, holon's channel, persistence, reach, cost and PAR lower bound are what the instrument computes by its own reading of the contract's rules.",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r7_instrument_agrees"
+        }
+      ],
+      "outcome_paths": [
+        "results/M3/ranking.json",
+        "docs/iterations/I81.md"
+      ],
+      "tests": [
+        "tests_m3/test_ranking.py"
+      ],
+      "thresholds": {
+        "base": "00b12f70 (the lead after I28's build merge, PR #50: 136 M3 laws, holon-rules/1.6), with BUILD_PLAN's row I81 (13756f4a)",
+        "instrument": "tests_m3/_i81.py",
+        "instrument_sha256": "103043e987a531e9132f3a941e32ede857520bbb9334d8b0a8b3726d442c69b1",
+        "sidecar": {
+          "path": "spec/M3/lib/ranking.json",
+          "sha256": "4063d2dbdef536bc19223a346594a26f8b03b63f93ddff24064f0b6f48398385"
+        },
+        "contract_docstring_sha256": "9011e4989e1f5b5b0d204b90c2ab32b377eded6f6114643a6300948b0c41f109",
+        "laws": 136,
+        "refuted": 24,
+        "kinds": {
+          "value": 87,
+          "bound": 9,
+          "pending": 35,
+          "not_applicable": 5
+        },
+        "pending": {
+          "NAT": "I29",
+          "DISCH profile": "I37",
+          "gas cost": "I37",
+          "Go-op reach": "I39",
+          "F(PI, parent lbn)": "I37",
+          "F(Z, derivation)": "I39"
+        },
+        "observed_before_prereg": {
+          "read": "Before writing this key the author read: every REFUTED record's status, subform, triage, filter bin, evidence levels, concretization kind, result, length and reason, and its witness keys; the full witness schedules (actions and callers) of the PAR-init, SORT realize, SORT tag, rollup_363 onlyActiveSubmitter blocking, rollup_132 owner external-none, commitState attribution and commitBatch kernel laws, and the UNDO witnesses (prefix, x, y, t); the three codec laws' differences; the concretization path of the v1 codec law; the BVH entry of replay/M3/undo/report.json (both runs' model observations); the records' replay details of the SORT laws; I32's classification and I31's basis; I26's F(m, c) of the FACT laws (holon.rules.fact.analyse was run).",
+          "not_read": "The witness schedules of the commitBatchWithProof attribution and kernel laws and of the five other external-none DISCH laws; the replay entries of the UNDO pair and batchDataStore laws (only their records' replay detail); the sorts replay report's entries; the codec layouts (beyond the first cells of two functions); the instrument's functions were never run before this commit (only compiled, and its tables checked for consistency with each other).",
+          "I81-P1": "the lower bound (the differences); not the layout bound",
+          "I81-P2": "fully (the one-step continuations and the BVH entry's divergence at t[0])",
+          "I81-P3": "mostly: the channels follow from the rules and data read, except the UNDO pair law's step (its replay entry was not read)",
+          "I81-P4": "partly: 7 of the 24 schedules were not read",
+          "I81-P5": "fully (the statuses and subforms, with the rules)",
+          "I81-P6": "partly: persistence follows from the rules and I32's classes; 7 schedules' costs were not read",
+          "I81-P7": "partly (follows from P3, P4 and P6)"
+        },
+        "counted_predictions": [
+          "I81-P1"
+        ],
+        "disclosure": "Only I81-P1 counts toward prediction accuracy: its outcome rests on the layout bound, which nobody computed before this commit. The others are recorded, not counted: the author read most of what decides them (observed_before_prereg), and the rest follow from the preregistered policy applied to committed data. A miss in any of them is still reported as a miss."
+      }
+    },
     "I68": {
       "title": "Structural storage keys in the M3 model (the Q21 fix): mapping storage keyed as (base slot, key path) instead of a lookup in the law's keccak256 table, the deployment converted, the evaluator mapping keys to real slots only against real traces and in replay, a generated keys check, A-keccak-structural in the ledger, and the proof routes the store opens (SK frames, key split, convoy, loop frames, bit-field lemmas, tag_exact)",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I68)",
