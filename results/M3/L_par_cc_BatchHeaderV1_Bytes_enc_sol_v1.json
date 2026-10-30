@@ -12,7 +12,7 @@
       "generator": "open_refl",
       "kind": "proof",
       "marker": "SOME PROOFS FAIL",
-      "seconds": 0.476
+      "seconds": 0.314
     },
     {
       "bound": "record fills (ones, counting, 0xff, zeros, one field 0xff, 8 random with seed 20261013), the premises applied, kept when the named encoders' ok atoms over record fields hold (33 candidates); hit: ones",
@@ -26,20 +26,20 @@
       "generator": "counter",
       "kind": "counter-law",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.612
+      "seconds": 0.386
     },
     {
       "exit_code": 0,
       "kernel": "BendTT (Lean-proven)",
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
-      "seconds": 0.973
+      "seconds": 0.637
     }
   ],
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.612
+    "seconds": 0.386
   },
   "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
   "concretization": {
@@ -89,7 +89,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
   "filter_bin": "finding",
-  "generator_sha256": "7668938a3dcd79013ad848ca4a48aeb558c5e026f344f146ae670c4bcd3ef7a6",
+  "generator_sha256": "75dbc9954d4167ba1a2b26c8448d492b68fb50ecef5bb540652395cc1a7e0e4c",
   "independence_class": "I2",
   "kernel": {
     "name": "bend",
@@ -146,7 +146,7 @@
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1/LAWS.bend",
-    "parent_statement_hash": "sha256:f6dfebcc5fa239f326aa1592ac1a06397fd1473c975658cba0fb931bc718614a",
+    "parent_statement_hash": "sha256:090fd37e5b9ade681d0d80b8f915f1653276823761007c92e7f4374b68f37bc6",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -179,7 +179,7 @@
     "kind": "unbounded"
   },
   "statement": "\u2200 h: BatchHeaderV1, \u2200 k: Header. k.version == 0x01 \u2227 h.BatchHeaderV0.BatchIndex == k.batchIndex \u2227 h.BatchHeaderV0.BlobVersionedHash == k.blobVersionedHash \u2227 h.BatchHeaderV0.DataHash == k.dataHash \u2227 h.BatchHeaderV0.L1MessagePopped == k.l1MessagePopped \u2227 h.LastBlockNumber == k.lastBlockNumber \u2227 h.BatchHeaderV0.ParentBatchHash == k.parentBatchHash \u2227 h.BatchHeaderV0.PostStateRoot == k.postStateHash \u2227 h.BatchHeaderV0.PrevStateRoot == k.prevStateHash \u2227 h.BatchHeaderV0.TotalL1MessagePopped == k.totalL1MessagePopped \u2227 h.BatchHeaderV0.WithdrawalRoot == k.withdrawRootHash \u21d2 BatchHeaderV1_Bytes(h) == enc_sol(k)",
-  "statement_hash": "sha256:f6dfebcc5fa239f326aa1592ac1a06397fd1473c975658cba0fb931bc718614a",
+  "statement_hash": "sha256:090fd37e5b9ade681d0d80b8f915f1653276823761007c92e7f4374b68f37bc6",
   "statement_scope": {
     "kind": "unbounded"
   },

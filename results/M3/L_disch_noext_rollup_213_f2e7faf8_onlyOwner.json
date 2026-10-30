@@ -8,7 +8,7 @@
   },
   "attempts": [
     {
-      "error": "does not apply: revertBatch: no route (chain_revert: revertBatch: a path of its program ends without reverting before the check B makes 0; frame: revertBatch: its loop 8 stores at B's key M.SK{M.W{166, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}: no loop frame)",
+      "error": "does not apply: addChallenger: no route (chain_revert: addChallenger: a path of its program ends without reverting before the check B makes 0; frame: addChallenger: it stores at a slot that is not a literal (M.h_get(kh, List.append(&2, U32, M.b_of_w(M.w_and(M.ga_addChallenger__account(ar): a mapping or array slot goes through the law's keccak256 parameter, which the statement leaves unconstrained, so no frame separates it from B's slots)",
       "generator": "holon.disch.proofs",
       "kind": "proof",
       "marker": null
@@ -24,11 +24,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 17.303
+          "seconds": 15.233
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 2.476
+        "seconds": 2.691
       },
       "claim_at_witness": false,
       "kind": "witness",
@@ -43,13 +43,13 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 17.303
+      "seconds": 15.233
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 2.476
+    "seconds": 2.691
   },
-  "compiled_sha256": "f838c64a012f2b3c50f0a10a19dd21af80aa24664dca21312acf7a2153a89c3a",
+  "compiled_sha256": "37562c1fcace527b4db860dbb0449e2d521f48134ac358a7529291a77bf0316d",
   "concretization": {
     "bound": null,
     "kind": "direct",
@@ -112,10 +112,8 @@
     "HLog",
     "HSt",
     "KB",
-    "KV",
+    "KW",
     "Reach",
-    "SK",
-    "SP",
     "S_IRollup_BatchDataInput",
     "T_Dig_Agg",
     "T_Dig_Agg_Dig_VH",
@@ -759,9 +757,9 @@
     "k_updateVerifier_6",
     "k_updateVerifier_7",
     "kb_get",
-    "kv_get",
-    "kv_put",
-    "kv_set",
+    "kw_get",
+    "kw_put",
+    "kw_set",
     "l_add",
     "l_at",
     "l_hi_zero",
@@ -1359,10 +1357,7 @@
     "s_updateVerifier_5",
     "s_updateVerifier_6",
     "s_updateVerifier_7",
-    "sk_eq",
     "sload",
-    "sp_eq",
-    "sps_eq",
     "sstore",
     "sub_Time_Time",
     "sx_addChallenger_cd",
@@ -1922,7 +1917,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": "finding",
-  "generator_sha256": "a8f08934c8441674963d9ad24ac32f6cbc01ecf7f190f62100e0b617689de3ae",
+  "generator_sha256": "791d18e81702e1816fb42f0305a9dde4f900bde060bbded1a9bb183565d9d379",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -1949,15 +1944,14 @@
   "ledger_match": "exact",
   "model_assumptions": [
     "A-env",
-    "A-keccak-structural",
     "A-reach"
   ],
-  "model_sha256": "0b6f25426ff619e6320ceade30cc8826b392ae39f9722c72c05cc27776c55d46",
+  "model_sha256": "5102c459bfde59a2ccc5d2c5c3ae78ee72a5d2dc95cc093a185a0f88aff545d7",
   "non_vacuity": {
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_disch_noext_rollup_213_f2e7faf8_onlyOwner/LAWS.bend",
-    "parent_statement_hash": "sha256:4ea80d54a2a10f6a96b47962b0e922ac9253423580b20ab74d8b44eafd84fce0",
+    "parent_statement_hash": "sha256:64f5624ee239cf8f2bb052bf0f01c8784a1d1dfc521527e5d8ac80fa6559fb0d",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -1978,7 +1972,7 @@
     "kind": "unbounded"
   },
   "statement": "the forall-negation of the external law (BUILD_PLAN §2.12: an existential law is never REFUTED): no step of the named class discharges the guard while the blocked condition holds; morph_rollup.extracted:external_none:rollup_213_f2e7faf8:onlyOwner",
-  "statement_hash": "sha256:4ea80d54a2a10f6a96b47962b0e922ac9253423580b20ab74d8b44eafd84fce0",
+  "statement_hash": "sha256:64f5624ee239cf8f2bb052bf0f01c8784a1d1dfc521527e5d8ac80fa6559fb0d",
   "status": "REFUTED",
   "subform": "external_none",
   "triage": "finding",
@@ -1994,8 +1988,52 @@
           "0x6bd2dd6bd408cbee33429358bf24fdc64612fbf8b1b4db604518f40ffd34b607"
         ],
         [
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a1",
+          "0x32ae1b88a7d4f92d7e214b63c8ea04cd13e2faaa60c50f499f2254336d98f882"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a4",
+          "0xaa34f26657d14f62cbada167a4e03191ddebf621343c05e9664820d2e1ca2430"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ab",
+          "0xc5d43c4a2513442e32494a8634f103d73dcf3a2851465bd0d02221eac0820c02"
+        ],
+        [
           "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "0x6d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a6"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a1",
+          "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a2",
+          "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a4",
+          "0x3ab5dcf47126747c0704cb686c5b362a3f19c34c1a7f9e61bd557bb2aac5bcac"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000ab",
+          "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000ad",
+          "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000a1",
+          "0x56cd10bd7c5a283404157adf2ba847ac6f7bfee0953fbdea6cae6f66ee17d9ce"
+        ],
+        [
+          "0x0000000000000000000000000000000000000000000000000000000000001004000000000000000000000000000000000000000000000000000000000000009f",
+          "0xc1647f4ea6f20cdfcb68a5eb1fed20b17c4e8580b1f072b3399ec8b9d82ec564"
+        ],
+        [
+          "0x000000000000000000000000000000000000000000000000000000000000100400000000000000000000000000000000000000000000000000000000000000a5",
+          "0xf008cfc5b3e1edbda6a26ce1ff68c48094aebf8759f1075095fc0f6c73b81d33"
         ],
         [
           "0x000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006d2b11bf89389c15a2f24f485c4ade11fbd2bc2684939a67ca1583b6a630f0a6",

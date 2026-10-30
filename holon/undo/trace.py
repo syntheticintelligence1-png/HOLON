@@ -12,7 +12,8 @@ contract is the docstring of tests_m3/test_undo.py, "Laws": the semantics of und
   run          the state after a trace (the typed model's run)
   set_<F>      set_<F>(s, k, v): s with the register of mapping family F at key k holding v (Val_<F>: the raw words of
                the register's slots, one per slot its value type occupies)
-  undo_<x>     per law: the pair or residue law's claim (holon.rules.undo L1, L2), a Bool
+  undo_<x>     per law: the pair, residue or cancel law's claim (holon.rules.undo L1, L2, L3), a Bool; a cancel law
+               (I71) compares obs(t, after(after(s, x), y)) with obs(t, after(s, y)), y succeeding from both states
   uhit_<x>     per law: its premises alone (G11V's non-vacuity target)
 
 NZ, the premise "no hash value the steps compute is the zero word", is stated over the law's hash tables: no entry of a
@@ -369,6 +370,71 @@ class Trace:
         self.add(f"def ux_rs_{x}(+st2: {HSt}, +st: {HSt}, +x0: {X}{self.hsig()}) -> Bool:\n  {body}")
         return f"ux_rs_{x}"
 
+    def cancel(self, e: dict) -> None:
+        """A cancel law (I71, tests_m3/test_undo_cancel.py rule C7): with s1 = after(s, x), s2 = after(s1, y) and
+        s3 = after(s, y): NZ, x a call of a succeeding from s, y a call of ā succeeding from s1 and from s, and every
+        register the cancellation restores holding in s2 its value in s, imply obs(t, s2) == obs(t, s3). y's two runs
+        share its arguments and environment (the constructor's ar and en)."""
+        x = U.ghost_x(e["law_id"])
+        b = e["basis"]
+        a, ab = bname(b["a"]), bname(b["undo"])
+        GSt, HAct = self.Q("GSt"), self.Q("HAct")
+        Xa, Xb = self.Q(f"X_{a}"), self.Q(f"X_{ab}")
+        rs = self.restored(e, b["a"])
+        hs = ", ".join(p for p, _h in self.hp)
+        st = self.Q("gh_get_st")
+        for mode in ("undo", "hit"):
+            p = f"ux_{'c' if mode == 'undo' else 'k'}{x}"
+            other = "True{}" if mode == "undo" else "False{}"
+            imp = "ux_imp" if mode == "undo" else "Bool.and"
+            tl = f", +t: List<&2, {HAct}>" if mode == "undo" else ""
+            ta = ", t" if mode == "undo" else ""
+            # the last link: the restores, then (undo) the observations of t after x;y and after y alone
+            cd = self.Q(f"gx_{ab}_cd")
+            go = self.Q(f"gh_go_{ab}")
+            if mode == "undo":   # the restores, then the observations of t after x;y (s2) and after y alone (s3)
+                last = (f"ux_imp({rs}({st}(s2), {st}(s), x0{self.hargs()}), "
+                        f"ux_obs_eq(obs(t, s2{self.hargs()}), obs(t, s3{self.hargs()})))")
+                self.add(f"def {p}_c(+s2: {GSt}, +s3: {GSt}, +x0: {Xa}, +s: {GSt}{tl}{self.hsig()}) -> Bool:\n"
+                         f"  {last}")
+                then = f"{p}_c({go}(y1, s1), {go}(y0, s), x0, s{ta}{self.hargs()})"
+            else:                # the premises alone: y succeeding alone, and the restores after x;y
+                self.add(f"def {p}_c(+s2: {GSt}, +x0: {Xa}, +s: {GSt}{self.hsig()}) -> Bool:\n"
+                         f"  {rs}({st}(s2), {st}(s), x0{self.hargs()})")
+                then = f"{p}_c({go}(y1, s1), x0, s{self.hargs()})"
+            self.add(f"def {p}_b(+y1: {Xb}, +y0: {Xb}, +s1: {GSt}, +x0: {Xa}, +s: {GSt}{tl}{self.hsig()}) -> Bool:\n"
+                     f"  {imp}(U32.is_eq({cd}(y1), 0), {imp}(U32.is_eq({cd}(y0), 0), {then}))")
+            cases = []
+            for c in self.actions:
+                if c == ab:
+                    cases.append(f"    case {self.Q(f'A_{c}')}{{+ar, +en}}:\n      {p}_b({self.Q(f'xr_{ab}')}("
+                                 f"{st}(s1), ar, en{self.hargs()}), {self.Q(f'xr_{ab}')}({st}(s), ar, en{self.hargs()}), "
+                                 f"s1, x0, s{ta}{self.hargs()})")
+                else:
+                    cases.append(f"    case {self.Q(f'A_{c}')}{{ar, en}}:\n      {other}")
+            self.add(f"def {p}_y(y: {HAct}, +s1: {GSt}, +x0: {Xa}, +s: {GSt}{tl}{self.hsig()}) -> Bool:\n"
+                     "  match y:\n" + "\n".join(cases))
+            self.add(f"def {p}_a(+x0: {Xa}, +x1: {Xa}, +s: {GSt}, y: {HAct}{tl}{self.hsig()}) -> Bool:\n"
+                     f"  {imp}(U32.is_eq({self.Q(f'gx_{a}_cd')}(x1), 0), {p}_y(y, {self.Q(f'gh_go_{a}')}(x1, s), x0, s"
+                     f"{ta}{self.hargs()}))")
+            cases = []
+            for c in self.actions:
+                if c == a:
+                    cases.append(f"    case {self.Q(f'A_{c}')}{{+ar, +en}}:\n      {p}_a({self.Q(f'x0_{a}')}("
+                                 f"{st}(s), ar, en{self.hargs()}), {self.Q(f'xr_{a}')}({st}(s), ar, en{self.hargs()}), s, y"
+                                 f"{ta}{self.hargs()})")
+                else:
+                    cases.append(f"    case {self.Q(f'A_{c}')}{{ar, en}}:\n      {other}")
+            self.add(f"def {p}_x(x: {HAct}, +s: {GSt}, y: {HAct}{tl}{self.hsig()}) -> Bool:\n  match x:\n"
+                     + "\n".join(cases))
+        sig = f"+s: {GSt}, x: {HAct}, y: {HAct}, +t: List<&2, {HAct}>{self.hsig()}"
+        self.add(f"# {e['law_id']}: with NZ, after a call x of {b['a']} and a call y of {b['undo']} that cancels it (y "
+                 f"succeeding after x and alone, restoring every register the cancellation restores), t observes after "
+                 f"x;y what it observes after y alone\n"
+                 f"def undo_{x}({sig}) -> Bool:\n  ux_imp(ux_nzs({hs}), ux_c{x}_x(x, s, y, t{self.hargs()}))")
+        self.add(f"# the premises of {e['law_id']} alone (G11V)\ndef uhit_{x}({sig}) -> Bool:\n"
+                 f"  Bool.and(ux_nzs({hs}), ux_k{x}_x(x, s, y{self.hargs()}))")
+
     def pair(self, e: dict) -> None:
         x = U.ghost_x(e["law_id"])
         b = e["basis"]
@@ -432,6 +498,8 @@ class Trace:
         for e in self.elements:
             if e["subform"] == "residue":
                 self.residue(e)
+            elif e["subform"] == U.CANCEL_SUBFORM:
+                self.cancel(e)
             else:
                 self.pair(e)
         # the module's own run is the typed model's run (and only exists where the model is imported as M)

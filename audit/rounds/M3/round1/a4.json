@@ -1,0 +1,3396 @@
+{
+  "a4_version": "holon-audit-a4/0.1",
+  "canaries": [
+    {
+      "detected": true,
+      "kind": "degenerate_pure",
+      "what": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned's representative with every free byte set to zero",
+      "why": "D3"
+    },
+    {
+      "detected": true,
+      "kind": "degenerate_state",
+      "what": "L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner's inhabitant cut to its last step",
+      "why": "D1"
+    },
+    {
+      "detected": true,
+      "kind": "false_oracle",
+      "what": "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter's first keccak256 table entry (witness) with its word's last hex digit changed",
+      "why": "O3 reports a mismatch"
+    },
+    {
+      "detected": true,
+      "kind": "unsatisfiable_premise",
+      "what": "a copy of L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned with a second premise k.version == 0x03 beside its pin to 0x02: classified vacuous iff no inhabitant checks",
+      "why": "no inhabitant generated (Unsupported)"
+    }
+  ],
+  "counts": {
+    "counter_witness": 18,
+    "degenerate": 40,
+    "no_premises": 42,
+    "not_decided": 24,
+    "ok": 12,
+    "unreadable": 0,
+    "vacuous": 0
+  },
+  "in_flight": {
+    "detail": "in-flight: 0 of 8 edges inhabited: V3->V4 has no in-flight inhabitant (no successor site action of V3 is in the versioned model (model debt): commitBatch: commitBatch: an unknown term [\"unknown\",\"contracts/contracts/libraries/codec/BatchCodecV0.sol:57\",\"memory\"] (its val); V4->V5 has no in-flight inhabitant (no successor site action of V4 is in the versioned model (model debt): commitBatch: commitBatch: an unknown term [\"unknown\",\"contracts/contracts/libraries/codec/BatchCodecV0.sol:57\",\"memory\"] (its val); V5->V6 has no in-flight inhabitant (no successor site action of V5 is in the versioned model (model debt): commitBatch: commitBatch: an unknown term [\"unknown\",\"contracts/contracts/libraries/codec/BatchCodecV0.sol:57\",\"memory\"] (its val); V6->V7 has no in-flight inhabitant (no successor site action of V6 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: [\"abi.decode\",[\"member\",[\"param\",\"batchSignat); V7->V8 has no in-flight inhabitant (no successor site action of V7 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: [\"abi.decode\",[\"member\",[\"param\",\"batchSignat); V8->V9 has no in-flight inhabitant (no successor site action of V8 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: [\"abi.decode\",[\"member\",[\"param\",\"batchSignat); V9->V10 has no in-flight inhabitant (no successor site action of V9 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: [\"abi.decode\",[\"member\",[\"param\",\"batchSignat); V10->V11 has no in-flight inhabitant (no successor site action of V10 is in the versioned model (model debt): commitBatch: commitBatch: term 'abi.decode' is outside the M3 generator's language: [\"abi.decode\",[\"member\",[\"param\",\"batchSigna)",
+    "ok": false
+  },
+  "inputs": [
+    {
+      "path": "gen/M3/codec/header_length.json",
+      "sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315"
+    },
+    {
+      "path": "gen/M3/model/header_length.bend",
+      "sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_initializable_120_b8d46c45_anyone.json",
+      "sha256": "98e66b354e024d3e25b63f68c396231eb08217b30fefe2304a700dfe705efcbe"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_initializable_120_b95c70f1_anyone.json",
+      "sha256": "fd89fbd289ea8f73baae8f4f1efa8cb4bfd1afa35df09773f88d7b6fc6523aaa"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_initializable_120_d9a34b48_caller_rollup_210.json",
+      "sha256": "28af808283d29053581234017ab9b08b360383ebd13fe1b77ba8ce93cefdaa02"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_pausableupgradeable_77_ed0ce816_anyone.json",
+      "sha256": "f4edd19ee2566e52a2406231c7efcf4177160a39dfd1723008c6c98caf2db3c7"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter.json",
+      "sha256": "e5f5cdf26348d15ea0d32abd3e125d17115ab04352bdb67957e0b111cfbdaa5e"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger.json",
+      "sha256": "5a6b07a605b59e7a12fefbc1d5031e1cc3434f17fe5388d22f20fd7d84c3a719"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_132_d953872f_anyone.json",
+      "sha256": "c2511bd4f59e7e1551f8424aeb49e9ecc426fbe7525d0bf5479ca736b79ffd84"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_132_d953872f_caller_rollup_210.json",
+      "sha256": "5038a5f4de7b55b37a21ca19e6848eea76cacbb6c45319ca602b8588b6f7f0fe"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter.json",
+      "sha256": "5bac40c4d8667b696e00ebc96b883e9f1f2563caa8aa2e2e27236c1974745bb3"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_132_d953872f_onlyChallenger.json",
+      "sha256": "ec9df33aa8cfa8a1ffaecda83f18f3067a22566e4cdb0ceb4818b2d058505e7a"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210.json",
+      "sha256": "af2bcc6223213728008a0f4388da22956934bb21585a0d545aa99b140a608dcd"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_213_f2e7faf8_onlyChallenger.json",
+      "sha256": "1a637b84a9c7944095922d5eef8684c8f0102f8ff20a264344ffe026c9e33e84"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_228_79cc3e9a_onlyOwner.json",
+      "sha256": "559ebcef0d6863884c130d4cda4db2cd9f540ea490ec5ef07d82180e59c42847"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_363_e11d8bb2_anyone.json",
+      "sha256": "1813640c0c88702c93d8aaf24396df06a937deae6dd30844899fdc3cf96ea7b5"
+    },
+    {
+      "path": "laws/M3/L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter.json",
+      "sha256": "2ce35ecd98b621c04fbfd7c1b1e630df3a230ff308e105ce963c866c532e9fa3"
+    },
+    {
+      "path": "laws/M3/L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner.json",
+      "sha256": "73dfdf99eb01c9fc86ead8055d344398f400734c44045081a5e86c8df0212363"
+    },
+    {
+      "path": "laws/M3/L_disch_ext_rollup_132_d953872f_onlyOwner.json",
+      "sha256": "40e45ea933717f4019ecd9d80600f59a2fc7beb4bd1f31714437b192c32e3106"
+    },
+    {
+      "path": "laws/M3/L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter.json",
+      "sha256": "7c3004994118f752049a682e5829d19145659e4fd450c78cd809ba0e4d1e8fe1"
+    },
+    {
+      "path": "laws/M3/L_disch_ext_rollup_213_f2e7faf8_onlyOwner.json",
+      "sha256": "0531e3d4fdeeacc06aa8ed397a7a2f39b632d669a9ec279ab77d46bb9cfb4101"
+    },
+    {
+      "path": "laws/M3/L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter.json",
+      "sha256": "f2f79555cd45389c665dde01df0ea4c2e1f20c2c72eb3043c2933e547a5098bd"
+    },
+    {
+      "path": "laws/M3/L_disch_ext_rollup_363_e11d8bb2_onlyOwner.json",
+      "sha256": "6921e1b37b585b416e394b59322ad2eb07cfc22931803cd53a2091e00ed173b9"
+    },
+    {
+      "path": "laws/M3/L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner.json",
+      "sha256": "ef2ebb268688e8225f8d9f5e7661d7095963046aee6ea8b0f72332f8871aa2be"
+    },
+    {
+      "path": "laws/M3/L_disch_noext_rollup_132_d953872f_onlyOwner.json",
+      "sha256": "ec5b02a9ef076dbd263394c66240e924d91546f73454c9c44a99a8aa09f3756e"
+    },
+    {
+      "path": "laws/M3/L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter.json",
+      "sha256": "109b156bbd3f26ff9bc95eced9c389e06f8df8a218a77d5f07ac3ee1e3d85950"
+    },
+    {
+      "path": "laws/M3/L_disch_noext_rollup_213_f2e7faf8_onlyOwner.json",
+      "sha256": "1948bef3520314c91f1387ba3b7ba9eaa75aa364df3c4c3dd0eee34db731960f"
+    },
+    {
+      "path": "laws/M3/L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter.json",
+      "sha256": "7ba237e2322148db07433e54e84f251d925c7d8025d2083a9f532cba986fa087"
+    },
+    {
+      "path": "laws/M3/L_disch_noext_rollup_363_e11d8bb2_onlyOwner.json",
+      "sha256": "e3849f130a0cd80ac6e2f523f0fd5078ea2aa588be2013d5bfc614560fd583b7"
+    },
+    {
+      "path": "laws/M3/L_disch_rev_initializable_120_b8d46c45.json",
+      "sha256": "820b938ff74654826ac44c57fb0d3d59a880c2e6f8567d5690ad3a43bf140949"
+    },
+    {
+      "path": "laws/M3/L_disch_rev_initializable_120_b95c70f1.json",
+      "sha256": "593004d666095ea805300e7ad1469e23d01e62704ebb5ab5f8e8d29f558d101d"
+    },
+    {
+      "path": "laws/M3/L_disch_rev_initializable_120_d9a34b48.json",
+      "sha256": "90699b335360da3960e95abe01692f0c06fabd935df1368f6837c03a58a56c51"
+    },
+    {
+      "path": "laws/M3/L_disch_rev_pausableupgradeable_77_ed0ce816.json",
+      "sha256": "f53094640cbd06ae5e9b023d076048a25a2950952c10ba4d8b1112cc01b1da8a"
+    },
+    {
+      "path": "laws/M3/L_disch_rev_rollup_132_d953872f.json",
+      "sha256": "27ff816c8b4fc80e3cd750705df7f9b94a4a880a0934db6858398a7f85e553b8"
+    },
+    {
+      "path": "laws/M3/L_disch_rev_rollup_213_f2e7faf8.json",
+      "sha256": "9991e80d3ea050748ac419bc69639749c5a2dbd308ae821d957de8bae4ca9882"
+    },
+    {
+      "path": "laws/M3/L_disch_rev_rollup_228_79cc3e9a.json",
+      "sha256": "be1773b720ba94174e0d9adc954bfd5f4528dee566256ff207e26716ec3aede8"
+    },
+    {
+      "path": "laws/M3/L_disch_rev_rollup_363_e11d8bb2.json",
+      "sha256": "538952d9461b0f76ff9166666d4d4c11e5ea70c78a847df3aae3afe1eb16c9c2"
+    },
+    {
+      "path": "laws/M3/L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter.json",
+      "sha256": "174d5b2ca9dff5f14c8164539ffa736342bc9741391510ca62e3767a198acb9b"
+    },
+    {
+      "path": "laws/M3/L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter.json",
+      "sha256": "365d459162c35d5ce22246c7580f704fed95adcf53ea70018f5f727e8ef14a39"
+    },
+    {
+      "path": "laws/M3/L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash.json",
+      "sha256": "4e47cd9fce5c1401ffa431247ad16162ae84fce0ac77990ece92368d4f1d038c"
+    },
+    {
+      "path": "laws/M3/L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash.json",
+      "sha256": "5254e7873bf865b9161d9fc9eb3f5620dfed9d2b0ee7a8976f363ff23051162e"
+    },
+    {
+      "path": "laws/M3/L_fact_kernel_Rollup_commitState_committedBatches_blobhash.json",
+      "sha256": "57347d93a23e09e8fd46ca2e18acb90ad3eef9766bee918b755fc337b5d9539b"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json",
+      "sha256": "b6bc476480c213b3c95655697af4dafd91be4cfa8f741a768133565d9e735789"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.json",
+      "sha256": "dfd4f8aacdc2df7f0d8e3c079992993f1fd27be3e9a7cd55668f62c774e32283"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.json",
+      "sha256": "b8ec1cffbfb233dbf0c57ee1fdfdc15ceb3e9cc39a6eecddf9af798490e8ddb6"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.json",
+      "sha256": "3fe59ed33b9fb0b148f4b62f3b3e81f1997ff4cc10d8a6d34c80c655c362c77d"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.json",
+      "sha256": "ee3397288cd697d4f897b6d14fefca211362aadd6ae251bbcd47d4d53ffac197"
+    },
+    {
+      "path": "laws/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.json",
+      "sha256": "1840ae415791d48c61e50a29ca69593b2b28724c4a3fe3d419a1408676760e12"
+    },
+    {
+      "path": "laws/M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol.json",
+      "sha256": "e4e582662aab30dece477c494c1e7d3bfee52bda01b801bf0d986bd61f08c1eb"
+    },
+    {
+      "path": "laws/M3/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes.json",
+      "sha256": "0c5eeee1b16b93fd75b2e459df13664f537523343b74474f1664da33ffd755a1"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2.json",
+      "sha256": "404b97740e8635aba4c6328295f8d3142d19228f12311b0af44006cc72a22554"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "sha256": "05ecb45f87b49b5b346dc49036d697f616a6617acf0c061a935b487bb29c38f7"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "bf729dc55952c8b1d976877c8106754d9c3aee72e9d9f849d07144d64460500a"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2.json",
+      "sha256": "04d15595c53e07fbb1ae23399bb8a100468350185d47ee8de88c7c966e098fac"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "sha256": "fa259a7f46dcab35f2c195758fdb5b8c4696c90e25fb840a88aaaa66fa710783"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "sha256": "5c1ec01f3dbea0e4ddb753eded33fb2194b3d565073c89913e97be8c354067b9"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "sha256": "1653ec3f40e5278a77d514d9ff8bcb343c39874fb35c707c5c0fbd1cb3a227fa"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2.json",
+      "sha256": "614e0aa006b8931691c4bf597a66909dd535640542aa0aea85177a8654767015"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "sha256": "d5bc113af9045f938eb1eeba87d9537dc6c24b7c12308880baeb3279ba3c29bf"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2.json",
+      "sha256": "b610f6b4e6b45f56fec1766627b75c074b9b4c5850c78514c5fc43c53eb1e1fa"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "sha256": "bb203f4f6c7f1d0a7f9606fafe53e7a445a675cc7149dc2b5354af06d7892dfa"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "sha256": "6fb5d98587f4b4a9efdd50283e8e308088448eb52b00aa1aeeaa38a44b7012db"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.json",
+      "sha256": "2bfe7bfe71d205e280932cce9c5d8c180ad910c364dde41882054a88f34af9d0"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "sha256": "e6b079155733e392f203a35c88021712441e94cfda58af016692ebfcfbc96e4b"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "b2fd6338ccf18a5570020cf587d7ecebdffba4e9d69bcab26d61daa9f996b9bc"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0.json",
+      "sha256": "5b4e856d96799214ed4c0792ea02036b68ed9c388e8efcf6f828773e8be0453b"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "sha256": "1ceb289dbdaa1e2e188c97f118ea72b422759a997454061dbeccef0982ad96f2"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "sha256": "1dc44272134468800f62abcaf7724069333071eb6d2fdaff5897b7677cc2cf8d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0.json",
+      "sha256": "bf04b244d5c7e728f695995bb5ee06983a1c7a508336dbf691dc52691dcf2697"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "sha256": "890378c99710f7ffe24aee743cff40c1db1c8de45de153f0f0fae68d6e3de36f"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0.json",
+      "sha256": "928035797ef1c53bfaabae309fd90ebe9ff7a5dd5990c894f52c300200acb40d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "sha256": "74064ac94e072b50e7e6bcf61be398418f9f63e79e0d74b7ba2cda5aaead6847"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "sha256": "1cc94f93fba5f03934290d97a36927a0f28cf2b7a8039afdbc1b657be814954d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.json",
+      "sha256": "c707fe3661d57c8a1a6818f22ad26e5a92b9271a39372493ee4f26edeb7eb847"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "sha256": "b29b20a07026cf29e9d88da4f632e9135781306c9e1dfb1c119c0311ab84dc62"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "f6342802c0647dda69955e13849221b63685b197d89b80baba922a153c9ae0c3"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1.json",
+      "sha256": "f9541cc26b3a76757583c0c2198ef404bba6934a0f5f31202bf0399d5f5a9fcd"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "sha256": "03c464d777f1b59c50ec3289c804fe7124a589a2c467148d2dfcc13e15ab2bc4"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "sha256": "f6799fbc341a71c21b49aaa8954ff4304b7af9311f146dfb2627b522b2ab5715"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "sha256": "870484fb3966ea86414167b4f573fedaed268b3f97a594de2ac50c7efc3a9e7f"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1.json",
+      "sha256": "dc54a420d2b185d4c7c5c2bb95aec6815a232a1597479a662a083f1f06d667f1"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "sha256": "3c752be87d02b2422aede5310a2bf3007b0e160c2c461bb3e897e660beca5cbe"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1.json",
+      "sha256": "b1434921d2035a86f20aa3060293e53895dfe543a8150b1eb809146b2a5b499a"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "sha256": "f4c3bd9f70a42323cb37f808538eb8d1375b0647b83335d741d1b697f47be0db"
+    },
+    {
+      "path": "laws/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "sha256": "998ffe48b516cbd10749de3b9acdb54a6f61d490e10e9c2a87b333d5e0d75e40"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0.json",
+      "sha256": "40820a1c635b7d947ed7a9547a1084233c1aa6f7355ea315cc0af159fbe677c2"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.json",
+      "sha256": "80f17e39d276d0fa5077fd9f34579a7b1160cb579d73440740265bcfa58263e1"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2.json",
+      "sha256": "c49903640afa9f214594434f5a36e1abaa023c9f35da3c2e9459ab0e2a7b0736"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "sha256": "a2791b6eb233b5fd01177b3a6a1c5137524957a5823088426a1c9d812f142806"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "sha256": "abba29e0c27a21292ea5287f574b47dff980a96b6a5ba7d43186ef0698d059e8"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "sha256": "12e4b90537d48dc2c7d349ed8f198d7be967bc3280b6b4c9743ef5105a9a0490"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "666c4fa71a53a464aae6e2d9f2f902b41ce3e8c5e6ca9665a23e1f28677f406d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "0f0e5263e9ca58c8e84f3cd1526474f4b74d3eb905e8d26583d9b0dc9c3ce153"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "9330c2914cbf2fe255bc3915721155ba5b3be3fd4d7fafcb610c773eda604496"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0.json",
+      "sha256": "c12bd9ec1bd0fa38119cdbfe5f95a64ffc29154780eb81ef00386b2211e26b13"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1.json",
+      "sha256": "385069ec269a201cc623071fb191a98049f47db8a336262b32b034d58b1db97e"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2.json",
+      "sha256": "5589d25c0f0aa073f8ab174bc8c0dd9c8351c7e273ec17da034cb785a1db81fd"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "sha256": "1f92b5c03e950157182f8561fdf4b6f56d8bd758072a0fa89521de9ac6ab9c77"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "sha256": "286100f813357fda501fc988e42b43883c9e9955b021d5f3676596a7d103a10b"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "sha256": "280d79000bb33aa82a7d5c06c0e95612d16d149c30ca3e252173a001e792ade4"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "sha256": "324e0cc4ce80b28e7796b81570ea1a2ec01fa652cbd55192204127c60813b805"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "sha256": "14ff7ef2ebec3a989e7ec318976d1295b01d101f35c785f8a9b931c3ccf38984"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "sha256": "f3346dea881b328f90b08d25047d704a17e5fcb206631a9ab8b8b060ebc4a994"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "sha256": "9d58b41f6a34a21fcacd42e72e7d8a75c7f045a1e047b255492a2fff373cc1b8"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "sha256": "f998344be145107893baec45bf62ddf454a37ec6bed8cf43b839ca394d6f6f6c"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0.json",
+      "sha256": "a2f7c31595d247f7fa4f839cd08037aff51ba5eb00e588ba4742946f0d8737e3"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1.json",
+      "sha256": "05a188640e0d1a4765e871a1a7f68c679548772e620f9242d6c1736fe671763a"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2.json",
+      "sha256": "a9de375be555d8305f80a5a9f19b0e248c95a3fd6f78c758c163be72933709c1"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "sha256": "f667478c06dec930fcdf3c257b99f152f3e651ca9af18769b880cb6769fba486"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "sha256": "da1cf9a017c9099d6a779462a8557c536d300d80cb49e5ef4250c1fddf47ca42"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "sha256": "dfd118e3d644563af2f2e3360160322ce653918cbb52987e7306a5258d68e72f"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "sha256": "63dae790e37d2f6f0bbf74e96371c670d73d3a1a7309db1cdae62c13c7ef1f4b"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "sha256": "bce5cd5a61481097379a27284671cb5221a93405bab385b6a82c81f09879e8a7"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "sha256": "4072d533196e6a9c607ee03f0bba876cb69bab5a08c9b0157483ecaf108ce00a"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0.json",
+      "sha256": "7b4fe39f736bd53022318256f74c251d1e32a00909b65cf596bd11cf966ee666"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1.json",
+      "sha256": "d2a9b7b17722d20f09861548727201bacb2923b339340829f95c0d9df36ea503"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2.json",
+      "sha256": "af02b6b9eece37d8756b80f85ff2b75fec89ab36738ec6ecacef3506c5b29655"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "sha256": "d7aa8cd3e5f96dd325e31f28ab9132ed0590dde4df624c07d7e6d46ba02c2d5d"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "sha256": "6f99e48ec359fe0e5cccab996f141aacf62bf0d1762feb15726a8cd43e268357"
+    },
+    {
+      "path": "laws/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "sha256": "110b06651e588f3f2d31bd8e8236c02a6f6da1318e394f69c6b6cf11e1c09772"
+    },
+    {
+      "path": "laws/M3/L_par_tot_batch_RetrieveBlobBytes.json",
+      "sha256": "dc22228adc3af4f77825f6b7f122420f6027ee1ad785376988bdb3e43cf2bcbc"
+    },
+    {
+      "path": "laws/M3/L_par_tot_blob_RetrieveBlobBytes.json",
+      "sha256": "4b037078fda5130151779d26c3c815d9b58ba51bd42d2998bd3a1cd7df52e9f3"
+    },
+    {
+      "path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "a5464d8435c40dad980dbe5a271328dbf9955ac9628db025817cb0ac55c27051"
+    },
+    {
+      "path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "4edd359b3dd81096b472254bf460146963af6ab0d911abe419a9b8644922cba2"
+    },
+    {
+      "path": "laws/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "326dbc61f91541bfc5089807a9797a85516f4c9dc1133177ecbdcc0e0783f56e"
+    },
+    {
+      "path": "laws/M3/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes.json",
+      "sha256": "7b765ef9a7fe84df7e7933fd5f8649921cd8056a29c2ea2251f14fdb08c4e676"
+    },
+    {
+      "path": "laws/M3/L_pinit_Rollup_importGenesisBatch_committedBatches_17_9.json",
+      "sha256": "76f283549c934f10af0d081753a9e81734492374db81b1ae651d56a5a57ee888"
+    },
+    {
+      "path": "laws/M3/L_sort_realize_rollup_363_4a64383b.json",
+      "sha256": "f4074be6b0f6f046537158255ce45fcecdc3ea33371f2e31071451bd4c2f3e4d"
+    },
+    {
+      "path": "laws/M3/L_sort_tag_rollup_279_e01ea84a.json",
+      "sha256": "a997aa6e457f8b7b299c12d92c035e0aac31b980d76481d385d51c82ff926db8"
+    },
+    {
+      "path": "laws/M3/L_sort_tag_rollup_406_e01ea84a.json",
+      "sha256": "f02a00925b79e6cd2424125b42e1f26e3fcae2ffcd48ef51667677c63e5cfacd"
+    },
+    {
+      "path": "laws/M3/L_undo_pair_Rollup_addChallenger_removeChallenger.json",
+      "sha256": "95e9313684be051809dbd354d8f147b278e1242d19a9a37dbfd1610469bf14b2"
+    },
+    {
+      "path": "laws/M3/L_undo_pair_Rollup_commitBatchWithProof_revertBatch.json",
+      "sha256": "69d3e7f74dd7c64347d5790b87ea89d855f9d57919821d00e50be85a7762fae2"
+    },
+    {
+      "path": "laws/M3/L_undo_pair_Rollup_commitBatch_revertBatch.json",
+      "sha256": "9628584f92d384b18012bf61110e6963ff0d57984068571256130af78f89fe4d"
+    },
+    {
+      "path": "laws/M3/L_undo_pair_Rollup_commitState_revertBatch.json",
+      "sha256": "03db7d2ddb7ab475b63b4d85412eef8335dd2c11a8da7a5fc7b3e14ea96e20c0"
+    },
+    {
+      "path": "laws/M3/L_undo_pair_Rollup_removeChallenger_addChallenger.json",
+      "sha256": "550bc3574dd93e3772f8911698f1036db913df5cfbbc4c85e6a4ccaf3bc832d6"
+    },
+    {
+      "path": "laws/M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes.json",
+      "sha256": "24881042283a204f73c01918fa14ed89f22310101e58df5f719578f6d45fae71"
+    },
+    {
+      "path": "laws/M3/L_undo_res_Rollup_revertBatch_batchDataStore.json",
+      "sha256": "298f2174e57458bea1a1e65ec37821e05aef141a35b2f884ec8d588ef1ccfa96"
+    },
+    {
+      "path": "laws/M3/L_undo_res_Rollup_revertBatch_committedStateRoots.json",
+      "sha256": "371a7a4bbcbde1259a37196a8b18f1ac2cd469a0c385238248f71df9105ed43c"
+    },
+    {
+      "path": "laws/M3/REGISTRY.json",
+      "sha256": "9319e6aeca0ee6b3868ed4eefb89e2cd8906d628007007dc480e0ac27f06182e"
+    },
+    {
+      "path": "results/M3/L_disch_blk_initializable_120_b8d46c45_anyone.json",
+      "sha256": "fbb0e971d64473f8f96f1dd5c48d42caec26fdbcd386842167621c466258ace2"
+    },
+    {
+      "path": "results/M3/L_disch_blk_initializable_120_b95c70f1_anyone.json",
+      "sha256": "3f6e9824a0c4c29f3decaababb682db6eb19266f2f4f3ffedfc24f52a69be7c6"
+    },
+    {
+      "path": "results/M3/L_disch_blk_initializable_120_d9a34b48_caller_rollup_210.json",
+      "sha256": "f851fcf8574fb95d427283d6b901c97a9d5363379cb28bc965e4ff0b89a66095"
+    },
+    {
+      "path": "results/M3/L_disch_blk_pausableupgradeable_77_ed0ce816_anyone.json",
+      "sha256": "92f9482543517089f9368973084c81f5884b8bd80e09c0e906819f35a8616c9d"
+    },
+    {
+      "path": "results/M3/L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter.json",
+      "sha256": "0d8a34329aa722166aac78c7a7e312157b4ed52c1ca467a2aa4c2e6cfd4fc431"
+    },
+    {
+      "path": "results/M3/L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger.json",
+      "sha256": "9a367b523c2f47670f504c78e7e95acb103eed7290554b45158ad98a02cf0218"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_132_d953872f_anyone.json",
+      "sha256": "79900da206ec80b7b9c454b5e117eadb77f8ab68f1cc84573f485faac013c461"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_132_d953872f_caller_rollup_210.json",
+      "sha256": "bb623a2687d98bea1c8aeb3a5f82b62e06ff7b27abd2c6ec8c2263baf3dc932a"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter.json",
+      "sha256": "264b709cd51b17f3c0d0cd99f7fafc268975e81ce915ecc5d0e45058243c9c5b"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_132_d953872f_onlyChallenger.json",
+      "sha256": "e2cc783b20b72fef4571a8cfb8d8bac342d2fbe378f44e4111794e90abbd1ccf"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210.json",
+      "sha256": "9a89e2b6045020cf6bc32e81b7d31709a1cab9f5c0d71e230be9f49acac4f5c4"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_213_f2e7faf8_onlyChallenger.json",
+      "sha256": "ab9c4d711a5122f967fedbe3ac1017c08601b230a743dbe4040355c114f1e178"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_228_79cc3e9a_onlyOwner.json",
+      "sha256": "8dc3d821a72f2817a8c739fc84cd0c654f2158be6294ef08ee727813f8f7a993"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_363_e11d8bb2_anyone.json",
+      "sha256": "41847657140e947f24fe8c69ad9b1ca7df5d2b76e1b7924efb6099a9696b2db8"
+    },
+    {
+      "path": "results/M3/L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter.json",
+      "sha256": "148f17dd1cce6661221add6b88ef4dd8a6f3201d99fbec8345b44a67e0fe8a65"
+    },
+    {
+      "path": "results/M3/L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner.json",
+      "sha256": "a600c20323ccf383bc003f4afa0729c6d821678923a36f590fe2b5458ce7d3f2"
+    },
+    {
+      "path": "results/M3/L_disch_ext_rollup_132_d953872f_onlyOwner.json",
+      "sha256": "026aad2e15080739480513d641641bc8134130702de221a82431190a305d2b0c"
+    },
+    {
+      "path": "results/M3/L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter.json",
+      "sha256": "0e4f3c90c9b13de2174d51c7f2d9359f95af1de3b3a470ed6abc8e3ba57cdb32"
+    },
+    {
+      "path": "results/M3/L_disch_ext_rollup_213_f2e7faf8_onlyOwner.json",
+      "sha256": "6abd41c293d0c70a0463c3a224a0a848513379e48751f916af4a6383387d91d2"
+    },
+    {
+      "path": "results/M3/L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter.json",
+      "sha256": "a0115a1e74762cb8b3e706d1687f85bacd83b71e86d2ed1220fd13a8076f0f44"
+    },
+    {
+      "path": "results/M3/L_disch_ext_rollup_363_e11d8bb2_onlyOwner.json",
+      "sha256": "9bd1b06936ae31c404739c7acee3f1d0c9e6ca8d13e8e449e74e95e1a2b9f153"
+    },
+    {
+      "path": "results/M3/L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner.json",
+      "sha256": "8a96d8a3b8c88ec24c4358be5e5441b46ca428dd1aa0792fedd12c84c5f4417c"
+    },
+    {
+      "path": "results/M3/L_disch_noext_rollup_132_d953872f_onlyOwner.json",
+      "sha256": "c407ba756a6a10bbb1de11b669695cc7a6a96498c5ba3ae8088648e4b9c8f652"
+    },
+    {
+      "path": "results/M3/L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter.json",
+      "sha256": "e97de9683e968fb5a07bc33d959b2125c409b89cb6f9268291eff25a7d700ae5"
+    },
+    {
+      "path": "results/M3/L_disch_noext_rollup_213_f2e7faf8_onlyOwner.json",
+      "sha256": "8bea827b5caac9914148073ad87b2b1082d9e0afad82afa0ec7975abbb27dd17"
+    },
+    {
+      "path": "results/M3/L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter.json",
+      "sha256": "970ad62c5c8196df8747cc166c2e14b67d93b09160f40f937cfb4a185ca3b9b5"
+    },
+    {
+      "path": "results/M3/L_disch_noext_rollup_363_e11d8bb2_onlyOwner.json",
+      "sha256": "11c6e7c4e45979c609d67f8646f1c595ecc8b08d79d11bb34a35bf7b5184b6a4"
+    },
+    {
+      "path": "results/M3/L_disch_rev_initializable_120_b8d46c45.json",
+      "sha256": "a6f9c75a5d7609e68f4fd27faa2f76414b01d6ebb6d5d2b2d19c72f695ab622e"
+    },
+    {
+      "path": "results/M3/L_disch_rev_initializable_120_b95c70f1.json",
+      "sha256": "90f0a21361dc7e4a28609e095594af52c759d2891801d87ffa653e7b62e80298"
+    },
+    {
+      "path": "results/M3/L_disch_rev_initializable_120_d9a34b48.json",
+      "sha256": "e167a790cc8c7b2adf311808ddb53f3c034020bb5685d9224470d77984cce021"
+    },
+    {
+      "path": "results/M3/L_disch_rev_pausableupgradeable_77_ed0ce816.json",
+      "sha256": "2eb6e032a5318d7b93623ab67e0d0c9172374ca493efe0099ff8ef23c2fbbcbe"
+    },
+    {
+      "path": "results/M3/L_disch_rev_rollup_132_d953872f.json",
+      "sha256": "95c599e08e5bb2ed5a2436979b6a406d3c0cc299096057a8dada65276449cbb6"
+    },
+    {
+      "path": "results/M3/L_disch_rev_rollup_213_f2e7faf8.json",
+      "sha256": "d51fc92836ebf3bd7f59b7feb902ba97a49506951c845c9c731d16a55ef5da38"
+    },
+    {
+      "path": "results/M3/L_disch_rev_rollup_228_79cc3e9a.json",
+      "sha256": "6523d111edb384f4d37447493b55f338ebc3eb6f8270dd39f013ed2ee25f631b"
+    },
+    {
+      "path": "results/M3/L_disch_rev_rollup_363_e11d8bb2.json",
+      "sha256": "90b2996b497bb9ee75aad3346f9fc13be1a20e11574df4d1ebcfdb3ae393e215"
+    },
+    {
+      "path": "results/M3/L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter.json",
+      "sha256": "0611134c0cf05901bc01f36541d740d5ae4e1c99dd0ab35eebc0b5ee22e35ecf"
+    },
+    {
+      "path": "results/M3/L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter.json",
+      "sha256": "c69a22ed550b797f3d9f6c1de16ee1af503ad34dbf1283615c09f09bad40fcc1"
+    },
+    {
+      "path": "results/M3/L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash.json",
+      "sha256": "7ca6728c48de0bead3af328bed7702218f025b1113b6f71de16dda70e0e68cdb"
+    },
+    {
+      "path": "results/M3/L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash.json",
+      "sha256": "4612d2375327c003fbb80b9f1b3acf1423e8c71c661feb9f9630e8d36842c502"
+    },
+    {
+      "path": "results/M3/L_fact_kernel_Rollup_commitState_committedBatches_blobhash.json",
+      "sha256": "604d0637cda9e573135012395c0886266c4a0ed5c3251b07a4c4f6c00a2ce6a4"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json",
+      "sha256": "51211cb90a7864f2839f3844b309b7a94ae0c1aee9bfd88842fbee09bf86826e"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.json",
+      "sha256": "4b871e4c68183cd79020e34940f425f0f479b586efe1f7308c0d2fa2b56a7b02"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.json",
+      "sha256": "defbe0d6318bba77f181928dac6f430aa344de2352ca1b793bd31eec1185a20a"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.json",
+      "sha256": "2b5dcaffae41190eb4c377e46560612afb7dfb58c230f2845fc89ccccc0ad0e5"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.json",
+      "sha256": "a76227cde3c395c224ed4918b9eb3380c93c2f3fb757c3a60d1fa0c2c7e44297"
+    },
+    {
+      "path": "results/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.json",
+      "sha256": "7b419df1be1a51af25b099011b5b228367e596c0379e8e7c04ae2295bbe1756f"
+    },
+    {
+      "path": "results/M3/L_par_dom_BatchHeaderBytes_validate_ok_load_sol.json",
+      "sha256": "ea8444d50e919684d373548fe003fcd7f2f68e8775056f1d1059cde964b35ded"
+    },
+    {
+      "path": "results/M3/L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes.json",
+      "sha256": "4396f59e72e626796b7acd6a184ad5c1318ccf198b22f002fbd723160a5be604"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2.json",
+      "sha256": "ed576c1a7197083a2f19ca1e8191cb3655f1fb547add3fd8ba62e69f6228bd9e"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "sha256": "7c9f3f51657ac733dd605e28f0b1cd9ed492e2fc46c068b596ec31b66e6fa873"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "95ee3189eeaefed9354381490a92668fcf27e88cf20548506bbe660808cf84b9"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2.json",
+      "sha256": "250a55a2aff9dcc7ebee26a2116a0b49671aff75e533cdbed128c9e151efdd7c"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "sha256": "ab3b398019b76bb3748f3707ee02a914344ad70bd038b0a142a2576895b0e5eb"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "sha256": "92b78e89442cfb34e1784f5e0ff70896c6eeab68e859cbf6e7594d873bce9312"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "sha256": "c4db81e794c69bc045bf8d4c5bf2f70706fdf33b83e38175cbe7c722e7920564"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2.json",
+      "sha256": "bef461d75a223f61ad84fb2485bbbedd57c2085e0d269719e897b734bfdfa182"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "sha256": "e1aafcfd58c9b0b145223adacd40734c2a12c023d97c2cafccf7645d37899bda"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2.json",
+      "sha256": "97677331d9c78a913cf0cebb60daeb4ccd259c1c0c1c385a55154234bec8e5ab"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "sha256": "07c5aa711fdcf466066311b9f11f3bc523957b9a34fb39bc0a1eba75ac8276b4"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "sha256": "70818f3737d056636187696917d45f8084e916c192621dc35aae26ef2829fe7d"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.json",
+      "sha256": "77d6bcae49cbd1446cf2f51c528093dc4be76b379aa7cc06ac4b5b435a547353"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "sha256": "26a8cacf7d23692541075973b2df2d60fd1b9068011a5cbc1e5bc6eddeb47ecc"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "cdc2c0658651e41cae812c94fd7abeb7ad282728f780cf05e88288685282fb42"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0.json",
+      "sha256": "8b7468aa159532b4494c5c9de60b8469ced7a3691315ebc80acc833b214f4c6e"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "sha256": "f80a7e37062b5fb51cde64a994db81221298e86944e1fe6280415dbc38e32ad9"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "sha256": "4b64fbb6ed7967ae14b35e20c4f53a2313c2b18098daf7f958f71441cdc53a95"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0.json",
+      "sha256": "f3bddb4a021fd9ef8348c9b8317be4a8c58ce4b9216727736d0816101ba17ed1"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "sha256": "84d9bbb77cf9b0cea9cdce58ac131cfdd40eb07affd5b78d2197a46212541127"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0.json",
+      "sha256": "80995a6388bf3a96f708a8c912982fc271a393fd03a8fa76c857cc4e42f88dd5"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "sha256": "63dc8aa7276d006901c01c0f9cf4d3cbcf40d44c4c6da844fcc40b88cf77ac11"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "sha256": "ce3f551daee39245fe575d2fbcc474c03d94631c8b4a990b2d3161c61d9ec2cf"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1.json",
+      "sha256": "e9c42a75e0140e1549a4ae9e58710d188034f82baa78bcc3edd1eff5ddd19c96"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "sha256": "a3a4c22fd28199edd09e31eb11829c90b9117a2d0f66401122b4fc9ee36dec98"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "07eabc53068e447b5e9c963823f9083f6fb38a56cb8d5a463cfc76a77cd99a20"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1.json",
+      "sha256": "01d284157eb2bac33fe354e7d8d9171fa6897cd847d399637631fff15302b6bc"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "sha256": "6005cf1e15e3739e0dccb72d81ea5dd764ae8401a2525c7dfebdaaa80832d9af"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "sha256": "31494e1642c7c7ba9e339d0662fefd69439667aab59210f1b0964def1b5b141b"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "sha256": "91c13937e14e8833727c5fd41a0ab43564106e90f7c6895c34fd32c42ab8eaab"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1.json",
+      "sha256": "38e29be1c07c4b0b6e1a7996cdfe42c9db19a406310fa241ce7a19096b82ab28"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "sha256": "2b71cb17f498661b65c695b9d4c54a9dfc518897ba8e015db85ca4125cb8cd77"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1.json",
+      "sha256": "e609dfc03b5a73ec637a58ea77be38459a5e819677370534e834a18a4287940d"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "sha256": "7cf916d382da7ba5e6b80af25a30d7e8004f98e8d5869708ef35112c21f0eaf7"
+    },
+    {
+      "path": "results/M3/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "sha256": "92dbfcb7ab3ac7d8f75253d85bdf048e1b30308a72008e52572d7d867f3cbb17"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0.json",
+      "sha256": "add69d8783d047d60549f33926dd01161da351311e30c15bb05c4579e3494701"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1.json",
+      "sha256": "d8733bab96e26196fbafdf0718b35d9058e4e9719784d8a227bdf748d54a97c0"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2.json",
+      "sha256": "8fa76114bbf05eb7d5c21f9049a4e527f254fe20c2eb4554c852c04017e1369c"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0.json",
+      "sha256": "fa2c887c3e1c0248d48e6027488133e536679bf6cfee65624efd3c4e49556e0f"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1.json",
+      "sha256": "5330e5382fa5551077e7365436beb65314d6c846572de9d4512a2404af42df2b"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2.json",
+      "sha256": "d2ce4dc94c5081e65bff7f0f07bbde073ca26d992dd61b67fe046ca9505fc734"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "a2b9d306473ece2adcd2d217db22d69d79fce1f4e00d09a3d0f44f8e2be4368c"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "8c22c085998b58450287360ca54977a8c2264a1a9d36df45ad121e0d4bb3890a"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "2184a3bd9496ab28d1be561afb042c719e107391c93577c71e807f153f226b2a"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0.json",
+      "sha256": "f16c84b5355c35a51be270fa76ab751c1169adef0b5c4281d47ac5a232bb5028"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1.json",
+      "sha256": "280e72589df28f269a6029e1dbf92274d4d5d5d047949ae1c51fe1affdd13a8d"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2.json",
+      "sha256": "28d5e70afef752f769f0f05ea755744f3a604b9d297b13eb4cb5d908bfaf3823"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0.json",
+      "sha256": "9257b2ff478e7c202ae54937944296df530163e625e73b2a8915a4940cd18d6a"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1.json",
+      "sha256": "f65ad6d2afe764b09b5325022ee11b93e54de28cef4b0296015d8de15f729c04"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.json",
+      "sha256": "42b94d063601685984f27419fc020c0893a8d6bb80d2fdcae3844698b44113de"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1.json",
+      "sha256": "0642ca1d8c563c3243676e240d7fc739c2f2e174dc8b6357d97515410de14c24"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2.json",
+      "sha256": "b7d211f115c3bd490f8514c5371dbdb437ec6872aa03dd78b36c0c3fd16d15b5"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0.json",
+      "sha256": "820d1c6ab4ae5e4fae7d7292653db453326b6ac372981183c9a0a919b1857c1e"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1.json",
+      "sha256": "fa78bffeb0d81827ce2f2a621fa7ad0a3311f072b3657235afee36b20264fd76"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2.json",
+      "sha256": "acb46bce65c8d5bd136a53d2f055597a61583a732bcb352b9fcf8b62eea040c1"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0.json",
+      "sha256": "e7ced81e87f0ce01647296d79941491f77b33ca1db29cbc74e6d67babb986e26"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1.json",
+      "sha256": "3fd49a2bc54d7816defe6ba3f31c0a891e5964fbe4526087d34bdd33db098727"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2.json",
+      "sha256": "30ab3b913b99bb17ffb329f77772578595063989991ae4b6d011811995522b0b"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0.json",
+      "sha256": "0abbbbbd2fc0dc0edcdb91c44cfb5aaccda6546bcbbf65b8af38c0dcc907cdd1"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1.json",
+      "sha256": "d498d37e09acefad5572813f2a0e71b016b7f597bd3627e12ef4e94bf9b3a516"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2.json",
+      "sha256": "a437f8a909263aa32315c31370771c6bf3494e8be872c7cc05bd8c4d971301a2"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.json",
+      "sha256": "57087e2c8a4c8061d00f16088063974822cc56ede9b99b2060b2b947bdf21a21"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.json",
+      "sha256": "9e8f884210be85b4a13d8e766bae6f0131cf759bd7aa3593c3100c7876e8ce7f"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.json",
+      "sha256": "c62dd121a39a4b43ec10cde7657e26cdd4be632f5c0dc6581163f76317ef179f"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v0.json",
+      "sha256": "b163c82d5d55c45dbb0276ab918b4306bf182d4095dcbdfe8a66de6acd2bbb18"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v1.json",
+      "sha256": "82b5a0c11ed0042e08a19de45cdfefba547c5a88c95c0651d0e7bb333f1ad7ac"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_Version_v2.json",
+      "sha256": "390cb3ff4d67c14a771ccafcecf73370cbc52ab618c611d8cf6c04ddd5b2a269"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0.json",
+      "sha256": "d6e7daf43719a9a450387a184493b2c26f34e3ffe926072712e7fe5cfccc7582"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1.json",
+      "sha256": "fa532e23c9325e17874886c4dce2b30a32f4ec06399a9c36aad687574f32c795"
+    },
+    {
+      "path": "results/M3/L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2.json",
+      "sha256": "6f5cb1eb2559609c3242d9be9a4ac36b28560504dd3121ef0fadef7b226be6a6"
+    },
+    {
+      "path": "results/M3/L_par_tot_batch_RetrieveBlobBytes.json",
+      "sha256": "727b754cb2f610db2a6e56ec465231b0b9146acac1e546d537c730a5f4641fb8"
+    },
+    {
+      "path": "results/M3/L_par_tot_blob_RetrieveBlobBytes.json",
+      "sha256": "fc3637cf90c00c359429488be60fa2be1d6717542a6107cca13384f1b61b78b4"
+    },
+    {
+      "path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2.json",
+      "sha256": "0366ae774776f8254ea3b8b4a8870ee903e1e0b08f7bb05c4e81df6e35fcf17c"
+    },
+    {
+      "path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0.json",
+      "sha256": "807bf169b1fa9f852e5871cdc0b7f3cddfa1a13ebf7ce27ef7ac9dd54f990ae6"
+    },
+    {
+      "path": "results/M3/L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1.json",
+      "sha256": "536e8641006c0edc20b55c15441b408a750e05038c42d64f97cdf9b83c4d9b19"
+    },
+    {
+      "path": "results/M3/L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes.json",
+      "sha256": "ee4f313a778da47e0757da4c779bbaf612bf25f68c3cd8b3ad1d4f5623095b3e"
+    },
+    {
+      "path": "results/M3/L_pinit_Rollup_importGenesisBatch_committedBatches_17_9.json",
+      "sha256": "44a9151e3158626751765c85f18ec892753890a3f4b5f5a10b9c4296f49767c3"
+    },
+    {
+      "path": "results/M3/L_sort_realize_rollup_363_4a64383b.json",
+      "sha256": "bac31c5dc8ec40d0899bc26b01078a213d99ac790768224480656e7dda412ea6"
+    },
+    {
+      "path": "results/M3/L_sort_tag_rollup_279_e01ea84a.json",
+      "sha256": "aca246fd3cd22496e0fda31153c209d03ef44709592c228290d07ab6a1f93109"
+    },
+    {
+      "path": "results/M3/L_sort_tag_rollup_406_e01ea84a.json",
+      "sha256": "0f9bacc58b77f4a6497dd13d817ddc8eb62a321667abecc6d6bb228fb8a1c752"
+    },
+    {
+      "path": "results/M3/L_undo_pair_Rollup_addChallenger_removeChallenger.json",
+      "sha256": "77d22aa0a6a5889f23dec4123328b17b375be09c5e52e706d2a39bf9fb5ea800"
+    },
+    {
+      "path": "results/M3/L_undo_pair_Rollup_commitBatchWithProof_revertBatch.json",
+      "sha256": "81abfd8cd57c41ab75d716ca99e9a08e6e9d5ab0fdba0ec3b57dd36d5a2ee2fe"
+    },
+    {
+      "path": "results/M3/L_undo_pair_Rollup_commitBatch_revertBatch.json",
+      "sha256": "d1506a4a8bfd7e8af011703767b842037fc69480dcc3c1cd8d28ea989a11d537"
+    },
+    {
+      "path": "results/M3/L_undo_pair_Rollup_commitState_revertBatch.json",
+      "sha256": "1803ea0cfd3ef41b4a35d5022ea91ef19b95caa7e5af731d3d0b237ea214a91c"
+    },
+    {
+      "path": "results/M3/L_undo_pair_Rollup_removeChallenger_addChallenger.json",
+      "sha256": "7670b57ea7164c2c1880638f0c7b24c8dcc966e2a1a95bfc98d7f7f4976f001b"
+    },
+    {
+      "path": "results/M3/L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes.json",
+      "sha256": "8f1f875c9e010ff4bc482cf9a79d8b368685c8a2d7cc9b3bc99c372d1a36ef5d"
+    },
+    {
+      "path": "results/M3/L_undo_res_Rollup_revertBatch_batchDataStore.json",
+      "sha256": "b29b76415a4e2bf1c2e3f7e08df22466c8a53699047e0e59af27762673086442"
+    },
+    {
+      "path": "results/M3/L_undo_res_Rollup_revertBatch_committedStateRoots.json",
+      "sha256": "529818e776f598b508627b2770ad54b4431946c80ac93fad417a6fd9a7bfc264"
+    },
+    {
+      "path": "spec/M3/lib/audit_loop.json",
+      "sha256": "5bebc1affd4605469a0ac22e0b916e44991875c0f59372718b2addcad5761b47"
+    }
+  ],
+  "laws": {
+    "L_disch_blk_initializable_120_b8d46c45_anyone": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_initializable_120_b95c70f1_anyone": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_132_d953872f_anyone": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_132_d953872f_caller_rollup_210": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_132_d953872f_onlyChallenger": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_228_79cc3e9a_onlyOwner": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_363_e11d8bb2_anyone": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "blocking",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "blocking",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "external",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_ext_rollup_132_d953872f_onlyOwner": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "external",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "external",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_ext_rollup_213_f2e7faf8_onlyOwner": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "external",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "external",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_ext_rollup_363_e11d8bb2_onlyOwner": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "external",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "external_none",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_disch_noext_rollup_132_d953872f_onlyOwner": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "external_none",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "external_none",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_disch_noext_rollup_213_f2e7faf8_onlyOwner": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "external_none",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "external_none",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_disch_noext_rollup_363_e11d8bb2_onlyOwner": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "external_none",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_disch_rev_initializable_120_b8d46c45": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "revert",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_rev_initializable_120_b95c70f1": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "revert",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_rev_initializable_120_d9a34b48": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "revert",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_rev_pausableupgradeable_77_ed0ce816": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "revert",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_rev_rollup_132_d953872f": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "revert",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_rev_rollup_213_f2e7faf8": {
+      "class": "ok",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "revert",
+      "why": "inhabited, and no degenerate rule holds"
+    },
+    "L_disch_rev_rollup_228_79cc3e9a": {
+      "class": "degenerate",
+      "representative": {
+        "status": "not_searched",
+        "why": "I87 has no representative search for this inhabitant (only for laws over a linked codec document); the I45 round's A4 auditor searches"
+      },
+      "rule": "DISCH",
+      "rules": [
+        "D1"
+      ],
+      "status": "PROVED",
+      "subform": "revert",
+      "why": "the inhabitant's state is the initial state (D1)"
+    },
+    "L_disch_rev_rollup_363_e11d8bb2": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "DISCH",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "revert",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "FACT",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "attribution",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "FACT",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "attribution",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "FACT",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "kernel",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "FACT",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "kernel",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_fact_kernel_Rollup_commitState_committedBatches_blobhash": {
+      "class": "degenerate",
+      "representative": {
+        "status": "not_searched",
+        "why": "I87 has no representative search for this inhabitant (only for laws over a linked codec document); the I45 round's A4 auditor searches"
+      },
+      "rule": "FACT",
+      "rules": [
+        "D2"
+      ],
+      "status": "PROVED",
+      "subform": "kernel",
+      "why": "its two runs are identical (D2)"
+    },
+    "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "cross_component_codec",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "BatchHeaderV0.BatchIndex": "0x0102030405060708",
+            "BatchHeaderV0.BlobVersionedHash": "0x393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758",
+            "BatchHeaderV0.DataHash": "0x191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738",
+            "BatchHeaderV0.L1MessagePopped": "0x090a0b0c0d0e0f10",
+            "BatchHeaderV0.ParentBatchHash": "0xd9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8",
+            "BatchHeaderV0.PostStateRoot": "0x797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798",
+            "BatchHeaderV0.PrevStateRoot": "0x595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778",
+            "BatchHeaderV0.SequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "BatchHeaderV0.TotalL1MessagePopped": "0x1112131415161718",
+            "BatchHeaderV0.WithdrawalRoot": "0x999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8",
+            "LastBlockNumber": "0xf9fafbfcfdfeff01"
+          },
+          "k": {
+            "batchIndex": "0x0102030405060708",
+            "blobVersionedHash": "0x393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758",
+            "dataHash": "0x191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738",
+            "l1MessagePopped": "0x090a0b0c0d0e0f10",
+            "lastBlockNumber": "0xf9fafbfcfdfeff01",
+            "parentBatchHash": "0xd9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8",
+            "postStateHash": "0x797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798",
+            "prevStateHash": "0x595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778",
+            "totalL1MessagePopped": "0x1112131415161718",
+            "version": "0x02",
+            "withdrawRootHash": "0x999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "cross_component_codec",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "cross_component_codec",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "BatchIndex": "0x0102030405060708",
+            "BlobVersionedHash": "0x393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758",
+            "DataHash": "0x191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738",
+            "L1MessagePopped": "0x090a0b0c0d0e0f10",
+            "ParentBatchHash": "0xd9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8",
+            "PostStateRoot": "0x797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798",
+            "PrevStateRoot": "0x595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778",
+            "SequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "TotalL1MessagePopped": "0x1112131415161718",
+            "WithdrawalRoot": "0x999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8"
+          },
+          "k": {
+            "batchIndex": "0x0102030405060708",
+            "blobVersionedHash": "0x393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758",
+            "dataHash": "0x191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738",
+            "l1MessagePopped": "0x090a0b0c0d0e0f10",
+            "lastBlockNumber": "0xd3d4d5d6d7d8d9da",
+            "parentBatchHash": "0xd9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8",
+            "postStateHash": "0x797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798",
+            "prevStateHash": "0x595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778",
+            "totalL1MessagePopped": "0x1112131415161718",
+            "version": "0x00",
+            "withdrawRootHash": "0x999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "cross_component_codec",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "cross_component_codec",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "BatchHeaderV0.BatchIndex": "0x0102030405060708",
+            "BatchHeaderV0.BlobVersionedHash": "0x393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758",
+            "BatchHeaderV0.DataHash": "0x191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738",
+            "BatchHeaderV0.L1MessagePopped": "0x090a0b0c0d0e0f10",
+            "BatchHeaderV0.ParentBatchHash": "0xd9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8",
+            "BatchHeaderV0.PostStateRoot": "0x797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798",
+            "BatchHeaderV0.PrevStateRoot": "0x595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778",
+            "BatchHeaderV0.SequencerSetVerifyHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "BatchHeaderV0.TotalL1MessagePopped": "0x1112131415161718",
+            "BatchHeaderV0.WithdrawalRoot": "0x999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8",
+            "LastBlockNumber": "0xf9fafbfcfdfeff01"
+          },
+          "k": {
+            "batchIndex": "0x0102030405060708",
+            "blobVersionedHash": "0x393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758",
+            "dataHash": "0x191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738",
+            "l1MessagePopped": "0x090a0b0c0d0e0f10",
+            "lastBlockNumber": "0xf9fafbfcfdfeff01",
+            "parentBatchHash": "0xd9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8",
+            "postStateHash": "0x797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798",
+            "prevStateHash": "0x595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778",
+            "totalL1MessagePopped": "0x1112131415161718",
+            "version": "0x01",
+            "withdrawRootHash": "0x999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "cross_component_codec",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "domain_coherence",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "domain_coherence",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x00",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x01",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2": {
+      "class": "degenerate",
+      "representative": {
+        "fill": "counting",
+        "kernels": {
+          "bend2": "ALL PROOFS CHECK",
+          "bendtt": "checked"
+        },
+        "status": "found",
+        "why": "accepted by the kernels; no degenerate rule holds at it",
+        "witness": {
+          "h": {
+            "batchIndex": "0x0203040506070809",
+            "blobVersionedHash": "0x3a3b3c3d3e3f404142434445464748494a4b4c4d4e4f50515253545556575859",
+            "dataHash": "0x1a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+            "l1MessagePopped": "0x0a0b0c0d0e0f1011",
+            "lastBlockNumber": "0xdadbdcdddedfe0e1",
+            "parentBatchHash": "0xbabbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9",
+            "postStateHash": "0x7a7b7c7d7e7f808182838485868788898a8b8c8d8e8f90919293949596979899",
+            "prevStateHash": "0x5a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70717273747576777879",
+            "totalL1MessagePopped": "0x1213141516171819",
+            "version": "0x02",
+            "withdrawRootHash": "0x9a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9"
+          }
+        }
+      },
+      "rule": "PAR",
+      "rules": [
+        "D3"
+      ],
+      "status": "PROVED",
+      "subform": "round_trip",
+      "why": "every byte the premises leave free is zero (D3)"
+    },
+    "L_par_tot_batch_RetrieveBlobBytes": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "totality",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_tot_blob_RetrieveBlobBytes": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "totality",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "weak",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "weak",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "weak",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": {
+      "class": "no_premises",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "weak",
+      "why": "no assume premise and no Reach binder"
+    },
+    "L_pinit_Rollup_importGenesisBatch_committedBatches_17_9": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "PAR",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "init_chain",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_sort_realize_rollup_363_4a64383b": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "SORT",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "realize",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_sort_tag_rollup_279_e01ea84a": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "SORT",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "as_member",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_sort_tag_rollup_406_e01ea84a": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "SORT",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "as_member",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_undo_pair_Rollup_addChallenger_removeChallenger": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "UNDO",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "pair",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_undo_pair_Rollup_commitBatchWithProof_revertBatch": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "UNDO",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "pair",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_undo_pair_Rollup_commitBatch_revertBatch": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "UNDO",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "pair",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_undo_pair_Rollup_commitState_revertBatch": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "UNDO",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "pair",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_undo_pair_Rollup_removeChallenger_addChallenger": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "UNDO",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "pair",
+      "why": "UNKNOWN: the law claims nothing yet"
+    },
+    "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "UNDO",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "residue",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_undo_res_Rollup_revertBatch_batchDataStore": {
+      "class": "counter_witness",
+      "representative": null,
+      "rule": "UNDO",
+      "rules": [],
+      "status": "REFUTED",
+      "subform": "residue",
+      "why": "REFUTED: the accepted counter-law inhabits the premises"
+    },
+    "L_undo_res_Rollup_revertBatch_committedStateRoots": {
+      "class": "not_decided",
+      "representative": null,
+      "rule": "UNDO",
+      "rules": [],
+      "status": "UNKNOWN",
+      "subform": "residue",
+      "why": "UNKNOWN: the law claims nothing yet"
+    }
+  },
+  "milestone": "M3",
+  "oracles": {
+    "hypotheses": {},
+    "parameters": {
+      "keccak256": {
+        "constrained": 0,
+        "laws": 52,
+        "type": "Fn<Bytes,Word>"
+      }
+    },
+    "tables": {
+      "entries": 550,
+      "mismatches": [],
+      "oracles": {
+        "keccak256": 550
+      }
+    }
+  },
+  "policy": {
+    "path": "spec/M3/lib/audit_loop.json",
+    "sha256": "5bebc1affd4605469a0ac22e0b916e44991875c0f59372718b2addcad5761b47"
+  },
+  "round": 1,
+  "target_commit": "2b4578afc7bb71c19715c1df680c824b218bd4ec"
+}
