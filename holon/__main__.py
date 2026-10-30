@@ -132,6 +132,26 @@ def _untyped_laws(argv: list) -> bool:
                and entries[i].get("rule") not in ("UNDO", "FACT") for i in ids)
 
 
+def _product_laws(argv: list) -> bool:
+    """`holon run --milestone M --laws ID,..` naming only laws of the plan-stated product law set (I88: the law set
+    of holon.derivation.laws's sidecar, for its milestone): `holon derivation decide` re-makes their records."""
+    from pathlib import Path
+    m, laws = _arg(argv, "--milestone"), _arg(argv, "--laws")
+    ids = [x.strip() for x in (laws or "").split(",") if x.strip()]
+    if argv[:1] != ["run"] or not m or not ids:
+        return False
+    from .derivation import laws as LW
+    root = Path(_arg(argv, "--root") or Path(__file__).resolve().parents[1]).resolve()
+    try:
+        side = json.loads((root / LW.LAWS_SIDECAR).read_text())
+        d = root / side["law_set"]["laws"]
+        if side["law_set"]["milestone"] != m:
+            return False
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+    return all((d / f"{i}.json").is_file() for i in ids)
+
+
 def _disch_milestone(argv: list) -> bool:
     """Does the milestone derive DISCH laws (I31: a DISCH entry in laws/<M>/DERIVATION.json)?"""
     from pathlib import Path
@@ -296,6 +316,11 @@ def _main(argv: list) -> int:
     if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
         from .sorts import termsize
         return termsize.main(argv[1:])
+    if argv[:1] == ["run"] and _product_laws(argv):
+        # I88: the plan-stated product laws (laws/<M>/derivation/) are decided by holon derivation decide, which
+        # re-makes every record of the set; a run naming any other law, and a whole-milestone run, are unchanged
+        from . import derivation
+        return derivation.main(["decide"] + (["--root", _arg(argv, "--root")] if _arg(argv, "--root") else []))
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
