@@ -33,17 +33,22 @@ A frozen statement may change only through an entry that this module accepts:
                    referenced from another file renamed), and
                    the law's verdict re-established on the new model by Bend and BendTT (verdict_problems: REFUTED
                    stays REFUTED, PROVED stays PROVED or becomes REFUTED, UNKNOWN may become any status; the record is
-                   the new model's). Unsigned; the strengthening direction only (no claim, statement or registry hash
-                   moves). `python -m holon.statement_diff extend --milestone M [--append]` builds the entries
-                   (model_extension_entries). Every file the check read and its acceptance record names (the old and
-                   new model files, the record, the proof; in a line appended since the store exists, also the law
-                   file, the old record and the two bindings) is kept as <sha256 of its content>.gz in
+                   the new model's). A model's files are the binding's model file and every file it imports by a
+                   relative path, transitively (_model_files: confined to the tree, imports in sorted order, no link on
+                   an import's way; I29's NAT module reaches the layer by `../../`). X2 binds the law over a read-only
+                   extraction of bound_commit's tree (holon.bindings.bind_law, so any binding kind) and compares its
+                   cone with the bound one. Unsigned; the strengthening direction only (no claim, statement or registry
+                   hash moves). `python -m holon.statement_diff extend --milestone M [--laws IDS] [--append]` builds
+                   the entries (model_extension_entries). Every file the check read and its acceptance record names
+                   (the old and new model files, the record, the proof; in a line appended since the store exists, also
+                   the law file, the old record and the two bindings) is kept as <sha256 of its content>.gz in
                    laws/STATEMENT_DIFF.store/, in one encoding (store_bytes: gzip level 9, no file name, mtime 0).
                    append writes them; `python -m holon.statement_diff store [--check]` writes those of committed lines
                    from git (or regenerates every one and compares byte for byte, writing nothing). So the line is
                    checkable from the working tree alone (_verify_extension_store: X0, X1, X2 on the stored bindings,
-                   X3 on the stored models, X4 on the stored record and the recorded re-check; a file missing, or
-                   hashing to anything but its name, fails closed), and the git history is a cross-check.
+                   X3 on the stored models, resolved by the same rule, X4 on the stored record and the recorded
+                   re-check; a file missing, or hashing to anything but its name, fails closed), and the git history
+                   is a cross-check.
   strengthening    a kernel-checked S' => S (holon.gen.implication generates the obligation and its proof;
                    Bend, and BendTT when available, must accept it).
   weakening        a gpg signature verifiable against a public key in keys/ (Q3) and an auditor review. A
@@ -103,14 +108,17 @@ Self-certified until the human freezes this module, keys/ and the registries (Q1
 """
 from __future__ import annotations
 
+import atexit
 import gzip
 import hashlib
 import io
 import json
 import os
+import posixpath
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import zlib
 from pathlib import Path
@@ -1495,7 +1503,9 @@ def check_cross_milestone(derivation: dict, laws: dict, entries: list, root: Pat
 import re  # noqa: E402  (this block's own; the module above needs none)
 
 _TOPLINE = re.compile(r"^(def|type)\s+([A-Za-z_][\w.]*)")
-_IMPORT_ALIAS = re.compile(r"^import\s+\./([A-Za-z0-9_-]+\.bend)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$")
+# an import of a model file by a relative path (./x.bend, or ../../d/x.bend as I29's NAT module imports the layer): its
+# alias maps to the file's name, as X3 keys files (_model_files confines the path; a name is one file of the model)
+_IMPORT_ALIAS = re.compile(r"^import\s+(?:\S*/)?([A-Za-z0-9_-]+\.bend)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$")
 _CTOR_LINE = re.compile(r"^\s+([A-Za-z_][A-Za-z0-9_]*)\{(.*)\}\s*$")
 _CTOR_USE = re.compile(r"(?<![\w.])((?:[A-Za-z_][A-Za-z0-9_]*\.)?[A-Za-z_][A-Za-z0-9_]*)\{")
 _IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
@@ -2000,38 +2010,101 @@ def extension_verdict_problems(old: dict, new: dict, fixed, renaming: dict, old_
     return ["X4: " + x for x in verdict_problems(old_status, new_record, recheck, model_sha256, verdict_available)]
 
 
-def _model_files_at(root: Path, commit: str | None, rel: str) -> dict | None:
-    """{repo-relative path: text} of a model file and the modules of its directory it imports, transitively, at a
-    commit (read-only git, following a link) or on the tree (commit None)."""
-    from .bindings import _LOCAL_IMPORT
-    root = Path(root)
-    if commit is None:
-        top = (root / rel).resolve()
-        try:
-            top_rel = top.relative_to(root.resolve()).as_posix()
-        except ValueError:
-            return None
-        read = (lambda r: (root / r).read_text(encoding="utf-8") if (root / r).is_file() else None)
-    else:
-        b = model_at(root, commit, rel)
-        if b is None:
-            return None
-        top_rel = rel
-        ls = _git(root, "ls-tree", commit, "--", rel).stdout.decode().split()
-        if ls and ls[0] == "120000":
-            top_rel = (Path(rel).parent / (blob_at(root, commit, rel) or b"").decode().strip()).as_posix()
-        read = (lambda r: (blob_at(root, commit, r) or b"").decode("utf-8") or None)
-    out, todo, base = {}, [top_rel], Path(top_rel).parent
+_IMPORT_PATH = re.compile(r"(?m)^import\s+(\S+\.bend)(?:\s+as\s+[A-Za-z_][A-Za-z0-9_]*)?\s*$")
+_TREES: dict = {}   # (root, commit) -> a read-only extraction of the commit's tree (or None), one per process
+
+
+def _resolve_import(rel: str, imp: str) -> tuple[str | None, str | None]:
+    """(the path, relative to the tree's root, of the file the import `imp` of file `rel` names, None), or (None, why):
+    resolved against rel's directory; an absolute import and one that leaves the tree fail closed."""
+    if imp.startswith("/") or posixpath.isabs(imp) or os.path.isabs(imp):
+        return None, f"{rel} imports {imp}: an absolute path"
+    q = posixpath.normpath(posixpath.join(posixpath.dirname(rel), imp))
+    if q == ".." or q.startswith("../") or q.startswith("/"):
+        return None, f"{rel} imports {imp}, which leaves the tree"
+    return q, None
+
+
+def _model_files(base: Path, rel: str) -> tuple[dict | None, str | None]:
+    """({path relative to base: text}, None) of a model file and every file it imports by path, transitively, or (None,
+    why); confined to base (I83; the coordinator's requirements, for I29's `../../` imports):
+      * the model path may be a link: os.path.realpath resolves it, and the file must be under base;
+      * every import is resolved against the importing file's directory (_resolve_import: an absolute path, or one
+        that leaves base, fails) and must name a file under base with no link anywhere on its way (realpath equals the
+        normalized path), so that the stored files of a line resolve off git exactly as here (_closure_top);
+      * a missing or unreadable file fails closed; every failure names the offending import.
+    The walk takes each file's imports in sorted order and reads each resolved path once: the same files and keys on
+    every run."""
+    base_r = os.path.realpath(base)
+    top = os.path.realpath(os.path.join(base_r, rel))
+    if os.path.commonpath([base_r, top]) != base_r:
+        return None, f"the model path {rel} resolves outside the tree"
+    if not os.path.isfile(top):
+        return None, f"the model path {rel} names no file"
+    out, todo = {}, [os.path.relpath(top, base_r).replace(os.sep, "/")]
     while todo:
-        r = todo.pop()
+        r = todo.pop(0)
         if r in out:
             continue
-        text = read(r)
-        if text is None:
-            return None
+        try:
+            text = Path(base_r, r).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as x:
+            return None, f"{r} cannot be read ({type(x).__name__})"
         out[r] = text
-        todo.extend((base / name).as_posix() for name in _LOCAL_IMPORT.findall(text))
-    return dict(sorted(out.items()))
+        for imp in sorted(set(_IMPORT_PATH.findall(text))):
+            q, why = _resolve_import(r, imp)
+            if why:
+                return None, why
+            f = os.path.join(base_r, *q.split("/"))
+            if os.path.realpath(f) != os.path.normpath(f):
+                return None, (f"{r} imports {imp}: {q} is or passes through a symbolic link (refused: the files a line "
+                              "names are kept by their paths)")
+            if not os.path.isfile(f):
+                return None, f"{r} imports {imp}: {q} does not exist (a missing transitive file)"
+            todo.append(q)
+    return dict(sorted(out.items())), None
+
+
+def _closure_top(files: dict) -> tuple[str | None, str | None]:
+    """(the one file of a model's files ({path: text}) that no other imports, None), or (None, why): every import of
+    every file, resolved as _model_files resolves it, must be one of the files (a missing transitive file, an absolute
+    import and one that leaves the tree fail closed)."""
+    imported = set()
+    for r, text in sorted(files.items()):
+        for imp in sorted(set(_IMPORT_PATH.findall(text))):
+            q, why = _resolve_import(r, imp)
+            if why:
+                return None, why
+            if q not in files:
+                return None, f"{r} imports {imp}: {q} is not among the model's files (a missing transitive file)"
+            imported.add(q)
+    tops = sorted(r for r in files if r not in imported)
+    if len(tops) != 1:
+        return None, f"the files are not one model: {len(tops)} of them are imported by no other"
+    return tops[0], None
+
+
+def _tree_at(root: Path, commit: str) -> Path | None:
+    """A read-only extraction of a commit's tree, symbolic links included (git archive, unpacked with tarfile's "data"
+    filter into a temporary directory removed at exit), or None: one per commit and process."""
+    key = (str(Path(root).resolve()), commit)
+    if key not in _TREES:
+        d = Path(tempfile.mkdtemp(prefix="holon-bound-tree-"))
+        atexit.register(shutil.rmtree, d, True)
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env.update(GIT_OPTIONAL_LOCKS="0", GIT_NO_REPLACE_OBJECTS="1", LC_ALL="C")
+        p = subprocess.Popen(["git", "-C", str(root), "archive", "--format=tar", commit], stdout=subprocess.PIPE,
+                             stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, env=env)
+        try:
+            with tarfile.open(fileobj=p.stdout, mode="r|") as tf:
+                tf.extractall(d, filter="data")
+            ok = p.wait() == 0
+        except (tarfile.TarError, OSError):
+            p.kill()
+            p.wait()
+            ok = False
+        _TREES[key] = d if ok else None
+    return _TREES[key]
 
 
 def _recheck(proof: Path, cfg=None) -> dict:
@@ -2104,21 +2177,26 @@ def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
         return _res(False, f"the binding of {lid} at {commit_b[:12]} is the binding on the tree: nothing changed")
     if sorted(entry["defs"]) != changed:
         return _res(False, f"the entry's defs are not the changed definitions of {lid}'s binding ({len(changed)})")
-    of, nf = _model_files_at(root, commit_b, ob["model"]), _model_files_at(root, None, nb["model"])
-    if of is None or nf is None:
-        return _res(False, f"the model files of {ob['model']} cannot be read at {commit_b[:12]} or on the tree")
-    tmp = Path(tempfile.mkdtemp(prefix="holon-model-extension-"))
-    try:   # X2: the bound model files give the bound cone (BendTT's translation of the files read at bound_commit)
-        for r, text in of.items():
-            (tmp / Path(r).name).write_text(text, encoding="utf-8")
-        eo = B.layer_entries(tmp / Path(_top_of(root, commit_b, ob["model"])).name)
+    tree = _tree_at(root, commit_b)
+    if tree is None:
+        return _res(False, f"the tree at {commit_b[:12]} cannot be read (git archive)")
+    p_old = tree / "laws" / m / f"{lid}.json"
+    old_law = _json_or_none(p_old.read_bytes()) if p_old.is_file() else None
+    if not _is_law(old_law) or core(old_law) != core(new):
+        return _res(False, f"{lid}'s statement at {commit_b[:12]} is not the entry's (X1)")
+    try:   # X2: the files at bound_commit give the bound cone (bind_law over that commit's tree: any binding kind)
+        rb = B.bind_law(old_law, m, tree, bend.config(root))
     except Exception as e:  # noqa: BLE001
-        return _res(False, f"the bound model does not translate to BendTT: {type(e).__name__}: {e}")
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
-    bad = sorted(d for d, h in ob["cone"].items() if d not in eo or hashlib.sha256(eo[d].encode()).hexdigest() != h)
+        return _res(False, f"{lid} cannot be bound over the tree at {commit_b[:12]}: {type(e).__name__}: {e}")
+    bad = sorted(d for d in set(ob["cone"]) | set(rb["cone"]) if ob["cone"].get(d) != rb["cone"].get(d))
     if bad:
         return _res(False, f"the model files at {commit_b[:12]} are not the bound model ({', '.join(bad[:5])}) (X2)")
+    (of, why), (nf, why_new) = _model_files(tree, ob["model"]), _model_files(root, nb["model"])
+    if of is None or nf is None:
+        return _res(False, f"the model files of {ob['model']} cannot be read at {commit_b[:12]} or on the tree: "
+                           f"{why or why_new}")
+    if len({Path(r).name for r in of}) != len(of) or len({Path(r).name for r in nf}) != len(nf):
+        return _res(False, f"two model files of {ob['model']} have one name (X3 compares files by name)")
     short, short_new = {Path(r).name: t for r, t in of.items()}, {Path(r).name: t for r, t in nf.items()}
     renaming = infer_renaming(short, short_new)
     if (entry.get("renaming") or {}) != renaming:
@@ -2165,14 +2243,6 @@ def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
                         " by Bend" if recheck else ""))
     out["extension"], out["_store"] = ext, store
     return out
-
-
-def _top_of(root: Path, commit: str, rel: str) -> str:
-    """The file the model path names among the files read at a commit (its link's target)."""
-    ls = _git(Path(root), "ls-tree", commit, "--", rel).stdout.decode().split()
-    if ls and ls[0] == "120000":
-        return (Path(rel).parent / (blob_at(Path(root), commit, rel) or b"").decode().strip()).as_posix()
-    return rel
 
 
 def _verify_extension_record(e, ext, commit: str, root: Path) -> str | None:
@@ -2293,16 +2363,6 @@ def _memo(step: str, key, f):
     return _STORE_MEMO[k]
 
 
-def _top_file(files: dict) -> str | None:
-    """The one file of a model's files ({path: text}) that no other imports (the model's entry), or None."""
-    from .bindings import _LOCAL_IMPORT
-    imported = {(Path(r).parent / name).as_posix() for r, t in files.items() for name in _LOCAL_IMPORT.findall(t)}
-    if not imported <= set(files):
-        return None   # a module the files import is not among them
-    tops = sorted(r for r in files if r not in imported)
-    return tops[0] if len(tops) == 1 else None
-
-
 def _verify_extension_store(e, acc, root: Path) -> str | None:
     """A model_extension line checked from the working tree alone (I83; the coordinator's decision, revocable): every
     file its acceptance record names is read from laws/STATEMENT_DIFF.store/ (a missing file, or one whose bytes do not
@@ -2365,9 +2425,9 @@ def _verify_extension_store(e, acc, root: Path) -> str | None:
             return f"the stored bindings of {lid} differ beyond the cone (X2)"
         if B.changed_defs(ob, nb) != sorted(e["defs"]):
             return "the entry's defs are not the changed definitions of the stored bindings (X2)"
-    top_old, top_new = _top_file(old), _top_file(new)
+    (top_old, why), (top_new, why_new) = _closure_top(old), _closure_top(new)
     if top_old is None or top_new is None:
-        return "the stored model files are not one model each (an entry file importing every other) (X3)"
+        return f"the stored {'old' if top_old is None else 'new'} model files are not one model (X3): {why or why_new}"
     short, short_new = {Path(r).name: t for r, t in old.items()}, {Path(r).name: t for r, t in new.items()}
     if len(short) != len(old) or len(short_new) != len(new):
         return "two stored model files of one side have the same name (X3)"
@@ -2406,7 +2466,7 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
     data, git = path.read_bytes(), in_git(root)
     spans, side, _ = merged_lines(data, path, root) if git else ([], {}, [])
     committed_len = spans[-1][0] if spans else 0
-    done, probs, named, offset = [], [], set(), 0
+    done, probs, named, contents, offset = [], [], set(), {}, 0
     for n, raw in enumerate(data.splitlines(keepends=True), start=1):
         start, offset = offset, offset + len(raw)
         e = _json_or_none(raw)
@@ -2452,6 +2512,7 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
                 if content is None:
                     probs.append(f"line {n}: {what}: {why}")
                     continue
+            contents[sha] = content
             p = root / STORE / f"{sha}.gz"
             if p.is_file() and p.read_bytes() == store_bytes(content):
                 continue
@@ -2462,6 +2523,16 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
             else:
                 store_write(root, content)
             done.append(sha)
+        for side in ("old", "new"):   # G2's resolver (_closure_top): every file a model file imports is named too
+            files = {r: contents.get(s) for r, s in ((ext.get("models") or {}).get(side) or {}).items()}
+            if not files or any(v is None for v in files.values()):
+                continue   # a file that cannot be read is a problem above
+            try:
+                top, why = _closure_top({r: v.decode("utf-8") for r, v in files.items()})
+            except UnicodeDecodeError:
+                top, why = None, "a file is not UTF-8 text"
+            if top is None:
+                probs.append(f"line {n}: the {side} model files are not one model: {why}")
     d = root / STORE
     for q in sorted(d.iterdir()) if d.is_dir() else []:
         if not (q.name.endswith(".gz") and q.name[:-3] in named):
@@ -2469,9 +2540,10 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
     return sorted(set(done)), probs
 
 
-def model_extension_entries(milestone: str, root: Path) -> tuple[list, list]:
-    """The model_extension entries a milestone's bindings need: every bound law whose binding changed in its cone alone
-    under a fixed statement, bound at the newest commit that still holds its current binding."""
+def model_extension_entries(milestone: str, root: Path, laws=None) -> tuple[list, list]:
+    """The model_extension entries a milestone's bindings need: every bound law (of `laws` when given) whose binding
+    changed in its cone alone under a fixed statement, bound at the newest commit that still holds its current
+    binding."""
     from . import bindings as B
     root = Path(root)
     p = B.path(milestone, root)
@@ -2483,7 +2555,7 @@ def model_extension_entries(milestone: str, root: Path) -> tuple[list, list]:
     out, notes = [], []
     for law in ir.load_laws_any(milestone, root):
         lid = law["law_id"]
-        if lid not in cur:
+        if lid not in cur or (laws is not None and lid not in laws):
             continue
         try:
             nb = B.bind_law(law, milestone, root)
@@ -2506,7 +2578,9 @@ def model_extension_entries(milestone: str, root: Path) -> tuple[list, list]:
         if commit_b is None:
             notes.append(f"{lid}: no commit holds its current binding (commit spec/bindings/{milestone}.json first)")
             continue
-        of, nf = _model_files_at(root, commit_b, ob["model"]), _model_files_at(root, None, nb["model"])
+        tree = _tree_at(root, commit_b)
+        of = _model_files(tree, ob["model"])[0] if tree is not None else None
+        nf = _model_files(root, nb["model"])[0]
         renaming = infer_renaming({Path(r).name: t for r, t in of.items()},
                                   {Path(r).name: t for r, t in nf.items()}) if of is not None and nf is not None else {}
         out.append({"kind": "model_extension", "law_id": lid, "milestone": milestone, "old": law, "new": law,
@@ -2529,6 +2603,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", default=str(ir.ROOT))
     ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
     ap.add_argument("--append", action="store_true", help="reextract, recatalog, rebind: append every accepted entry")
+    ap.add_argument("--laws", help="extend: only these law ids (comma-separated)")
     ap.add_argument("--check", action="store_true", help="store: write nothing; exit 1 when a named file is missing or "
                                                          "is not the one encoding of its content, or a stored file is "
                                                          "named by no line")
@@ -2569,7 +2644,7 @@ def main(argv: list[str] | None = None) -> int:
               f"problem(s){'; every stored file reproduces byte for byte' if a.check and not probs else ''}")
         return 0 if not probs else 1
     if a.command == "extend":   # I83: the model_extension entries of laws whose bound model gained behaviours
-        es, notes = model_extension_entries(a.milestone, root)
+        es, notes = model_extension_entries(a.milestone, root, set(a.laws.split(",")) if a.laws else None)
         bad = 0
         for e in es:
             r = append(e, root) if a.append else check_entry(e, root)

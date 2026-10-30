@@ -1074,6 +1074,119 @@ class TestStore(unittest.TestCase):
             self.line, dict(self.ext, record=dict(self.ext["record"], old_status="UNKNOWN")), c, ROOT)
         self.assertIn("old status", why or "")
 
+    def test_a_missing_transitive_file_fails_closed(self):
+        """The new side names every model file but one version module its entry file imports: G2's check and the
+        store's check (`store --check`), by the same resolver, both fail closed."""
+        models = json.loads(json.dumps(self.ext["models"]))
+        models["new"].pop(next(r for r in sorted(models["new"]) if r.endswith("_V5.bend")))
+        self.rejected(self.variant(models=models), "missing transitive file")
+        problems = self.S.extension_store_fill(self.root, check=True)[1]
+        self.assertTrue(any("missing transitive file" in x for x in problems), problems)
+
+
+CLAIMS = "gen/X/nat/models/claims.bend"
+
+
+class TestImports(unittest.TestCase):
+    """Added after C_K (the coordinator's decision, revocable): a model's files are read with every file it imports by a
+    relative path, as I29's NAT module imports the versioned layer (`../../versions/models/...`), confined to the tree
+    (holon.statement_diff._model_files). The model path may be a link, resolved under the tree; every import is
+    resolved against the importing file's directory, in sorted order, and must name a file under the tree with no link
+    on its way. The stored files of a line resolve off git by the same rule (_closure_top, which `store --check` uses
+    too). An absolute import, an import that leaves the tree, a link out of the tree and a missing transitive file fail
+    closed, with the import named."""
+
+    def setUp(self):
+        self.S = sd()
+        self.base = Path(tempfile.mkdtemp(prefix="i83-imports-"))
+        self.addCleanup(shutil.rmtree, self.base, True)
+        self.root = self.base / "repo"
+        self.write(self.root, "gen/X/versions/models/mod_a.bend", "import Base\n\ndef base_val() -> Nat:\n  2n\n")
+        self.write(self.root, "gen/X/versions/models/layer.bend",
+                   "import Base\nimport ./mod_a.bend as A\n\ndef layer_val() -> Nat:\n  A.base_val()\n")
+        self.write(self.root, CLAIMS,
+                   "import Base\nimport ../../versions/models/layer.bend as M\n\ndef claim_val() -> Nat:\n  M.layer_val()\n")
+
+    @staticmethod
+    def write(root: Path, rel: str, text: str):
+        p = root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+
+    def test_a_two_level_import_resolves_and_translates(self):
+        """Positive: the closure of the claims module, written again in its layout under a fresh root, resolves to the
+        same files and keys and is translated to BendTT with the imported modules' entries."""
+        files, why = self.S._model_files(self.root, CLAIMS)
+        self.assertIsNone(why)
+        self.assertEqual(sorted(files), [CLAIMS, "gen/X/versions/models/layer.bend", "gen/X/versions/models/mod_a.bend"])
+        self.assertEqual(self.S._closure_top(files), (CLAIMS, None))
+        copy = self.base / "copy"
+        for r, text in sorted(files.items()):
+            self.write(copy, r, text)
+        self.assertEqual(self.S._model_files(copy, CLAIMS), (files, None))
+        B, bend = holon_module("holon.bindings"), holon_module("holon.bend")
+        e = B.parse_entries(B.bendtt_text(copy / CLAIMS, bend.config(ROOT), "a two-level import", keep_dir=True))
+        self.assertIn("claim_val", e)
+        self.assertTrue(any(n.endswith(".layer_val") for n in e) and any(n.endswith(".base_val") for n in e), sorted(e))
+
+    def test_a_link_as_the_model_path_resolves_inside_the_tree(self):
+        os.symlink("claims.bend", self.root / "gen/X/nat/models/claims.link.bend")
+        files, why = self.S._model_files(self.root, "gen/X/nat/models/claims.link.bend")
+        self.assertIsNone(why)
+        self.assertEqual(sorted(files)[0], CLAIMS)
+
+    def test_refuses_an_import_that_leaves_the_tree(self):
+        (self.base / "outside.bend").write_text("import Base\n", encoding="utf-8")
+        self.write(self.root, CLAIMS, "import Base\nimport ../../../../../outside.bend as O\n")
+        files, why = self.S._model_files(self.root, CLAIMS)
+        self.assertIsNone(files)
+        self.assertIn("../../../../../outside.bend, which leaves the tree", why)
+
+    def test_refuses_an_absolute_import(self):
+        (self.base / "outside.bend").write_text("import Base\n", encoding="utf-8")
+        self.write(self.root, CLAIMS, f"import Base\nimport {self.base / 'outside.bend'} as O\n")
+        files, why = self.S._model_files(self.root, CLAIMS)
+        self.assertIsNone(files)
+        self.assertIn("an absolute path", why)
+
+    def test_refuses_a_link_out_of_the_tree(self):
+        """An imported link to a file outside the tree, and a model path that is one."""
+        (self.base / "outside.bend").write_text("import Base\n\ndef out_val() -> Nat:\n  1n\n", encoding="utf-8")
+        os.symlink(self.base / "outside.bend", self.root / "gen/X/versions/models/out.bend")
+        self.write(self.root, CLAIMS, "import Base\nimport ../../versions/models/out.bend as O\n")
+        files, why = self.S._model_files(self.root, CLAIMS)
+        self.assertIsNone(files)
+        self.assertIn("../../versions/models/out.bend: gen/X/versions/models/out.bend is or passes through a symbolic "
+                      "link", why)
+        os.symlink(self.base / "outside.bend", self.root / "gen/X/nat/models/top.bend")
+        files, why = self.S._model_files(self.root, "gen/X/nat/models/top.bend")
+        self.assertIsNone(files)
+        self.assertIn("resolves outside the tree", why)
+
+    def test_x3_follows_an_alias_imported_from_another_directory(self):
+        """X3's field-gain erasure and its references through an import alias hold when the importing file reaches the
+        module by `../../`, as I29's NAT module reaches the layer: the positive control and a changed old clause."""
+        S, imp = self.S, "import ../../versions/models/m.bend as M"
+
+        def problems(new_n):
+            return S.extension_problems({"m.bend": OLD_M, "n.bend": OLD_N.replace("import ./m.bend as M", imp)},
+                                        {"m.bend": NEW_M, "n.bend": new_n.replace("import ./m.bend as M", imp)})
+        self.assertIn("import ./m.bend as M", OLD_N)
+        self.assertEqual(problems(NEW_N), [])
+        self.assertNotEqual(problems(NEW_N.replace("M.R{a, w0(), b}", "M.R{b, w0(), a}")), [])
+
+    def test_refuses_a_missing_transitive_file(self):
+        """On the tree, and among stored files (the same rule off git)."""
+        files, _ = self.S._model_files(self.root, CLAIMS)
+        (self.root / "gen/X/versions/models/mod_a.bend").unlink()
+        got, why = self.S._model_files(self.root, CLAIMS)
+        self.assertIsNone(got)
+        self.assertIn("./mod_a.bend: gen/X/versions/models/mod_a.bend does not exist (a missing transitive file)", why)
+        files.pop("gen/X/versions/models/mod_a.bend")
+        top, why = self.S._closure_top(files)
+        self.assertIsNone(top)
+        self.assertIn("a missing transitive file", why)
+
 
 # ---------------------------------------------------------------------------------------------- generic code
 class TestGenericCode(unittest.TestCase):
