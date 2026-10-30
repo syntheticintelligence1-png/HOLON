@@ -239,6 +239,7 @@ def _generic(sub: str, n: int, act: str, role: str, a_act: str, b_act: str, hit:
     over the literals == False}, rewriting top-level positions of the goal (Equal.cong with a function argument is
     not accepted by BendTT, these are). With hit (omega only), the lemma hz proves {sy_hit_<n>(..) == True} the same
     way: the inhabitant's runs are the counter-law's four."""
+    parts: dict = {}
     if sub in ("tau", "pi"):
         if sub == "tau":
             bs = [("d", "M.W")]
@@ -275,6 +276,7 @@ def _generic(sub: str, n: int, act: str, role: str, a_act: str, b_act: str, hit:
             snk = lambda u: f"U.sy_snk(U.sy_sl(U.sy_st_of(U.sy_post({u}))))"  # noqa: E731
             lits += [("fx", "List<&2, M.KV>", snk("uxy")), ("fy", "List<&2, M.KV>", snk("uyx"))]
             ok2 = "Bool.and(U32.is_eq(U.sy_code(uxy), 0), U32.is_eq(U.sy_code(uyx), 0))"
+            parts.update(prem=prem, oks=oks, ok2=ok2)
             fin = f"U.ux_imp({prem}, U.ux_imp({oks}, U.ux_imp({ok2}, U.sy_sink_eq2(fx, fy))))"
             head += [("efy", f"U.ux_imp({prem}, U.ux_imp({oks}, U.ux_imp({ok2}, U.sy_sink_eq2(fx, _))))"),
                      ("efx", f"U.ux_imp({prem}, U.ux_imp({oks}, U.ux_imp({ok2}, U.sy_sink_eq2(_, {snk('uyx')}))))")]
@@ -295,7 +297,7 @@ def _generic(sub: str, n: int, act: str, role: str, a_act: str, b_act: str, hit:
     for h, hole in chain:
         lines.append(f"  %{h} : {{{sy} == {hole} : Bool}}")
     lines.append("  {==}")
-    return "\n".join(lines) + "\n", hyps, lits
+    return "\n".join(lines) + "\n", hyps, lits, parts
 
 
 def counter_proof_split(law: dict, n: int, sub: str, model_import: str, sym_import: str, laws_import: str,
@@ -333,8 +335,8 @@ def _split(law: dict, n: int, sub: str, model_import: str, sym_import: str, laws
     bl, bnames = _binder_defs(law, values, lit)
     lines += bl
     act = bname(basis.get("action") or "")
-    gz, hyps, lits = _generic(sub, n, act, bname(basis.get("role") or ""), bname(basis.get("a") or ""),
-                              bname(basis.get("b") or ""), hit=hit)
+    gz, hyps, lits, parts = _generic(sub, n, act, bname(basis.get("role") or ""), bname(basis.get("a") or ""),
+                                     bname(basis.get("b") or ""), hit=hit)
     lines += [gz]
     sub_map = {"g": state, "x": "b_x()", "kh": "t_kh()"}
     for b, _t in binders(law)[1:]:
@@ -345,9 +347,21 @@ def _split(law: dict, n: int, sub: str, model_import: str, sym_import: str, laws
     def inst(text: str) -> str:
         return re.sub(r"(?<![\w.])(" + "|".join(sorted(map(re.escape, sub_map), key=len, reverse=True)) + r")(?![\w(])",
                       lambda m: sub_map[m.group(1)], text)
+    sink = sub == "omega" and not hit
     for k, t, _e in lits:
+        if sink and k in ("fx", "fy"):
+            # a filtered store as one definition per entry, so that the last lemma names entries, never re-reads stores
+            ents = [f"k_{k}_{j}()" for j in range(len(runs[k]))]
+            lines += [f"def k_{k}_{j}() -> M.KV:\n  {lit.typed(e, 'KV')}" for j, e in enumerate(runs[k])] + [""]
+            lines += [f"def l_{k}() -> {t}:\n  {_list(ents)}", ""]
+            continue
         lines += [f"def l_{k}() -> {t}:\n  {lit.typed(runs[k], re.sub(r'(?<![\w.])[MU][.]', '', t))}", ""]
+    if sink:
+        lines += _sink_false(runs, inst)
     for h, ty in hyps:
+        if sink and h == "efin":
+            lines += [f"def efin() -> {inst(ty)}:\n  {_efin(inst, parts)}", ""]
+            continue
         lines += [f"def {h}() -> {inst(ty)}:\n  {{==}}", ""]
     names = ["g", "x"] + [b for b, _t in binders(law)[1:]] + ["kh"]
     args = [sub_map[v] for v in names] + [f"l_{k}()" for k, _t, _e in lits] + [f"{h}()" for h, _ty in hyps]
@@ -366,3 +380,81 @@ def _split(law: dict, n: int, sub: str, model_import: str, sym_import: str, laws
     tup = f"(t_kh(), {tup})"
     lines.append(f"def Laws.{('nv_' + lid.lower()) if hit else law_name(lid, True)}():\n  {tup}")
     return "\n".join(lines) + "\n"
+
+
+def _list(xs: list[str]) -> str:
+    return ("[" + ", ".join(xs) + "]") if xs else "Nil{}"
+
+
+# The omega counter-law's last lemma, efin: {ux_imp(prem, ux_imp(oks, ux_imp(ok2, sy_sink_eq2(fx, fy)))) == False}.
+# By computation the kernel would sweep both filtered stores, looking every key up in both (BendTT runs out on it).
+# Instead: the three guards are true by computation (fz), and sy_sink_eq2 is false at one entry, reached through
+# sy_sks's conjunctions without evaluating the entries before it (and_r), then that entry's comparison by computation.
+# Every lemma below is generic over variables (both kernels unfold a definition applied to variables only as far as a
+# stuck match); their instances meet the declared types syntactically.
+SINK_LEMMAS = """def and_l(-a: Bool, -b: Bool, e: {False{} == a : Bool}) -> {False{} == Bool.and(a, b) : Bool}:
+  %e : {False{} == Bool.and(_, b) : Bool}
+  {==}
+
+def and_r(a: Bool, -b: Bool, e: {False{} == b : Bool}) -> {False{} == Bool.and(a, b) : Bool}:
+  match a:
+    case True{}:
+      %e : {False{} == Bool.and(True{}, _) : Bool}
+      {==}
+    case False{}:
+      {==}
+
+def sks_l(-h: M.KV, -t: List<&2, M.KV>, -xs: List<&2, M.KV>, -ys: List<&2, M.KV>, e: {False{} == U.sy_sk1(h, xs, ys) : Bool}) -> {False{} == U.sy_sks(Con{h, t}, xs, ys) : Bool}:
+  and_l(U.sy_sk1(h, xs, ys), U.sy_sks(t, xs, ys), e)
+
+def sks_r(-h: M.KV, -t: List<&2, M.KV>, -xs: List<&2, M.KV>, -ys: List<&2, M.KV>, e: {False{} == U.sy_sks(t, xs, ys) : Bool}) -> {False{} == U.sy_sks(Con{h, t}, xs, ys) : Bool}:
+  and_r(U.sy_sk1(h, xs, ys), U.sy_sks(t, xs, ys), e)
+
+def sks_at(-zs: List<&2, M.KV>, -h: M.KV, -t: List<&2, M.KV>, -xs: List<&2, M.KV>, -ys: List<&2, M.KV>, ez: {Con{h, t} == zs : List<&2, M.KV>}, e: {False{} == U.sy_sks(Con{h, t}, xs, ys) : Bool}) -> {False{} == U.sy_sks(zs, xs, ys) : Bool}:
+  %ez : {False{} == U.sy_sks(_, xs, ys) : Bool}
+  e
+
+def eq2_l(-fx: List<&2, M.KV>, -fy: List<&2, M.KV>, e: {False{} == U.sy_sks(fx, fx, fy) : Bool}) -> {False{} == U.sy_sink_eq2(fx, fy) : Bool}:
+  and_l(U.sy_sks(fx, fx, fy), U.sy_sks(fy, fx, fy), e)
+
+def eq2_r(-fx: List<&2, M.KV>, -fy: List<&2, M.KV>, e: {False{} == U.sy_sks(fy, fx, fy) : Bool}) -> {False{} == U.sy_sink_eq2(fx, fy) : Bool}:
+  and_r(U.sy_sks(fx, fx, fy), U.sy_sks(fy, fx, fy), e)
+
+def fz(-p: Bool, -o: Bool, -o2: Bool, -q: Bool, ep: {True{} == p : Bool}, eo: {True{} == o : Bool}, eo2: {True{} == o2 : Bool}, eq: {False{} == q : Bool}) -> {U.ux_imp(p, U.ux_imp(o, U.ux_imp(o2, q))) == False{} : Bool}:
+  %eq : {U.ux_imp(p, U.ux_imp(o, U.ux_imp(o2, _))) == False{} : Bool}
+  %eo2 : {U.ux_imp(p, U.ux_imp(o, U.ux_imp(_, False{}))) == False{} : Bool}
+  %eo : {U.ux_imp(p, U.ux_imp(_, U.ux_imp(True{}, False{}))) == False{} : Bool}
+  %ep : {U.ux_imp(_, U.ux_imp(True{}, U.ux_imp(True{}, False{}))) == False{} : Bool}
+  {==}
+"""
+
+
+def _sink_false(runs: dict, inst) -> list[str]:
+    """sz: {False == sy_sink_eq2(l_fx(), l_fy())}, through the first entry whose comparison fails (runs' sink_at)."""
+    at = runs.get("sink_at")
+    if not at:
+        raise NoProof("no entry of either order's store fails the sink comparison: the claim is not false here")
+    side, i = at[0], int(at[1])
+    ents = [f"k_{side}_{j}()" for j in range(len(runs[side]))]
+    lines = [SINK_LEMMAS]
+    xs = "l_fx(), l_fy()"
+    lines += [f"def hk() -> {{False{{}} == U.sy_sk1({ents[i]}, {xs}) : Bool}}:\n  {{==}}", ""]
+    for j in range(i, -1, -1):
+        ty = f"{{False{{}} == U.sy_sks({_list(ents[j:])}, {xs}) : Bool}}"
+        if j == i:
+            body = f"sks_l({ents[j]}, {_list(ents[j + 1:])}, {xs}, hk())"
+        else:
+            body = f"sks_r({ents[j]}, {_list(ents[j + 1:])}, {xs}, sk_{j + 1}())"
+        lines += [f"def sk_{j}() -> {ty}:\n  {body}", ""]
+    top = f"l_{side}()"
+    lines += [f"def sk_top() -> {{False{{}} == U.sy_sks({top}, {xs}) : Bool}}:\n"
+              f"  sks_at({top}, {ents[0]}, {_list(ents[1:])}, {xs}, {{==}}, sk_0())", ""]
+    lines += [f"def sz() -> {{False{{}} == U.sy_sink_eq2({xs}) : Bool}}:\n"
+              f"  {'eq2_l' if side == 'fx' else 'eq2_r'}({xs}, sk_top())", ""]
+    return lines
+
+
+def _efin(inst, parts: dict) -> str:
+    """efin's proof: fz at the instantiated guards (each true by computation) and sz."""
+    return "fz(" + ", ".join([inst(parts["prem"]), inst(parts["oks"]), inst(parts["ok2"]),
+                              "U.sy_sink_eq2(l_fx(), l_fy())", "{==}", "{==}", "{==}", "sz()"]) + ")"

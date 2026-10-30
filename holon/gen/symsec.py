@@ -687,6 +687,9 @@ class SymSection(Trace):
         self.add(f"# the store's sink-reaching entries, in order\n"
                  f"def sy_snk(zs: List<&2, {KV}>) -> List<&2, {KV}>:\n  match zs:\n"
                  "    case Nil{}:\n      Nil{}\n    case Con{h, t}:\n      sy_snk_h(h, sy_snk(t))")
+        self.add(f"# each entry's sink comparison, in order (holon.symd.run locates a counter-law's failing entry with it)\n"
+                 f"def sy_sk1s(zs: List<&2, {KV}>, +xs: List<&2, {KV}>, +ys: List<&2, {KV}>) -> List<&2, Bool>:\n"
+                 "  match zs:\n    case Nil{}:\n      Nil{}\n    case Con{h, t}:\n      Con{sy_sk1(h, xs, ys), sy_sk1s(t, xs, ys)}")
         self.add(f"def sy_sink_eq2(+fx: List<&2, {KV}>, +fy: List<&2, {KV}>) -> Bool:\n"
                  "  Bool.and(sy_sks(fx, fx, fy), sy_sks(fy, fx, fy))")
         self.add(f"def sy_sink_eq(+xs: List<&2, {KV}>, +ys: List<&2, {KV}>) -> Bool:\n"

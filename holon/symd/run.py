@@ -455,8 +455,17 @@ class Decider:
 
         def snk(h):  # the order's store after both steps, filtered to its sink-reaching entries (U.sy_snk)
             post = {"$call": "sy_st_of", "args": [{"$call": "sy_post", "args": [{"$ref": h}]}]}
-            return m.mreq({"fn": "sy_snk", "args": [{"$call": "sy_sl", "args": [post]}]})["out"]
-        out["fx"], out["fy"] = snk(hxy), snk(hyx)
+            return {"$call": "sy_snk", "args": [{"$call": "sy_sl", "args": [post]}]}
+        fx, fy = snk(hxy), snk(hyx)
+        out["fx"], out["fy"] = m.mreq({"fn": "sy_snk", "args": fx["args"]})["out"], \
+            m.mreq({"fn": "sy_snk", "args": fy["args"]})["out"]
+        # the first entry whose sink comparison fails: in fx's sweep, else in fy's (sy_sink_eq2's two conjuncts)
+        out["sink_at"] = None
+        for side, zs in (("fx", fx), ("fy", fy)):
+            bs = m.mreq({"fn": "sy_sk1s", "args": [zs, fx, fy]})["out"]
+            if False in bs:
+                out["sink_at"] = [side, bs.index(False)]
+                break
         m.drop([hx, hy, hxy, hyx])
         return out
 
