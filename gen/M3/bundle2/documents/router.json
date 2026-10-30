@@ -1,0 +1,3552 @@
+{
+ "actions": [
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:98-123",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      68
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:98-123",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": [
+     {
+      "iters": [
+       "?",
+       [
+        ">",
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_batchIndex"
+        ]
+       ],
+       [
+        "len",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       0
+      ],
+      "loop": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+     }
+    ]
+   },
+   "declared_in": "MultipleVersionRollupVerifier",
+   "edges": [],
+   "effects": [],
+   "events": [],
+   "guards": [
+    {
+     "args": [],
+     "error": {
+      "name": "MultipleVersionRollupVerifier.ErrorVerifierNotFound",
+      "selector": "0x70f6c8ff",
+      "signature": "ErrorVerifierNotFound()"
+     },
+     "expr": [
+      "!",
+      [
+       "&&",
+       [
+        ">",
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_batchIndex"
+        ]
+       ],
+       [
+        "!",
+        [
+         "exit",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+         "found"
+        ]
+       ]
+      ]
+     ],
+     "kind": "revert",
+     "reaches": [
+      {
+       "args": [],
+       "expr": [
+        "!",
+        [
+         "&&",
+         [
+          ">",
+          [
+           "member",
+           [
+            "map",
+            [
+             "storage",
+             "latestVerifier"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ],
+           "startBatchIndex"
+          ],
+          [
+           "param",
+           "_batchIndex"
+          ]
+         ],
+         [
+          "!",
+          [
+           "exit",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+           "found"
+          ]
+         ]
+        ]
+       ],
+       "seq": 4,
+       "stack": []
+      }
+     ],
+     "reason": "ErrorVerifierNotFound",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:118"
+    }
+   ],
+   "loops": [
+    {
+     "at_break": [
+      {
+       "name": "_verifier",
+       "value": [
+        "index",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "-",
+         [
+          "-",
+          [
+           "len",
+           [
+            "map",
+            [
+             "storage",
+             "legacyVerifiers"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ]
+          ],
+          [
+           "iter",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+          ]
+         ],
+         1
+        ]
+       ]
+      },
+      {
+       "name": "found",
+       "value": 1
+      },
+      {
+       "name": "i",
+       "value": [
+        "-",
+        [
+         "len",
+         [
+          "map",
+          [
+           "storage",
+           "legacyVerifiers"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ]
+        ],
+        [
+         "iter",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+        ]
+       ]
+      }
+     ],
+     "bound": [
+      "len",
+      [
+       "map",
+       [
+        "storage",
+        "legacyVerifiers"
+       ],
+       [
+        "param",
+        "_version"
+       ]
+      ]
+     ],
+     "break": [
+      "<=",
+      [
+       "member",
+       [
+        "index",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "-",
+         [
+          "-",
+          [
+           "len",
+           [
+            "map",
+            [
+             "storage",
+             "legacyVerifiers"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ]
+          ],
+          [
+           "iter",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+          ]
+         ],
+         1
+        ]
+       ],
+       "startBatchIndex"
+      ],
+      [
+       "param",
+       "_batchIndex"
+      ]
+     ],
+     "carried": [
+      {
+       "entry": [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ],
+       "name": "_verifier",
+       "value": [
+        "carried",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "_verifier"
+       ]
+      },
+      {
+       "entry": [
+        "len",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       "name": "i",
+       "value": [
+        "-",
+        [
+         "len",
+         [
+          "map",
+          [
+           "storage",
+           "legacyVerifiers"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ]
+        ],
+        [
+         "iter",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+        ]
+       ]
+      }
+     ],
+     "cond": [
+      ">",
+      [
+       "member",
+       [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ],
+       "startBatchIndex"
+      ],
+      [
+       "param",
+       "_batchIndex"
+      ]
+     ],
+     "count": [
+      "count",
+      "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+     ],
+     "exit": [
+      {
+       "name": "_verifier",
+       "value": [
+        "exit",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "_verifier"
+       ]
+      },
+      {
+       "name": "found",
+       "value": [
+        "exit",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "found"
+       ]
+      },
+      {
+       "name": "i",
+       "value": [
+        "exit",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "i"
+       ]
+      }
+     ],
+     "head": [
+      ">",
+      [
+       "-",
+       [
+        "len",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       [
+        "iter",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+       ]
+      ],
+      0
+     ],
+     "kind": "for",
+     "next": [
+      {
+       "name": "_verifier",
+       "value": [
+        "index",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "-",
+         [
+          "-",
+          [
+           "len",
+           [
+            "map",
+            [
+             "storage",
+             "legacyVerifiers"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ]
+          ],
+          [
+           "iter",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+          ]
+         ],
+         1
+        ]
+       ]
+      },
+      {
+       "name": "i",
+       "value": [
+        "-",
+        [
+         "-",
+         [
+          "len",
+          [
+           "map",
+           [
+            "storage",
+            "legacyVerifiers"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ]
+         ],
+         [
+          "iter",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+         ]
+        ],
+        1
+       ]
+      }
+     ],
+     "regions": [],
+     "returns": [],
+     "seq": 2,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+     "stack": [],
+     "steps": [
+      3
+     ]
+    }
+   ],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "view",
+   "name": "getVerifier",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "loop",
+     0
+    ],
+    [
+     "panic",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:118",
+     0
+    ]
+   ],
+   "panics": [
+    {
+     "args": [
+      [
+       "-",
+       [
+        "-",
+        [
+         "len",
+         [
+          "map",
+          [
+           "storage",
+           "legacyVerifiers"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ]
+        ],
+        [
+         "iter",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+        ]
+       ],
+       1
+      ],
+      [
+       "len",
+       [
+        "map",
+        [
+         "storage",
+         "legacyVerifiers"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ]
+      ]
+     ],
+     "code": 50,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "&&",
+        [
+         ">",
+         [
+          "member",
+          [
+           "map",
+           [
+            "storage",
+            "latestVerifier"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ],
+          "startBatchIndex"
+         ],
+         [
+          "param",
+          "_batchIndex"
+         ]
+        ],
+        [
+         ">",
+         [
+          "-",
+          [
+           "len",
+           [
+            "map",
+            [
+             "storage",
+             "legacyVerifiers"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ]
+          ],
+          [
+           "iter",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+          ]
+         ],
+         0
+        ]
+       ]
+      ],
+      [
+       "<",
+       [
+        "-",
+        [
+         "-",
+         [
+          "len",
+          [
+           "map",
+           [
+            "storage",
+            "legacyVerifiers"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ]
+         ],
+         [
+          "iter",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+         ]
+        ],
+        1
+       ],
+       [
+        "len",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "loop": 2,
+     "op": "index",
+     "seq": 3,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:109",
+     "stack": []
+    }
+   ],
+   "params": [
+    {
+     "location": "default",
+     "name": "_version",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "default",
+     "name": "_batchIndex",
+     "type": "uint256",
+     "width": 256
+    }
+   ],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": [
+    "member",
+    [
+     "?",
+     [
+      ">",
+      [
+       "member",
+       [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ],
+       "startBatchIndex"
+      ],
+      [
+       "param",
+       "_batchIndex"
+      ]
+     ],
+     [
+      "exit",
+      "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+      "_verifier"
+     ],
+     [
+      "map",
+      [
+       "storage",
+       "latestVerifier"
+      ],
+      [
+       "param",
+       "_version"
+      ]
+     ]
+    ],
+    "verifier"
+   ],
+   "selector": "0x28aee03f",
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:98-123",
+   "writes": []
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:80-84",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:80-84",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_rollup"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_rollup",
+     "seq": 2,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:80",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "MultipleVersionRollupVerifier",
+   "edges": [],
+   "effects": [
+    {
+     "family": "rollup",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:83"
+    }
+   ],
+   "events": [],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:80",
+        "@openzeppelin/contracts/access/Ownable.sol:36"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:51"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "696e697469616c697a6564"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "rollup"
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "696e697469616c697a6564"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "rollup"
+        ],
+        0
+       ],
+       "seq": 4,
+       "stack": []
+      }
+     ],
+     "reason": "initialized",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:81"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "initialize",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts/access/Ownable.sol:51",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:81",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_rollup",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {
+    "rollup": [
+     "param",
+     "_rollup"
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0xc4d66de8",
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:80-84",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "rollup",
+     "path": [],
+     "seq": 5,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:83",
+     "stack": [],
+     "value": [
+      "param",
+      "_rollup"
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:91-93",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:91-93",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "MultipleVersionRollupVerifier",
+   "edges": [],
+   "effects": [],
+   "events": [],
+   "guards": [],
+   "loops": [],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "view",
+   "name": "legacyVerifiersLength",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_version",
+     "type": "uint256",
+     "width": 256
+    }
+   ],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": [
+    "len",
+    [
+     "map",
+     [
+      "storage",
+      "legacyVerifiers"
+     ],
+     [
+      "param",
+      "_version"
+     ]
+    ]
+   ],
+   "selector": "0x5027ad2e",
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:91-93",
+   "writes": []
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:43-45",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "Ownable",
+   "edges": [],
+   "effects": [],
+   "events": [],
+   "guards": [],
+   "loops": [],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "view",
+   "name": "owner",
+   "order": [
+    [
+     "check",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": [
+    "storage",
+    "_owner"
+   ],
+   "selector": "0x8da5cb5b",
+   "src": "@openzeppelin/contracts/access/Ownable.sol:43-45",
+   "writes": []
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:61-63",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "Ownable",
+   "edges": [],
+   "effects": [
+    {
+     "family": "_owner",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:80"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "_owner"
+      ],
+      0
+     ],
+     "cond": 1,
+     "event": "Ownable.OwnershipTransferred",
+     "indexed": [
+      true,
+      true
+     ],
+     "seq": 3,
+     "signature": "OwnershipTransferred(address,address)",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:81",
+     "stack": [
+      "@openzeppelin/contracts/access/Ownable.sol:62"
+     ],
+     "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+     "topics": [
+      [
+       "storage",
+       "_owner"
+      ],
+      0
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 1,
+       "stack": [
+        "@openzeppelin/contracts/access/Ownable.sol:61",
+        "@openzeppelin/contracts/access/Ownable.sol:36"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:51"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "renounceOwnership",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts/access/Ownable.sol:51",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [],
+   "payable": false,
+   "post": {
+    "_owner": 0
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0x715018a6",
+   "src": "@openzeppelin/contracts/access/Ownable.sol:61-63",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "_owner",
+     "path": [],
+     "seq": 2,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:80",
+     "stack": [
+      "@openzeppelin/contracts/access/Ownable.sol:62"
+     ],
+     "value": 0
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:69-72",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:69-72",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "newOwner"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "newOwner",
+     "seq": 2,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:69",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "Ownable",
+   "edges": [],
+   "effects": [
+    {
+     "family": "_owner",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:80"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "param",
+       "newOwner"
+      ]
+     ],
+     "cond": 1,
+     "event": "Ownable.OwnershipTransferred",
+     "indexed": [
+      true,
+      true
+     ],
+     "seq": 6,
+     "signature": "OwnershipTransferred(address,address)",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:81",
+     "stack": [
+      "@openzeppelin/contracts/access/Ownable.sol:71"
+     ],
+     "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+     "topics": [
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "param",
+       "newOwner"
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "@openzeppelin/contracts/access/Ownable.sol:69",
+        "@openzeppelin/contracts/access/Ownable.sol:36"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:51"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a206e6577206f776e657220697320746865207a65726f2061646472657373"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "param",
+       "newOwner"
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a206e6577206f776e657220697320746865207a65726f2061646472657373"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "param",
+         "newOwner"
+        ],
+        0
+       ],
+       "seq": 4,
+       "stack": []
+      }
+     ],
+     "reason": "Ownable: new owner is the zero address",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:70"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "transferOwnership",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts/access/Ownable.sol:51",
+     0
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts/access/Ownable.sol:70",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "newOwner",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {
+    "_owner": [
+     "param",
+     "newOwner"
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0xf2fde38b",
+   "src": "@openzeppelin/contracts/access/Ownable.sol:69-72",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "_owner",
+     "path": [],
+     "seq": 5,
+     "src": "@openzeppelin/contracts/access/Ownable.sol:80",
+     "stack": [
+      "@openzeppelin/contracts/access/Ownable.sol:71"
+     ],
+     "value": [
+      "param",
+      "newOwner"
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [
+    {
+     "args": [],
+     "commit": false,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IRollup.lastFinalizedBatchIndex",
+      [
+       "storage",
+       "rollup"
+      ]
+     ],
+     "fn": "IRollup.lastFinalizedBatchIndex",
+     "mutability": "view",
+     "receiver": [
+      "storage",
+      "rollup"
+     ],
+     "seq": 5,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149",
+     "stack": [],
+     "value": 0
+    }
+   ],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148-167",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      100
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148-167",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_startBatchIndex"
+      ],
+      18446744073709551616
+     ],
+     "kind": "abi",
+     "param": "_startBatchIndex",
+     "seq": 2,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_verifier"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_verifier",
+     "seq": 3,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "MultipleVersionRollupVerifier",
+   "edges": [],
+   "effects": [
+    {
+     "family": "legacyVerifiers",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:158"
+    },
+    {
+     "family": "latestVerifier",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:164"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "param",
+       "_version"
+      ],
+      [
+       "param",
+       "_startBatchIndex"
+      ],
+      [
+       "param",
+       "_verifier"
+      ]
+     ],
+     "cond": 1,
+     "event": "MultipleVersionRollupVerifier.UpdateVerifier",
+     "indexed": [
+      false,
+      false,
+      false
+     ],
+     "seq": 11,
+     "signature": "UpdateVerifier(uint256,uint256,address)",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:166",
+     "stack": [],
+     "topic0": "0x7a98750a395b9ee50a2644ffda039e31f1d5d06de45510275f972bb20b229b30",
+     "topics": []
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "_owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "_owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 4,
+       "stack": [
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148",
+        "@openzeppelin/contracts/access/Ownable.sol:36"
+       ]
+      }
+     ],
+     "reason": "Ownable: caller is not the owner",
+     "src": "@openzeppelin/contracts/access/Ownable.sol:51"
+    },
+    {
+     "args": [],
+     "error": {
+      "name": "MultipleVersionRollupVerifier.ErrorStartBatchIndexFinalized",
+      "selector": "0x9a4ff104",
+      "signature": "ErrorStartBatchIndexFinalized()"
+     },
+     "expr": [
+      "!",
+      [
+       "<=",
+       [
+        "param",
+        "_startBatchIndex"
+       ],
+       [
+        "call",
+        "IRollup.lastFinalizedBatchIndex"
+       ]
+      ]
+     ],
+     "kind": "revert",
+     "reaches": [
+      {
+       "args": [],
+       "expr": [
+        "!",
+        [
+         "<=",
+         [
+          "param",
+          "_startBatchIndex"
+         ],
+         [
+          "call",
+          "IRollup.lastFinalizedBatchIndex"
+         ]
+        ]
+       ],
+       "seq": 6,
+       "stack": []
+      }
+     ],
+     "reason": "ErrorStartBatchIndexFinalized",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149"
+    },
+    {
+     "args": [],
+     "error": {
+      "name": "MultipleVersionRollupVerifier.ErrorStartBatchIndexTooSmall",
+      "selector": "0xb0d8c704",
+      "signature": "ErrorStartBatchIndexTooSmall()"
+     },
+     "expr": [
+      "!",
+      [
+       "<",
+       [
+        "param",
+        "_startBatchIndex"
+       ],
+       [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        "startBatchIndex"
+       ]
+      ]
+     ],
+     "kind": "revert",
+     "reaches": [
+      {
+       "args": [],
+       "expr": [
+        "!",
+        [
+         "<",
+         [
+          "param",
+          "_startBatchIndex"
+         ],
+         [
+          "member",
+          [
+           "map",
+           [
+            "storage",
+            "latestVerifier"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ],
+          "startBatchIndex"
+         ]
+        ]
+       ],
+       "seq": 7,
+       "stack": []
+      }
+     ],
+     "reason": "ErrorStartBatchIndexTooSmall",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:152"
+    },
+    {
+     "args": [],
+     "error": {
+      "name": "MultipleVersionRollupVerifier.ErrorZeroAddress",
+      "selector": "0xa7f9319d",
+      "signature": "ErrorZeroAddress()"
+     },
+     "expr": [
+      "!",
+      [
+       "==",
+       [
+        "param",
+        "_verifier"
+       ],
+       0
+      ]
+     ],
+     "kind": "revert",
+     "reaches": [
+      {
+       "args": [],
+       "expr": [
+        "!",
+        [
+         "==",
+         [
+          "param",
+          "_verifier"
+         ],
+         0
+        ]
+       ],
+       "seq": 8,
+       "stack": []
+      }
+     ],
+     "reason": "ErrorZeroAddress",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:153"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "updateVerifier",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "check",
+     3
+    ],
+    [
+     "guard",
+     "@openzeppelin/contracts/access/Ownable.sol:51",
+     0
+    ],
+    [
+     "call",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:149",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:152",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:153",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_version",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "default",
+     "name": "_startBatchIndex",
+     "type": "uint64",
+     "width": 64
+    },
+    {
+     "location": "default",
+     "name": "_verifier",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {
+    "latestVerifier": [
+     "store",
+     [
+      "storage",
+      "latestVerifier"
+     ],
+     [
+      [
+       "map",
+       [
+        "param",
+        "_version"
+       ]
+      ]
+     ],
+     [
+      "update",
+      [
+       "?",
+       [
+        "<",
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_startBatchIndex"
+        ]
+       ],
+       [
+        "update",
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_startBatchIndex"
+        ]
+       ],
+       [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ]
+      ],
+      [
+       "member",
+       [
+        "?",
+        [
+         "<",
+         [
+          "member",
+          [
+           "map",
+           [
+            "storage",
+            "latestVerifier"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ],
+          "startBatchIndex"
+         ],
+         [
+          "param",
+          "_startBatchIndex"
+         ]
+        ],
+        [
+         "update",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         [
+          "member",
+          [
+           "map",
+           [
+            "storage",
+            "latestVerifier"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ],
+          "startBatchIndex"
+         ],
+         [
+          "param",
+          "_startBatchIndex"
+         ]
+        ],
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       "verifier"
+      ],
+      [
+       "param",
+       "_verifier"
+      ]
+     ]
+    ],
+    "legacyVerifiers": [
+     "?",
+     [
+      "<",
+      [
+       "member",
+       [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ],
+       "startBatchIndex"
+      ],
+      [
+       "param",
+       "_startBatchIndex"
+      ]
+     ],
+     [
+      "?",
+      [
+       "!=",
+       [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        "verifier"
+       ],
+       0
+      ],
+      [
+       "store",
+       [
+        "storage",
+        "legacyVerifiers"
+       ],
+       [
+        [
+         "map",
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       [
+        "push",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ]
+      ],
+      [
+       "storage",
+       "legacyVerifiers"
+      ]
+     ],
+     [
+      "storage",
+      "legacyVerifiers"
+     ]
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "_owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0x95512306",
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:148-167",
+   "writes": [
+    {
+     "cond": [
+      "&&",
+      [
+       "<",
+       [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        "startBatchIndex"
+       ],
+       [
+        "param",
+        "_startBatchIndex"
+       ]
+      ],
+      [
+       "!=",
+       [
+        "member",
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        "verifier"
+       ],
+       0
+      ]
+     ],
+     "family": "legacyVerifiers",
+     "path": [
+      [
+       "map",
+       [
+        "param",
+        "_version"
+       ]
+      ]
+     ],
+     "seq": 9,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:158",
+     "stack": [],
+     "value": [
+      "push",
+      [
+       "map",
+       [
+        "storage",
+        "legacyVerifiers"
+       ],
+       [
+        "param",
+        "_version"
+       ]
+      ],
+      [
+       "map",
+       [
+        "storage",
+        "latestVerifier"
+       ],
+       [
+        "param",
+        "_version"
+       ]
+      ]
+     ]
+    },
+    {
+     "cond": 1,
+     "family": "latestVerifier",
+     "path": [
+      [
+       "map",
+       [
+        "param",
+        "_version"
+       ]
+      ]
+     ],
+     "seq": 10,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:164",
+     "stack": [],
+     "value": [
+      "update",
+      [
+       "?",
+       [
+        "<",
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_startBatchIndex"
+        ]
+       ],
+       [
+        "update",
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_startBatchIndex"
+        ]
+       ],
+       [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ]
+      ],
+      [
+       "member",
+       [
+        "?",
+        [
+         "<",
+         [
+          "member",
+          [
+           "map",
+           [
+            "storage",
+            "latestVerifier"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ],
+          "startBatchIndex"
+         ],
+         [
+          "param",
+          "_startBatchIndex"
+         ]
+        ],
+        [
+         "update",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         [
+          "member",
+          [
+           "map",
+           [
+            "storage",
+            "latestVerifier"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ],
+          "startBatchIndex"
+         ],
+         [
+          "param",
+          "_startBatchIndex"
+         ]
+        ],
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       "verifier"
+      ],
+      [
+       "param",
+       "_verifier"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [
+    {
+     "args": [
+      [
+       "param",
+       "_aggrProof"
+      ],
+      [
+       "param",
+       "_publicInputHash"
+      ]
+     ],
+     "commit": true,
+     "cond": 1,
+     "expr": [
+      "callok",
+      "IZkEvmVerifier.verifyBatch",
+      [
+       "member",
+       [
+        "?",
+        [
+         ">",
+         [
+          "member",
+          [
+           "map",
+           [
+            "storage",
+            "latestVerifier"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ],
+          "startBatchIndex"
+         ],
+         [
+          "param",
+          "_batchIndex"
+         ]
+        ],
+        [
+         "exit",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+         "_verifier"
+        ],
+        [
+         "map",
+         [
+          "storage",
+          "latestVerifier"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       "verifier"
+      ],
+      [
+       "param",
+       "_aggrProof"
+      ],
+      [
+       "param",
+       "_publicInputHash"
+      ]
+     ],
+     "fn": "IZkEvmVerifier.verifyBatch",
+     "mutability": "view",
+     "receiver": [
+      "member",
+      [
+       "?",
+       [
+        ">",
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_batchIndex"
+        ]
+       ],
+       [
+        "exit",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "_verifier"
+       ],
+       [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ]
+      ],
+      "verifier"
+     ],
+     "seq": 5,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:138",
+     "stack": [],
+     "value": 0
+    }
+   ],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:130-139",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      132
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:130-139",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": [
+     {
+      "iters": [
+       "?",
+       [
+        ">",
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_batchIndex"
+        ]
+       ],
+       [
+        "len",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       0
+      ],
+      "loop": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+     }
+    ]
+   },
+   "declared_in": "MultipleVersionRollupVerifier",
+   "edges": [
+    {
+     "fn": "IZkEvmVerifier.verifyBatch",
+     "kind": "COMMIT",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:138"
+    }
+   ],
+   "effects": [],
+   "events": [],
+   "guards": [
+    {
+     "args": [],
+     "error": {
+      "name": "MultipleVersionRollupVerifier.ErrorVerifierNotFound",
+      "selector": "0x70f6c8ff",
+      "signature": "ErrorVerifierNotFound()"
+     },
+     "expr": [
+      "!",
+      [
+       "&&",
+       [
+        ">",
+        [
+         "member",
+         [
+          "map",
+          [
+           "storage",
+           "latestVerifier"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ],
+         "startBatchIndex"
+        ],
+        [
+         "param",
+         "_batchIndex"
+        ]
+       ],
+       [
+        "!",
+        [
+         "exit",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+         "found"
+        ]
+       ]
+      ]
+     ],
+     "kind": "revert",
+     "reaches": [
+      {
+       "args": [],
+       "expr": [
+        "!",
+        [
+         "&&",
+         [
+          ">",
+          [
+           "member",
+           [
+            "map",
+            [
+             "storage",
+             "latestVerifier"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ],
+           "startBatchIndex"
+          ],
+          [
+           "param",
+           "_batchIndex"
+          ]
+         ],
+         [
+          "!",
+          [
+           "exit",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+           "found"
+          ]
+         ]
+        ]
+       ],
+       "seq": 4,
+       "stack": [
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:136"
+       ]
+      }
+     ],
+     "reason": "ErrorVerifierNotFound",
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:118"
+    }
+   ],
+   "loops": [
+    {
+     "at_break": [
+      {
+       "name": "_verifier",
+       "value": [
+        "index",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "-",
+         [
+          "-",
+          [
+           "len",
+           [
+            "map",
+            [
+             "storage",
+             "legacyVerifiers"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ]
+          ],
+          [
+           "iter",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+          ]
+         ],
+         1
+        ]
+       ]
+      },
+      {
+       "name": "found",
+       "value": 1
+      },
+      {
+       "name": "i",
+       "value": [
+        "-",
+        [
+         "len",
+         [
+          "map",
+          [
+           "storage",
+           "legacyVerifiers"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ]
+        ],
+        [
+         "iter",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+        ]
+       ]
+      }
+     ],
+     "bound": [
+      "len",
+      [
+       "map",
+       [
+        "storage",
+        "legacyVerifiers"
+       ],
+       [
+        "param",
+        "_version"
+       ]
+      ]
+     ],
+     "break": [
+      "<=",
+      [
+       "member",
+       [
+        "index",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "-",
+         [
+          "-",
+          [
+           "len",
+           [
+            "map",
+            [
+             "storage",
+             "legacyVerifiers"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ]
+          ],
+          [
+           "iter",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+          ]
+         ],
+         1
+        ]
+       ],
+       "startBatchIndex"
+      ],
+      [
+       "param",
+       "_batchIndex"
+      ]
+     ],
+     "carried": [
+      {
+       "entry": [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ],
+       "name": "_verifier",
+       "value": [
+        "carried",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "_verifier"
+       ]
+      },
+      {
+       "entry": [
+        "len",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       "name": "i",
+       "value": [
+        "-",
+        [
+         "len",
+         [
+          "map",
+          [
+           "storage",
+           "legacyVerifiers"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ]
+        ],
+        [
+         "iter",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+        ]
+       ]
+      }
+     ],
+     "cond": [
+      ">",
+      [
+       "member",
+       [
+        "map",
+        [
+         "storage",
+         "latestVerifier"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ],
+       "startBatchIndex"
+      ],
+      [
+       "param",
+       "_batchIndex"
+      ]
+     ],
+     "count": [
+      "count",
+      "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+     ],
+     "exit": [
+      {
+       "name": "_verifier",
+       "value": [
+        "exit",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "_verifier"
+       ]
+      },
+      {
+       "name": "found",
+       "value": [
+        "exit",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "found"
+       ]
+      },
+      {
+       "name": "i",
+       "value": [
+        "exit",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+        "i"
+       ]
+      }
+     ],
+     "head": [
+      ">",
+      [
+       "-",
+       [
+        "len",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ],
+       [
+        "iter",
+        "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+       ]
+      ],
+      0
+     ],
+     "kind": "for",
+     "next": [
+      {
+       "name": "_verifier",
+       "value": [
+        "index",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ],
+        [
+         "-",
+         [
+          "-",
+          [
+           "len",
+           [
+            "map",
+            [
+             "storage",
+             "legacyVerifiers"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ]
+          ],
+          [
+           "iter",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+          ]
+         ],
+         1
+        ]
+       ]
+      },
+      {
+       "name": "i",
+       "value": [
+        "-",
+        [
+         "-",
+         [
+          "len",
+          [
+           "map",
+           [
+            "storage",
+            "legacyVerifiers"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ]
+         ],
+         [
+          "iter",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+         ]
+        ],
+        1
+       ]
+      }
+     ],
+     "regions": [],
+     "returns": [],
+     "seq": 2,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114",
+     "stack": [
+      "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:136"
+     ],
+     "steps": [
+      3
+     ]
+    }
+   ],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "view",
+   "name": "verifyAggregateProof",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "loop",
+     0
+    ],
+    [
+     "panic",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:118",
+     0
+    ],
+    [
+     "call",
+     0
+    ]
+   ],
+   "panics": [
+    {
+     "args": [
+      [
+       "-",
+       [
+        "-",
+        [
+         "len",
+         [
+          "map",
+          [
+           "storage",
+           "legacyVerifiers"
+          ],
+          [
+           "param",
+           "_version"
+          ]
+         ]
+        ],
+        [
+         "iter",
+         "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+        ]
+       ],
+       1
+      ],
+      [
+       "len",
+       [
+        "map",
+        [
+         "storage",
+         "legacyVerifiers"
+        ],
+        [
+         "param",
+         "_version"
+        ]
+       ]
+      ]
+     ],
+     "code": 50,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "&&",
+        [
+         ">",
+         [
+          "member",
+          [
+           "map",
+           [
+            "storage",
+            "latestVerifier"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ],
+          "startBatchIndex"
+         ],
+         [
+          "param",
+          "_batchIndex"
+         ]
+        ],
+        [
+         ">",
+         [
+          "-",
+          [
+           "len",
+           [
+            "map",
+            [
+             "storage",
+             "legacyVerifiers"
+            ],
+            [
+             "param",
+             "_version"
+            ]
+           ]
+          ],
+          [
+           "iter",
+           "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+          ]
+         ],
+         0
+        ]
+       ]
+      ],
+      [
+       "<",
+       [
+        "-",
+        [
+         "-",
+         [
+          "len",
+          [
+           "map",
+           [
+            "storage",
+            "legacyVerifiers"
+           ],
+           [
+            "param",
+            "_version"
+           ]
+          ]
+         ],
+         [
+          "iter",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:108-114"
+         ]
+        ],
+        1
+       ],
+       [
+        "len",
+        [
+         "map",
+         [
+          "storage",
+          "legacyVerifiers"
+         ],
+         [
+          "param",
+          "_version"
+         ]
+        ]
+       ]
+      ]
+     ],
+     "loop": 2,
+     "op": "index",
+     "seq": 3,
+     "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:109",
+     "stack": [
+      "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:136"
+     ]
+    }
+   ],
+   "params": [
+    {
+     "location": "default",
+     "name": "_version",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "default",
+     "name": "_batchIndex",
+     "type": "uint256",
+     "width": 256
+    },
+    {
+     "location": "calldata",
+     "name": "_aggrProof",
+     "type": "bytes",
+     "width": null
+    },
+    {
+     "location": "default",
+     "name": "_publicInputHash",
+     "type": "bytes32",
+     "width": 256
+    }
+   ],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": null,
+   "selector": "0x2c09a848",
+   "src": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol:130-139",
+   "writes": []
+  }
+ ],
+ "assumptions": [
+  {
+   "id": "A-env",
+   "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+  },
+  {
+   "id": "A-implicit",
+   "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+  },
+  {
+   "id": "A-loop",
+   "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+  },
+  {
+   "id": "A-reach",
+   "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+  },
+  {
+   "id": "A-reentrancy",
+   "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+  }
+ ],
+ "constants": {},
+ "contract": "MultipleVersionRollupVerifier",
+ "extraction": {
+  "frontend": "solidity",
+  "frontend_version": "holon-frontend-solidity/0.3",
+  "inputs": [
+   {
+    "sha256": "a8e4e1ae19d9bd3e8b0a6d46577eec098c01fbaffd3ec1252fd20d799e73393b",
+    "unit": "@openzeppelin/contracts/access/Ownable.sol"
+   },
+   {
+    "sha256": "1458c260d010a08e4c20a4a517882259a23a4baa0b5bd9add9fb6d6a1549814a",
+    "unit": "@openzeppelin/contracts/utils/Context.sol"
+   },
+   {
+    "sha256": "24e4861d9a369b0e8fec7471d8150474a54de907709d4287e63457d9bf5ff327",
+    "unit": "contracts/contracts/l1/rollup/IRollup.sol"
+   },
+   {
+    "sha256": "8725a4189823a21fe92c1b3fb1ac22ab8a268aba4acd23e9a60693aa6a041976",
+    "unit": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol"
+   },
+   {
+    "sha256": "7b859a80a68eb1bd3b2dfa21d87bae9969156e1b2e0bb063a8ac0efef5601296",
+    "unit": "contracts/contracts/libraries/verifier/IRollupVerifier.sol"
+   },
+   {
+    "sha256": "4805f3ebc910780ad364e27611477ef7bbdb886fa7b347f8da8a9cfa43899112",
+    "unit": "contracts/contracts/libraries/verifier/IZkEvmVerifier.sol"
+   }
+  ],
+  "kind": "transitions",
+  "method": "extracted",
+  "settings": {
+   "evmVersion": "cancun",
+   "optimizer": {
+    "enabled": false
+   },
+   "outputSelection": {
+    "*": {
+     "": [
+      "ast"
+     ],
+     "*": [
+      "storageLayout"
+     ]
+    }
+   }
+  },
+  "sidecar": {
+   "path": "gen/M3/bundle2/sidecars/router.json",
+   "sha256": "438a2680e6d439b4395d0b816953b1f98568b41c1028c4df315aa22ee509cb01"
+  },
+  "toolchain": {
+   "solc": {
+    "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+    "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+   }
+  }
+ },
+ "facts_version": "holon-facts/0.3",
+ "inherited_storage": [
+  {
+   "declared_in": "Ownable",
+   "kind": "scalar",
+   "name": "_owner",
+   "offset": 0,
+   "slot": 0,
+   "value": "address",
+   "width": 160
+  }
+ ],
+ "storage": [
+  {
+   "kind": "scalar",
+   "name": "rollup",
+   "offset": 0,
+   "slot": 1,
+   "value": "address",
+   "width": 160
+  },
+  {
+   "key": "uint256",
+   "kind": "mapping",
+   "name": "legacyVerifiers",
+   "offset": 0,
+   "slot": 2,
+   "value": "struct MultipleVersionRollupVerifier.Verifier[]"
+  },
+  {
+   "fields": [
+    {
+     "name": "startBatchIndex",
+     "offset": 0,
+     "slot": 0,
+     "type": "uint64",
+     "width": 64
+    },
+    {
+     "name": "verifier",
+     "offset": 8,
+     "slot": 0,
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "key": "uint256",
+   "kind": "mapping",
+   "name": "latestVerifier",
+   "offset": 0,
+   "slot": 3,
+   "value": "struct MultipleVersionRollupVerifier.Verifier"
+  }
+ ],
+ "target": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph",
+  "scope": "bundle2 member router (MultipleVersionRollupVerifier)"
+ }
+}
