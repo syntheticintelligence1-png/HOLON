@@ -3549,7 +3549,7 @@ def actions_of(index: Index, contract: dict) -> list[dict]:
 
 
 def overload_name(ix, owner: dict | None, fn: dict) -> str:
-    """Rule E2 (I69) for a called function: its name, or <name>_<selector> when the contract that declares it (with
+    """Rule E2 (bundle) for a called function: its name, or <name>_<selector> when the contract that declares it (with
     its bases) has more than one external or public function of that name with distinct selectors."""
     name = fn.get("name") or fn.get("kind")
     sel = fn.get("functionSelector")
@@ -3580,7 +3580,7 @@ def walk_contract(compiled, side: dict):
         raise ExtractionError("the walk exceeds the recursion budget (a term or a call chain is too deep)") from e
     finally:
         sys.setrecursionlimit(limit)
-    count = Counter(a["name"] for a in acts)            # E2 (I69): an overloaded name is <name>_<selector>
+    count = Counter(a["name"] for a in acts)            # E2 (bundle): an overloaded name is <name>_<selector>
     for a in acts:
         if count[a["name"]] > 1 and a.get("selector"):
             a["name"] = f"{a['name']}_{a['selector'][2:]}"

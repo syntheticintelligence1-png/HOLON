@@ -8,8 +8,8 @@
             Upgraded, AdminChanged and Initialized logs, the receipts of its Upgraded logs (I59's canonical form), the
             code of every implementation, its EIP-1967 implementation slot; a proxy whose address the sidecar does not
             give is the low 20 bytes of an immutable word of another proxy's last implementation in the window
-            (acquisition.proxies.<p>.immutable); the whitelist word at a member's storage family slot
-            (acquisition.whitelist.slot_of) and its code. --check verifies the snapshot offline.
+            (acquisition.proxies.<p>.immutable); the word at a member's storage family slot (the acquisition entry
+            with a "slot_of") and the code of the address it names. --check verifies the snapshot offline.
   timeline  A4-A6: every upgrade rebuilt from its raw log, confirmed by its receipt, matched (H7's identity) against
             the registry's versions and the members' head builds, with the matched build's immutable words.
 """
@@ -268,6 +268,14 @@ def _member_slot(ctx: Ctx, member: str, family: str) -> int:
 
 
 # ------------------------------------------------------------------------------------------------------ A3 fetch
+def slot_entry(acq: dict) -> str:
+    """The name of the acquisition entry read from a member's storage slot (its "slot_of")."""
+    keys = [k for k, v in acq.items() if isinstance(v, dict) and "slot_of" in v]
+    if len(keys) != 1:
+        raise Refused(f"the acquisition has {len(keys)} entries with a slot_of")
+    return keys[0]
+
+
 def _proxy_order(acq: dict) -> list:
     """Proxies with an address first (sorted), then those derived from another proxy's immutable word."""
     direct = sorted(p for p, x in acq["proxies"].items() if x.get("address"))
@@ -305,7 +313,6 @@ def fetch(ctx: Ctx, log=print) -> tuple:
     url = acq["rpc"]["url"]
     rpc = Rpc(Http(), url)
     builds = member_builds(ctx, log)
-    reg_entries = _registry_entries(ctx)
     try:
         fb = int(rpc.call("eth_blockNumber", []), 16)
         if fb < hi:
@@ -356,7 +363,8 @@ def fetch(ctx: Ctx, log=print) -> tuple:
             proxies[pname] = {"address": addr, "logs": rows, "upgrades": ups,
                               "implementation_slot": {"slot": slot, "block": fb, "word": word}}
             log(f"{pname} {addr}: {len(rows)} logs, {len(ups)} upgrades")
-        so = acq["whitelist"]["slot_of"]
+        wkey = slot_entry(acq)
+        so = acq[wkey]["slot_of"]
         wslot = _member_slot(ctx, so["member"], so["family"])
         wproxy = proxies[so["member"]]["address"]
         wword = rpc.call("eth_getStorageAt", [wproxy, hex(wslot), hex(fb)]).lower()
@@ -371,7 +379,7 @@ def fetch(ctx: Ctx, log=print) -> tuple:
             raise BundleError(f"{a} has no code at block {fb}")
     doc = {"onchain_version": ONCHAIN_VERSION, "sidecar": ctx.ref(ctx.side_rel),
            "rpc": {"host": host(url), "methods": acq["rpc"]["methods"]}, "fetch_block": fb, "window": [lo, hi],
-           "proxies": proxies, "whitelist": wl}
+           "proxies": proxies, wkey: wl}
     return doc, receipts, codes
 
 
@@ -413,11 +421,11 @@ def check_snapshot(ctx: Ctx) -> list:
                 bad.append(f"receipt {u['tx']} is missing or not the snapshot's")
             if not cp.is_file() or sha256_bytes(bytes.fromhex(cp.read_text().strip())) != u["code_sha256"]:
                 bad.append(f"code {u['implementation']} is missing or not the snapshot's")
-    wl = doc.get("whitelist") or {}
+    wl = doc.get(slot_entry(acq)) or {}
     cp = cdir / f"{wl.get('address')}.hex"
     want_c.add(cp.name)
     if not cp.is_file() or sha256_bytes(bytes.fromhex(cp.read_text().strip())) != wl.get("code_sha256"):
-        bad.append("the whitelist's code is missing or not the snapshot's")
+        bad.append("the slot entry's code is missing or not the snapshot's")
     for d, want in ((rdir, want_r), (cdir, want_c)):
         extra = sorted(p.name for p in d.glob("*") if p.name not in want) if d.is_dir() else []
         if extra:
@@ -441,7 +449,7 @@ def main_fetch(ctx: Ctx, check: bool, log) -> int:
 
 # ------------------------------------------------------------------------------------------------------ A6 timeline
 def timeline(ctx: Ctx, builds: dict, log=print) -> dict:
-    """A6 over the committed snapshot (the format of the I69 contract's timeline)."""
+    """A6 over the committed snapshot (the format of the bundle contract's timeline)."""
     acq = ctx.side["acquisition"]
     snap = ctx.load(ctx.out("onchain"))
     lo, hi = acq["window"]["from_block"], acq["window"]["to_block"]
@@ -466,12 +474,13 @@ def timeline(ctx: Ctx, builds: dict, log=print) -> dict:
             (ups if r["block"] <= hi else after).append(u)
         last = (ups + after)[-1]["implementation"] if ups + after else None
         out["proxies"][pname] = {"address": px["address"], "upgrades": ups, "after_window": after, "current": last}
-    wl = snap["whitelist"]
+    wkey_out = slot_entry(acq)
+    wl = snap[wkey_out]
     wcode = bytes.fromhex(ctx.path(f"{ctx.out('code')}/{wl['address']}.hex").read_text().strip())
-    # the member the whitelist word names: the acquisition member without a proxy
+    # the member the slot's word names: the acquisition member without a proxy
     plain = [k for k in sorted(acq["members"]) if k not in acq["proxies"]]
     wkey = plain[0] if len(plain) == 1 else None
-    out["whitelist"] = {"address": wl["address"],
+    out[wkey_out] = {"address": wl["address"],
                         "matches": match({wkey: builds[wkey]}, wcode) if wkey else []}
     return out
 

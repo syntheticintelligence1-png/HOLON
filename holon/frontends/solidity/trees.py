@@ -1,4 +1,4 @@
-"""Tag-pinned source trees (rule E3 of the I69 contract, the docstring of tests_m3/test_bundle_extraction.py).
+"""Tag-pinned source trees (rule E3 of the bundle contract, the docstring of tests_m3/test_bundle_extraction.py).
 
   tree(repo, commit, paths, cache=None) -> Path
 

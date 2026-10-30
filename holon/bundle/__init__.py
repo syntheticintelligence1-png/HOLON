@@ -1,4 +1,4 @@
-"""A bundle of linked contracts (the I69 contract: the docstring of tests_m3/test_bundle_extraction.py).
+"""A bundle of linked contracts (the bundle contract: the docstring of tests_m3/test_bundle_extraction.py).
 
   python -m holon bundle extract|model|corpus|refine|history|fetch|timeline [--milestone M3] [--root DIR] [--check]
 
@@ -145,7 +145,7 @@ STEPS = ("extract", "model", "corpus", "refine", "history", "fetch", "timeline")
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="holon bundle", description="a bundle of linked contracts (I69)")
+    ap = argparse.ArgumentParser(prog="holon bundle", description="a bundle of linked contracts (bundle)")
     ap.add_argument("step", choices=STEPS)
     ap.add_argument("--milestone", default="M3")
     ap.add_argument("--root")

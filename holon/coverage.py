@@ -76,7 +76,7 @@ def compute(m: str, root=ROOT) -> dict:
 
 
 def bundle_entries(m: str, root=ROOT) -> list:
-    """E5 (I69): the coverage entry of every member of the milestone's bundle sidecar (spec/<m>/lib/bundle.json) that
+    """E5 (bundle): the coverage entry of every member of the milestone's bundle sidecar (spec/<m>/lib/bundle.json) that
     is extracted at the target's pinned head (compiled from the checkout, as the milestone's own sidecars are), by its
     generated sidecar (holon.bundle.extract.generated_sidecar); an extracted_only member is not listed (its tree comes
     from git objects, which a partial clone of the target at the pinned head does not hold)."""
