@@ -17,6 +17,8 @@ different terms that contain a closed power of two would expand it. Nothing here
 """
 from __future__ import annotations
 
+import re
+
 NAT = r'''
 def n_pred(n: Nat) -> Nat:
   match n:
@@ -716,7 +718,216 @@ def nc_carry1(+c1: Bool, +c2: Bool, +t: Nat, +s: Nat, +x: Nat, +y: Nat, +dy: Nat
 ''']
     return "\n".join(out)
 
+def p256():
+    q = "1n"
+    for _ in range(8):
+        q = f"shn(32n, {q})"
+    return q
 
-def library(M: str = "M.") -> str:
-    """The lemmas' text (after the core library of holon.disch.lemmas, whose u_refl and efq it uses)."""
-    return "\n".join([NAT, _u32_add(M), _natcmp(), _natcarry(), _u32_limbs(M)])
+
+def _w_generic():
+    s, r, x, xr, y, yr = "s", "r", "x", "xr", "y", "yr"
+    A, B = "shn(32n, xr)", "shn(32n, yr)"
+    CM = f"cmul(k1, {P32})"
+    L0 = add(add(s, "shn(32n, r)"), "cmul(k8, shn(32n, q))")
+    steps = [
+        (cong_r(add(s, "shn(32n, r)"), "cmul(k8, shn(32n, q))", "shn(32n, cmul(k8, q))",
+                sym("Nat", "shn(32n, cmul(k8, q))", "cmul(k8, shn(32n, q))", "shn_cmul(32n, k8, q)")),
+         add(add(s, "shn(32n, r)"), "shn(32n, cmul(k8, q))")),
+        ("n_add_assoc(s, shn(32n, r), shn(32n, cmul(k8, q)))", add(s, add("shn(32n, r)", "shn(32n, cmul(k8, q))"))),
+        (cong_r(s, add("shn(32n, r)", "shn(32n, cmul(k8, q))"), "shn(32n, Nat.add(r, cmul(k8, q)))",
+                sym("Nat", "shn(32n, Nat.add(r, cmul(k8, q)))", add("shn(32n, r)", "shn(32n, cmul(k8, q))"),
+                    "shn_add(32n, r, cmul(k8, q))")), add(s, "shn(32n, Nat.add(r, cmul(k8, q)))")),
+        (cong_r(s, "shn(32n, Nat.add(r, cmul(k8, q)))", f"shn(32n, {add(add(xr, yr), 'b2n(k1)')})",
+                cong("Nat", "Nat", "z => shn(32n, z)", "Nat.add(r, cmul(k8, q))", add(add(xr, yr), "b2n(k1)"), "rest")),
+         add(s, f"shn(32n, {add(add(xr, yr), 'b2n(k1)')})")),
+        (cong_r(s, f"shn(32n, {add(add(xr, yr), 'b2n(k1)')})", add(f"shn(32n, {add(xr, yr)})", "shn(32n, b2n(k1))"),
+                f"shn_add(32n, {add(xr, yr)}, b2n(k1))"), add(s, add(f"shn(32n, {add(xr, yr)})", "shn(32n, b2n(k1))"))),
+        (cong_r(s, add(f"shn(32n, {add(xr, yr)})", "shn(32n, b2n(k1))"), add(add(A, B), "shn(32n, b2n(k1))"),
+                cong_l(f"shn(32n, {add(xr, yr)})", add(A, B), "shn(32n, b2n(k1))", "shn_add(32n, xr, yr)")),
+         add(s, add(add(A, B), "shn(32n, b2n(k1))"))),
+        (cong_r(s, add(add(A, B), "shn(32n, b2n(k1))"), add(add(A, B), CM),
+                cong_r(add(A, B), "shn(32n, b2n(k1))", CM, "shn_b2n(32n, k1)")), add(s, add(add(A, B), CM))),
+        (f"n_r1({s}, {add(A, B)}, {CM})", add(add(s, CM), add(A, B))),
+        (cong_l(add(s, CM), add(add(x, y), "b2n(k)"), add(A, B), "limb"), add(add(add(x, y), "b2n(k)"), add(A, B)))]
+    lhs = chain("Nat", L0, steps)
+    R0 = add(add(add(x, A), add(y, B)), "b2n(k)")
+    rsteps = [(cong_l(add(add(x, A), add(y, B)), add(add(x, y), add(A, B)), "b2n(k)", f"n_swap_mid({x}, {A}, {y}, {B})"),
+               add(add(add(x, y), add(A, B)), "b2n(k)")),
+              (f"n_r2({add(x, y)}, {add(A, B)}, b2n(k))", add(add(add(x, y), "b2n(k)"), add(A, B)))]
+    rhs = chain("Nat", R0, rsteps)
+    mid = add(add(add(x, y), "b2n(k)"), add(A, B))
+    return f'''
+def shn_cmul(+n: Nat, +c: Bool, +q: Nat) -> {{shn(n, cmul(c, q)) == cmul(c, shn(n, q)) : Nat}}:
+  match c:
+    case True{{}}:
+      {{==}}
+    case False{{}}:
+      shn_z(n)
+
+def bool_nn(+c: Bool) -> {{Bool.not(Bool.not(c)) == c : Bool}}:
+  match c:
+    case True{{}}:
+      {{==}}
+    case False{{}}:
+      {{==}}
+
+# s + (u + v) == (s + v) + u
+def n_r1(+s: Nat, +u: Nat, +v: Nat) -> {{Nat.add(s, Nat.add(u, v)) == Nat.add(Nat.add(s, v), u) : Nat}}:
+  {chain("Nat", add("s", add("u", "v")), [(cong_r("s", add("u", "v"), add("v", "u"), "n_add_comm(u, v)"), add("s", add("v", "u"))),
+                                          (sym("Nat", add(add("s", "v"), "u"), add("s", add("v", "u")), "n_add_assoc(s, v, u)"), add(add("s", "v"), "u"))])}
+
+# (u + v) + w == (u + w) + v
+def n_r2(+u: Nat, +v: Nat, +w: Nat) -> {{Nat.add(Nat.add(u, v), w) == Nat.add(Nat.add(u, w), v) : Nat}}:
+  {chain("Nat", add(add("u", "v"), "w"), [("n_add_assoc(u, v, w)", add("u", add("v", "w"))),
+                                          ("n_r1(u, v, w)", add(add("u", "w"), "v"))])}
+
+# a <= a + d
+def n_le_add(+a: Nat, +d: Nat) -> {{Nat.is_le(a, Nat.add(a, d)) == True{{}} : Bool}}:
+  match a:
+    case 0n:
+      match d:
+        case 0n:
+          {{==}}
+        case 1n+e:
+          {{==}}
+    case 1n+p:
+      n_le_add(p, d)
+
+# one Horner step of the sum of two words: a limb (s with its carry k1 out of k in) below the rest (r, carry k8 out)
+def hs(+s: Nat, +r: Nat, +x: Nat, +xr: Nat, +y: Nat, +yr: Nat, +k: Bool, +k1: Bool, +k8: Bool, +q: Nat,
+       +limb: {{Nat.add(s, cmul(k1, {P32})) == Nat.add(Nat.add(x, y), b2n(k)) : Nat}},
+       +rest: {{Nat.add(r, cmul(k8, q)) == Nat.add(Nat.add(xr, yr), b2n(k1)) : Nat}}) ->
+       {{{L0} == {R0} : Nat}}:
+  Equal.trans(Nat, {L0}, {mid}, {R0}, {lhs}, Equal.sym(Nat, {R0}, {mid}, {rhs}))
+'''
+
+
+def _w_limbs(M="M."):
+    X, Y = "U32{x}", "U32{y}"
+    ua = f"{M}u_add({X}, {Y})"
+    kout = f"Bool.or(U32.is_lt({ua}, {X}), U32.is_lt({M}u_addc({ua}, k), {ua}))"
+    sl = f"{M}u_addc({ua}, k)"
+    adc = "Word.adc(32n, x, y, False{}, k)"
+    cw = "wcarry(32n, x, y, k)"
+    rhs = add(add("U32.to_nat(U32{x})", "U32.to_nat(U32{y})"), "b2n(k)")
+    rhs_w = add(add("Word.to_nat(32n, x)", "Word.to_nat(32n, y)"), "b2n(k)")
+    L = add(f"U32.to_nat({sl})", f"cmul({kout}, {P32})")
+    steps = [
+        (cong_l(f"U32.to_nat({sl})", f"Word.to_nat(32n, {adc})", f"cmul({kout}, {P32})",
+                cong("U32", "Nat", "U32.to_nat", sl, f"U32{{{adc}}}", f"u_s_limb(k, x, y)")),
+         add(f"Word.to_nat(32n, {adc})", f"cmul({kout}, {P32})")),
+        (cong_r(f"Word.to_nat(32n, {adc})", f"cmul({kout}, {P32})", f"cmul({cw}, {P32})",
+                cong("Bool", "Nat", f"c => cmul(c, {P32})", kout, cw, "u_c_limb(k, x, y)")),
+         add(f"Word.to_nat(32n, {adc})", f"cmul({cw}, {P32})")),
+        (cong_r(f"Word.to_nat(32n, {adc})", f"cmul({cw}, {P32})", f"shn(32n, b2n({cw}))",
+                sym("Nat", f"shn(32n, b2n({cw}))", f"cmul({cw}, {P32})", f"shn_b2n(32n, {cw})")),
+         add(f"Word.to_nat(32n, {adc})", f"shn(32n, b2n({cw}))")),
+        ("w_adc_nat(32n, x, y, k)", rhs_w),
+        ("{==}", rhs)]
+    X0 = f"U32.is_lt({ua}, {X})"
+    adc0 = "Word.adc(32n, x, y, False{}, False{})"
+    cw0 = "wcarry(32n, x, y, False{})"
+    L0 = add(f"U32.to_nat({ua})", f"cmul({X0}, {P32})")
+    rhs0 = add(add("U32.to_nat(U32{x})", "U32.to_nat(U32{y})"), "b2n(False{})")
+    steps0 = [
+        (cong_l(f"U32.to_nat({ua})", f"Word.to_nat(32n, {adc0})", f"cmul({X0}, {P32})",
+                cong("U32", "Nat", "U32.to_nat", ua, f"U32.add({X}, {Y})", f"u_add_eq({X}, {Y})")),
+         add(f"Word.to_nat(32n, {adc0})", f"cmul({X0}, {P32})")),
+        (cong_r(f"Word.to_nat(32n, {adc0})", f"cmul({X0}, {P32})", f"cmul({cw0}, {P32})",
+                cong("Bool", "Nat", f"c => cmul(c, {P32})", X0, cw0, "u_c_limb0(x, y)")),
+         add(f"Word.to_nat(32n, {adc0})", f"cmul({cw0}, {P32})")),
+        (cong_r(f"Word.to_nat(32n, {adc0})", f"cmul({cw0}, {P32})", f"shn(32n, b2n({cw0}))",
+                sym("Nat", f"shn(32n, b2n({cw0}))", f"cmul({cw0}, {P32})", f"shn_b2n(32n, {cw0})")),
+         add(f"Word.to_nat(32n, {adc0})", f"shn(32n, b2n({cw0}))")),
+        ("w_adc_nat(32n, x, y, False{})", add(add("Word.to_nat(32n, x)", "Word.to_nat(32n, y)"), "b2n(False{})")),
+        ("{==}", rhs0)]
+    return f'''
+# a limb's value identity in the model's terms: to_nat(u_addc(u_add(x, y), k)) + carry_out 2^32 == x + y + k
+def limb_id(+k: Bool, +x: Word(32n), +y: Word(32n)) -> {{{L} == {rhs} : Nat}}:
+  {chain("Nat", L, steps)}
+
+def limb0_id(+x: Word(32n), +y: Word(32n)) -> {{{L0} == {rhs0} : Nat}}:
+  {chain("Nat", L0, steps0)}
+'''
+
+
+def _w_bridge(M="M.", WN="c3_wnat"):
+    """N(w_add(a, b)) + carry_out 2^256 == N(a) + N(b), for a, b of the model's W (eight U32 limbs)."""
+    A = [f"U32{{x{i}}}" for i in range(8)]
+    B = [f"U32{{y{i}}}" for i in range(8)]
+    t = [f"{M}u_add({A[i]}, {B[i]})" for i in range(8)]
+    k = [None, f"U32.is_lt({t[0]}, {A[0]})"]
+    s = [t[0]]
+    for i in range(1, 8):
+        s.append(f"{M}u_addc({t[i]}, {k[i]})")
+        k.append(f"Bool.or(U32.is_lt({t[i]}, {A[i]}), U32.is_lt({s[i]}, {t[i]}))")
+    k8 = k[8]
+
+    def H(ls, j):
+        h = f"U32.to_nat({ls[7]})"
+        for i in range(6, j - 1, -1):
+            h = add(f"U32.to_nat({ls[i]})", f"shn(32n, {h})")
+        return h
+    Q = {7: P32}
+    for j in range(6, -1, -1):
+        Q[j] = f"shn(32n, {Q[j + 1]})"
+    P256 = Q[0]
+    proof = f"limb_id({k[7]}, x7, y7)"
+    for j in range(6, -1, -1):
+        limb = f"limb_id({k[j]}, x{j}, y{j})" if j > 0 else "limb0_id(x0, y0)"
+        kj = k[j] if j > 0 else "False{}"
+        proof = (f"hs(U32.to_nat({s[j]}), {H(s, j + 1)}, U32.to_nat({A[j]}), {H(A, j + 1)}, U32.to_nat({B[j]}), {H(B, j + 1)}, "
+                 f"{kj}, {k[j + 1]}, {k8}, {Q[j + 1]}, {limb}, {proof})")
+    Wa = f"{M}W{{{', '.join(A)}}}"
+    Wb = f"{M}W{{{', '.join(B)}}}"
+    wsum = f"{WN}({M}w_add({Wa}, {Wb}))"
+    carry = f"Bool.not({M}w_add_ok({Wa}, {Wb}))"
+    L = add(wsum, f"cmul({carry}, {P256})")
+    e_carry = chain("Bool", carry, [("{==}", f"Bool.not(Bool.not({k8}))"), (f"bool_nn({k8})", k8)])
+    steps = [
+        (cong_l(wsum, H(s, 0), f"cmul({carry}, {P256})", "{==}"), add(H(s, 0), f"cmul({carry}, {P256})")),
+        (cong_r(H(s, 0), f"cmul({carry}, {P256})", f"cmul({k8}, {P256})",
+                cong("Bool", "Nat", f"c => cmul(c, {P256})", carry, k8, e_carry)), add(H(s, 0), f"cmul({k8}, {P256})")),
+        (proof, add(add(H(A, 0), H(B, 0)), "b2n(False{})")),
+        ("{==}", add(add(H(A, 0), H(B, 0)), "0n")),
+        (f"n_add_z({add(H(A, 0), H(B, 0))})", add(H(A, 0), H(B, 0))),
+        ("{==}", add(f"{WN}({Wa})", f"{WN}({Wb})"))]
+    pat_a = f"{M}W{{{', '.join(f'U32{{+x{i}}}' for i in range(8))}}}"
+    pat_b = f"{M}W{{{', '.join(f'U32{{+y{i}}}' for i in range(8))}}}"
+    return f'''
+# the model's w_add as a natural number: N(a + b) + carry_out 2^256 == N(a) + N(b) (2^256 = (2^32)^8, kept as written)
+def w_bridge(+a: {M}W, +b: {M}W) -> {{Nat.add({WN}({M}w_add(a, b)), cmul(Bool.not({M}w_add_ok(a, b)), {P256})) == Nat.add({WN}(a), {WN}(b)) : Nat}}:
+  match a b:
+    case {pat_a} {pat_b}:
+      {chain("Nat", L, steps)}
+
+# the wrap bound: N(a + b) <= N(a) + N(b)
+def w_wrap(+a: {M}W, +b: {M}W) -> {{Nat.is_le({WN}({M}w_add(a, b)), Nat.add({WN}(a), {WN}(b))) == True{{}} : Bool}}:
+  (%w_bridge(a, b) : {{Nat.is_le({WN}({M}w_add(a, b)), _) == True{{}} : Bool}}
+  n_le_add({WN}({M}w_add(a, b)), cmul(Bool.not({M}w_add_ok(a, b)), {P256})))
+'''
+
+
+def wnat_def(M="M."):
+    limbs = [f"l{i}" for i in range(8)]
+    body = f"U32.to_nat({limbs[7]})"
+    for i in range(6, -1, -1):
+        body = f"Nat.add(U32.to_nat({limbs[i]}), shn(32n, {body}))"
+    return f"def c3_wnat(w: {M}W) -> Nat:\n  match w:\n    case {M}W{{{', '.join(limbs)}}}:\n      {body}\n"
+
+
+_SHN_DEF = re.compile(r"(?ms)^def shn\(n: Nat, x: Nat\) -> Nat:\n.*?(?=^\S|\Z)")
+_SHN_USE = re.compile(r"(?<![\w.])shn\(")
+
+
+def library(M: str = "M.", shn: str = "shn", wnat: str = "c3_wnat") -> str:
+    """The lemmas' text (after the core library of holon.disch.lemmas, whose u_refl and efq it uses). shn and wnat name
+    the shift and the word's value the law file states (its statement helpers, e.g. Laws.c3_shn and Laws.c3_wnat): the
+    library's own shn is then left out and every use of it is the law file's, so that the powers of two its lemmas
+    write are the statement's terms, syntactically."""
+    text = "\n".join([NAT, _u32_add(M), _natcmp(), _natcarry(), _u32_limbs(M), _w_generic(), _w_limbs(M),
+                      _w_bridge(M, wnat)])
+    if shn != "shn":
+        text = _SHN_USE.sub(shn + "(", _SHN_DEF.sub("", text))
+    return text

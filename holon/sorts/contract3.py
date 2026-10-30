@@ -11,8 +11,8 @@ arguments are the law's binders and tables), so a proof file can neither define 
   sread[F.M](K.., S)   M.sload(M.gh_get_st(S), key) at I68's canonical key (a scalar SK{b, o, Nil}; a struct member of
                        a scalar SK{b, m.slot, Nil}; a mapping value SK{b, 0, [SP_m{clean(k), m.slot}]}, the key cleaned
                        as holon.sorts.model3.map_key cleans it); a packed member is its field: shifted, then masked
-  N(W)                 c3_wnat(W): the limbs' Horner sum, each 2^32 factor 32 doublings (Bend's Nat is unary: no
-                       literal or product of 2^32 is ever built, so a small word's N computes in the kernel too)
+  N(W)                 c3_wnat(W): the limbs' Horner sum, each factor 2^32 as c3_shn(32n, ..), 32 doublings (Bend's Nat is
+                       unary: no literal or product of 2^32 is ever built, so a small word's N computes in the kernel too)
   A C B                Nat.is_le, Nat.is_lt, Nat.is_eq
   ok(X, S)             c3_ok(X, M.gh_get_st(S), tables): X's constructor, then U32.is_eq(M.chk_<A>(..), 0)
   is[A](X)             c3_is_<A>(X): the constructor alone
@@ -166,14 +166,12 @@ class Terms:
     # ---------------------------------------------------------- generic helpers
     def g_wnat(self) -> str:
         if "c3_wnat" not in self.generic:
-            dbl = "n"
-            for _ in range(32):
-                dbl = f"Nat.double({dbl})"
             limbs = [f"l{i}" for i in range(8)]
             body = f"U32.to_nat({limbs[7]})"
             for i in range(6, -1, -1):
-                body = f"Nat.add(U32.to_nat({limbs[i]}), c3_sh32({body}))"
-            self.generic["c3_sh32"] = f"# n * 2^32, as 32 doublings\ndef c3_sh32(n: Nat) -> Nat:\n  {dbl}\n"
+                body = f"Nat.add(U32.to_nat({limbs[i]}), c3_shn(32n, {body}))"
+            self.generic["c3_shn"] = ("# x * 2^n, as n doublings\ndef c3_shn(n: Nat, x: Nat) -> Nat:\n  match n:\n    case 0n:\n"
+                                      "      x\n    case 1n+p:\n      Nat.double(c3_shn(p, x))\n")
             self.generic["c3_wnat"] = (
                 "# N(w): the word read as a natural number, sum over the limbs of to_nat(l_i) * 2^(32 i) (Horner)\n"
                 f"def c3_wnat(w: {self.M('W')}) -> Nat:\n  match w:\n    case {self.M('W')}{{{', '.join(limbs)}}}:\n"
@@ -364,7 +362,7 @@ class Terms:
 
 
 def _generic_order(name: str) -> tuple:
-    return (0 if name in ("c3_sh32", "c3_wnat") else 1, name)
+    return (0 if name in ("c3_shn", "c3_wnat") else 1, name)
 
 
 def render(t, ir) -> str:
