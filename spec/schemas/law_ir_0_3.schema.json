@@ -929,11 +929,11 @@
     "on"
    ],
    "additionalProperties": false,
-   "description": "an UNDO term (I27, holon.rules.undo): the undo id <model>:pair:<a>:<undo> or <model>:residue:<undo>:<family> applied to the law's binders, in order: the Bool 'the pair's undo law holds' (pair: s, x, y, t) or 'setting the residue's register at k to v changes no observation of t' (residue: s, k, v, t), then the hash binders; rendered undo_ok[ID](args); its statement ref undo:ID hashes the template, version, subform and basis recomputed from the document (holon.gen.refs)",
+   "description": "an UNDO term (I27, holon.rules.undo): the undo id <model>:pair:<a>:<undo>, <model>:residue:<undo>:<family> or <model>:cancel:<a>:<undo> (I71) applied to the law's binders, in order: the Bool 'the pair's undo law holds' (pair: s, x, y, t), 'the cancellation's undo law holds: t observes after x;y what it observes after y alone' (cancel: s, x, y, t) or 'setting the residue's register at k to v changes no observation of t' (residue: s, k, v, t), then the hash binders; rendered undo_ok[ID](args); its statement ref undo:ID hashes the template, version, subform and basis recomputed from the document (holon.gen.refs)",
    "properties": {
     "undo": {
      "type": "string",
-     "pattern": "^[A-Za-z0-9_.]+:(pair|residue):[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+     "pattern": "^[A-Za-z0-9_.]+:(pair|residue|cancel):[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
     },
     "on": {
      "type": "array",

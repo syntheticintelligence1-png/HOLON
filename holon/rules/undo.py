@@ -37,6 +37,19 @@ Laws (L1, L2): one pair law per undo pair, L_undo_pair_<contract>_<a>_<undo>; on
 L_undo_res_<contract>_<undo>_<family>; the claim {"undo": <undo id>, "on": [binders]} == true, hashed through the ref
 "undo:<id>" (undo_ref). Their static class is D1-D3's (holon.analysis.deadness).
 
+Cancellations (I71; the contract is the docstring of tests_m3/test_undo_cancel.py, rules C1-C9), computed apart from
+U3 and U4, so that a pair, a rejected pair or a residue never changes for them:
+  U3' cancel    a's whole, fresh, final write with cond 1 of an integer literal v to a register pinned (U2, the same
+                key term, before it) to a literal c != v, that ā writes back to c by a whole write, final and in no
+                loop, at a matching key, under a cond each of whose conjuncts is a parameter of ā (or its negation) or
+                the register's reading "holds v" (bool v = 1: R, R != 0; v = 0: !R, R == 0; else R == v)
+  U4' cond      some conjunct of a restore's cond reads the register; a candidate without one is rejected
+                ("no_criterion")
+  residues      U5's, each statically classified by D1-D3 with no cursor and no zero family; no residue basis
+  L3            one law per cancellation, L_undo_cancel_<contract>_<a>_<undo> (undo id <model>:cancel:<a>:<undo>):
+                every trace observes after x;y what it observes after y alone (holon.undo.trace); its producer CANCEL
+                is not in PRODUCERS (catalog holon-rules/1.7 adds it beside I27's pair and residue)
+
 Nothing here names a target: every action, family, term and law id comes from the document.
 """
 from __future__ import annotations
@@ -53,6 +66,7 @@ from ..analysis.deadness import canon, conjuncts, is_int, is_op, reaches
 
 RULE = "UNDO"
 SUBFORMS = ("pair", "residue")
+CANCEL_SUBFORM = "cancel"      # I71: the sub-form of a cancellation (U3', U4'), produced by CANCEL
 UNDO_VERSION = "holon-undo/0.1"
 TEMPLATE_VERSION = 1
 NOT_STATE = ("view", "pure")
@@ -304,8 +318,99 @@ def zero_families(doc: Doc, ab: dict, exclude: str) -> list:
     return sorted(out)
 
 
+def _param_conj(c) -> bool:
+    """A conjunct that is a parameter of the action or its negation (U3')."""
+    if is_op(c, "param") and len(c) == 2:
+        return True
+    return is_op(c, "!") and len(c) == 2 and is_op(c[1], "param") and len(c[1]) == 2
+
+
+def holds(doc: Doc, fam: str, key, v: int, c) -> bool:
+    """U3': c reads the register (fam at key, the restoring write's key) as holding v: for a bool family and v = 1 the
+    read R itself, R != 0 or 0 != R; for v = 0 !R, R == 0 or 0 == R; otherwise R == v or v == R."""
+    r = canon(D.storage(fam) if key is None else ["map", D.storage(fam), key])
+    if doc.value_type(fam) == "bool" and v == 1:
+        if canon(c) == r:
+            return True
+        return is_op(c, "!=") and len(c) == 3 and ((canon(c[1]) == r and c[2] == 0) or (canon(c[2]) == r and c[1] == 0))
+    if v == 0:
+        if is_op(c, "!") and len(c) == 2 and canon(c[1]) == r:
+            return True
+        return is_op(c, "==") and len(c) == 3 and ((canon(c[1]) == r and c[2] == 0) or (canon(c[2]) == r and c[1] == 0))
+    return is_op(c, "==") and len(c) == 3 and ((canon(c[1]) == r and c[2] == v) or (canon(c[2]) == r and c[1] == v))
+
+
+def cancel_restores(doc: Doc, a: dict, ab: dict) -> list:
+    """U3': every cancel restore by ab of a write of a, distinct, sorted by canonical JSON."""
+    out = {}
+    ps = pins(doc, a)
+    for i, wa in enumerate(a.get("writes") or []):
+        if wa.get("cond") != 1 or not final(a, i):
+            continue
+        ka, whole_a = wkey(wa)
+        fam, v = wa["family"], wa.get("value")
+        if not whole_a or D.reads_family(v, fam) or not is_int(v):
+            continue
+        for p in ps:
+            if p["family"] != fam or canon(p["key"]) != canon(ka) or p["seq"] >= wa["seq"] or p["literal"] == v:
+                continue
+            for j, wb in enumerate(ab.get("writes") or []):
+                kb, whole_b = wkey(wb)
+                if wb["family"] != fam or not whole_b or wb.get("loop") is not None or not final(ab, j):
+                    continue
+                if not is_int(wb.get("value")) or wb["value"] != p["literal"] or (ka is None) != (kb is None):
+                    continue
+                if ka is not None and not keys_match(ka, kb):
+                    continue
+                if not all(_param_conj(c) or holds(doc, fam, kb, v, c) for c in conjuncts(wb.get("cond"))):
+                    continue
+                r = {"family": fam, "a_write": f"writes[{i}]", "undo_write": f"writes[{j}]", "how": CANCEL_SUBFORM,
+                     "pin": p["at"], "cond": wb.get("cond")}
+                out[canon(r)] = r
+    return [out[k] for k in sorted(out)]
+
+
+def cancel_criteria(doc: Doc, a: dict, ab: dict, rs: list) -> list:
+    """U4': ["cond"] when some restore's cond has a conjunct reading the register it restores, else []."""
+    for r in rs:
+        wa = a["writes"][_windex(r["a_write"])]
+        wb = ab["writes"][_windex(r["undo_write"])]
+        kb, _ = wkey(wb)
+        if any(holds(doc, r["family"], kb, wa["value"], c) for c in conjuncts(wb.get("cond"))):
+            return ["cond"]
+    return []
+
+
+def cancellations(doc: Doc, d: dict, state: list) -> tuple[list, list]:
+    """(cancellations, rejected cancellation candidates) of the state actions: U3', U4', U5's residues and their static
+    classes (D1-D3 with no cursor and no zero family), each sorted by (a, undo)."""
+    found, rejected = [], []
+    classes: dict = {}
+    for a in state:
+        for ab in state:
+            if a is ab:
+                continue
+            rs = cancel_restores(doc, a, ab)
+            if not rs:
+                continue
+            cr = cancel_criteria(doc, a, ab, rs)
+            if not cr:
+                rejected.append({"a": a["name"], "undo": ab["name"], "restores": rs, "reason": "no_criterion"})
+                continue
+            res = residues_of(a, rs)
+            for fam in res:
+                if fam not in classes:
+                    classes[fam] = D.classify(d, fam, [], [])["class"]
+            found.append({"a": a["name"], "undo": ab["name"], "criteria": cr, "restores": rs, "residues": res,
+                          "class": "dead" if all(classes[f] == "dead" for f in res) else "live",
+                          "residue_classes": {f: classes[f] for f in res}})
+    key = lambda x: (x["a"], x["undo"])  # noqa: E731
+    return sorted(found, key=key), sorted(rejected, key=key)
+
+
 def analyse(d: dict, model: str) -> dict:
-    """The pairs, rejected pairs and residue bases (with their static classes) of one transitions document."""
+    """The pairs, rejected pairs and residue bases (with their static classes) of one transitions document, and its
+    cancellations and rejected cancellation candidates (I71)."""
     doc = Doc(d)
     pairs, rejected = [], []
     state = [a for a in doc.actions if a.get("mutability") not in NOT_STATE]
@@ -338,8 +443,11 @@ def analyse(d: dict, model: str) -> dict:
     for p in pairs:
         p["class"] = "dead" if all(cls[(p["undo"], f)] == "dead" for f in p["residues"]) else "live"
     key = lambda x: (x["a"], x["undo"])  # noqa: E731
+    canc, rej_c = cancellations(doc, d, state)
     return {"model": model, "contract": d.get("contract"), "pairs": sorted(pairs, key=key),
-            "rejected": sorted(rejected, key=key), "residues": residues}
+            "rejected": sorted(rejected, key=key), "residues": residues,
+            "cancellations": [{k: v for k, v in x.items() if k != "residue_classes"} for x in canc],
+            "rejected_cancellations": rej_c, "_cancel_classes": {(x["a"], x["undo"]): x["residue_classes"] for x in canc}}
 
 
 # ------------------------------------------------------------------------------------------------ L1, L2
@@ -351,9 +459,13 @@ def residue_law_id(contract: str, undo: str, family: str) -> str:
     return f"{LAW_PREFIX}res_{contract}_{undo}_{family}"
 
 
+def cancel_law_id(contract: str, a: str, undo: str) -> str:
+    return f"{LAW_PREFIX}{CANCEL_SUBFORM}_{contract}_{a}_{undo}"
+
+
 def undo_id(model: str, subform: str, basis: dict) -> str:
-    if subform == "pair":
-        return f"{model}:pair:{basis['a']}:{basis['undo']}"
+    if subform in ("pair", CANCEL_SUBFORM):
+        return f"{model}:{subform}:{basis['a']}:{basis['undo']}"
     return f"{model}:residue:{basis['undo']}:{basis['family']}"
 
 
@@ -381,6 +493,13 @@ def elements(an: dict) -> list:
         out.append({"law_id": residue_law_id(c, r["undo"], r["family"]), "subform": "residue",
                     "undo_id": undo_id(m, "residue", basis), "basis": basis,
                     "static": {"class": r["class"], "live_readers": r["live_readers"], "excluded": r["excluded"]}})
+    for x in an.get("cancellations") or []:
+        basis = {"kind": "undo_cancel", "model": m, "contract": c, "a": x["a"], "undo": x["undo"],
+                 "criteria": x["criteria"], "restores": x["restores"], "residues": x["residues"]}
+        rc = (an.get("_cancel_classes") or {}).get((x["a"], x["undo"])) or {}
+        out.append({"law_id": cancel_law_id(c, x["a"], x["undo"]), "subform": CANCEL_SUBFORM,
+                    "undo_id": undo_id(m, CANCEL_SUBFORM, basis), "basis": basis,
+                    "static": {"class": x["class"], "residues": {f: rc[f] for f in sorted(rc)}}})
     del cls
     ids = [e["law_id"] for e in out]
     dup = sorted({i for i in ids if ids.count(i) > 1})
@@ -426,13 +545,19 @@ def undo_ref(uid: str, law: dict, root=None) -> str:
 
 
 def law_ir(e: dict, milestone: str, doc_rel: str, doc_sha: str, catalog_version: str, hashes: list) -> dict:
-    """The holon-ir/0.3 law of a basis element (L1, L2)."""
+    """The holon-ir/0.3 law of a basis element (L1, L2, I71's L3)."""
     if e["subform"] == "pair":
         head = [("s", "Reach"), ("x", "Act"), ("y", "Act"), ("t", "Trace")]
         b = e["basis"]
         notes = (f"after a call x of {b['a']} and a call y of {b['undo']}, both succeeding and restoring every "
                  "register the pair restores, every trace t observes the same outputs as from the state before x "
                  "(App. F's undo law; Thm 6.9)")
+    elif e["subform"] == CANCEL_SUBFORM:
+        head = [("s", "Reach"), ("x", "Act"), ("y", "Act"), ("t", "Trace")]
+        b = e["basis"]
+        notes = (f"after a call x of {b['a']} and a call y of {b['undo']} that cancels it (x succeeding, y succeeding "
+                 "both after x and alone, and restoring every register the cancellation restores), every trace t "
+                 f"observes the same outputs as after y alone (the cancellation's undo law)")
     else:
         b = e["basis"]
         head = [("s", "Reach"), ("k", "Word"), ("v", f"Val[{b['family']}]"), ("t", "Trace")]
@@ -565,6 +690,9 @@ class _Producer:
 PAIR = _Producer("pair")
 RESIDUE = _Producer("residue")
 PRODUCERS = {"pair": PAIR, "residue": RESIDUE}
+# I71: the cancellations' producer, a catalog entry of its own (holon-rules/1.7): PRODUCERS stays I27's, so that every
+# catalog holding I27's producers holds the same objects
+CANCEL = _Producer(CANCEL_SUBFORM)
 
 
 # ------------------------------------------------------------------------------------------------ the analysis document
@@ -600,7 +728,8 @@ def analysis_document(milestone: str, root: Path, doc_rel: str, inputs: list) ->
     return {"document": "undo", "undo_version": UNDO_VERSION, "milestone": milestone, "model": an["model"],
             "contract": an["contract"], "facts": doc_rel, "facts_sha256": sha256_bytes(raw),
             "inputs": [{"path": k, "sha256": v} for k, v in sorted(ins.items())],
-            "pairs": an["pairs"], "rejected": an["rejected"], "residues": an["residues"]}
+            "pairs": an["pairs"], "rejected": an["rejected"], "residues": an["residues"],
+            "cancellations": an["cancellations"], "rejected_cancellations": an["rejected_cancellations"]}
 
 
 # ------------------------------------------------------------------------------------------------ classification
@@ -663,11 +792,13 @@ def backtest(milestone: str, root: Path, sc: Sidecar) -> dict:
         aid = None
         for c in contracts:
             if spec.get("subform") == "residue":
-                cand = residue_law_id(c, names.get(spec["undo"], spec["undo"]), names.get(spec["family"], spec["family"]))
-            else:
-                cand = pair_law_id(c, names.get(spec["a"], spec["a"]), names.get(spec["undo"], spec["undo"]))
-            if cand in entries:
-                aid = cand
+                cands = [residue_law_id(c, names.get(spec["undo"], spec["undo"]),
+                                        names.get(spec["family"], spec["family"]))]
+            else:   # a pair spec: the pair law, else the cancel law of the same (a, undo) (I71)
+                a_, u_ = names.get(spec["a"], spec["a"]), names.get(spec["undo"], spec["undo"])
+                cands = [pair_law_id(c, a_, u_), cancel_law_id(c, a_, u_)]
+            aid = next((x for x in cands if x in entries), None)
+            if aid is not None:
                 break
         if aid is None:
             sub = spec.get("subform")
@@ -675,9 +806,9 @@ def backtest(milestone: str, root: Path, sc: Sidecar) -> dict:
                 why = (f"no residue basis ({names.get(spec['undo'], spec['undo'])}, "
                        f"{names.get(spec['family'], spec['family'])}) on the extracted document")
             else:
-                why = (f"({names.get(spec['a'], spec['a'])}, {names.get(spec['undo'], spec['undo'])}) is not an undo "
-                       "pair of the extracted document (no restore with a criterion: U3, U4): a back-test miss, an "
-                       "open rule gap")
+                why = (f"({names.get(spec['a'], spec['a'])}, {names.get(spec['undo'], spec['undo'])}) is neither an "
+                       "undo pair (no restore with a criterion: U3, U4) nor a cancellation (U3', U4') of the extracted "
+                       "document: a back-test miss, an open rule gap")
             rows.append({"m1_law": m1, "m1_status": m1_rec.get("status"), "analogue": None, "analogue_status": None,
                          "same_status": False, "reason": why})
             gaps.append(m1)
@@ -742,7 +873,8 @@ def main(argv=None) -> int:
     for model, doc in sorted(written.items()):
         (out / f"{model}.json").write_text(dumps(doc), encoding="utf-8")
         print(f"holon undo: {model}: {len(doc['pairs'])} pairs, {len(doc['rejected'])} rejected, "
-              f"{len(doc['residues'])} residue bases -> {_rel(out / f'{model}.json', root)}")
+              f"{len(doc['residues'])} residue bases, {len(doc['cancellations'])} cancellations -> "
+              f"{_rel(out / f'{model}.json', root)}")
     try:
         if a.classify:
             c = classification(a.milestone, root)
