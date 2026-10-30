@@ -78,16 +78,25 @@ from . import fact as _fact  # noqa: E402
 FACT_CATALOG_VERSION = "holon-rules/1.5"
 CATALOGS[FACT_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[DISCH_CATALOG_VERSION].items()},
                                   "FACT": {sub: _fact.PRODUCERS[sub] for sub in _fact.SUBFORMS}}
+#   holon-rules/1.6  I28's: the rules of holon-rules/1.5 unchanged (the same producer objects), plus rule PAR's sub-form
+#                    init_chain (holon.rules.par_init: initialization coherence over a contract's versioned documents,
+#                    whitepaper §5.1), which takes the milestone's versions sidecar and its versioned document instead of
+#                    a codec document (_init_chain_part); M3 and later. A typed test milestone keeps holon-rules/1.2.
+from . import par_init as _par_init  # noqa: E402
+INIT_CHAIN_CATALOG_VERSION = "holon-rules/1.6"
+CATALOGS[INIT_CHAIN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[FACT_CATALOG_VERSION].items()}}
+CATALOGS[INIT_CHAIN_CATALOG_VERSION]["PAR"] = {**CATALOGS[FACT_CATALOG_VERSION]["PAR"],
+                                               _par_init.SUBFORM: _par_init.PRODUCERS[_par_init.SUBFORM]}
 
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.5 for the typed target milestones (M3 and
-    later: I27's UNDO, I31's DISCH and I26's FACT); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
-    holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's
-    catalog may be replaced with `--catalog`."""
+    """The rule-catalog version a milestone derives with: holon-rules/1.6 for the typed target milestones (M3 and
+    later: I27's UNDO, I31's DISCH, I26's FACT and I28's PAR/init_chain); holon-rules/1.2 for the typed test milestones
+    (T<n> with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A
+    test milestone's catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return FACT_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return INIT_CHAIN_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -650,6 +659,32 @@ def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[s
                      "par_basis": basis, "uncovered": unc}}
 
 
+def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
+    """derive's part for rule PAR's sub-form init_chain (I28, holon.rules.par_init), when the catalog holds it: its
+    producer over the milestone's versioned document (none without a versions sidecar), read through its own input
+    list (DERIVATION.json lists it; the obstructions document does not). Returns the laws, their DERIVATION entries, the
+    inputs read and the documents' sha256, or None when the catalog has no init_chain."""
+    from ..gen import refs as R
+    prod = (CATALOGS[cv].get("PAR") or {}).get(_par_init.SUBFORM)
+    if prod is None:
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    try:
+        pairs = prod(ctx)
+    except (_par_init.InitChainError, ValueError) as e:
+        raise ValueError(f"{_par_init.RULE}/{_par_init.SUBFORM}: {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
 def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
                     codecs: list[str] | None = None, assignment: str | None = None, sidecar: str | None = None,
                     disch: str | None = None, undo_sidecar: str | None = None,
@@ -687,8 +722,11 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
         typed = _typed_part(milestone, root, cv, tfacts, assignment, sidecar, disch, undo_sidecar, fact_sidecar)
         inputs.files.update(typed["inputs"].files)
         inputs.files.update(typed["disch_inputs"].files)
+    init = _init_chain_part(milestone, root, cv) if not given else None
+    if init is not None:
+        inputs.files.update(init["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed):
+    for part in (par, typed, init):
         if part is None:
             continue
         for lid, law in part["laws"].items():
