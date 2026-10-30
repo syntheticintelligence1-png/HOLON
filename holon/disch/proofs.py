@@ -39,7 +39,7 @@ from ..machine_bend import bname
 from ..sorts.proofs3 import PHEADER
 from . import order as ORDER
 from .lemmas import library
-from .mirror import LOOP_PARTS, Branch, Final, Loop, Mirror, NoMirror, Next, Record, as_call, split_top
+from .mirror import LOOP_PARTS, Branch, Final, Loop, Mirror, NoMirror, Next, Record, _match_close, as_call, split_top
 
 
 class NoProof(ValueError):
@@ -191,6 +191,74 @@ def literal_word(t: str) -> int | None:
         a, b = literal_word(c[1][0]), literal_word(c[1][1])
         if a is not None and b is not None:
             return (a + b) % (1 << 256)
+    return None
+
+
+_M256 = (1 << 256) - 1
+
+
+def closed_word(t: str) -> int | None:
+    """The value of a closed word term (literals, w0, w_and, w_or, w_not, w_add, w_shl_<n>, w_shr_<n>), else None."""
+    v = literal_word(t)
+    if v is not None:
+        return v
+    c = as_call(t.strip())
+    if not c or c[2] != "(":
+        return None
+    xs = [closed_word(x) for x in c[1]]
+    if any(x is None for x in xs):
+        return None
+    op = c[0]
+    if op == "M.w_and" and len(xs) == 2:
+        return xs[0] & xs[1]
+    if op == "M.w_or" and len(xs) == 2:
+        return xs[0] | xs[1]
+    if op == "M.w_not" and len(xs) == 1:
+        return ~xs[0] & _M256
+    m = re.fullmatch(r"M\.w_sh([lr])_(\d+)", op)
+    if m and len(xs) == 1:
+        n = int(m.group(2))
+        return (xs[0] << n) & _M256 if m.group(1) == "l" else xs[0] >> n
+    return None
+
+
+def word_text(v: int) -> str:
+    return "M.W{" + ", ".join(str((v >> (32 * i)) & 0xFFFFFFFF) for i in range(8)) + "}"
+
+
+def masked(v: str, inner: str):
+    """(m, x) when v is a masked write w_or(w_and(inner, m), x) of the word inner with closed m and x, else None."""
+    c = as_call(v.strip())
+    if not c or c[0] != "M.w_or" or len(c[1]) != 2:
+        return None
+    a = as_call(c[1][0].strip())
+    if not a or a[0] != "M.w_and" or len(a[1]) != 2 or a[1][0].strip() != inner.strip():
+        return None
+    m, x = a[1][1].strip(), c[1][1].strip()
+    return (m, x) if closed_word(m) is not None and closed_word(x) is not None else None
+
+
+def bf_value(t: str, k: str):
+    """(value, proof of {w_and(t, k) == value}) when t is a chain of masked writes whose last write of k's bits wrote
+    a closed word (w_bf_read there, w_bf_keep through the writes of other bits), else None (I68's bit-field lemmas)."""
+    kv = closed_word(k)
+    c = as_call(t.strip())
+    if kv is None or not c or c[0] != "M.w_or" or len(c[1]) != 2:
+        return None
+    a = as_call(c[1][0].strip())
+    if not a or a[0] != "M.w_and" or len(a[1]) != 2:
+        return None
+    x, m, v = a[1][0].strip(), a[1][1].strip(), c[1][1].strip()
+    mv, vv = closed_word(m), closed_word(v)
+    if mv is None or vv is None:
+        return None
+    if mv & kv == 0:
+        return vv & kv, f"w_bf_read({x}, {m}, {v}, {k}, {{==}})"
+    if mv & kv == kv and vv & kv == 0:
+        r = bf_value(x, k)
+        if r is not None:
+            return r[0], (f"Equal.trans(M.W, M.w_and({t.strip()}, {k}), M.w_and({x}, {k}), {word_text(r[0])}, "
+                          f"w_bf_keep({x}, {m}, {v}, {k}, {{==}}, {{==}}), {r[1]})")
     return None
 
 
@@ -632,11 +700,19 @@ class ActionProof:
                 o2 = f"M.sstore({o}, {kw}, {v})"
                 if rel == "same" and self.route == "loop":
                     raise NoProof(f"{self.action}: its loop {self.L} stores at B's key {K}: no loop frame")
-                if rel == "same":
+                bf = masked(v, f"M.sload({o}, {K})") if rel == "same" and self.g.sk else None
+                if rel == "same" and bf is not None:
+                    # (I68) a masked write of B's packed slot: the word there is the write over the word it held
+                    m, x = bf
+                    v2 = f"M.w_or(M.w_and({rhs}, {m}), {x})"
+                    proof = (f"Equal.trans(M.W, M.sload({o2}, {K}), {v.strip()}, {v2}, st_same({o}, {kw}, {v}), "
+                             f"Equal.cong(M.W, M.W, z => M.w_or(M.w_and(z, {m}), {x}), M.sload({o}, {K}), {rhs}, {proof}))")
+                    rhs = v2
+                elif rel == "same":
                     if literal_word(v) is None:
                         raise NoProof(f"{self.action}: it stores a word that is not a literal at a slot B reads ({K}: "
-                                      f"{v.strip()[:80]}): transport states B of literal stored words only (a "
-                                      "bit-field update of a packed slot needs bit-field lemmas, not built)")
+                                      f"{v.strip()[:80]}): transport states B of literal stored words and of masked "
+                                      "writes of a packed slot only")
                     proof, rhs = f"st_same({o}, {kw}, {v})", v.strip()
                 else:
                     proof = f"Equal.trans(M.W, M.sload({o2}, {K}), M.sload({o}, {K}), {rhs}, {fr}, {proof})"
@@ -694,6 +770,23 @@ class ActionProof:
             old = re.sub(rf"(?<![\w.])v{j}(?![\w{{])", f"M.sload(st, {self.keys[j]})", old)
             new = re.sub(rf"(?<![\w.])v{j}(?![\w{{])", state[j], new)
         old, new = at_time(old, T), at_time(new, T)
+        # (I68) a field of a packed slot the path wrote with masked writes reads as the word it wrote last there
+        subs = []
+        for j in range(len(self.keys)):
+            if literal_word(state[j]) is not None or state[j] == self.same(j):
+                continue
+            i = new.find(f"M.w_and({state[j]}, ")
+            while i >= 0:
+                e = _match_close(new, i + len("M.w_and"))
+                parts = split_top(new[i + len("M.w_and("):e])
+                field = new[i:e + 1]
+                r = bf_value(state[j], parts[1]) if len(parts) == 2 else None
+                if r is not None and field not in [f for f, _l, _p in subs]:
+                    subs.append((field, word_text(r[0]), r[1]))
+                i = new.find(f"M.w_and({state[j]}, ", i + 1)
+        full = new
+        for field, lit, _p in subs:
+            new = new.replace(field, lit)
         atoms: list = []
         so = skeleton(old, atoms, keep=_closed)
         sn = skeleton(new, atoms, keep=_closed)
@@ -718,7 +811,15 @@ class ActionProof:
                 else:
                     rows.append(f"    case {pat}:\n      {{==}}\n")
             self.defs.append("".join(rows))
-        return f"{nm}({''.join(a + ', ' for a in atoms)}hb)"
+        body = f"{nm}({''.join(a + ', ' for a in atoms)}hb)"
+        for q in range(len(subs) - 1, -1, -1):
+            cur = full
+            for f, lit, _p in subs[:q]:
+                cur = cur.replace(f, lit)
+            field, lit, pf = subs[q]
+            body = (f"(%Equal.sym(M.W, {field}, {lit}, {pf}) : {{{cur.replace(field, '_')} == True{{}} : Bool}}\n"
+                    f"      {body})")
+        return body
 
     # ------------------------------------------------------------------ the action's term
     def term(self) -> str:

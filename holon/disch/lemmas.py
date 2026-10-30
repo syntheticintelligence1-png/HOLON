@@ -313,8 +313,143 @@ def sk_ne_p(+ab: M.W, +ao: M.W, +ap: List<&2, M.SP>, +bb: M.W, +bo: M.W, +bp: Li
   {==})))
 """
 
+def _bitfield(P: str = "M.") -> str:
+    """(I68, rule S9's bit-field lemmas) a masked write of a packed slot, x & m | v, reads back its field and keeps the
+    others: (x & m | v) & k == v & k when m & k == 0 (w_bf_read), and == x & k when m & k == k and v & k == 0
+    (w_bf_keep). Bit by bit (bit_read, bit_keep: by cases), by induction on a Word's length (wb_read, wb_keep), per
+    U32 (ub_read, ub_keep) and per limb of a 256-bit word; the masks and the written value are literals at every use,
+    so the hypotheses are {==}."""
+    W = f"{P}W"
+    L = range(8)
+    out = []
+    out.append("""# (I68: the bit-field lemmas) a masked write of a packed slot reads back its field and keeps the others:
+# (x & m | v) & k == v & k when m & k == 0, and == x & k when m & k == k and v & k == 0; bit by bit, then by induction
+# on the word's length, then per limb of a 256-bit word
+def wz(n: Nat) -> Word(n):
+  match n:
+    case 0n:
+      WNil{}
+    case 1n+p:
+      WCon{False{}, wz(p)}
+
+def whd(+p: Nat, w: Word(1n+p)) -> Bool:
+  match w:
+    case WCon{b, t}:
+      b
+
+def wtl(+p: Nat, w: Word(1n+p)) -> Word(p):
+  match w:
+    case WCon{b, t}:
+      t
+
+def udata(u: U32) -> Word(32n):
+  match u:
+    case U32{d}:
+      d
+""")
+    # bit lemmas
+    rows_r, rows_k = [], []
+    for x in (True, False):
+        for m in (True, False):
+            for v in (True, False):
+                for k in (True, False):
+                    pat = " ".join("True{}" if b else "False{}" for b in (x, m, v, k))
+                    if m and k:
+                        rows_r.append(f"    case {pat}:\n      efq({{Bool.and(Bool.or(Bool.and({pat.split()[0]}, True{{}}), {pat.split()[2]}), True{{}}) == Bool.and({pat.split()[2]}, True{{}}) : Bool}}, true_ne_false(h))\n")
+                    else:
+                        rows_r.append(f"    case {pat}:\n      {{==}}\n")
+                    goal_k = f"{{Bool.and(Bool.or(Bool.and({pat.split()[0]}, {pat.split()[1]}), {pat.split()[2]}), {pat.split()[3]}) == Bool.and({pat.split()[0]}, {pat.split()[3]}) : Bool}}"
+                    if k and not m:
+                        rows_k.append(f"    case {pat}:\n      efq({goal_k}, false_ne_true(h1))\n")
+                    elif k and v:
+                        rows_k.append(f"    case {pat}:\n      efq({goal_k}, true_ne_false(h2))\n")
+                    else:
+                        rows_k.append(f"    case {pat}:\n      {{==}}\n")
+    out.append("def bit_read(x: Bool, m: Bool, v: Bool, k: Bool, h: {Bool.and(m, k) == False{} : Bool}) -> "
+               "{Bool.and(Bool.or(Bool.and(x, m), v), k) == Bool.and(v, k) : Bool}:\n  match x m v k:\n" + "".join(rows_r))
+    out.append("def bit_keep(x: Bool, m: Bool, v: Bool, k: Bool, h1: {Bool.and(m, k) == k : Bool}, h2: {Bool.and(v, k) == "
+               "False{} : Bool}) -> {Bool.and(Bool.or(Bool.and(x, m), v), k) == Bool.and(x, k) : Bool}:\n"
+               "  match x m v k:\n" + "".join(rows_k))
+    # word lemmas by induction
+    hd = "WCon{Bool.and(mb, kb), Word.and(p, mt, kt)}"
+    out.append(
+        "def wb_read(n: Nat, x: Word(n), m: Word(n), v: Word(n), k: Word(n), +h: {Word.and(n, m, k) == wz(n) : Word(n)}) -> "
+        "{Word.and(n, Word.or(n, Word.and(n, x, m), v), k) == Word.and(n, v, k) : Word(n)}:\n"
+        "  match n:\n    case 0n:\n      {==}\n    case 1n+p:\n      match x m v k:\n"
+        "        case WCon{+xb, +xt} WCon{+mb, +mt} WCon{+vb, +vt} WCon{+kb, +kt}:\n"
+        f"          (%Equal.sym(Bool, Bool.and(Bool.or(Bool.and(xb, mb), vb), kb), Bool.and(vb, kb), bit_read(xb, mb, vb, kb, "
+        f"Equal.cong(Word(1n+p), Bool, w => whd(p, w), {hd}, WCon{{False{{}}, wz(p)}}, h))) : "
+        "{WCon{_, Word.and(p, Word.or(p, Word.and(p, xt, mt), vt), kt)} == WCon{Bool.and(vb, kb), Word.and(p, vt, kt)} : Word(1n+p)}\n"
+        f"          (%Equal.sym(Word(p), Word.and(p, Word.or(p, Word.and(p, xt, mt), vt), kt), Word.and(p, vt, kt), wb_read(p, xt, mt, vt, kt, "
+        f"Equal.cong(Word(1n+p), Word(p), w => wtl(p, w), {hd}, WCon{{False{{}}, wz(p)}}, h))) : "
+        "{WCon{Bool.and(vb, kb), _} == WCon{Bool.and(vb, kb), Word.and(p, vt, kt)} : Word(1n+p)}\n"
+        "          {==}))\n")
+    out.append(
+        "def wb_keep(n: Nat, x: Word(n), m: Word(n), v: Word(n), k: Word(n), +h1: {Word.and(n, m, k) == k : Word(n)}, "
+        "+h2: {Word.and(n, v, k) == wz(n) : Word(n)}) -> "
+        "{Word.and(n, Word.or(n, Word.and(n, x, m), v), k) == Word.and(n, x, k) : Word(n)}:\n"
+        "  match n:\n    case 0n:\n      {==}\n    case 1n+p:\n      match x m v k:\n"
+        "        case WCon{+xb, +xt} WCon{+mb, +mt} WCon{+vb, +vt} WCon{+kb, +kt}:\n"
+        f"          (%Equal.sym(Bool, Bool.and(Bool.or(Bool.and(xb, mb), vb), kb), Bool.and(xb, kb), bit_keep(xb, mb, vb, kb, "
+        f"Equal.cong(Word(1n+p), Bool, w => whd(p, w), {hd}, WCon{{kb, kt}}, h1), "
+        f"Equal.cong(Word(1n+p), Bool, w => whd(p, w), WCon{{Bool.and(vb, kb), Word.and(p, vt, kt)}}, WCon{{False{{}}, wz(p)}}, h2))) : "
+        "{WCon{_, Word.and(p, Word.or(p, Word.and(p, xt, mt), vt), kt)} == WCon{Bool.and(xb, kb), Word.and(p, xt, kt)} : Word(1n+p)}\n"
+        f"          (%Equal.sym(Word(p), Word.and(p, Word.or(p, Word.and(p, xt, mt), vt), kt), Word.and(p, xt, kt), wb_keep(p, xt, mt, vt, kt, "
+        f"Equal.cong(Word(1n+p), Word(p), w => wtl(p, w), {hd}, WCon{{kb, kt}}, h1), "
+        f"Equal.cong(Word(1n+p), Word(p), w => wtl(p, w), WCon{{Bool.and(vb, kb), Word.and(p, vt, kt)}}, WCon{{False{{}}, wz(p)}}, h2))) : "
+        "{WCon{Bool.and(xb, kb), _} == WCon{Bool.and(xb, kb), Word.and(p, xt, kt)} : Word(1n+p)}\n"
+        "          {==}))\n")
+    # U32 lemmas
+    out.append(
+        "def ub_read(x: U32, m: U32, v: U32, k: U32, h: {U32.and(m, k) == 0 : U32}) -> "
+        "{U32.and(U32.or(U32.and(x, m), v), k) == U32.and(v, k) : U32}:\n  match x m v k:\n"
+        "    case U32{+xw} U32{+mw} U32{+vw} U32{+kw}:\n"
+        "      (%Equal.sym(Word(32n), Word.and(32n, Word.or(32n, Word.and(32n, xw, mw), vw), kw), Word.and(32n, vw, kw), "
+        "wb_read(32n, xw, mw, vw, kw, Equal.cong(U32, Word(32n), u => udata(u), U32{Word.and(32n, mw, kw)}, 0, h))) : "
+        "{U32{_} == U32{Word.and(32n, vw, kw)} : U32}\n      {==})\n")
+    out.append(
+        "def ub_keep(x: U32, m: U32, v: U32, k: U32, h1: {U32.and(m, k) == k : U32}, h2: {U32.and(v, k) == 0 : U32}) -> "
+        "{U32.and(U32.or(U32.and(x, m), v), k) == U32.and(x, k) : U32}:\n  match x m v k:\n"
+        "    case U32{+xw} U32{+mw} U32{+vw} U32{+kw}:\n"
+        "      (%Equal.sym(Word(32n), Word.and(32n, Word.or(32n, Word.and(32n, xw, mw), vw), kw), Word.and(32n, xw, kw), "
+        "wb_keep(32n, xw, mw, vw, kw, Equal.cong(U32, Word(32n), u => udata(u), U32{Word.and(32n, mw, kw)}, U32{kw}, h1), "
+        "Equal.cong(U32, Word(32n), u => udata(u), U32{Word.and(32n, vw, kw)}, 0, h2))) : "
+        "{U32{_} == U32{Word.and(32n, xw, kw)} : U32}\n      {==})\n")
+    # limb getters and the 256-bit lemmas
+    for i in L:
+        lims = ", ".join(f"a{j}" for j in L)
+        out.append(f"def wl{i}(w: {W}) -> U32:\n  match w:\n    case {W}{{{lims}}}:\n      a{i}\n")
+
+    def limbs(pre):
+        return ", ".join(f"+{pre}{j}" for j in L)
+    for kind in ("read", "keep"):
+        lhs = [f"U32.and(U32.or(U32.and(x{j}, m{j}), v{j}), k{j})" for j in L]
+        rhs = [f"U32.and(v{j}, k{j})" if kind == "read" else f"U32.and(x{j}, k{j})" for j in L]
+        mk = f"{W}{{{', '.join(f'U32.and(m{j}, k{j})' for j in L)}}}"
+        vk = f"{W}{{{', '.join(f'U32.and(v{j}, k{j})' for j in L)}}}"
+        kk = f"{W}{{{', '.join(f'k{j}' for j in L)}}}"
+        body = "{==}"
+        for j in range(7, -1, -1):
+            hole = rhs[:j] + ["_"] + lhs[j + 1:]
+            if kind == "read":
+                pf = f"ub_read(x{j}, m{j}, v{j}, k{j}, Equal.cong({W}, U32, w => wl{j}(w), {mk}, {P}w0(), h))"
+            else:
+                pf = (f"ub_keep(x{j}, m{j}, v{j}, k{j}, Equal.cong({W}, U32, w => wl{j}(w), {mk}, {kk}, h1), "
+                      f"Equal.cong({W}, U32, w => wl{j}(w), {vk}, {P}w0(), h2))")
+            body = (f"(%Equal.sym(U32, {lhs[j]}, {rhs[j]}, {pf}) : {{{W}{{{', '.join(hole)}}} == {W}{{{', '.join(rhs)}}} : {W}}}\n"
+                    f"      {body})")
+        hyps = (f"+h: {{{P}w_and(m, k) == {P}w0() : {W}}}" if kind == "read" else
+                f"+h1: {{{P}w_and(m, k) == k : {W}}}, +h2: {{{P}w_and(v, k) == {P}w0() : {W}}}")
+        res = f"{P}w_and(v, k)" if kind == "read" else f"{P}w_and(x, k)"
+        out.append(f"def w_bf_{kind}(x: {W}, m: {W}, v: {W}, k: {W}, {hyps}) -> {{{P}w_and({P}w_or({P}w_and(x, m), v), k) == "
+                   f"{res} : {W}}}:\n  match x m v k:\n    case {W}{{{limbs('x')}}} {W}{{{limbs('m')}}} {W}{{{limbs('v')}}} "
+                   f"{W}{{{limbs('k')}}}:\n      {body}\n")
+    return "\n".join(out)
+
+
+
 LIBRARY = _COMMON + _RAW_STORE
-LIBRARY_SK = _COMMON + _SK_STORE
+LIBRARY_SK = _COMMON + _SK_STORE + "\n" + _bitfield()
 
 
 def library(structural: bool) -> str:
