@@ -1,0 +1,95 @@
+{
+  "attacks": [
+    {
+      "auditor_type": "A1",
+      "category": "mutation_adequacy",
+      "findings": [],
+      "id": "A1",
+      "result": "no_finding",
+      "run": false,
+      "tried": "Not run in this dry run. A1 (planted misimplementations in the real code, re-extracted) is the I45 round's; holon.mutate holds the M2 machinery (I61, I62)."
+    },
+    {
+      "auditor_type": "A2",
+      "category": "model_vs_code",
+      "findings": [],
+      "id": "A2",
+      "result": "no_finding",
+      "run": false,
+      "tried": "Not run in this dry run. A2 (hostile input through public entry points) is the I45 round's; the packet lists its targets (auditors.A2: the PAR laws of the policy's A2 subforms)."
+    },
+    {
+      "auditor_type": "A3",
+      "category": "statement_fidelity",
+      "findings": [],
+      "id": "A3",
+      "result": "no_finding",
+      "run": false,
+      "tried": "Not run in this dry run. A3 (holon audit regress, I10) is the I45 round's; the packet carries the registry's sha256 and the previous round's target (none: round 1)."
+    },
+    {
+      "auditor_type": "A4",
+      "category": "vacuity",
+      "evidence": [
+        "audit/rounds/M3/round1/a4.json"
+      ],
+      "findings": [
+        "F-M3-01",
+        "F-M3-02",
+        "F-M3-03"
+      ],
+      "id": "A4",
+      "result": "finding",
+      "run": true,
+      "tried": "`python -m holon audit vacuity --milestone M3 --round 1 --target 2b4578afc7bb71c19715c1df680c824b218bd4ec`: every one of the 136 laws classified from G11V's records (V1-V7, D1-D3): no_premises 42, not_decided 24, counter_witness 18, vacuous 0, degenerate 40, unreadable 0, ok 12. Representatives of the degenerate inhabitants: found 38 (the linked codec laws: the counting fill with the premise classes applied, accepted by bend2 and BendTT), not_searched 2 (F-M3-01). G11V's in-flight clause: 0 of 8 MIG edges inhabited (F-M3-02). Four canaries (unsatisfiable premise, degenerate state and pure inhabitants, a false oracle answer), all detected."
+    },
+    {
+      "auditor_type": "A4",
+      "category": "bindings_ledger",
+      "evidence": [
+        "audit/rounds/M3/round1/a4.json"
+      ],
+      "findings": [],
+      "id": "A5",
+      "result": "no_finding",
+      "run": true,
+      "tried": "A4's oracle half (holon/audit/oracles.py, inside a4.json): O1 M3 has no oracle sidecar, so no hypothesis to test; O2 the one oracle parameter, keccak256 (Fn<Bytes,Word>), is bound in 52 laws and constrained by no premise; O3 every one of the 550 hash-table entries in M3's witnesses and inhabitants (all keccak256) equals the real Keccak-256 of its key: no mismatch."
+    },
+    {
+      "category": "determinism",
+      "findings": [],
+      "id": "A6",
+      "result": "no_finding",
+      "run": true,
+      "tried": "The packet and a4.json were rebuilt from the target commit's tree by --check (git archive into a scratch directory): byte-identical; a4.json's content also equals an earlier independent run at the prereg commit (same M3 trees)."
+    },
+    {
+      "category": "gate_evasion",
+      "findings": [],
+      "id": "A7",
+      "result": "no_finding",
+      "run": false,
+      "tried": "Not run in this dry run."
+    }
+  ],
+  "auditor": {
+    "counts_toward_convergence": false,
+    "family": "same",
+    "session": "I87 dry run: the builder's own session ran the machinery's automated passes (no auditor of another model family can be run here)"
+  },
+  "dry_run": true,
+  "findings": [
+    "F-M3-01",
+    "F-M3-02",
+    "F-M3-03"
+  ],
+  "milestone": "M3",
+  "notes": "A dry run of I87's machinery on today's M3 (the base's laws, records and generated files). Same family and a dry run, so it never counts toward convergence (HUMAN_ANSWERS Q9); its findings are real and stay open. The A1-A4 rounds by auditors of another family are I45's.",
+  "packet": {
+    "path": "audit/rounds/M3/round1/packet.json",
+    "sha256": "1f0ab17c41e7b599f8cf1e7a19b4a16daaf9d261341bc9ac49d46987f00639f0"
+  },
+  "round": 1,
+  "round_version": "holon-audit-round/0.2",
+  "target_commit": "2b4578afc7bb71c19715c1df680c824b218bd4ec"
+}
