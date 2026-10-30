@@ -1,0 +1,362 @@
+# CI only (I35 projection), not for merge: every M3 record re-made under the projected holon-rules/1.9 (I71's 1.7,
+# I29's 1.8 and I35's OWN), over I35's build merged with I71's and I29's branches, but I27's eight UNDO records (they
+# trail, as at the lead); the M1, M2 and T32 records re-stamped; the DISCH laws in seven shards and the typed SORT laws
+# one job each; then holon replay-go (the OWN replay) and I40's final filter over every job's files. Every job uploads
+# the files it changed or added; the publish job pushes them, one directory per job, as an orphan commit to
+# claude/ci-i35-proj-out-<run id>. Generated from I71's template (itself from brave-wright's I28 template).
+name: holon-i35-proj
+
+on:
+  push:
+    branches: ['claude/ci-i35-proj']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: holon-i35-proj-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  BEND_NO_TELEMETRY: '1'
+
+jobs:
+  toolchain:
+    name: toolchain (install + verify pins)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.key.outputs.key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Cache key from the pins
+        id: key
+        run: echo "key=holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}" >> "$GITHUB_OUTPUT"
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: restore
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Install the pinned toolchain
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: bash .github/ci/install_toolchain.sh
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: steps.restore.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+  run:
+    name: ${{ matrix.name }}
+    needs: toolchain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: typed-0
+            laws: L_sort_realize_rollup_363_4a64383b
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: typed-1
+            laws: L_sort_tag_rollup_279_e01ea84a
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: typed-2
+            laws: L_sort_tag_rollup_406_e01ea84a
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: disch-0
+            laws: L_disch_blk_initializable_120_b8d46c45_anyone,L_disch_blk_rollup_132_d953872f_caller_rollup_210,L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter,L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner,L_disch_rev_initializable_120_b95c70f1
+            extra: '--law-timebox 540 --deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: disch-1
+            laws: L_disch_blk_initializable_120_b95c70f1_anyone,L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter,L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner,L_disch_noext_rollup_132_d953872f_onlyOwner,L_disch_rev_initializable_120_d9a34b48
+            extra: '--law-timebox 540 --deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: disch-2
+            laws: L_disch_blk_initializable_120_d9a34b48_caller_rollup_210,L_disch_blk_rollup_132_d953872f_onlyChallenger,L_disch_ext_rollup_132_d953872f_onlyOwner,L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter,L_disch_rev_pausableupgradeable_77_ed0ce816
+            extra: '--law-timebox 540 --deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: disch-3
+            laws: L_disch_blk_pausableupgradeable_77_ed0ce816_anyone,L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210,L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter,L_disch_noext_rollup_213_f2e7faf8_onlyOwner,L_disch_rev_rollup_132_d953872f
+            extra: '--law-timebox 540 --deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: disch-4
+            laws: L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter,L_disch_blk_rollup_213_f2e7faf8_onlyChallenger,L_disch_ext_rollup_213_f2e7faf8_onlyOwner,L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter,L_disch_rev_rollup_213_f2e7faf8
+            extra: '--law-timebox 540 --deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: disch-5
+            laws: L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger,L_disch_blk_rollup_228_79cc3e9a_onlyOwner,L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter,L_disch_noext_rollup_363_e11d8bb2_onlyOwner,L_disch_rev_rollup_228_79cc3e9a
+            extra: '--law-timebox 540 --deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: disch-6
+            laws: L_disch_blk_rollup_132_d953872f_anyone,L_disch_blk_rollup_363_e11d8bb2_anyone,L_disch_ext_rollup_363_e11d8bb2_onlyOwner,L_disch_rev_initializable_120_b8d46c45,L_disch_rev_rollup_363_e11d8bb2
+            extra: '--law-timebox 540 --deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: fact-attr-0
+            laws: L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter
+            extra: '--deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: fact-attr-1
+            laws: L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter
+            extra: '--deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: fact-kernel
+            laws: L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash,L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash,L_fact_kernel_Rollup_commitState_committedBatches_blobhash
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: pinit
+            laws: L_pinit_Rollup_importGenesisBatch_committedBatches_17_9
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: cancel
+            laws: L_undo_cancel_Rollup_challengeState_setPause
+            extra: '--deadline @DEADLINE@'
+            lean: ''
+            cmd: ''
+          - name: own
+            laws: L_own_alias_batch_BatchData_TxsPayloadV2_Append,L_own_alias_batch_BatchData_TxsPayloadV2_TxsPayloadV2,L_own_alias_batch_BatchData_TxsPayload_Append,L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload,L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes,L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: nat
+            laws: L_nat_comp_Rollup_initialize2_initialize3,L_nat_comp_Rollup_initialize2_initialize4,L_nat_comp_Rollup_initialize3_initialize4,L_nat_comp_Rollup_initialize_initialize2,L_nat_comp_Rollup_initialize_initialize3,L_nat_comp_Rollup_initialize_initialize4,L_nat_sq_Rollup_V10_V11_batchDataStore_proveState,L_nat_sq_Rollup_V10_V11_submitterContract_challengeState,L_nat_sq_Rollup_V10_V11_submitterContract_proveState
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: par
+            laws: L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2,L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned,L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0,L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned,L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1,L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned,L_par_dom_BatchHeaderBytes_validate_ok_load_sol,L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2,L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0,L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1,L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1,L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0,L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1,L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2,L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0,L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1,L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2,L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2,L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0,L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1,L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0,L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1,L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2,L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0,L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1,L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2,L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1,L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2,L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0,L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1,L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2,L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0,L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1,L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2,L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0,L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1,L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2,L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0,L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1,L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2,L_par_rt_enc_sol_BatchHeaderBytes_Version_v0,L_par_rt_enc_sol_BatchHeaderBytes_Version_v1,L_par_rt_enc_sol_BatchHeaderBytes_Version_v2,L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0,L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1,L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2,L_par_tot_batch_RetrieveBlobBytes,L_par_tot_blob_RetrieveBlobBytes,L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2,L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0,L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1,L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes
+            extra: ''
+            lean: 'yes'
+            cmd: ''
+          - name: m12
+            laws: 
+            extra: ''
+            lean: ''
+            cmd: 'm12'
+          - name: t32
+            laws: 
+            extra: ''
+            lean: ''
+            cmd: 't32'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: Run
+        env:
+          LAWS: ${{ matrix.laws }}
+          EXTRA: ${{ matrix.extra }}
+          LEAN: ${{ matrix.lean }}
+          CMD: ${{ matrix.cmd }}
+        run: |
+          set -o pipefail
+          date -u +"%FT%TZ start" | tee "$RUNNER_TEMP/run.log"
+          EXTRA="${EXTRA//@DEADLINE@/$(date -u -d '+300 min' +%FT%TZ)}"
+          if [ "$CMD" = "m12" ]; then
+            for c in "run --milestone M2" "bind --milestone M2" "lean --milestone M2" "run --milestone M2" "run --milestone M1" "metrics --milestone M1" "metrics --milestone M2"; do
+              date -u +"%FT%TZ holon $c" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon $c 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            done
+          elif [ "$CMD" = "t32" ]; then
+            python -u -m holon profile --milestone T32 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+          else
+            python -u -m holon run --milestone M3 --laws "$LAWS" $EXTRA 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            if [ -n "$LEAN" ]; then
+              date -u +"%FT%TZ lean" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon lean --milestone M3 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+              date -u +"%FT%TZ run again" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon run --milestone M3 --laws "$LAWS" $EXTRA 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            fi
+          fi
+          date -u +"%FT%TZ end" | tee -a "$RUNNER_TEMP/run.log"
+      - name: Collect every changed or added file
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          cp "$RUNNER_TEMP/run.log" "$RUNNER_TEMP/out/run.log" || true
+          git status --porcelain --untracked-files=all | tee "$RUNNER_TEMP/out/status.txt"
+          git status --porcelain --untracked-files=all | sed -E 's/^...//' | grep -v '^\.' > "$RUNNER_TEMP/files.txt" || true
+          tar -czf "$RUNNER_TEMP/out/changed.tgz" -T "$RUNNER_TEMP/files.txt" || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: ${{ matrix.name }}-out
+          retention-days: 7
+          path: ${{ runner.temp }}/out/
+
+  filter:
+    name: filter (I40's final filter over every job's records)
+    needs: [toolchain, run]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: The pinned z3 (hash-pinned wheels, tools/extract-requirements.txt)
+        run: bash tools/setup_env.sh --extract
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: '*-out'
+          path: ${{ runner.temp }}/jobs
+      - name: Apply every job's files, in a fixed order
+        run: |
+          set -o pipefail
+          for j in typed-0 typed-1 typed-2 disch-0 disch-1 disch-2 disch-3 disch-4 disch-5 disch-6 fact-attr-0 fact-attr-1 fact-kernel pinit cancel own nat par m12 t32; do
+            f="$RUNNER_TEMP/jobs/$j-out/changed.tgz"
+            if [ -f "$f" ]; then
+              echo "applying $j"
+              tar -xzf "$f"
+            else
+              echo "no files from $j"
+            fi
+          done
+          git status --porcelain --untracked-files=all | sed -E 's/^...//' | grep -v '^\.' | sort > "$RUNNER_TEMP/applied.txt" || true
+          wc -l "$RUNNER_TEMP/applied.txt"
+      - name: The Go replays (the OWN laws' witnesses on the real code, rule W12), then the final filter
+        run: |
+          set -o pipefail
+          python -u -m holon replay-go --milestone M3 2>&1 | tee "$RUNNER_TEMP/run.log"
+          python -u -m holon refute --milestone M3 --only filter 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+      - name: Collect every changed or added file
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          cp "$RUNNER_TEMP/run.log" "$RUNNER_TEMP/out/run.log" || true
+          git status --porcelain --untracked-files=all | tee "$RUNNER_TEMP/out/status.txt"
+          git status --porcelain --untracked-files=all | sed -E 's/^...//' | grep -v '^\.' > "$RUNNER_TEMP/files.txt" || true
+          tar -czf "$RUNNER_TEMP/out/changed.tgz" -T "$RUNNER_TEMP/files.txt" || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: filter-out
+          retention-days: 7
+          path: ${{ runner.temp }}/out/
+
+  publish:
+    name: publish the outputs
+    needs: [run, filter]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: '*-out'
+          path: out
+      - name: Push the outputs (an orphan commit; no repository code runs here)
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+          SRC: ${{ github.sha }}
+        run: |
+          cd out
+          ls -la
+          git init -q
+          git checkout -q -b results
+          git add -A
+          git -c user.name=holon-ci -c user.email=holon-ci@users.noreply.github.com commit -q -m "i35-proj re-make of run $RUN at $SRC"
+          git push -q "https://x-access-token:${TOKEN}@github.com/${REPO}" "HEAD:refs/heads/claude/ci-i35-proj-out-${RUN}"
