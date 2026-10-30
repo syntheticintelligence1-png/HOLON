@@ -515,6 +515,11 @@ class Gate3:
                     fact_gate.join(self, only)
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
                     self.join_crashed("FACT", fact_gate.CHECKS, only, e)
+                from ..bundle import gate as bundle_gate   # I86: the bundle laws' checks, joined by name
+                try:
+                    bundle_gate.join(self, only)
+                except Exception as e:  # noqa: BLE001  (a crash is a failed check)
+                    self.join_crashed("bundle", bundle_gate.CHECKS, only, e)
             if self.setup_error is None:
                 self.whole_milestone(g, ok, only, ("G2", "G8"))
                 self.other_laws(g, ok, only)
@@ -599,6 +604,8 @@ class Gate3:
         try:      # I31 and I26: the DISCH and FACT laws have their own checks (holon.disch.gate, holon.fact.gate)
             dv = json.loads((self.root / "laws" / self.m / "DERIVATION.json").read_text())
             mine |= {e["law_id"] for e in dv["laws"] if e.get("rule") in ("DISCH", "FACT")}
+            from ..bundle.lawrun import bundle_entries   # I86: the bundle laws have their own checks (holon.bundle.gate)
+            mine |= set(bundle_entries(self.m, self.root))
         except (OSError, ValueError, KeyError):
             pass
         others = [law["law_id"] for law in ir.load_laws_any(self.m, self.root) if law["law_id"] not in mine]

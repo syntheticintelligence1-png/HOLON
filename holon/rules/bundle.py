@@ -334,9 +334,11 @@ def law_ir(lid: str, sub: str, member: dict, site: dict, cls: str | None, milest
     bid = bundle_id(sub, member["name"], site, cls)
     q = "exists" if sub == "keyed_external" else "forall"
     if sub == "push":
+        # PP4: collision-freedom of the hash on the two preimages (a finite set, L13) and equal leaves
         claim_term = {"bundle": bid, "on": [{"var": "x1"}, {"var": "x2"}]}
-        assume = [{"eq": [{"bundle": bid, "premise": "cf", "on": [{"var": "x1"}, {"var": "x2"}]}, {"bool": True}]},
-                  {"eq": [{"bundle": bid, "premise": "leaves", "on": [{"var": "x1"}, {"var": "x2"}]}, {"bool": True}]}]
+        enc = [{"bundle": bid, "premise": "enc", "on": [{"var": x}]} for x in ("x1", "x2")]
+        leaf = [{"bundle": bid, "premise": "leaf", "on": [{"var": x}]} for x in ("x1", "x2")]
+        assume = [{"cf": {"fn": "keccak256", "set": enc}}, {"eq": leaf}]
     elif sub.startswith("keyed"):
         claim_term = {"bundle": bid, "on": {"var": "a"}, "from": {"var": "s"}, "at": {"var": "k"}}
         assume = []

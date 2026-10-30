@@ -289,6 +289,17 @@ def _main(argv: list) -> int:
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
     if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I86: the bundle laws a --laws list names (holon.rules.bundle's six sub-forms) are decided over their law
+        # models and claims modules (holon.bundle.lawrun); the list's other laws go on as before
+        from .bundle import lawrun
+        split = lawrun.ids_of(argv)
+        if split is not None:
+            bids, others = split
+            rc = 0
+            if others:
+                rc = _main(lawrun.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, lawrun.run_main(lawrun.strip_args(argv, ("--laws",)) + ["--laws", ",".join(bids)]))
+    if argv[:1] == ["run"] and _typed_milestone(argv):
         # I28: the PAR-init laws (rule PAR, sub-form init_chain) a --laws list names are decided over the versioned
         # model (holon.versions.run); the list's other laws go on as before
         from .versions import run as versions_run
