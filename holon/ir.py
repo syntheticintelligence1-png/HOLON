@@ -253,6 +253,9 @@ def render_term(t: dict) -> str:
     if isinstance(t.get("init"), str) and "on" in t and "from" in t:
         return (f"init_ok[{t['init']}]({render_term(t['on'])}, {render_term(t['from'])}, "
                 f"{render_term(t.get('env'))})")
+    # holon-ir/0.3 (I34): a SYM term, the equivariance, reorder or sentinel law ID over the law's binders (holon.rules.sym)
+    if isinstance(t.get("sym"), str) and isinstance(t.get("on"), list):
+        return f"sym_ok[{t['sym']}]({', '.join(render_term(a) for a in t['on'])})"
     # holon-ir/0.3 (I27): an UNDO term, the undo law of the pair or residue ID over the law's binders (holon.rules.undo)
     if "undo" in t and isinstance(t.get("on"), list):
         return f"undo_ok[{t['undo']}]({', '.join(render_term(a) for a in t['on'])})"

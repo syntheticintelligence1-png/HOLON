@@ -402,6 +402,10 @@ class _Closure:
                 if k in t:
                     self.term(t[k])
             return
+        if isinstance(t.get("sym"), str) and isinstance(t.get("on"), list):   # a SYM term (I34)
+            self.sym(t["sym"])
+            self.term(t["on"])
+            return
         if isinstance(t.get("undo"), str) and isinstance(t.get("on"), list):   # an UNDO term (I27)
             self.undo(t["undo"])
             self.term(t["on"])
@@ -465,6 +469,19 @@ class _Closure:
             return
         from ..rules.par_init import init_ref
         self.out["init:" + iid] = init_ref(iid, self.law, self.root)
+
+    def sym(self, sid: str) -> None:
+        """sym:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the SYM basis ID
+        (holon.rules.sym.sym_ref), recomputed from the law's facts and the milestone's sort assignment; and every action
+        of the document as it states it (A_<name>), with the step template: a generator acts on the whole state."""
+        if "sym:" + sid in self.out:
+            return
+        from ..rules.sym import sym_ref
+        self.out["sym:" + sid] = sym_ref(sid, self.law, self.root)
+        self.acts_sig()
+        self.tmpl("step")
+        for n in sorted(self.acts):
+            self.action(n)
 
     def undo(self, uid: str) -> None:
         """undo:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the pair or residue
