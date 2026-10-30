@@ -1,0 +1,36 @@
+{
+  "reviewer": "the author's own adversarial pass (code red: no separate review agent, at the human's instruction)",
+  "commit": "cf01db0 (C_K)",
+  "verdict": "folded before C_K",
+  "findings": [
+    {
+      "id": "S1",
+      "severity": "blocking",
+      "what": "I35-R2 pinned the status of every M3 record at the base, so I68's predicted DISCH flips or I71's new record, merged into I35's branch before its run, would turn R2 red for another key's outcome.",
+      "fold": "R2 and R3 judge I35's own commits only (own_commits: the first-parent line of the merge's second parent, else C_K..HEAD; merges excluded), each commit against its first parent."
+    },
+    {
+      "id": "S2",
+      "severity": "blocking",
+      "what": "W4 paired every view with every writer method of the type, giving (TxsPayload, TxsPayloadV2) and (TxsPayloadV2, EstimateCompressedSizeWithNewPayload), whose writer never writes the view's field: no E2 relation exists for them, so P7 (E2 on every OWN law) and GEVID's claimed levels could not hold.",
+      "fold": "W4 (contract and instrument) derives an alias law only when the writer writes in place the field the view returns; cross-field interference is covered by the model's invariant (distinct fields never share a backing, A-own-fields). Laws: 4 alias + 2 lost-write; P2 and P5 restated."
+    },
+    {
+      "id": "S3",
+      "severity": "minor",
+      "what": "The minimal alias witness is not the 60-byte trace: with the sidecar's pool, one Append of a 1-byte context and payload (blockContexts cap 8) already lets TxsPayloadV2 append in place and the next 1-byte context overwrite the view's tail.",
+      "fold": "P4 predicts the outcome (REFUTED, replayed, capacities agreeing), not a particular trace; the 60-byte trace stays an instrument construction (thresholds.batchdata_trace)."
+    },
+    {
+      "id": "S4",
+      "severity": "minor",
+      "what": "W7's E2 relies on holon.diagram.evidence.e2 over edge access sets; its imprecision walk is defined for facts 0.1/0.2 machines only.",
+      "fold": "Checked: e2(model, dg, imprecise) takes the access sets as given; the build calls it with no imprecision for holon-own/0.1 models (as the goops models take E6 alone). Recorded for the build."
+    }
+  ],
+  "residual_risks": [
+    "heap_disjoint is the first OWN proof generator (P5)",
+    "the catalog bump re-derives every M3 law after I28 and I71",
+    "Go growth is an oracle validated by replays (Q-I35b)"
+  ]
+}
