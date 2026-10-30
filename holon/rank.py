@@ -37,8 +37,11 @@ def dumps(obj) -> str:
 
 
 def _goops(doc: dict) -> bool:
+    """A Go-level component's document: a Go-op document (I67) or a count document (I90, rule C8 of
+    tests_m3/test_go_counts.py), as I81's instrument reads every law over gen/<M>/goops/."""
+    from .diagram.gocount import is_gocount
     from .diagram.goops import is_goops
-    return is_goops(doc)
+    return is_goops(doc) or is_gocount(doc)
 
 
 def _panic_outcome() -> str:

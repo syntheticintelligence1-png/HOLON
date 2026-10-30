@@ -501,6 +501,14 @@ def _committed_par_inputs(milestone: str, root: Path, inputs: Inputs):
     if gsc is not None:
         inputs.read(root / GO.sidecar_rel(milestone))
         inputs.read(root / gsc["document"])
+    from ..diagram import gocount as GC   # I90 (rule C3 of tests_m3/test_go_counts.py): the count components, whose
+    csc, _ = GC.load_sidecar(root, milestone)   # documents GO.render_all checked above and GO.committed lists below
+    if csc is not None:
+        inputs.read(root / GC.sidecar_rel(milestone))
+        cdoc = inputs.json(root / csc["document"])
+        cfg = ((cdoc.get("extraction") or {}).get("config") or {}).get("path")
+        if isinstance(cfg, str):
+            inputs.read(root / cfg)
     for p in GO.committed(milestone, root):
         comps.append((p, inputs.json(root / "gen" / milestone / "diagram" / p.name)))
     try:

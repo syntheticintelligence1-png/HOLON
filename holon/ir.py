@@ -74,6 +74,8 @@ def check_binder_types(law: dict, facts: dict | None) -> None:
         types = set(facts.get("carriers", {}))
     if (facts or {}).get("goops_version") == "holon-goops/0.1":     # a Go-op document (I67): its interface carrier
         types = {(facts.get("carrier") or {}).get("id")}
+    if (facts or {}).get("gocount_version") == "holon-gocount/0.1":   # a count document (I90): its carrier
+        types = {(facts.get("carrier") or {}).get("id")}
     for b in law.get("statement", {}).get("binders", []):
         t = str(b.get("type", ""))
         if t in BASE_TYPES or t.startswith("Fn<") or re.fullmatch(r"Bytes\([0-9]+\)", t):

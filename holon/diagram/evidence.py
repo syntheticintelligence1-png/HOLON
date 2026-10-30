@@ -874,6 +874,7 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             atoms += a
             unresolved += u
     for cp, cdg in components or []:   # I24: linked codec documents (rule X7); I67: Go-op documents (rule Y4)
+        from . import gocount as GC      # I90: count documents (rule C2 of tests_m3/test_go_counts.py)
         from . import goops as GO
         from . import linked as L
         rel = inp.rel(Path(cp))
@@ -883,6 +884,8 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
         except (UnicodeDecodeError, ValueError) as e:
             raise EvidenceError(f"{rel}: not JSON ({e})") from e
         layer, version = (GO, GO.GOOPS_VERSION) if GO.is_goops(doc) else (L, L.LINKED_VERSION)
+        if GC.is_gocount(doc):
+            layer, version = GC, GC.GOCOUNT_VERSION
         if layer is L and not L.is_linked(doc):
             raise EvidenceError(f"{rel}: not a linked codec document")
         key = doc["component"]

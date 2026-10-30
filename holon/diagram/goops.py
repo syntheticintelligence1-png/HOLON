@@ -151,8 +151,15 @@ def documents(root: Path | str, milestone: str) -> list[dict]:
 
 
 def render_all(root: Path | str, milestone: str) -> dict[str, str]:
-    """{file name: text} of every Go-op document holon codecs writes."""
-    return {f"{d['component']}.json": dumps(d) for d in documents(root, milestone)}
+    """{file name: text} of every Go-op document holon codecs writes, and (I90, rule C1 of tests_m3/test_go_counts.py)
+    every count document of holon.diagram.gocount, which shares the directory: the Go-level components."""
+    from . import gocount as GC
+    out = {f"{d['component']}.json": dumps(d) for d in documents(root, milestone)}
+    for name, text in GC.render_all(root, milestone).items():
+        if name in out:
+            raise LinkedError(f"a Go-op component and a count component share the name {name[:-5]}")
+        out[name] = text
+    return dict(sorted(out.items()))
 
 
 # ====================================================================== diagram (Y4)
@@ -194,7 +201,9 @@ def anchors(diag: dict) -> dict:
 
 
 def diagrams(milestone: str, root: Path | str) -> dict[str, dict]:
-    """{model: diagram} of every committed Go-op document of the milestone."""
+    """{model: diagram} of every committed Go-op document of the milestone, and (I90, rule C2 of
+    tests_m3/test_go_counts.py) of every committed count document there (holon.diagram.gocount)."""
+    from . import gocount as GC
     out = {}
     root = Path(root)
     for p in committed(milestone, root):
@@ -203,8 +212,11 @@ def diagrams(milestone: str, root: Path | str) -> dict[str, dict]:
             doc = json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, ValueError) as e:
             raise LinkedError(f"{p}: not JSON ({e})") from e
-        if not is_goops(doc):
-            raise LinkedError(f"{p}: not a Go-op document ({GOOPS_VERSION})")
         rel = p.resolve().relative_to(root.resolve()).as_posix()
+        if GC.is_gocount(doc):
+            out[doc["component"]] = GC.diagram(doc, rel, hashlib.sha256(raw).hexdigest())
+            continue
+        if not is_goops(doc):
+            raise LinkedError(f"{p}: not a Go-op document ({GOOPS_VERSION}) or a count document ({GC.GOCOUNT_VERSION})")
         out[doc["component"]] = diagram(doc, rel, hashlib.sha256(raw).hexdigest())
     return out
