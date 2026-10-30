@@ -1,0 +1,94 @@
+{
+  "artifacts": {
+    "claims": "gen/M3/bundle_laws/claims/messenger.bend",
+    "law_name": "l_sort_cons_l1crossdomainmessenger_sendmessage_b2267a7b",
+    "laws": null,
+    "model": "gen/M3/bundle/models/messenger.bend",
+    "proof": null
+  },
+  "attempts": [
+    {
+      "bound": "not expressible over the M3 model, which records no value outflow (CS3: the sidecar's dependency outflow)",
+      "found": false,
+      "kind": "search"
+    },
+    {
+      "found": false,
+      "kind": "proof",
+      "reason": "no proof attempted: an unmet dependency (outflow; CS4, K8)"
+    }
+  ],
+  "bound": "not expressible over the M3 model, which records no value outflow (CS3: the sidecar's dependency outflow); no proof attempted: an unmet dependency (outflow; CS4, K8)",
+  "bundle": {
+    "class": null,
+    "id": "messenger:conservation:sendMessage_b2267a7b"
+  },
+  "checker": {
+    "exit_code": null,
+    "marker": "not_run"
+  },
+  "claims_sha256": "dc4c08199d0de78027a71ced273f30e4c248d6cccd9da499e8546402417f6212",
+  "compiled_sha256": "0a098a01b537a1ad4b20a09f4b7a7c4883609ea2f0d6085478a73cafd6b70eea",
+  "cone": [],
+  "coverage": null,
+  "dependencies": [
+    "outflow"
+  ],
+  "evidence_levels": [],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+  "filter_bin": null,
+  "generator_sha256": "792b45fe0789bb245c0da9d743e8fb303b63a1372a6b90a0a22b605e66b8e469",
+  "independence_class": "none",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "not_run",
+      "role": "primary",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b",
+  "ledger_assumptions": [],
+  "ledger_match": "none",
+  "member": "messenger",
+  "model_assumptions": [],
+  "model_sha256": "ac40fb7cbf7a3c438b663425d11f39aea8fa3ce7732bb414b1e3cfc9e7a956c4",
+  "non_vacuity": {
+    "bound": "no proof",
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:620a7413c2ff3a2e64b05fce3ab948455ca460d14a5d94dc6a77fbbcbd3013c9",
+    "reachable": null,
+    "status": "unknown",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "UNKNOWN: no witness to replay",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": "not expressible over the M3 model, which records no value outflow (CS3: the sidecar's dependency outflow); no proof attempted: an unmet dependency (outflow; CS4, K8)",
+    "kind": "bounded"
+  },
+  "seconds": 3.84,
+  "statement": "§7.5 conservation (the inflow half): in every reachable state where the payable action succeeds, its msg.value is accounted for by its class's claim; messenger:conservation:sendMessage_b2267a7b",
+  "statement_hash": "sha256:620a7413c2ff3a2e64b05fce3ab948455ca460d14a5d94dc6a77fbbcbd3013c9",
+  "status": "UNKNOWN",
+  "subform": "conservation",
+  "triage": "none",
+  "witness_provenance": null
+}

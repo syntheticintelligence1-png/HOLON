@@ -1,0 +1,160 @@
+{
+  "artifacts": {
+    "claims": "gen/M3/bundle_laws/claims/messenger.bend",
+    "law_name": "l_par_push_l1crossdomainmessenger_proveandrelaymessage_154",
+    "laws": "gen/M3/laws/L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154/LAWS.bend",
+    "model": "gen/M3/bundle/models/messenger.bend",
+    "proof": "gen/M3/proofs/L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "no corpus source: the claim is over an erased hash and two argument tuples (W1's sources apply to frame laws)",
+      "found": false,
+      "kind": "search"
+    },
+    {
+      "checker": {
+        "bendtt": {
+          "exit_code": 0,
+          "output_tail": "ALL PROOFS CHECK\n",
+          "seconds": 4.818
+        },
+        "exit_code": 0,
+        "marker": "ALL PROOFS CHECK",
+        "seconds": 2.996
+      },
+      "escape_hatches": [],
+      "generator": "core_inj_push",
+      "kind": "proof",
+      "verdict": "checked"
+    }
+  ],
+  "bound": null,
+  "bundle": {
+    "class": null,
+    "id": "messenger:push:proveAndRelayMessage:154"
+  },
+  "checker": {
+    "bendtt": {
+      "exit_code": 0,
+      "output_tail": "ALL PROOFS CHECK\n",
+      "seconds": 4.818
+    },
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 2.996
+  },
+  "claims_sha256": "dc4c08199d0de78027a71ced273f30e4c248d6cccd9da499e8546402417f6212",
+  "compiled_sha256": "0a098a01b537a1ad4b20a09f4b7a7c4883609ea2f0d6085478a73cafd6b70eea",
+  "cone": [
+    "W",
+    "abi_dyn",
+    "b_drop",
+    "b_dropn",
+    "b_len",
+    "b_of_u",
+    "b_of_w",
+    "b_take",
+    "b_zeros",
+    "l_par_push_l1crossdomainmessenger_proveandrelaymessage_154_enc",
+    "l_par_push_l1crossdomainmessenger_proveandrelaymessage_154_field",
+    "u8",
+    "u_b4",
+    "u_b4n",
+    "u_b4z",
+    "w_u"
+  ],
+  "coverage": null,
+  "dependencies": [],
+  "evidence_levels": [],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+  "filter_bin": null,
+  "generator_sha256": "792b45fe0789bb245c0da9d743e8fb303b63a1372a6b90a0a22b605e66b8e469",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154",
+  "ledger_assumptions": [],
+  "ledger_match": "none",
+  "member": "messenger",
+  "model_assumptions": [],
+  "model_sha256": "ac40fb7cbf7a3c438b663425d11f39aea8fa3ce7732bb414b1e3cfc9e7a956c4",
+  "non_vacuity": {
+    "bound": "a checked inhabitant of the premises",
+    "checker": {
+      "bendtt": {
+        "exit_code": 0,
+        "output_tail": "ALL PROOFS CHECK\n",
+        "seconds": 5.507
+      },
+      "exit_code": 0,
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 3.516
+    },
+    "degenerate": false,
+    "law": "gen/M3/L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154/nonvac/LAWS.bend",
+    "parent_statement_hash": "sha256:cf5ae577b05dc126e38aa3b82940032630724debe50fc72a8a64b2a52878e15b",
+    "reachable": null,
+    "status": "inhabited",
+    "witness": {
+      "hash": "a constant function",
+      "x1": {
+        "_from": "0x0000000000000000000000000000000000001005",
+        "_message": "0x",
+        "_nonce": 0,
+        "_to": "0x0000000000000000000000000000000000001007",
+        "_value": 0
+      },
+      "x2": {
+        "_from": "0x0000000000000000000000000000000000001005",
+        "_message": "0x",
+        "_nonce": 0,
+        "_to": "0x0000000000000000000000000000000000001007",
+        "_value": 0
+      }
+    }
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "PROVED: no witness to replay",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "seconds": 21.996,
+  "statement": "Lemma 6.12 pushing under CF (Cor 6.16): equal leaves and keccak256 collision-free on the two preimages give equal index fields of the preimages; messenger:push:proveAndRelayMessage:154",
+  "statement_hash": "sha256:cf5ae577b05dc126e38aa3b82940032630724debe50fc72a8a64b2a52878e15b",
+  "status": "PROVED",
+  "subform": "push",
+  "triage": "none",
+  "witness_provenance": null
+}
