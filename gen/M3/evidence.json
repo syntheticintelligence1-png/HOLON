@@ -9901,10 +9901,112 @@
           "*"
         ]
       }
+    },
+    {
+      "id": "own_batch_BatchData:E2:OWN.Append:OWN.TxsPayload:065d22d8",
+      "level": "E2",
+      "model": "own_batch_BatchData",
+      "p": "OWN.Append",
+      "q": "OWN.TxsPayload",
+      "src": null,
+      "via": {
+        "carrier": "txsPayload",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "own_batch_BatchData:E2:OWN.Append:OWN.TxsPayloadV2:9a0a3301",
+      "level": "E2",
+      "model": "own_batch_BatchData",
+      "p": "OWN.Append",
+      "q": "OWN.TxsPayloadV2",
+      "src": null,
+      "via": {
+        "carrier": "blockContexts",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "own_batch_BatchData:E2:OWN.EstimateCompressedSizeWithNewPayload:OWN.TxsPayload:065d22d8",
+      "level": "E2",
+      "model": "own_batch_BatchData",
+      "p": "OWN.EstimateCompressedSizeWithNewPayload",
+      "q": "OWN.TxsPayload",
+      "src": null,
+      "via": {
+        "carrier": "txsPayload",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "own_batch_BatchData:E2:OWN.TxsPayloadV2:OWN.TxsPayloadV2:9a0a3301",
+      "level": "E2",
+      "model": "own_batch_BatchData",
+      "p": "OWN.TxsPayloadV2",
+      "q": "OWN.TxsPayloadV2",
+      "src": null,
+      "via": {
+        "carrier": "blockContexts",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "own_batch_BatchHeaderV0:E2:OWN.Bytes:OWN.Bytes:6dfab82e",
+      "level": "E2",
+      "model": "own_batch_BatchHeaderV0",
+      "p": "OWN.Bytes",
+      "q": "OWN.Bytes",
+      "src": null,
+      "via": {
+        "carrier": "EncodedBytes",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "own_batch_BatchHeaderV1:E2:OWN.Bytes:OWN.Bytes:6dfab82e",
+      "level": "E2",
+      "model": "own_batch_BatchHeaderV1",
+      "p": "OWN.Bytes",
+      "q": "OWN.Bytes",
+      "src": null,
+      "via": {
+        "carrier": "EncodedBytes",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
     }
   ],
   "document": "evidence",
-  "evidence_sha256": "23037a4cec6e328188ebff28b10f04465eaab34acd24c961bc41dd64a263cef5",
+  "evidence_sha256": "f3468102dc5eb4181ccc6fee90dcc5f7104c0d2a25cca34cb7c2ed1cff24eac3",
   "evidence_version": "holon-evidence/0.1",
   "inputs": [
     {
@@ -9920,8 +10022,32 @@
       "sha256": "b9b8cb0b6d42face2309af7bb25556e052844587f82301e6a6ded3c370faba23"
     },
     {
+      "path": "gen/M3/diagram/own_batch_BatchData.json",
+      "sha256": "06b215ffcaec7e384b48284548bb63debdafc0b09180710400c22ad3321a1a0d"
+    },
+    {
+      "path": "gen/M3/diagram/own_batch_BatchHeaderV0.json",
+      "sha256": "cf5f590e012bf86b29b7a751ee790d5392fa0412df19caf8e15844b30991577a"
+    },
+    {
+      "path": "gen/M3/diagram/own_batch_BatchHeaderV1.json",
+      "sha256": "e2b8bd27013bba7eaac6c7ff3849ca23eacae23bb94e7069d85fe4263d63ac92"
+    },
+    {
       "path": "gen/M3/goops/blob_ops.json",
       "sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06"
+    },
+    {
+      "path": "gen/M3/own/batch_BatchData.json",
+      "sha256": "18ea631f461b970bad739ac9c606dd97ee1a70f6d72949f90b3033c34624b0bc"
+    },
+    {
+      "path": "gen/M3/own/batch_BatchHeaderV0.json",
+      "sha256": "03bbd8b15ef088a33f50c41c6584eaeef98818e0521dce2be4a65e86e2020311"
+    },
+    {
+      "path": "gen/M3/own/batch_BatchHeaderV1.json",
+      "sha256": "60b6924afa59a33b9cef656cb5f069e47ce863feb7d8354a4914c1d9d1414698"
     },
     {
       "path": "gen/M3/sorts/assignment.json",
@@ -11056,6 +11182,124 @@
       "facts": "gen/M3/versions/morph_rollup.versions.json",
       "facts_sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
       "facts_version": "holon-versions/0.1"
+    },
+    "own_batch_BatchData": {
+      "anchors": {
+        "actions": {
+          "Append": "OWN.Append",
+          "EstimateCompressedSizeWithNewPayload": "OWN.EstimateCompressedSizeWithNewPayload",
+          "TxsPayload": "OWN.TxsPayload",
+          "TxsPayloadV2": "OWN.TxsPayloadV2"
+        },
+        "carriers": {
+          "blockContexts": {
+            "readers": [
+              "OWN.TxsPayloadV2"
+            ],
+            "writers": [
+              "OWN.Append",
+              "OWN.TxsPayloadV2"
+            ]
+          },
+          "l1TxHashes": {
+            "readers": [],
+            "writers": [
+              "OWN.Append"
+            ]
+          },
+          "txsPayload": {
+            "readers": [
+              "OWN.TxsPayload"
+            ],
+            "writers": [
+              "OWN.Append",
+              "OWN.EstimateCompressedSizeWithNewPayload"
+            ]
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "OWN.Append",
+          "OWN.EstimateCompressedSizeWithNewPayload",
+          "OWN.TxsPayload",
+          "OWN.TxsPayloadV2"
+        ]
+      },
+      "diagram": "gen/M3/diagram/own_batch_BatchData.json",
+      "facts": "gen/M3/own/batch_BatchData.json",
+      "facts_sha256": "18ea631f461b970bad739ac9c606dd97ee1a70f6d72949f90b3033c34624b0bc",
+      "facts_version": "holon-own/0.1"
+    },
+    "own_batch_BatchHeaderV0": {
+      "anchors": {
+        "actions": {
+          "Bytes": "OWN.Bytes"
+        },
+        "carriers": {
+          "EncodedBytes": {
+            "readers": [
+              "OWN.Bytes"
+            ],
+            "writers": [
+              "OWN.Bytes"
+            ]
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "OWN.Bytes"
+        ]
+      },
+      "diagram": "gen/M3/diagram/own_batch_BatchHeaderV0.json",
+      "facts": "gen/M3/own/batch_BatchHeaderV0.json",
+      "facts_sha256": "03bbd8b15ef088a33f50c41c6584eaeef98818e0521dce2be4a65e86e2020311",
+      "facts_version": "holon-own/0.1"
+    },
+    "own_batch_BatchHeaderV1": {
+      "anchors": {
+        "actions": {
+          "Bytes": "OWN.Bytes"
+        },
+        "carriers": {
+          "EncodedBytes": {
+            "readers": [
+              "OWN.Bytes"
+            ],
+            "writers": [
+              "OWN.Bytes"
+            ]
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "OWN.Bytes"
+        ]
+      },
+      "diagram": "gen/M3/diagram/own_batch_BatchHeaderV1.json",
+      "facts": "gen/M3/own/batch_BatchHeaderV1.json",
+      "facts_sha256": "60b6924afa59a33b9cef656cb5f069e47ce863feb7d8354a4914c1d9d1414698",
+      "facts_version": "holon-own/0.1"
     }
   },
   "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",
