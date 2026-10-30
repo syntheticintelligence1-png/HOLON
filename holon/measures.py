@@ -236,16 +236,18 @@ def layout_bound(law: dict, doc: dict) -> list[int] | None:
 
 def first_divergence(entry: dict) -> int | None:
     """The first index i of the continuation where the model observes the replay's two runs differently: the run with
-    the pair at t_at + i, the run without it at t_at - 2 + i (holon.undo.run.replay_entry)."""
+    the pair at t_at + i, the run without it at t_at - 2 + i, or at t_at_without + i where the entry carries it (a
+    cancel law's run without x keeps y: I71; holon.undo.run.replay_entry)."""
     try:
         w, wo, t_at = entry["with"]["model"], entry["without"]["model"], entry["t_at"]
+        t_wo = entry.get("t_at_without", t_at - 2)
         n = len(entry["with"]["trace"]) - t_at
-    except (KeyError, TypeError):
+    except (KeyError, TypeError, AttributeError):
         return None
     for i in range(n):
-        if t_at + i >= len(w) or t_at - 2 + i >= len(wo):
+        if t_at + i >= len(w) or t_wo + i >= len(wo):
             return None
-        if w[t_at + i] != wo[t_at - 2 + i]:
+        if w[t_at + i] != wo[t_wo + i]:
             return i
     return None
 

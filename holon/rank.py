@@ -70,7 +70,8 @@ def channel(ctx: Ctx, lid: str, law: dict, rec: dict) -> tuple[str, str]:
         a = step.get("action")
         if (ctx.actions(law).get(a) or {}).get("mutability") in VIEWS:
             return "view", f"K3: the first divergent step, t[{i}], is a call of the view {a}"
-        ow, oo = e["with"]["model"][e["t_at"] + i], e["without"]["model"][e["t_at"] - 2 + i]
+        # the run without the pair has t at t_at - 2; a cancel law's keeps y, at t_at_without (I71)
+        ow, oo = e["with"]["model"][e["t_at"] + i], e["without"]["model"][e.get("t_at_without", e["t_at"] - 2) + i]
         if ow.get("status") != oo.get("status"):
             return "revert", (f"K3: the first divergent step, t[{i}], a call of {a}, is {ow.get('status')} in one run and "
                               f"{oo.get('status')} in the other")

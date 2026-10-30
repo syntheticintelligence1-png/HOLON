@@ -12,9 +12,13 @@ sha256 of every key a candidate looks up) and its external-call hints. The UNDO 
                  register the pair restores (uhit_<x>: the law's premises, evaluated as Bend states them)
   continuations  at most continuation_depth steps: first the redo of x itself (its clock moved to y's), then for every
                  action (those reading what a writes first) its synthesized successful steps from each of the two
-                 states and their argument variants (the registers' keys first); every t whose observations from the
-                 two states differ (obs, as Bend states it) is a witness
+                 states and their argument variants (the registers' keys first, then the callers of the trace's own
+                 steps: I71); every t whose observations from the two states differ (obs, as Bend states it) is a
+                 witness
   candidates     every (x, y, t) evaluated counts; at most max_candidates per law; the first witness ends the search
+
+A cancel law (I71) is searched as a pair (x;y at prefix states, y accepted by uhit_<x>, which includes y succeeding from
+the prefix state), its continuations compared from the state after x;y and from the state after y alone.
 
 A residue law's witness is realized by one of its pairs: x a call of one of its pairs' a, y of the undo action
 (restoring as the pair law requires), k the key x writes the residue at, v the register's raw words in the state after
@@ -291,16 +295,25 @@ class UndoSearch:
     # ---------------------------------------------------------- continuations
     def variants(self, g: str, trace: list, st: S3.Step, keys: list) -> list:
         """A step's argument variants: each numeric parameter at the registers' keys (and +-1), then each leaf at a few
-        of S1's values; the clock at the previous clock and one past each duration the state holds."""
+        of S1's values; the clock at the previous clock and one past each duration the state holds; the caller at each
+        caller of the trace's steps, the latest first (I71: what x or y leaves keyed by its caller, a credit or a
+        refund, only that caller's steps observe)."""
         state, pools = self.ref.pools(g, trace)
         sy = S3.Synth(self.m, pools, 0)
         out = []
         prev_ts = int(st.env.get("block.timestamp") or 0)
         for leaf, ty in sy.leaves(st.action):
             if leaf[0] == "env":
-                if leaf[1] != "block.timestamp":
+                if leaf[1] == "caller":
+                    vals = []
+                    for t in reversed(trace):
+                        c = t.env.get("caller")
+                        if c is not None and c != st.env.get("caller") and c not in vals:
+                            vals.append(c)
+                elif leaf[1] != "block.timestamp":
                     continue
-                vals = sy.value_set(leaf, ty, st, state, prev_ts)[:8]
+                else:
+                    vals = sy.value_set(leaf, ty, st, state, prev_ts)[:8]
             elif ty in ("bytes", "string") or ty.endswith("]"):
                 continue
             else:
@@ -476,6 +489,32 @@ class UndoSearch:
         if str(why).startswith("pair:") and self.streak[1] >= self.X_VARIANTS:
             raise Disagree(why)
         return False
+
+    # ---------------------------------------------------------- the cancellation
+    def cancel(self, e: dict) -> tuple[dict | None, str]:
+        b = e["basis"]
+        fams = {r["family"] for r in b["restores"]} | set(b["residues"])
+        return self.over_prefixes(b["a"], lambda trace, g: self.cancel_witness(e, trace, g, fams))
+
+    def cancel_witness(self, e, trace, g, fams):
+        """x;y at the prefix state g as for a pair, then y alone from g (it succeeds: uhit_<x> says so, and its
+        environment holds the answers its evaluation from g looked up), and t compared from the two states."""
+        for xs, ys, s2 in self.pairs_at(e, trace, g):
+            code, s3, _c = self.m.run_step(g, ys, save=True)
+            self.tick()
+            if code != 0:
+                continue
+            keys = self.keys_of(e, xs, g)
+            seeds = [retime(xs, int(ys.env.get("block.timestamp") or 0))]
+
+            def check(t, oa, ob):
+                return bend_view(oa) != bend_view(ob)
+            t = self.continuations(s2, s3, trace + [xs, ys], seeds, fams, keys, check)
+            if t is not None:
+                w = {"prefix": trace, "x": xs, "y": ys, "t": t}
+                if self.accepted(w):
+                    return w
+        return None
 
     # ---------------------------------------------------------- the residue
     def residue(self, e: dict, pair_laws: dict) -> tuple[dict | None, str]:

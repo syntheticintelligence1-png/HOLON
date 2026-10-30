@@ -5657,6 +5657,284 @@
         "disclosure": "P2, P3 and P4 count toward prediction accuracy: nobody computed their outcomes before this commit. P1 is recorded, not counted: the author read most of what decides it (observed_before_prereg). I87 builds machinery, so most of its claims are construction checks (R1-R13). A miss in any prediction is reported as a miss, never fixed by changing the policy or the instrument after the outcome."
       }
     },
+    "I71": {
+      "title": "UNDO's third sub-form cancel (I33's catalog key): the cancel restore U3' and criterion U4' over the extracted transitions, their residues and static class, one law per cancellation comparing x;y with y alone, catalog holon-rules/1.7, decided by refutation on I30's typed model and replayed on the real Rollup; closes I27's gap G5 and gives I33's O12 contract on M3 its scope law",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I71)",
+      "prompt": "prompts/I71_undo_cancel.md",
+      "tests": [
+        "tests_m3/test_undo_cancel.py"
+      ],
+      "predictions": [
+        {
+          "id": "I71-P1",
+          "claim": "holon undo --milestone M3 writes in gen/M3/undo/morph_rollup.extracted.json exactly the instrument's cancellations (rules C1-C4): one, (challengeState, setPause), restoring inChallenge (challengeState writes[3] undone by setPause writes[3], pinned at guards[3], cond [&&, [param _status], [storage inChallenge]]), criteria [cond], residues [batchChallenged, batchDataStore, challenges], class live; rejected_cancellations []; the same cancellation on the planted mutant; none on the eight toy documents; and on every planted variant of tests_m3/_i71.py (PLANTED: as extracted, a cond of the parameter alone (rejected, no_criterion), a foreign conjunct, the register negated, the != form, the parameter negated, a wrong literal, the write in a loop, the pin removed) holon's analysis gives the instrument's cancellations and rejected candidates; two runs are byte-identical.",
+          "check": "tests_m3/test_undo_cancel.py::TestAnalysis::test_p1_the_cancellations"
+        },
+        {
+          "id": "I71-P2",
+          "claim": "Under M3's catalog (holon-rules/1.7, after I28's 1.6: rule C5) holon derive --milestone M3 emits exactly one law of sub-form cancel, L_undo_cancel_Rollup_challengeState_setPause (rule C6): undo id morph_rollup.extracted:cancel:challengeState:setPause, the instrument's basis, static {class live, residues batchChallenged, batchDataStore, challenges all live} and ref undo:<id>; binders s Reach, x Act, y Act, t Trace and I30's hash binders; claim undo == true; and every other law file an own commit changes differs from its parent's only in rule_catalog_version, each such change named by a catalog_rederivation line into M3's catalog.",
+          "check": "tests_m3/test_undo_cancel.py::TestDerivation::test_p2_the_cancel_law"
+        },
+        {
+          "id": "I71-P3",
+          "claim": "The cancel law is REFUTED: its counter-law checked by bend2 (ALL PROOFS CHECK) and BendTT (verdict checked); the witness's x is a call of challengeState and y a call of setPause with _status true; the replay entry passed with calls_agree, its runs those of rule C8 (with x: prefix, x, y, t; without: prefix, y, t); and both runs, replayed independently of holon on the real Rollup (I27's harness copies), give the report's real observations, the continuation differing first at diverges_at.",
+          "check": "tests_m3/test_undo_cancel.py::TestOutcome::test_p3_refuted_and_replayed"
+        },
+        {
+          "id": "I71-P4",
+          "claim": "The divergence is the refund: x's msg.value is at least 1 (the deposit the submitter stand-in asks for) and the divergent step of t is a call of claimReward that succeeds in the run with x and y and reverts in the run with y alone. Reasoning before the run: challengeState's loop extends every committed unfinalized batch but the challenged one, so a +W divergence needs two committed batches, while the refund (setPause's cancel branch credits the challenger's deposit) needs one; the search meets prefixes breadth first.",
+          "check": "tests_m3/test_undo_cancel.py::TestOutcome::test_p4_the_refund_channel"
+        },
+        {
+          "id": "I71-P5",
+          "claim": "results/M3/undo/backtest.json pairs all four M1 UNDO laws: L_undo_cancel's analogue is the cancel law, REFUTED as M1's (same_status true); gaps is [] (I27's gap G5 closes); the other three rows are as at the prereg commit (I27's outcomes: CSR's analogue UNKNOWN).",
+          "check": "tests_m3/test_undo_cancel.py::TestOutcome::test_p5_the_backtest_closes_g5"
+        },
+        {
+          "id": "I71-P6",
+          "claim": "results/M3/undo/classification.json lists the cancel law with static live (rule C3) and kernel live, agreeing and blocking nothing; the classification's disagreements are those at the prereg commit (I27's five UNKNOWN laws), the cancel law not among them.",
+          "check": "tests_m3/test_undo_cancel.py::TestOutcome::test_p6_the_classification_agrees"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I71-R1",
+          "claim": "Rule C5: the lowest catalog version holding UNDO/cancel holds every rule and producer of the version below it (which holds I28's PAR/init_chain), the same objects, and adds only UNDO's cancel (holon.rules.undo.CANCEL); holon.rules.undo.PRODUCERS is {pair, residue}; M3 derives with it or a later catalog keeping its producers; M2 keeps holon-rules/1.0.",
+          "check": "tests_m3/test_undo_cancel.py::TestRegressions::test_r1_the_catalog"
+        },
+        {
+          "id": "I71-R2",
+          "claim": "Every M3 record an own commit changes, but the cancel law's, keeps the status of its version at the commit's first parent; no own commit deletes a record or adds another; at I71's end every M3 record but I27's eight UNDO records (stale since I26) carries the registry's statement hash.",
+          "check": "tests_m3/test_undo_cancel.py::TestRegressions::test_r2_other_m3_statuses_are_kept"
+        },
+        {
+          "id": "I71-R3",
+          "claim": "Own commits change the records under results/M1, results/M2 and results/T32 in generator_sha256 and keys named seconds alone, nothing under laws/M0-M2, gen/M0-M2, results/M0 or replay/M0-M2, no fact document and no frozen file; every path they change is one rule C10 names.",
+          "check": "tests_m3/test_undo_cancel.py::TestRegressions::test_r3_earlier_milestones_change_in_stamps_only"
+        },
+        {
+          "id": "I71-R4",
+          "claim": "Own commits leave I27's keys of every gen/M3/undo/*.json (pairs, rejected, residues, header) as at the commit's first parent; the analysis document gains only cancellations and rejected_cancellations.",
+          "check": "tests_m3/test_undo_cancel.py::TestRegressions::test_r4_i27s_analysis_is_unchanged"
+        },
+        {
+          "id": "I71-R5",
+          "claim": "The holon/ code own commits change adds no action, family or contract name of the Rollup document, no law id and no target file name (AGENTS rules 2 and 4).",
+          "check": "tests_m3/test_undo_cancel.py::TestRegressions::test_r5_new_code_names_no_target"
+        },
+        {
+          "id": "I71-R6",
+          "claim": "spec/schemas/law_ir_0_3.schema.json's undo id pattern is pair|residue|cancel, the own commit that changes the schema changes only that pattern and t_undo's description, docs/adoption/Q4/schemas/ follows byte for byte, and the cancel law validates.",
+          "check": "tests_m3/test_undo_cancel.py::TestRegressions::test_r6_the_schema_admits_cancel"
+        }
+      ],
+      "outcome_paths": [
+        "laws/M3/L_undo_cancel_",
+        "results/M3/L_undo_cancel_",
+        "gen/M3/proofs/L_undo_cancel_",
+        "gen/M3/laws/L_undo_cancel_",
+        "docs/iterations/I71.md"
+      ],
+      "thresholds": {
+        "base": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874 (the lead after the I25 commit-test fix; CI run 40116936084 green on it). I28's build (PR #50, holon-rules/1.6) is not yet on the lead: I71's build merges it in when it lands and takes holon-rules/1.7.",
+        "instrument": "tests_m3/_i71.py",
+        "instrument_sha256": "6e93794db6e62edf6e44b025c5394648ac9c522136d5c089df71e07a7c643538",
+        "contract_docstring_sha256": "30040013de3e28813667d0fce9f068fecdb431625f3174a2fa0a1f692a06a968",
+        "rollup": {
+          "cancellations": [
+            {
+              "a": "challengeState",
+              "undo": "setPause",
+              "criteria": [
+                "cond"
+              ],
+              "restores": [
+                {
+                  "family": "inChallenge",
+                  "a_write": "writes[3]",
+                  "undo_write": "writes[3]",
+                  "how": "cancel",
+                  "pin": "guards[3]",
+                  "cond": [
+                    "&&",
+                    [
+                      "param",
+                      "_status"
+                    ],
+                    [
+                      "storage",
+                      "inChallenge"
+                    ]
+                  ]
+                }
+              ],
+              "residues": [
+                "batchChallenged",
+                "batchDataStore",
+                "challenges"
+              ],
+              "class": "live",
+              "residue_classes": {
+                "batchChallenged": "live",
+                "batchDataStore": "live",
+                "challenges": "live"
+              }
+            }
+          ],
+          "rejected": []
+        },
+        "law": {
+          "subform": "cancel",
+          "undo_id": "morph_rollup.extracted:cancel:challengeState:setPause",
+          "basis": {
+            "kind": "undo_cancel",
+            "model": "morph_rollup.extracted",
+            "contract": "Rollup",
+            "a": "challengeState",
+            "undo": "setPause",
+            "criteria": [
+              "cond"
+            ],
+            "restores": [
+              {
+                "family": "inChallenge",
+                "a_write": "writes[3]",
+                "undo_write": "writes[3]",
+                "how": "cancel",
+                "pin": "guards[3]",
+                "cond": [
+                  "&&",
+                  [
+                    "param",
+                    "_status"
+                  ],
+                  [
+                    "storage",
+                    "inChallenge"
+                  ]
+                ]
+              }
+            ],
+            "residues": [
+              "batchChallenged",
+              "batchDataStore",
+              "challenges"
+            ]
+          },
+          "static": {
+            "class": "live",
+            "residues": {
+              "batchChallenged": "live",
+              "batchDataStore": "live",
+              "challenges": "live"
+            }
+          }
+        },
+        "law_ref": "a2e63e2f853baa9e4788b7eac93d52f0e097d2953a92e52cbde5eddf846952b5",
+        "toys": [
+          "tests_m3/fixtures/disch/a/toygate.extracted.json",
+          "tests_m3/fixtures/disch/b/toygate.extracted.json",
+          "tests_m3/fixtures/refute/a/toylock.extracted.json",
+          "tests_m3/fixtures/refute/b/toylock.extracted.json",
+          "tests_m3/fixtures/sort_types/toyclock.extracted.json",
+          "tests_m3/fixtures/sort_types/toytypes.extracted.json",
+          "tests_m3/fixtures/undo/drop/toyundo.extracted.json",
+          "tests_m3/fixtures/undo/toyundo.extracted.json"
+        ],
+        "planted": {
+          "as_extracted": {
+            "change": "none",
+            "cancellations": [
+              [
+                "challengeState",
+                "setPause"
+              ]
+            ],
+            "rejected": []
+          },
+          "no_register_conjunct": {
+            "change": "the restoring write's cond is [param _status] alone",
+            "cancellations": [],
+            "rejected": [
+              [
+                "challengeState",
+                "setPause"
+              ]
+            ]
+          },
+          "foreign_conjunct": {
+            "change": "the cond gains the conjunct [! [storage _paused]] (neither a parameter nor the register)",
+            "cancellations": [],
+            "rejected": []
+          },
+          "negated_register": {
+            "change": "the cond's register conjunct is [! [storage inChallenge]] (the register holding 0, not v = 1)",
+            "cancellations": [],
+            "rejected": []
+          },
+          "ne_form": {
+            "change": "the cond's register conjunct is [!= [storage inChallenge] 0] (the register holding 1)",
+            "cancellations": [
+              [
+                "challengeState",
+                "setPause"
+              ]
+            ],
+            "rejected": []
+          },
+          "negated_param": {
+            "change": "the cond's parameter conjunct is [! [param _status]]",
+            "cancellations": [
+              [
+                "challengeState",
+                "setPause"
+              ]
+            ],
+            "rejected": []
+          },
+          "wrong_literal": {
+            "change": "the restoring write stores 1, not the pinned 0",
+            "cancellations": [],
+            "rejected": []
+          },
+          "in_loop": {
+            "change": "the restoring write sits in a loop (a loop field naming a loop record's seq)",
+            "cancellations": [],
+            "rejected": []
+          },
+          "no_pin": {
+            "change": "challengeState loses the guard reach [! [storage inChallenge]] that pins the register",
+            "cancellations": [],
+            "rejected": []
+          }
+        },
+        "catalog": "holon-rules/1.7: holon-rules/1.6 (I28) plus UNDO/cancel; the next free version at merge if another key takes 1.7 first (whoever merges second regenerates).",
+        "counted_predictions": [
+          "I71-P1",
+          "I71-P2",
+          "I71-P3",
+          "I71-P4",
+          "I71-P5",
+          "I71-P6"
+        ],
+        "amendments": [
+          "tests_m3/test_undo.py::undo_laws",
+          "tests_m3/test_undo.py::undo_records",
+          "tests_m3/test_undo.py::TestOutcomes.test_static_and_kernel_classifications_agree",
+          "tests_m3/test_undo.py::TestBacktest.test_backtest_table"
+        ],
+        "remake": "The catalog bump moves every M3 statement hash (rule_catalog_version is hashed), so every M3 record is re-made under holon-rules/1.7 by holon run with its status unchanged, as I26 and I28 re-made them under 1.5 and 1.6 (the typed SORT, DISCH, FACT and PAR-init records on CI runners, the PAR records locally), except I27's eight UNDO records, whose statement hashes have trailed the registry since I26's bump and which I28 left as I26 left them (a full-budget UNDO re-make takes hours per law: Q33); I68's outcome run re-makes them on the structural model. If I68 merges first, I71 re-makes its records under 1.7 the same way.",
+        "order_with_i68": "I68 (structural keys) converts holon.undo.trace's register helpers and re-makes the M3 typed laws; its prereg covers a typed law another key adds before its run (this cancel law), which it then re-makes and remodels. I71's template is written over the current helpers.",
+        "known_red_at_base": "I27-P8 (tests_m3/test_undo.py::TestOutcomes.test_static_and_kernel_classifications_agree: five of I27's laws are UNKNOWN, so the classification lists five disagreements), I27-P9 and I27-R2 (the back-test's L_undo_CSR analogue is UNKNOWN, not PROVED), both I27's misses; as reported by I67 and I28: I27's record checks (results/M3/L_undo_* carry statement hashes of holon-rules/1.4, stale since I26's bump), I43-R1 (F40's bend files, I26's Question 5); the tests_m3 contract tests are not run by CI (CI runs the gates, the prereg audits, the frozen suite and test_catalog_rederivation).",
+        "disclosure": "What was known before this commit. (1) The I33 design note (written by the other session's design pass, scratch only) probed rules like C1-C3 over a scratch copy of holon on the committed documents: one cancellation on the Rollup and on the mutant, none on the toys. (2) In this session before the commit: the instrument ran on the committed documents and the planted variants (the values pinned here); the documents' challengeState, setPause, claimReward and batchInsideChallengeWindow records were read (challengeState's loop skips the challenged batch: P4's reasoning); I27's, I28's, I31's, I26's, I24's, I40's and I43's tests were read for what the build breaks; the UNDO runner, search, trace, proofs and gate code and I28's unmerged catalog code (PR #50) were read. No build code was written; nothing ran on the subject (no derive, no search, no run, no replay); no record was read for an outcome. All six predictions are counted: each needs the build and the run.",
+        "questions": [
+          "H1. The cancel template's premise 'y succeeds from s' (rule C7). M1's L_undo_cancel states the comparison with y alone without it; I71 adds it (conservative): without it, a y that reverts from s would make the comparison the pair law's.",
+          "H2. No proof generator is built for the cancel sub-form: an unrefuted cancel law is UNKNOWN.",
+          "H3. The catalog bump re-makes every M3 record (rule C10), as I26's and I28's did; I27's eight UNDO records stay stale until I68's outcome run.",
+          "H4. U3' requires every conjunct of the restoring condition to be a parameter (or its negation) or the register's own reading; a condition reading other storage gives no cancellation."
+        ]
+      }
+    },
     "I88": {
       "title": "= I39b: I39's laws over I85's product machine (O7 PAR-cycle, the O8 law pair under HypC with a hypothesis split, O24, the F11 L1-count law), plan-stated in a frozen sidecar and generated by holon/derivation/laws.py as I65's contract laws are (no rule of the catalog discovers a product obligation, so no catalog bump), in their own law set laws/M3/derivation/; every law decided UNKNOWN for lack of a Bend model of the consumer (AGENTS rules 5 and 6), each record carrying the evaluator-level witness of a bounded search on I85's product machine and its replay on the real consumer; results/M3/derivation/splits.json in I12's holon-splits/0.1 shape; I89 builds the consumer's Bend model and re-decides the frozen statements",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I88)",
