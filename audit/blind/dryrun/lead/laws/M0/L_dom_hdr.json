@@ -1,0 +1,42 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_dom_hdr",
+  "milestone": "M0",
+  "rule": "PAR",
+  "subform": "domain_coherence",
+  "evidence": [
+    "E2"
+  ],
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "statement": {
+    "forall": [
+      {
+        "name": "b",
+        "type": "Bytes"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "call": "ok_sol",
+          "args": [
+            {
+              "var": "b"
+            }
+          ]
+        },
+        {
+          "call": "ok_go",
+          "args": [
+            {
+              "var": "b"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Interface carrier: header bytes. Solidity _loadBatchHeader and Go validate() must accept the same byte strings."
+}

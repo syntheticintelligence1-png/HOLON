@@ -1,0 +1,1658 @@
+{
+ "acquisition": {
+  "compiler_configs": {
+   "deployed": {
+    "bytecode_hash": "none",
+    "evm_version": "cancun",
+    "optimizer_runs": 200,
+    "source": "docs/iterations/I23.md, Surprise 1: the implementation at 0x213ce22b... is the pinned Rollup.sol built with optimizer runs 200 (the solc default), cancun, bytecodeHash none"
+   },
+   "foundry": {
+    "bytecode_hash": "none",
+    "evm_version": "cancun",
+    "optimizer_runs": 999999,
+    "source": "contracts/foundry.toml at the head commit"
+   },
+   "hardhat": {
+    "bytecode_hash": "none",
+    "evm_version": "cancun",
+    "optimizer_runs": 10000,
+    "source": "contracts/hardhat.config.ts at the head commit"
+   }
+  },
+  "doc": "Q12 (docs/HUMAN_ANSWERS.md): the legacy registry recovered from chain, and the live bundle's implementations; I63's rules H1-H8 (tests_m3/test_history.py) with logs fetched in place of I59's index",
+  "eip1967": {
+   "admin_slot": "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
+   "implementation_slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+  },
+  "events": {
+   "AdminChanged": "0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f",
+   "Initialized": "0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498",
+   "Upgraded": "0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b"
+  },
+  "members": {
+   "messenger": {
+    "name": "L1CrossDomainMessenger",
+    "source": "contracts/contracts/l1/L1CrossDomainMessenger.sol"
+   },
+   "queue": {
+    "name": "L1MessageQueueWithGasPriceOracle",
+    "source": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol"
+   },
+   "submitter": {
+    "name": "Submitter",
+    "source": "contracts/contracts/l1/rollup/Submitter.sol"
+   },
+   "whitelist": {
+    "name": "Whitelist",
+    "source": "contracts/contracts/libraries/common/Whitelist.sol"
+   }
+  },
+  "proxies": {
+   "messenger": {
+    "address": null,
+    "from": "the queue implementation's MESSENGER immutable word",
+    "immutable": {
+     "member": "queue",
+     "name": "MESSENGER"
+    }
+   },
+   "queue": {
+    "address": "0x3931ade842f5bb8763164bdd81e5361dce6cc1ef",
+    "from": "results/M2/historical/trans.json: the receiver of the Rollup's IL1MessageQueue calls"
+   },
+   "registry": {
+    "address": "0x0dc417f8af88388737c5053ff73f345f080543f7",
+    "from": "results/M3/history/receipts/0xdeb5268cbec1b47c77ad46cb8dd29491833e45ae374d2905f94f4e0499e8110e.json: SubmitterContractUpdated topic 1"
+   },
+   "submitter": {
+    "address": "0xf2d50000c994565a4742059802fdbb0bee1cbef6",
+    "from": "the same receipt: SubmitterContractUpdated topic 2"
+   }
+  },
+  "registry": {
+   "contract": {
+    "build_paths": [
+     "contracts"
+    ],
+    "name": "L1Staking",
+    "source": "contracts/contracts/l1/staking/L1Staking.sol"
+   },
+   "tags": {
+    "v0.2.0-beta": "c648a45542dca038fe4df83287c21c3c67f717cb",
+    "v0.2.1": "7ea5bea884f416ef861fa467e4bc9e68edfa73a9",
+    "v0.4.0": "24b616b9943a9754b1ae25a8a7a127d0247f84ab",
+    "v0.4.1": "e608d89e45b8ea31d98eaa4c5425d75c42874d2f",
+    "v0.4.10": "3f2350b340c432de5d6331a8866578173e16e18f",
+    "v0.4.11": "128d56920ef83c05b9c03d1a3446d772c2853e4f",
+    "v0.4.2": "af4158b30577833649d9466dbc40ed77d12db579",
+    "v0.4.3": "a1e77833a79c02927519c23f2397adacf870964a",
+    "v0.4.4": "9ee2c201469c73a778e0d0f8881710d567a10279",
+    "v0.4.5": "2223d9836827b3c13ec0fbd7f769fed4b5235a9a",
+    "v0.4.6": "de901b6acfcc8af1c5578cc7ff3f16269b2f58b6",
+    "v0.4.7": "3cb4687bca674b093a715fc7d328327c35b6e99c",
+    "v0.4.8": "9392ad97225dc0760edb24d95db98b92cef2a6d6",
+    "v0.4.9": "1f4e42cf4c0e6680285770885477bc7450e5e900",
+    "v0.5.0": "86cd1bb84f95e7606d93f45c6f5087a36548f559",
+    "v0.5.1": "1d16588e4aad0cbe2845e487388f30514bc28655",
+    "v0.5.2": "83e4e8ba44cd30e1b54f6b3a7a4fec449ce2c970",
+    "v0.5.3": "a20bbfa25014a20ba229ca0c9621001d6b334b44",
+    "v0.5.4": "fef33f9df2052522bec93ae6733651e2e7b5193b",
+    "v0.5.5": "4fb95dc92911e80806c9a01e9a1335bde716375b",
+    "v0.5.6": "cafa07d19de8a5a36c8510890a72533c8e0e52e5",
+    "v0.5.7": "55272a512fb0f0c378e78852b0cfbd92c6a02826",
+    "v0.6.0": "0b3f19eed0ea9d5216272b71ed1276aa2eb2e687",
+    "v0.6.1": "4a1607dbe3288643827154738e28e5ef0734dccf"
+   }
+  },
+  "rpc": {
+   "methods": [
+    "eth_blockNumber",
+    "eth_getLogs",
+    "eth_getTransactionReceipt",
+    "eth_getCode",
+    "eth_getStorageAt"
+   ],
+   "second": [
+    "https://ethereum-rpc.publicnode.com",
+    "https://eth.drpc.org"
+   ],
+   "url": "https://mainnet.gateway.tenderly.co"
+  },
+  "version_config": "hardhat",
+  "whitelist": {
+   "from": "the queue proxy's whitelistChecker word at the fetch block",
+   "slot_of": {
+    "family": "whitelistChecker",
+    "member": "queue"
+   }
+  },
+  "window": {
+   "from_block": 19426587,
+   "to_block": 26179508
+  }
+ },
+ "base_sidecar": "spec/M2/lib/extract_rollup.json",
+ "bundle_version": "holon-bundle-sidecar/0.1",
+ "corpus": {
+  "m1": {
+   "doc": "I20's base corpus: holon.mreplay.random_corpus on the M1 model of the abstract facts, with I20's seed and size; its rows translated as I20's harness translates them (replay/M2/solidity/HolonExtractedStep.t.sol), but for sendMessage {who}, which is the real messenger's sendMessage(address,uint256,bytes,uint256)(0x7a, 0, empty, 1000000) by who's actor with no value, and @legacy_eta2, which is I20's poked environment step",
+   "facts": "spec/M1/facts/morph_rollup.json",
+   "seed": 20261011,
+   "traces": 300
+  },
+  "random": {
+   "addresses": [
+    "@w1",
+    "@w2",
+    "@w3",
+    "@w4",
+    "@w5",
+    "@w6",
+    "@w7",
+    "@w8",
+    "@w9",
+    "@rollup",
+    "@messenger",
+    "@queue",
+    "@whitelist",
+    "@submitter",
+    "0x0000000000000000000000000000000000000000"
+   ],
+   "array_lengths": [
+    0,
+    1,
+    2
+   ],
+   "bytes": [
+    "0x",
+    "0x00",
+    "0xabcd",
+    "0x1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+   ],
+   "callers": [
+    "@w1",
+    "@w2",
+    "@w3",
+    "@w4",
+    "@w5",
+    "@w6",
+    "@w7",
+    "@w8",
+    "@w9",
+    "@rollup",
+    "@messenger",
+    "@queue",
+    "@whitelist",
+    "@submitter"
+   ],
+   "seed": 20261023,
+   "steps": 12,
+   "traces": 120,
+   "uints": [
+    0,
+    1,
+    2,
+    7,
+    255,
+    256,
+    21000,
+    25000,
+    1000000,
+    1000000000,
+    1000000000000000000
+   ],
+   "values": [
+    0,
+    1,
+    7,
+    1000000000,
+    1000000000000000000
+   ],
+   "warp": {
+    "probability": "1/4",
+    "seconds": [
+     1,
+     11,
+     41,
+     3600
+    ]
+   },
+   "words": [
+    "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "0x1111111111111111111111111111111111111111111111111111111111111111"
+   ]
+  },
+  "relay": {
+   "check": {
+    "leaf": "0x699565162322efa8dc2ded121b7a72a371f617b33b8e73e8c119632f29d416c9",
+    "poke_slot": "0xb1b28ba5b0a045ade41de0ae1ca644b1e76acaf13ea4400efb54881d228084ef",
+    "root": "0xba0c6c3e3bef179e80a103f3c1341bbcf142de55dbd980de3f7015b7506d979f",
+    "step": [
+     "S2_relay",
+     1
+    ]
+   },
+   "doc": "A relay step (harness-translated): the leaf is keccak256 of the relayMessage encoding of (from, to, value, nonce, message), the root folds 32 zero siblings over it at index nonce (Verify.sol's rule), and the step pokes the Rollup's withdrawalRoots entry of the root to 1 (root valid), of the root of message ++ 0x00 (root mismatch) or of nothing (root unknown), then calls proveAndRelayMessage with the 32 zero siblings and the root",
+   "family": "withdrawalRoots",
+   "slot": 163
+  },
+  "seed": {
+   "S1_messaging": [
+    {
+     "call": {
+      "args": [
+       "@w7",
+       0,
+       "0x",
+       1000000
+      ],
+      "caller": "@w5",
+      "fn": "sendMessage(address,uint256,bytes,uint256)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       1000
+      ],
+      "caller": "@w1",
+      "fn": "setL2BaseFee(uint256)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7",
+       7,
+       "0xabcd",
+       1000000,
+       "@w9"
+      ],
+      "caller": "@w5",
+      "fn": "sendMessage(address,uint256,bytes,uint256,address)",
+      "to": "messenger",
+      "value": 1000000012
+     }
+    },
+    {
+     "call": {
+      "args": [
+       [
+        "@w5"
+       ],
+       true
+      ],
+      "caller": "@w1",
+      "fn": "updateWhitelistStatus(address[],bool)",
+      "to": "whitelist",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       0,
+       0,
+       "0x",
+       1000000,
+       "@w8"
+      ],
+      "caller": "@w8",
+      "fn": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       0,
+       0,
+       "0x",
+       1000000,
+       "@w8"
+      ],
+      "caller": "@w8",
+      "fn": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       0,
+       0,
+       "0x",
+       1000000,
+       "@w8"
+      ],
+      "caller": "@w8",
+      "fn": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       0,
+       0,
+       "0x",
+       1000000,
+       "@w8"
+      ],
+      "caller": "@w8",
+      "fn": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       4
+      ],
+      "caller": "@w1",
+      "fn": "updateMaxReplayTimes(uint256)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       0,
+       0,
+       "0x",
+       1000000,
+       "@w8"
+      ],
+      "caller": "@w8",
+      "fn": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       7,
+       1,
+       "0xabcd",
+       500000,
+       "@w9"
+      ],
+      "caller": "@w9",
+      "fn": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+      "to": "messenger",
+      "value": 3
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       0,
+       9,
+       "0x",
+       1000000,
+       "@w8"
+      ],
+      "caller": "@w8",
+      "fn": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       [
+        "@w5"
+       ],
+       false
+      ],
+      "caller": "@w1",
+      "fn": "updateWhitelistStatus(address[],bool)",
+      "to": "whitelist",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       7,
+       1,
+       "0xabcd",
+       500000,
+       "@w9"
+      ],
+      "caller": "@w9",
+      "fn": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       true
+      ],
+      "caller": "@w1",
+      "fn": "setPause(bool)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7",
+       0,
+       "0x",
+       1000000
+      ],
+      "caller": "@w5",
+      "fn": "sendMessage(address,uint256,bytes,uint256)",
+      "to": "messenger",
+      "value": 1000000000
+     }
+    },
+    {
+     "call": {
+      "args": [
+       false
+      ],
+      "caller": "@w1",
+      "fn": "setPause(bool)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       30000
+      ],
+      "caller": "@w1",
+      "fn": "updateMaxGasLimit(uint256)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7",
+       0,
+       "0x",
+       1000000
+      ],
+      "caller": "@w5",
+      "fn": "sendMessage(address,uint256,bytes,uint256)",
+      "to": "messenger",
+      "value": 1000000000
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7",
+       0,
+       "0x",
+       21000
+      ],
+      "caller": "@w5",
+      "fn": "sendMessage(address,uint256,bytes,uint256)",
+      "to": "messenger",
+      "value": 21000000
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7",
+       0,
+       "0x",
+       30000
+      ],
+      "caller": "@w5",
+      "fn": "sendMessage(address,uint256,bytes,uint256)",
+      "to": "messenger",
+      "value": 30000000
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w1",
+      "fn": "",
+      "to": "messenger",
+      "value": 5
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w5",
+      "fn": "",
+      "to": "messenger",
+      "value": 5
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w9"
+      ],
+      "caller": "@w1",
+      "fn": "updateFeeVault(address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w5",
+      "fn": "messageNonce()",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       100
+      ],
+      "caller": "@w2",
+      "fn": "estimateCrossDomainMessageFee(address,uint256)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@rollup"
+      ],
+      "caller": "@w1",
+      "fn": "updateRollup(address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w9"
+      ],
+      "caller": "@w1",
+      "fn": "updateWhitelistChecker(address)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7",
+       0,
+       "0x",
+       30000
+      ],
+      "caller": "@w5",
+      "fn": "sendMessage(address,uint256,bytes,uint256)",
+      "to": "messenger",
+      "value": 30000000
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@whitelist"
+      ],
+      "caller": "@w1",
+      "fn": "updateWhitelistChecker(address)",
+      "to": "queue",
+      "value": 0
+     }
+    }
+   ],
+   "S2_relay": [
+    {
+     "call": {
+      "args": [
+       "@w7",
+       100,
+       "0x",
+       1000000
+      ],
+      "caller": "@w5",
+      "fn": "sendMessage(address,uint256,bytes,uint256)",
+      "to": "messenger",
+      "value": 100
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x",
+      "nonce": 0,
+      "root": "valid",
+      "to": "@w7",
+      "value": 40
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x",
+      "nonce": 0,
+      "root": "valid",
+      "to": "@w7",
+      "value": 40
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x",
+      "nonce": 5,
+      "root": "unknown",
+      "to": "@w7",
+      "value": 40
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x",
+      "nonce": 6,
+      "root": "valid",
+      "to": "@queue",
+      "value": 0
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x",
+      "nonce": 7,
+      "root": "valid",
+      "to": "@messenger",
+      "value": 0
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x",
+      "nonce": 1,
+      "root": "valid",
+      "to": "@rollup",
+      "value": 10
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x264762040000000000000000000000000000000000000000000000000000000000001002",
+      "nonce": 2,
+      "root": "valid",
+      "to": "@submitter",
+      "value": 10
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x01",
+      "nonce": 3,
+      "root": "mismatch",
+      "to": "@w7",
+      "value": 10
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x79586dd70000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000001005",
+      "nonce": 4,
+      "root": "valid",
+      "to": "@whitelist",
+      "value": 0
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "0x000000000000000000000000000000000000dEaD",
+      "message": "0x",
+      "nonce": 9,
+      "root": "valid",
+      "to": "@w7",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "0x699565162322efa8dc2ded121b7a72a371f617b33b8e73e8c119632f29d416c9",
+       [
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+       ],
+       0,
+       "0xba0c6c3e3bef179e80a103f3c1341bbcf142de55dbd980de3f7015b7506d979f"
+      ],
+      "caller": "@w5",
+      "fn": "verifyMerkleProof(bytes32,bytes32[32],uint256,bytes32)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       true
+      ],
+      "caller": "@w1",
+      "fn": "setPause(bool)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "relay": {
+      "caller": "@w9",
+      "from": "@w4",
+      "message": "0x",
+      "nonce": 8,
+      "root": "valid",
+      "to": "@w7",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       false
+      ],
+      "caller": "@w1",
+      "fn": "setPause(bool)",
+      "to": "messenger",
+      "value": 0
+     }
+    }
+   ],
+   "S3_submitter": [
+    {
+     "call": {
+      "args": [
+       "@w7"
+      ],
+      "caller": "@w1",
+      "fn": "addSubmitter(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7"
+      ],
+      "caller": "@w7",
+      "fn": "stake(address)",
+      "to": "submitter",
+      "value": 1000000000000000000
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7"
+      ],
+      "caller": "@w5",
+      "fn": "stake(address)",
+      "to": "submitter",
+      "value": 1
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7"
+      ],
+      "caller": "@w5",
+      "fn": "isActive(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w7",
+      "fn": "withdraw()",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w9"
+      ],
+      "caller": "@w7",
+      "fn": "claimWithdrawal(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w9"
+      ],
+      "caller": "@w7",
+      "fn": "claimWithdrawal(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w3"
+      ],
+      "caller": "@w1",
+      "fn": "removeSubmitter(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       2000000000000000000
+      ],
+      "caller": "@w1",
+      "fn": "setMinimumStake(uint256)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w2"
+      ],
+      "caller": "@w5",
+      "fn": "isActive(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       2
+      ],
+      "caller": "@w1",
+      "fn": "updateChallengeDeposit(uint256)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       101
+      ],
+      "caller": "@w1",
+      "fn": "updateRewardPercentage(uint256)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       50
+      ],
+      "caller": "@w1",
+      "fn": "updateRewardPercentage(uint256)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w2"
+      ],
+      "caller": "@w5",
+      "fn": "slash(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w9"
+      ],
+      "caller": "@w1",
+      "fn": "claimSlashRemaining(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w3"
+      ],
+      "caller": "@w1",
+      "fn": "addSubmitter(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w8"
+      ],
+      "caller": "@w1",
+      "fn": "transferOwnership(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       3
+      ],
+      "caller": "@w1",
+      "fn": "setMinimumStake(uint256)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w8",
+      "fn": "renounceOwnership()",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w5",
+      "fn": "owner()",
+      "to": "submitter",
+      "value": 0
+     }
+    }
+   ],
+   "S4_challenge_and_slash": [
+    {
+     "row": {
+      "op": "sendMessage",
+      "who": 5
+     }
+    },
+    {
+     "row": {
+      "blobs": [
+       1
+      ],
+      "lbn": 1,
+      "n": 1,
+      "op": "commitBatch",
+      "parent": 0,
+      "post": 101,
+      "prev": 100,
+      "ver": 0,
+      "who": 2
+     }
+    },
+    {
+     "row": {
+      "idx": 1,
+      "op": "challengeState",
+      "value": 1,
+      "who": 4
+     }
+    },
+    {
+     "row": {
+      "dt": 11,
+      "op": "wait"
+     }
+    },
+    {
+     "row": {
+      "idx": 1,
+      "op": "proveState",
+      "proof": 0,
+      "who": 3
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w9"
+      ],
+      "caller": "@w4",
+      "fn": "claimReward(address)",
+      "to": "rollup",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w9"
+      ],
+      "caller": "@w1",
+      "fn": "claimSlashRemaining(address)",
+      "to": "submitter",
+      "value": 0
+     }
+    },
+    {
+     "row": {
+      "count": 1,
+      "idx": 1,
+      "op": "revertBatch",
+      "who": 1
+     }
+    },
+    {
+     "row": {
+      "blobs": [],
+      "lbn": 1,
+      "n": 1,
+      "op": "commitState",
+      "parent": 0,
+      "post": 101,
+      "prev": 100,
+      "ver": 0,
+      "who": 3
+     }
+    },
+    {
+     "row": {
+      "dt": 41,
+      "op": "wait"
+     }
+    },
+    {
+     "row": {
+      "idx": 1,
+      "op": "finalizeBatch",
+      "who": 5
+     }
+    }
+   ],
+   "S5_finalize_and_queue": [
+    {
+     "row": {
+      "op": "sendMessage",
+      "who": 5
+     }
+    },
+    {
+     "row": {
+      "op": "sendMessage",
+      "who": 6
+     }
+    },
+    {
+     "row": {
+      "blobs": [
+       1
+      ],
+      "lbn": 1,
+      "n": 2,
+      "op": "commitBatch",
+      "parent": 0,
+      "post": 101,
+      "prev": 100,
+      "ver": 0,
+      "who": 2
+     }
+    },
+    {
+     "row": {
+      "dt": 41,
+      "op": "wait"
+     }
+    },
+    {
+     "row": {
+      "idx": 1,
+      "op": "finalizeBatch",
+      "who": 7
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w5",
+      "fn": "getFirstUnfinalizedMessageEnqueueTime()",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       2,
+       1
+      ],
+      "caller": "@w5",
+      "fn": "popCrossDomainMessage(uint256,uint256)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w7",
+       1000000,
+       "0x"
+      ],
+      "caller": "@w5",
+      "fn": "appendCrossDomainMessage(address,uint256,bytes)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       "@w7",
+       0,
+       1000000,
+       "0x"
+      ],
+      "caller": "@w8",
+      "fn": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@rollup",
+       "@w7",
+       0,
+       1000000,
+       "0x"
+      ],
+      "caller": "@w8",
+      "fn": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       300,
+       7,
+       "@w7",
+       100000,
+       "0x01"
+      ],
+      "caller": "@w5",
+      "fn": "computeTransactionHash(address,uint256,uint256,address,uint256,bytes)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5",
+       0,
+       0,
+       "@w7",
+       0,
+       "0x222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"
+      ],
+      "caller": "@w5",
+      "fn": "computeTransactionHash(address,uint256,uint256,address,uint256,bytes)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "0x0102"
+      ],
+      "caller": "@w5",
+      "fn": "calculateIntrinsicGasFee(bytes)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       0
+      ],
+      "caller": "@w5",
+      "fn": "getMessageEnqueueTimestamp(uint256)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w5",
+      "fn": "nextCrossDomainMessageIndex()",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       9
+      ],
+      "caller": "@w5",
+      "fn": "getCrossDomainMessage(uint256)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w5",
+      "fn": "owner()",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w2"
+      ],
+      "caller": "@w1",
+      "fn": "transferOwnership(address)",
+      "to": "queue",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w2",
+      "fn": "renounceOwnership()",
+      "to": "queue",
+      "value": 0
+     }
+    }
+   ],
+   "S6_commit_with_proof": [
+    {
+     "row": {
+      "dt": 21,
+      "op": "wait"
+     }
+    },
+    {
+     "row": {
+      "op": "sendMessage",
+      "who": 5
+     }
+    },
+    {
+     "row": {
+      "blobs": [
+       1
+      ],
+      "lbn": 1,
+      "n": 1,
+      "op": "commitBatchWithProof",
+      "parent": 0,
+      "post": 101,
+      "prev": 100,
+      "proof": 1,
+      "ver": 0,
+      "who": 5
+     }
+    },
+    {
+     "row": {
+      "idx": 1,
+      "op": "finalizeBatch",
+      "who": 5
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w5"
+      ],
+      "caller": "@w2",
+      "fn": "isSenderAllowed(address)",
+      "to": "whitelist",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w3"
+      ],
+      "caller": "@w1",
+      "fn": "transferOwnership(address)",
+      "to": "whitelist",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w3",
+      "fn": "renounceOwnership()",
+      "to": "whitelist",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       [
+        "@w5"
+       ],
+       true
+      ],
+      "caller": "@w3",
+      "fn": "updateWhitelistStatus(address[],bool)",
+      "to": "whitelist",
+      "value": 0
+     }
+    }
+   ],
+   "S7_admin": [
+    {
+     "call": {
+      "args": [],
+      "caller": "@w5",
+      "fn": "owner()",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w5",
+      "fn": "paused()",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       "@w2"
+      ],
+      "caller": "@w1",
+      "fn": "transferOwnership(address)",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w2",
+      "fn": "renounceOwnership()",
+      "to": "messenger",
+      "value": 0
+     }
+    },
+    {
+     "call": {
+      "args": [
+       5
+      ],
+      "caller": "@w2",
+      "fn": "updateMaxReplayTimes(uint256)",
+      "to": "messenger",
+      "value": 0
+     }
+    }
+   ]
+  }
+ },
+ "deployment": {
+  "actors": {
+   "w1": "harness",
+   "w2": "0x0000000000000000000000000000000000001002",
+   "w3": "0x0000000000000000000000000000000000001003",
+   "w4": "0x0000000000000000000000000000000000001004",
+   "w5": "0x0000000000000000000000000000000000001005",
+   "w6": "0x0000000000000000000000000000000000001006",
+   "w7": "0x0000000000000000000000000000000000001007",
+   "w8": "0x0000000000000000000000000000000000001008",
+   "w9": "0x0000000000000000000000000000000000001009"
+  },
+  "doc": "Each trace starts from a fresh deployment, made in this order by the harness contract (actor w1, every member's owner). Actors: w1 the harness; wK (K = 2..9) the address 0x1000 + K, as I20's harness (who2addr); the proxy admin 0xAD. Every proxy is an OpenZeppelin 4.9.3 TransparentUpgradeableProxy of the pinned dependency tree with the admin 0xAD. Members are named by @<name> and actors by @w<K> in the corpus.",
+  "epoch": 1700000000,
+  "init": {
+   "facts": "spec/M1/facts/morph_rollup.json",
+   "keys": [
+    "F",
+    "W",
+    "D",
+    "t",
+    "fsr.0"
+   ],
+   "values": [
+    40,
+    10,
+    20,
+    10,
+    100
+   ]
+  },
+  "proxy_admin": "0x00000000000000000000000000000000000000ad",
+  "steps": [
+   "warp to epoch + t",
+   "whitelist = new Whitelist(w1)",
+   "verifier = I20's stand-in (replay/M1/solidity/HolonTraceReplay.t.sol HolonVerifierOracle: accepts a proof whose first byte is 0x01)",
+   "rollup = proxy over new Rollup(53077)",
+   "submitter = proxy over new Submitter()",
+   "messenger = proxy over a placeholder with no code of its own (an EmptyContract)",
+   "queue = proxy over new L1MessageQueueWithGasPriceOracle(messenger, rollup, w8)",
+   "messenger: the admin's upgradeTo(new L1CrossDomainMessenger())",
+   "queue.initialize(10000000, whitelist)",
+   "messenger.initialize(w6, rollup, queue)",
+   "submitter.initialize(w1, rollup, 1000000000000000000, 1, 20)",
+   "rollup.initialize(submitter, queue, verifier, F, W, 70)",
+   "rollup.updateRollupDelayPeriod(D)",
+   "rollup.addChallenger(w4)",
+   "deal 100 ether to each of w2..w9",
+   "submitter.addSubmitter(w2); submitter.addSubmitter(w3)",
+   "submitter.stake{value: 1 ether}(w2) by w2; submitter.stake{value: 1 ether}(w3) by w3",
+   "rollup.importGenesisBatch(the version-0 genesis header of I20's harness: index 0, popped 0, total 0, data hash 1, the zero versioned hash, post-state root fsr.0)"
+  ]
+ },
+ "doc": "I69's sidecar (= I36a: Bundle I's extraction and acquisition; the contract is the docstring of tests_m3/test_bundle_extraction.py, rules E1-E7, M1-M6, L1-L8, C1-C6, A1-A7). It names what to extract, link, deploy, replay and fetch, never what any of it gives: the members and their sources and commits, the wiring the deployment sets, the deployment's calls, the corpus (its sources, seeds, sizes and the planted traces), the observables, the legacy registry's tags and compiler configurations, the proxies, the window and the hosts of the on-chain reads. It holds no slot, guard, action list, coverage count, code hash or on-chain value but these inputs: the slot of the Rollup's withdrawalRoots family (163, read from the adopted document; the relay steps' poke), the seed relay's leaf and root (computed by tests_m3/_i69.py from the step's fields), the proxies' addresses (from committed receipts and records) and I63's pins.",
+ "extracted_only": [
+  {
+   "commit": "4a1607dbe3288643827154738e28e5ef0734dccf",
+   "commit_interfaces": [],
+   "contract": "L1Staking",
+   "name": "l1staking",
+   "source": "contracts/contracts/l1/staking/L1Staking.sol",
+   "tag": "v0.6.1",
+   "why": "the legacy registry (Q12): extracted at the last tag holding it; linked with the V10 Rollup of I28's versioned machine by I70 (= I36c), not here"
+  }
+ ],
+ "link": {
+  "depth": 8
+ },
+ "members": [
+  {
+   "adopted": true,
+   "contract": "Rollup",
+   "document": "spec/M2/facts/morph_rollup.extracted.json",
+   "name": "rollup",
+   "source": "contracts/contracts/l1/rollup/Rollup.sol"
+  },
+  {
+   "commit": "3e44e795586af3e11285b603ab642c67823add51",
+   "commit_interfaces": [],
+   "contract": "L1CrossDomainMessenger",
+   "name": "messenger",
+   "source": "contracts/contracts/l1/L1CrossDomainMessenger.sol"
+  },
+  {
+   "commit": "3e44e795586af3e11285b603ab642c67823add51",
+   "commit_interfaces": [],
+   "contract": "L1MessageQueueWithGasPriceOracle",
+   "name": "queue",
+   "source": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol"
+  },
+  {
+   "commit": "3e44e795586af3e11285b603ab642c67823add51",
+   "commit_interfaces": [],
+   "contract": "Whitelist",
+   "name": "whitelist",
+   "source": "contracts/contracts/libraries/common/Whitelist.sol"
+  },
+  {
+   "commit": "3e44e795586af3e11285b603ab642c67823add51",
+   "commit_interfaces": [],
+   "contract": "Submitter",
+   "name": "submitter",
+   "source": "contracts/contracts/l1/rollup/Submitter.sol"
+  }
+ ],
+ "observables": [
+  "status",
+  "revert",
+  "return",
+  "storage",
+  "events",
+  "balances",
+  "outgoing"
+ ],
+ "outputs": {
+  "code": "results/M3/bundle/code",
+  "corpus": "gen/M3/bundle/corpus.json",
+  "declaration": "gen/M3/bundle/bundle.json",
+  "deployment": "replay/M3/bundle/deployment.json",
+  "disagreements": "results/M3/bundle/disagreements.json",
+  "documents": "gen/M3/bundle/documents",
+  "harness": "replay/M3/bundle",
+  "history": "gen/M3/bundle/history/l1staking.json",
+  "models": "gen/M3/bundle/models",
+  "onchain": "results/M3/bundle/onchain.json",
+  "receipts": "results/M3/bundle/receipts",
+  "refinement": "results/M3/bundle/refinement.json",
+  "refinement_models": "results/M3/bundle/refinement_models.json",
+  "second_read": "results/M3/bundle/second_read.json",
+  "sidecars": "gen/M3/bundle/sidecars",
+  "steps": "results/M3/bundle/steps.json",
+  "timeline": "results/M3/bundle/timeline.json"
+ },
+ "target": {
+  "head": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph"
+ },
+ "wiring": {
+  "messenger.messageQueue": "queue",
+  "messenger.rollup": "rollup",
+  "queue.MESSENGER": "messenger",
+  "queue.ROLLUP_CONTRACT": "rollup",
+  "queue.whitelistChecker": "whitelist",
+  "rollup.messageQueue": "queue",
+  "rollup.submitterContract": "submitter",
+  "submitter.rollupContract": "rollup"
+ }
+}
