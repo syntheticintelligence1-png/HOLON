@@ -1,0 +1,79 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sort_cons_Rollup_receive",
+  "milestone": "M3",
+  "notes": "\u00a77.5 conservation (the inflow half): in every reachable state where the payable action succeeds, its msg.value is accounted for by its class's claim; rollup:conservation:receive",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.11",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "bundle": "rollup:conservation:receive",
+            "env": {
+              "var": "e"
+            },
+            "from": {
+              "var": "s"
+            },
+            "on": {
+              "var": "x"
+            },
+            "premise": "ok"
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Args"
+      },
+      {
+        "name": "e",
+        "q": "forall",
+        "type": "Env"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "bundle": "rollup:conservation:receive",
+          "env": {
+            "var": "e"
+          },
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "x"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "conservation"
+}

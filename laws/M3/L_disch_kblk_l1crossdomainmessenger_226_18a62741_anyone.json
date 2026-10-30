@@ -1,0 +1,58 @@
+{
+  "facts": "gen/M3/bundle/documents/messenger.json",
+  "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone",
+  "milestone": "M3",
+  "notes": "Thm 6.10 at a key: while the blocked condition holds at k, every successful step of the class keeps it; messenger:keyed_blocking:l1crossdomainmessenger_226_18a62741:anyone",
+  "rule": "DISCH",
+  "rule_catalog_version": "holon-rules/1.11",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "k",
+        "q": "forall",
+        "type": "Word"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "at": {
+            "var": "k"
+          },
+          "bundle": "messenger:keyed_blocking:l1crossdomainmessenger_226_18a62741:anyone",
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "keyed_blocking"
+}

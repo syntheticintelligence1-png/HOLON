@@ -9904,9 +9904,21 @@
     }
   ],
   "document": "evidence",
-  "evidence_sha256": "23037a4cec6e328188ebff28b10f04465eaab34acd24c961bc41dd64a263cef5",
+  "evidence_sha256": "6644d8bd9211f4cebd4728f7b0af25626b81eccb3d358dbbd3f033995a8697a0",
   "evidence_version": "holon-evidence/0.1",
   "inputs": [
+    {
+      "path": "gen/M3/bundle/bundle.json",
+      "sha256": "e857b0e853b31945ceb8306c1451e43941bdf05aa1a3fb8491ced6423ff0e800"
+    },
+    {
+      "path": "gen/M3/bundle/documents/messenger.json",
+      "sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519"
+    },
+    {
+      "path": "gen/M3/bundle/documents/submitter.json",
+      "sha256": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2"
+    },
     {
       "path": "gen/M3/codec/header_length.json",
       "sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315"
@@ -9982,6 +9994,10 @@
     {
       "path": "spec/M2/lib/evidence_lexical.json",
       "sha256": "0c1b71a550906dd674c31dbf757a1b364a6806af06b3ebfc80ec38c12c869e0e"
+    },
+    {
+      "path": "spec/M3/lib/bundle_laws.json",
+      "sha256": "a17b8b246e3f7e243acba169d078fc96ad589e9f53655e72b2b8468bc7ee6525"
     },
     {
       "path": "spec/M3/lib/derive_extracted.json",
@@ -10074,6 +10090,245 @@
       "facts": "gen/M3/codec/header_length.json",
       "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
       "facts_version": "holon-linked/0.1"
+    },
+    "messenger": {
+      "anchors": {
+        "actions": {
+          "initialize": "TRANS.initialize",
+          "messageNonce": "TRANS.messageNonce",
+          "owner": "TRANS.owner",
+          "paused": "TRANS.paused",
+          "proveAndRelayMessage": "TRANS.proveAndRelayMessage",
+          "receive": "TRANS.receive",
+          "renounceOwnership": "TRANS.renounceOwnership",
+          "replayMessage": "TRANS.replayMessage",
+          "sendMessage_5f7b1577": "TRANS.sendMessage_5f7b1577",
+          "sendMessage_b2267a7b": "TRANS.sendMessage_b2267a7b",
+          "setPause": "TRANS.setPause",
+          "transferOwnership": "TRANS.transferOwnership",
+          "updateFeeVault": "TRANS.updateFeeVault",
+          "updateMaxReplayTimes": "TRANS.updateMaxReplayTimes",
+          "updateRollup": "TRANS.updateRollup",
+          "verifyMerkleProof": "TRANS.verifyMerkleProof"
+        },
+        "carriers": {
+          "ContextUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "CrossDomainMessenger.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "OwnableUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "PausableUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "ReentrancyGuardUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "__isL1MessageDropped": {
+            "readers": [
+              "TRANS.replayMessage"
+            ],
+            "writers": []
+          },
+          "_initialized": {
+            "readers": [
+              "TRANS.initialize"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "_initializing": {
+            "readers": [
+              "TRANS.initialize"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "_owner": {
+            "readers": [
+              "TRANS.initialize",
+              "TRANS.owner",
+              "TRANS.receive",
+              "TRANS.renounceOwnership",
+              "TRANS.setPause",
+              "TRANS.transferOwnership",
+              "TRANS.updateFeeVault",
+              "TRANS.updateMaxReplayTimes",
+              "TRANS.updateRollup"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.renounceOwnership",
+              "TRANS.transferOwnership"
+            ]
+          },
+          "_paused": {
+            "readers": [
+              "TRANS.paused",
+              "TRANS.proveAndRelayMessage",
+              "TRANS.replayMessage",
+              "TRANS.sendMessage_5f7b1577",
+              "TRANS.sendMessage_b2267a7b",
+              "TRANS.setPause"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.setPause"
+            ]
+          },
+          "_status": {
+            "readers": [
+              "TRANS.sendMessage_5f7b1577",
+              "TRANS.sendMessage_b2267a7b"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.sendMessage_5f7b1577",
+              "TRANS.sendMessage_b2267a7b"
+            ]
+          },
+          "counterpart": {
+            "readers": [
+              "TRANS.replayMessage",
+              "TRANS.sendMessage_5f7b1577",
+              "TRANS.sendMessage_b2267a7b"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "feeVault": {
+            "readers": [
+              "TRANS.initialize",
+              "TRANS.replayMessage",
+              "TRANS.sendMessage_5f7b1577",
+              "TRANS.sendMessage_b2267a7b",
+              "TRANS.updateFeeVault"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateFeeVault"
+            ]
+          },
+          "finalizedWithdrawals": {
+            "readers": [
+              "TRANS.proveAndRelayMessage"
+            ],
+            "writers": [
+              "TRANS.proveAndRelayMessage"
+            ]
+          },
+          "maxReplayTimes": {
+            "readers": [
+              "TRANS.replayMessage",
+              "TRANS.updateMaxReplayTimes"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateMaxReplayTimes"
+            ]
+          },
+          "messageQueue": {
+            "readers": [
+              "TRANS.messageNonce",
+              "TRANS.proveAndRelayMessage",
+              "TRANS.replayMessage",
+              "TRANS.sendMessage_5f7b1577",
+              "TRANS.sendMessage_b2267a7b"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "messageSendTimestamp": {
+            "readers": [
+              "TRANS.replayMessage",
+              "TRANS.sendMessage_5f7b1577",
+              "TRANS.sendMessage_b2267a7b"
+            ],
+            "writers": [
+              "TRANS.sendMessage_5f7b1577",
+              "TRANS.sendMessage_b2267a7b"
+            ]
+          },
+          "prevReplayIndex": {
+            "readers": [
+              "TRANS.replayMessage"
+            ],
+            "writers": [
+              "TRANS.replayMessage"
+            ]
+          },
+          "replayStates": {
+            "readers": [
+              "TRANS.replayMessage"
+            ],
+            "writers": [
+              "TRANS.replayMessage"
+            ]
+          },
+          "rollup": {
+            "readers": [
+              "TRANS.proveAndRelayMessage",
+              "TRANS.updateRollup"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateRollup"
+            ]
+          },
+          "xDomainMessageSender": {
+            "readers": [
+              "TRANS.proveAndRelayMessage",
+              "TRANS.replayMessage"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.proveAndRelayMessage"
+            ]
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.initialize",
+          "TRANS.messageNonce",
+          "TRANS.owner",
+          "TRANS.paused",
+          "TRANS.proveAndRelayMessage",
+          "TRANS.receive",
+          "TRANS.renounceOwnership",
+          "TRANS.replayMessage",
+          "TRANS.sendMessage_5f7b1577",
+          "TRANS.sendMessage_b2267a7b",
+          "TRANS.setPause",
+          "TRANS.transferOwnership",
+          "TRANS.updateFeeVault",
+          "TRANS.updateMaxReplayTimes",
+          "TRANS.updateRollup",
+          "TRANS.verifyMerkleProof"
+        ]
+      },
+      "diagram": null,
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+      "facts_version": "holon-facts/0.3"
     },
     "morph_rollup.extracted": {
       "anchors": {
@@ -11056,6 +11311,238 @@
       "facts": "gen/M3/versions/morph_rollup.versions.json",
       "facts_sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
       "facts_version": "holon-versions/0.1"
+    },
+    "submitter": {
+      "anchors": {
+        "actions": {
+          "addSubmitter": "TRANS.addSubmitter",
+          "claimSlashRemaining": "TRANS.claimSlashRemaining",
+          "claimWithdrawal": "TRANS.claimWithdrawal",
+          "initialize": "TRANS.initialize",
+          "isActive": "TRANS.isActive",
+          "owner": "TRANS.owner",
+          "removeSubmitter": "TRANS.removeSubmitter",
+          "renounceOwnership": "TRANS.renounceOwnership",
+          "setMinimumStake": "TRANS.setMinimumStake",
+          "slash": "TRANS.slash",
+          "stake": "TRANS.stake",
+          "transferOwnership": "TRANS.transferOwnership",
+          "updateChallengeDeposit": "TRANS.updateChallengeDeposit",
+          "updateRewardPercentage": "TRANS.updateRewardPercentage",
+          "withdraw": "TRANS.withdraw"
+        },
+        "carriers": {
+          "ContextUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "OwnableUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "ReentrancyGuardUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "_initialized": {
+            "readers": [
+              "TRANS.initialize"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "_initializing": {
+            "readers": [
+              "TRANS.initialize"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "_owner": {
+            "readers": [
+              "TRANS.addSubmitter",
+              "TRANS.claimSlashRemaining",
+              "TRANS.initialize",
+              "TRANS.owner",
+              "TRANS.removeSubmitter",
+              "TRANS.renounceOwnership",
+              "TRANS.setMinimumStake",
+              "TRANS.transferOwnership",
+              "TRANS.updateChallengeDeposit",
+              "TRANS.updateRewardPercentage"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.renounceOwnership",
+              "TRANS.transferOwnership"
+            ]
+          },
+          "_status": {
+            "readers": [
+              "TRANS.claimSlashRemaining",
+              "TRANS.claimWithdrawal",
+              "TRANS.slash",
+              "TRANS.stake"
+            ],
+            "writers": [
+              "TRANS.claimSlashRemaining",
+              "TRANS.claimWithdrawal",
+              "TRANS.initialize",
+              "TRANS.slash",
+              "TRANS.stake"
+            ]
+          },
+          "challengeDeposit": {
+            "readers": [
+              "TRANS.updateChallengeDeposit"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateChallengeDeposit"
+            ]
+          },
+          "minimumStake": {
+            "readers": [
+              "TRANS.isActive",
+              "TRANS.setMinimumStake",
+              "TRANS.stake"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.setMinimumStake"
+            ]
+          },
+          "registered": {
+            "readers": [
+              "TRANS.addSubmitter",
+              "TRANS.isActive",
+              "TRANS.removeSubmitter",
+              "TRANS.slash",
+              "TRANS.stake",
+              "TRANS.withdraw"
+            ],
+            "writers": [
+              "TRANS.addSubmitter",
+              "TRANS.removeSubmitter",
+              "TRANS.slash",
+              "TRANS.withdraw"
+            ]
+          },
+          "rewardPercentage": {
+            "readers": [
+              "TRANS.slash",
+              "TRANS.updateRewardPercentage"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateRewardPercentage"
+            ]
+          },
+          "rollupContract": {
+            "readers": [
+              "TRANS.claimWithdrawal",
+              "TRANS.removeSubmitter",
+              "TRANS.slash",
+              "TRANS.withdraw"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "slashRemaining": {
+            "readers": [
+              "TRANS.claimSlashRemaining",
+              "TRANS.slash"
+            ],
+            "writers": [
+              "TRANS.claimSlashRemaining",
+              "TRANS.slash"
+            ]
+          },
+          "stakeOf": {
+            "readers": [
+              "TRANS.addSubmitter",
+              "TRANS.claimWithdrawal",
+              "TRANS.isActive",
+              "TRANS.removeSubmitter",
+              "TRANS.slash",
+              "TRANS.stake",
+              "TRANS.withdraw"
+            ],
+            "writers": [
+              "TRANS.claimWithdrawal",
+              "TRANS.slash",
+              "TRANS.stake"
+            ]
+          },
+          "withdrawalBatchIndex": {
+            "readers": [
+              "TRANS.claimWithdrawal",
+              "TRANS.removeSubmitter",
+              "TRANS.slash",
+              "TRANS.withdraw"
+            ],
+            "writers": [
+              "TRANS.claimWithdrawal",
+              "TRANS.removeSubmitter",
+              "TRANS.slash",
+              "TRANS.withdraw"
+            ]
+          },
+          "withdrawing": {
+            "readers": [
+              "TRANS.addSubmitter",
+              "TRANS.claimWithdrawal",
+              "TRANS.isActive",
+              "TRANS.removeSubmitter",
+              "TRANS.slash",
+              "TRANS.stake",
+              "TRANS.withdraw"
+            ],
+            "writers": [
+              "TRANS.claimWithdrawal",
+              "TRANS.removeSubmitter",
+              "TRANS.slash",
+              "TRANS.withdraw"
+            ]
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.addSubmitter",
+          "TRANS.claimSlashRemaining",
+          "TRANS.claimWithdrawal",
+          "TRANS.initialize",
+          "TRANS.isActive",
+          "TRANS.owner",
+          "TRANS.removeSubmitter",
+          "TRANS.renounceOwnership",
+          "TRANS.setMinimumStake",
+          "TRANS.slash",
+          "TRANS.stake",
+          "TRANS.transferOwnership",
+          "TRANS.updateChallengeDeposit",
+          "TRANS.updateRewardPercentage",
+          "TRANS.withdraw"
+        ]
+      },
+      "diagram": null,
+      "facts": "gen/M3/bundle/documents/submitter.json",
+      "facts_sha256": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2",
+      "facts_version": "holon-facts/0.3"
     }
   },
   "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",

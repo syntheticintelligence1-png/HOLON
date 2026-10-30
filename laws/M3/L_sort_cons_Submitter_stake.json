@@ -1,0 +1,79 @@
+{
+  "facts": "gen/M3/bundle/documents/submitter.json",
+  "facts_sha256": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sort_cons_Submitter_stake",
+  "milestone": "M3",
+  "notes": "\u00a77.5 conservation (the inflow half): in every reachable state where the payable action succeeds, its msg.value is accounted for by its class's claim; submitter:conservation:stake",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.11",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "bundle": "submitter:conservation:stake",
+            "env": {
+              "var": "e"
+            },
+            "from": {
+              "var": "s"
+            },
+            "on": {
+              "var": "x"
+            },
+            "premise": "ok"
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Args"
+      },
+      {
+        "name": "e",
+        "q": "forall",
+        "type": "Env"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "bundle": "submitter:conservation:stake",
+          "env": {
+            "var": "e"
+          },
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "x"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "conservation"
+}

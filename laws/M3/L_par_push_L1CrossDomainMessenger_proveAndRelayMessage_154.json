@@ -1,0 +1,100 @@
+{
+  "facts": "gen/M3/bundle/documents/messenger.json",
+  "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154",
+  "milestone": "M3",
+  "notes": "Lemma 6.12 pushing under CF (Cor 6.16): equal leaves and keccak256 collision-free on the two preimages give equal index fields of the preimages; messenger:push:proveAndRelayMessage:154",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.11",
+  "statement": {
+    "assume": [
+      {
+        "cf": {
+          "fn": "keccak256",
+          "set": [
+            {
+              "bundle": "messenger:push:proveAndRelayMessage:154",
+              "on": [
+                {
+                  "var": "x1"
+                }
+              ],
+              "premise": "enc"
+            },
+            {
+              "bundle": "messenger:push:proveAndRelayMessage:154",
+              "on": [
+                {
+                  "var": "x2"
+                }
+              ],
+              "premise": "enc"
+            }
+          ]
+        }
+      },
+      {
+        "eq": [
+          {
+            "bundle": "messenger:push:proveAndRelayMessage:154",
+            "on": [
+              {
+                "var": "x1"
+              }
+            ],
+            "premise": "leaf"
+          },
+          {
+            "bundle": "messenger:push:proveAndRelayMessage:154",
+            "on": [
+              {
+                "var": "x2"
+              }
+            ],
+            "premise": "leaf"
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      },
+      {
+        "name": "x1",
+        "q": "forall",
+        "type": "Args"
+      },
+      {
+        "name": "x2",
+        "q": "forall",
+        "type": "Args"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "bundle": "messenger:push:proveAndRelayMessage:154",
+          "on": [
+            {
+              "var": "x1"
+            },
+            {
+              "var": "x2"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "push"
+}
