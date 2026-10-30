@@ -236,8 +236,10 @@ def build(root: Path, milestone: str) -> dict | None:
     from .replay import witness_sha256
     from .rules import own as OR
     todo = {}
-    for p in sorted((root / "laws" / milestone).glob("L_own_*.json")):
+    for p in sorted((root / "laws" / milestone).glob("L*.json")):
         law = _load(p)
+        if law.get("rule") != OR.RULE:
+            continue
         rp = root / "results" / milestone / f"{law['law_id']}.json"
         rec = _load(rp) if rp.is_file() else None
         doc = _load(root / law["facts"]) if isinstance(law.get("facts"), str) and (root / law["facts"]).is_file() \
