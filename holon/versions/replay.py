@@ -616,13 +616,17 @@ def getters(ctx: Ctx, m: Machine, edge: str, x: dict) -> list:
     """Each retyped or reinterpreted entry's public getter (named by the entry's label) at the edge's new version, with
     the trace's key for a mapping: [{"entry", "getter", "args", "calldata"}]."""
     a, b = edge.split("->")
-    out = []
+    out, abi = [], None
     for t in m.vd.get("in_flight_types") or []:
         if t["edge"] != edge:
             continue
         label = t["entry"].split(".", 1)[1]
         lay = [e for e in ctx.version(b)["layout"] if f"{e['contract']}.{e['label']}" == t["entry"]]
         fn = m.function(b, label)
+        if fn is None:      # I83: a public variable's getter is no action of the document; the compiler's ABI has it
+            if abi is None:
+                abi = build_implementation(ctx, b, matched_configs(ctx)[b])["abi"]
+            fn = abi_getter(abi, label)
         if fn is None or not lay:
             continue
         args = [num(x["key"])] if lay[0]["type"].get("encoding") == "mapping" else []
@@ -630,6 +634,16 @@ def getters(ctx: Ctx, m: Machine, edge: str, x: dict) -> list:
         cd = fn["selector"] + encode_args(fn["inputs"], args).hex()
         out.append({"entry": t["entry"], "getter": label, "args": args, "calldata": cd})
     return out
+
+
+def abi_getter(abi: list, name: str) -> dict | None:
+    """{name, inputs, selector} of the compiled ABI's view function `name` (a public variable's getter), or None."""
+    from ..evm_abi import selector
+    fs = [f for f in abi if f.get("type") == "function" and f.get("name") == name
+          and f.get("stateMutability") in ("view", "pure")]
+    if len(fs) != 1:
+        return None
+    return {"name": name, "inputs": fs[0].get("inputs") or [], "selector": selector(name, fs[0].get("inputs") or [])}
 
 
 def report(ctx: Ctx, log=None) -> dict:
