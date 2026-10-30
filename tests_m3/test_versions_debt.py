@@ -347,6 +347,62 @@ NEW_N = """import ./m.bend as M
 def mk(a: W, b: W) -> M.R:
   M.R{a, w0(), b}
 """
+# The renaming variant of X3 (added after C_K): a.bend's field q and definition g renamed, a constructor added.
+REN_OLD_A = """# a module
+type T is Data:
+  A{}
+  B{x: W}
+
+type R is Data:
+  R{p: W, q: W}
+
+def g(r: R) -> W:
+  match r:
+    case R{p, q}:
+      q
+
+def u(t: T) -> W:
+  match t:
+    case A{}:
+      w0()
+    case B{x}:
+      g(R{x, x})
+
+def h() -> W:
+  w0()
+"""
+REN_NEW_A = """# a module, extended and renamed
+type T is Data:
+  A{}
+  B{x: W}
+  C{y: W}
+
+type R is Data:
+  R{p: W, q7: W}
+
+def g7(r: R) -> W:
+  match r:
+    case R{p, q7}:
+      q7
+
+def u(t: T) -> W:
+  match t:
+    case A{}:
+      w0()
+    case B{x}:
+      g7(R{x, x})
+    case C{y}:
+      y
+
+def h() -> W:
+  w0()
+"""
+REN_OLD_B = """import ./a.bend as A
+
+def v() -> W:
+  A.h()
+"""
+REN_NEW_B = REN_OLD_B
 
 
 def sd():
@@ -409,6 +465,78 @@ class TestLifecycle(unittest.TestCase):
         problems = self.problems(new_m=NEW_M.replace(old_g, "    case R{p, p, q}:\n      p\n\ndef h"))
         self.assertNotEqual(problems, [])
         self.assertTrue(any("gained field" in p for p in problems), problems)
+
+    # Added after C_K: the renaming variant of X3 (the coordinator's decision, revocable). A module-wide numbering shifts
+    # the local names of old clauses when a new action compiles; such a model is accepted only modulo a renaming that
+    # is inferred, then verified (kind-preserving, injective, capture-free, fixing roots and cross-file references), with
+    # the comparison after it byte for byte. Positive control first, then the coordinator's eight negative tests.
+    def renamed(self, a=None, b=None, fixed=frozenset(), renaming=None) -> list:
+        S = sd()
+        return S.extension_problems({"a.bend": REN_OLD_A, "b.bend": REN_OLD_B},
+                                    {"a.bend": REN_NEW_A if a is None else a, "b.bend": REN_NEW_B if b is None else b},
+                                    fixed=fixed, renaming=renaming)
+
+    def test_x3_accepts_a_consistent_renaming(self):
+        """Positive control: R's field q -> q7 and the definition g -> g7, everywhere in a.bend, with a new constructor
+        and its arm; the renaming is inferred as exactly those pairs."""
+        S = sd()
+        self.assertEqual(S.infer_renaming({"a.bend": REN_OLD_A, "b.bend": REN_OLD_B},
+                                          {"a.bend": REN_NEW_A, "b.bend": REN_NEW_B}), {"a.bend": {"g": "g7", "q": "q7"}})
+        self.assertEqual(self.renamed(), [])
+
+    def test_x3_renaming_rejects_an_inconsistent_rename(self):
+        bad = REN_NEW_A.replace("    case R{p, q7}:\n      q7\n", "    case R{p, q7}:\n      q\n")
+        self.assertIn("      q\n", bad)
+        self.assertNotEqual(self.renamed(a=bad), [])
+        self.assertNotEqual(self.renamed(a=bad, renaming={"a.bend": {"g": "g7", "q": "q7"}}), [])
+
+    def test_x3_renaming_rejects_a_capturing_rename(self):
+        problems = self.renamed(renaming={"a.bend": {"g": "h", "q": "q7"}})
+        self.assertTrue(any("captures" in p for p in problems), problems)
+
+    def test_x3_renaming_rejects_renaming_a_root(self):
+        problems = self.renamed(fixed={"g"})
+        self.assertTrue(any("root" in p for p in problems), problems)
+
+    def test_x3_renaming_rejects_renaming_a_cross_file_reference(self):
+        a = REN_NEW_A.replace("def h() -> W:", "def h9() -> W:")
+        b = REN_NEW_B.replace("A.h()", "A.h9()")
+        problems = self.renamed(a=a, b=b)
+        self.assertNotEqual(problems, [])
+        problems = self.renamed(a=a, b=b, renaming={"a.bend": {"g": "g7", "h": "h9", "q": "q7"}})
+        self.assertTrue(any("outside its file" in p for p in problems), problems)
+
+    def test_x3_renaming_rejects_a_rename_that_also_changes_a_clause(self):
+        bad = REN_NEW_A.replace("      g7(R{x, x})\n", "      g7(R{x, w0()})\n")
+        self.assertNotEqual(bad, REN_NEW_A)
+        self.assertNotEqual(self.renamed(a=bad), [])
+        self.assertNotEqual(self.renamed(a=bad, renaming={"a.bend": {"g": "g7", "q": "q7"}}), [])
+
+    def test_x3_renaming_rejects_a_non_injective_renaming(self):
+        problems = self.renamed(renaming={"a.bend": {"g": "g7", "h": "g7", "q": "q7"}})
+        self.assertTrue(any("two names to one" in p for p in problems), problems)
+
+    def test_x3_renaming_rejects_an_image_bound_by_a_new_arm(self):
+        bad = REN_NEW_A.replace("    case C{y}:\n      y\n", "    case C{g7}:\n      g7\n")
+        self.assertNotEqual(bad, REN_NEW_A)
+        problems = self.renamed(a=bad)
+        self.assertTrue(any("bound as a local name" in p for p in problems), problems)
+
+    def test_x3_renaming_is_kind_preserving(self):
+        problems = self.renamed(renaming={"a.bend": {"g": "q7", "q": "g7"}})
+        self.assertTrue(any("maps a" in p for p in problems), problems)
+
+    def test_x4_rejects_a_failing_recheck_on_a_renamed_model(self):
+        """The renamed model passes X3, and the law's re-check by the kernels fails on it: the composed gate rejects."""
+        S = sd()
+        old, new = {"a.bend": REN_OLD_A, "b.bend": REN_OLD_B}, {"a.bend": REN_NEW_A, "b.bend": REN_NEW_B}
+        ren = S.infer_renaming(old, new)
+        rec = {"status": "REFUTED", "model_sha256": "ab" * 32}
+        self.assertEqual(S.extension_verdict_problems(old, new, set(), ren, "REFUTED", rec, self.OK, "ab" * 32, True), [])
+        for bad in ({"bend": {"exit_code": 1, "marker": "SOME PROOFS FAIL"}, "bendtt": self.OK["bendtt"]},
+                    {"bend": self.OK["bend"], "bendtt": {"exit_code": 1, "marker": "SOME PROOFS FAIL"}}):
+            problems = S.extension_verdict_problems(old, new, set(), ren, "REFUTED", rec, bad, "ab" * 32, True)
+            self.assertTrue(problems and all(p.startswith("X4: ") for p in problems), problems)
 
     def test_x1_rejects_a_statement_change(self):
         S = sd()

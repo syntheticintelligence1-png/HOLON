@@ -27,7 +27,10 @@ A frozen statement may change only through an entry that this module accepts:
   model_extension  (I83) the bound model gained behaviours under a fixed statement: a mechanical conservative-
                    extension check of the old model files (at bound_commit) against the new ones (extension_problems:
                    old datatypes keep their constructors and fields, old clauses stay byte-identical once the fields a
-                   constructor gained are erased, only arms of added constructors and new definitions are added) and
+                   constructor gained are erased, only arms of added constructors and new definitions are added),
+                   modulo a renaming of local identifiers that the entry records and the check re-infers and verifies
+                   (renaming_problems: kind-preserving, injective, capture-free, no type, constructor, root or name
+                   referenced from another file renamed), and
                    the law's verdict re-established on the new model by Bend and BendTT (verdict_problems: REFUTED
                    stays REFUTED, PROVED stays PROVED or becomes REFUTED, UNKNOWN may become any status; the record is
                    the new model's). Unsigned; the strengthening direction only (no claim, statement or registry hash
@@ -1569,14 +1572,242 @@ def _arms(lines: list) -> tuple[list, list] | None:
     return lines[:2], arms
 
 
-def extension_problems(old: dict, new: dict) -> list[str]:
+# The renaming variant of X3 (I83; the coordinator's decision, revocable, recorded with the field-gain variant). A
+# generator that numbers module-wide (model3's loops) renames the local identifiers of actions that compiled before when
+# an action that did not compile now does: same values, other names. Such a model is accepted only modulo a renaming
+# sigma per file, inferred deterministically (positional field renames within a constructor, then definitions aligned
+# token by token to a fixpoint, then an unreferenced definition matched to the one added definition it aligns with by its
+# name alone), then verified, never trusted: sigma renames only definitions, fields and local names, never a type or a
+# constructor (kind-preserving: a field to a field, a definition to a definition, a local to a local); it is injective
+# and captures nothing (an image that is a name of the old file is one the renaming moves too: sigma is applied at once,
+# so a shift c2 -> c3, c3 -> c4 is admissible); it fixes every name another file or the law's files reference
+# and every root; no definition's image is bound as a local name in the new file; and after sigma and the field-gain
+# erasure every old type and definition is compared byte for byte as before. The entry records sigma (old -> new).
+_RTOK = re.compile(r"[A-Za-z_][A-Za-z0-9_]*|\d+[A-Za-z0-9_]*|\s+|.", re.S)
+_RIDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+_RBIND = re.compile(r"(?m)^\s*\+?([A-Za-z_][A-Za-z0-9_]*)\s*=\s")
+_RPARAM = re.compile(r"(?:\(|,)\s*[+-]?([A-Za-z_][A-Za-z0-9_]*)\s*:")
+_RCASE = re.compile(r"(?m)^\s*case\s+(.*):\s*$")
+
+
+def _rtoks(text: str) -> list[str]:
+    return _RTOK.findall(text)
+
+
+def _kinds(blocks: dict) -> dict:
+    """{name: kind} of a file's types, constructors, definitions and fields."""
+    out = {}
+    for n, (k, lines) in blocks.items():
+        if k != "type":
+            continue
+        for c, fields in _ctors(lines) or []:
+            for fd in fields:
+                out.setdefault(fd.split(":", 1)[0].strip().lstrip("+-"), "field")
+    for n, (k, lines) in blocks.items():
+        if k == "type":
+            out[n] = "type"
+            for c, _f in _ctors(lines) or []:
+                out[c] = "ctor"
+    for n, (k, _l) in blocks.items():
+        if k == "def":
+            out[n] = "def"
+    return out
+
+
+def _bound_locals(blocks: dict) -> set:
+    """The names a file's definitions bind locally: parameters, let names and pattern binders."""
+    out = set()
+    for n, (k, lines) in blocks.items():
+        if k != "def":
+            continue
+        out |= set(_RPARAM.findall(lines[0]))
+        body = "\n".join(lines[1:])
+        out |= set(_RBIND.findall(body))
+        for pat in _RCASE.findall(body):
+            for tok in _rtoks(pat):
+                if _RIDENT.match(tok):
+                    out.add(tok)
+    return out
+
+
+def _idents(text: str) -> set:
+    """The unqualified identifiers of a text (a name after a dot is another module's)."""
+    toks, out = _rtoks(text), set()
+    for i, x in enumerate(toks):
+        if _RIDENT.match(x) and not (i and toks[i - 1] == "."):
+            out.add(x)
+    return out
+
+
+def _align(a: str, b: str, sigma: dict, frozen: set) -> dict | None:
+    """The pairs that extend sigma so that a's tokens are b's (unqualified identifiers outside `frozen` may be renamed),
+    or None when there is none."""
+    ta, tb = _rtoks(a), _rtoks(b)
+    if len(ta) != len(tb):
+        return None
+    inv = {y: x for x, y in sigma.items()}
+    ext = {}
+    for i, (x, y) in enumerate(zip(ta, tb)):
+        qual = i > 0 and ta[i - 1] == "."
+        if x == y:
+            if _RIDENT.match(x) and not qual and (sigma.get(x, x) != x or inv.get(y, y) != y):
+                return None
+            continue
+        if qual or not (_RIDENT.match(x) and _RIDENT.match(y)) or x in frozen or y in frozen:
+            return None
+        cur = sigma.get(x, ext.get(x))
+        if cur is not None and cur != y:
+            return None
+        if inv.get(y, x) != x or any(v == y and k != x for k, v in ext.items()):
+            return None
+        if x not in sigma:
+            ext[x] = y
+    return ext
+
+
+def _infer_file(ob: dict, nb: dict) -> dict:
+    frozen = {n for n, k in {**_kinds(ob), **_kinds(nb)}.items() if k in ("type", "ctor")}
+    sigma: dict = {}
+    for name in sorted(ob):                     # positional field renames within a constructor
+        k, lines = ob[name]
+        if k != "type" or name not in nb or nb[name][0] != "type" or nb[name][1] == lines:
+            continue
+        oc, nc = _ctors(lines), _ctors(nb[name][1])
+        if oc is None or nc is None:
+            continue
+        ncd = dict(nc)
+        for c, fields in oc:
+            nf = ncd.get(c)
+            if nf is None or len(nf) != len(fields):
+                continue
+            pairs = [([s.strip() for s in x.split(":", 1)], [s.strip() for s in y.split(":", 1)])
+                     for x, y in zip(fields, nf)]
+            if any(len(xs) != 2 or len(ys) != 2 or xs[1] != ys[1] for xs, ys in pairs):
+                continue
+            for xs, ys in pairs:
+                if xs[0] != ys[0] and xs[0] not in sigma and ys[0] not in sigma.values():
+                    sigma[xs[0]] = ys[0]
+    resolved, moved = set(), True
+    while moved:                                  # definitions aligned to a fixpoint
+        moved = False
+        for n in sorted(ob):
+            if n in resolved:
+                continue
+            tgt = n if n in nb else sigma.get(n)
+            if tgt is None or tgt not in nb or nb[tgt][0] != ob[n][0]:
+                continue
+            ext = _align("\n".join(ob[n][1]), "\n".join(nb[tgt][1]), sigma, frozen)
+            if ext is None:
+                continue
+            sigma.update(ext)
+            resolved.add(n)
+            moved = True
+    images = set(sigma.values())
+    added: dict = {}
+    for m in sorted(nb):
+        if m not in ob and m not in images:
+            added.setdefault((nb[m][0], len(_rtoks("\n".join(nb[m][1])))), []).append(m)
+    for n in sorted(ob):                          # an unreferenced definition, renamed by its name alone
+        if n in nb or n in sigma:
+            continue
+        text = "\n".join(ob[n][1])
+        cands = []
+        for m in added.get((ob[n][0], len(_rtoks(text))), []):
+            if m in images:
+                continue
+            ext = _align(text, "\n".join(nb[m][1]), {**sigma, n: m}, frozen)
+            if ext == {}:
+                cands.append(m)
+        if len(cands) == 1:
+            sigma[n] = cands[0]
+            images.add(cands[0])
+    return {x: y for x, y in sorted(sigma.items()) if x != y}
+
+
+def infer_renaming(old: dict, new: dict) -> dict:
+    """{file: {old name: new name}}: the renaming under which `new` ({file: text}) extends `old`, as far as inference
+    finds one (verified separately, by renaming_problems); files with no renaming are left out."""
+    out = {}
+    for f in sorted(old):
+        if f not in new:
+            continue
+        try:
+            ob, nb = _bend_blocks(old[f])[0], _bend_blocks(new[f])[0]
+        except ValueError:
+            continue
+        s = _infer_file(ob, nb)
+        if s:
+            out[f] = s
+    return out
+
+
+def _external_refs(texts: dict, target: str) -> set:
+    """The names of file `target` other files reference through an import alias (Alias.name)."""
+    out = set()
+    for g, text in texts.items():
+        if g == target:
+            continue
+        aliases = {a for a, fl in _bend_blocks(text)[1].items() if fl == target}
+        aliases |= set(re.findall(rf"(?m)^import\s+\S*?{re.escape(target)}\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$", text))
+        toks = _rtoks(text)
+        for i in range(len(toks) - 2):
+            if toks[i] in aliases and toks[i + 1] == ".":
+                out.add(toks[i + 2])
+    return out
+
+
+def renaming_problems(old: dict, new: dict, renaming: dict, fixed=frozenset()) -> list[str]:
+    """What keeps `renaming` ({file: {old: new}}) from being an admissible renaming of `old` into `new` ([] when it is
+    one): kind-preserving (a definition to a definition, a field to a field, a local name to a local name; no type or
+    constructor renamed), injective, capturing nothing, fixing every name another file references and every name in
+    `fixed` (the roots and every name the law's files reference), and no definition's image bound as a local name. An
+    image that is a name of the old file must be one the renaming moves too (it is applied at once)."""
+    probs = []
+    for f in sorted(renaming):
+        s = renaming[f]
+        if f not in old or f not in new or not isinstance(s, dict):
+            probs.append(f"{f}: a renaming of no file of the model")
+            continue
+        ob, nb = _bend_blocks(old[f])[0], _bend_blocks(new[f])[0]
+        ko, kn = _kinds(ob), _kinds(nb)
+        oid = _idents(old[f])
+        ext = _external_refs(old, f) | _external_refs(new, f) | set(fixed)
+        bound = _bound_locals(nb)
+        if len(set(s.values())) != len(s):
+            probs.append(f"{f}: the renaming maps two names to one")
+        for x, y in sorted(s.items()):
+            if not (isinstance(x, str) and isinstance(y, str) and _RIDENT.match(x) and _RIDENT.match(y)) or x == y:
+                probs.append(f"{f}: {x!r} -> {y!r} is not a renaming of a name")
+                continue
+            kx, ky = ko.get(x, "local"), kn.get(y, "local")
+            if kx in ("type", "ctor") or ky in ("type", "ctor"):
+                probs.append(f"{f}: {x} -> {y} renames a type or a constructor")
+            elif kx != ky:
+                probs.append(f"{f}: {x} -> {y} maps a {kx} to a {ky}")
+            if y in oid and y not in s:
+                probs.append(f"{f}: {x} -> {y} captures a name the old file keeps")
+            if x in ext:
+                probs.append(f"{f}: {x} is referenced outside its file or is a root, and a renaming must fix it")
+            if kx == "def" and y in bound:
+                probs.append(f"{f}: {x} -> {y}: the image of a definition is bound as a local name in the new file")
+    return probs
+
+
+def _rename_text(text: str, s: dict) -> str:
+    toks = _rtoks(text)
+    return "".join(s.get(x, x) if _RIDENT.match(x) and not (i and toks[i - 1] == ".") else x
+                   for i, x in enumerate(toks))
+
+
+def extension_problems(old: dict, new: dict, fixed=frozenset(), renaming: dict | None = None) -> list[str]:
     """X3: what keeps `new` ({file name: generated Bend text}) from being a conservative extension of `old` ([] when it
-    is one): every old top-level definition is in the new file of the same name; an old datatype keeps its header and
-    its constructors in order, each with its old fields an ordered subsequence of its new ones (new constructors may be
-    added; a constructor whose fields grew is extended); every old definition, with the gained fields of every use of an
-    extended constructor erased from the new text (K{..} in its own file, A.K{..} through an import alias A) and no
-    erased binder read, is the old text, or both are one match with the same head, every old arm a new arm, and every
-    other new arm's pattern a use of an added constructor."""
+    is one), modulo the renaming (inferred by infer_renaming when None; verified by renaming_problems, with `fixed` the
+    names it must fix) applied to the old text first: every old top-level definition is in the new file of the same
+    name; an old datatype keeps its header and its constructors in order, each with its old fields an ordered
+    subsequence of its new ones (new constructors may be added; a constructor whose fields grew is extended); every old
+    definition, with the gained fields of every use of an extended constructor erased from the new text (K{..} in its own
+    file, A.K{..} through an import alias A) and no erased binder read, is the old text, or both are one match with the
+    same head, every old arm a new arm, and every other new arm's pattern a use of an added constructor."""
     probs: list[str] = []
     parsed_old, parsed_new = {}, {}
     for f in sorted(old):
@@ -1589,6 +1820,16 @@ def extension_problems(old: dict, new: dict) -> list[str]:
             probs.append(f"{f}: {e}")
     if probs:
         return probs
+    if renaming is None:
+        renaming = infer_renaming(old, new)
+    probs = renaming_problems(old, new, renaming, fixed)
+    if probs:
+        return probs
+    for f, s in renaming.items():
+        if s:
+            ob, oi = parsed_old[f]
+            parsed_old[f] = ({s.get(n, n): (k, _rename_text("\n".join(lines), s).split("\n"))
+                              for n, (k, lines) in ob.items()}, oi)
     added, extended = set(), {}          # (file, ctor); {(file, ctor): gained positions}
     for f, (ob, _oi) in parsed_old.items():
         nb = parsed_new[f][0]
@@ -1693,6 +1934,17 @@ def verdict_problems(old_status: str, new_record: dict | None, recheck: dict | N
     return probs
 
 
+def extension_verdict_problems(old: dict, new: dict, fixed, renaming: dict, old_status: str, new_record: dict | None,
+                               recheck: dict | None, model_sha256: str, verdict_available: bool) -> list[str]:
+    """X3 then X4, as a model_extension's check composes them (_model_extension's last gate): the new files extend the
+    old ones modulo the renaming (extension_problems), and the law's verdict is re-established on the new model by the
+    kernels' re-check (verdict_problems). [] when both hold."""
+    x3 = extension_problems(old, new, fixed=fixed, renaming=renaming)
+    if x3:
+        return ["X3: " + x for x in x3]
+    return ["X4: " + x for x in verdict_problems(old_status, new_record, recheck, model_sha256, verdict_available)]
+
+
 def _model_files_at(root: Path, commit: str | None, rel: str) -> dict | None:
     """{repo-relative path: text} of a model file and the modules of its directory it imports, transitively, at a
     commit (read-only git, following a link) or on the tree (commit None)."""
@@ -1735,11 +1987,30 @@ def _recheck(proof: Path, cfg=None) -> dict:
             "bendtt": {"exit_code": v.code, "marker": v.marker} if v is not None else None}
 
 
+def _law_refs(root: Path, milestone: str, lid: str, model_files: set) -> set:
+    """The names the law's files on the tree (its record's laws and proof artifacts) reference in the model's files
+    (Alias.name through an import of one of them): a renaming must fix them (the roots among them)."""
+    rec = _json_or_none((Path(root) / "results" / milestone / f"{lid}.json").read_bytes()) \
+        if (Path(root) / "results" / milestone / f"{lid}.json").is_file() else None
+    out = set()
+    for key in ("laws", "proof"):
+        rel = ((rec or {}).get("artifacts") or {}).get(key) if isinstance(rec, dict) else None
+        if not isinstance(rel, str) or not (Path(root) / rel).is_file():
+            continue
+        text = (Path(root) / rel).read_text(encoding="utf-8")
+        aliases = {a for path, a in re.findall(r"(?m)^import\s+(\S+)\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*$", text)
+                   if Path(path).name in model_files}
+        toks = _rtoks(text)
+        out |= {toks[i + 2] for i in range(len(toks) - 2) if toks[i] in aliases and toks[i + 1] == "."}
+    return out
+
+
 def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
     """X0-X4 (I83): an unsigned model_extension is accepted only when its statement is fixed, its binding changes in its
-    cone alone, the new model files are a conservative extension of the bound ones and the law's verdict is
-    re-established on the new model by both kernels; every rule is recomputed here, nothing is read from the entry but
-    its law, milestone, bound_commit and defs."""
+    cone alone, the new model files are a conservative extension of the bound ones (modulo the renaming the entry records,
+    which must be the one inferred here, then verified) and the law's verdict is re-established on the new model by both
+    kernels; every rule is recomputed here, nothing is read from the entry but its law, milestone, bound_commit, defs and
+    renaming, and the renaming only to be compared with the inferred one."""
     from . import bend
     from . import bindings as B
     if core(old) != core(new):
@@ -1788,8 +2059,12 @@ def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
     bad = sorted(d for d, h in ob["cone"].items() if d not in eo or hashlib.sha256(eo[d].encode()).hexdigest() != h)
     if bad:
         return _res(False, f"the model files at {commit_b[:12]} are not the bound model ({', '.join(bad[:5])}) (X2)")
-    short = {Path(r).name: t for r, t in of.items()}
-    probs = extension_problems(short, {Path(r).name: t for r, t in nf.items()})
+    short, short_new = {Path(r).name: t for r, t in of.items()}, {Path(r).name: t for r, t in nf.items()}
+    renaming = infer_renaming(short, short_new)
+    if (entry.get("renaming") or {}) != renaming:
+        return _res(False, "the entry's renaming (old -> new names) is not the one inferred from the two models (X3)")
+    probs = extension_problems(short, short_new, fixed=_law_refs(root, m, lid, set(short) | set(short_new)),
+                               renaming=renaming)
     if probs:
         return _res(False, "not a conservative extension (X3): " + "; ".join(probs[:6]))
     rel = f"results/{m}/{lid}.json"
@@ -1802,11 +2077,13 @@ def _model_extension(entry: dict, old: dict, new: dict, root: Path) -> dict:
         proof_rel = (new_rec.get("artifacts") or {}).get("proof")
         if isinstance(proof_rel, str) and (root / proof_rel).is_file():
             recheck = _recheck(root / proof_rel, bend.config(root))
-    vp = verdict_problems(old_status, new_rec, recheck, model_sha, bend.verdict_enabled(bend.config(root)))
+    vp = extension_verdict_problems(short, short_new, _law_refs(root, m, lid, set(short) | set(short_new)), renaming,
+                                    old_status, new_rec, recheck, model_sha, bend.verdict_enabled(bend.config(root)))
     if vp:
         return _res(False, "the verdict is not re-established on the new model (X4): " + "; ".join(vp))
     ext = {"bound_commit": commit_b,
            "models": {"old": {r: _sha(t) for r, t in of.items()}, "new": {r: _sha(t) for r, t in nf.items()}},
+           "renaming": renaming,
            "record": {"path": rel, "sha256": _sha((root / rel).read_bytes()), "old_status": old_status,
                       "new_status": new_rec.get("status")},
            "proof": ({"path": proof_rel, "sha256": _sha((root / proof_rel).read_bytes())} if proof_rel else None),
@@ -1890,8 +2167,11 @@ def model_extension_entries(milestone: str, root: Path) -> tuple[list, list]:
         if commit_b is None:
             notes.append(f"{lid}: no commit holds its current binding (commit spec/bindings/{milestone}.json first)")
             continue
+        of, nf = _model_files_at(root, commit_b, ob["model"]), _model_files_at(root, None, nb["model"])
+        renaming = infer_renaming({Path(r).name: t for r, t in of.items()},
+                                  {Path(r).name: t for r, t in nf.items()}) if of is not None and nf is not None else {}
         out.append({"kind": "model_extension", "law_id": lid, "milestone": milestone, "old": law, "new": law,
-                    "bound_commit": commit_b, "defs": changed,
+                    "bound_commit": commit_b, "defs": changed, "renaming": renaming,
                     "reason": f"{lid}: its model {nb['model']} gained behaviours under the fixed statement "
                               f"({len(changed)} definitions of its cone changed or added); bound at {commit_b[:12]}"})
     return out, notes
