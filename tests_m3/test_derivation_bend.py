@@ -446,9 +446,10 @@ class TestRegressions(unittest.TestCase):
             rc, o = holon_ok(args)
             self.assertEqual(rc, 0, f"{args}: {o}")
         der = load_json(ROOT / "laws" / "M3" / "DERIVATION.json")
-        ids = der.get("laws") if isinstance(der.get("laws"), dict) else der
+        # amended (spec/M3/amendments.jsonl): DERIVATION.json's "laws" is a list of entries keyed by "law_id"
+        ids = [e["law_id"] for e in der["laws"]]
         top = sorted(p.stem for p in (ROOT / "laws" / "M3").glob("L*.json"))
-        self.assertEqual(top, sorted(k for k in ids if k.startswith("L")))
+        self.assertEqual(top, sorted(ids))
 
     def test_r2_own_commits_touch_nothing_forbidden(self):
         """I89-R2: the commit rules of the docstring."""
@@ -458,8 +459,18 @@ class TestRegressions(unittest.TestCase):
         allowed_results = ("results/M3/derivation/bend/", "results/M3/derivation/laws/",
                            "results/M3/derivation/splits.json")
         for sha, changes in own_commits():
-            for _st, path in changes:
+            for st, path in changes:
                 with self.subTest(commit=sha[:12], path=path):
+                    if path == "spec/M3/amendments.jsonl" and st == "M":
+                        # amended (spec/M3/amendments.jsonl): the contract's route for a wrong instrument appends
+                        # lines of iteration I89, of kind instrument_inconsistency, and nothing else
+                        old, new = git("show", f"{sha}^:{path}"), git("show", f"{sha}:{path}")
+                        self.assertTrue(new.startswith(old), "amendments.jsonl changed, not appended")
+                        for ln in new[len(old):].splitlines():
+                            d = json.loads(ln)
+                            self.assertEqual((d.get("iteration"), d.get("kind")), (KEY, "instrument_inconsistency"),
+                                             "an appended line is not an I89 instrument_inconsistency")
+                        continue
                     self.assertFalse(path.startswith(frozen) or path in frozen_files, "a frozen root")
                     self.assertFalse(path.startswith("laws/"), "laws/")
                     self.assertFalse(path.startswith("spec/"), "spec/")
