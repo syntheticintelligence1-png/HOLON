@@ -87,22 +87,31 @@ INIT_CHAIN_CATALOG_VERSION = "holon-rules/1.6"
 CATALOGS[INIT_CHAIN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[FACT_CATALOG_VERSION].items()}}
 CATALOGS[INIT_CHAIN_CATALOG_VERSION]["PAR"] = {**CATALOGS[FACT_CATALOG_VERSION]["PAR"],
                                                _par_init.SUBFORM: _par_init.PRODUCERS[_par_init.SUBFORM]}
-#   holon-rules/1.8  I29's (holon-rules/1.7 is I71's): the rules of the catalog M3 derived with before I29 unchanged (the
-#                    same producer objects), plus rule NAT (holon.rules.nat: composition and naturality squares across a
-#                    contract's versioned machine, whitepaper §5.3), which, like PAR/init_chain, takes the milestone's
-#                    versions sidecar and its versioned document instead of the typed context (_nat_part); M3 and later.
+#   holon-rules/1.7  I71's: the rules of holon-rules/1.6 unchanged (the same producer objects), plus rule UNDO's sub-form
+#                    cancel (holon.rules.undo.CANCEL: cancellations, rules U3' and U4' of tests_m3/test_undo_cancel.py),
+#                    a producer of its own beside I27's pair and residue; M3 and later. A typed test milestone keeps
+#                    holon-rules/1.2.
+CANCEL_CATALOG_VERSION = "holon-rules/1.7"
+CATALOGS[CANCEL_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[INIT_CHAIN_CATALOG_VERSION].items()}}
+CATALOGS[CANCEL_CATALOG_VERSION]["UNDO"] = {**CATALOGS[INIT_CHAIN_CATALOG_VERSION]["UNDO"],
+                                            _undo.CANCEL_SUBFORM: _undo.CANCEL}
+#   holon-rules/1.8  I29's: the rules of holon-rules/1.7 (I71's) unchanged (the same producer objects), plus rule NAT
+#                    (holon.rules.nat: composition and naturality squares across a contract's versioned machine,
+#                    whitepaper §5.3), which, like PAR/init_chain, takes the milestone's versions sidecar and its
+#                    versioned document instead of the typed context (_nat_part); M3 and later.
 from . import nat as _nat  # noqa: E402
 NAT_CATALOG_VERSION = "holon-rules/1.8"
-CATALOGS[NAT_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[INIT_CHAIN_CATALOG_VERSION].items()},
+CATALOGS[NAT_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[CANCEL_CATALOG_VERSION].items()},
                                  _nat.RULE: {sub: _nat.PRODUCERS[sub] for sub in _nat.SUBFORMS}}
 VERSIONED_RULES = (_nat.RULE,)   # rules whose producers read the versioned document (_nat_part), not the typed context
 
 
 def catalog_version(milestone: str) -> str:
     """The rule-catalog version a milestone derives with: holon-rules/1.8 for the typed target milestones (M3 and
-    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain and I29's NAT); holon-rules/1.2 for the typed test milestones
-    (T<n> with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A
-    test milestone's catalog may be replaced with `--catalog`."""
+    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel and I29's NAT);
+    holon-rules/1.2 for the typed test milestones (T<n> with n >= 30; holon.sorts.typed_sidecar.typed);
+    holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's catalog may be replaced with
+    `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
     return NAT_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION

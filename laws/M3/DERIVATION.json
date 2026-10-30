@@ -4475,6 +4475,56 @@
     },
     {
       "basis": {
+        "a": "challengeState",
+        "contract": "Rollup",
+        "criteria": [
+          "cond"
+        ],
+        "kind": "undo_cancel",
+        "model": "morph_rollup.extracted",
+        "residues": [
+          "batchChallenged",
+          "batchDataStore",
+          "challenges"
+        ],
+        "restores": [
+          {
+            "a_write": "writes[3]",
+            "cond": [
+              "&&",
+              [
+                "param",
+                "_status"
+              ],
+              [
+                "storage",
+                "inChallenge"
+              ]
+            ],
+            "family": "inChallenge",
+            "how": "cancel",
+            "pin": "guards[3]",
+            "undo_write": "writes[3]"
+          }
+        ],
+        "undo": "setPause"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_undo_cancel_Rollup_challengeState_setPause",
+      "rule": "UNDO",
+      "statement_hash": "sha256:b8edc6442a87a86097b2eff06365ce29281b9332b46711170bbe8c0bf8a34032",
+      "static": {
+        "class": "live",
+        "residues": {
+          "batchChallenged": "live",
+          "batchDataStore": "live",
+          "challenges": "live"
+        }
+      },
+      "subform": "cancel"
+    },
+    {
+      "basis": {
         "a": "addChallenger",
         "contract": "Rollup",
         "criteria": [
