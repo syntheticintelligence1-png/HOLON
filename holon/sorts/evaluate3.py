@@ -11,6 +11,12 @@ node process. Python only moves values in and out; nothing is evaluated here.
         the --evaluator interface of holon.replay_fragments (holon fragments --evaluator <model>.bend)
 
 The compiled module is cached under ~/.holon/cache/m3eval/<sha256 of the model text>/ (outside the repository).
+
+A structural model (I68: its store is holon.sorts.prelude3.PRELUDE_SK) holds no real slot, so the A/B interface's raw
+pre-state is given to it by a fixpoint, as the hash tables are: each run reports the storage keys its sload and sstore
+took (eval3.mjs), and every key not yet in the pre-state is added with the real word at its real slot
+(holon.sorts.skeys.real_slot, the real keccak256) until no key is new; the outcome's writes are the touched keys mapped
+to their real slots. This is where A-keccak-structural is checked against the real contract, comparison by comparison.
 """
 from __future__ import annotations
 
@@ -24,6 +30,7 @@ from pathlib import Path
 
 from .. import extracted_eval as EV
 from ..keccak import keccak256
+from . import skeys as SKEYS
 
 ROOT = Path(__file__).resolve().parents[2]
 DRIVER = ROOT / "holon" / "js" / "eval3.mjs"
@@ -57,12 +64,34 @@ def byts(v) -> dict:
 
 
 _REC = re.compile(r"(?m)^type (\w+) is Data:\n  \1\{(.*)\}$")
+# (I68) a single-constructor type whose constructor has another name (SP's SP_m), keyed by the constructor
+_REC1 = re.compile(r"(?m)^type (\w+) is Data:\n  (\w+)\{(.*)\}\n(?!  \w+\{)")
 _ENVF = re.compile(r"(?m)^# HEnv\.(\w+): (.*)$")
 
 
+def _fields(body: str) -> list:
+    fs = []
+    depth, cur = 0, ""
+    for ch in body + ",":
+        if ch == "," and depth == 0:
+            if cur.strip():
+                f, _, ty = cur.strip().partition(":")
+                fs.append((f.strip(), ty.strip()))
+            cur = ""
+            continue
+        depth += ch == "<"
+        depth -= ch == ">"
+        cur += ch
+    return fs
+
+
 def records(text: str) -> dict:
-    """{record name: [(field, Bend type)]} of every single-constructor type of a model text."""
+    """{record name: [(field, Bend type)]} of every single-constructor type of a model text (a constructor named
+    otherwise than its type is listed under the constructor's name, too)."""
     out = {}
+    for tname_, cname, body in _REC1.findall(text):
+        if cname != tname_:
+            out[cname] = _fields(body)
     for name, body in _REC.findall(text):
         fs = []
         depth, cur = 0, ""
@@ -80,6 +109,11 @@ def records(text: str) -> dict:
     return out
 
 
+def structural(text: str) -> bool:
+    """Whether a model text's store is structural (I68)."""
+    return "\ntype SK is Data:\n" in text
+
+
 def hashes_of(text: str) -> list[str]:
     """The hash tables a model text's steps take as parameters (its law's hash binders): keccak256, sha256."""
     sig = re.search(r"(?m)^def run_\w+\(\+st: HSt, \+ar: \w+, \+en: HEnv(.*)\) -> HOut:", text)
@@ -93,6 +127,7 @@ class Run:
     kh: list
     sh: list
     calls: list
+    sk: list = field(default_factory=list)     # the structural keys the run took ((b, o, path)), I68
 
 
 @dataclass
@@ -105,12 +140,14 @@ class Evaluator:
     proc: object = None
     checks: dict = field(default_factory=dict)
     starts: int = 0                  # node processes started (a restart forgets the native tables: holon.sorts.search3)
+    sk: bool = False                 # a structural store (I68)
+    seen: set = field(default_factory=set)   # the storage keys the settled runs of step() took (I68: holon keys)
 
     @classmethod
     def build(cls, model_path, doc) -> "Evaluator":
         model_path = Path(model_path)
         text = model_path.read_text(encoding="utf-8")
-        e = cls(model_path, doc, text, records(text), {f: k for f, k in _ENVF.findall(text)})
+        e = cls(model_path, doc, text, records(text), {f: k for f, k in _ENVF.findall(text)}, sk=structural(text))
         e.checks = {a: [c.id for c in doc.program(a).checks()] for a in doc.actions}
         e.start()
         return e
@@ -199,6 +236,12 @@ class Evaluator:
         raise EvalError(f"no encoding of a {ty}")
 
     def state_in(self, state: dict) -> dict:
+        """The model's HSt of a pre-state: {slot: word} for a raw store; for a structural store {(b, o, path): word}
+        (the keys the fixpoint has gathered)."""
+        if self.sk:
+            items = sorted((SKEYS.norm_key(k), EV.to_int(v)) for k, v in (state or {}).items())
+            return {"$r": "HSt", "f": {"sl": [{"$r": "KV", "f": {"k": SKEYS.key_json(k), "v": word(v)}}
+                                              for k, v in items if v]}}
         items = sorted((EV.to_int(k), EV.to_int(v)) for k, v in (state or {}).items())
         return {"$r": "HSt", "f": {"sl": [{"$r": "KW", "f": {"k": word(k), "v": word(v)}} for k, v in items if v]}}
 
@@ -300,16 +343,26 @@ class Evaluator:
         if "sha256" in hs:
             a.append(self.table(sh or {}))
         ans = self.call(f"run_{bname(action)}", a)
-        return Run(ans["out"], ans["keys"].get("kh") or [], ans["keys"].get("sh") or [], ans.get("calls") or [])
+        return Run(ans["out"], ans["keys"].get("kh") or [], ans["keys"].get("sh") or [], ans.get("calls") or [],
+                   [sk_of_hex(x) for x in ans.get("sk") or []])
 
     def run_fix(self, action: str, state: dict, args: dict, env: dict, kh: dict | None = None,
                 sh: dict | None = None, rounds: int = 64) -> tuple[Run, dict, dict]:
-        """A run whose hash tables hold the real hash of every key it looks up (adding them until none is new)."""
+        """A run whose hash tables hold the real hash of every key it looks up (adding them until none is new); for a
+        structural model also a pre-state holding the real word of every storage key it takes (state is the raw
+        {slot: word} of the real pre-state)."""
         kh = dict(kh or {})
         sh = dict(sh or {})
+        real = {EV.to_int(k): EV.to_int(v) for k, v in (state or {}).items()} if self.sk else None
+        pre: dict = {}
         for _ in range(rounds):
-            r = self.run(action, state, args, env, kh, sh)
+            r = self.run(action, pre if self.sk else state, args, env, kh, sh)
             new = False
+            if self.sk:
+                for key in r.sk:
+                    if key not in pre:
+                        pre[key] = real.get(SKEYS.real_slot(*key), 0)
+                        new = True
             for k in r.kh:
                 if k not in kh:
                     kh[k] = int.from_bytes(keccak256(bytes.fromhex(k[2:])), "big")
@@ -328,9 +381,14 @@ class Evaluator:
         rv = (f["rv"] or {}).get("$b", "0x") if isinstance(f["rv"], dict) else "0x"
         if c == 0:
             post = {}
-            for kv in f["po"]["f"]["sl"]:
-                post[int(kv["f"]["k"], 16)] = int(kv["f"]["v"], 16)
-            touched = sorted({int(x, 16) for x in f["tw"]})
+            if self.sk:
+                for kv in f["po"]["f"]["sl"]:
+                    post[SKEYS.real_slot(*SKEYS.key_of_json(kv["f"]["k"]))] = int(kv["f"]["v"], 16)
+                touched = sorted({SKEYS.real_slot(*SKEYS.key_of_json(x)) for x in f["tw"]})
+            else:
+                for kv in f["po"]["f"]["sl"]:
+                    post[int(kv["f"]["k"], 16)] = int(kv["f"]["v"], 16)
+                touched = sorted({int(x, 16) for x in f["tw"]})
             writes = {h32(k): h32(post.get(k, 0)) for k in touched}
             events = []
             for lg in f["lg"]:
@@ -353,7 +411,22 @@ class Evaluator:
             return {"status": "unsupported", "revert": None, "writes": {}, "events": [], "guard": None,
                     "reason": f"no action {action} in the document"}
         r, _kh, _sh = self.run_fix(action, state, args, env)
+        if self.sk:
+            self.seen.update(r.sk)
         return self.outcome(action, r.out, state)
+
+    def keys_document(self) -> dict:
+        """(I68) the storage keys the corpus's steps took, each with its real slot (holon keys reads it: source r5)."""
+        return {"document": "corpus_keys", "model": str(self.model_path.name),
+                "keys": [{"b": hex(b), "o": hex(o), "p": [{"k": hex(k), "o": hex(o2)} for _t, k, o2 in p],
+                          "real": hex(SKEYS.real_slot(b, o, p))} for b, o, p in sorted(self.seen)]}
+
+
+def sk_of_hex(x: str) -> tuple:
+    """(b, o, path) of eval3.mjs's encoding "b/o/k1:o1/..", words as 0x-hex."""
+    parts = x.split("/")
+    return (int(parts[0], 16), int(parts[1], 16),
+            tuple(("m", int(k, 16), int(o, 16)) for k, o in (s.split(":") for s in parts[2:])))
 
 
 # ------------------------------------------------------------------------------------------------ --evaluator

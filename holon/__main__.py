@@ -222,6 +222,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["bundle2"]:  # likewise for holon.bundle2 (Bundle II's extraction and linked machine, I80)
         from . import bundle2
         return bundle2.main(argv[1:])
+    if argv[:1] == ["derivation"]:  # likewise for holon.derivation (the Go consumer and the product machine, I85)
+        from . import derivation
+        return derivation.main(argv[1:])
     if argv[:1] == ["history"]:  # likewise for holon.frontends.solidity.history (deployment history, I63)
         from .frontends.solidity import history
         return history.main(argv[1:])
@@ -282,6 +285,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
         from .sorts import termsize
         return termsize.main(argv[1:])
+    if argv[:1] == ["keys"]:  # likewise for holon.sorts.keys3 (I68: the keys check of the structural store)
+        from .sorts import keys3
+        return keys3.main(argv[1:])
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
@@ -338,6 +344,9 @@ def _main(argv: list) -> int:
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
     bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
                                    "(or stays unbound)")
+    bd.add_argument("--remodel", metavar="LICENSE",
+                    help="(I68) first append the remodel entries the license covers (holon.statement_diff.remodel_entries, "
+                         "each checked by check_entry), then rebind through them")
     orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
                                         "(the oracle sidecar's hypotheses, I12); both write results/M2/hypotheses.json")
     orc.add_argument("which", choices=["zero-blob", "check"])

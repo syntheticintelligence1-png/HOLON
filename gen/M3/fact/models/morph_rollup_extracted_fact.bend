@@ -108,7 +108,7 @@ def ux_os_addChallenger(+x: M.X_addChallenger, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of batchChallengedSuccess
 def ret_batchChallengedSuccess(+x: M.X_batchChallengedSuccess) -> List<&2, U32>:
-  M.b_of_w(M.w_b(Bool.not(M.w_eq(M.w_and(M.sload(M.gx_batchChallengedSuccess_st(x), M.w_add(M.h_get(M.gx_batchChallengedSuccess_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchChallengedSuccess_batchIndex(M.gx_batchChallengedSuccess_ar(x))), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0})), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0}))))
+  M.b_of_w(M.w_b(Bool.not(M.w_eq(M.w_and(M.sload(M.gx_batchChallengedSuccess_st(x), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchChallengedSuccess_batchIndex(M.gx_batchChallengedSuccess_ar(x)), M.W{3, 0, 0, 0, 0, 0, 0, 0}}]}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0}))))
 
 def ux_ob_batchChallengedSuccess(+x: M.X_batchChallengedSuccess) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_batchChallengedSuccess_cd(x), 0), M.gx_batchChallengedSuccess_rv(x), ret_batchChallengedSuccess(x), M.lg_rev(M.gx_batchChallengedSuccess_lg(x), Nil{}))
@@ -118,7 +118,7 @@ def ux_os_batchChallengedSuccess(+x: M.X_batchChallengedSuccess, +g: M.GSt) -> U
 
 # the return data of a successful call of batchExist
 def ret_batchExist(+x: M.X_batchExist) -> List<&2, U32>:
-  M.b_of_w(M.w_b(Bool.and(M.w_gt(M.sload(M.gx_batchExist_st(x), M.h_get(M.gx_batchExist_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchExist_batchIndex(M.gx_batchExist_ar(x))), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.not(M.w_eq(M.sload(M.gx_batchExist_st(x), M.h_get(M.gx_batchExist_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchExist_batchIndex(M.gx_batchExist_ar(x))), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0})))))
+  M.b_of_w(M.w_b(Bool.and(M.w_gt(M.sload(M.gx_batchExist_st(x), M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchExist_batchIndex(M.gx_batchExist_ar(x)), M.w0()}]}), M.W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.not(M.w_eq(M.sload(M.gx_batchExist_st(x), M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchExist_batchIndex(M.gx_batchExist_ar(x)), M.w0()}]}), M.W{0, 0, 0, 0, 0, 0, 0, 0})))))
 
 def ux_ob_batchExist(+x: M.X_batchExist) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_batchExist_cd(x), 0), M.gx_batchExist_rv(x), ret_batchExist(x), M.lg_rev(M.gx_batchExist_lg(x), Nil{}))
@@ -128,7 +128,7 @@ def ux_os_batchExist(+x: M.X_batchExist, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of batchInChallenge
 def ret_batchInChallenge(+x: M.X_batchInChallenge) -> List<&2, U32>:
-  M.b_of_w(M.w_b(Bool.and(Bool.not(M.w_eq(M.w_and(M.w_shr_64(M.sload(M.gx_batchInChallenge_st(x), M.h_get(M.gx_batchInChallenge_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchInChallenge_batchIndex(M.gx_batchInChallenge_ar(x))), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))))), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(M.gx_batchInChallenge_st(x), M.w_add(M.h_get(M.gx_batchInChallenge_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchInChallenge_batchIndex(M.gx_batchInChallenge_ar(x))), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0}))), M.W{255, 0, 0, 0, 0, 0, 0, 0}))))))
+  M.b_of_w(M.w_b(Bool.and(Bool.not(M.w_eq(M.w_and(M.w_shr_64(M.sload(M.gx_batchInChallenge_st(x), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchInChallenge_batchIndex(M.gx_batchInChallenge_ar(x)), M.w0()}]})), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(M.gx_batchInChallenge_st(x), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchInChallenge_batchIndex(M.gx_batchInChallenge_ar(x)), M.W{3, 0, 0, 0, 0, 0, 0, 0}}]})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))))))
 
 def ux_ob_batchInChallenge(+x: M.X_batchInChallenge) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_batchInChallenge_cd(x), 0), M.gx_batchInChallenge_rv(x), ret_batchInChallenge(x), M.lg_rev(M.gx_batchInChallenge_lg(x), Nil{}))
@@ -138,7 +138,7 @@ def ux_os_batchInChallenge(+x: M.X_batchInChallenge, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of batchInsideChallengeWindow
 def ret_batchInsideChallengeWindow(+x: M.X_batchInsideChallengeWindow) -> List<&2, U32>:
-  M.b_of_w(M.w_b(M.w_gt(M.sload(M.gx_batchInsideChallengeWindow_st(x), M.w_add(M.h_get(M.gx_batchInsideChallengeWindow_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchInsideChallengeWindow_batchIndex(M.gx_batchInsideChallengeWindow_ar(x))), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{1, 0, 0, 0, 0, 0, 0, 0})), M.ge_e_block_timestamp(M.gx_batchInsideChallengeWindow_en(x)))))
+  M.b_of_w(M.w_b(M.w_gt(M.sload(M.gx_batchInsideChallengeWindow_st(x), M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchInsideChallengeWindow_batchIndex(M.gx_batchInsideChallengeWindow_ar(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0}}]}), M.ge_e_block_timestamp(M.gx_batchInsideChallengeWindow_en(x)))))
 
 def ux_ob_batchInsideChallengeWindow(+x: M.X_batchInsideChallengeWindow) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_batchInsideChallengeWindow_cd(x), 0), M.gx_batchInsideChallengeWindow_rv(x), ret_batchInsideChallengeWindow(x), M.lg_rev(M.gx_batchInsideChallengeWindow_lg(x), Nil{}))
@@ -268,7 +268,7 @@ def ux_os_initialize4(+x: M.X_initialize4, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of isBatchFinalized
 def ret_isBatchFinalized(+x: M.X_isBatchFinalized) -> List<&2, U32>:
-  M.b_of_w(M.w_b(M.w_le(M.ga_isBatchFinalized__batchIndex(M.gx_isBatchFinalized_ar(x)), M.sload(M.gx_isBatchFinalized_st(x), M.W{157, 0, 0, 0, 0, 0, 0, 0}))))
+  M.b_of_w(M.w_b(M.w_le(M.ga_isBatchFinalized__batchIndex(M.gx_isBatchFinalized_ar(x)), M.sload(M.gx_isBatchFinalized_st(x), M.SK{M.W{157, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}))))
 
 def ux_ob_isBatchFinalized(+x: M.X_isBatchFinalized) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_isBatchFinalized_cd(x), 0), M.gx_isBatchFinalized_rv(x), ret_isBatchFinalized(x), M.lg_rev(M.gx_isBatchFinalized_lg(x), Nil{}))
@@ -278,7 +278,7 @@ def ux_os_isBatchFinalized(+x: M.X_isBatchFinalized, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of owner
 def ret_owner(+x: M.X_owner) -> List<&2, U32>:
-  M.b_of_w(M.w_and(M.sload(M.gx_owner_st(x), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))
+  M.b_of_w(M.w_and(M.sload(M.gx_owner_st(x), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))
 
 def ux_ob_owner(+x: M.X_owner) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_owner_cd(x), 0), M.gx_owner_rv(x), ret_owner(x), M.lg_rev(M.gx_owner_lg(x), Nil{}))
@@ -288,7 +288,7 @@ def ux_os_owner(+x: M.X_owner, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of paused
 def ret_paused(+x: M.X_paused) -> List<&2, U32>:
-  M.b_of_w(M.w_b(Bool.not(M.w_eq(M.w_and(M.sload(M.gx_paused_st(x), M.W{101, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0}))))
+  M.b_of_w(M.w_b(Bool.not(M.w_eq(M.w_and(M.sload(M.gx_paused_st(x), M.SK{M.W{101, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0}))))
 
 def ux_ob_paused(+x: M.X_paused) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_paused_cd(x), 0), M.gx_paused_rv(x), ret_paused(x), M.lg_rev(M.gx_paused_lg(x), Nil{}))
@@ -701,11 +701,11 @@ def fx_key_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash(+x: M.X_
 
 # committedBatches at k1 in st1 equals committedBatches at k2 in st2
 def fx_cmeq_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash(+st1: M.HSt, +k1: M.W, +st2: M.HSt, +k2: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  M.w_eq(M.sload(st1, M.h_get(kh, List.append(&2, U32, M.b_of_w(k1), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))), M.sload(st2, M.h_get(kh, List.append(&2, U32, M.b_of_w(k2), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))))
+  M.w_eq(M.sload(st1, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k1, M.w0()}]}), M.sload(st2, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k2, M.w0()}]}))
 
 # the first word of committedBatches at k in st (the committed value the replay reports)
 def fx_cmw_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> M.W:
-  M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0}))))
+  M.sload(st, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]})
 
 # the call (ar, en) of commitBatchWithProof succeeds from s
 def fx_s_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash(+ar: M.AR_commitBatchWithProof, +en: M.HEnv, +s: M.GSt, +kh: List<&2, M.HKB>) -> Bool:
@@ -851,11 +851,11 @@ def fx_key_kernel_Rollup_commitBatch_committedBatches_blobhash(+x: M.X_commitBat
 
 # committedBatches at k1 in st1 equals committedBatches at k2 in st2
 def fx_cmeq_kernel_Rollup_commitBatch_committedBatches_blobhash(+st1: M.HSt, +k1: M.W, +st2: M.HSt, +k2: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  M.w_eq(M.sload(st1, M.h_get(kh, List.append(&2, U32, M.b_of_w(k1), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))), M.sload(st2, M.h_get(kh, List.append(&2, U32, M.b_of_w(k2), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))))
+  M.w_eq(M.sload(st1, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k1, M.w0()}]}), M.sload(st2, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k2, M.w0()}]}))
 
 # the first word of committedBatches at k in st (the committed value the replay reports)
 def fx_cmw_kernel_Rollup_commitBatch_committedBatches_blobhash(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> M.W:
-  M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0}))))
+  M.sload(st, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]})
 
 # the call (ar, en) of commitBatch succeeds from s
 def fx_s_kernel_Rollup_commitBatch_committedBatches_blobhash(+ar: M.AR_commitBatch, +en: M.HEnv, +s: M.GSt, +kh: List<&2, M.HKB>) -> Bool:
@@ -1001,11 +1001,11 @@ def fx_key_kernel_Rollup_commitState_committedBatches_blobhash(+x: M.X_commitSta
 
 # committedBatches at k1 in st1 equals committedBatches at k2 in st2
 def fx_cmeq_kernel_Rollup_commitState_committedBatches_blobhash(+st1: M.HSt, +k1: M.W, +st2: M.HSt, +k2: M.W, +kh: List<&2, M.HKB>) -> Bool:
-  M.w_eq(M.sload(st1, M.h_get(kh, List.append(&2, U32, M.b_of_w(k1), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))), M.sload(st2, M.h_get(kh, List.append(&2, U32, M.b_of_w(k2), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))))
+  M.w_eq(M.sload(st1, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k1, M.w0()}]}), M.sload(st2, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k2, M.w0()}]}))
 
 # the first word of committedBatches at k in st (the committed value the replay reports)
 def fx_cmw_kernel_Rollup_commitState_committedBatches_blobhash(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> M.W:
-  M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0}))))
+  M.sload(st, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]})
 
 # the call (ar, en) of commitState succeeds from s
 def fx_s_kernel_Rollup_commitState_committedBatches_blobhash(+ar: M.AR_commitState, +en: M.HEnv, +s: M.GSt, +kh: List<&2, M.HKB>) -> Bool:
@@ -1161,7 +1161,7 @@ def fx_gu_commitBatchWithProof_2_s(cl: Bool, +x: M.X_commitBatchWithProof, g: Fx
       FxG{fx_put(chooser_batchBlobVersionedHashes, M.w_add(M.w_shr_192(M.b_word(M.g_S_IRollup_BatchDataInput_parentBatchHeader(M.ga_commitBatchWithProof_batchDataInput(M.gx_commitBatchWithProof_ar(x))), 1n)), M.W{1, 0, 0, 0, 0, 0, 0, 0}), M.ge_e_caller(M.gx_commitBatchWithProof_en(x)), cl)}
 
 def fx_gu_commitBatchWithProof_2(+x: M.X_commitBatchWithProof, +g: FxG) -> FxG:
-  fx_gsel(fx_ite(M.w_nz(M.w_b(Bool.not(M.w_eq(M.sload(M.gx_commitBatchWithProof_st(x), M.h_get(M.gx_commitBatchWithProof_kh(x), List.append(&2, U32, M.b_of_w(M.w_add(M.w_shr_192(M.b_word(M.g_S_IRollup_BatchDataInput_parentBatchHeader(M.ga_commitBatchWithProof_batchDataInput(M.gx_commitBatchWithProof_ar(x))), 1n)), M.W{1, 0, 0, 0, 0, 0, 0, 0})), M.b_of_w(M.W{173, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0})))), True{}, False{}), g, fx_gu_commitBatchWithProof_2_s(False{}, x, g))
+  fx_gsel(fx_ite(M.w_nz(M.w_b(Bool.not(M.w_eq(M.sload(M.gx_commitBatchWithProof_st(x), M.SK{M.W{173, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.w_add(M.w_shr_192(M.b_word(M.g_S_IRollup_BatchDataInput_parentBatchHeader(M.ga_commitBatchWithProof_batchDataInput(M.gx_commitBatchWithProof_ar(x))), 1n)), M.W{1, 0, 0, 0, 0, 0, 0, 0}), M.w0()}]}), M.W{0, 0, 0, 0, 0, 0, 0, 0})))), True{}, False{}), g, fx_gu_commitBatchWithProof_2_s(False{}, x, g))
 
 def fx_gu_commitBatchWithProof(+x: M.X_commitBatchWithProof, g: FxG) -> FxG:
   fx_gu_commitBatchWithProof_2(x, g)
@@ -1428,11 +1428,11 @@ def fx_key_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataSt
 
 # commitBatchWithProof takes the copy branch of its pin
 def fx_pin_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter(+x: M.X_commitBatchWithProof) -> Bool:
-  fx_ite(M.w_nz(M.w_b(Bool.not(M.w_eq(M.sload(M.gx_commitBatchWithProof_st(x), M.h_get(M.gx_commitBatchWithProof_kh(x), List.append(&2, U32, M.b_of_w(M.w_add(M.w_shr_192(M.b_word(M.g_S_IRollup_BatchDataInput_parentBatchHeader(M.ga_commitBatchWithProof_batchDataInput(M.gx_commitBatchWithProof_ar(x))), 1n)), M.W{1, 0, 0, 0, 0, 0, 0, 0})), M.b_of_w(M.W{173, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0})))), True{}, False{})
+  fx_ite(M.w_nz(M.w_b(Bool.not(M.w_eq(M.sload(M.gx_commitBatchWithProof_st(x), M.SK{M.W{173, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.w_add(M.w_shr_192(M.b_word(M.g_S_IRollup_BatchDataInput_parentBatchHeader(M.ga_commitBatchWithProof_batchDataInput(M.gx_commitBatchWithProof_ar(x))), 1n)), M.W{1, 0, 0, 0, 0, 0, 0, 0}), M.w0()}]}), M.W{0, 0, 0, 0, 0, 0, 0, 0})))), True{}, False{})
 
 # batchDataStore.submitter at key k in st
 def fx_bond_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> M.W:
-  M.w_and(M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0})), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})
+  M.w_and(M.sload(st, M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{3, 0, 0, 0, 0, 0, 0, 0}}]}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})
 
 def fx_ch_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter(g: FxG, +k: M.W) -> FxV:
   match g:
@@ -1698,7 +1698,7 @@ def fx_pin_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submi
 
 # batchDataStore.submitter at key k in st
 def fx_bond_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> M.W:
-  M.w_and(M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0})), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})
+  M.w_and(M.sload(st, M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{3, 0, 0, 0, 0, 0, 0, 0}}]}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})
 
 def fx_ch_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter(g: FxG, +k: M.W) -> FxV:
   match g:

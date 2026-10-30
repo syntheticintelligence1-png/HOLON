@@ -41,6 +41,9 @@ CALL_CODE = 4294967294
 FUEL_CODE = 4294967295
 
 
+from . import skeys as SKEYS
+from .evaluate3 import sk_of_hex
+
 def kec(b: bytes) -> int:
     return int.from_bytes(keccak256(b), "big")
 
@@ -136,6 +139,13 @@ class Model:
         self.hints = hints
         self.kh: dict = {}
         self.sh: dict = {}
+        # (I68) a structural model never hashes a slot, so the slot preimages a raw model's lookups put in kh (the key
+        # words S1 offers) are kept apart: the virtual preimage pad32(key word) ++ pad32(parent real slot) of every
+        # hashed step of every storage key a run takes, with its keccak256, offered as kh's keys were and never given
+        # to the model (holon.sorts.skeys)
+        self.vk: dict = {}
+        self.sk = bool(getattr(ev, "sk", False))
+        self._map_bases = set(SKEYS.layout(self.doc.doc)[1]) if self.sk else set()
         self.kh_sent = -1
         self.sh_sent = -1
         self.n = 0
@@ -160,7 +170,34 @@ class Model:
         self.codes = {k.lower(): v for k, v in sorted((codes or {}).items()) if isinstance(v, str) and len(v) > 2}
         self._reads_code: dict = {}
         for p in self.init.get("preimages") or []:
-            self.add_key(p)
+            if self.sk and self._slot_preimage(p):
+                self.vk.setdefault(p, kec(bytes.fromhex(p[2:])))
+            else:
+                self.add_key(p)
+
+    def _slot_preimage(self, p: str) -> bool:
+        b = bytes.fromhex(p[2:])
+        return len(b) == 64 and int.from_bytes(b[32:], "big") in self._map_bases
+
+    def learn_keys(self, sks: list) -> None:
+        """(I68) the virtual preimages of the hashed steps of the storage keys a run took (eval3.mjs's "sk")."""
+        for x in sks or []:
+            b, o, path = sk_of_hex(x)
+            s = (b + o) & SKEYS.MASK
+            for _t, k, o2 in path:
+                pre = "0x" + (k.to_bytes(32, "big") + s.to_bytes(32, "big")).hex()
+                h = self.vk.get(pre)
+                if h is None:
+                    h = self.vk[pre] = kec(bytes.fromhex(pre[2:]))
+                s = (h + o2) & SKEYS.MASK
+
+    def preimages(self) -> list:
+        """Every byte string the deployment and the runs hashed or would hash to locate storage, sorted (kh's keys
+        and, for a structural model, the virtual slot preimages)."""
+        return sorted(set(self.kh) | set(self.vk))
+
+    def hash_of(self, p: str):
+        return self.kh.get(p, self.vk.get(p))
 
     def add_key(self, k: str, which: str = "kh") -> bool:
         tab = self.kh if which == "kh" else self.sh
@@ -276,26 +313,30 @@ class Model:
         env["msg.data.length"] = (len(self.calldata(st)) - 2) // 2
         return env
 
-    def forget(self, kh0: set, sh0: set) -> None:
-        """Drop the keys learned since (kh0, sh0): a candidate that is not kept leaves the tables as they were (a later
-        evaluation that needs a key learns it again)."""
+    def forget(self, kh0: set, sh0: set, vk0: set | None = None) -> None:
+        """Drop the keys learned since (kh0, sh0) (and the virtual preimages since vk0): a candidate that is not kept
+        leaves the tables as they were (a later evaluation that needs a key learns it again)."""
         for k in [k for k in self.kh if k not in kh0]:
             del self.kh[k]
         for k in [k for k in self.sh if k not in sh0]:
             del self.sh[k]
+        if vk0 is not None:
+            for k in [k for k in self.vk if k not in vk0]:
+                del self.vk[k]
 
     def run_step(self, g: str, st: Step, save: bool = True) -> tuple[int, str | None, list]:
         """(chk code, the next state's handle (None when not saved), the calls the step looks up) of one step from
         state g, with its hash keys and call answers settled (fixpoint)."""
         if save:
             return self._run_step(g, st, True)
-        kh0, sh0 = set(self.kh), set(self.sh)
+        kh0, sh0, vk0 = set(self.kh), set(self.sh), set(self.vk)
         try:
             return self._run_step(g, st, False)
         finally:
             # the preimages of the hashes this step computed (S1 offers them to the step's own bytes arguments)
-            self.last_learned = [k for k in self.kh if k not in kh0] + [k for k in self.sh if k not in sh0]
-            self.forget(kh0, sh0)
+            self.last_learned = [k for k in self.kh if k not in kh0] + [k for k in self.sh if k not in sh0] \
+                + [k for k in self.vk if k not in vk0]
+            self.forget(kh0, sh0, vk0)
 
     def _run_step(self, g: str, st: Step, save: bool) -> tuple[int, str | None, list]:
         for _ in range(40):
@@ -319,6 +360,8 @@ class Model:
         raise RuntimeError(f"{st.action}: the hash keys and call answers did not settle")
 
     def learn(self, r: dict) -> bool:
+        if self.sk:
+            self.learn_keys(r.get("sk"))
         new = False
         for k in (r.get("keys") or {}).get("kh") or []:
             new |= self.add_key(k, "kh")
@@ -348,11 +391,11 @@ class Model:
         return changed
 
     def pred(self, fn: str, g: str, st: Step) -> bool:
-        kh0, sh0 = set(self.kh), set(self.sh)
+        kh0, sh0, vk0 = set(self.kh), set(self.sh), set(self.vk)
         try:
             return self._pred(fn, g, st)
         finally:
-            self.forget(kh0, sh0)
+            self.forget(kh0, sh0, vk0)
 
     def _pred(self, fn: str, g: str, st: Step) -> bool:
         for _ in range(40):
@@ -364,10 +407,14 @@ class Model:
         raise RuntimeError(f"{fn}: the hash keys did not settle")
 
     def state(self, g: str) -> dict:
+        """The state's storage as {real slot: word} (a structural model's keys mapped by holon.sorts.skeys.real_slot:
+        the image the heuristics and the real-slot evaluator read)."""
         r = self.ev.req({"fn": "gh_get_st", "args": [{"$ref": g}]})
         out = {}
         for kv in r["out"]["f"]["sl"]:
-            out[int(kv["f"]["k"], 16)] = int(kv["f"]["v"], 16)
+            k = kv["f"]["k"]
+            slot = SKEYS.real_slot(*SKEYS.key_of_json(k)) if isinstance(k, dict) else int(k, 16)
+            out[slot] = int(kv["f"]["v"], 16)
         return out
 
     def fingerprint(self, g: str) -> str:
@@ -889,8 +936,8 @@ def pools_of(model: Model, trace: list, state: dict, doc: dict, sorts: dict) -> 
     byts: list = []
     # the preimages of the hashes the state holds first (a header whose hash a commit stored), then the others
     held = set(state.values())
-    pre = sorted(model.kh) + sorted(model.sh)
-    first = [p for p in pre if model.kh.get(p) in held or model.sh.get(p) in held]
+    pre = model.preimages() + sorted(model.sh)
+    first = [p for p in pre if model.hash_of(p) in held or model.sh.get(p) in held]
     fs = set(first)
     pre = first + [p for p in pre if p not in fs]
     for p in pre:
@@ -1134,10 +1181,15 @@ class Refuter:
             self.m.add_key(k, "kh")
         for k in ck["sh"]:
             self.m.add_key(k, "sh")
+        if "vk" in ck:
+            self.m.vk = {k: kec(bytes.fromhex(k[2:])) for k in ck["vk"]}
         self.m.kh_sent = self.m.sh_sent = -1
 
     def _tables(self) -> dict:
-        return {"kh": sorted(self.m.kh), "sh": sorted(self.m.sh)}
+        out = {"kh": sorted(self.m.kh), "sh": sorted(self.m.sh)}
+        if self.m.sk:
+            out["vk"] = sorted(self.m.vk)
+        return out
 
     def _tail(self, g: str, trace: list, tail: list) -> tuple[list | None, str | None]:
         """The rest of a witness's prefix after inserted steps: each step again from the new state, at the same time or

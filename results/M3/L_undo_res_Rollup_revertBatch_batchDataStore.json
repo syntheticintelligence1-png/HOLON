@@ -23,7 +23,7 @@
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 2.676
+        "seconds": 0.867
       },
       "evaluator": "undo is false at the witness",
       "kind": "counter",
@@ -34,9 +34,9 @@
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 2.676
+    "seconds": 0.867
   },
-  "compiled_sha256": "7d306e8c5a958f8258d5acc06a171d48805e990a701dfee02020263c73d2bf2c",
+  "compiled_sha256": "61f76a4cf14867ced2d91247ca6ac5795cdf0da197aedd23a2960022ae370d12",
   "concretization": {
     "bound": null,
     "kind": "direct",
@@ -100,8 +100,10 @@
     "HLog",
     "HSt",
     "KB",
-    "KW",
+    "KV",
     "Reach",
+    "SK",
+    "SP",
     "S_IRollup_BatchDataInput",
     "T_Dig_Agg",
     "T_Dig_Agg_Dig_VH",
@@ -407,26 +409,22 @@
     "gx_addChallenger_rv",
     "gx_batchChallengedSuccess_ar",
     "gx_batchChallengedSuccess_cd",
-    "gx_batchChallengedSuccess_kh",
     "gx_batchChallengedSuccess_lg",
     "gx_batchChallengedSuccess_rv",
     "gx_batchChallengedSuccess_st",
     "gx_batchExist_ar",
     "gx_batchExist_cd",
-    "gx_batchExist_kh",
     "gx_batchExist_lg",
     "gx_batchExist_rv",
     "gx_batchExist_st",
     "gx_batchInChallenge_ar",
     "gx_batchInChallenge_cd",
-    "gx_batchInChallenge_kh",
     "gx_batchInChallenge_lg",
     "gx_batchInChallenge_rv",
     "gx_batchInChallenge_st",
     "gx_batchInsideChallengeWindow_ar",
     "gx_batchInsideChallengeWindow_cd",
     "gx_batchInsideChallengeWindow_en",
-    "gx_batchInsideChallengeWindow_kh",
     "gx_batchInsideChallengeWindow_lg",
     "gx_batchInsideChallengeWindow_rv",
     "gx_batchInsideChallengeWindow_st",
@@ -866,9 +864,9 @@
     "k_updateVerifier_6",
     "k_updateVerifier_7",
     "kb_get",
-    "kw_get",
-    "kw_put",
-    "kw_set",
+    "kv_get",
+    "kv_put",
+    "kv_set",
     "l_add",
     "l_at",
     "l_hi_zero",
@@ -1502,7 +1500,10 @@
     "s_updateVerifier_6",
     "s_updateVerifier_7",
     "set_batchDataStore",
+    "sk_eq",
     "sload",
+    "sp_eq",
+    "sps_eq",
     "sstore",
     "sub_Time_Time",
     "sx_addChallenger_cd",
@@ -2079,7 +2080,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": "pending",
-  "generator_sha256": "03ffc19885a720352537b2fca5a2e57442aa25ee341a7729f6a21a11b04a677a",
+  "generator_sha256": "e08c9be75180e22cd6220e34bd35ba59c9901fe6c7694fab1f3924c71913f6b4",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -2105,16 +2106,17 @@
   "law_id": "L_undo_res_Rollup_revertBatch_batchDataStore",
   "ledger_assumptions": [
     "A-env",
+    "A-keccak-structural",
     "A-reach"
   ],
   "ledger_match": "exact",
   "model_assumptions": [],
-  "model_sha256": "7ca9e1dcd0af5e9c4b85248d32a28cff9e741a9066f15a52fa4f93add056eed8",
+  "model_sha256": "b770fc61b26271219d7e1411922a5d61ff576615bf775e588083150d6b1d716f",
   "non_vacuity": {
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_undo_res_Rollup_revertBatch_batchDataStore/LAWS.bend",
-    "parent_statement_hash": "sha256:86eaa403639e2c81b47150499b953bd60421aa96714ed05ecd25414461c4bfac",
+    "parent_statement_hash": "sha256:4d1f5a82b7a1e1b5d5d577287a0f4c88031cec6d6da9530745bf1e20bf926dfa",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -2137,7 +2139,7 @@
     "kind": "unbounded"
   },
   "statement": "with the context of the residue batchDataStore after revertBatch at key k (every cursor below k, every cleared marker zero at k), setting the register to any value v changes no observation of any trace t (Thm 6.9(i): index-relative noninterference); undo morph_rollup.extracted:residue:revertBatch:batchDataStore",
-  "statement_hash": "sha256:86eaa403639e2c81b47150499b953bd60421aa96714ed05ecd25414461c4bfac",
+  "statement_hash": "sha256:4d1f5a82b7a1e1b5d5d577287a0f4c88031cec6d6da9530745bf1e20bf926dfa",
   "status": "REFUTED",
   "subform": "residue",
   "triage": "finding",
@@ -2265,20 +2267,7 @@
   },
   "witness": {
     "hashes": {
-      "keccak256": [
-        [
-          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a1",
-          "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66"
-        ],
-        [
-          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a2",
-          "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836"
-        ],
-        [
-          "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a4",
-          "0x3ab5dcf47126747c0704cb686c5b362a3f19c34c1a7f9e61bd557bb2aac5bcac"
-        ]
-      ],
+      "keccak256": [],
       "sha256": []
     },
     "k": "0x0000000000000000000000000000000000000000000000000000000000000001",

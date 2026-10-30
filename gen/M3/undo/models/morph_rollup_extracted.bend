@@ -108,7 +108,7 @@ def ux_os_addChallenger(+x: M.X_addChallenger, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of batchChallengedSuccess
 def ret_batchChallengedSuccess(+x: M.X_batchChallengedSuccess) -> List<&2, U32>:
-  M.b_of_w(M.w_b(Bool.not(M.w_eq(M.w_and(M.sload(M.gx_batchChallengedSuccess_st(x), M.w_add(M.h_get(M.gx_batchChallengedSuccess_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchChallengedSuccess_batchIndex(M.gx_batchChallengedSuccess_ar(x))), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0})), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0}))))
+  M.b_of_w(M.w_b(Bool.not(M.w_eq(M.w_and(M.sload(M.gx_batchChallengedSuccess_st(x), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchChallengedSuccess_batchIndex(M.gx_batchChallengedSuccess_ar(x)), M.W{3, 0, 0, 0, 0, 0, 0, 0}}]}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0}))))
 
 def ux_ob_batchChallengedSuccess(+x: M.X_batchChallengedSuccess) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_batchChallengedSuccess_cd(x), 0), M.gx_batchChallengedSuccess_rv(x), ret_batchChallengedSuccess(x), M.lg_rev(M.gx_batchChallengedSuccess_lg(x), Nil{}))
@@ -118,7 +118,7 @@ def ux_os_batchChallengedSuccess(+x: M.X_batchChallengedSuccess, +g: M.GSt) -> U
 
 # the return data of a successful call of batchExist
 def ret_batchExist(+x: M.X_batchExist) -> List<&2, U32>:
-  M.b_of_w(M.w_b(Bool.and(M.w_gt(M.sload(M.gx_batchExist_st(x), M.h_get(M.gx_batchExist_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchExist_batchIndex(M.gx_batchExist_ar(x))), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.not(M.w_eq(M.sload(M.gx_batchExist_st(x), M.h_get(M.gx_batchExist_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchExist_batchIndex(M.gx_batchExist_ar(x))), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0})))))
+  M.b_of_w(M.w_b(Bool.and(M.w_gt(M.sload(M.gx_batchExist_st(x), M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchExist_batchIndex(M.gx_batchExist_ar(x)), M.w0()}]}), M.W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.not(M.w_eq(M.sload(M.gx_batchExist_st(x), M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchExist_batchIndex(M.gx_batchExist_ar(x)), M.w0()}]}), M.W{0, 0, 0, 0, 0, 0, 0, 0})))))
 
 def ux_ob_batchExist(+x: M.X_batchExist) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_batchExist_cd(x), 0), M.gx_batchExist_rv(x), ret_batchExist(x), M.lg_rev(M.gx_batchExist_lg(x), Nil{}))
@@ -128,7 +128,7 @@ def ux_os_batchExist(+x: M.X_batchExist, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of batchInChallenge
 def ret_batchInChallenge(+x: M.X_batchInChallenge) -> List<&2, U32>:
-  M.b_of_w(M.w_b(Bool.and(Bool.not(M.w_eq(M.w_and(M.w_shr_64(M.sload(M.gx_batchInChallenge_st(x), M.h_get(M.gx_batchInChallenge_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchInChallenge_batchIndex(M.gx_batchInChallenge_ar(x))), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))))), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(M.gx_batchInChallenge_st(x), M.w_add(M.h_get(M.gx_batchInChallenge_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchInChallenge_batchIndex(M.gx_batchInChallenge_ar(x))), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0}))), M.W{255, 0, 0, 0, 0, 0, 0, 0}))))))
+  M.b_of_w(M.w_b(Bool.and(Bool.not(M.w_eq(M.w_and(M.w_shr_64(M.sload(M.gx_batchInChallenge_st(x), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchInChallenge_batchIndex(M.gx_batchInChallenge_ar(x)), M.w0()}]})), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(M.gx_batchInChallenge_st(x), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchInChallenge_batchIndex(M.gx_batchInChallenge_ar(x)), M.W{3, 0, 0, 0, 0, 0, 0, 0}}]})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))))))
 
 def ux_ob_batchInChallenge(+x: M.X_batchInChallenge) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_batchInChallenge_cd(x), 0), M.gx_batchInChallenge_rv(x), ret_batchInChallenge(x), M.lg_rev(M.gx_batchInChallenge_lg(x), Nil{}))
@@ -138,7 +138,7 @@ def ux_os_batchInChallenge(+x: M.X_batchInChallenge, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of batchInsideChallengeWindow
 def ret_batchInsideChallengeWindow(+x: M.X_batchInsideChallengeWindow) -> List<&2, U32>:
-  M.b_of_w(M.w_b(M.w_gt(M.sload(M.gx_batchInsideChallengeWindow_st(x), M.w_add(M.h_get(M.gx_batchInsideChallengeWindow_kh(x), List.append(&2, U32, M.b_of_w(M.ga_batchInsideChallengeWindow_batchIndex(M.gx_batchInsideChallengeWindow_ar(x))), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{1, 0, 0, 0, 0, 0, 0, 0})), M.ge_e_block_timestamp(M.gx_batchInsideChallengeWindow_en(x)))))
+  M.b_of_w(M.w_b(M.w_gt(M.sload(M.gx_batchInsideChallengeWindow_st(x), M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.ga_batchInsideChallengeWindow_batchIndex(M.gx_batchInsideChallengeWindow_ar(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0}}]}), M.ge_e_block_timestamp(M.gx_batchInsideChallengeWindow_en(x)))))
 
 def ux_ob_batchInsideChallengeWindow(+x: M.X_batchInsideChallengeWindow) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_batchInsideChallengeWindow_cd(x), 0), M.gx_batchInsideChallengeWindow_rv(x), ret_batchInsideChallengeWindow(x), M.lg_rev(M.gx_batchInsideChallengeWindow_lg(x), Nil{}))
@@ -268,7 +268,7 @@ def ux_os_initialize4(+x: M.X_initialize4, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of isBatchFinalized
 def ret_isBatchFinalized(+x: M.X_isBatchFinalized) -> List<&2, U32>:
-  M.b_of_w(M.w_b(M.w_le(M.ga_isBatchFinalized__batchIndex(M.gx_isBatchFinalized_ar(x)), M.sload(M.gx_isBatchFinalized_st(x), M.W{157, 0, 0, 0, 0, 0, 0, 0}))))
+  M.b_of_w(M.w_b(M.w_le(M.ga_isBatchFinalized__batchIndex(M.gx_isBatchFinalized_ar(x)), M.sload(M.gx_isBatchFinalized_st(x), M.SK{M.W{157, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}))))
 
 def ux_ob_isBatchFinalized(+x: M.X_isBatchFinalized) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_isBatchFinalized_cd(x), 0), M.gx_isBatchFinalized_rv(x), ret_isBatchFinalized(x), M.lg_rev(M.gx_isBatchFinalized_lg(x), Nil{}))
@@ -278,7 +278,7 @@ def ux_os_isBatchFinalized(+x: M.X_isBatchFinalized, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of owner
 def ret_owner(+x: M.X_owner) -> List<&2, U32>:
-  M.b_of_w(M.w_and(M.sload(M.gx_owner_st(x), M.W{51, 0, 0, 0, 0, 0, 0, 0}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))
+  M.b_of_w(M.w_and(M.sload(M.gx_owner_st(x), M.SK{M.W{51, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))
 
 def ux_ob_owner(+x: M.X_owner) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_owner_cd(x), 0), M.gx_owner_rv(x), ret_owner(x), M.lg_rev(M.gx_owner_lg(x), Nil{}))
@@ -288,7 +288,7 @@ def ux_os_owner(+x: M.X_owner, +g: M.GSt) -> UOS:
 
 # the return data of a successful call of paused
 def ret_paused(+x: M.X_paused) -> List<&2, U32>:
-  M.b_of_w(M.w_b(Bool.not(M.w_eq(M.w_and(M.sload(M.gx_paused_st(x), M.W{101, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0}))))
+  M.b_of_w(M.w_b(Bool.not(M.w_eq(M.w_and(M.sload(M.gx_paused_st(x), M.SK{M.W{101, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0}))))
 
 def ux_ob_paused(+x: M.X_paused) -> UOb:
   ux_ob_mk(U32.is_eq(M.gx_paused_cd(x), 0), M.gx_paused_rv(x), ret_paused(x), M.lg_rev(M.gx_paused_lg(x), Nil{}))
@@ -522,14 +522,14 @@ type Val_batchBlobVersionedHashes is Data:
 def ux_put_batchBlobVersionedHashes(st: M.HSt, +k: M.W, v: Val_batchBlobVersionedHashes, +kh: List<&2, M.HKB>) -> M.HSt:
   match v:
     case Val_batchBlobVersionedHashes{s0}:
-      M.sstore(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{173, 0, 0, 0, 0, 0, 0, 0}))), s0)
+      M.sstore(st, M.SK{M.W{173, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]}, s0)
 
 # set_batchBlobVersionedHashes(s, k, v): s with the register of batchBlobVersionedHashes at key k holding v
 def set_batchBlobVersionedHashes(+g: M.GSt, +k: M.W, v: Val_batchBlobVersionedHashes, +kh: List<&2, M.HKB>) -> M.GSt:
   M.gh_set_st(g, ux_put_batchBlobVersionedHashes(M.gh_get_st(g), k, v, kh))
 
 def ux_reg_batchBlobVersionedHashes(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> Val_batchBlobVersionedHashes:
-  Val_batchBlobVersionedHashes{M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{173, 0, 0, 0, 0, 0, 0, 0}))))}
+  Val_batchBlobVersionedHashes{M.sload(st, M.SK{M.W{173, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]})}
 
 def ux_zero_batchBlobVersionedHashes(v: Val_batchBlobVersionedHashes) -> Bool:
   match v:
@@ -548,14 +548,14 @@ type Val_batchDataStore is Data:
 def ux_put_batchDataStore(st: M.HSt, +k: M.W, v: Val_batchDataStore, +kh: List<&2, M.HKB>) -> M.HSt:
   match v:
     case Val_batchDataStore{s0, s1, s2, s3}:
-      M.sstore(M.sstore(M.sstore(M.sstore(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), s0), M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{1, 0, 0, 0, 0, 0, 0, 0}), s1), M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{2, 0, 0, 0, 0, 0, 0, 0}), s2), M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0}), s3)
+      M.sstore(M.sstore(M.sstore(M.sstore(st, M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]}, s0), M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{1, 0, 0, 0, 0, 0, 0, 0}}]}, s1), M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{2, 0, 0, 0, 0, 0, 0, 0}}]}, s2), M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{3, 0, 0, 0, 0, 0, 0, 0}}]}, s3)
 
 # set_batchDataStore(s, k, v): s with the register of batchDataStore at key k holding v
 def set_batchDataStore(+g: M.GSt, +k: M.W, v: Val_batchDataStore, +kh: List<&2, M.HKB>) -> M.GSt:
   M.gh_set_st(g, ux_put_batchDataStore(M.gh_get_st(g), k, v, kh))
 
 def ux_reg_batchDataStore(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> Val_batchDataStore:
-  Val_batchDataStore{M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0})))), M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{1, 0, 0, 0, 0, 0, 0, 0})), M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{2, 0, 0, 0, 0, 0, 0, 0})), M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{162, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0}))}
+  Val_batchDataStore{M.sload(st, M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]}), M.sload(st, M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{1, 0, 0, 0, 0, 0, 0, 0}}]}), M.sload(st, M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{2, 0, 0, 0, 0, 0, 0, 0}}]}), M.sload(st, M.SK{M.W{162, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{3, 0, 0, 0, 0, 0, 0, 0}}]})}
 
 def ux_zero_batchDataStore(v: Val_batchDataStore) -> Bool:
   match v:
@@ -574,14 +574,14 @@ type Val_challenges is Data:
 def ux_put_challenges(st: M.HSt, +k: M.W, v: Val_challenges, +kh: List<&2, M.HKB>) -> M.HSt:
   match v:
     case Val_challenges{s0, s1, s2, s3}:
-      M.sstore(M.sstore(M.sstore(M.sstore(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), s0), M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{1, 0, 0, 0, 0, 0, 0, 0}), s1), M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{2, 0, 0, 0, 0, 0, 0, 0}), s2), M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0}), s3)
+      M.sstore(M.sstore(M.sstore(M.sstore(st, M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]}, s0), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{1, 0, 0, 0, 0, 0, 0, 0}}]}, s1), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{2, 0, 0, 0, 0, 0, 0, 0}}]}, s2), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{3, 0, 0, 0, 0, 0, 0, 0}}]}, s3)
 
 # set_challenges(s, k, v): s with the register of challenges at key k holding v
 def set_challenges(+g: M.GSt, +k: M.W, v: Val_challenges, +kh: List<&2, M.HKB>) -> M.GSt:
   M.gh_set_st(g, ux_put_challenges(M.gh_get_st(g), k, v, kh))
 
 def ux_reg_challenges(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> Val_challenges:
-  Val_challenges{M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0})))), M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{1, 0, 0, 0, 0, 0, 0, 0})), M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{2, 0, 0, 0, 0, 0, 0, 0})), M.sload(st, M.w_add(M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{3, 0, 0, 0, 0, 0, 0, 0}))}
+  Val_challenges{M.sload(st, M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]}), M.sload(st, M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{1, 0, 0, 0, 0, 0, 0, 0}}]}), M.sload(st, M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{2, 0, 0, 0, 0, 0, 0, 0}}]}), M.sload(st, M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.W{3, 0, 0, 0, 0, 0, 0, 0}}]})}
 
 def ux_zero_challenges(v: Val_challenges) -> Bool:
   match v:
@@ -600,14 +600,14 @@ type Val_committedBatches is Data:
 def ux_put_committedBatches(st: M.HSt, +k: M.W, v: Val_committedBatches, +kh: List<&2, M.HKB>) -> M.HSt:
   match v:
     case Val_committedBatches{s0}:
-      M.sstore(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0}))), s0)
+      M.sstore(st, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]}, s0)
 
 # set_committedBatches(s, k, v): s with the register of committedBatches at key k holding v
 def set_committedBatches(+g: M.GSt, +k: M.W, v: Val_committedBatches, +kh: List<&2, M.HKB>) -> M.GSt:
   M.gh_set_st(g, ux_put_committedBatches(M.gh_get_st(g), k, v, kh))
 
 def ux_reg_committedBatches(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> Val_committedBatches:
-  Val_committedBatches{M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0}))))}
+  Val_committedBatches{M.sload(st, M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]})}
 
 def ux_zero_committedBatches(v: Val_committedBatches) -> Bool:
   match v:
@@ -626,14 +626,14 @@ type Val_committedStateRoots is Data:
 def ux_put_committedStateRoots(st: M.HSt, +k: M.W, v: Val_committedStateRoots, +kh: List<&2, M.HKB>) -> M.HSt:
   match v:
     case Val_committedStateRoots{s0}:
-      M.sstore(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{171, 0, 0, 0, 0, 0, 0, 0}))), s0)
+      M.sstore(st, M.SK{M.W{171, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]}, s0)
 
 # set_committedStateRoots(s, k, v): s with the register of committedStateRoots at key k holding v
 def set_committedStateRoots(+g: M.GSt, +k: M.W, v: Val_committedStateRoots, +kh: List<&2, M.HKB>) -> M.GSt:
   M.gh_set_st(g, ux_put_committedStateRoots(M.gh_get_st(g), k, v, kh))
 
 def ux_reg_committedStateRoots(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> Val_committedStateRoots:
-  Val_committedStateRoots{M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(k), M.b_of_w(M.W{171, 0, 0, 0, 0, 0, 0, 0}))))}
+  Val_committedStateRoots{M.sload(st, M.SK{M.W{171, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{k, M.w0()}]})}
 
 def ux_zero_committedStateRoots(v: Val_committedStateRoots) -> Bool:
   match v:
@@ -652,14 +652,14 @@ type Val_isChallenger is Data:
 def ux_put_isChallenger(st: M.HSt, +k: M.W, v: Val_isChallenger, +kh: List<&2, M.HKB>) -> M.HSt:
   match v:
     case Val_isChallenger{s0}:
-      M.sstore(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(M.w_and(k, M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), M.b_of_w(M.W{159, 0, 0, 0, 0, 0, 0, 0}))), s0)
+      M.sstore(st, M.SK{M.W{159, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.w_and(k, M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.w0()}]}, s0)
 
 # set_isChallenger(s, k, v): s with the register of isChallenger at key k holding v
 def set_isChallenger(+g: M.GSt, +k: M.W, v: Val_isChallenger, +kh: List<&2, M.HKB>) -> M.GSt:
   M.gh_set_st(g, ux_put_isChallenger(M.gh_get_st(g), k, v, kh))
 
 def ux_reg_isChallenger(+st: M.HSt, +k: M.W, +kh: List<&2, M.HKB>) -> Val_isChallenger:
-  Val_isChallenger{M.sload(st, M.h_get(kh, List.append(&2, U32, M.b_of_w(M.w_and(k, M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), M.b_of_w(M.W{159, 0, 0, 0, 0, 0, 0, 0}))))}
+  Val_isChallenger{M.sload(st, M.SK{M.W{159, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.w_and(k, M.W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), M.w0()}]})}
 
 def ux_zero_isChallenger(v: Val_isChallenger) -> Bool:
   match v:
@@ -673,7 +673,7 @@ def ux_veq_isChallenger(a: Val_isChallenger, b: Val_isChallenger) -> Bool:
 
 # the value of the scalar lastCommittedBatchIndex
 def ux_sc_lastCommittedBatchIndex(+st: M.HSt) -> M.W:
-  M.sload(st, M.W{158, 0, 0, 0, 0, 0, 0, 0})
+  M.sload(st, M.SK{M.W{158, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})
 
 def ux_key_pair_Rollup_addChallenger_removeChallenger_0(+x: M.X_addChallenger) -> M.W:
   M.ga_addChallenger__account(M.gx_addChallenger_ar(x))

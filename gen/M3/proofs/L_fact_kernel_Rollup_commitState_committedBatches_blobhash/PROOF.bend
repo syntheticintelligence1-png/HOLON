@@ -24,14 +24,14 @@ def pq7(c: Bool, +st: M.HSt, +ar: M.AR_commitState, +en: M.HEnv, +kh: List<&2, M
 def pq6(c: Bool, +st: M.HSt, +ar: M.AR_commitState, +en: M.HEnv, +kh: List<&2, M.HKB>, eb: {pg(en) == False{} : Bool}) -> {U32.is_eq(M.gx_commitState_cd(M.k_commitState_43(c, M.x0_commitState(st, ar, en, kh))), 0) == False{} : Bool}:
   match c:
     case True{}:
-      pq7(Bool.not(M.w_nz(M.w_and(M.sload(st, M.w_of_limbs([101, 0, 0, 0, 0, 0, 0, 0])), M.w_of_limbs([255, 0, 0, 0, 0, 0, 0, 0])))), st, ar, en, kh, eb)
+      pq7(Bool.not(M.w_nz(M.w_and(M.sload(st, M.SK{M.w_of_limbs([101, 0, 0, 0, 0, 0, 0, 0]), M.w0(), Nil{}}), M.w_of_limbs([255, 0, 0, 0, 0, 0, 0, 0])))), st, ar, en, kh, eb)
     case False{}:
       {==}
 
 def pq5(c: Bool, +st: M.HSt, +ar: M.AR_commitState, +en: M.HEnv, +kh: List<&2, M.HKB>, eb: {pg(en) == False{} : Bool}) -> {U32.is_eq(M.gx_commitState_cd(M.k_commitState_44(c, M.x0_commitState(st, ar, en, kh))), 0) == False{} : Bool}:
   match c:
     case True{}:
-      pq6(M.w_eq(M.sload(st, M.w_of_limbs([168, 0, 0, 0, 0, 0, 0, 0])), M.w_of_limbs([0, 0, 0, 0, 0, 0, 0, 0])), st, ar, en, kh, eb)
+      pq6(M.w_eq(M.sload(st, M.SK{M.w_of_limbs([168, 0, 0, 0, 0, 0, 0, 0]), M.w0(), Nil{}}), M.w_of_limbs([0, 0, 0, 0, 0, 0, 0, 0])), st, ar, en, kh, eb)
     case False{}:
       {==}
 
@@ -52,7 +52,7 @@ def pq3(c: Bool, +st: M.HSt, +ar: M.AR_commitState, +en: M.HEnv, +kh: List<&2, M
 def pq2(c: Bool, +st: M.HSt, +ar: M.AR_commitState, +en: M.HEnv, +kh: List<&2, M.HKB>, eb: {pg(en) == False{} : Bool}) -> {U32.is_eq(M.gx_commitState_cd(M.k_commitState_46(c, M.x0_commitState(st, ar, en, kh))), 0) == False{} : Bool}:
   match c:
     case True{}:
-      pq3(M.a_ok(M.c_find(M.ge_e_calls(en), M.w_and(M.sload(st, M.w_of_limbs([151, 0, 0, 0, 0, 0, 0, 0])), M.w_of_limbs([4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0])), True{}, List.append(&2, U32, [159, 138, 19, 215], List.append(&2, U32, M.b_of_w(M.ge_e_caller(en)), Nil{})))), st, ar, en, kh, eb)
+      pq3(M.a_ok(M.c_find(M.ge_e_calls(en), M.w_and(M.sload(st, M.SK{M.w_of_limbs([151, 0, 0, 0, 0, 0, 0, 0]), M.w0(), Nil{}}), M.w_of_limbs([4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0])), True{}, List.append(&2, U32, [159, 138, 19, 215], List.append(&2, U32, M.b_of_w(M.ge_e_caller(en)), Nil{})))), st, ar, en, kh, eb)
     case False{}:
       {==}
 

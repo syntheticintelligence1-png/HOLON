@@ -1,0 +1,35 @@
+{
+  "ledger_version": "holon-ledger/0.1",
+  "doc": "Milestone M3's extension of the ledger (holon.records.milestone_extensions, milestone_entries; I68, rule S8 of tests_m3/test_structural_keys.py). The M3 model of I20's extracted rollup document (holon.sorts.model3: the typed model, its untyped twin and the UNDO, FACT and DISCH sections built on them) stores by structural keys (holon.sorts.prelude3.PRELUDE_SK, holon-model-m3/0.3) where the M2 model stores by real slots: the entry below is the assumption that this adds, read by holon.records for records of milestone M3 (the typed runners pass their milestone) and met only by a cone that holds the structural store's key type SK, so no record over I28's raw versioned machine, no PAR record and no M0-M2 record lists it. spec/M2/ledger.json and the base ledger do not change.",
+  "extends": [
+    {
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+      "no_assumption": [],
+      "entries": [
+        {
+          "id": "A-keccak-structural",
+          "kind": "hash",
+          "source": "holon/sorts/prelude3.py",
+          "text": "A storage location is a structural key SK{b, o, p}: the family's base slot b, the offset o inside the top-level variable and the hashed steps p, each a mapping key k with the offset inside its value. Its real slot is b + o, then keccak256(pad32(k) ++ pad32(slot)) + offset for each step, all mod 2**256. The store compares keys by sk_eq, by structure: two different keys are two different slots, which holds when keccak256 has no collision on the real slots the contract reaches and no structural key's real slot is a raw or literal slot (CF(keccak256, the reached images)). R5's storage comparisons on the frozen I20 corpus and holon keys (gen/M3/sorts/keys.json: the keys of the deployment, the corpus and every committed witness and inhabitant, with each collision listed as a finding) check it on what holon runs.",
+          "introduced_by": [
+            "SK",
+            "SP",
+            "KV",
+            "sk_eq",
+            "sps_eq",
+            "sp_eq",
+            "kv_get",
+            "kv_put",
+            "kv_set",
+            "sload",
+            "sstore"
+          ],
+          "requires": [
+            "SK"
+          ]
+        }
+      ]
+    }
+  ]
+}
