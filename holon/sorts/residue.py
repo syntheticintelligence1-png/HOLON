@@ -249,6 +249,12 @@ class Walk:
         if isinstance(node, Next):
             vals = self.vals(node.fields)
             pf2, st2 = self.track(cur["ov"], vals["ov"], pf, state)
+            if isinstance(self, Chain):
+                # a loop statement is stepped in place: its lemma's goal would be s_<a>_<j>(..), and the caller's
+                # conversion into it would unfold the model's loop twice and compare the two fuels' numerals
+                nxt = self.mi.step(node.j, list(node.fields))
+                if isinstance(nxt, Loop):
+                    return self.loop(nxt, vals, pf2, st2)
             return self.call(self.stmt(node.j, st2), vals, pf2)
         if isinstance(node, Final):
             return self.final(node, cur, pf, state)
