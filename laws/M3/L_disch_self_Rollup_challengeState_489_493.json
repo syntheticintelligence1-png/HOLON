@@ -1,0 +1,55 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_disch_self_Rollup_challengeState_489_493",
+  "milestone": "M3",
+  "notes": "if a call x of challengeState succeeds from a reachable state s, its calibrated cost c0 + c1 * iters(s) (the loop contracts/contracts/l1/rollup/Rollup.sol:489-493) is at most G = 30000000 (En_G, \u00a73.8; self-controlled enabledness, \u00a75.7); bundle morph_rollup.extracted:self_controlled:challengeState:489_493",
+  "rule": "DISCH",
+  "rule_catalog_version": "holon-rules/1.10",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "bundle": "morph_rollup.extracted:self_controlled:challengeState:489_493",
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            },
+            {
+              "var": "keccak256"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "self_controlled"
+}

@@ -1,0 +1,71 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_fact_pi_Rollup_commitBatchWithProof_TotalL1MessagePopped",
+  "milestone": "M3",
+  "notes": "if calls x1 and x2 of commitBatchWithProof both succeed from reachable states and pass equal public inputs to contracts/contracts/l1/rollup/Rollup.sol:779-784, the parent headers they take hold equal TotalL1MessagePopped (bytes 17..25, read by the derivation: Thm 6.8 (iii), ker(m) within ker(c)); bundle morph_rollup.extracted:public_input:commitBatchWithProof:TotalL1MessagePopped",
+  "rule": "FACT",
+  "rule_catalog_version": "holon-rules/1.10",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s1",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x1",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "s2",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x2",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "bundle": "morph_rollup.extracted:public_input:commitBatchWithProof:TotalL1MessagePopped",
+          "on": [
+            {
+              "var": "s1"
+            },
+            {
+              "var": "x1"
+            },
+            {
+              "var": "s2"
+            },
+            {
+              "var": "x2"
+            },
+            {
+              "var": "keccak256"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "public_input"
+}
