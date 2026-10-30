@@ -10,6 +10,10 @@ over Base (Nat, Bool, Cmp, Word, U32) and the typed model's prelude (W, u_add, u
               to_nat(w) + 1 + to_nat(not w) == 2^n
   limbs       u_add_eq: the model's u_add is U32.add; u_s_limb: a limb's sum u_addc(u_add(x, y), k) is adc with the carry
               in; u_c_limb0, u_c_limb: its carry tests (U32.is_lt) are wcarry
+  words       w_bridge: N(a + b) + carry 2^256 == N(a) + N(b); w_wrap: N(a + b) <= N(a) + N(b); wl_bound: N(w) + 1 +
+              wcn(w) == 2^256; nw, okn: a sum below 2^256, or a checked one (w_add_ok), has no carry; ks_0, ks_i, ks_j,
+              ks_s: a loop's key c0 + it starts at N(c0) and steps by one under the checked increment of the key;
+              lt_irr, lt_succ, lt_up: Nat order
 
 The power of two 2^32 is written shn(32n, 1n) at every use and passed to the generic lemmas as an opaque parameter: Bend's
 Nat is unary, and the checker normalizes both sides of any equation it cannot match syntactically, so a comparison of two
@@ -909,6 +913,260 @@ def w_wrap(+a: {M}W, +b: {M}W) -> {{Nat.is_le({WN}({M}w_add(a, b)), Nat.add({WN}
 '''
 
 
+# ------------------------------------------------------------------------------- sums as trees (assoc/comm)
+def _r(e):
+    """A Nat sum tree rendered: an atom (text), ("+", x, y) or ("S", x) for 1n+x."""
+    if isinstance(e, str):
+        return e
+    if e[0] == "S":
+        return "1n+" + _r(e[1])
+    return add(_r(e[1]), _r(e[2]))
+
+
+def _canon(lst):
+    return lst[0] if len(lst) == 1 else ("+", lst[0], _canon(lst[1:]))
+
+
+def _tr(T, terms, proofs):
+    """{terms[0] == terms[-1]} from proofs[i] : {terms[i] == terms[i+1]} ({==} steps between equal texts dropped)."""
+    pts = [(p, t) for p, t in zip(proofs, terms[1:])]
+    keep = []
+    cur = terms[0]
+    for p, t in pts:
+        if p == "{==}" and t == cur:
+            continue
+        keep.append((p, t))
+        cur = t
+    if not keep:
+        return "{==}"
+    out = keep[-1][0]
+    for i in range(len(keep) - 2, -1, -1):
+        a = terms[0] if i == 0 else keep[i - 1][1]
+        out = f"Equal.trans({T}, {a}, {keep[i][1]}, {keep[-1][1]}, {keep[i][0]}, {out})"
+    # rebuild left to right
+    res = None
+    for i in range(len(keep) - 1, -1, -1):
+        a = terms[0] if i == 0 else keep[i - 1][1]
+        res = keep[i][0] if res is None else f"Equal.trans({T}, {a}, {keep[i][1]}, {keep[-1][1]}, {keep[i][0]}, {res})"
+    return res
+
+
+def _insert(a, L):
+    if a <= L[0]:
+        return [a] + L, "{==}"
+    if len(L) == 1:
+        return [L[0], a], f"n_add_comm({a}, {L[0]})"
+    rest = _r(_canon(L[1:]))
+    newR, p2 = _insert(a, L[1:])
+    out = [L[0]] + newR
+    q = "{==}" if p2 == "{==}" else cong_r(L[0], add(a, rest), _r(_canon(newR)), p2)
+    return out, _tr("Nat", [add(a, _r(_canon(L))), add(L[0], add(a, rest)), _r(_canon(out))],
+                   [f"n_swap3({a}, {L[0]}, {rest})", q])
+
+
+def _merge(L1, L2):
+    if len(L1) == 1:
+        return _insert(L1[0], L2)
+    a, R1 = L1[0], L1[1:]
+    m, p2 = _merge(R1, L2)
+    L, p3 = _insert(a, m)
+    mid = add(a, add(_r(_canon(R1)), _r(_canon(L2))))
+    q2 = "{==}" if p2 == "{==}" else cong_r(a, add(_r(_canon(R1)), _r(_canon(L2))), _r(_canon(m)), p2)
+    return L, _tr("Nat", [add(_r(_canon(L1)), _r(_canon(L2))), mid, add(a, _r(_canon(m))), _r(_canon(L))],
+                 [f"n_add_assoc({a}, {_r(_canon(R1))}, {_r(_canon(L2))})", q2, p3])
+
+
+def _norm(e):
+    if isinstance(e, str):
+        return [e], "{==}"
+    if e[0] == "S":
+        L, p = _norm(("+", "1n", e[1]))
+        return L, _tr("Nat", [_r(e), add("1n", _r(e[1])), _r(_canon(L))], ["{==}", p])
+    x, y = e[1], e[2]
+    Lx, px = _norm(x)
+    Ly, py = _norm(y)
+    cx, cy = _r(_canon(Lx)), _r(_canon(Ly))
+    L, pm = _merge(Lx, Ly)
+    pa = "{==}" if px == "{==}" else cong_l(_r(x), cx, _r(y), px)
+    pb = "{==}" if py == "{==}" else cong_r(cx, _r(y), cy, py)
+    return L, _tr("Nat", [add(_r(x), _r(y)), add(cx, _r(y)), add(cx, cy), _r(_canon(L))], [pa, pb, pm])
+
+
+def ac_eq(e1, e2):
+    """A proof of {_r(e1) == _r(e2) : Nat} for two sums of the same atoms (assoc/comm)."""
+    L1, p1 = _norm(e1)
+    L2, p2 = _norm(e2)
+    if L1 != L2:
+        raise ValueError(f"not AC-equal: {L1} {L2}")
+    c = _r(_canon(L1))
+    return _tr("Nat", [_r(e1), c, _r(e2)], [p1, "{==}" if p2 == "{==}" else sym("Nat", _r(e2), c, p2)])
+
+
+def _P(e1, e2):
+    return ("+", e1, e2)
+
+
+def _w_order(M="M.", WN="c3_wnat"):
+    """Words below 2^256, sums without a carry, and the step of a loop's key c0 + it (BUILD_PLAN I33, B6)."""
+    S = lambda x: f"shn(32n, {x})"
+    B = S("1n")
+    Q = {7: B}
+    for j in range(6, -1, -1):
+        Q[j] = S(Q[j + 1])
+    P256 = Q[0]
+    W1 = f"{M}W{{1, 0, 0, 0, 0, 0, 0, 0}}"
+    N = lambda w: f"{WN}({w})"
+    out = []
+    out.append(f'''
+# x + (y + z) == y + (x + z)
+def n_swap3(+x: Nat, +y: Nat, +z: Nat) -> {{Nat.add(x, Nat.add(y, z)) == Nat.add(y, Nat.add(x, z)) : Nat}}:
+  {_tr("Nat", ["Nat.add(x, Nat.add(y, z))", "Nat.add(Nat.add(x, y), z)", "Nat.add(Nat.add(y, x), z)", "Nat.add(y, Nat.add(x, z))"],
+       [sym("Nat", "Nat.add(Nat.add(x, y), z)", "Nat.add(x, Nat.add(y, z))", "n_add_assoc(x, y, z)"),
+        cong_l("Nat.add(x, y)", "Nat.add(y, x)", "z", "n_add_comm(x, y)"), "n_add_assoc(y, x, z)"])}
+
+# a limb's complement value and its bound: to_nat(u) + 1 + to_nat(not u) == 2^32
+def unc(u: U32) -> Nat:
+  match u:
+    case U32{{d}}:
+      Word.to_nat(32n, Word.not(32n, d))
+
+def u_bnd(+u: U32) -> {{Nat.add(U32.to_nat(u), 1n+unc(u)) == {B} : Nat}}:
+  match u:
+    case U32{{+d}}:
+      Equal.trans(Nat, Nat.add(U32.to_nat(U32{{d}}), 1n+unc(U32{{d}})), Nat.add(Word.to_nat(32n, d), 1n+Word.to_nat(32n, Word.not(32n, d))), {B}, {{==}}, w_bound(32n, d))
+''')
+    C = "unc(l7)"
+    for j in range(6, -1, -1):
+        C = add(f"unc(l{j})", S(C))
+    a, ac_, rr, rc, T = "a", "ac", "r", "rc", "T"
+    lhs = add(add(a, S(rr)), "1n+" + add(ac_, S(rc)))
+    tree_l = _P(_P(a, S(rr)), ("S", _P(ac_, S(rc))))
+    tree_x = _P(_P(a, ("S", ac_)), _P(S(rr), S(rc)))
+    X = _r(tree_x)
+    Y = add(B, add(S(rr), S(rc)))
+    left = _tr("Nat", [lhs, X, Y], [ac_eq(tree_l, tree_x), cong_l(add(a, "1n+" + ac_), B, add(S(rr), S(rc)), "ea")])
+    right = _tr("Nat", [S(T), S(add(rr, add("1n", rc))), add(S(rr), S(add("1n", rc))), add(S(rr), add(B, S(rc))), Y],
+               [cong("Nat", "Nat", "z => shn(32n, z)", T, add(rr, add("1n", rc)), sym("Nat", add(rr, add("1n", rc)), T, "er")),
+                f"shn_add(32n, {rr}, {add('1n', rc)})",
+                cong_r(S(rr), S(add("1n", rc)), add(B, S(rc)), f"shn_add(32n, 1n, {rc})"),
+                f"n_swap3({S(rr)}, {B}, {S(rc)})"])
+    out.append(f'''
+# the complement of a word, limb by limb, as a natural number
+def wcn(w: {M}W) -> Nat:
+  match w:
+    case {M}W{{l0, l1, l2, l3, l4, l5, l6, l7}}:
+      {C}
+
+# one Horner step of the bound: a + 1 + ac == 2^32 and r + 1 + rc == T give (a + 2^32 r) + 1 + (ac + 2^32 rc) == 2^32 T
+def hb_step(+a: Nat, +ac: Nat, +r: Nat, +rc: Nat, +T: Nat, ea: {{Nat.add(a, 1n+ac) == {B} : Nat}}, er: {{Nat.add(r, 1n+rc) == T : Nat}}) -> {{{lhs} == {S(T)} : Nat}}:
+  {_tr("Nat", [lhs, Y, S(T)], [left, sym("Nat", S(T), Y, right)])}
+''')
+    H = {7: "U32.to_nat(l7)"}
+    Cc = {7: "unc(l7)"}
+    for j in range(6, -1, -1):
+        H[j] = add(f"U32.to_nat(l{j})", S(H[j + 1]))
+        Cc[j] = add(f"unc(l{j})", S(Cc[j + 1]))
+    Wl = f"{M}W{{l0, l1, l2, l3, l4, l5, l6, l7}}"
+    pf = "u_bnd(l7)"
+    for j in range(6, -1, -1):
+        pf = f"hb_step(U32.to_nat(l{j}), unc(l{j}), {H[j + 1]}, {Cc[j + 1]}, {Q[j + 1]}, u_bnd(l{j}), {pf})"
+    out.append(f'''
+# every word is below 2^256: N(w) + 1 + wcn(w) == 2^256
+def wl_bound(+w: {M}W) -> {{Nat.add({N("w")}, 1n+wcn(w)) == {P256} : Nat}}:
+  match w:
+    case {M}W{{+l0, +l1, +l2, +l3, +l4, +l5, +l6, +l7}}:
+      Equal.trans(Nat, Nat.add({N(Wl)}, 1n+wcn({Wl})), Nat.add({H[0]}, 1n+{Cc[0]}), {P256}, {{==}}, {pf})
+''')
+    # no wrap
+    s, x, d, pw = "s", "x", "d", "pw"
+    E1 = _tr("Nat", [add(s, add(x, "1n+d")), add(s, pw), x], [cong_r(s, add(x, "1n+d"), pw, "e"), "eb"])
+    E2 = _tr("Nat", [add(x, add(s, "1n+d")), add(s, add(x, "1n+d")), x, add(x, "0n")],
+            [f"n_swap3(x, s, 1n+d)", E1, sym("Nat", add(x, "0n"), x, "n_add_z(x)")])
+    E3 = f"n_cancel_l(x, {add(s, '1n+d')}, 0n, {E2})"
+    E4 = _tr("Nat", ["1n+" + add(s, d), add(s, "1n+d"), "0n"], [sym("Nat", add(s, "1n+d"), "1n+" + add(s, d), "n_add_s(s, d)"), E3])
+    nwa = lambda a_, b_: add(N(a_), N(b_))
+    out.append(f'''
+# a sum with a carry of pw that stays below pw has no carry
+def nw_c(c: Bool, +s: Nat, +x: Nat, +d: Nat, +pw: Nat, eb: {{Nat.add(s, cmul(c, pw)) == x : Nat}}, e: {{Nat.add(x, 1n+d) == pw : Nat}}) -> {{s == x : Nat}}:
+  match c:
+    case False{{}}:
+      {_tr("Nat", ["s", add("s", "0n"), "x"], [sym("Nat", add("s", "0n"), "s", "n_add_z(s)"), "eb"])}
+    case True{{}}:
+      efq({{s == x : Nat}}, n_succ_nz({add(s, d)}, {E4}))
+
+# no wrap: N(a) + N(b) + 1 + d == 2^256 gives N(a + b) == N(a) + N(b)
+def nw(+a: {M}W, +b: {M}W, +d: Nat, e: {{Nat.add({nwa("a", "b")}, 1n+d) == {P256} : Nat}}) -> {{{N(f"{M}w_add(a, b)")} == {nwa("a", "b")} : Nat}}:
+  nw_c(Bool.not({M}w_add_ok(a, b)), {N(f"{M}w_add(a, b)")}, {nwa("a", "b")}, d, {P256}, w_bridge(a, b), e)
+
+def ok_c(c: Bool, +s: Nat, +x: Nat, +pw: Nat, eb: {{Nat.add(s, cmul(Bool.not(c), pw)) == x : Nat}}, ec: {{c == True{{}} : Bool}}) -> {{s == x : Nat}}:
+  match c:
+    case True{{}}:
+      {_tr("Nat", ["s", add("s", "0n"), "x"], [sym("Nat", add("s", "0n"), "s", "n_add_z(s)"), "eb"])}
+    case False{{}}:
+      efq({{s == x : Nat}}, false_ne_true(ec))
+
+# a checked sum: w_add_ok(a, b) gives N(a + b) == N(a) + N(b)
+def okn(+a: {M}W, +b: {M}W, ok: {{{M}w_add_ok(a, b) == True{{}} : Bool}}) -> {{{N(f"{M}w_add(a, b)")} == {nwa("a", "b")} : Nat}}:
+  ok_c({M}w_add_ok(a, b), {N(f"{M}w_add(a, b)")}, {nwa("a", "b")}, {P256}, w_bridge(a, b), ok)
+''')
+    # the loop key step
+    K, K1, I1, Kp = f"{M}w_add(c0, it)", f"{M}w_add({M}w_add(c0, it), {W1})", f"{M}w_add(it, {W1})", f"{M}w_add(c0, {M}w_add(it, {W1}))"
+    n0, ni, nk, n1, Cw = N("c0"), N("it"), N(K), N(W1), f"wcn({K1})"
+    eK1 = f"okn({K}, {W1}, ok3)"
+    B2 = _tr("Nat", [add(add(nk, n1), "1n+" + Cw), add(N(K1), "1n+" + Cw), P256],
+            [cong_l(add(nk, n1), N(K1), "1n+" + Cw, sym("Nat", N(K1), add(nk, n1), eK1)), f"wl_bound({K1})"])
+    B3 = _tr("Nat", [add(add(add(n0, ni), n1), "1n+" + Cw), add(add(nk, n1), "1n+" + Cw), P256],
+            [cong_l(add(add(n0, ni), n1), add(nk, n1), "1n+" + Cw, cong_l(add(n0, ni), nk, n1, sym("Nat", nk, add(n0, ni), "J"))), B2])
+    base = _P(_P(_P(n0, ni), n1), ("S", Cw))
+    e1 = _tr("Nat", [add(add(ni, n1), "1n+" + add(n0, Cw)), _r(base), P256],
+            [ac_eq(_P(_P(ni, n1), ("S", _P(n0, Cw))), base), B3])
+    out.append(f'''
+# the loop key step: J = N(c0 + it) == N(c0) + N(it) and the checked increment of c0 + it give it + 1 no wrap
+def ks_i(+c0: {M}W, +it: {M}W, +J: {{{nk} == {add(n0, ni)} : Nat}}, +ok3: {{{M}w_add_ok({K}, {W1}) == True{{}} : Bool}}) -> {{{N(I1)} == {add(ni, n1)} : Nat}}:
+  nw(it, {W1}, {add(n0, Cw)}, {e1})
+''')
+    e2 = _tr("Nat", [add(add(n0, N(I1)), "1n+" + Cw), add(add(n0, add(ni, n1)), "1n+" + Cw), _r(base), P256],
+            [cong_l(add(n0, N(I1)), add(n0, add(ni, n1)), "1n+" + Cw, cong_r(n0, N(I1), add(ni, n1), "ks_i(c0, it, J, ok3)")),
+             ac_eq(_P(_P(n0, _P(ni, n1)), ("S", Cw)), base), B3])
+    out.append(f'''
+# ... and J at it + 1: N(c0 + (it + 1)) == N(c0) + N(it + 1)
+def ks_j(+c0: {M}W, +it: {M}W, +J: {{{nk} == {add(n0, ni)} : Nat}}, +ok3: {{{M}w_add_ok({K}, {W1}) == True{{}} : Bool}}) -> {{{N(Kp)} == {add(n0, N(I1))} : Nat}}:
+  nw(c0, {I1}, {Cw}, {e2})
+
+# ... and the key's value steps by one: N(c0 + (it + 1)) == N(c0 + it) + N(1)
+def ks_s(+c0: {M}W, +it: {M}W, +J: {{{nk} == {add(n0, ni)} : Nat}}, +ok3: {{{M}w_add_ok({K}, {W1}) == True{{}} : Bool}}) -> {{{N(Kp)} == {add(nk, n1)} : Nat}}:
+  {_tr("Nat", [N(Kp), add(n0, N(I1)), add(n0, add(ni, n1)), add(add(n0, ni), n1), add(nk, n1)],
+       ["ks_j(c0, it, J, ok3)", cong_r(n0, N(I1), add(ni, n1), "ks_i(c0, it, J, ok3)"),
+        sym("Nat", add(add(n0, ni), n1), add(n0, add(ni, n1)), f"n_add_assoc({n0}, {ni}, {n1})"),
+        cong_l(add(n0, ni), nk, n1, sym("Nat", nk, add(n0, ni), "J"))])}
+
+# J at the loop's start: N(c0 + 0) == N(c0) + N(0)
+def ks_0(+c0: {M}W) -> {{{N(f"{M}w_add(c0, {M}w0())")} == {add(n0, N(f"{M}w0()"))} : Nat}}:
+  nw(c0, {M}w0(), wcn(c0), {_tr("Nat", [add(add(n0, N(f"{M}w0()")), "1n+wcn(c0)"), add(n0, "1n+wcn(c0)"), P256],
+                              [cong_l(add(n0, N(f"{M}w0()")), n0, "1n+wcn(c0)", f"n_add_z({n0})"), "wl_bound(c0)"])})
+
+# Nat order: irreflexive, a successor above, a step up
+def lt_irr(+a: Nat) -> {{Nat.is_lt(a, a) == False{{}} : Bool}}:
+  (%Equal.sym(Cmp, Nat.cmp(a, a), EQ{{}}, n_cmp_refl(a)) : {{Cmp.is_lt(_) == False{{}} : Bool}}
+  {{==}})
+
+def lt_succ(+a: Nat) -> {{Nat.is_lt(a, Nat.add(a, 1n)) == True{{}} : Bool}}:
+  n_lt_add(a, 0n)
+
+def lt_up(a: Nat, b: Nat, h: {{Nat.is_lt(a, b) == True{{}} : Bool}}) -> {{Nat.is_lt(a, Nat.add(b, 1n)) == True{{}} : Bool}}:
+  match a b:
+    case 0n 0n:
+      efq({{Nat.is_lt(0n, Nat.add(0n, 1n)) == True{{}} : Bool}}, false_ne_true(h))
+    case 0n 1n+q:
+      {{==}}
+    case 1n+p 0n:
+      efq({{Nat.is_lt(1n+p, Nat.add(0n, 1n)) == True{{}} : Bool}}, false_ne_true(h))
+    case 1n+p 1n+q:
+      lt_up(p, q, h)
+''')
+    return "\n".join(out)
+
+
 def wnat_def(M="M."):
     limbs = [f"l{i}" for i in range(8)]
     body = f"U32.to_nat({limbs[7]})"
@@ -927,7 +1185,7 @@ def library(M: str = "M.", shn: str = "shn", wnat: str = "c3_wnat") -> str:
     library's own shn is then left out and every use of it is the law file's, so that the powers of two its lemmas
     write are the statement's terms, syntactically."""
     text = "\n".join([NAT, _u32_add(M), _natcmp(), _natcarry(), _u32_limbs(M), _w_generic(), _w_limbs(M),
-                      _w_bridge(M, wnat)])
+                      _w_bridge(M, wnat), _w_order(M, wnat)])
     if shn != "shn":
         text = _SHN_USE.sub(shn + "(", _SHN_DEF.sub("", text))
     return text
