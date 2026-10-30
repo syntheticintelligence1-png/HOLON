@@ -1670,8 +1670,21 @@ class FnGen:
         for k, ins in enumerate(seg):
             last = k == len(seg) - 1
             if last and self.is_boundary(ins):
+                j = self.compiled_callee(ins)
+                if j is not None:
+                    # the machine (m_step) runs the callee's steps, then resumes this function at segment s + 1
+                    # with the callee's result: a call is never run inside another step
+                    args = [self.val(x) for x in ins["call"].get("args") or []]
+                    kj, first, rinit = self.callees[j]
+                    for i, a in enumerate(args):
+                        rinit = re.sub(rf"\ba{i}\b", lambda _m, a=a: a, rinit)
+                    r = self.r_out(sorted(self.locals, key=lambda n: self.reg[n]))
+                    self.resumes.append((b, s + 1))
+                    extra = f", {self.pl}, {self.dt}" if self.is_entry else ""
+                    self.lines.append(f"{self.T}Call{{Fr{j}{{{kj}{first}{{}}, {rinit}}}, {self.K}R{b}x{s + 1}{{}}, {r}, "
+                                      f"{self.hv}{extra}}}")
+                    return self.lines
                 eff = self.eff(ins, b)
-                defined_here = [n for n in self.locals]
                 nxt = self.seg_name(b, s + 1)
                 r = self.r_out(sorted(self.locals, key=lambda n: self.reg[n]))
                 extra = f", {self.pl}, {self.dt}" if self.is_entry else ""
@@ -1810,6 +1823,23 @@ class FnGen:
     # ------------------------------------------------------------ boundaries
     def in_loop(self, b: int) -> bool:
         return any(b in lp for lp in self.loops)
+
+    def compiled_callee(self, ins: dict):
+        if ins.get("op") != "Call":
+            return None
+        c = ins["call"]
+        if c.get("mode") != "static" or c.get("callee") not in self.C.raw:
+            return None
+        if c["callee"] not in self.index_of:
+            raise Unsupported(f"a call of {c['callee']} outside the compiled closure")
+        return self.index_of[c["callee"]]
+
+    def start_info(self) -> tuple:
+        """(continuation type, first block, initial registers over a0..a<n-1>) of this function, for its callers."""
+        rinit = "RE{}"
+        for i in range(len(self.fi.params) - 1, -1, -1):
+            rinit = f"rset({self.path('P' + str(i))}, {rinit}, a{i})"
+        return self.K, sorted(self.vblocks)[0], rinit
 
     def eff(self, ins: dict, b: int) -> str:
         op = ins.get("op")
@@ -2020,36 +2050,85 @@ class FnGen:
     # ------------------------------------------------------------ the function
     def code(self) -> str:
         self.branch_defs = []
+        self.resumes = []
         segs = self.build()
         ks = sorted(self.vblocks)
         tkind = "Type" if self.is_entry else "Data"
         sig = self.fn_params()
         ex = ", pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns" if self.is_entry else ""
         exu = ", pl, dt" if self.is_entry else ""
+        rs = sorted(set(self.resumes))
         lines = [f"# ---------------------------------------------------------------- {self.fi.fid}",
-                 f"type {self.K} is Data:"] + [f"  {self.K}{k}{{}}" for k in ks] + [""]
+                 f"# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's "
+                 f"result (KR<b>x<s>)",
+                 f"type {self.K} is Data:"] + [f"  {self.K}{k}{{}}" for k in ks] + \
+                [f"  {self.K}R{b}x{s}{{}}" for b, s in rs] + [""]
         lines += [f"type {self.T} is {tkind}:",
-                  f"  {self.T}Go{{k: {self.K}, h: List<&2, GV>, r: RT{ex.replace(', pl:', ', pl:').replace(' -> ', ' -> ')}}}",
-                  f"  {self.T}End{{x: Res}}", ""]
+                  f"  {self.T}Go{{k: {self.K}, h: List<&2, GV>, r: RT{ex}}}",
+                  f"  {self.T}End{{x: Res}}",
+                  f"  {self.T}Call{{fr: Frame, k: {self.K}, r: RT, h: List<&2, GV>{ex}}}", ""]
         out = "\n".join(lines) + "\n" + "\n".join(self.branch_defs) + "\n" + "\n".join(segs)
         disp = [f"def {self.p}_step(k: {self.K}, +h: List<&2, GV>, +r: RT{sig}) -> {self.T}:", "  match k:"]
         for k in ks:
             disp += [f"    case {self.K}{k}{{}}:", f"      {self.p}_b{k}(h, r{exu})"]
-        go_pat = f"{self.T}Go{{k, h, r{exu}}}"
-        run = [f"def {self.p}_out(t: {self.T}) -> Res:", "  match t:",
-               f"    case {go_pat}:", "      Res{OFuel{}, h}", f"    case {self.T}End{{x}}:", "      x", "",
-               f"def {self.p}_run(fuel: Nat, t: {self.T}) -> Res:", "  match fuel:", "    case 0n:",
-               f"      {self.p}_out(t)", "    case 1n+p:", "      match t:", f"        case {self.T}End{{x}}:",
-               "          x", f"        case {go_pat}:", f"          {self.p}_run(p, {self.p}_step(k, h, r{exu}))"]
-        nparams = len(self.fi.params)
-        rinit = "RE{}"
-        for i in range(nparams - 1, -1, -1):
-            rinit = f"rset({self.path('P' + str(i))}, {rinit}, a{i})"
-        ps = "".join(f", +a{i}: GV" for i in range(nparams))
-        call = [f"def {self.p}_call({'pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns, ' if self.is_entry else ''}"
-                f"+h: List<&2, GV>{ps}) -> Res:",
-                f"  {self.p}_run(U32.to_nat({self.C.fuel}), {self.go(f'{self.K}{ks[0]}{{}}', 'h', rinit)})"]
-        return out + "\n" + "\n".join(disp) + "\n\n" + "\n".join(run) + "\n\n" + "\n".join(call) + "\n"
+        if rs:
+            disp += ["    case _:", f"      {self.T}End{{Res{{OFuel{{}}, h}}}}"]
+        res = [f"def {self.p}_resume(k: {self.K}, e: Eff, +r: RT{sig}) -> {self.T}:", "  match k:"]
+        for b, s in rs:
+            res += [f"    case {self.K}R{b}x{s}{{}}:", f"      {self.p}_b{b}_s{s}(e, r{exu})"]
+        res += ["    case _:", f"      {self.T}End{{Res{{OFuel{{}}, Nil{{}}}}}}"] if rs else \
+            ["    case _:", f"      {self.T}End{{Res{{OFuel{{}}, Nil{{}}}}}}"]
+        return out + "\n" + "\n".join(disp) + "\n\n" + "\n".join(res) + "\n"
+
+
+def machine(order: list, ei: int) -> str:
+    """The global trampoline: one function's step at a time (a call pushes the caller's resumption, a return pops
+    it), so that no step runs another function's steps."""
+    n = len(order)
+    pd = "pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns"
+    out = ["# ---------------------------------------------------------------- the machine",
+           "# a function's frame: its continuation and registers",
+           "type Frame is Data:"] + [f"  Fr{i}{{k: F{i}K, r: RT}}" for i in range(n)] + [""]
+    out += ["# the machine's state: a function's frame running, the callers' frames, the heap and the entry's closures; a",
+            "# result returning to the top frame; or the entry's result",
+            "type MT is Type:", f"  MGo{{fr: Frame, st: List<&2, Frame>, h: List<&2, GV>, {pd}}}",
+            f"  MRet{{x: Res, st: List<&2, Frame>, {pd}}}", "  MEnd{x: Res}", ""]
+    for i in range(n):
+        T = f"F{i}T"
+        if i == ei:
+            # the entry's step returns its closures (spent once applied); its end needs none
+            out += [f"def m_after{i}(t: {T}, +st: List<&2, Frame>) -> MT:", "  match t:",
+                    f"    case {T}Go{{k, h, r, pl, dt}}:", f"      MGo{{Fr{i}{{k, r}}, st, h, pl, dt}}",
+                    f"    case {T}End{{x}}:", "      MRet{x, st, pl_spent, dt_spent}",
+                    f"    case {T}Call{{fr, k, r, h, pl, dt}}:", f"      MGo{{fr, Con{{Fr{i}{{k, r}}, st}}, h, pl, dt}}", ""]
+        else:
+            out += [f"def m_after{i}(t: {T}, +st: List<&2, Frame>, {pd}) -> MT:", "  match t:",
+                    f"    case {T}Go{{k, h, r}}:", f"      MGo{{Fr{i}{{k, r}}, st, h, pl, dt}}",
+                    f"    case {T}End{{x}}:", "      MRet{x, st, pl, dt}",
+                    f"    case {T}Call{{fr, k, r, h}}:", f"      MGo{{fr, Con{{Fr{i}{{k, r}}, st}}, h, pl, dt}}", ""]
+    go = [f"def m_go(fr: Frame, +st: List<&2, Frame>, +h: List<&2, GV>, {pd}) -> MT:", "  match fr:"]
+    ret = [f"def m_ret(fr: Frame, +x: Res, +st: List<&2, Frame>, {pd}) -> MT:", "  match fr:"]
+    for i in range(n):
+        if i == ei:
+            go += [f"    case Fr{i}{{k, r}}:", f"      m_after{i}(f{i}_step(k, h, r, pl, dt), st)"]
+            ret += [f"    case Fr{i}{{k, r}}:", f"      m_after{i}(f{i}_resume(k, res_eff(x), r, pl, dt), st)"]
+        else:
+            go += [f"    case Fr{i}{{k, r}}:", f"      m_after{i}(f{i}_step(k, h, r), st, pl, dt)"]
+            ret += [f"    case Fr{i}{{k, r}}:", f"      m_after{i}(f{i}_resume(k, res_eff(x), r), st, pl, dt)"]
+    out += go + [""] + ret + [""]
+    out += [f"def m_pop(st: List<&2, Frame>, +x: Res, {pd}) -> MT:", "  match st:", "    case Nil{}:", "      MEnd{x}",
+            "    case Con{fr, rest}:", "      m_ret(fr, x, rest, pl, dt)", "",
+            "# one step of the machine", "def m_step(t: MT) -> MT:", "  match t:",
+            "    case MGo{fr, st, h, pl, dt}:", "      m_go(fr, st, h, pl, dt)",
+            "    case MRet{x, st, pl, dt}:", "      m_pop(st, x, pl, dt)", "    case MEnd{x}:", "      MEnd{x}", "",
+            "def m_out(t: MT) -> Res:", "  match t:", "    case MGo{fr, st, h, pl, dt}:", "      Res{OFuel{}, h}",
+            "    case MRet{x, st, pl, dt}:", "      match x:", "        case Res{o, h}:", "          Res{OFuel{}, h}",
+            "    case MEnd{x}:", "      x", "",
+            "def m_run(fuel: Nat, t: MT) -> Res:", "  match fuel:", "    case 0n:", "      m_out(t)", "    case 1n+p:",
+            "      match t:", "        case MEnd{x}:", "          x", "        case MGo{fr, st, h, pl, dt}:",
+            "          m_run(p, m_step(MGo{fr, st, h, pl, dt}))", "        case MRet{x, st, pl, dt}:",
+            "          m_run(p, m_step(MRet{x, st, pl, dt}))", ""]
+    return "\n".join(out) + "\n"
 
 
 def generate(section: dict, side: dict) -> tuple:
@@ -2058,9 +2137,11 @@ def generate(section: dict, side: dict) -> tuple:
     C = Compiler(section, side, cut)
     order = C.order()
     index_of = {f: i for i, f in enumerate(order)}
+    fgs = [FnGen(C, FnInfo(f, index_of[f], C.raw[f]), index_of) for f in order]
+    callees = {i: fg.start_info() for i, fg in enumerate(fgs)}
     bodies = []
-    for f in order:
-        fg = FnGen(C, FnInfo(f, index_of[f], C.raw[f]), index_of)
+    for fg in fgs:
+        fg.callees = callees
         bodies.append(fg.code())
     if C.consumed != {"pl", "dt"}:
         raise Unsupported(f"the model applies {sorted(C.consumed)} of the parameters pl and dt")
@@ -2069,6 +2150,11 @@ def generate(section: dict, side: dict) -> tuple:
     prelude = (PRELUDE + PRELUDE2 + PRELUDE3).format(
         gv_ctors="\n".join(f"  {n}{{{f}}}" for n, f in GV_CTORS), **t)
     ei = index_of[C.entry]
+    ke, firste, rinite = callees[ei]
+
+    def entry_go(h: str, recv: str, batch: str) -> str:
+        r = re.sub(r"\ba1\b", batch, re.sub(r"\ba0\b", recv, rinite))
+        return f"MGo{{Fr{ei}{{{ke}{firste}{{}}, {r}}}, Nil{{}}, {h}, pl, dt}}"
     gl = "[" + ", ".join(g["bend"] for g in C.globals) + "]" if C.globals else "Nil{}"
     recv_t = C.ty.pointee(C.raw[C.entry]["params"][0]["type"])
     tail = [
@@ -2079,11 +2165,11 @@ def generate(section: dict, side: dict) -> tuple:
         "# the consumer's entry on the heap globals_cells() ++ cells, its receiver recv (a pointer) and its batch",
         "def consumer_run(pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns, +cells: List<&2, GV>, +recv: GV, "
         "+batch: GV) -> Res:",
-        f"  f{ei}_call(pl, dt, List.append(&2, GV, globals_cells(), cells), recv, batch)",
+        f"  m_run(U32.to_nat({C.fuel}), {entry_go('List.append(&2, GV, globals_cells(), cells)', 'recv', 'batch')})",
     ]
     header = ("# GENERATED by holon.derivation.bendgen from the consumer section of a Go document and a sidecar; "
               "do not edit.\n")
-    text = header + prelude + "\n" + "\n".join(bodies) + "\n" + "\n".join(tail) + "\n"
+    text = header + prelude + "\n" + "\n".join(bodies) + "\n" + machine(order, ei) + "\n" + "\n".join(tail) + "\n"
     info = {"cut": public_cut(cut), "functions": sorted(order), "order": order, "templates": C.templates,
             "type_ids": {str(v): k for k, v in sorted(C.tids.items(), key=lambda kv: kv[1])},
             "globals": [{k: g[k] for k in ("global", "cell", "value")} for g in C.globals], "fuel": C.fuel}

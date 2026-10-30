@@ -153,6 +153,70 @@ function plAnswer(a) {
   return { $: a.kind, e: { $: "VEs", s: L(textBytes(a.error)) } };
 }
 
+// trace mode (holon.derivation.bendproof): {"module", "aliases": {module stem: alias}, "runs": {name: {"init": def,
+// "step": def}}, "values": [def]}: each run's states from its initial state, one step of the entry's trampoline at a
+// time, each as Bend literal text (the trampoline's continuation, heap and registers; the final result); each value
+// def's result as a literal. stdout: {"runs": {name: {"states": [{"k", "h", "r"}], "res"}}, "values": {def: literal}}
+if (req.runs) {
+  const AL = req.aliases || {};
+  const q = (name) => {
+    const i = name.lastIndexOf(".");
+    if (i < 0) return name;
+    const a = AL[name.slice(0, i)];
+    if (a === undefined) throw new Error("no alias for " + name);
+    return a + "." + name.slice(i + 1);
+  };
+  const lit = (v) => {
+    if (typeof v === "boolean") return v ? "True{}" : "False{}";
+    if (typeof v === "number") return String(v);
+    if (typeof v === "bigint") return v.toString() + "n";
+    if (typeof v === "function") throw new Error("a closure in a literal");
+    if (v.$ === "Nil") return "Nil{}";
+    if (v.$ === "Con") {
+      const xs = [];
+      for (let c = v; c.$ === "Con"; c = c.tail) xs.push(lit(c.head));
+      return "[" + xs.join(", ") + "]";
+    }
+    const fs = Object.keys(v).filter((k) => k !== "$").map((k) => lit(v[k]));
+    return q(v.$) + "{" + fs.join(", ") + "}";
+  };
+  // a state's closure: the run's own (null) or the model's spent placeholder (req.spent: {"pl", "dt"} def names),
+  // told apart by their answers on an empty argument (compiled closures are rewrapped at every step)
+  const NIL = { $: "Nil" };
+  const probe = (f) => lit(f(NIL));
+  const fn = (f, which) => {
+    if (typeof f !== "function") throw new Error("a state's closure is not a function");
+    const sp = (req.spent || {})[which];
+    if (!sp) return null;
+    const a = probe(f), s = probe(M[sp]), o = probe(r0[which]);
+    if (a === o && a !== s) return null;
+    if (a === s && a !== o) return q(sp);
+    throw new Error("a state's " + which + " closure is neither the run's nor the spent one");
+  };
+  let r0 = null;
+  const out = { runs: {}, values: {} };
+  for (const [name, r] of Object.entries(req.runs)) {
+    let t = M[r.init]();
+    r0 = { pl: t.pl, dt: t.dt };
+    const step = M[r.step];
+    const states = [];
+    // the machine's states (holon.derivation.bendgen's MT): MGo{fr, st, h, pl, dt}, MRet{x, st, pl, dt}, MEnd{x}
+    for (let i = 0; i < (r.max || 1000000); i++) {
+      if (t.$.endsWith("MGo")) {
+        states.push({ kind: "go", fr: lit(t.fr), st: lit(t.st), h: lit(t.h), pl: fn(t.pl, "pl"), dt: fn(t.dt, "dt") });
+      } else if (t.$.endsWith("MRet")) {
+        states.push({ kind: "ret", x: lit(t.x), st: lit(t.st), pl: fn(t.pl, "pl"), dt: fn(t.dt, "dt") });
+      } else {
+        break;
+      }
+      t = step(t);
+    }
+    if (!t.$.endsWith("MEnd")) throw new Error(name + ": no end within the bound");
+    out.runs[name] = { states, res: lit(t.x) };
+  }
+  for (const d of req.values || []) out.values[d] = lit(M[d]());
+  process.stdout.write(JSON.stringify(out));
+} else {
 const results = {};
 for (const c of req.cases) {
   const cells = [M.zero_recv()];
@@ -185,3 +249,4 @@ for (const c of req.cases) {
   results[c.id] = r;
 }
 process.stdout.write(JSON.stringify({ results }));
+}

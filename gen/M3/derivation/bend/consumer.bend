@@ -985,6 +985,7 @@ def dt_spent(xs: List<&2, U32>) -> DtAns:
   DtErr{VNil{}}
 
 # ---------------------------------------------------------------- (*morph-l2/node/types.WrappedBlock).DecodeBlockContext
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F0K is Data:
   F0K0{}
   F0K1{}
@@ -1003,6 +1004,7 @@ type F0K is Data:
 type F0T is Data:
   F0TGo{k: F0K, h: List<&2, GV>, r: RT}
   F0TEnd{x: Res}
+  F0TCall{fr: Frame, k: F0K, r: RT, h: List<&2, GV>}
 
 def f0_br10(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F0T:
   match c:
@@ -1302,36 +1304,23 @@ def f0_step(k: F0K, +h: List<&2, GV>, +r: RT) -> F0T:
     case F0K12{}:
       f0_b12(h, r)
 
-def f0_out(t: F0T) -> Res:
-  match t:
-    case F0TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F0TEnd{x}:
-      x
-
-def f0_run(fuel: Nat, t: F0T) -> Res:
-  match fuel:
-    case 0n:
-      f0_out(t)
-    case 1n+p:
-      match t:
-        case F0TEnd{x}:
-          x
-        case F0TGo{k, h, r}:
-          f0_run(p, f0_step(k, h, r))
-
-def f0_call(+h: List<&2, GV>, +a0: GV, +a1: GV) -> Res:
-  f0_run(U32.to_nat(1000000), F0TGo{F0K0{}, h, rset([False{}, False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, False{}, True{}], RE{}, a1), a0)})
+def f0_resume(k: F0K, e: Eff, +r: RT) -> F0T:
+  match k:
+    case _:
+      F0TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (*morph-l2/node/derivation.BlockContext).Decode
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F1K is Data:
   F1K0{}
   F1K1{}
   F1K2{}
+  F1KR0x1{}
 
 type F1T is Data:
   F1TGo{k: F1K, h: List<&2, GV>, r: RT}
   F1TEnd{x: Res}
+  F1TCall{fr: Frame, k: F1K, r: RT, h: List<&2, GV>}
 
 def f1_br0(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F1T:
   match c:
@@ -1444,7 +1433,7 @@ def f1_b0_s1(e: Eff, +r: RT) -> F1T:
 def f1_b0(+h0: List<&2, GV>, +r: RT) -> F1T:
   +v_t0 = {VP{hlen(h0), Nil{}} : GV}
   +h1 = {hpush(h0, VR{[VY{[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, VY{[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, VI{0, 0}, VI{0, 0}, VI{0, 0}, VY{[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, VI{0, 0}, VY{[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, VNil{}, VY{[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, VNil{}, VI{0, 0}, VY{[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, VNil{}, VNil{}, VNil{}]}) : List<&2, GV>}
-  f1_b0_s1(res_eff(f0_call(h1, v_t0, rget([False{}, False{}, False{}, False{}, True{}], r))), rset([False{}, False{}, False{}, True{}, False{}], r, v_t0))
+  F1TCall{Fr0{F0K0{}, rset([False{}, False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, False{}, True{}], RE{}, rget([False{}, False{}, False{}, False{}, True{}], r)), v_t0)}, F1KR0x1{}, rset([False{}, False{}, False{}, True{}, False{}], r, v_t0), h1}
 
 def f1_step(k: F1K, +h: List<&2, GV>, +r: RT) -> F1T:
   match k:
@@ -1454,29 +1443,18 @@ def f1_step(k: F1K, +h: List<&2, GV>, +r: RT) -> F1T:
       f1_b1(h, r)
     case F1K2{}:
       f1_b2(h, r)
+    case _:
+      F1TEnd{Res{OFuel{}, h}}
 
-def f1_out(t: F1T) -> Res:
-  match t:
-    case F1TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F1TEnd{x}:
-      x
-
-def f1_run(fuel: Nat, t: F1T) -> Res:
-  match fuel:
-    case 0n:
-      f1_out(t)
-    case 1n+p:
-      match t:
-        case F1TEnd{x}:
-          x
-        case F1TGo{k, h, r}:
-          f1_run(p, f1_step(k, h, r))
-
-def f1_call(+h: List<&2, GV>, +a0: GV, +a1: GV) -> Res:
-  f1_run(U32.to_nat(1000000), F1TGo{F1K0{}, h, rset([False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, True{}], RE{}, a1), a0)})
+def f1_resume(k: F1K, e: Eff, +r: RT) -> F1T:
+  match k:
+    case F1KR0x1{}:
+      f1_b0_s1(e, r)
+    case _:
+      F1TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (*morph-l2/node/derivation.txQueue).dequeue
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F2K is Data:
   F2K0{}
   F2K1{}
@@ -1485,6 +1463,7 @@ type F2K is Data:
 type F2T is Data:
   F2TGo{k: F2K, h: List<&2, GV>, r: RT}
   F2TEnd{x: Res}
+  F2TCall{fr: Frame, k: F2K, r: RT, h: List<&2, GV>}
 
 def f2_br0(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F2T:
   match c:
@@ -1638,34 +1617,20 @@ def f2_step(k: F2K, +h: List<&2, GV>, +r: RT) -> F2T:
     case F2K2{}:
       f2_b2(h, r)
 
-def f2_out(t: F2T) -> Res:
-  match t:
-    case F2TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F2TEnd{x}:
-      x
-
-def f2_run(fuel: Nat, t: F2T) -> Res:
-  match fuel:
-    case 0n:
-      f2_out(t)
-    case 1n+p:
-      match t:
-        case F2TEnd{x}:
-          x
-        case F2TGo{k, h, r}:
-          f2_run(p, f2_step(k, h, r))
-
-def f2_call(+h: List<&2, GV>, +a0: GV, +a1: GV) -> Res:
-  f2_run(U32.to_nat(1000000), F2TGo{F2K0{}, h, rset([False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, True{}], RE{}, a1), a0)})
+def f2_resume(k: F2K, e: Eff, +r: RT) -> F2T:
+  match k:
+    case _:
+      F2TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (*morph-l2/node/derivation.txQueue).enqueue
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F3K is Data:
   F3K0{}
 
 type F3T is Data:
   F3TGo{k: F3K, h: List<&2, GV>, r: RT}
   F3TEnd{x: Res}
+  F3TCall{fr: Frame, k: F3K, r: RT, h: List<&2, GV>}
 
 
 def f3_b0_s3(e: Eff, +r: RT) -> F3T:
@@ -1712,28 +1677,13 @@ def f3_step(k: F3K, +h: List<&2, GV>, +r: RT) -> F3T:
     case F3K0{}:
       f3_b0(h, r)
 
-def f3_out(t: F3T) -> Res:
-  match t:
-    case F3TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F3TEnd{x}:
-      x
-
-def f3_run(fuel: Nat, t: F3T) -> Res:
-  match fuel:
-    case 0n:
-      f3_out(t)
-    case 1n+p:
-      match t:
-        case F3TEnd{x}:
-          x
-        case F3TGo{k, h, r}:
-          f3_run(p, f3_step(k, h, r))
-
-def f3_call(+h: List<&2, GV>, +a0: GV, +a1: GV) -> Res:
-  f3_run(U32.to_nat(1000000), F3TGo{F3K0{}, h, rset([False{}, False{}, False{}], rset([False{}, False{}, True{}], RE{}, a1), a0)})
+def f3_resume(k: F3K, e: Eff, +r: RT) -> F3T:
+  match k:
+    case _:
+      F3TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (morph-l2/common/batch.BatchHeaderBytes).Version
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F4K is Data:
   F4K0{}
   F4K1{}
@@ -1742,6 +1692,7 @@ type F4K is Data:
 type F4T is Data:
   F4TGo{k: F4K, h: List<&2, GV>, r: RT}
   F4TEnd{x: Res}
+  F4TCall{fr: Frame, k: F4K, r: RT, h: List<&2, GV>}
 
 def f4_br0(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F4T:
   match c:
@@ -1783,28 +1734,13 @@ def f4_step(k: F4K, +h: List<&2, GV>, +r: RT) -> F4T:
     case F4K2{}:
       f4_b2(h, r)
 
-def f4_out(t: F4T) -> Res:
-  match t:
-    case F4TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F4TEnd{x}:
-      x
-
-def f4_run(fuel: Nat, t: F4T) -> Res:
-  match fuel:
-    case 0n:
-      f4_out(t)
-    case 1n+p:
-      match t:
-        case F4TEnd{x}:
-          x
-        case F4TGo{k, h, r}:
-          f4_run(p, f4_step(k, h, r))
-
-def f4_call(+h: List<&2, GV>, +a0: GV) -> Res:
-  f4_run(U32.to_nat(1000000), F4TGo{F4K0{}, h, rset([False{}, False{}, False{}], RE{}, a0)})
+def f4_resume(k: F4K, e: Eff, +r: RT) -> F4T:
+  match k:
+    case _:
+      F4TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (morph-l2/common/batch.BatchHeaderBytes).validate
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F5K is Data:
   F5K0{}
   F5K1{}
@@ -1819,10 +1755,12 @@ type F5K is Data:
   F5K10{}
   F5K11{}
   F5K12{}
+  F5KR0x1{}
 
 type F5T is Data:
   F5TGo{k: F5K, h: List<&2, GV>, r: RT}
   F5TEnd{x: Res}
+  F5TCall{fr: Frame, k: F5K, r: RT, h: List<&2, GV>}
 
 def f5_br9(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F5T:
   match c:
@@ -1937,7 +1875,7 @@ def f5_b0_s1(e: Eff, +r: RT) -> F5T:
       F5TEnd{Res{OFuel{}, h0}}
 
 def f5_b0(+h0: List<&2, GV>, +r: RT) -> F5T:
-  f5_b0_s1(res_eff(f4_call(h0, rget([False{}, False{}, False{}, False{}, False{}], r))), r)
+  F5TCall{Fr4{F4K0{}, rset([False{}, False{}, False{}], RE{}, rget([False{}, False{}, False{}, False{}, False{}], r))}, F5KR0x1{}, r, h0}
 
 def f5_step(k: F5K, +h: List<&2, GV>, +r: RT) -> F5T:
   match k:
@@ -1967,37 +1905,28 @@ def f5_step(k: F5K, +h: List<&2, GV>, +r: RT) -> F5T:
       f5_b11(h, r)
     case F5K12{}:
       f5_b12(h, r)
+    case _:
+      F5TEnd{Res{OFuel{}, h}}
 
-def f5_out(t: F5T) -> Res:
-  match t:
-    case F5TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F5TEnd{x}:
-      x
-
-def f5_run(fuel: Nat, t: F5T) -> Res:
-  match fuel:
-    case 0n:
-      f5_out(t)
-    case 1n+p:
-      match t:
-        case F5TEnd{x}:
-          x
-        case F5TGo{k, h, r}:
-          f5_run(p, f5_step(k, h, r))
-
-def f5_call(+h: List<&2, GV>, +a0: GV) -> Res:
-  f5_run(U32.to_nat(1000000), F5TGo{F5K0{}, h, rset([False{}, False{}, False{}, False{}, False{}], RE{}, a0)})
+def f5_resume(k: F5K, e: Eff, +r: RT) -> F5T:
+  match k:
+    case F5KR0x1{}:
+      f5_b0_s1(e, r)
+    case _:
+      F5TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (morph-l2/common/batch.BatchHeaderBytes).BatchIndex
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F6K is Data:
   F6K0{}
   F6K1{}
   F6K2{}
+  F6KR0x1{}
 
 type F6T is Data:
   F6TGo{k: F6K, h: List<&2, GV>, r: RT}
   F6TEnd{x: Res}
+  F6TCall{fr: Frame, k: F6K, r: RT, h: List<&2, GV>}
 
 def f6_br0(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F6T:
   match c:
@@ -2049,7 +1978,7 @@ def f6_b0_s1(e: Eff, +r: RT) -> F6T:
       F6TEnd{Res{OFuel{}, h0}}
 
 def f6_b0(+h0: List<&2, GV>, +r: RT) -> F6T:
-  f6_b0_s1(res_eff(f5_call(h0, rget([False{}, False{}, False{}], r))), r)
+  F6TCall{Fr5{F5K0{}, rset([False{}, False{}, False{}, False{}, False{}], RE{}, rget([False{}, False{}, False{}], r))}, F6KR0x1{}, r, h0}
 
 def f6_step(k: F6K, +h: List<&2, GV>, +r: RT) -> F6T:
   match k:
@@ -2059,39 +1988,31 @@ def f6_step(k: F6K, +h: List<&2, GV>, +r: RT) -> F6T:
       f6_b1(h, r)
     case F6K2{}:
       f6_b2(h, r)
+    case _:
+      F6TEnd{Res{OFuel{}, h}}
 
-def f6_out(t: F6T) -> Res:
-  match t:
-    case F6TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F6TEnd{x}:
-      x
-
-def f6_run(fuel: Nat, t: F6T) -> Res:
-  match fuel:
-    case 0n:
-      f6_out(t)
-    case 1n+p:
-      match t:
-        case F6TEnd{x}:
-          x
-        case F6TGo{k, h, r}:
-          f6_run(p, f6_step(k, h, r))
-
-def f6_call(+h: List<&2, GV>, +a0: GV) -> Res:
-  f6_run(U32.to_nat(1000000), F6TGo{F6K0{}, h, rset([False{}, False{}, False{}], RE{}, a0)})
+def f6_resume(k: F6K, e: Eff, +r: RT) -> F6T:
+  match k:
+    case F6KR0x1{}:
+      f6_b0_s1(e, r)
+    case _:
+      F6TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F7K is Data:
   F7K0{}
   F7K1{}
   F7K2{}
   F7K3{}
   F7K4{}
+  F7KR0x1{}
+  F7KR2x1{}
 
 type F7T is Data:
   F7TGo{k: F7K, h: List<&2, GV>, r: RT}
   F7TEnd{x: Res}
+  F7TCall{fr: Frame, k: F7K, r: RT, h: List<&2, GV>}
 
 def f7_br2(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F7T:
   match c:
@@ -2153,7 +2074,7 @@ def f7_b2_s1(e: Eff, +r: RT) -> F7T:
       F7TEnd{Res{OFuel{}, h0}}
 
 def f7_b2(+h0: List<&2, GV>, +r: RT) -> F7T:
-  f7_b2_s1(res_eff(f4_call(h0, rget([False{}, False{}, False{}, False{}], r))), r)
+  F7TCall{Fr4{F4K0{}, rset([False{}, False{}, False{}], RE{}, rget([False{}, False{}, False{}, False{}], r))}, F7KR2x1{}, r, h0}
 
 def f7_b1(+h0: List<&2, GV>, +r: RT) -> F7T:
   F7TEnd{Res{ORet{VT{[VI{0, 0}, rget([False{}, False{}, False{}, True{}], r)]}}, h0}}
@@ -2171,7 +2092,7 @@ def f7_b0_s1(e: Eff, +r: RT) -> F7T:
       F7TEnd{Res{OFuel{}, h0}}
 
 def f7_b0(+h0: List<&2, GV>, +r: RT) -> F7T:
-  f7_b0_s1(res_eff(f5_call(h0, rget([False{}, False{}, False{}, False{}], r))), r)
+  F7TCall{Fr5{F5K0{}, rset([False{}, False{}, False{}, False{}, False{}], RE{}, rget([False{}, False{}, False{}, False{}], r))}, F7KR0x1{}, r, h0}
 
 def f7_step(k: F7K, +h: List<&2, GV>, +r: RT) -> F7T:
   match k:
@@ -2185,37 +2106,30 @@ def f7_step(k: F7K, +h: List<&2, GV>, +r: RT) -> F7T:
       f7_b3(h, r)
     case F7K4{}:
       f7_b4(h, r)
+    case _:
+      F7TEnd{Res{OFuel{}, h}}
 
-def f7_out(t: F7T) -> Res:
-  match t:
-    case F7TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F7TEnd{x}:
-      x
-
-def f7_run(fuel: Nat, t: F7T) -> Res:
-  match fuel:
-    case 0n:
-      f7_out(t)
-    case 1n+p:
-      match t:
-        case F7TEnd{x}:
-          x
-        case F7TGo{k, h, r}:
-          f7_run(p, f7_step(k, h, r))
-
-def f7_call(+h: List<&2, GV>, +a0: GV) -> Res:
-  f7_run(U32.to_nat(1000000), F7TGo{F7K0{}, h, rset([False{}, False{}, False{}, False{}], RE{}, a0)})
+def f7_resume(k: F7K, e: Eff, +r: RT) -> F7T:
+  match k:
+    case F7KR0x1{}:
+      f7_b0_s1(e, r)
+    case F7KR2x1{}:
+      f7_b2_s1(e, r)
+    case _:
+      F7TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F8K is Data:
   F8K0{}
   F8K1{}
   F8K2{}
+  F8KR0x1{}
 
 type F8T is Data:
   F8TGo{k: F8K, h: List<&2, GV>, r: RT}
   F8TEnd{x: Res}
+  F8TCall{fr: Frame, k: F8K, r: RT, h: List<&2, GV>}
 
 def f8_br0(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F8T:
   match c:
@@ -2267,7 +2181,7 @@ def f8_b0_s1(e: Eff, +r: RT) -> F8T:
       F8TEnd{Res{OFuel{}, h0}}
 
 def f8_b0(+h0: List<&2, GV>, +r: RT) -> F8T:
-  f8_b0_s1(res_eff(f5_call(h0, rget([False{}, False{}, False{}], r))), r)
+  F8TCall{Fr5{F5K0{}, rset([False{}, False{}, False{}, False{}, False{}], RE{}, rget([False{}, False{}, False{}], r))}, F8KR0x1{}, r, h0}
 
 def f8_step(k: F8K, +h: List<&2, GV>, +r: RT) -> F8T:
   match k:
@@ -2277,29 +2191,18 @@ def f8_step(k: F8K, +h: List<&2, GV>, +r: RT) -> F8T:
       f8_b1(h, r)
     case F8K2{}:
       f8_b2(h, r)
+    case _:
+      F8TEnd{Res{OFuel{}, h}}
 
-def f8_out(t: F8T) -> Res:
-  match t:
-    case F8TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F8TEnd{x}:
-      x
-
-def f8_run(fuel: Nat, t: F8T) -> Res:
-  match fuel:
-    case 0n:
-      f8_out(t)
-    case 1n+p:
-      match t:
-        case F8TEnd{x}:
-          x
-        case F8TGo{k, h, r}:
-          f8_run(p, f8_step(k, h, r))
-
-def f8_call(+h: List<&2, GV>, +a0: GV) -> Res:
-  f8_run(U32.to_nat(1000000), F8TGo{F8K0{}, h, rset([False{}, False{}, False{}], RE{}, a0)})
+def f8_resume(k: F8K, e: Eff, +r: RT) -> F8T:
+  match k:
+    case F8KR0x1{}:
+      f8_b0_s1(e, r)
+    case _:
+      F8TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- morph-l2/node/derivation.encodeTransactions
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F9K is Data:
   F9K0{}
   F9K1{}
@@ -2309,6 +2212,7 @@ type F9K is Data:
 type F9T is Data:
   F9TGo{k: F9K, h: List<&2, GV>, r: RT}
   F9TEnd{x: Res}
+  F9TCall{fr: Frame, k: F9K, r: RT, h: List<&2, GV>}
 
 def f9_br1(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT) -> F9T:
   match c:
@@ -2394,34 +2298,20 @@ def f9_step(k: F9K, +h: List<&2, GV>, +r: RT) -> F9T:
     case F9K3{}:
       f9_b3(h, r)
 
-def f9_out(t: F9T) -> Res:
-  match t:
-    case F9TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F9TEnd{x}:
-      x
-
-def f9_run(fuel: Nat, t: F9T) -> Res:
-  match fuel:
-    case 0n:
-      f9_out(t)
-    case 1n+p:
-      match t:
-        case F9TEnd{x}:
-          x
-        case F9TGo{k, h, r}:
-          f9_run(p, f9_step(k, h, r))
-
-def f9_call(+h: List<&2, GV>, +a0: GV) -> Res:
-  f9_run(U32.to_nat(1000000), F9TGo{F9K0{}, h, rset([False{}, False{}, False{}, False{}], RE{}, a0)})
+def f9_resume(k: F9K, e: Eff, +r: RT) -> F9T:
+  match k:
+    case _:
+      F9TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- morph-l2/node/derivation.newTxQueue
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F10K is Data:
   F10K0{}
 
 type F10T is Data:
   F10TGo{k: F10K, h: List<&2, GV>, r: RT}
   F10TEnd{x: Res}
+  F10TCall{fr: Frame, k: F10K, r: RT, h: List<&2, GV>}
 
 
 def f10_b0(+h0: List<&2, GV>, +r: RT) -> F10T:
@@ -2436,28 +2326,13 @@ def f10_step(k: F10K, +h: List<&2, GV>, +r: RT) -> F10T:
     case F10K0{}:
       f10_b0(h, r)
 
-def f10_out(t: F10T) -> Res:
-  match t:
-    case F10TGo{k, h, r}:
-      Res{OFuel{}, h}
-    case F10TEnd{x}:
-      x
-
-def f10_run(fuel: Nat, t: F10T) -> Res:
-  match fuel:
-    case 0n:
-      f10_out(t)
-    case 1n+p:
-      match t:
-        case F10TEnd{x}:
-          x
-        case F10TGo{k, h, r}:
-          f10_run(p, f10_step(k, h, r))
-
-def f10_call(+h: List<&2, GV>) -> Res:
-  f10_run(U32.to_nat(1000000), F10TGo{F10K0{}, h, RE{}})
+def f10_resume(k: F10K, e: Eff, +r: RT) -> F10T:
+  match k:
+    case _:
+      F10TEnd{Res{OFuel{}, Nil{}}}
 
 # ---------------------------------------------------------------- (*morph-l2/node/derivation.BatchInfo).ParseBatch
+# continuations: a block's start (K<b>), or the resumption of segment s of block b with a callee's result (KR<b>x<s>)
 type F11K is Data:
   F11K0{}
   F11K1{}
@@ -2513,10 +2388,21 @@ type F11K is Data:
   F11K56{}
   F11K57{}
   F11K58{}
+  F11KR2x1{}
+  F11KR4x1{}
+  F11KR6x6{}
+  F11KR14x1{}
+  F11KR19x1{}
+  F11KR21x2{}
+  F11KR42x1{}
+  F11KR44x2{}
+  F11KR56x1{}
+  F11KR58x1{}
 
 type F11T is Type:
   F11TGo{k: F11K, h: List<&2, GV>, r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns}
   F11TEnd{x: Res}
+  F11TCall{fr: Frame, k: F11K, r: RT, h: List<&2, GV>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns}
 
 def f11_br56(c: Bool, +h: List<&2, GV>, +rt: RT, +re: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   match c:
@@ -2740,7 +2626,7 @@ def f11_b58(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U
   +v_t320 = {hload(h0, v_t319) : GV}
   +v_t321 = {nk_u64(v_t320) : GV}
   +v_t322 = {nk_u64(i_add(rget([False{}, True{}, True{}, False{}, False{}, True{}, True{}, False{}, True{}], r), v_t321)) : GV}
-  f11_b58_s1(res_eff(f9_call(h0, rget([True{}, False{}, False{}, False{}, True{}, True{}, True{}, False{}, False{}], r))), rset([True{}, False{}, False{}, True{}, False{}, True{}, False{}, True{}, True{}], rset([True{}, False{}, False{}, True{}, False{}, False{}, True{}, True{}, True{}], r, v_t318), v_t322), pl, dt)
+  F11TCall{Fr9{F9K0{}, rset([False{}, False{}, False{}, False{}], RE{}, rget([True{}, False{}, False{}, False{}, True{}, True{}, True{}, False{}, False{}], r))}, F11KR58x1{}, rset([True{}, False{}, False{}, True{}, False{}, True{}, False{}, True{}, True{}], rset([True{}, False{}, False{}, True{}, False{}, False{}, True{}, True{}, True{}], r, v_t318), v_t322), h0, pl, dt}
 
 def f11_b57_s2(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   match e:
@@ -2795,7 +2681,7 @@ def f11_b56(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U
   +v_t302 = {hload(h0, v_t301) : GV}
   +v_t303 = {nk_i64(v_t302) : GV}
   +v_t304 = {nk_i64(i_sub(v_t300, v_t303)) : GV}
-  f11_b56_s1(res_eff(f2_call(h0, rget([False{}, False{}, False{}, True{}, False{}, True{}, False{}, True{}, True{}], r), v_t304)), r, pl, dt)
+  F11TCall{Fr2{F2K0{}, rset([False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, True{}], RE{}, v_t304), rget([False{}, False{}, False{}, True{}, False{}, True{}, False{}, True{}, True{}], r))}, F11KR56x1{}, r, h0, pl, dt}
 
 def f11_b55_s3(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   match e:
@@ -3039,7 +2925,7 @@ def f11_b44_s1(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> D
   match e:
     case EOk{+h0, +v_t236}:
       +v_t237 = {v_t236 : GV}
-      f11_b44_s2(res_eff(f1_call(h0, rget([False{}, True{}, True{}, False{}, True{}, False{}, False{}, False{}, True{}], r), v_t237)), r, pl, dt)
+      F11TCall{Fr1{F1K0{}, rset([False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, True{}], RE{}, v_t237), rget([False{}, True{}, True{}, False{}, True{}, False{}, False{}, False{}, True{}], r))}, F11KR44x2{}, r, h0, pl, dt}
     case EPan{h0, x0}:
       F11TEnd{Res{OPan{x0}, h0}}
     case ERet{h0, x0}:
@@ -3087,7 +2973,7 @@ def f11_b42_s1(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> D
       F11TEnd{Res{OFuel{}, h0}}
 
 def f11_b42(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
-  f11_b42_s1(res_eff(f3_call(h0, rget([False{}, False{}, False{}, True{}, False{}, True{}, False{}, True{}, True{}], r), rget([False{}, True{}, True{}, False{}, False{}, False{}, True{}, True{}, False{}], r))), r, pl, dt)
+  F11TCall{Fr3{F3K0{}, rset([False{}, False{}, False{}], rset([False{}, False{}, True{}], RE{}, rget([False{}, True{}, True{}, False{}, False{}, False{}, True{}, True{}, False{}], r)), rget([False{}, False{}, False{}, True{}, False{}, True{}, False{}, True{}, True{}], r))}, F11KR42x1{}, r, h0, pl, dt}
 
 def f11_b41(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   F11TEnd{Res{ORet{rget([False{}, True{}, True{}, False{}, False{}, False{}, True{}, True{}, True{}], r)}, h0}}
@@ -3542,7 +3428,7 @@ def f11_b21_s2(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> D
 def f11_b21_s1(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   match e:
     case EOk{+h0, +v_t106}:
-      f11_b21_s2(res_eff(f1_call(h0, rget([False{}, False{}, True{}, False{}, True{}, False{}, False{}, True{}, False{}], r), v_t106)), r, pl, dt)
+      F11TCall{Fr1{F1K0{}, rset([False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, True{}], RE{}, v_t106), rget([False{}, False{}, True{}, False{}, True{}, False{}, False{}, True{}, False{}], r))}, F11KR21x2{}, r, h0, pl, dt}
     case EPan{h0, x0}:
       F11TEnd{Res{OPan{x0}, h0}}
     case ERet{h0, x0}:
@@ -3601,7 +3487,7 @@ def f11_b19_s1(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> D
       F11TEnd{Res{OFuel{}, h0}}
 
 def f11_b19(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
-  f11_b19_s1(res_eff(f7_call(h0, rget([False{}, False{}, False{}, False{}, False{}, True{}, False{}, True{}, True{}], r))), r, pl, dt)
+  F11TCall{Fr7{F7K0{}, rset([False{}, False{}, False{}, False{}], RE{}, rget([False{}, False{}, False{}, False{}, False{}, True{}, False{}, True{}, True{}], r))}, F11KR19x1{}, r, h0, pl, dt}
 
 def f11_b18(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   +v_t93 = {g_len(h0, rget([False{}, False{}, False{}, True{}, False{}, True{}, True{}, False{}, True{}], r)) : GV}
@@ -3663,7 +3549,7 @@ def f11_b14_s1(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> D
       F11TEnd{Res{OFuel{}, h0}}
 
 def f11_b14(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
-  f11_b14_s1(res_eff(f4_call(h0, rget([False{}, False{}, False{}, False{}, False{}, True{}, False{}, True{}, True{}], r))), r, pl, dt)
+  F11TCall{Fr4{F4K0{}, rset([False{}, False{}, False{}], RE{}, rget([False{}, False{}, False{}, False{}, False{}, True{}, False{}, True{}, True{}], r))}, F11KR14x1{}, r, h0, pl, dt}
 
 def f11_b13(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   +v_t76 = {g_faddr(rget([False{}, False{}, False{}, False{}, False{}, False{}, False{}, True{}, False{}], r), 0n) : GV}
@@ -3731,7 +3617,7 @@ def f11_b6_s5(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> Dt
   match e:
     case EOk{+h0, +v_t40}:
       +h1 = {hstore(h0, v_t40, rget([False{}, False{}, False{}, True{}, False{}, True{}, False{}, False{}, True{}], r)) : List<&2, GV>}
-      f11_b6_s6(res_eff(f10_call(h1)), r, pl, dt)
+      F11TCall{Fr10{F10K0{}, RE{}}, F11KR6x6{}, r, h1, pl, dt}
     case EPan{h0, x0}:
       F11TEnd{Res{OPan{x0}, h0}}
     case ERet{h0, x0}:
@@ -3843,7 +3729,7 @@ def f11_b4_s1(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> Dt
       F11TEnd{Res{OFuel{}, h0}}
 
 def f11_b4(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
-  f11_b4_s1(res_eff(f8_call(h0, rget([False{}, False{}, False{}, False{}, False{}, True{}, False{}, True{}, True{}], r))), r, pl, dt)
+  F11TCall{Fr8{F8K0{}, rset([False{}, False{}, False{}], RE{}, rget([False{}, False{}, False{}, False{}, False{}, True{}, False{}, True{}, True{}], r))}, F11KR4x1{}, r, h0, pl, dt}
 
 def f11_b3_s2(e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   match e:
@@ -3893,7 +3779,7 @@ def f11_b2(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U3
   +v_t7 = {g_faddr(rget([False{}, False{}, False{}, False{}, False{}, False{}, False{}, True{}, False{}], r), 2n) : GV}
   +v_t8 = {hload(h0, v_t7) : GV}
   +v_t9 = {v_t8 : GV}
-  f11_b2_s1(res_eff(f6_call(h0, v_t9)), rset([False{}, False{}, False{}, False{}, False{}, True{}, False{}, True{}, True{}], r, v_t9), pl, dt)
+  F11TCall{Fr6{F6K0{}, rset([False{}, False{}, False{}], RE{}, v_t9)}, F11KR2x1{}, rset([False{}, False{}, False{}, False{}, False{}, True{}, False{}, True{}, True{}], r, v_t9), h0, pl, dt}
 
 def f11_b1(+h0: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
   +v_t6 = {VE{40, g_elems(h0, VNil{})} : GV}
@@ -4020,27 +3906,260 @@ def f11_step(k: F11K, +h: List<&2, GV>, +r: RT, pl: List<&2, GV> -> PlAns, dt: L
       f11_b57(h, r, pl, dt)
     case F11K58{}:
       f11_b58(h, r, pl, dt)
+    case _:
+      F11TEnd{Res{OFuel{}, h}}
 
-def f11_out(t: F11T) -> Res:
+def f11_resume(k: F11K, e: Eff, +r: RT, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> F11T:
+  match k:
+    case F11KR2x1{}:
+      f11_b2_s1(e, r, pl, dt)
+    case F11KR4x1{}:
+      f11_b4_s1(e, r, pl, dt)
+    case F11KR6x6{}:
+      f11_b6_s6(e, r, pl, dt)
+    case F11KR14x1{}:
+      f11_b14_s1(e, r, pl, dt)
+    case F11KR19x1{}:
+      f11_b19_s1(e, r, pl, dt)
+    case F11KR21x2{}:
+      f11_b21_s2(e, r, pl, dt)
+    case F11KR42x1{}:
+      f11_b42_s1(e, r, pl, dt)
+    case F11KR44x2{}:
+      f11_b44_s2(e, r, pl, dt)
+    case F11KR56x1{}:
+      f11_b56_s1(e, r, pl, dt)
+    case F11KR58x1{}:
+      f11_b58_s1(e, r, pl, dt)
+    case _:
+      F11TEnd{Res{OFuel{}, Nil{}}}
+
+# ---------------------------------------------------------------- the machine
+# a function's frame: its continuation and registers
+type Frame is Data:
+  Fr0{k: F0K, r: RT}
+  Fr1{k: F1K, r: RT}
+  Fr2{k: F2K, r: RT}
+  Fr3{k: F3K, r: RT}
+  Fr4{k: F4K, r: RT}
+  Fr5{k: F5K, r: RT}
+  Fr6{k: F6K, r: RT}
+  Fr7{k: F7K, r: RT}
+  Fr8{k: F8K, r: RT}
+  Fr9{k: F9K, r: RT}
+  Fr10{k: F10K, r: RT}
+  Fr11{k: F11K, r: RT}
+
+# the machine's state: a function's frame running, the callers' frames, the heap and the entry's closures; a
+# result returning to the top frame; or the entry's result
+type MT is Type:
+  MGo{fr: Frame, st: List<&2, Frame>, h: List<&2, GV>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns}
+  MRet{x: Res, st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns}
+  MEnd{x: Res}
+
+def m_after0(t: F0T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F0TGo{k, h, r}:
+      MGo{Fr0{k, r}, st, h, pl, dt}
+    case F0TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F0TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr0{k, r}, st}, h, pl, dt}
+
+def m_after1(t: F1T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F1TGo{k, h, r}:
+      MGo{Fr1{k, r}, st, h, pl, dt}
+    case F1TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F1TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr1{k, r}, st}, h, pl, dt}
+
+def m_after2(t: F2T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F2TGo{k, h, r}:
+      MGo{Fr2{k, r}, st, h, pl, dt}
+    case F2TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F2TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr2{k, r}, st}, h, pl, dt}
+
+def m_after3(t: F3T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F3TGo{k, h, r}:
+      MGo{Fr3{k, r}, st, h, pl, dt}
+    case F3TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F3TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr3{k, r}, st}, h, pl, dt}
+
+def m_after4(t: F4T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F4TGo{k, h, r}:
+      MGo{Fr4{k, r}, st, h, pl, dt}
+    case F4TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F4TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr4{k, r}, st}, h, pl, dt}
+
+def m_after5(t: F5T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F5TGo{k, h, r}:
+      MGo{Fr5{k, r}, st, h, pl, dt}
+    case F5TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F5TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr5{k, r}, st}, h, pl, dt}
+
+def m_after6(t: F6T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F6TGo{k, h, r}:
+      MGo{Fr6{k, r}, st, h, pl, dt}
+    case F6TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F6TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr6{k, r}, st}, h, pl, dt}
+
+def m_after7(t: F7T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F7TGo{k, h, r}:
+      MGo{Fr7{k, r}, st, h, pl, dt}
+    case F7TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F7TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr7{k, r}, st}, h, pl, dt}
+
+def m_after8(t: F8T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F8TGo{k, h, r}:
+      MGo{Fr8{k, r}, st, h, pl, dt}
+    case F8TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F8TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr8{k, r}, st}, h, pl, dt}
+
+def m_after9(t: F9T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F9TGo{k, h, r}:
+      MGo{Fr9{k, r}, st, h, pl, dt}
+    case F9TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F9TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr9{k, r}, st}, h, pl, dt}
+
+def m_after10(t: F10T, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match t:
+    case F10TGo{k, h, r}:
+      MGo{Fr10{k, r}, st, h, pl, dt}
+    case F10TEnd{x}:
+      MRet{x, st, pl, dt}
+    case F10TCall{fr, k, r, h}:
+      MGo{fr, Con{Fr10{k, r}, st}, h, pl, dt}
+
+def m_after11(t: F11T, +st: List<&2, Frame>) -> MT:
   match t:
     case F11TGo{k, h, r, pl, dt}:
-      Res{OFuel{}, h}
+      MGo{Fr11{k, r}, st, h, pl, dt}
     case F11TEnd{x}:
+      MRet{x, st, pl_spent, dt_spent}
+    case F11TCall{fr, k, r, h, pl, dt}:
+      MGo{fr, Con{Fr11{k, r}, st}, h, pl, dt}
+
+def m_go(fr: Frame, +st: List<&2, Frame>, +h: List<&2, GV>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match fr:
+    case Fr0{k, r}:
+      m_after0(f0_step(k, h, r), st, pl, dt)
+    case Fr1{k, r}:
+      m_after1(f1_step(k, h, r), st, pl, dt)
+    case Fr2{k, r}:
+      m_after2(f2_step(k, h, r), st, pl, dt)
+    case Fr3{k, r}:
+      m_after3(f3_step(k, h, r), st, pl, dt)
+    case Fr4{k, r}:
+      m_after4(f4_step(k, h, r), st, pl, dt)
+    case Fr5{k, r}:
+      m_after5(f5_step(k, h, r), st, pl, dt)
+    case Fr6{k, r}:
+      m_after6(f6_step(k, h, r), st, pl, dt)
+    case Fr7{k, r}:
+      m_after7(f7_step(k, h, r), st, pl, dt)
+    case Fr8{k, r}:
+      m_after8(f8_step(k, h, r), st, pl, dt)
+    case Fr9{k, r}:
+      m_after9(f9_step(k, h, r), st, pl, dt)
+    case Fr10{k, r}:
+      m_after10(f10_step(k, h, r), st, pl, dt)
+    case Fr11{k, r}:
+      m_after11(f11_step(k, h, r, pl, dt), st)
+
+def m_ret(fr: Frame, +x: Res, +st: List<&2, Frame>, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match fr:
+    case Fr0{k, r}:
+      m_after0(f0_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr1{k, r}:
+      m_after1(f1_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr2{k, r}:
+      m_after2(f2_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr3{k, r}:
+      m_after3(f3_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr4{k, r}:
+      m_after4(f4_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr5{k, r}:
+      m_after5(f5_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr6{k, r}:
+      m_after6(f6_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr7{k, r}:
+      m_after7(f7_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr8{k, r}:
+      m_after8(f8_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr9{k, r}:
+      m_after9(f9_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr10{k, r}:
+      m_after10(f10_resume(k, res_eff(x), r), st, pl, dt)
+    case Fr11{k, r}:
+      m_after11(f11_resume(k, res_eff(x), r, pl, dt), st)
+
+def m_pop(st: List<&2, Frame>, +x: Res, pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns) -> MT:
+  match st:
+    case Nil{}:
+      MEnd{x}
+    case Con{fr, rest}:
+      m_ret(fr, x, rest, pl, dt)
+
+# one step of the machine
+def m_step(t: MT) -> MT:
+  match t:
+    case MGo{fr, st, h, pl, dt}:
+      m_go(fr, st, h, pl, dt)
+    case MRet{x, st, pl, dt}:
+      m_pop(st, x, pl, dt)
+    case MEnd{x}:
+      MEnd{x}
+
+def m_out(t: MT) -> Res:
+  match t:
+    case MGo{fr, st, h, pl, dt}:
+      Res{OFuel{}, h}
+    case MRet{x, st, pl, dt}:
+      match x:
+        case Res{o, h}:
+          Res{OFuel{}, h}
+    case MEnd{x}:
       x
 
-def f11_run(fuel: Nat, t: F11T) -> Res:
+def m_run(fuel: Nat, t: MT) -> Res:
   match fuel:
     case 0n:
-      f11_out(t)
+      m_out(t)
     case 1n+p:
       match t:
-        case F11TEnd{x}:
+        case MEnd{x}:
           x
-        case F11TGo{k, h, r, pl, dt}:
-          f11_run(p, f11_step(k, h, r, pl, dt))
+        case MGo{fr, st, h, pl, dt}:
+          m_run(p, m_step(MGo{fr, st, h, pl, dt}))
+        case MRet{x, st, pl, dt}:
+          m_run(p, m_step(MRet{x, st, pl, dt}))
 
-def f11_call(pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns, +h: List<&2, GV>, +a0: GV, +a1: GV) -> Res:
-  f11_run(U32.to_nat(1000000), F11TGo{F11K0{}, h, rset([False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}, True{}], RE{}, a1), a0), pl, dt})
 
 # ---------------------------------------------------------------- the entry
 def globals_cells() -> List<&2, GV>:
@@ -4054,4 +4173,4 @@ def zero_recv() -> GV:
 
 # the consumer's entry on the heap globals_cells() ++ cells, its receiver recv (a pointer) and its batch
 def consumer_run(pl: List<&2, GV> -> PlAns, dt: List<&2, U32> -> DtAns, +cells: List<&2, GV>, +recv: GV, +batch: GV) -> Res:
-  f11_call(pl, dt, List.append(&2, GV, globals_cells(), cells), recv, batch)
+  m_run(U32.to_nat(1000000), MGo{Fr11{F11K0{}, rset([False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}], rset([False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}, True{}], RE{}, batch), recv)}, Nil{}, List.append(&2, GV, globals_cells(), cells), pl, dt})
