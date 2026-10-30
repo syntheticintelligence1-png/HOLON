@@ -980,6 +980,10 @@ def _named(st: dict, irv: str, an: dict) -> set[str]:
                 gh = t.get("ghost") if irv == IR03 and "over" in t else None
                 if isinstance(gh, str) and gh in an["actions"]:
                     out.add(an["actions"][gh])
+                # I33 (tests_m3/test_o12_m3.py rule B9): an is[A] test names its action's edge, as an act term does
+                isa = t.get("is") if irv == IR03 and set(t) == {"is", "act"} else None
+                if isinstance(isa, str) and isa in an["actions"]:
+                    out.add(an["actions"][isa])
                 fn = t.get("fn")
                 if isinstance(fn, str):
                     if fn.startswith("is_") and fn[3:] in an["actions"]:

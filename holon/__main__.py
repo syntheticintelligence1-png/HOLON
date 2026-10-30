@@ -298,6 +298,21 @@ def _main(argv: list) -> int:
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
     if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I33: the typed contract laws (sub-form intended_weak over a holon-facts/0.3 document) are decided on the
+        # structural typed model (holon.sorts.contract3_run), after every other law of a whole-milestone run; a --laws
+        # list that names other laws too sends those on as before
+        from .sorts import contract3_run
+        split = contract3_run.ids_of(argv)
+        if split is not None:
+            cids, others = split
+            rc = 0
+            if others is None:
+                with contract3_run.skipping():
+                    rc = _main(argv)
+            elif others:
+                rc = _main(contract3_run.with_laws(argv, others))
+            return max(rc, contract3_run.main(contract3_run.with_laws(argv, cids)))
+    if argv[:1] == ["run"] and _typed_milestone(argv):
         # I28: the PAR-init laws (rule PAR, sub-form init_chain) a --laws list names are decided over the versioned
         # model (holon.versions.run); the list's other laws go on as before
         from .versions import run as versions_run
