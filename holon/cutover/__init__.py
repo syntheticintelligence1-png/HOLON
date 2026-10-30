@@ -1,7 +1,7 @@
 """A migration's slash sites linked with the registries each version names (the contract: the docstring of
 tests_m3/test_cutover_slash.py).
 
-  python -m holon cutover acquire|model|corpus|refine [--milestone M3] [--root DIR] [--check]
+  python -m holon cutover acquire|model|corpus|refine|analyze [--milestone M3] [--root DIR] [--check]
 
 A milestone's sidecar (spec/<M>/lib/cutover_slash.json) names the versioned document, the bundle it extends (I69's
 sidecar and outputs), the registry linked at each end of the migration, the acquisition (the explorer record, the
@@ -10,7 +10,8 @@ function, address and slot it uses comes from the sidecars, the documents or the
 no generator closure.
 
 Modules: acquire (A1-A3), build (creation codes from the members' commits), harness (L2: the forge harness and its
-deployment), machine (L1: the linked versioned machine), corpus (L3), refine (L4, M2), model (M1).
+deployment), machine (L1: the linked versioned machine), evaluate (its evaluator), corpus (L3), refine
+(L4, M2), model (M1), analyze (S1-S3: the slash sites).
 
 Exit codes: 0 written (or --check reproduced); 1 --check differs; 2 refused (a missing or stale input); 3 a build,
 model or harness error. Outputs are canonical JSON (sorted keys, indent 1, a final newline), byte-identical across runs.
@@ -83,7 +84,7 @@ def context(root: Path, milestone: str) -> Ctx:
     return Ctx(root=root, milestone=milestone, side_rel=rel, side=side, cfg=cfg)
 
 
-STEPS = ("acquire", "model", "corpus", "refine")
+STEPS = ("acquire", "model", "corpus", "refine", "analyze")
 
 
 def main(argv=None) -> int:
@@ -109,6 +110,9 @@ def main(argv=None) -> int:
         if a.step == "corpus":
             from . import corpus
             return write_or_check(ctx, corpus.build(ctx, log), a.check, log=log)
+        if a.step == "analyze":
+            from . import analyze
+            return write_or_check(ctx, analyze.build(ctx, log), a.check, log=log)
         from . import refine
         return write_or_check(ctx, refine.run(ctx, log), a.check, log=log)
     except (Refused, FRefused) as e:
