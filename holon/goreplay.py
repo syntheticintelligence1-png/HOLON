@@ -6,7 +6,7 @@ concretized to the one carrier value whose byte a*(init + k) + c (the ops' share
 Shape.cell_map; a law whose ops read different cells is not run) holds cell k and whose every other byte is 0. Each op the law names runs on that value under recover(), from a Go test
 generated from the Go-op document alone (the ops' function ids, the carrier's type), on a scratch copy of the pinned
 checkout (config replay.<key> as the Go document's extraction config names it), and replay/<M>/goops/report.json
-records one side per law:
+records one side per law (the REFUTED OWN laws' witnesses follow, holon.ownreplay: replay/<M>/own/report.json, I35):
   {"status": "passed" | "failed" | "not_run", "provenance": "library_api", "obstruction_observed", "observed": {op:
    outcome class}, "expected": {op: the model's outcome}, "detail": {op: what the real call did}, "command"}.
 A side passes, the obstruction observed, iff every op's real outcome class (a nil error ORet, a non-nil error OErr, a
@@ -356,4 +356,19 @@ def main(argv=None) -> int:
     for lid, e in sorted(report["laws"].items()):
         print(f"{lid}: {e['go']['status']} {e['go']['observed']}")
     print(f"holon replay-go: wrote {out.relative_to(root)}; stamped {len(stamped)} record(s)")
+    # I35 (rule W12 of tests_m3/test_own.py): the OWN laws' witnesses, replay/<M>/own/report.json
+    from . import ownreplay as OR
+    try:
+        orep = OR.build(root, a.milestone)
+    except (OR.Refused, XRefused, OSError, KeyError, ValueError) as e:
+        print(f"holon replay-go: OWN refused: {e}", file=sys.stderr)
+        return 2
+    if orep is not None:
+        oout = root / "replay" / a.milestone / "own" / "report.json"
+        oout.parent.mkdir(parents=True, exist_ok=True)
+        oout.write_text(OR.dumps(orep), encoding="utf-8")
+        ost = OR.stamp(root, a.milestone, orep)
+        for lid, e in sorted(orep["laws"].items()):
+            print(f"{lid}: {e['go']['status']} {e['go']['observed']}")
+        print(f"holon replay-go: wrote {oout.relative_to(root)}; stamped {len(ost)} record(s)")
     return 0

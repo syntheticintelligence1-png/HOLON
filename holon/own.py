@@ -177,7 +177,9 @@ def document(typ: str, t: dict, doc_rel: str, raw: bytes, go: dict) -> dict:
     stores = (go.get("slices") or {}).get("stores") or []
     names = {v["method"] for v in t["views"]} | {w["method"] for w in t["writers"]} | \
         {x["method"] for x in t["lost_writes"]} | {r for x in t["lost_writes"] for r in x["readers"]}
-    results = {r.get("function"): r.get("cases") for r in (go.get("slices") or {}).get("results") or []}
+    results: dict[str, list] = {}   # every slice result's cases, each with its result index
+    for r in (go.get("slices") or {}).get("results") or []:
+        results.setdefault(r.get("function"), []).extend(dict(c, result=r.get("result")) for c in r.get("cases") or [])
     methods = {}
     for m in sorted(names):
         fid = t["methods"][m]
