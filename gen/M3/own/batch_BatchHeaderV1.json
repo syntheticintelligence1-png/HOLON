@@ -1,0 +1,215 @@
+{
+  "abstracted": [],
+  "constructors": [],
+  "document": "spec/M3/facts/morph_blob.go.extracted.json",
+  "document_sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e",
+  "lost_writes": [
+    {
+      "field": "EncodedBytes",
+      "law": true,
+      "method": "Bytes",
+      "readers": [
+        "Bytes"
+      ],
+      "site": "common/batch/batch_header.go:258:4",
+      "value": [
+        "slice",
+        [
+          "alloc",
+          "common/batch/batch_header.go:244:20",
+          [
+            "const",
+            257
+          ]
+        ],
+        null,
+        [
+          "const",
+          257
+        ],
+        null
+      ]
+    }
+  ],
+  "methods": {
+    "Bytes": {
+      "cases": [
+        {
+          "backing": [
+            "of",
+            [
+              "field",
+              [
+                "param",
+                "b"
+              ],
+              "EncodedBytes"
+            ]
+          ],
+          "cap": [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "b"
+              ],
+              "EncodedBytes"
+            ]
+          ],
+          "cond": [
+            [
+              ">",
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "b"
+                  ],
+                  "EncodedBytes"
+                ]
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "len": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "b"
+              ],
+              "EncodedBytes"
+            ]
+          ],
+          "offset": [
+            "const",
+            0
+          ],
+          "result": 0
+        },
+        {
+          "backing": [
+            "fresh",
+            "common/batch/batch_header.go:244:20"
+          ],
+          "cap": [
+            "const",
+            257
+          ],
+          "cond": [
+            [
+              "<=",
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "b"
+                  ],
+                  "EncodedBytes"
+                ]
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "len": [
+            "const",
+            257
+          ],
+          "offset": [
+            "const",
+            0
+          ],
+          "result": 0
+        }
+      ],
+      "params": [
+        {
+          "name": "b",
+          "type": "morph-l2/common/batch.BatchHeaderV1"
+        }
+      ],
+      "pointer": false,
+      "receiver": "b",
+      "results": [
+        "morph-l2/common/batch.BatchHeaderBytes"
+      ],
+      "source": "(morph-l2/common/batch.BatchHeaderV1).Bytes",
+      "span": "common/batch/batch_header.go:240",
+      "stores": [],
+      "writes": []
+    }
+  },
+  "modelled": [
+    "EncodedBytes"
+  ],
+  "own_version": "holon-own/0.1",
+  "stem": "batch_BatchHeaderV1",
+  "type": "morph-l2/common/batch.BatchHeaderV1",
+  "views": [
+    {
+      "cap": [
+        "cap",
+        [
+          "field",
+          [
+            "param",
+            "b"
+          ],
+          "EncodedBytes"
+        ]
+      ],
+      "case": 0,
+      "cond": [
+        [
+          ">",
+          [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "b"
+              ],
+              "EncodedBytes"
+            ]
+          ],
+          [
+            "const",
+            0
+          ]
+        ]
+      ],
+      "field": "EncodedBytes",
+      "len": [
+        "len",
+        [
+          "field",
+          [
+            "param",
+            "b"
+          ],
+          "EncodedBytes"
+        ]
+      ],
+      "method": "Bytes",
+      "offset": [
+        "const",
+        0
+      ],
+      "result": 0
+    }
+  ],
+  "writers": []
+}

@@ -1,0 +1,47 @@
+{
+  "facts": "gen/M3/own/batch_BatchHeaderV0.json",
+  "facts_sha256": "03bbd8b15ef088a33f50c41c6584eaeef98818e0521dce2be4a65e86e2020311",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes",
+  "milestone": "M3",
+  "notes": "OWN-lost-write (whitepaper \u00a75.8): after a call c of Bytes on a value x of morph-l2/common/batch.BatchHeaderV0, x.EncodedBytes is what Bytes assigned (read again by Bytes: E2); own batch_BatchHeaderV0:lost_write:Bytes:EncodedBytes",
+  "rule": "OWN",
+  "rule_catalog_version": "holon-rules/1.7",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Val_batch_BatchHeaderV0"
+      },
+      {
+        "name": "c",
+        "q": "forall",
+        "type": "Call_batch_BatchHeaderV0"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "x"
+            },
+            {
+              "var": "c"
+            }
+          ],
+          "own": "batch_BatchHeaderV0:lost_write:Bytes:EncodedBytes"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "lost_write"
+}

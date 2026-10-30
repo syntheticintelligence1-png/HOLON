@@ -87,6 +87,11 @@ INIT_CHAIN_CATALOG_VERSION = "holon-rules/1.6"
 CATALOGS[INIT_CHAIN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[FACT_CATALOG_VERSION].items()}}
 CATALOGS[INIT_CHAIN_CATALOG_VERSION]["PAR"] = {**CATALOGS[FACT_CATALOG_VERSION]["PAR"],
                                                _par_init.SUBFORM: _par_init.PRODUCERS[_par_init.SUBFORM]}
+# CI PROBE ONLY (claude/ci-i35-ownprobe, not for merge): OWN on top of 1.6, to decide the OWN laws with the pinned checker
+from . import own as _own  # noqa: E402
+OWN_CATALOG_VERSION = "holon-rules/1.7"
+CATALOGS[OWN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[INIT_CHAIN_CATALOG_VERSION].items()},
+                                 _own.RULE: dict(_own.PRODUCERS)}
 
 
 def catalog_version(milestone: str) -> str:
@@ -96,7 +101,7 @@ def catalog_version(milestone: str) -> str:
     test milestone's catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return INIT_CHAIN_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return OWN_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:

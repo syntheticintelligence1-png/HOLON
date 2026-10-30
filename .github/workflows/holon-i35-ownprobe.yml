@@ -1,0 +1,263 @@
+# CI PROBE ONLY (I35), not for merge: the six OWN laws decided with the pinned checker on a scratch catalog (OWN on
+# holon-rules/1.6), then holon replay-go and the final filter; outputs published to claude/ci-i35-ownprobe-out-<run>.
+name: holon-i35-ownprobe
+
+on:
+  push:
+    branches: ['claude/ci-i35-ownprobe']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: holon-i35-ownprobe-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  BEND_NO_TELEMETRY: '1'
+
+jobs:
+  toolchain:
+    name: toolchain (install + verify pins)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.key.outputs.key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Cache key from the pins
+        id: key
+        run: echo "key=holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}" >> "$GITHUB_OUTPUT"
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: restore
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Install the pinned toolchain
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: bash .github/ci/install_toolchain.sh
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: steps.restore.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+  run:
+    name: ${{ matrix.name }}
+    needs: toolchain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: own
+            laws: L_own_alias_batch_BatchData_TxsPayloadV2_Append,L_own_alias_batch_BatchData_TxsPayloadV2_TxsPayloadV2,L_own_alias_batch_BatchData_TxsPayload_Append,L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload,L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes,L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes
+            extra: ''
+            lean: ''
+            cmd: ''
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: Run
+        env:
+          LAWS: ${{ matrix.laws }}
+          EXTRA: ${{ matrix.extra }}
+          LEAN: ${{ matrix.lean }}
+          CMD: ${{ matrix.cmd }}
+        run: |
+          set -o pipefail
+          date -u +"%FT%TZ start" | tee "$RUNNER_TEMP/run.log"
+          EXTRA="${EXTRA//@DEADLINE@/$(date -u -d '+300 min' +%FT%TZ)}"
+          if [ "$CMD" = "m12" ]; then
+            for c in "run --milestone M2" "bind --milestone M2" "lean --milestone M2" "run --milestone M2" "run --milestone M1" "metrics --milestone M1" "metrics --milestone M2"; do
+              date -u +"%FT%TZ holon $c" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon $c 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            done
+          elif [ "$CMD" = "t32" ]; then
+            python -u -m holon profile --milestone T32 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+          else
+            python -u -m holon run --milestone M3 --laws "$LAWS" $EXTRA 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            if [ -n "$LEAN" ]; then
+              date -u +"%FT%TZ lean" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon lean --milestone M3 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+              date -u +"%FT%TZ run again" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon run --milestone M3 --laws "$LAWS" $EXTRA 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            fi
+          fi
+          date -u +"%FT%TZ end" | tee -a "$RUNNER_TEMP/run.log"
+      - name: Collect every changed or added file
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          cp "$RUNNER_TEMP/run.log" "$RUNNER_TEMP/out/run.log" || true
+          git status --porcelain --untracked-files=all | tee "$RUNNER_TEMP/out/status.txt"
+          git status --porcelain --untracked-files=all | sed -E 's/^...//' | grep -v '^\.' > "$RUNNER_TEMP/files.txt" || true
+          tar -czf "$RUNNER_TEMP/out/changed.tgz" -T "$RUNNER_TEMP/files.txt" || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: ${{ matrix.name }}-out
+          retention-days: 7
+          path: ${{ runner.temp }}/out/
+
+  filter:
+    name: filter (I40's final filter over every job's records)
+    needs: [toolchain, run]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: The pinned z3 (hash-pinned wheels, tools/extract-requirements.txt)
+        run: bash tools/setup_env.sh --extract
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: '*-out'
+          path: ${{ runner.temp }}/jobs
+      - name: Apply every job's files, in a fixed order
+        run: |
+          set -o pipefail
+          for j in typed disch fact-attr-0 fact-attr-1 fact-kernel pinit cancel own par m12 t32; do
+            f="$RUNNER_TEMP/jobs/$j-out/changed.tgz"
+            if [ -f "$f" ]; then
+              echo "applying $j"
+              tar -xzf "$f"
+            else
+              echo "no files from $j"
+            fi
+          done
+          git status --porcelain --untracked-files=all | sed -E 's/^...//' | grep -v '^\.' | sort > "$RUNNER_TEMP/applied.txt" || true
+          wc -l "$RUNNER_TEMP/applied.txt"
+      - name: The Go replays (the OWN laws' witnesses on the real code, rule W12), then the final filter
+        run: |
+          set -o pipefail
+          python -u -m holon replay-go --milestone M3 2>&1 | tee "$RUNNER_TEMP/run.log"
+          python -u -m holon refute --milestone M3 --only filter 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+      - name: Collect every changed or added file
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          cp "$RUNNER_TEMP/run.log" "$RUNNER_TEMP/out/run.log" || true
+          git status --porcelain --untracked-files=all | tee "$RUNNER_TEMP/out/status.txt"
+          git status --porcelain --untracked-files=all | sed -E 's/^...//' | grep -v '^\.' > "$RUNNER_TEMP/files.txt" || true
+          tar -czf "$RUNNER_TEMP/out/changed.tgz" -T "$RUNNER_TEMP/files.txt" || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: filter-out
+          retention-days: 7
+          path: ${{ runner.temp }}/out/
+
+  publish:
+    name: publish the outputs
+    needs: [run, filter]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: '*-out'
+          path: out
+      - name: Push the outputs (an orphan commit; no repository code runs here)
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+          SRC: ${{ github.sha }}
+        run: |
+          cd out
+          ls -la
+          git init -q
+          git checkout -q -b results
+          git add -A
+          git -c user.name=holon-ci -c user.email=holon-ci@users.noreply.github.com commit -q -m "I35 OWN probe of run $RUN at $SRC"
+          git push -q "https://x-access-token:${TOKEN}@github.com/${REPO}" "HEAD:refs/heads/claude/ci-i35-ownprobe-out-${RUN}"
