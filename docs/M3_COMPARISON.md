@@ -80,7 +80,7 @@ Bases. **hand**: the record sets M0, M1, T32 (laws over hand-written facts). **c
 | O9 | PAR-init | F12.4 | — | not mechanized | L_pinit_Rollup_importGenesisBatch_committedBatches_17_9 (M3) REFUTED | reproduced | I28 |
 | O10 | PAR-weak | F12.8 | — | not mechanized | — | not mechanized | I24, I55 |
 | O11 | UNDO | F2 | L_undo_BVH (M1) REFUTED | reproduced | L_undo_BVH (M2/view) REFUTED; L_undo_pair_Rollup_commitBatch_revertBatch (M3) REFUTED; L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes (M3) REFUTED | reproduced | — |
-| O12 | UNDO | N2 | L_undo_cancel (M1) REFUTED | reproduced | L_undo_cancel (M2/view) REFUTED; L_contract_C_o12 (M2) PROVED (context); L_undo_cancel_Rollup_challengeState_setPause (M3) REFUTED | reproduced | I33 |
+| O12 | UNDO | N2 | L_undo_cancel (M1) REFUTED | reproduced | L_undo_cancel (M2/view) REFUTED; L_contract_C_o12 (M2) PROVED (context); L_contract_C_o12_m3 (M3) PROVED; L_undo_cancel_Rollup_challengeState_setPause (M3) REFUTED | reproduced | I33 |
 | O13 | NAT | F10 | — | not mechanized | — | not mechanized | I36 |
 | O14 | NAT | N4 | — | not mechanized | — | not mechanized | I29 |
 | O15 | NAT | N1 | L_nat_eta2 (M1) REFUTED | reproduced | L_nat_eta2 (M2/view) REFUTED | reproduced | I29 |
