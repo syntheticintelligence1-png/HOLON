@@ -9,8 +9,13 @@ writes DIR/<model>.bend and DIR/<model>.init.json for every document of the mile
 
   words      W{l0..l7}, eight U32 limbs (holon.sorts.prelude3): Bend's checker and the BendTT kernel evaluate a
              concrete step in time polynomial in the width (N8)
-  storage    the contract's raw slots (HSt), read and written at the compiler's slots and offsets with its packing;
-             a mapping's slot is the keccak256 of the key and the slot, through the law's keccak256 table
+  storage    in the structural mode (I68, the Q21 fix; what generate passes: the typed model, its untyped twin and
+             every section built from them) a finite map from structural keys SK{b, o, p} to words: the family's base
+             slot, the offset inside the top-level variable and the hashed steps SP_m{key word, offset}, read and
+             written at the compiler's offsets with its packing; the hash tables never locate storage, and only the
+             evaluator maps a key to its real slot (holon.sorts.skeys). In the raw mode (the default of build_text and
+             Model3, which I28's versioned generator calls) the contract's raw slots, a mapping's slot the keccak256 of
+             the key and the slot through the law's keccak256 table
   hashes     keccak256 and sha256 are parameters (List<&2, HKB> tables), one table for the whole trace (I12)
   loops      every loop record runs (structural recursion on a fuel of FUEL iterations): its checks, carried names,
              writes, events and exits; memory regions and their mloop / when writes are built byte by byte
@@ -50,11 +55,14 @@ from ..machine import Check, Event, ExtractedModel, Loop, ModelError, MStore, Wr
 from ..machine_bend import bname, comment
 from . import grammar as G
 from .affine3 import affine
-from .prelude3 import FUEL, PRELUDE, SENTINEL
+from . import skeys as SKEYS
+from .prelude3 import FUEL, PRELUDE, SENTINEL, prelude
 
 GHOST_MARKER = "# ---- ghost: SORT coercions (holon.rules.sort)"
 SITE_MARKER = "# ---- ghost: SORT-site instrumentation (holon.sorts.sites)"
-MODEL3_VERSION = "holon-model-m3/0.2"
+MODEL3_VERSION = "holon-model-m3/0.2"      # the raw mode (I28's versioned modules name it)
+MODEL3_SK_VERSION = "holon-model-m3/0.3"   # the structural mode (I68)
+STORAGE_MODES = ("raw", "structural")
 FUEL_CODE = 4294967295       # a step whose loop ran out of fuel (more than FUEL - 1 iterations): not a check
 MASK = (1 << 256) - 1
 PANIC_SEL = bytes.fromhex("4e487b71")
@@ -120,12 +128,76 @@ class StoragePath:
         return StoragePath(self.view, self.family, self.accessors + [(kind, code, ckind)], var)
 
 
+def _off_add(a, b):
+    """The sum of two offsets, each an int or a word code."""
+    if isinstance(a, int) and isinstance(b, int):
+        return (a + b) & MASK
+    if isinstance(a, int) and a == 0:
+        return b
+    if isinstance(b, int) and b == 0:
+        return a
+    return f"w_add({wlit(a) if isinstance(a, int) else a}, {wlit(b) if isinstance(b, int) else b})"
+
+
+def _off_code(o) -> str:
+    return ("w0()" if not o else wlit(o)) if isinstance(o, int) else o
+
+
+class Loc:
+    """A structural storage location under compilation (I68): the base slot b (an int), the offset o inside the
+    top-level variable and the hashed steps [(key word code, offset)], each offset an int or a word code."""
+
+    def __init__(self, b: int, o=0, steps=()):
+        self.b, self.o, self.steps = int(b), o, list(steps)
+
+    def plus(self, n) -> "Loc":
+        """The location n slots further inside the innermost value (a member's or element's slot offset)."""
+        if self.steps:
+            k, o2 = self.steps[-1]
+            return Loc(self.b, self.o, self.steps[:-1] + [(k, _off_add(o2, n))])
+        return Loc(self.b, _off_add(self.o, n))
+
+    def step(self, key: str) -> "Loc":
+        """The location of a mapping value at key word code `key` (offset 0 inside it)."""
+        return Loc(self.b, self.o, self.steps + [(key, 0)])
+
+    def literal(self) -> bool:
+        return not self.steps and isinstance(self.o, int)
+
+    def code(self) -> str:
+        steps = ", ".join(f"SP_m{{{k}, {_off_code(o2)}}}" for k, o2 in self.steps)
+        return f"SK{{{wlit(self.b)}, {_off_code(self.o)}, {('[' + steps + ']') if steps else 'Nil{}'}}}"
+
+    def bound(self, lines: list, prefix: str) -> "Loc":
+        """The same location with every computed key word and offset bound once in lines (+<prefix><i> = {.. : W}),
+        so that the members of one value share the words (A30: no context read repeated per member)."""
+        n = [0]
+
+        def bind(c):
+            if isinstance(c, int) or re.fullmatch(r"[A-Za-z_]\w*|w0\(\)|W\{[\d, ]+\}", c):
+                return c
+            name = f"{prefix}{n[0]}"
+            n[0] += 1
+            lines.append(f"  +{name} = {{{c} : W}}")
+            return name
+        o = bind(self.o)
+        steps = [(bind(k), bind(o2)) for k, o2 in self.steps]
+        return Loc(self.b, o, steps)
+
+
 # ------------------------------------------------------------------------------------------------ the generator
 class Gen:
     def __init__(self, m: ExtractedModel, *, typed: bool, sorts: dict | None = None, seeds: dict | None = None,
                  init_storage: dict | None = None, hashes: list | None = None, basis=None, site: dict | None = None,
-                 binding: str | None = None):
+                 binding: str | None = None, storage: str = "raw"):
+        if storage not in STORAGE_MODES:
+            raise GenError(f"storage mode {storage!r} (one of {', '.join(STORAGE_MODES)})")
         self.m = m
+        self.storage = storage
+        self.sk = storage == "structural"
+        # the literal slots of the layout and their canonical keys (base, offset): a raw slot the layout places is
+        # read at its variable's key, so every real slot has one key (rule S2)
+        self.layout_lits = SKEYS.layout(m.doc)[0] if self.sk else {}
         self.typed = typed
         self.sorts = dict(sorts or {})
         self.seeds = seeds or {}
@@ -438,7 +510,15 @@ class Gen:
         return blit(bytes.fromhex(t[1] or "")), "b"
 
     def t_sload(self, t, sc):
-        return f"sload({self.gx(sc, 'st')}, {self.w(t[1], sc)})", "w"
+        if not self.sk:
+            return f"sload({self.gx(sc, 'st')}, {self.w(t[1], sc)})", "w"
+        n = t[1]
+        if isinstance(n, int) and not isinstance(n, bool):
+            b, o = self.layout_lits.get(n & MASK, (n & MASK, 0))
+            key = Loc(b, o).code()
+        else:
+            key = f"SK{{{self.w(n, sc)}, w0(), Nil{{}}}}"      # a raw slot computed by code (rule S3)
+        return f"sload({self.gx(sc, 'st')}, {key})", "w"
 
     def t_ptr(self, t, sc):
         return self.w(t[2], sc), "w"     # a memory pointer: its offset (never compared with storage)
@@ -553,7 +633,11 @@ class Gen:
         return self.to_bytes(kc, kk)
 
     def locate(self, p: StoragePath, sc: Scope) -> tuple[str, int, str, bool]:
-        """(slot code, offset, type id, whether the slot is a literal) of a storage path (Eval.locate)."""
+        """(slot code, offset, type id, whether the slot is a literal) of a storage path (Eval.locate); in the
+        structural mode the slot code is the location's SK term."""
+        if self.sk:
+            loc, off, tid = self.locate_loc(p, sc)
+            return loc.code(), off, tid, loc.literal()
         slot, off, tid = self.fam_type(p.family)
         code, lit = wlit(slot), slot
         for kind, x, xk in p.accessors:
@@ -587,6 +671,45 @@ class Gen:
                 lit = None
                 off, tid = 0, t["base"]
         return code, off, tid, lit is not None
+
+    def map_key(self, x, xk: str, kt: dict, sc: Scope) -> str:
+        """The key word of a mapping step (I68): the key cleaned as solc hashes it (key_bytes's rule on the word)."""
+        if kt.get("encoding") != "inplace":
+            raise GenError(f"{sc.action}: a mapping keyed by {kt.get('label')} (a bytes or string key is a step SP_b, "
+                           "not compiled in the structural mode)")
+        v = self.to_w(x, xk)
+        n = int(kt.get("numberOfBytes", 32))
+        lab = str(kt.get("label", ""))
+        if not EV._BYTESN.match(lab) and n < 32 and not lab.startswith("int"):
+            v = f"w_and({v}, {self.mask(8 * n)})"
+        return v
+
+    def locate_loc(self, p: StoragePath, sc: Scope):
+        """(Loc, byte offset, type id) of a storage path in the structural mode (rule S2: one key per real slot)."""
+        slot, off, tid = self.fam_type(p.family)
+        loc = Loc(slot)
+        for kind, x, xk in p.accessors:
+            t = self.m.type_of(tid)
+            enc = t.get("encoding")
+            if kind == "map":
+                if enc != "mapping":
+                    raise GenError(f"{sc.action}: {p.family}: a map access into {t.get('label')}")
+                loc = loc.step(self.map_key(x, xk, self.m.type_of(t["key"]), sc))
+                off, tid = 0, t["value"]
+            elif kind == "member":
+                mm = next((y for y in t.get("members") or [] if y["label"] == x), None)
+                if mm is None:
+                    raise GenError(f"{sc.action}: {p.family}: no member {x} in {t.get('label')}")
+                loc = loc.plus(int(mm["slot"]))
+                off, tid = int(mm["offset"]), mm["type"]
+            elif kind == "index":
+                bt = self.m.type_of(t["base"]) if "base" in t else None
+                if bt is None or enc == "dynamic_array" or int(bt["numberOfBytes"]) != 32:
+                    raise GenError(f"{sc.action}: {p.family}: an index into {t.get('label')} (only static arrays of "
+                                   "words are compiled)")
+                loc = loc.plus(self.to_w(x, xk))
+                off, tid = 0, t["base"]
+        return loc, off, tid
 
     def read_word(self, view: str, slot: str, off: int, tid: str) -> str:
         t = self.m.type_of(tid)
@@ -657,8 +780,12 @@ class Gen:
             else:
                 raise GenError(f"{sc.action}: a struct write of a {vk} value")
             out = view
+            loc = self.locate_loc(p, sc)[0] if self.sk else None
             for mm in t["members"]:
-                mslot = f"w_add({slot}, {wlit(int(mm['slot']))})" if int(mm["slot"]) else slot
+                if self.sk:
+                    mslot = loc.plus(int(mm["slot"])).code()
+                else:
+                    mslot = f"w_add({slot}, {wlit(int(mm['slot']))})" if int(mm["slot"]) else slot
                 code = vals.get(mm["label"], "w0()")
                 out = self.write_word(out, mslot, int(mm["offset"]), mm["type"], code)
             return out
@@ -670,6 +797,9 @@ class Gen:
         slot, off, tid, _lit = self.locate(p, sc)
         t = self.m.type_of(tid)
         if t.get("encoding") == "inplace" and "members" in t:
+            if self.sk:
+                loc = self.locate_loc(p, sc)[0]
+                return [loc.plus(int(mm["slot"])).code() for mm in t["members"]]
             return [f"w_add({slot}, {wlit(int(mm['slot']))})" if int(mm["slot"]) else slot for mm in t["members"]]
         return [slot]
 
@@ -1414,7 +1544,8 @@ class Machine(Gen):
             self.ctx(a, f, ty)
         for h in self.hashes:
             self.ctx(a, "kh" if h == "keccak256" else "sh", "List<&2, HKB>")
-        for f, ty in (("cd", "U32"), ("rv", "List<&2, U32>"), ("lg", "List<&2, HLog>"), ("tw", "List<&2, W>")):
+        for f, ty in (("cd", "U32"), ("rv", "List<&2, U32>"), ("lg", "List<&2, HLog>"),
+                      ("tw", "List<&2, SK>" if self.sk else "List<&2, W>")):
             self.ctx(a, f, ty)
         sc = Scope(a)
         self.nstmt = 0
@@ -1659,7 +1790,13 @@ class Machine(Gen):
                 p = p.extend(kind, kc, kk, p.var)
         slot, off, tid, _lit = self.locate(p, sc)
         t = self.m.type_of(tid)
-        lines = [f"  +o0 = {self.gx(sc, 'ov')}", f"  +k = {{{slot} : W}}"]
+        if self.sk:
+            lines = [f"  +o0 = {self.gx(sc, 'ov')}"]
+            kloc = self.locate_loc(p, sc)[0].bound(lines, "k")
+            kcode = kloc.code()
+        else:
+            lines = [f"  +o0 = {self.gx(sc, 'ov')}", f"  +k = {{{slot} : W}}"]
+            kloc, kcode = None, "k"
         slots: list = []
         if t.get("encoding") == "inplace" and "members" in t:
             vals = self.struct_value(w.value, sc, lines)
@@ -1671,7 +1808,10 @@ class Machine(Gen):
                     if vals.get(mm["label"], "w0()") != "w0()":
                         raise GenError(f"{sc.action}: a write of member {mm['label']} ({mt.get('label')}) of {fam}")
                     continue
-                ms = "k" if not int(mm["slot"]) else f"w_add(k, {wlit(int(mm['slot']))})"
+                if self.sk:
+                    ms = kloc.plus(int(mm["slot"])).code()
+                else:
+                    ms = "k" if not int(mm["slot"]) else f"w_add(k, {wlit(int(mm['slot']))})"
                 n += 1
                 lines.append(f"  +o{n} = {{{self.write_word(cur, ms, int(mm['offset']), mm['type'], vals.get(mm['label'], 'w0()'))} : HSt}}")
                 cur = f"o{n}"
@@ -1680,9 +1820,9 @@ class Machine(Gen):
         elif t.get("encoding") == "inplace" and "base" not in t:
             vc, vk = self.value(w.value, sc)
             lines.append(f"  +v = {{{self.to_w(vc, vk)} : W}}")
-            lines.append(f"  +o1 = {{{self.write_word('o0', 'k', off, tid, 'v')} : HSt}}")
+            lines.append(f"  +o1 = {{{self.write_word('o0', kcode, off, tid, 'v')} : HSt}}")
             cur = "o1"
-            slots = ["k"]
+            slots = [kcode]
         else:
             raise GenError(f"{sc.action}: a write of a whole {t.get('label')} ({fam})")
         tw = self.gx(sc, "tw")
@@ -1702,13 +1842,20 @@ class Machine(Gen):
             st = self.m.type_of(tid)
             if "members" not in st:
                 raise GenError(f"{sc.action}: a struct write of a {st.get('label')} read")
-            lines.append(f"  +q = {{{slot} : W}}")
+            if self.sk:
+                qloc = self.locate_loc(c, sc)[0].bound(lines, "q")
+            else:
+                lines.append(f"  +q = {{{slot} : W}}")
+                qloc = None
             out = {}
             for mm in st["members"]:
                 mt = self.m.type_of(mm["type"])
                 if mt.get("encoding") != "inplace" or "members" in mt or "base" in mt:
                     continue
-                ms = "q" if not int(mm["slot"]) else f"w_add(q, {wlit(int(mm['slot']))})"
+                if self.sk:
+                    ms = qloc.plus(int(mm["slot"])).code()
+                else:
+                    ms = "q" if not int(mm["slot"]) else f"w_add(q, {wlit(int(mm['slot']))})"
                 out[mm["label"]] = self.read_word(c.view, ms, int(mm["offset"]), mm["type"])
             return out
         raise GenError(f"{sc.action}: a struct write of a {k} value")
@@ -2279,8 +2426,11 @@ def s0_text(init: dict) -> str:
 
 
 def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init: dict, hashes: list, basis,
-               site_rows: list, header: list[str]) -> tuple[str, Model3]:
-    mm = Model3(m, typed=typed, sorts=sorts, seeds=seeds, init_storage=init, hashes=hashes)
+               site_rows: list, header: list[str], storage: str = "raw", s0_entries: list | None = None
+               ) -> tuple[str, Model3]:
+    """The model text and its generator. storage: raw (the default; I28's versioned modules) or structural (I68: the
+    store PRELUDE_SK, s0 from s0_entries, holon.sorts.skeys.s0_entries of the deployment)."""
+    mm = Model3(m, typed=typed, sorts=sorts, seeds=seeds, init_storage=init, hashes=hashes, storage=storage)
     acts = sorted(a for a in m.actions if m.params(a) is not None)
     for a in acts:
         mm.compile_action(a)
@@ -2292,7 +2442,7 @@ def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init
     if typed:
         gh = Ghost(mm, basis)
         ghost = gh.section(acts, elements)       # (registers coercions and types before the sort section is written)
-    parts = ["\n".join(header) + "\nimport Base\n", PRELUDE, _COMMON]
+    parts = ["\n".join(header) + "\nimport Base\n", prelude(storage), _COMMON]
     parts += mm.shift_defs()
     if typed:
         parts += mm.typed_section()
@@ -2308,7 +2458,7 @@ def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init
                  + "".join(f"    case A_{bname(a)}{{ar, en}}:\n      step_{bname(a)}(s, ar, en{', ' + hv if hv else ''})\n"
                            for a in acts))
     parts.append("# the initial state: the target's storage after the deployment of the binding (zero without one)\n"
-                 + s0_text(init))
+                 + (SKEYS.s0_text(s0_entries or []) if mm.sk else s0_text(init)))
     if typed:
         parts.append(GHOST_MARKER + "\n")
         parts += ghost
@@ -2402,9 +2552,17 @@ def generate(milestone: str, root: Path, doc_rel: str, *, typed: bool = True, si
     sha = hashlib.sha256((root / doc_rel).read_bytes()).hexdigest()
     kind = "typed: the sort section and the ghost section" if typed else "untyped: the sort section off"
     start = f"the deployment of {init.get('binding')}" if init.get("binding") else "the zero storage"
+    try:
+        entries = SKEYS.s0_entries(init, doc)
+    except SKEYS.KeysError as e:
+        raise GenError(f"{doc_rel}: {e}") from e
     header = [f"# GENERATED by holon.sorts.model3 from {doc_rel}; do not edit (fix the generator instead).",
               f"# facts_sha256: {sha}",
-              f"# model_version: {MODEL3_VERSION} ({kind})",
+              f"# model_version: {MODEL3_SK_VERSION} ({kind})",
+              "# storage: structural keys (A-keccak-structural): SK{base slot, offset, [SP_m{key word, offset}]}; "
+              f"s0 {sum(1 for e in entries if e[2] == 'literal')} literal, "
+              f"{sum(1 for e in entries if e[2] == 'structural')} structural, "
+              f"{sum(1 for e in entries if e[2] == 'raw')} raw",
               f"# assignment sorts_sha256: {assignment.get('sorts_sha256')}",
               f"# initial state: {start} ({len([v for v in storage.values() if v])} non-zero slots)",
               "# chk_<action>(st, ar, en, kh..): 0 when every check holds, k + 1 when check k is the first that fails;",
@@ -2413,7 +2571,7 @@ def generate(milestone: str, root: Path, doc_rel: str, *, typed: bool = True, si
               "else st."]
     sites = [] if typed else ratio_sites(milestone, root, assignment, model)
     text, mm = build_text(m, typed=typed, sorts=mo.get("assignment") or {}, seeds=seeds, init=storage, hashes=hashes,
-                          basis=basis, site_rows=sites, header=header)
+                          basis=basis, site_rows=sites, header=header, storage="structural", s0_entries=entries)
     mm.basis = basis
     mm.n1 = n1_sorts(mo.get("assignment") or {}, basis.sites)
     mm.hashes = hashes

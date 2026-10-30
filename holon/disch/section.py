@@ -5,7 +5,8 @@ It imports I30's typed model (gen/<M>/sorts/models/<model>.bend) as M and never 
 typed model's own generator (holon.sorts.model3: the same compiler, the same code for the same subterm), so a blocked
 condition and the check it is the blocked condition of share their atoms textually. For each basis element's tag:
 
-  blkv_<tag>(v1.., t, kh..)   B with each read of a literal slot as a parameter (when every read is one), and
+  blkv_<tag>(v1.., t, kh..)   B with each read of a literal key as a parameter (when every read is one: a raw slot,
+                              or a structural key of literal words, I68), and
   blk_<tag>(st, t, kh..)      B in state st at block.timestamp t
   chk_<tag>(st, t, kh..)      the representative check c's expr in st at block.timestamp t
   excl_<tag>(a)               a is excluded under B (D8)
@@ -59,6 +60,49 @@ def section_file(model: str) -> str:
 
 
 _SLOAD_LIT = re.compile(r"M\.sload\(st, (M\.W\{[0-9, ]+\})\)")
+_CLOSED_TOKENS = {"M.SK", "M.SP_m", "M.W", "M.w0", "Nil"}
+
+
+def _balanced(text: str, i: int) -> int:
+    """The index just after the argument starting at i (up to the ')' that closes the enclosing call, or a top-level
+    ',')."""
+    depth = 0
+    while i < len(text):
+        ch = text[i]
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            if depth == 0:
+                return i
+            depth -= 1
+        elif ch == "," and depth == 0:
+            return i
+        i += 1
+    raise SectionError("an unbalanced storage read")
+
+
+def closed_key(k: str) -> bool:
+    """A literal storage key: a raw slot word M.W{..} or a structural key M.SK{..} of literal words, w0() and literal
+    steps (I68: a key that reads no state, argument or table)."""
+    if not re.fullmatch(r"[\sA-Za-z0-9_.,{}\[\]()]*", k):
+        return False
+    toks = set(re.findall(r"(?<![\w.])[A-Za-z_][\w.]*", k))
+    return bool(toks) and toks <= _CLOSED_TOKENS
+
+
+def sload_keys(code: str) -> list[str]:
+    """The literal keys of the storage reads M.sload(st, K) of a closed term, in order of first appearance."""
+    out: list[str] = []
+    head = "M.sload(st, "
+    i = code.find(head)
+    while i >= 0:
+        j = i + len(head)
+        e = _balanced(code, j)
+        k = code[j:e]
+        if code[e:e + 1] == ")" and closed_key(k) and k not in out:
+            out.append(k)
+        i = code.find(head, i + 1)
+    return out
 
 
 class Section:
@@ -121,10 +165,7 @@ class Section:
         except Exception as e:  # noqa: BLE001: the model's compiler refuses the term (named)
             raise SectionError(f"{b['tag']}: the typed model's compiler refuses its blocked condition: {e}") from e
         blk = self.closed(bcode, a)
-        keys: list[str] = []
-        for m in _SLOAD_LIT.finditer(blk):
-            if m.group(1) not in keys:
-                keys.append(m.group(1))
+        keys = sload_keys(blk)
         v = blk
         for i, k in enumerate(keys):
             v = v.replace(f"M.sload(st, {k})", f"v{i}")

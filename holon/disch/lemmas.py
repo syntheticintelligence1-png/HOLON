@@ -15,7 +15,7 @@ whose prelude differs makes the file fail to check, never a lemma hold by assump
 """
 from __future__ import annotations
 
-LIBRARY = r'''
+_COMMON = r'''
 # ---- core lemmas (holon.disch.lemmas: generic, proved here, never assumed)
 def efq(-P: Type, x: Empty) -> P:
   match x:
@@ -181,7 +181,9 @@ def w_refl(a: M.W, b: M.W, +e: {M.w_eq(a, b) == True{} : Bool}) -> {a == b : M.W
       (%u_refl(a7, b7, and_r(U32.is_eq(a6, b6), U32.is_eq(a7, b7), e6)) : {M.W{a0, a1, a2, a3, a4, a5, a6, a7} == M.W{a0, a1, a2, a3, a4, a5, a6, _} : M.W}
       {==}))))))))
 
-# the frame of one entry: when its key is k it is the entry read, and the store's key kw is not k
+'''
+
+_RAW_STORE = r'''# the frame of one entry: when its key is k it is the entry read, and the store's key kw is not k
 def kw_fr_c(c: Bool, +hk: M.W, +hv: M.W, +kw: M.W, +v: M.W, +d: Bool, +k: M.W, +y1: M.W, +y2: M.W, ec: {M.w_eq(hk, k) == c : Bool}, ne: {M.w_eq(k, kw) == False{} : Bool}, ih: {y1 == y2 : M.W}) -> {M.ite(M.W, c, M.ite(M.W, Bool.and(M.w_eq(hk, kw), Bool.not(d)), v, hv), y1) == M.ite(M.W, c, hv, y2) : M.W}:
   match c:
     case True{}:
@@ -211,3 +213,75 @@ def st_frame(s: M.HSt, +kw: M.W, +v: M.W, +k: M.W, ne1: {M.w_eq(kw, k) == False{
     case M.HSt{sl}:
       kw_frame(sl, kw, v, False{}, k, ne1, ne2)
 '''
+
+# I68 (the Q21 fix): the storage frame over a structural store (holon.sorts.prelude3.PRELUDE_SK). The same names as the
+# raw store's lemmas, so a route states a frame the same way over either model; sk_eq reflects key equality component by
+# component (the base, the offset, each step's offset and key word), by w_refl.
+_SK_STORE = r"""
+def sp_refl(a: M.SP, b: M.SP, +e: {M.sp_eq(a, b) == True{} : Bool}) -> {a == b : M.SP}:
+  match a b:
+    case M.SP_m{+ak, +ao} M.SP_m{+bk, +bo}:
+      (%w_refl(ao, bo, and_l(M.w_eq(ao, bo), M.w_eq(ak, bk), e)) : {M.SP_m{ak, ao} == M.SP_m{bk, _} : M.SP}
+      (%w_refl(ak, bk, and_r(M.w_eq(ao, bo), M.w_eq(ak, bk), e)) : {M.SP_m{ak, ao} == M.SP_m{_, ao} : M.SP}
+      {==}))
+
+def sps_refl(a: List<&2, M.SP>, b: List<&2, M.SP>, +e: {M.sps_eq(a, b) == True{} : Bool}) -> {a == b : List<&2, M.SP>}:
+  match a b:
+    case Nil{} Nil{}:
+      {==}
+    case Nil{} Con{y, ys}:
+      efq({Nil{} == Con{y, ys} : List<&2, M.SP>}, false_ne_true(e))
+    case Con{x, xs} Nil{}:
+      efq({Con{x, xs} == Nil{} : List<&2, M.SP>}, false_ne_true(e))
+    case Con{+x, +xs} Con{+y, +ys}:
+      (%sp_refl(x, y, and_l(M.sp_eq(x, y), M.sps_eq(xs, ys), e)) : {Con{x, xs} == Con{_, ys} : List<&2, M.SP>}
+      (%sps_refl(xs, ys, and_r(M.sp_eq(x, y), M.sps_eq(xs, ys), e)) : {Con{x, xs} == Con{x, _} : List<&2, M.SP>}
+      {==}))
+
+def sk_refl(a: M.SK, b: M.SK, +e: {M.sk_eq(a, b) == True{} : Bool}) -> {a == b : M.SK}:
+  match a b:
+    case M.SK{+ab, +ao, +ap} M.SK{+bb, +bo, +bp}:
+      +r = and_r(M.w_eq(ab, bb), Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp)), e)
+      (%w_refl(ab, bb, and_l(M.w_eq(ab, bb), Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp)), e)) : {M.SK{ab, ao, ap} == M.SK{_, bo, bp} : M.SK}
+      (%w_refl(ao, bo, and_l(M.w_eq(ao, bo), M.sps_eq(ap, bp), r)) : {M.SK{ab, ao, ap} == M.SK{ab, _, bp} : M.SK}
+      (%sps_refl(ap, bp, and_r(M.w_eq(ao, bo), M.sps_eq(ap, bp), r)) : {M.SK{ab, ao, ap} == M.SK{ab, ao, _} : M.SK}
+      {==})))
+
+# the frame of one entry: when its key is k it is the entry read, and the store's key kw is not k
+def kv_fr_c(c: Bool, +hk: M.SK, +hv: M.W, +kw: M.SK, +v: M.W, +d: Bool, +k: M.SK, +y1: M.W, +y2: M.W, ec: {M.sk_eq(hk, k) == c : Bool}, ne: {M.sk_eq(k, kw) == False{} : Bool}, ih: {y1 == y2 : M.W}) -> {M.ite(M.W, c, M.ite(M.W, Bool.and(M.sk_eq(hk, kw), Bool.not(d)), v, hv), y1) == M.ite(M.W, c, hv, y2) : M.W}:
+  match c:
+    case True{}:
+      (%Equal.sym(M.SK, hk, k, sk_refl(hk, k, ec)) : {M.ite(M.W, Bool.and(M.sk_eq(_, kw), Bool.not(d)), v, hv) == hv : M.W}
+      (%Equal.sym(Bool, M.sk_eq(k, kw), False{}, ne) : {M.ite(M.W, Bool.and(_, Bool.not(d)), v, hv) == hv : M.W}
+      {==}))
+    case False{}:
+      ih
+
+def kv_frame(xs: List<&2, M.KV>, +kw: M.SK, +v: M.W, +d: Bool, +k: M.SK, +ne1: {M.sk_eq(kw, k) == False{} : Bool}, +ne2: {M.sk_eq(k, kw) == False{} : Bool}) -> {M.kv_get(M.kv_put(xs, kw, v, d), k) == M.kv_get(xs, k) : M.W}:
+  match xs:
+    case Nil{}:
+      match d:
+        case True{}:
+          {==}
+        case False{}:
+          (%Equal.sym(Bool, M.sk_eq(kw, k), False{}, ne1) : {M.ite(M.W, _, v, M.w0()) == M.w0() : M.W}
+          {==})
+    case Con{h, +t}:
+      match h:
+        case M.KV{+hk, +hv}:
+          kv_fr_c(M.sk_eq(hk, k), hk, hv, kw, v, d, k, M.kv_get(M.kv_put(t, kw, v, Bool.or(d, M.sk_eq(hk, kw))), k), M.kv_get(t, k), {==}, ne2, kv_frame(t, kw, v, Bool.or(d, M.sk_eq(hk, kw)), k, ne1, ne2))
+
+# a store at key kw leaves the word at key k unchanged (sk_eq tells the two keys apart both ways)
+def st_frame(s: M.HSt, +kw: M.SK, +v: M.W, +k: M.SK, ne1: {M.sk_eq(kw, k) == False{} : Bool}, ne2: {M.sk_eq(k, kw) == False{} : Bool}) -> {M.sload(M.sstore(s, kw, v), k) == M.sload(s, k) : M.W}:
+  match s:
+    case M.HSt{sl}:
+      kv_frame(sl, kw, v, False{}, k, ne1, ne2)
+"""
+
+LIBRARY = _COMMON + _RAW_STORE
+LIBRARY_SK = _COMMON + _SK_STORE
+
+
+def library(structural: bool) -> str:
+    """The core lemmas for a model whose store is raw (LIBRARY) or structural (LIBRARY_SK, I68)."""
+    return LIBRARY_SK if structural else LIBRARY
