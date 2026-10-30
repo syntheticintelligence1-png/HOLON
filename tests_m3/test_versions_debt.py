@@ -501,6 +501,85 @@ class TestModel(unittest.TestCase):
                          show_text(base, "holon/sorts/prelude3.py"))
 
 
+class TestL6(unittest.TestCase):
+    """L6, found by the build (construction checks added after C_K at the coordinator's request; not predictions): the
+    kernel's evaluation shape of a product by a literal c keeps the values.
+    - The checked product's test x <= (2^256 - 1) // c is w_mul_ok's for every c >= 1, and a literal 0 never reaches it
+      (x * 0 is 0: no check, True{}).
+    - w_mulc (zero limbs skipped) is w_mul_small.
+    Bend decides both on edge values (0, 1, 2^256 - 1, the boundary q = (2^256 - 1) // c and q + 1) and on
+    fixed-seed random words, each side stated against the integer product."""
+
+    MASK = (1 << 256) - 1
+    SMALL = [3, 58, 60, (1 << 31) + 1, (1 << 32) - 1]       # w_mulc's literals: below 2^32, no power of two
+    BIG = [(1 << 128) + 1, (1 << 256) - 1]                  # checked products by a literal of 2^32 or more
+
+    def xs(self, c: int) -> list:
+        import random
+        rng = random.Random(83_000_003 + c % 1_000_003)
+        q = self.MASK // c
+        vals = [0, 1, 2, self.MASK, q, q + 1, (1 << 32) - 1, 1 << 32, (1 << 64) - 1]
+        vals += [rng.getrandbits(256) for _ in range(3)] + [rng.getrandbits(40) for _ in range(2)]
+        return sorted({v for v in vals if 0 <= v <= self.MASK})
+
+    def test_l6_zero_never_reaches_the_quotient(self):
+        M = holon_module("holon.sorts.model3")
+        for inner in (["*", ["param", "x"], 0], ["*", 0, ["param", "x"]]):
+            with self.subTest(inner=inner):
+                ok, _val = M._mul_check(None, inner, "A", "B")
+                self.assertEqual(ok, "True{}")
+        for c in self.SMALL + self.BIG:
+            with self.subTest(c=c):
+                ok, _val = M._mul_check(_ShiftStub(M), ["*", ["param", "x"], c], "A", "B")
+                self.assertEqual(ok, f"w_le(A, {M.wlit(self.MASK // c)})")
+        # the integer identity the comparison rests on, over random factors
+        import random
+        rng = random.Random(83)
+        for _ in range(2000):
+            c, x = rng.getrandbits(rng.choice((8, 32, 128, 256))) or 1, rng.getrandbits(rng.choice((8, 64, 200, 256)))
+            self.assertEqual(x * c <= self.MASK, x <= self.MASK // c)
+
+    def test_l6_forms_equal_the_old_ones_in_bend(self):
+        B, M = holon_module("holon.bend"), holon_module("holon.sorts.model3")
+        src = need("gen/M3/versions/models/morph_rollup_versions_V5.bend").read_text(encoding="utf-8")
+        for d in ("def w_mulc(", "def w_mul_ok(", "def w_mul_small(", "def w_le("):
+            self.assertIn(d, src)
+        w = (lambda v: "K." + M.wlit(v))
+        lemmas = []
+        for c in self.SMALL + self.BIG:
+            q = self.MASK // c
+            for x in self.xs(c):
+                ok = "True{}" if x * c <= self.MASK else "False{}"
+                lemmas.append(f"{{K.w_le({w(x)}, {w(q)}) == {ok} : Bool}}")
+                lemmas.append(f"{{K.w_mul_ok({w(x)}, {w(c)}) == {ok} : Bool}}")
+                if c < (1 << 32):
+                    lemmas.append(f"{{K.w_mulc({w(x)}, {c}) == {w(x * c)} : K.W}}")
+                    lemmas.append(f"{{K.w_mul_small({w(x)}, {c}) == {w(x * c)} : K.W}}")
+        tmp = Path(tempfile.mkdtemp(prefix="i83-l6-"))
+        try:
+            (tmp / "K.bend").write_text(src, encoding="utf-8")
+            body = ["import Base", "import ./K.bend as K", ""]
+            body += [f"def l6_{i}() -> {s}:\n  {{==}}\n" for i, s in enumerate(lemmas)]
+            (tmp / "P.bend").write_text("\n".join(body), encoding="utf-8")
+            r = B.check(tmp / "P.bend", timeout=1800)
+            self.assertTrue(r.ok and "ALL PROOFS CHECK" in r.out, r.out[-2000:])
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class _ShiftStub:
+    """The generator methods _mul_check calls for a literal below 2^32 (its value's code), on no model."""
+
+    def __init__(self, M):
+        self.M = M
+
+    def shl(self, k: int) -> str:
+        return f"w_shl_{k}"
+
+    def const_mul(self, y: str, c: int) -> str:
+        return f"w_mulc({y}, {c})"
+
+
 # ---------------------------------------------------------------------------------------------- in-flight inhabitants
 class TestInflight(unittest.TestCase):
     def test_p2_every_mig_edge_is_inhabited(self):
