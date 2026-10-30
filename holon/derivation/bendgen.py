@@ -843,8 +843,8 @@ def sl2_c4(c: Bool, +h: List<&2, GV>, +x: GV, +b: SB, +lo: GV, +j: U32, +tl: U32
       EPan{{h, VE{{{t_s_lo_hi}, [VF{{tl, lo}}, VF{{th, hi}}]}}}}
     case False{{}}:
       match b:
-        case SB{{bc, bp, bo, bn, bk, bnl, bcw}}:
-          EOk{{h, sl_mk(x, b, il(lo), j, bk)}}
+        case SB{{qc, qp, qo, qn, qk, qnl, qcw}}:
+          EOk{{h, sl_mk(x, b, il(lo), j, qk)}}
 
 def sl2_c3(c: Bool, +h: List<&2, GV>, +x: GV, +b: SB, +lo: GV, +j: U32, +tl: U32, +th: U32, +hi: GV) -> Eff:
   match c:
@@ -857,8 +857,8 @@ def sl2_c2(c: Bool, +h: List<&2, GV>, +x: GV, +b: SB, +lo: GV, +sl: Bool, +j: U3
   match c:
     case True{{}}:
       match b:
-        case SB{{bc, bp, bo, bn, bk, bnl, bcw}}:
-          EPan{{h, VE{{capt(bcw, {t_s_hi_cap}, {t_s_hi_len}), [VF{{th, hi}}, VF{{tn, VI{{0, bk}}}}]}}}}
+        case SB{{qc, qp, qo, qn, qk, qnl, qcw}}:
+          EPan{{h, VE{{capt(qcw, {t_s_hi_cap}, {t_s_hi_len}), [VF{{th, hi}}, VF{{tn, VI{{0, qk}}}}]}}}}
     case False{{}}:
       sl2_c3(Bool.and(sl, i_neg(lo)), h, x, b, lo, j, tl, th, hi)
 
@@ -868,13 +868,13 @@ def sl2_c1(c: Bool, +h: List<&2, GV>, +x: GV, +b: SB, +lo: GV, +sl: Bool, +hi: G
       EPan{{h, VE{{{t_s_hi_neg}, [VF{{th, hi}}]}}}}
     case False{{}}:
       match b:
-        case SB{{bc, bp, bo, bn, bk, bnl, bcw}}:
-          sl2_c2(Bool.not(le_u(hi, bk)), h, x, b, lo, sl, il(hi), tl, th, tn, hi)
+        case SB{{qc, qp, qo, qn, qk, qnl, qcw}}:
+          sl2_c2(Bool.not(le_u(hi, qk)), h, x, b, lo, sl, il(hi), tl, th, tn, hi)
 
 def sl2_nohi(+h: List<&2, GV>, +x: GV, +b: SB, +lo: GV, +sl: Bool, +tl: U32, +tn: U32) -> Eff:
   match b:
-    case SB{{bc, bp, bo, bn, bk, bnl, bcw}}:
-      sl2_c3(Bool.and(sl, i_neg(lo)), h, x, b, lo, bn, tl, tn, VI{{0, bn}})
+    case SB{{qc, qp, qo, qn, qk, qnl, qcw}}:
+      sl2_c3(Bool.and(sl, i_neg(lo)), h, x, b, lo, qn, tl, tn, VI{{0, qn}})
 
 def sl2_go(hashi: Bool, +b: SB, +h: List<&2, GV>, +x: GV, +lo: GV, +hi: GV, +sl: Bool, +sh: Bool, +tl: U32, +th: U32, +tn: U32) -> Eff:
   match hashi:
@@ -919,22 +919,22 @@ def sl3_c2(c: Bool, +h: List<&2, GV>, +x: GV, +b: SB, +lo: GV, +hi: GV, +mx: GV,
   match c:
     case True{{}}:
       match b:
-        case SB{{bc, bp, bo, bn, bk, bnl, bcw}}:
-          EPan{{h, VE{{capt(bcw, {t_s3_mx_cap}, {t_s3_mx_len}), [VF{{tm, mx}}, VF{{tn, VI{{0, bk}}}}]}}}}
+        case SB{{qc, qp, qo, qn, qk, qnl, qcw}}:
+          EPan{{h, VE{{capt(qcw, {t_s3_mx_cap}, {t_s3_mx_len}), [VF{{tm, mx}}, VF{{tn, VI{{0, qk}}}}]}}}}
     case False{{}}:
       sl3_c3(Bool.and(sh, i_neg(hi)), h, x, b, lo, hi, mx, sl, tl, th, tm)
 
-def sl3_k(c: Bool, +h: List<&2, GV>, +x: GV, +b: SB, +lo: GV, +hi: GV, +mx: GV, +sl: Bool, +sh: Bool, +tl: U32, +th: U32, +tm: U32, +tn: U32, +bk: U32) -> Eff:
+def sl3_k(c: Bool, +h: List<&2, GV>, +x: GV, +b: SB, +lo: GV, +hi: GV, +mx: GV, +sl: Bool, +sh: Bool, +tl: U32, +th: U32, +tm: U32, +tn: U32, +kb: U32) -> Eff:
   match c:
     case True{{}}:
       EPan{{h, VE{{{t_s3_mx_neg}, [VF{{tm, mx}}]}}}}
     case False{{}}:
-      sl3_c2(Bool.not(le_u(mx, bk)), h, x, b, lo, hi, mx, sl, sh, tl, th, tm, tn)
+      sl3_c2(Bool.not(le_u(mx, kb)), h, x, b, lo, hi, mx, sl, sh, tl, th, tm, tn)
 
 def sl3_go(+b: SB, +h: List<&2, GV>, +x: GV, +lo: GV, +hi: GV, +mx: GV, +sl: Bool, +sh: Bool, +sm: Bool, +tl: U32, +th: U32, +tm: U32, +tn: U32) -> Eff:
   match b:
-    case SB{{bc, bp, bo, bn, bk, bnl, bcw}}:
-      sl3_k(Bool.and(sm, i_neg(mx)), h, x, SB{{bc, bp, bo, bn, bk, bnl, bcw}}, lo, hi, mx, sl, sh, tl, th, tm, tn, bk)
+    case SB{{qc, qp, qo, qn, qk, qnl, qcw}}:
+      sl3_k(Bool.and(sm, i_neg(mx)), h, x, SB{{qc, qp, qo, qn, qk, qnl, qcw}}, lo, hi, mx, sl, sh, tl, th, tm, tn, qk)
 
 def e_slice3(+h: List<&2, GV>, +x: GV, +lo: GV, +hi: GV, +mx: GV, +sl: Bool, +sh: Bool, +sm: Bool, +tl: U32, +th: U32, +tm: U32, +tn: U32) -> Eff:
   sl3_go(sb_of(h, x), h, x, lo, hi, mx, sl, sh, sm, tl, th, tm, tn)
