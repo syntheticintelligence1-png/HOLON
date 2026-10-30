@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "One line of audit/rule_gaps.jsonl (whitepaper L7; I87): a rule-gap record, or a candidate rule with its instances, basis argument and the human's approval",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["kind", "id", "milestone", "finding", "title", "outside", "candidate"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"const": "gap"},
+        "id": {"type": "string", "pattern": "^RG-M[0-9]+-[0-9]{2,}$"},
+        "milestone": {"type": "string", "pattern": "^M[0-9]+$"},
+        "finding": {"type": "string", "pattern": "^F-M[0-9]+-[0-9]{2,}$"},
+        "title": {"type": "string", "pattern": "\\S"},
+        "outside": {"type": "string", "pattern": "\\S"},
+        "candidate": {"type": ["string", "null"]},
+        "notes": {"type": "string"}
+      }
+    },
+    {
+      "type": "object",
+      "required": ["kind", "name", "instances", "basis", "approval"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"const": "candidate"},
+        "name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"},
+        "instances": {"type": "array", "items": {"type": "string", "pattern": "^RG-M[0-9]+-[0-9]{2,}$"}},
+        "basis": {
+          "type": "object",
+          "required": ["argument", "obligation"],
+          "additionalProperties": false,
+          "properties": {"argument": {"type": "string"}, "obligation": {"type": "string"}}
+        },
+        "approval": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "required": ["by", "signature"],
+              "additionalProperties": false,
+              "properties": {"by": {"type": "string"}, "signature": {"type": "string"}}
+            }
+          ]
+        },
+        "notes": {"type": "string"}
+      }
+    }
+  ]
+}

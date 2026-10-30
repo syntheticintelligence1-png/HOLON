@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON audit-loop status (results/<M>/audit_status.json), written by holon audit converge (I87; BUILD_PLAN I45's exit reads it)",
+  "type": "object",
+  "required": ["status_version", "milestone", "k", "converged", "streak", "counted", "rounds", "open_high", "problems",
+               "findings_file", "policy", "why"],
+  "additionalProperties": false,
+  "properties": {
+    "status_version": {"const": "holon-audit-status/0.1"},
+    "milestone": {"type": "string", "pattern": "^M[0-9]+$"},
+    "k": {"type": "integer"},
+    "converged": {"type": "boolean"},
+    "streak": {"type": "integer"},
+    "counted": {"type": "integer"},
+    "rounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["round", "family", "dry_run", "counted", "clean", "why"],
+        "additionalProperties": false,
+        "properties": {
+          "round": {"type": "integer"},
+          "family": {"enum": ["same", "different", null]},
+          "dry_run": {"type": "boolean"},
+          "counted": {"type": "boolean"},
+          "clean": {"type": "boolean"},
+          "why": {"type": "string"}
+        }
+      }
+    },
+    "open_high": {"type": "array", "items": {"type": "string"}},
+    "problems": {"type": "array", "items": {"type": "string"}},
+    "findings_file": {"type": "string"},
+    "policy": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {"path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+    },
+    "why": {"type": "string"}
+  }
+}
