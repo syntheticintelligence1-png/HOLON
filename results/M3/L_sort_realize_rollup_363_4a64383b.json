@@ -7,21 +7,21 @@
   },
   "attempts": [
     {
-      "bound": "S1+S2: 48 distinct states (depth <= 3)",
+      "bound": "S1+S2: 43 distinct states (depth <= 3)",
       "entry": "commitBatch",
       "found": true,
       "kind": "refute",
       "stage": "S2"
     },
     {
-      "bound": "S1+S2: 48 distinct states (depth <= 3)",
+      "bound": "S1+S2: 43 distinct states (depth <= 3)",
       "entry": "commitBatchWithProof",
       "found": true,
       "kind": "refute",
       "stage": "S2"
     },
     {
-      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000), no witness; S3: 46 neighbourhood prefixes (commitBatch, commitBatchWithProof)",
+      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000), no witness; S3: 40 neighbourhood prefixes (commitBatch, commitBatchWithProof)",
       "entry": "commitState",
       "found": true,
       "kind": "refute",
@@ -32,7 +32,7 @@
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 2.317
+    "seconds": 2.243
   },
   "coercion": {
     "from": "SDur",
@@ -1856,7 +1856,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": "finding",
-  "generator_sha256": "b40f7a7865672a2ab142408beb241cae8e0b55c72a80e7da47024c0e617fd312",
+  "generator_sha256": "b57def7dfbd517197985f8ec4371be6389e9289ad82bc421c1950e887dd78e18",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -1892,7 +1892,7 @@
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_sort_realize_rollup_363_4a64383b/LAWS.bend",
-    "parent_statement_hash": "sha256:52ce8e866f89ca575d493f8cd1a3b3dc995b84e0e73499b5352b3db95a2b92d1",
+    "parent_statement_hash": "sha256:20c3873b2131d47a6b34323bfdccca3ae10fc53fce2f6095c5125fdf83792fe1",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -1914,7 +1914,7 @@
   },
   "site": "morph_rollup.extracted:realize:contracts/contracts/l1/rollup/Rollup.sol:363:4a64383b",
   "statement": "every hit of the realization of a signed difference is Some (Thm 6.18: the sign obligation as a hole-free coercion premise at its site); coercion morph_rollup.extracted:realize:contracts/contracts/l1/rollup/Rollup.sol:363:4a64383b",
-  "statement_hash": "sha256:52ce8e866f89ca575d493f8cd1a3b3dc995b84e0e73499b5352b3db95a2b92d1",
+  "statement_hash": "sha256:20c3873b2131d47a6b34323bfdccca3ae10fc53fce2f6095c5125fdf83792fe1",
   "status": "REFUTED",
   "subform": "realize",
   "triage": "finding",
@@ -2100,11 +2100,11 @@
   },
   "witnesses": {
     "commitBatch": {
-      "bound": "S1+S2: 48 distinct states (depth <= 3)",
+      "bound": "S1+S2: 43 distinct states (depth <= 3)",
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 2.206
+        "seconds": 2.26
       },
       "laws": "gen/M3/laws/L_sort_realize_rollup_363_4a64383b/LAWS.bend",
       "proof": "gen/M3/proofs/L_sort_realize_rollup_363_4a64383b/entry_commitBatch/PROOF.bend",
@@ -2296,11 +2296,11 @@
       }
     },
     "commitBatchWithProof": {
-      "bound": "S1+S2: 48 distinct states (depth <= 3)",
+      "bound": "S1+S2: 43 distinct states (depth <= 3)",
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 2.594
+        "seconds": 2.556
       },
       "laws": "gen/M3/laws/L_sort_realize_rollup_363_4a64383b/LAWS.bend",
       "proof": "gen/M3/proofs/L_sort_realize_rollup_363_4a64383b/entry_commitBatchWithProof/PROOF.bend",
@@ -2487,11 +2487,11 @@
       }
     },
     "commitState": {
-      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000), no witness; S3: 46 neighbourhood prefixes (commitBatch, commitBatchWithProof)",
+      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000), no witness; S3: 40 neighbourhood prefixes (commitBatch, commitBatchWithProof)",
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 3.284
+        "seconds": 3.482
       },
       "laws": "gen/M3/laws/L_sort_realize_rollup_363_4a64383b/LAWS.bend",
       "proof": "gen/M3/proofs/L_sort_realize_rollup_363_4a64383b/entry_commitState/PROOF.bend",
