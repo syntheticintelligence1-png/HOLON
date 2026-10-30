@@ -5504,6 +5504,408 @@
         ],
         "disclosed": "Read before this prereg: node/derivation/batch_info.go in full; derivation.go's fetch, UnPackData, unpackModernRollupCall, parseBatch, handleL1Message and derive; common/batch's BatchHeaderBytes getters and validate, RetrieveBlobBytes, DecodeTxsFromBytes and its helpers; common/codec/zstd; node/types DecodeBlockContext; the go-ethereum fork's RPCRollupBatch and SafeL2Data and the DA codec's Go binding (module cache); Rollup.sol's commit path, _commitBatch and _computeBlobVersionedHash; the queue's getFirstUnfinalizedMessageEnqueueTime; I18's derivation document (ParseBatch: paths null, reason loop; its sites); the adopted Rollup document's commitBatch record (calls, parameter, the committedBatches write term); I17's header document; I20's harness (header rule, genesis, actors); I80's deployment record. Run: go build ./derivation/ in a scratch copy of the workspace with the proxy off (66 s, success: the plan's dependency risk does not hold locally); the instrument's corpus and genesis check; an RLP self-check of the generated transactions with a session-only decoder; git show of batch_info.go; the generator closures with holon's functions. Never run on the target: ssadump, the frontend, the interpreter, the Go replay, the oracle, the compressor, or holon.extracted_eval on commitBatch."
       }
+    },
+    "I34": {
+      "title": "Rule SYM on M3, the typed extracted Rollup: families admitted by sorts (τ over the Time words, π over the set roles; ι and μ vacuous for want of an Idx or Amt sort), per-action equivariance laws, ω reorder pairs with disabling races classified apart, the Rollup's Time sentinel, splits promoted only by route (i) or (ii); O21 and the messenger's sentinels move to I34b",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I34)",
+      "prompt": "prompts/I34_sym.md",
+      "tests": [
+        "tests_m3/test_sym.py"
+      ],
+      "predictions": [
+        {
+          "id": "I34-P1",
+          "claim": "O20: L_sym_pi_Rollup_commitBatchWithProof_submitter is REFUTED (the proof-backed commit writes address(0), an implicit member of the submitter role, where commitBatch and commitState write the caller), Bend-checked and replayed in two worlds on the real Rollup; commitBatch's and commitState's submitter laws are PROVED; results/M3/sym/pi.json reports the submitter split with break exactly [commitBatchWithProof].",
+          "check": "tests_m3/test_sym.py::TestPredictions::test_p1_o20_the_pi_split_over_the_submitter_role"
+        },
+        {
+          "id": "I34-P2",
+          "claim": "The O19 analogue: L_sym_omega_Rollup_challengeState_commitBatchWithProof is REFUTED, both orders executed from a reachable prefix and replayed on the real Rollup.",
+          "check": "tests_m3/test_sym.py::TestPredictions::test_p2_o19_analogue_reorder_refuted"
+        },
+        {
+          "id": "I34-P3",
+          "claim": "D6, the Rollup's Time sentinel: each of the four sentinel laws (originTimestamp's write sites in commitBatch, commitState, commitBatchWithProof and importGenesisBatch, premised on block.timestamp >= 1) is PROVED in both kernels with a checked inhabitant.",
+          "check": "tests_m3/test_sym.py::TestPredictions::test_p3_d6_rollup_sentinels_proved"
+        },
+        {
+          "id": "I34-P4",
+          "claim": "No split is promoted without route (i) or (ii): every REFUTED tau or pi record carries filter_bin split_pending (or a contract's mark), and every split with a REFUTED member has its adjudication request with both hypotheses.",
+          "check": "tests_m3/test_sym.py::TestPredictions::test_p4_no_split_is_promoted_without_a_route"
+        },
+        {
+          "id": "I34-P5",
+          "claim": "Every REFUTED tau law names, in its record's sym block, the Time-against-constant site its witness crosses, one of the instrument's (on the Rollup: batchExist's originTimestamp > 0 and its inlined uses in challengeState and finalizeBatch).",
+          "check": "tests_m3/test_sym.py::TestPredictions::test_p5_tau_splits_localize_sentinels"
+        },
+        {
+          "id": "I34-P6",
+          "claim": "Recorded, not counted (which pairs race is not known at the prereg): results/M3/sym/races.json lists each race_disabling pair with its witness, and no race is an ω law's counterexample.",
+          "check": "tests_m3/test_sym.py::TestPredictions::test_p6_races_are_classified_apart"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I34-R1",
+          "claim": "The lowest catalog holding SYM keeps every rule and producer of the version below it as the same objects and adds SYM's four producers; M2 keeps holon-rules/1.0.",
+          "check": "tests_m3/test_sym.py::TestRegressions::test_r1_catalog_keeps_every_producer"
+        },
+        {
+          "id": "I34-R2",
+          "claim": "No sym module of holon/ names an I34 law id or a target action or register it states SYM over.",
+          "check": "tests_m3/test_sym.py::TestRegressions::test_r2_holon_names_no_target_id"
+        }
+      ],
+      "outcome_paths": [
+        "laws/M3/L_sym_",
+        "results/M3/L_sym_",
+        "results/M3/sym/",
+        "gen/M3/sym/",
+        "gen/M3/laws/L_sym_",
+        "gen/M3/proofs/L_sym_",
+        "audit/sym_adjudications/",
+        "docs/iterations/I34.md"
+      ],
+      "thresholds": {
+        "base": "ebcc2d52fbd766f638cc8751807f13b511c9399e (the lead after I82 and I69). I68 (the structural store) and I33 (Word lemmas, typed terms) are not yet on the lead: I34's build merges them; the Time words, sentinel sites and law ids below were computed by the instrument on I68's model (d827d77d91d8dbad1acfe27f251fb0f1337cf733, branch i68b).",
+        "instrument": "tests_m3/_i34.py",
+        "instrument_sha256": "4743ecf316ce3f54f0a7f6033c1f9fb264bbbe535940438965bec30a8b11d78f",
+        "contract_docstring_sha256": "843defd256fd917baace9d50d5ddc864b7d1d1a098b47ee6c9573387936fd346",
+        "roles": [
+          [
+            "challenger",
+            "set"
+          ],
+          [
+            "owner",
+            "singleton"
+          ],
+          [
+            "submitter",
+            "set"
+          ]
+        ],
+        "omega_pairs": [
+          [
+            "addChallenger",
+            "challengeState"
+          ],
+          [
+            "challengeState",
+            "commitBatch"
+          ],
+          [
+            "challengeState",
+            "commitBatchWithProof"
+          ],
+          [
+            "challengeState",
+            "commitState"
+          ],
+          [
+            "challengeState",
+            "finalizeBatch"
+          ],
+          [
+            "challengeState",
+            "importGenesisBatch"
+          ],
+          [
+            "challengeState",
+            "proveState"
+          ],
+          [
+            "challengeState",
+            "removeChallenger"
+          ],
+          [
+            "challengeState",
+            "revertBatch"
+          ],
+          [
+            "challengeState",
+            "setPause"
+          ],
+          [
+            "challengeState",
+            "updateProofWindow"
+          ],
+          [
+            "claimProveRemaining",
+            "proveState"
+          ],
+          [
+            "claimReward",
+            "proveState"
+          ],
+          [
+            "claimReward",
+            "revertBatch"
+          ],
+          [
+            "claimReward",
+            "setPause"
+          ],
+          [
+            "commitBatch",
+            "commitBatchWithProof"
+          ],
+          [
+            "commitBatch",
+            "finalizeBatch"
+          ],
+          [
+            "commitBatch",
+            "importGenesisBatch"
+          ],
+          [
+            "commitBatch",
+            "revertBatch"
+          ],
+          [
+            "commitBatch",
+            "setPause"
+          ],
+          [
+            "commitBatch",
+            "updateFinalizePeriodSeconds"
+          ],
+          [
+            "commitBatch",
+            "updateProofWindow"
+          ],
+          [
+            "commitBatch",
+            "updateRollupDelayPeriod"
+          ],
+          [
+            "commitBatchWithProof",
+            "commitState"
+          ],
+          [
+            "commitBatchWithProof",
+            "importGenesisBatch"
+          ],
+          [
+            "commitBatchWithProof",
+            "proveState"
+          ],
+          [
+            "commitBatchWithProof",
+            "revertBatch"
+          ],
+          [
+            "commitBatchWithProof",
+            "setPause"
+          ],
+          [
+            "commitBatchWithProof",
+            "updateFinalizePeriodSeconds"
+          ],
+          [
+            "commitBatchWithProof",
+            "updateProofWindow"
+          ],
+          [
+            "commitBatchWithProof",
+            "updateRollupDelayPeriod"
+          ],
+          [
+            "commitBatchWithProof",
+            "updateVerifier"
+          ],
+          [
+            "commitState",
+            "finalizeBatch"
+          ],
+          [
+            "commitState",
+            "importGenesisBatch"
+          ],
+          [
+            "commitState",
+            "revertBatch"
+          ],
+          [
+            "commitState",
+            "setPause"
+          ],
+          [
+            "commitState",
+            "updateFinalizePeriodSeconds"
+          ],
+          [
+            "commitState",
+            "updateProofWindow"
+          ],
+          [
+            "commitState",
+            "updateRollupDelayPeriod"
+          ],
+          [
+            "finalizeBatch",
+            "importGenesisBatch"
+          ],
+          [
+            "finalizeBatch",
+            "proveState"
+          ],
+          [
+            "finalizeBatch",
+            "revertBatch"
+          ],
+          [
+            "finalizeBatch",
+            "setPause"
+          ],
+          [
+            "importGenesisBatch",
+            "proveState"
+          ],
+          [
+            "proveState",
+            "revertBatch"
+          ],
+          [
+            "proveState",
+            "setPause"
+          ],
+          [
+            "proveState",
+            "updateProofWindow"
+          ],
+          [
+            "proveState",
+            "updateRewardPercentage"
+          ],
+          [
+            "proveState",
+            "updateVerifier"
+          ]
+        ],
+        "time_words": [
+          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+          "env:block.timestamp",
+          "storage:batchDataStore.finalizeTimestamp",
+          "storage:batchDataStore.originTimestamp",
+          "storage:challenges.startTime"
+        ],
+        "sentinel_sites": [
+          [
+            "batchDataStore.originTimestamp",
+            "commitBatch",
+            "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+          ],
+          [
+            "batchDataStore.originTimestamp",
+            "commitBatchWithProof",
+            "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+          ],
+          [
+            "batchDataStore.originTimestamp",
+            "commitState",
+            "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+          ],
+          [
+            "batchDataStore.originTimestamp",
+            "importGenesisBatch",
+            "contracts/contracts/l1/rollup/Rollup.sol:242"
+          ]
+        ],
+        "law_ids": [
+          "L_sym_omega_Rollup_addChallenger_challengeState",
+          "L_sym_omega_Rollup_challengeState_commitBatch",
+          "L_sym_omega_Rollup_challengeState_commitBatchWithProof",
+          "L_sym_omega_Rollup_challengeState_commitState",
+          "L_sym_omega_Rollup_challengeState_finalizeBatch",
+          "L_sym_omega_Rollup_challengeState_importGenesisBatch",
+          "L_sym_omega_Rollup_challengeState_proveState",
+          "L_sym_omega_Rollup_challengeState_removeChallenger",
+          "L_sym_omega_Rollup_challengeState_revertBatch",
+          "L_sym_omega_Rollup_challengeState_setPause",
+          "L_sym_omega_Rollup_challengeState_updateProofWindow",
+          "L_sym_omega_Rollup_claimProveRemaining_proveState",
+          "L_sym_omega_Rollup_claimReward_proveState",
+          "L_sym_omega_Rollup_claimReward_revertBatch",
+          "L_sym_omega_Rollup_claimReward_setPause",
+          "L_sym_omega_Rollup_commitBatchWithProof_commitState",
+          "L_sym_omega_Rollup_commitBatchWithProof_importGenesisBatch",
+          "L_sym_omega_Rollup_commitBatchWithProof_proveState",
+          "L_sym_omega_Rollup_commitBatchWithProof_revertBatch",
+          "L_sym_omega_Rollup_commitBatchWithProof_setPause",
+          "L_sym_omega_Rollup_commitBatchWithProof_updateFinalizePeriodSeconds",
+          "L_sym_omega_Rollup_commitBatchWithProof_updateProofWindow",
+          "L_sym_omega_Rollup_commitBatchWithProof_updateRollupDelayPeriod",
+          "L_sym_omega_Rollup_commitBatchWithProof_updateVerifier",
+          "L_sym_omega_Rollup_commitBatch_commitBatchWithProof",
+          "L_sym_omega_Rollup_commitBatch_finalizeBatch",
+          "L_sym_omega_Rollup_commitBatch_importGenesisBatch",
+          "L_sym_omega_Rollup_commitBatch_revertBatch",
+          "L_sym_omega_Rollup_commitBatch_setPause",
+          "L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds",
+          "L_sym_omega_Rollup_commitBatch_updateProofWindow",
+          "L_sym_omega_Rollup_commitBatch_updateRollupDelayPeriod",
+          "L_sym_omega_Rollup_commitState_finalizeBatch",
+          "L_sym_omega_Rollup_commitState_importGenesisBatch",
+          "L_sym_omega_Rollup_commitState_revertBatch",
+          "L_sym_omega_Rollup_commitState_setPause",
+          "L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds",
+          "L_sym_omega_Rollup_commitState_updateProofWindow",
+          "L_sym_omega_Rollup_commitState_updateRollupDelayPeriod",
+          "L_sym_omega_Rollup_finalizeBatch_importGenesisBatch",
+          "L_sym_omega_Rollup_finalizeBatch_proveState",
+          "L_sym_omega_Rollup_finalizeBatch_revertBatch",
+          "L_sym_omega_Rollup_finalizeBatch_setPause",
+          "L_sym_omega_Rollup_importGenesisBatch_proveState",
+          "L_sym_omega_Rollup_proveState_revertBatch",
+          "L_sym_omega_Rollup_proveState_setPause",
+          "L_sym_omega_Rollup_proveState_updateProofWindow",
+          "L_sym_omega_Rollup_proveState_updateRewardPercentage",
+          "L_sym_omega_Rollup_proveState_updateVerifier",
+          "L_sym_pi_Rollup_batchInChallenge_challenger",
+          "L_sym_pi_Rollup_challengeState_challenger",
+          "L_sym_pi_Rollup_commitBatchWithProof_submitter",
+          "L_sym_pi_Rollup_commitBatch_submitter",
+          "L_sym_pi_Rollup_commitState_submitter",
+          "L_sym_pi_Rollup_finalizeBatch_challenger",
+          "L_sym_pi_Rollup_importGenesisBatch_submitter",
+          "L_sym_pi_Rollup_proveState_challenger",
+          "L_sym_pi_Rollup_proveState_submitter",
+          "L_sym_pi_Rollup_revertBatch_challenger",
+          "L_sym_pi_Rollup_setPause_challenger",
+          "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatchWithProof_366",
+          "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366",
+          "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitState_366",
+          "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_importGenesisBatch_242",
+          "L_sym_tau_Rollup_batchChallengedSuccess",
+          "L_sym_tau_Rollup_batchExist",
+          "L_sym_tau_Rollup_batchInChallenge",
+          "L_sym_tau_Rollup_batchInsideChallengeWindow",
+          "L_sym_tau_Rollup_challengeState",
+          "L_sym_tau_Rollup_commitBatch",
+          "L_sym_tau_Rollup_commitBatchWithProof",
+          "L_sym_tau_Rollup_commitState",
+          "L_sym_tau_Rollup_finalizeBatch",
+          "L_sym_tau_Rollup_importGenesisBatch",
+          "L_sym_tau_Rollup_proveState",
+          "L_sym_tau_Rollup_revertBatch",
+          "L_sym_tau_Rollup_setPause"
+        ],
+        "law_counts": {
+          "tau": 13,
+          "pi": 11,
+          "omega": 49,
+          "sentinel": 4
+        },
+        "questions": [
+          "Q-S1: O21 and the messenger's sentinels move to I34b (the queue model's enqueue debt, a migrated legacy-queue state and bundle sorts are prerequisites). Is that the right home?",
+          "Q-S2: the sentinel laws' premise block.timestamp >= 1: a law premise (I34's choice) or a ledger hypothesis?",
+          "Q-S3: the v2 filter value split_pending for an unpromoted split's REFUTED laws.",
+          "Q-S4: no M3 model has an Idx or Amt sort, so ι, μ and index sentinels (D6's revertReqIndex = 0) are not admitted. Should a later key add Idx and Amt seeds to the sort pass?",
+          "Q-S5: π over singleton roles (owner) is not stated (unsatisfiable premises). Should ownership transfer be studied as a role change instead?"
+        ],
+        "disclosure": "Before this prereg the lead read the facts and I68's structural model to fix the instrument's rules (roles, pairs, sentinels, Time words); no SYM law, record or proof existed, and no equivariance law was evaluated."
+      }
     }
   }
 }
