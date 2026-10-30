@@ -14,14 +14,21 @@ module names none. It is imported by no generator closure.
 
 The verdict interface (D1-D3), for the key that builds the consumer's Bend model:
 
-  verdict(law, evidence, model=None) -> {"status", "attempt"}
+  verdict_of(law_id, model=None, root=ROOT) -> {"status", "attempt", ...}
+      one law of the set by its id: its committed law file and its committed evidence (the outputs of
+      `holon derivation decide`), handed to verdict;
+  verdict(law, evidence, model=None) -> {"status", "attempt", ...}
+      what `holon derivation decide` calls for every law, with evidence(...) built from its own run.
 
   Without a model the status is UNKNOWN: AGENTS rules 5 and 6 leave a law undecided until Bend accepts its proof or a
   counter-law, and the consumer has no Bend model. A model is any object with
       decide(law: dict, evidence: dict) -> {"status": "PROVED" | "REFUTED" | "UNKNOWN", "attempt": dict, ...}
-  where evidence is the evaluator's entry for the law (holon.derivation.decide: its witness candidate, the observation
-  and the replay); the model returns the status the checker gave its LAWS.bend / PROOF.bend pair, and its attempt
-  replaces the Bend attempt of the record (the evaluator's attempt stays).
+  where evidence is evidence(...)'s dict: the law's id, its witness candidate (the search space's entry, or None),
+  the observation {lhs, rhs}, the replay report's entry, the number of candidates whose premises hold and the number
+  of candidates. The model returns the status the checker gave its LAWS.bend / PROOF.bend pair; its attempt replaces
+  the Bend attempt of the record (the evaluator's attempt stays), and for a PROVED or REFUTED status any other key it
+  returns replaces that field of the record (`holon derivation decide --model MODULE` imports
+  MODULE.consumer_model(root) and re-makes the records).
 """
 from __future__ import annotations
 
@@ -31,7 +38,7 @@ import json
 import re
 from pathlib import Path
 
-from . import DerivationError, Refused, load, sha256_file
+from . import ROOT, DerivationError, Refused, load, sha256_file
 
 LAWS_SIDECAR = "spec/M3/lib/derivation_laws.json"
 LAWS_VERSION = "holon-derivation-laws/0.1"
@@ -185,6 +192,37 @@ def committed_laws(root: Path, side: dict) -> list:
 
 
 # ---------------------------------------------------------------------------------------------------- verdicts (D1-D3)
+def evidence(law_id: str, entry: dict, candidates: list, replay: dict) -> dict:
+    """A law's evaluator evidence, as verdict receives it: entry is the law's entry of the evaluations' "laws"
+    ({"witness", "held", "lhs", "rhs"}), candidates the search space (the candidates file's list) and replay the replay
+    report."""
+    w = entry["witness"]
+    wit = None
+    if w is not None:
+        wit = next((c for c in candidates if c["id"] == w), None)
+        if wit is None:
+            raise DerivationError(f"{law_id}: witness candidate {w} is not in the search space")
+    return {"law": law_id, "witness": wit,
+            "observation": None if w is None else {"lhs": entry["lhs"], "rhs": entry["rhs"]},
+            "replay": replay.get("witnesses", {}).get(law_id), "held": entry["held"], "candidates": len(candidates)}
+
+
+def verdict_of(law_id: str, model=None, root: Path = ROOT, rel: str = LAWS_SIDECAR) -> dict:
+    """The decider's interface by law id: the verdict for one law of the set, from its committed law file and the
+    committed outputs of `holon derivation decide` (the sidecar's outputs: candidates, evaluations, replay)."""
+    root = Path(root)
+    side = side_of(root, rel)
+    law = next((x for x in committed_laws(root, side) if x["law_id"] == law_id), None)
+    if law is None:
+        raise Refused(f"{law_id} is not a law of the set {side['law_set']['laws']}")
+    out = side["outputs"]
+    entry = load(root / out["evaluations"]).get("laws", {}).get(law_id)
+    if entry is None:
+        raise Refused(f"{out['evaluations']} has no entry for {law_id} (run holon derivation decide first)")
+    ev = evidence(law_id, entry, load(root / out["candidates"])["candidates"], load(root / out["replay"]))
+    return verdict(law, ev, model)
+
+
 def verdict(law: dict, evidence: dict, model=None) -> dict:
     """The status and the checker's attempt for one law (see the module's docstring)."""
     if model is None:

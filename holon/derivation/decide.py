@@ -11,9 +11,9 @@ the committed getters on the linked header component's compiled Bend model (holo
 real library through the generated Go test (holon.derivation.goside); every answer is recorded, so --check re-runs the
 model with no Go. A law's statement is evaluated term by term (the product terms of the sidecar's vocabulary, its
 premises in order); its witness is the first candidate whose premises all hold and whose claim's sides differ (W3).
-Each witness's batches run on the real consumer (RP1-RP2). The records' verdicts come from holon.derivation.laws.verdict:
-UNKNOWN without a Bend model of the consumer (D1-D3). Nothing here names a target: every function, field, member and
-getter comes from the sidecars and the documents.
+Each witness's batches run on the real consumer (RP1-RP2). The records' verdicts come from
+holon.derivation.laws.verdict: UNKNOWN without a Bend model of the consumer (D1-D3). Nothing here names a target: every
+function, field, member and getter comes from the sidecars and the documents.
 """
 from __future__ import annotations
 
@@ -466,9 +466,7 @@ class Run:
             lid = law["law_id"]
             r = res[lid]
             w = r["witness"]
-            evidence = {"law": lid, "witness": None if w is None else next(c for c in cands if c["id"] == w),
-                        "observation": None if w is None else {"lhs": r["lhs"], "rhs": r["rhs"]},
-                        "replay": replay["witnesses"].get(lid), "held": r["held"], "candidates": n}
+            evidence = LW.evidence(lid, r, cands, replay)
             v = LW.verdict(law, evidence, self.model)
             statuses[lid] = v["status"]
             rw = replay["witnesses"].get(lid)
