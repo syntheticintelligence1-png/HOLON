@@ -1,0 +1,27 @@
+{
+  "go_version": "go1.24.7",
+  "laws": {
+    "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum": {
+      "go": {
+        "command": "(cd common && go test ./batch -run ^TestHolonGoCounts$ -count=1 -v)",
+        "expected": {
+          "batch_BatchData_Append_l1TxHashes": 65536,
+          "batch_BatchData_Append_l1TxNum": 0
+        },
+        "observed": {
+          "batch_BatchData_Append_l1TxHashes": 65536,
+          "batch_BatchData_Append_l1TxNum": 0
+        },
+        "obstruction_observed": true,
+        "panic": null,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    }
+  },
+  "milestone": "M3",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "witness_sha256": {
+    "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum": "471d2d63559e001ed3e145428d831ca5bd3f2427c9b59ef6982f310edf73c280"
+  }
+}
