@@ -5656,6 +5656,601 @@
         ],
         "disclosure": "P2, P3 and P4 count toward prediction accuracy: nobody computed their outcomes before this commit. P1 is recorded, not counted: the author read most of what decides it (observed_before_prereg). I87 builds machinery, so most of its claims are construction checks (R1-R13). A miss in any prediction is reported as a miss, never fixed by changing the policy or the instrument after the outcome."
       }
+    },
+    "I89": {
+      "title": "= I39c: the Go consumer compiled to Bend from I85's extracted SSA by a generator (holon/derivation/bendgen.py: Go's integer, slice, struct, pointer and interface semantics, panics and errors as outcome constructors, loops as a fuelled trampoline), the blob layer cut at the region the SSA gives and entering as the stated hypothesis HypB's parameter, the decoder as HypT's; HypB's instance (the real blob layer on I85's 169 cases) checked against I85's recorded oracle answers and HypB itself; the compiled model refined against the real ParseBatch on the 169 cases; then, after I88 merges, I88's five frozen derivation laws decided on it by the checker through I88's decider with a Bend engine (O7, the F11 L1 count, O8 under HypC_ignores_trailing and O24 REFUTED by counter-laws Bend and BendTT accept; O8 under HypC_binds_trailing PROVED; the HypC split true)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I89)",
+      "prompt": "prompts/I89_derivation_bend.md",
+      "predictions": [
+        {
+          "id": "I89-P1",
+          "claim": "The cut (B1, B6): the generator's record gen/M3/derivation/bend/model.json holds exactly tests_m3/_i89.py's cut of the consumer's entry (thresholds.cut: the partial block 6 from its instruction 19, the whole blocks 7, 8, 10 and 11, the decompress call t66 first in block 9, the one input t0 read as the blobs field, the exits PlRet at block 10's Return and D; 31 instructions), compiles exactly the 12 functions of thresholds.compiled_functions (the retrieve and decompress functions are reached only through the region), and records each law's cone: those functions and the union of its terms' sidecar observables. Derivation: the rule written twice; the region is the retrieval loop, its early return and the decompress call, as the SSA dump shows (blocks 6-11 of the entry).",
+          "check": "tests_m3/test_derivation_bend.py::TestModel::test_p1_the_cut_is_the_instruments"
+        },
+        {
+          "id": "I89-P2",
+          "claim": "The model is generated and checks (B2-B6): `holon derivation bend` writes gen/M3/derivation/bend/consumer.bend from the consumer section and the sidecar alone; `bend --check` reproduces it byte for byte; it states no law and holds no escape hatch; the local Bend checks it (exit 0, ALL PROOFS CHECK); model.json lists no unsupported construct. Derivation: the closure outside the region uses 18 op kinds, the builtins len and append, and 9 native callees plus the encoding and slice-length callees, each with a library def of its sidecar kind; the trampoline design (one recursive def per function over a fuelled transition, every branch on a computed value through a helper's parameter) passed a probe in both kernels with fuel 1000000 (bend 2.0.36). The least certain part: Bend's affinity and typing of the generated helpers at this size.",
+          "check": "tests_m3/test_derivation_bend.py::TestModel::test_p2_the_model_is_generated_and_checks"
+        },
+        {
+          "id": "I89-P3",
+          "claim": "HypB's instance on the 169 cases (H1-H2): the real blob layer, run by a generated Go test offline, answers all 169 cases; on every case whose decompressor ran, its argument is a key of I85's recorded decompressor answers and the recorded answer gives the same result (0 disagreements); and on all 132 canonical cases (tests_m3/_i89.py::canonical_cases) it answers PlOk with exactly the case's payload: HypB holds 132 times and fails 0 times (thresholds.predicted.hypb). Derivation: I85's interpreter called the same decompressor through the same retrieval code and recorded every answer; the canonical packing (C2) is what the retrieval inverts, and the compressor's frames decompress to their input.",
+          "check": "tests_m3/test_derivation_bend.py::TestHypB::test_p3_hypb_instance_on_the_169_cases"
+        },
+        {
+          "id": "I89-P4",
+          "claim": "The compiled Bend model refines the real ParseBatch (F1-F3): evaluated by node on the 169 cases with HypB's instance answers and I85's recorded decoder answers (HypT's instance), it agrees with replay/M3/derivation/report.json on every case: status, error text, panic text and the cone view (lastBlockNumber; the blocks' Number, txsNum, l1MsgNum): 169 agree, 0 disagree, 0 unsupported, 0 out of fuel, 0 unanswered (thresholds.predicted.refinement); `bend-refine --check` reproduces. Derivation: the model follows interp.py's semantics, which agreed on all 169 cases (I85-P5), and the region's outcomes reach the model as HypB's answers. A disagreement is a generator bug, fixed in the generator, never in a case; the prediction counts the first full run.",
+          "check": "tests_m3/test_derivation_bend.py::TestRefinement::test_p4_the_model_refines_the_real_consumer"
+        },
+        {
+          "id": "I89-P5",
+          "claim": "O7 REFUTED (S1, S2): L_prod_cycle_lastBlockNumber's counter-law, over the consumer model, the Rollup's typed model and I24's header component, is accepted by Bend and by BendTT (--verdict) at a witness found on the compiled models from I88's evaluator candidate: a version 1 commit on a version 0 parent with two contexts, the last numbered one past the commit's lastBlockNumber, the derived lastBlockNumber 3 against the committed 2; its consumer side replays on the real ParseBatch. Derivation: ParseBatch's v0-parent path checks only lastBlockNumber >= the first context's number and never compares the last context's number with it; the commit stores lastBlockNumber unchecked.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p5_o7_is_refuted"
+        },
+        {
+          "id": "I89-P6",
+          "claim": "F11's L1 count REFUTED (S1, S2): L_prod_count_l1MsgNum's counter-law is accepted by both kernels at a witness found on the compiled models (one context whose pair is (1, 1), derived sum 1 against the committed L1MessagePopped 0); it replays. Derivation: ParseBatch never reads NumL1Messages and checks only txsNum >= l1MsgNum per block.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p6_the_l1_count_is_refuted"
+        },
+        {
+          "id": "I89-P7",
+          "claim": "O8 under HypC_binds_trailing PROVED (S1, S3): a generated proof of L_prod_trailing_HypC_binds_trailing, of the obligation class 'the claim is the conclusion of a hypothesis premise whose own premises are among the law's', is accepted by Bend and BendTT. Derivation: the law's last premise is HypC_binds_trailing, whose statement concludes trailing == 0 from premises the law states; applying it is the proof, independent of the consumer's code.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p7_o8_under_binds_is_proved"
+        },
+        {
+          "id": "I89-P8",
+          "claim": "O8 under HypC_ignores_trailing REFUTED (S1, S2): the counter-law is accepted by both kernels at a witness found on the compiled models (one context dequeuing nothing, one transaction in the stream: trailing 1 against 0), its circuit instance accepting every step (HypC_ignores_trailing proven for it by computation); it replays. Derivation: ParseBatch never checks that the queue is empty when the blocks are done.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p8_o8_under_ignores_is_refuted"
+        },
+        {
+          "id": "I89-P9",
+          "claim": "O24 REFUTED (S1, S2): L_prod_calldata_BlockContexts's counter-law is accepted by both kernels at a witness found on the compiled models (a version 0 commit, two calldata context arguments differing in the last block's number: derived blocks [1] against [2]); it replays. Derivation: a version 0 batch with calldata contexts takes its block count and contexts from them, and neither the commit's input nor its header binds them.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p9_o24_is_refuted"
+        },
+        {
+          "id": "I89-P10",
+          "claim": "The HypC split (S5): results/M3/derivation/splits.json, re-made by I88's rule SP1, holds the one HypC pair with binds PROVED and ignores REFUTED, split true (thresholds.predicted.splits). Derivation: P7 and P8.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p10_the_hypc_split"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I89-R1",
+          "claim": "Nothing rule-derived moves: I85's `holon derivation product --check` and `refine --check` reproduce with I89's code present, and laws/M3's top level holds exactly the laws DERIVATION.json lists.",
+          "check": "tests_m3/test_derivation_bend.py::TestRegressions::test_r1_nothing_rule_derived_moves"
+        },
+        {
+          "id": "I89-R2",
+          "claim": "I89's own commits change only what the contract allows (its commit rules): no frozen root, laws/, spec/, holon/rules/, holon/frontends/, closure file, and only I89's and (in stage 2) I88's derivation outputs under gen/, results/ and replay/.",
+          "check": "tests_m3/test_derivation_bend.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I89-R3",
+          "claim": "holon audit prereg passes for M2 and M3 (tested). On CI, on the build head: gate-M0, gate-M1 and gate-M2 pass; gate-M3-partial and gate-M3-G2 fail only on the base's items; tests-m3-catalog, the frozen suite, freeze-check and both audits pass.",
+          "check": "tests_m3/test_derivation_bend.py::TestRegressions::test_r3_the_prereg_audits_pass"
+        },
+        {
+          "id": "I89-R4",
+          "claim": "The modules I89 adds under holon/derivation/ and holon/js/derivation_bend.mjs are generic (no token of thresholds.forbidden, no target identifier of tests_m2/test_target_agnostic_exhaustive in code, no address, no test import) and outside every generator closure.",
+          "check": "tests_m3/test_derivation_bend.py::TestRegressions::test_r4_new_code_is_generic_and_outside_every_closure"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/derivation/bend/",
+        "results/M3/derivation/bend/",
+        "replay/M3/derivation/bend/",
+        "docs/iterations/I89.md"
+      ],
+      "tests": [
+        "tests_m3/test_derivation_bend.py"
+      ],
+      "thresholds": {
+        "base": "f02ae3c3 (the lead f30e0dd5 with BUILD_PLAN's row I89 committed on its own before this commit)",
+        "instrument": "tests_m3/_i89.py",
+        "instrument_sha256": "2d9d2fa34348d83d36ab106ec25c3433bb38ef6da463ddccfaa537d893297bb2",
+        "sidecar": "spec/M3/lib/derivation_bend.json",
+        "sidecar_sha256": "227bd14b058626ecacd74141d4cf427cefd4bb36ccf9a3006d489025485d9d38",
+        "contract_docstring_sha256": "9c21fe4e80c9a2ebc2ed7f73521f0a8053ce60afec25ef3b5217644311985bd5",
+        "inputs_sha256": {
+          "gen/M3/derivation/corpus.json": "7e70550f91563860901a7eefaee7daa44aa40863438e9666716ea2981b81c374",
+          "replay/M3/derivation/report.json": "a5a6906f35c77e664e82f42d0ae52781846e7a7cbf4a03a41114244877bd67d6",
+          "results/M3/derivation/environment.json": "55d3717885902395ae2edc7621813004fc0a989a3dde1557dfdf4a3983c9e1b1",
+          "spec/M3/facts/morph_derivation.extracted.json": "bf549dc64bb425ab0cd8f8bcb67ad0d8aae1aedcc027b5d5368d37b8035eb392",
+          "spec/M3/lib/derivation.json": "175d292ff4b0afbb46e483bad38ceba7c78770c8efa91028cd8fc4b000a1e9ec"
+        },
+        "cut": {
+          "entry_block": 6,
+          "first": 19,
+          "blocks": [
+            7,
+            8,
+            10,
+            11
+          ],
+          "boundary": "t66",
+          "boundary_block": 9,
+          "inputs": [
+            "t0"
+          ],
+          "exits": [
+            {
+              "block": 10,
+              "kind": "PlRet",
+              "pos": "node/derivation/batch_info.go:118:4"
+            },
+            {
+              "block": 9,
+              "kind": "D",
+              "pos": "node/derivation/batch_info.go:122:46"
+            }
+          ],
+          "instructions": 31
+        },
+        "compiled_functions": [
+          "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+          "(*morph-l2/node/derivation.BlockContext).Decode",
+          "(*morph-l2/node/derivation.txQueue).dequeue",
+          "(*morph-l2/node/derivation.txQueue).enqueue",
+          "(*morph-l2/node/types.WrappedBlock).DecodeBlockContext",
+          "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+          "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+          "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+          "(morph-l2/common/batch.BatchHeaderBytes).Version",
+          "(morph-l2/common/batch.BatchHeaderBytes).validate",
+          "morph-l2/node/derivation.encodeTransactions",
+          "morph-l2/node/derivation.newTxQueue"
+        ],
+        "cases": 169,
+        "canonical_cases": [
+          "planted/bad_tx_type",
+          "planted/blob_contexts_short",
+          "planted/calldata_prefix_short",
+          "planted/calldata_short",
+          "planted/dequeue_short",
+          "planted/lbn_below_parent",
+          "planted/ok_basefee_zero",
+          "planted/ok_calldata_v0",
+          "planted/ok_calldata_v1",
+          "planted/ok_empty_blocks",
+          "planted/ok_l1_messages",
+          "planted/ok_padded_second_blob",
+          "planted/ok_transition",
+          "planted/ok_v1",
+          "planted/ok_v2_two_blobs",
+          "planted/parent_bad_length",
+          "planted/parent_bad_version",
+          "planted/parent_empty",
+          "planted/transition_lbn_below",
+          "planted/transition_short",
+          "planted/tx_size_overflow",
+          "planted/txsnum_below_l1",
+          "planted/zero_block_count_equal",
+          "planted/zero_block_count_v0",
+          "product/01/1",
+          "product/01/2",
+          "product/01/3",
+          "product/02/1",
+          "product/02/2",
+          "product/02/3",
+          "product/03/1",
+          "product/03/2",
+          "product/03/3",
+          "product/04/1",
+          "product/04/2",
+          "product/05/1",
+          "product/05/2",
+          "product/05/3",
+          "product/05/4",
+          "product/06/1",
+          "product/06/2",
+          "product/06/3",
+          "product/07/1",
+          "product/08/1",
+          "random/000",
+          "random/001",
+          "random/004",
+          "random/008",
+          "random/009",
+          "random/011",
+          "random/012",
+          "random/015",
+          "random/016",
+          "random/017",
+          "random/018",
+          "random/019",
+          "random/020",
+          "random/021",
+          "random/022",
+          "random/023",
+          "random/024",
+          "random/025",
+          "random/026",
+          "random/027",
+          "random/028",
+          "random/031",
+          "random/032",
+          "random/033",
+          "random/034",
+          "random/035",
+          "random/037",
+          "random/038",
+          "random/039",
+          "random/040",
+          "random/041",
+          "random/042",
+          "random/043",
+          "random/045",
+          "random/047",
+          "random/049",
+          "random/050",
+          "random/051",
+          "random/053",
+          "random/054",
+          "random/055",
+          "random/056",
+          "random/057",
+          "random/058",
+          "random/059",
+          "random/060",
+          "random/063",
+          "random/067",
+          "random/068",
+          "random/070",
+          "random/071",
+          "random/075",
+          "random/076",
+          "random/077",
+          "random/078",
+          "random/079",
+          "random/080",
+          "random/081",
+          "random/082",
+          "random/083",
+          "random/084",
+          "random/085",
+          "random/086",
+          "random/087",
+          "random/089",
+          "random/090",
+          "random/091",
+          "random/093",
+          "random/094",
+          "random/095",
+          "random/096",
+          "random/097",
+          "random/098",
+          "random/099",
+          "random/100",
+          "random/103",
+          "random/104",
+          "random/105",
+          "random/106",
+          "random/107",
+          "random/112",
+          "random/113",
+          "random/114",
+          "random/115",
+          "random/116",
+          "random/117",
+          "random/118",
+          "random/119"
+        ],
+        "i88": {
+          "branch": "claude/brave-wright-2c5d0o-i88",
+          "pr": 63,
+          "prereg": "905711b0",
+          "build_seen": "2883c137 (holon/derivation/laws.py, decide.py; decide.run(..., model=) and laws.verdict call model.decide(law, evidence))",
+          "sidecar_sha256": "4130c37ee2ad4d32ca18ffd89c7ca3c104d527ef0ce26936517876c0b808397c",
+          "law_ids": [
+            "L_prod_cycle_lastBlockNumber",
+            "L_prod_count_l1MsgNum",
+            "L_prod_trailing_HypC_binds_trailing",
+            "L_prod_trailing_HypC_ignores_trailing",
+            "L_prod_calldata_BlockContexts"
+          ],
+          "statement_hashes": {
+            "L_prod_cycle_lastBlockNumber": "sha256:1e59b09b64ce4b673d91cb1437adf513dc56f6f21eaeaf7b32bbe30e7aed120a",
+            "L_prod_count_l1MsgNum": "sha256:98fa520d7ff094bffea9203d24d8d8d2a0bf39907bd977bda4694bde8891f34e",
+            "L_prod_trailing_HypC_binds_trailing": "sha256:5e8835b9ccd1ce19064e5f2e3992c74dbae3794180540528ec79cfef77754042",
+            "L_prod_trailing_HypC_ignores_trailing": "sha256:ad5b8f37869ff4d40e4012c44f2fc211bcb870d9013e327c60f34bce85b6ef72",
+            "L_prod_calldata_BlockContexts": "sha256:1d1c6ec050a673adc76df9fdd8404cba54a3220e3ded219cafe3bb409b5a47d2"
+          },
+          "hash_source": "tests_m3/_i88.py::expected_law and holon.gen.refs.law_hash(law, holon.facts.load(facts), root=ROOT), run at I88's prereg head 905711b0 in a scratch worktree"
+        },
+        "predicted": {
+          "hypb": {
+            "recorded_disagree": 0,
+            "canonical": 132,
+            "hypb_holds": 132,
+            "hypb_fails": 0
+          },
+          "refinement": {
+            "cases": 169,
+            "agree": 169,
+            "disagree": 0,
+            "unsupported": 0,
+            "fuel": 0,
+            "unanswered": 0
+          },
+          "laws": {
+            "L_prod_cycle_lastBlockNumber": {
+              "status": "REFUTED",
+              "observation": [
+                3,
+                2
+              ]
+            },
+            "L_prod_count_l1MsgNum": {
+              "status": "REFUTED",
+              "observation": [
+                1,
+                0
+              ]
+            },
+            "L_prod_trailing_HypC_binds_trailing": {
+              "status": "PROVED",
+              "observation": null
+            },
+            "L_prod_trailing_HypC_ignores_trailing": {
+              "status": "REFUTED",
+              "observation": [
+                1,
+                0
+              ]
+            },
+            "L_prod_calldata_BlockContexts": {
+              "status": "REFUTED",
+              "observation": [
+                [
+                  1
+                ],
+                [
+                  2
+                ]
+              ]
+            }
+          },
+          "splits": {
+            "splits_version": "holon-splits/0.1",
+            "milestone": "M3",
+            "pairs": [
+              {
+                "family": "HypC",
+                "laws": {
+                  "L_prod_trailing_HypC_binds_trailing": {
+                    "hypothesis": "HypC_binds_trailing",
+                    "status": "PROVED"
+                  },
+                  "L_prod_trailing_HypC_ignores_trailing": {
+                    "hypothesis": "HypC_ignores_trailing",
+                    "status": "REFUTED"
+                  }
+                },
+                "split": true
+              }
+            ]
+          },
+          "counted": [
+            "I89-P2",
+            "I89-P3",
+            "I89-P4",
+            "I89-P5 (the verdict)",
+            "I89-P6 (the verdict)",
+            "I89-P7",
+            "I89-P8 (the verdict)",
+            "I89-P9 (the verdict)",
+            "I89-P10"
+          ],
+          "not_counted": "I89-P1 is a construction check (the generator against the instrument's rule). The stage 2 observations (O7 [3, 2], F11 [1, 0], O8-ignores [1, 0], O24 [[1], [2]]) were relayed by the coordinator from I88's evaluator before this prereg, so only the verdicts are counted."
+        },
+        "closures": [
+          "holon/__init__.py",
+          "holon/analysis/__init__.py",
+          "holon/analysis/abstraction.py",
+          "holon/analysis/closure.py",
+          "holon/analysis/deadness.py",
+          "holon/bend.py",
+          "holon/bindings.py",
+          "holon/codecrun.py",
+          "holon/consumers.py",
+          "holon/corpus.py",
+          "holon/diagram/__init__.py",
+          "holon/diagram/access.py",
+          "holon/diagram/build.py",
+          "holon/diagram/evidence.py",
+          "holon/diagram/goops.py",
+          "holon/diagram/linked.py",
+          "holon/diagram/model.py",
+          "holon/diagram/principals.py",
+          "holon/diagram/transitions.py",
+          "holon/disch/__init__.py",
+          "holon/disch/lemmas.py",
+          "holon/disch/mirror.py",
+          "holon/disch/order.py",
+          "holon/disch/proofs.py",
+          "holon/disch/run.py",
+          "holon/disch/search.py",
+          "holon/disch/section.py",
+          "holon/evidence.py",
+          "holon/evm_abi.py",
+          "holon/extracted_eval.py",
+          "holon/fact/__init__.py",
+          "holon/fact/product.py",
+          "holon/fact/proofs.py",
+          "holon/fact/run.py",
+          "holon/fact/search.py",
+          "holon/fact/section.py",
+          "holon/facts.py",
+          "holon/filter.py",
+          "holon/fragments_corpus.py",
+          "holon/fragments_doc.py",
+          "holon/frontends/__init__.py",
+          "holon/frontends/go/document.py",
+          "holon/frontends/solidity/__init__.py",
+          "holon/frontends/solidity/ast.py",
+          "holon/frontends/solidity/compile.py",
+          "holon/frontends/solidity/layout_extract.py",
+          "holon/frontends/solidity/storage.py",
+          "holon/frontends/solidity/transitions.py",
+          "holon/gen/__init__.py",
+          "holon/gen/cdriver.py",
+          "holon/gen/codec01.py",
+          "holon/gen/coercion.py",
+          "holon/gen/core.py",
+          "holon/gen/eqlib.py",
+          "holon/gen/eqprove.py",
+          "holon/gen/eqsearch.py",
+          "holon/gen/eqterms.py",
+          "holon/gen/equivalence.py",
+          "holon/gen/goloop.py",
+          "holon/gen/implication.py",
+          "holon/gen/laws.py",
+          "holon/gen/lean_common.py",
+          "holon/gen/lean_laws.py",
+          "holon/gen/lean_linked.py",
+          "holon/gen/lean_machine.py",
+          "holon/gen/lean_mlaws.py",
+          "holon/gen/lean_model.py",
+          "holon/gen/lean_mproofs.py",
+          "holon/gen/lean_proofs.py",
+          "holon/gen/lean_sites.py",
+          "holon/gen/linked.py",
+          "holon/gen/machine.py",
+          "holon/gen/mlaws.py",
+          "holon/gen/model.py",
+          "holon/gen/mproofs.py",
+          "holon/gen/oracles.py",
+          "holon/gen/profile.py",
+          "holon/gen/proofs.py",
+          "holon/gen/refs.py",
+          "holon/gen/targetlib.py",
+          "holon/gen/trace_bound.py",
+          "holon/inhabit.py",
+          "holon/intake.py",
+          "holon/ir.py",
+          "holon/js/eval3.mjs",
+          "holon/js/profile.mjs",
+          "holon/keccak.py",
+          "holon/layout.py",
+          "holon/lean.py",
+          "holon/machine.py",
+          "holon/machine_bend.py",
+          "holon/measures_fact.py",
+          "holon/model_eval.py",
+          "holon/model_native.py",
+          "holon/mpipeline.py",
+          "holon/mreplay.py",
+          "holon/oracles/zero_blob.py",
+          "holon/pipeline.py",
+          "holon/profile.py",
+          "holon/records.py",
+          "holon/refinement.py",
+          "holon/refute.py",
+          "holon/replay.py",
+          "holon/replay_fragments.py",
+          "holon/rules/__init__.py",
+          "holon/rules/disch.py",
+          "holon/rules/disch_profile.py",
+          "holon/rules/fact.py",
+          "holon/rules/par.py",
+          "holon/rules/par_init.py",
+          "holon/rules/sort.py",
+          "holon/rules/undo.py",
+          "holon/schema.py",
+          "holon/sorts/__init__.py",
+          "holon/sorts/affine3.py",
+          "holon/sorts/assign.py",
+          "holon/sorts/check.py",
+          "holon/sorts/constraints.py",
+          "holon/sorts/core.py",
+          "holon/sorts/deploy3.py",
+          "holon/sorts/envcode3.py",
+          "holon/sorts/evaluate3.py",
+          "holon/sorts/extracted.py",
+          "holon/sorts/flow.py",
+          "holon/sorts/grammar.py",
+          "holon/sorts/model3.py",
+          "holon/sorts/prelude3.py",
+          "holon/sorts/prelude3_lemmas.py",
+          "holon/sorts/proofs3.py",
+          "holon/sorts/reextract.py",
+          "holon/sorts/run3.py",
+          "holon/sorts/search3.py",
+          "holon/sorts/sites.py",
+          "holon/sorts/solve.py",
+          "holon/sorts/termsize.py",
+          "holon/sorts/typed_sidecar.py",
+          "holon/sorts/unions.py",
+          "holon/sorts/width.py",
+          "holon/statement_diff.py",
+          "holon/undo/__init__.py",
+          "holon/undo/proofs.py",
+          "holon/undo/run.py",
+          "holon/undo/search.py",
+          "holon/undo/trace.py",
+          "holon/window.py",
+          "spec/M1/lib/morph_rollup.lib.json",
+          "spec/M1/lib/morph_rollup.pointwise.json",
+          "spec/M1/policy_hints.mjs",
+          "spec/M2/lib/oracles.json",
+          "spec/M2/lib/window_rollup.json",
+          "spec/lib/go_slices.lib.json"
+        ],
+        "derivation_files_at_base": [
+          "holon/derivation/__init__.py",
+          "holon/derivation/corpus.py",
+          "holon/derivation/extract.py",
+          "holon/derivation/goside.py",
+          "holon/derivation/interp.py",
+          "holon/derivation/natives.py",
+          "holon/derivation/product.py",
+          "holon/derivation/refine.py",
+          "holon/derivation/values.py"
+        ],
+        "forbidden": [
+          "morph",
+          "Morph",
+          "ParseBatch",
+          "BatchInfo",
+          "RPCRollupBatch",
+          "commitBatch",
+          "committedBatches",
+          "Rollup",
+          "zstd",
+          "go-ethereum",
+          "DecodeTxsFromBytes",
+          "RetrieveBlobBytes",
+          "BlockContext",
+          "batchDataInput",
+          "unpackModernRollupCall",
+          "MarshalBinary",
+          "Sidecar",
+          "blobHashes"
+        ],
+        "base_gate_M3": "gate-M3-partial at the base fails G11V's in-flight clause alone (I28's P5 miss: \"in-flight: 0 of 8 edges inhabited\"); gate-M3-G2 passes. I89's outputs live under gen/M3/derivation/bend/ (scanned by G3 for escape hatches only), results/M3/derivation/bend/ and replay/M3/derivation/bend/; it moves no closure file, so its build may change neither.",
+        "known_red_at_base": [
+          "tests_m3.test_undo: 11 (UNDO records trail)",
+          "tests_m3.test_disch_profile: 3 (I32's misses)",
+          "tests_m2 group 2: 2 (solidity history.py honesty)",
+          "tests_m2 group 3: 14 failures and 6 errors",
+          "I43-R1 (tests_m3/test_lean_promoted.py), re-baselined by the lead",
+          "since I28's build: test_fact TestGate.test_partial_gate_on_a_copy, test_sort_types TestRecordsAndGate.test_gate_m3_passes, test_disch TestGateAndRegressions.test_gate_m3_passes_and_rejects_the_disch_canaries",
+          "I80's tests_m3/test_bundle2_extraction.py: P2, P4, P6 and the zkevm subtest",
+          "I81's tests_m3.test_ranking: test_p4_reach_against_impact, test_p6_persistence_and_cost, test_p7_order",
+          "I82's tests_m3/test_blind.py P4; I69's tests_m3/test_bundle_extraction.py P1/P2, P5, the A7 anchor, three R4 subtests",
+          "locally: tests_m3.test_par_lossy.TestCore.test_inj_push_is_proved (the bun is not the pinned build)",
+          "I85's tests_m3/test_derivation_extraction.py R4 (the morph token against the morph_commit key)",
+          "tests_m2.test_target_agnostic_exhaustive: holon/mutate/{common,replay,run,stage}.py; tests_m2.test_target_agnostic's two byte-identity pins"
+        ],
+        "coordination": "Stage 1 (the generator, the model, HypB's instance, the refinement) is built on the lead now. Stage 2 (the laws) waits for I88's merge; then I89's branch merges the lead (the predictions file keeps the lead's keys, I88's included, and adds I89's) and runs I88's decider with I89's Bend engine. I89 bumps no catalog and moves no closure file, so it does not wait on the catalog chain.",
+        "deferred": [
+          "a catalog rule that discovers product obligations (I88's Q-I88-a)",
+          "real KZG versioned hashes and the legacy commit ABIs (I85's Q-I85-b, I88's Q-I88-d)",
+          "extracting the transaction decoder and the decompressor themselves (they stay HypT's and HypB's)",
+          "moving the law set to laws/M3's top level (I88's Q-I88-e)"
+        ],
+        "disclosed": "Read before this prereg: I85's report, key, prompt, contract docstring, sidecar, holon/derivation/*.py (interp, values, natives, product, corpus, goside, refine), the consumer section's SSA (ParseBatch's blocks 0-13, the closure's instruction and callee inventory), and I85's outputs' shapes: steps.json's first record, environment.json's oracle names, the replay report's statuses (50 ok, 118 error, 1 panic: planted/blob_high_byte_late), one ok case's dump, corpus.json's case layout; the target's ParseBatch and txQueue source at the pin. I88's prompt, key, contract docstring, sidecar (laws, hypotheses, vocabulary, search), instrument (expected_law, refs) and, after the coordinator's notice, its build's decide.run and laws.verdict interface (no I88 output: none was written). The coordinator relayed I88's evaluator results: O7 candidate 6 [3, 2], F11 candidate 3 [1, 0], O8-ignores candidate 4 [1, 0], O24 candidate 39 [[1], [2]], all replayed; O8-binds no witness; I88's records spell the HypC hypotheses with dashes. The Rollup's typed model's Reach, HAct and commitBatch step structure; holon.fact, holon.undo, holon.sorts APIs; holon/gen/goloop.py; holon/js/linked.mjs; holon/bend.py. Ran: tests_m3/_i88.py's expected_law with holon.gen.refs.law_hash at I88's prereg head (the five statement hashes); tests_m3/_i89.py (the cut, the compiled functions, 169 cases and 132 canonical, --write); the generator-closure computation; Bend probes in my scratchpad (Nat arithmetic past 2^32 does not finish in the checker, so integers are U32 limbs; a match on a computed value or a destructuring let is refused; the trampoline with fuel 1000000 checks in both kernels in about 1 s); bend guide. Not run: any I89 generator (none is written), the model, the Go blob layer, the refinement, any law."
+      }
     }
   }
 }
