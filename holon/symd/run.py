@@ -275,6 +275,15 @@ class Decider:
         step answers its calls as its real runs did (one answer per call in both orders, else it is no witness), and
         the model must still find the claim false at it."""
         sub = w["subform"]
+        if sub == "omega" and sc.hints.learned:
+            # a witness the model found before it learned some of the deployment's answers may carry the hints' answers
+            # for those calls: re-answered with what is learned, the model must still find the claim false at it, else
+            # it is no witness (and no refusal the streak counts: the search had not met the learned answers yet)
+            w2 = self.reanswered(sc, w)
+            if w2 is not w:
+                if self.model_value(sc, el, w2) is not False:
+                    return "stale: with the learned answers the model finds the claim true at it", None, None
+                w = w2
         pre = list(w.get("prefix") or [])
         m = sc.factory()
         g = m.s0()
@@ -333,6 +342,29 @@ class Decider:
             return self._learned("with the deployment's call answers the model finds the claim true", learned), rep, None
         rep["status"] = "passed"
         return None, rep, w
+
+    @staticmethod
+    def reanswered(sc: SymCtx, w: dict) -> dict:
+        """The omega witness with every step's call answered as the hints answer it now (learned answers first); w
+        itself when no answer changes."""
+        changed = False
+
+        def step(st):
+            nonlocal changed
+            ts = int(st.env.get("block.timestamp") or 0)
+            calls = []
+            for c in st.env.get("calls") or []:
+                a = sc.hints.answer(c.get("to"), c["data"], ts)
+                if a is not None and (a["ok"], a["ret"]) != (c.get("ok"), c.get("ret")):
+                    changed = True
+                    c = dict(c, ok=a["ok"], ret=a["ret"])
+                calls.append(c)
+            env = json.loads(json.dumps(st.env))
+            env.pop("_unanswered", None)
+            env["calls"] = calls
+            return S3.Step(st.action, json.loads(json.dumps(st.args)), env)
+        out = dict(w, prefix=[step(st) for st in w.get("prefix") or []], x=step(w["x"]), y=step(w["y"]))
+        return out if changed else w
 
     @staticmethod
     def _learned(why: str, learned: int) -> str:
