@@ -1,0 +1,1187 @@
+{
+ "actions": [
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:17-19",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:17-19",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_sender"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_sender",
+     "seq": 2,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:17",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "Whitelist",
+   "edges": [],
+   "effects": [],
+   "events": [],
+   "guards": [],
+   "loops": [],
+   "modifiers": [],
+   "mstores": [],
+   "mutability": "view",
+   "name": "isSenderAllowed",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_sender",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {},
+   "principal": null,
+   "returns": [
+    "!=",
+    [
+     "map",
+     [
+      "storage",
+      "isWhitelisted"
+     ],
+     [
+      "param",
+      "_sender"
+     ]
+    ],
+    0
+   ],
+   "selector": "0xefc78401",
+   "src": "contracts/contracts/libraries/common/Whitelist.sol:17-19",
+   "writes": []
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:41-43",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "OwnableBase",
+   "edges": [],
+   "effects": [
+    {
+     "family": "owner",
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:60"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "owner"
+      ],
+      0
+     ],
+     "cond": 1,
+     "event": "OwnableBase.OwnershipTransferred",
+     "indexed": [
+      true,
+      true
+     ],
+     "seq": 3,
+     "signature": "OwnershipTransferred(address,address)",
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:61",
+     "stack": [
+      "contracts/contracts/libraries/common/OwnableBase.sol:42"
+     ],
+     "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+     "topics": [
+      [
+       "storage",
+       "owner"
+      ],
+      0
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "63616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "63616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 1,
+       "stack": [
+        "contracts/contracts/libraries/common/OwnableBase.sol:41"
+       ]
+      }
+     ],
+     "reason": "caller is not the owner",
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:28"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "renounceOwnership",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/libraries/common/OwnableBase.sol:28",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [],
+   "payable": false,
+   "post": {
+    "owner": 0
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0x715018a6",
+   "src": "contracts/contracts/libraries/common/OwnableBase.sol:41-43",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "owner",
+     "path": [],
+     "seq": 2,
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:60",
+     "stack": [
+      "contracts/contracts/libraries/common/OwnableBase.sol:42"
+     ],
+     "value": 0
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:47-50",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      36
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:47-50",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_newOwner"
+      ],
+      1461501637330902918203684832716283019655932542976
+     ],
+     "kind": "abi",
+     "param": "_newOwner",
+     "seq": 2,
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:47",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "OwnableBase",
+   "edges": [],
+   "effects": [
+    {
+     "family": "owner",
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:60"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "storage",
+       "owner"
+      ],
+      [
+       "param",
+       "_newOwner"
+      ]
+     ],
+     "cond": 1,
+     "event": "OwnableBase.OwnershipTransferred",
+     "indexed": [
+      true,
+      true
+     ],
+     "seq": 6,
+     "signature": "OwnershipTransferred(address,address)",
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:61",
+     "stack": [
+      "contracts/contracts/libraries/common/OwnableBase.sol:49"
+     ],
+     "topic0": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+     "topics": [
+      [
+       "storage",
+       "owner"
+      ],
+      [
+       "param",
+       "_newOwner"
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "63616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "63616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "contracts/contracts/libraries/common/OwnableBase.sol:47"
+       ]
+      }
+     ],
+     "reason": "caller is not the owner",
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:28"
+    },
+    {
+     "args": [
+      [
+       "str",
+       "6e6577206f776e657220697320746865207a65726f2061646472657373"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "!=",
+      [
+       "param",
+       "_newOwner"
+      ],
+      0
+     ],
+     "kind": "require",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "6e6577206f776e657220697320746865207a65726f2061646472657373"
+        ]
+       ],
+       "expr": [
+        "!=",
+        [
+         "param",
+         "_newOwner"
+        ],
+        0
+       ],
+       "seq": 4,
+       "stack": []
+      }
+     ],
+     "reason": "new owner is the zero address",
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:48"
+    }
+   ],
+   "loops": [],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "transferOwnership",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "contracts/contracts/libraries/common/OwnableBase.sol:28",
+     0
+    ],
+    [
+     "guard",
+     "contracts/contracts/libraries/common/OwnableBase.sol:48",
+     0
+    ]
+   ],
+   "panics": [],
+   "params": [
+    {
+     "location": "default",
+     "name": "_newOwner",
+     "type": "address",
+     "width": 160
+    }
+   ],
+   "payable": false,
+   "post": {
+    "owner": [
+     "param",
+     "_newOwner"
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0xf2fde38b",
+   "src": "contracts/contracts/libraries/common/OwnableBase.sol:47-50",
+   "writes": [
+    {
+     "cond": 1,
+     "family": "owner",
+     "path": [],
+     "seq": 5,
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:60",
+     "stack": [
+      "contracts/contracts/libraries/common/OwnableBase.sol:49"
+     ],
+     "value": [
+      "param",
+      "_newOwner"
+     ]
+    }
+   ]
+  },
+  {
+   "calls": [],
+   "checks": [
+    {
+     "expr": [
+      "==",
+      [
+       "env",
+       "msg.value"
+      ],
+      0
+     ],
+     "kind": "callvalue",
+     "seq": 0,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:24-29",
+     "stack": []
+    },
+    {
+     "expr": [
+      ">=",
+      [
+       "env",
+       "msg.data.length"
+      ],
+      68
+     ],
+     "kind": "calldatasize",
+     "seq": 1,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:24-29",
+     "stack": []
+    },
+    {
+     "expr": [
+      "<",
+      [
+       "param",
+       "_status"
+      ],
+      2
+     ],
+     "kind": "abi",
+     "param": "_status",
+     "seq": 2,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:24",
+     "stack": []
+    }
+   ],
+   "cost": {
+    "terms": []
+   },
+   "declared_in": "Whitelist",
+   "edges": [],
+   "effects": [
+    {
+     "family": "isWhitelisted",
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:26"
+    }
+   ],
+   "events": [
+    {
+     "anonymous": false,
+     "args": [
+      [
+       "index",
+       [
+        "param",
+        "_accounts"
+       ],
+       [
+        "iter",
+        "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+       ]
+      ],
+      [
+       "param",
+       "_status"
+      ]
+     ],
+     "cond": [
+      "<",
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+      ],
+      [
+       "len",
+       [
+        "param",
+        "_accounts"
+       ]
+      ]
+     ],
+     "event": "IWhitelist.WhitelistStatusChanged",
+     "indexed": [
+      true,
+      false
+     ],
+     "loop": 4,
+     "seq": 8,
+     "signature": "WhitelistStatusChanged(address,bool)",
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:27",
+     "stack": [],
+     "topic0": "0x8daaf060c3306c38e068a75c054bf96ecd85a3db1252712c4d93632744c42e0d",
+     "topics": [
+      [
+       "index",
+       [
+        "param",
+        "_accounts"
+       ],
+       [
+        "iter",
+        "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+       ]
+      ]
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "args": [
+      [
+       "str",
+       "63616c6c6572206973206e6f7420746865206f776e6572"
+      ]
+     ],
+     "error": {
+      "name": "Error",
+      "selector": "0x08c379a0",
+      "signature": "Error(string)"
+     },
+     "expr": [
+      "==",
+      [
+       "storage",
+       "owner"
+      ],
+      [
+       "caller"
+      ]
+     ],
+     "kind": "modifier",
+     "reaches": [
+      {
+       "args": [
+        [
+         "str",
+         "63616c6c6572206973206e6f7420746865206f776e6572"
+        ]
+       ],
+       "expr": [
+        "==",
+        [
+         "storage",
+         "owner"
+        ],
+        [
+         "caller"
+        ]
+       ],
+       "seq": 3,
+       "stack": [
+        "contracts/contracts/libraries/common/Whitelist.sol:24"
+       ]
+      }
+     ],
+     "reason": "caller is not the owner",
+     "src": "contracts/contracts/libraries/common/OwnableBase.sol:28"
+    }
+   ],
+   "loops": [
+    {
+     "at_break": [],
+     "bound": [
+      "len",
+      [
+       "param",
+       "_accounts"
+      ]
+     ],
+     "break": 0,
+     "carried": [
+      {
+       "entry": 0,
+       "name": "i",
+       "value": [
+        "iter",
+        "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+       ]
+      },
+      {
+       "entry": [
+        "storage",
+        "isWhitelisted"
+       ],
+       "name": [
+        "storage",
+        "isWhitelisted"
+       ],
+       "value": [
+        "carried",
+        "contracts/contracts/libraries/common/Whitelist.sol:25-28",
+        [
+         "storage",
+         "isWhitelisted"
+        ]
+       ]
+      }
+     ],
+     "cond": 1,
+     "count": [
+      "len",
+      [
+       "param",
+       "_accounts"
+      ]
+     ],
+     "exit": [
+      {
+       "name": "i",
+       "value": [
+        "len",
+        [
+         "param",
+         "_accounts"
+        ]
+       ]
+      },
+      {
+       "name": [
+        "storage",
+        "isWhitelisted"
+       ],
+       "value": [
+        "exit",
+        "contracts/contracts/libraries/common/Whitelist.sol:25-28",
+        [
+         "storage",
+         "isWhitelisted"
+        ]
+       ]
+      }
+     ],
+     "head": [
+      "<",
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+      ],
+      [
+       "len",
+       [
+        "param",
+        "_accounts"
+       ]
+      ]
+     ],
+     "kind": "for",
+     "next": [
+      {
+       "name": "i",
+       "value": [
+        "+",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+        ],
+        1
+       ]
+      },
+      {
+       "name": [
+        "storage",
+        "isWhitelisted"
+       ],
+       "value": [
+        "store",
+        [
+         "carried",
+         "contracts/contracts/libraries/common/Whitelist.sol:25-28",
+         [
+          "storage",
+          "isWhitelisted"
+         ]
+        ],
+        [
+         [
+          "map",
+          [
+           "index",
+           [
+            "param",
+            "_accounts"
+           ],
+           [
+            "iter",
+            "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+           ]
+          ]
+         ]
+        ],
+        [
+         "param",
+         "_status"
+        ]
+       ]
+      }
+     ],
+     "regions": [],
+     "returns": [],
+     "seq": 4,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:25-28",
+     "stack": [],
+     "steps": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ]
+    }
+   ],
+   "modifiers": [
+    "onlyOwner"
+   ],
+   "mstores": [],
+   "mutability": "nonpayable",
+   "name": "updateWhitelistStatus",
+   "order": [
+    [
+     "check",
+     0
+    ],
+    [
+     "check",
+     1
+    ],
+    [
+     "check",
+     2
+    ],
+    [
+     "guard",
+     "contracts/contracts/libraries/common/OwnableBase.sol:28",
+     0
+    ],
+    [
+     "loop",
+     0
+    ],
+    [
+     "panic",
+     0
+    ],
+    [
+     "panic",
+     1
+    ],
+    [
+     "panic",
+     2
+    ]
+   ],
+   "panics": [
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+      ],
+      [
+       "len",
+       [
+        "param",
+        "_accounts"
+       ]
+      ]
+     ],
+     "code": 50,
+     "expr": 1,
+     "loop": 4,
+     "op": "index",
+     "seq": 5,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:26",
+     "stack": []
+    },
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+      ],
+      [
+       "len",
+       [
+        "param",
+        "_accounts"
+       ]
+      ]
+     ],
+     "code": 50,
+     "expr": 1,
+     "loop": 4,
+     "op": "index",
+     "seq": 7,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:27",
+     "stack": []
+    },
+    {
+     "args": [
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+      ],
+      1
+     ],
+     "code": 17,
+     "expr": [
+      "||",
+      [
+       "!",
+       [
+        "<",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+        ],
+        [
+         "len",
+         [
+          "param",
+          "_accounts"
+         ]
+        ]
+       ]
+      ],
+      [
+       "fits",
+       256,
+       [
+        "+",
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+        ],
+        1
+       ]
+      ]
+     ],
+     "loop": 4,
+     "op": "+",
+     "seq": 9,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:25",
+     "stack": []
+    }
+   ],
+   "params": [
+    {
+     "location": "memory",
+     "name": "_accounts",
+     "type": "address[]",
+     "width": null
+    },
+    {
+     "location": "default",
+     "name": "_status",
+     "type": "bool",
+     "width": 8
+    }
+   ],
+   "payable": false,
+   "post": {
+    "isWhitelisted": [
+     "exit",
+     "contracts/contracts/libraries/common/Whitelist.sol:25-28",
+     [
+      "storage",
+      "isWhitelisted"
+     ]
+    ]
+   },
+   "principal": {
+    "modifier": "onlyOwner",
+    "predicate": [
+     "==",
+     [
+      "storage",
+      "owner"
+     ],
+     [
+      "caller"
+     ]
+    ]
+   },
+   "returns": null,
+   "selector": "0x79586dd7",
+   "src": "contracts/contracts/libraries/common/Whitelist.sol:24-29",
+   "writes": [
+    {
+     "cond": [
+      "<",
+      [
+       "iter",
+       "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+      ],
+      [
+       "len",
+       [
+        "param",
+        "_accounts"
+       ]
+      ]
+     ],
+     "family": "isWhitelisted",
+     "loop": 4,
+     "path": [
+      [
+       "map",
+       [
+        "index",
+        [
+         "param",
+         "_accounts"
+        ],
+        [
+         "iter",
+         "contracts/contracts/libraries/common/Whitelist.sol:25-28"
+        ]
+       ]
+      ]
+     ],
+     "seq": 6,
+     "src": "contracts/contracts/libraries/common/Whitelist.sol:26",
+     "stack": [],
+     "value": [
+      "param",
+      "_status"
+     ]
+    }
+   ]
+  }
+ ],
+ "assumptions": [
+  {
+   "id": "A-env",
+   "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+  },
+  {
+   "id": "A-implicit",
+   "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+  },
+  {
+   "id": "A-loop",
+   "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+  },
+  {
+   "id": "A-reach",
+   "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+  },
+  {
+   "id": "A-reentrancy",
+   "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+  }
+ ],
+ "constants": {},
+ "contract": "Whitelist",
+ "extraction": {
+  "frontend": "solidity",
+  "frontend_version": "holon-frontend-solidity/0.3",
+  "inputs": [
+   {
+    "sha256": "40c8c1d152ea0d7eb955568d5c0924f46a9430c185d375665c7097fee112002f",
+    "unit": "contracts/contracts/libraries/common/IWhitelist.sol"
+   },
+   {
+    "sha256": "297a68bede2c9b74cb86702992b41832057ba4d01351009769a6cf9266e3ecba",
+    "unit": "contracts/contracts/libraries/common/OwnableBase.sol"
+   },
+   {
+    "sha256": "91ac39574df82221d32359a302491d42a04f77733ea76e36adcfed4ae8907e1a",
+    "unit": "contracts/contracts/libraries/common/Whitelist.sol"
+   }
+  ],
+  "kind": "transitions",
+  "method": "extracted",
+  "settings": {
+   "evmVersion": "cancun",
+   "optimizer": {
+    "enabled": false
+   },
+   "outputSelection": {
+    "*": {
+     "": [
+      "ast"
+     ],
+     "*": [
+      "storageLayout"
+     ]
+    }
+   }
+  },
+  "sidecar": {
+   "path": "gen/M3/bundle/sidecars/whitelist.json",
+   "sha256": "15695857f05cd2b81ccdc40d8b4a0b467b4240f7b8b98b14764411fc3644cbe9"
+  },
+  "toolchain": {
+   "solc": {
+    "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+    "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+   }
+  }
+ },
+ "facts_version": "holon-facts/0.3",
+ "inherited_storage": [
+  {
+   "declared_in": "OwnableBase",
+   "kind": "scalar",
+   "name": "owner",
+   "offset": 0,
+   "slot": 0,
+   "value": "address",
+   "width": 160
+  }
+ ],
+ "storage": [
+  {
+   "key": "address",
+   "kind": "mapping",
+   "name": "isWhitelisted",
+   "offset": 0,
+   "slot": 1,
+   "value": "bool",
+   "width": 8
+  }
+ ],
+ "target": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph",
+  "scope": "bundle member whitelist (Whitelist)"
+ }
+}
