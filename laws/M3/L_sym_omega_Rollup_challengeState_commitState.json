@@ -1,0 +1,55 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sym_omega_Rollup_challengeState_commitState",
+  "milestone": "M3",
+  "notes": "reordering: from a reachable s where both orders of an act x of challengeState and an act y of commitState execute, the two orders agree on every sink-reaching key; sym morph_rollup.extracted:omega:challengeState:commitState",
+  "rule": "SYM",
+  "rule_catalog_version": "holon-rules/1.7",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "y",
+        "q": "forall",
+        "type": "Act"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            },
+            {
+              "var": "y"
+            }
+          ],
+          "sym": "morph_rollup.extracted:omega:challengeState:commitState"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "omega"
+}

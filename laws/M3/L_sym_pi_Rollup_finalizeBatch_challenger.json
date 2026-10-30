@@ -1,0 +1,63 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sym_pi_Rollup_finalizeBatch_challenger",
+  "milestone": "M3",
+  "notes": "principal permutation within the role challenger: for two distinct members a, b of the role in a reachable s, an act x of finalizeBatch run on \u03c0 s and \u03c0 x gives \u03c0 of its run on s and x; sym morph_rollup.extracted:pi:finalizeBatch:challenger",
+  "rule": "SYM",
+  "rule_catalog_version": "holon-rules/1.7",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Word"
+      },
+      {
+        "name": "b",
+        "q": "forall",
+        "type": "Word"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            },
+            {
+              "var": "a"
+            },
+            {
+              "var": "b"
+            }
+          ],
+          "sym": "morph_rollup.extracted:pi:finalizeBatch:challenger"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "pi"
+}

@@ -87,6 +87,12 @@ INIT_CHAIN_CATALOG_VERSION = "holon-rules/1.6"
 CATALOGS[INIT_CHAIN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[FACT_CATALOG_VERSION].items()}}
 CATALOGS[INIT_CHAIN_CATALOG_VERSION]["PAR"] = {**CATALOGS[FACT_CATALOG_VERSION]["PAR"],
                                                _par_init.SUBFORM: _par_init.PRODUCERS[_par_init.SUBFORM]}
+#   holon-rules/1.7  (CI dry run only, not for merge) I34's: the rules of holon-rules/1.6 unchanged (the same producer
+#                    objects), plus rule SYM's sub-forms tau, pi, omega and sentinel (holon.rules.sym); M3 and later.
+from . import sym as _sym  # noqa: E402
+SYM_CATALOG_VERSION = "holon-rules/1.7"
+CATALOGS[SYM_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[INIT_CHAIN_CATALOG_VERSION].items()},
+                                 _sym.RULE: dict(_sym.PRODUCERS)}
 
 
 def catalog_version(milestone: str) -> str:
@@ -96,7 +102,7 @@ def catalog_version(milestone: str) -> str:
     test milestone's catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return INIT_CHAIN_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return SYM_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -294,7 +300,7 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
         for rule in _typed_rules(catalog):
             for sub in sorted(catalog[rule]):
                 pairs += catalog[rule][sub].produce(ctx)
-    except (_sort.SortRuleError, _undo.UndoError, _fact.FactError) as e:
+    except (_sort.SortRuleError, _undo.UndoError, _fact.FactError, _sym.SymRuleError) as e:
         raise DeriveError(str(e)) from e
     ids = [law["law_id"] for law, _ in pairs]
     dup = sorted({i for i in ids if ids.count(i) > 1})

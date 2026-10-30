@@ -1,0 +1,47 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366",
+  "milestone": "M3",
+  "notes": "sentinel batchDataStore.originTimestamp vs 0: from a reachable s, a successful act x of commitBatch (with block.timestamp >= 1 where the site reads it) writes a value other than 0 at contracts/contracts/l1/rollup/Rollup.sol:366-371; sym morph_rollup.extracted:sentinel:batchDataStore.originTimestamp:commitBatch:366",
+  "rule": "SYM",
+  "rule_catalog_version": "holon-rules/1.7",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            }
+          ],
+          "sym": "morph_rollup.extracted:sentinel:batchDataStore.originTimestamp:commitBatch:366"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "sentinel"
+}

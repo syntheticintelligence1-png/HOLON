@@ -1,0 +1,283 @@
+# CI only (I34), not for merge: a dry run of rule SYM's laws under a provisional catalog (holon-rules/1.7 on this
+# tree), each law decided by holon run on a runner (the pinned toolchain), to learn the outcomes before the real
+# catalog bump. Every job uploads the files it changed or added; the publish job pushes them, one directory per
+# job, as an orphan commit to claude/ci-i34-dry-out-<run id>. Generated from the I71 re-make template.
+name: holon-i34-dry
+
+on:
+  push:
+    branches: ['claude/ci-i34-dry']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: holon-i34-dry-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  BEND_NO_TELEMETRY: '1'
+
+jobs:
+  toolchain:
+    name: toolchain (install + verify pins)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      key: ${{ steps.key.outputs.key }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Cache key from the pins
+        id: key
+        run: echo "key=holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}" >> "$GITHUB_OUTPUT"
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: restore
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Install the pinned toolchain
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: bash .github/ci/install_toolchain.sh
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: steps.restore.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+  run:
+    name: ${{ matrix.name }}
+    needs: toolchain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: sym-00
+            laws: L_sym_omega_Rollup_addChallenger_challengeState,L_sym_omega_Rollup_commitBatchWithProof_updateFinalizePeriodSeconds,L_sym_omega_Rollup_finalizeBatch_proveState,L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatchWithProof_366
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-01
+            laws: L_sym_omega_Rollup_challengeState_commitBatch,L_sym_omega_Rollup_commitBatchWithProof_updateProofWindow,L_sym_omega_Rollup_finalizeBatch_revertBatch,L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-02
+            laws: L_sym_omega_Rollup_challengeState_commitBatchWithProof,L_sym_omega_Rollup_commitBatchWithProof_updateRollupDelayPeriod,L_sym_omega_Rollup_finalizeBatch_setPause,L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitState_366
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-03
+            laws: L_sym_omega_Rollup_challengeState_commitState,L_sym_omega_Rollup_commitBatchWithProof_updateVerifier,L_sym_omega_Rollup_importGenesisBatch_proveState,L_sym_sentinel_Rollup_batchDataStore_originTimestamp_importGenesisBatch_242
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-04
+            laws: L_sym_omega_Rollup_challengeState_finalizeBatch,L_sym_omega_Rollup_commitBatch_commitBatchWithProof,L_sym_omega_Rollup_proveState_revertBatch,L_sym_tau_Rollup_batchChallengedSuccess
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-05
+            laws: L_sym_omega_Rollup_challengeState_importGenesisBatch,L_sym_omega_Rollup_commitBatch_finalizeBatch,L_sym_omega_Rollup_proveState_setPause,L_sym_tau_Rollup_batchExist
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-06
+            laws: L_sym_omega_Rollup_challengeState_proveState,L_sym_omega_Rollup_commitBatch_importGenesisBatch,L_sym_omega_Rollup_proveState_updateProofWindow,L_sym_tau_Rollup_batchInChallenge
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-07
+            laws: L_sym_omega_Rollup_challengeState_removeChallenger,L_sym_omega_Rollup_commitBatch_revertBatch,L_sym_omega_Rollup_proveState_updateRewardPercentage,L_sym_tau_Rollup_batchInsideChallengeWindow
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-08
+            laws: L_sym_omega_Rollup_challengeState_revertBatch,L_sym_omega_Rollup_commitBatch_setPause,L_sym_omega_Rollup_proveState_updateVerifier,L_sym_tau_Rollup_challengeState
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-09
+            laws: L_sym_omega_Rollup_challengeState_setPause,L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds,L_sym_pi_Rollup_batchInChallenge_challenger,L_sym_tau_Rollup_commitBatch
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-10
+            laws: L_sym_omega_Rollup_challengeState_updateProofWindow,L_sym_omega_Rollup_commitBatch_updateProofWindow,L_sym_pi_Rollup_challengeState_challenger,L_sym_tau_Rollup_commitBatchWithProof
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-11
+            laws: L_sym_omega_Rollup_claimProveRemaining_proveState,L_sym_omega_Rollup_commitBatch_updateRollupDelayPeriod,L_sym_pi_Rollup_commitBatchWithProof_submitter,L_sym_tau_Rollup_commitState
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-12
+            laws: L_sym_omega_Rollup_claimReward_proveState,L_sym_omega_Rollup_commitState_finalizeBatch,L_sym_pi_Rollup_commitBatch_submitter,L_sym_tau_Rollup_finalizeBatch
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-13
+            laws: L_sym_omega_Rollup_claimReward_revertBatch,L_sym_omega_Rollup_commitState_importGenesisBatch,L_sym_pi_Rollup_commitState_submitter,L_sym_tau_Rollup_importGenesisBatch
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-14
+            laws: L_sym_omega_Rollup_claimReward_setPause,L_sym_omega_Rollup_commitState_revertBatch,L_sym_pi_Rollup_finalizeBatch_challenger,L_sym_tau_Rollup_proveState
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-15
+            laws: L_sym_omega_Rollup_commitBatchWithProof_commitState,L_sym_omega_Rollup_commitState_setPause,L_sym_pi_Rollup_importGenesisBatch_submitter,L_sym_tau_Rollup_revertBatch
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-16
+            laws: L_sym_omega_Rollup_commitBatchWithProof_importGenesisBatch,L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds,L_sym_pi_Rollup_proveState_challenger,L_sym_tau_Rollup_setPause
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-17
+            laws: L_sym_omega_Rollup_commitBatchWithProof_proveState,L_sym_omega_Rollup_commitState_updateProofWindow,L_sym_pi_Rollup_proveState_submitter
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-18
+            laws: L_sym_omega_Rollup_commitBatchWithProof_revertBatch,L_sym_omega_Rollup_commitState_updateRollupDelayPeriod,L_sym_pi_Rollup_revertBatch_challenger
+            extra: ''
+            lean: ''
+            cmd: ''
+          - name: sym-19
+            laws: L_sym_omega_Rollup_commitBatchWithProof_setPause,L_sym_omega_Rollup_finalizeBatch_importGenesisBatch,L_sym_pi_Rollup_setPause_challenger
+            extra: ''
+            lean: ''
+            cmd: ''
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          key: ${{ needs.toolchain.outputs.key }}
+          fail-on-cache-miss: true
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: Run
+        env:
+          LAWS: ${{ matrix.laws }}
+          EXTRA: ${{ matrix.extra }}
+          LEAN: ${{ matrix.lean }}
+          CMD: ${{ matrix.cmd }}
+        run: |
+          set -o pipefail
+          date -u +"%FT%TZ start" | tee "$RUNNER_TEMP/run.log"
+          EXTRA="${EXTRA//@DEADLINE@/$(date -u -d '+300 min' +%FT%TZ)}"
+          if [ "$CMD" = "m12" ]; then
+            for c in "run --milestone M2" "bind --milestone M2" "lean --milestone M2" "run --milestone M2" "run --milestone M1" "metrics --milestone M1" "metrics --milestone M2"; do
+              date -u +"%FT%TZ holon $c" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon $c 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            done
+          elif [ "$CMD" = "t32" ]; then
+            python -u -m holon profile --milestone T32 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+          else
+            python -u -m holon run --milestone M3 --laws "$LAWS" $EXTRA 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            if [ -n "$LEAN" ]; then
+              date -u +"%FT%TZ lean" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon lean --milestone M3 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+              date -u +"%FT%TZ run again" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon run --milestone M3 --laws "$LAWS" $EXTRA 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            fi
+          fi
+          date -u +"%FT%TZ end" | tee -a "$RUNNER_TEMP/run.log"
+      - name: Collect every changed or added file
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          cp "$RUNNER_TEMP/run.log" "$RUNNER_TEMP/out/run.log" || true
+          git status --porcelain --untracked-files=all | tee "$RUNNER_TEMP/out/status.txt"
+          git status --porcelain --untracked-files=all | sed -E 's/^...//' | grep -v '^\.' > "$RUNNER_TEMP/files.txt" || true
+          tar -czf "$RUNNER_TEMP/out/changed.tgz" -T "$RUNNER_TEMP/files.txt" || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: ${{ matrix.name }}-out
+          retention-days: 7
+          path: ${{ runner.temp }}/out/
+
+  publish:
+    name: publish the outputs
+    needs: [run]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: '*-out'
+          path: out
+      - name: Push the outputs (an orphan commit; no repository code runs here)
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.run_id }}
+          SRC: ${{ github.sha }}
+        run: |
+          cd out
+          ls -la
+          git init -q
+          git checkout -q -b results
+          git add -A
+          git -c user.name=holon-ci -c user.email=holon-ci@users.noreply.github.com commit -q -m "I34 dry run of run $RUN at $SRC"
+          git push -q "https://x-access-token:${TOKEN}@github.com/${REPO}" "HEAD:refs/heads/claude/ci-i34-dry-out-${RUN}"

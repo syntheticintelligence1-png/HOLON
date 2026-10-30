@@ -1,0 +1,55 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sym_tau_Rollup_commitBatchWithProof",
+  "milestone": "M3",
+  "notes": "time translation: for every d, from a reachable s, an act x of commitBatchWithProof run on \u03c4_d s and \u03c4_d x gives \u03c4_d of its run on s and x (storage, outcome, Time words of the logs), every translated Time word below 2^64 (whitepaper \u00a75.4, \u00a78.4); sym morph_rollup.extracted:tau:commitBatchWithProof",
+  "rule": "SYM",
+  "rule_catalog_version": "holon-rules/1.7",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "d",
+        "q": "forall",
+        "type": "Nat"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            },
+            {
+              "var": "d"
+            }
+          ],
+          "sym": "morph_rollup.extracted:tau:commitBatchWithProof"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "tau"
+}
