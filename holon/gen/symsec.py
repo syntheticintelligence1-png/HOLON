@@ -149,6 +149,7 @@ class SymSection(Trace):
         self.tw = S.time_words(assignment, doc)
         self.env_fields = record_fields(model_text, "HEnv")
         self.notes: list[str] = []
+        self._fields: dict = {}
 
     # ---------------------------------------------------------- literals and small helpers
     def lit(self, n: int) -> str:
@@ -261,6 +262,35 @@ class SymSection(Trace):
     def sel_test(self, sel: list, cd: str = "cd") -> str:
         return f"{self.Q('b_eq')}(List.take(&2, U32, {cd}, 4n), [{', '.join(str(x) for x in sel)}])"
 
+    # ---------------------------------------------------------- packed fields
+    def field(self, off: int, width: int) -> tuple[str, str]:
+        """(getter, setter) names of the field of width bits at bit offset off: limb permutations and masks when the
+        offset is a multiple of 32 (the kernels evaluate them in a few steps), the word's division otherwise."""
+        key = (int(off), int(width))
+        if key in self._fields:
+            return self._fields[key]
+        W = self.W()
+        g, st = f"sy_get_{off}_{width}", f"sy_put_{off}_{width}"
+        mask = (1 << width) - 1
+        if off % 32 == 0:
+            k = off // 32
+            for name, fn in ((f"sy_shr{k}", lambda a: a[k:] + ["0"] * k), (f"sy_shl{k}", lambda a: ["0"] * k + a[:8 - k])):
+                if name not in self.mine:
+                    limbs = [f"a{i}" for i in range(8)]
+                    self.add(f"def {name}(w: {W}) -> {W}:\n  match w:\n    case {W}{{{', '.join(limbs)}}}:\n"
+                             f"      {W}{{{', '.join(fn(limbs))}}}")
+            hole = ((1 << 256) - 1) ^ (mask << off)
+            self.add(f"def {g}(+w: {W}) -> {W}:\n  {self.Q('w_and')}(sy_shr{k}(w), {self.lit(mask)})")
+            self.add(f"def {st}(+w: {W}, +f: {W}) -> {W}:\n  {self.Q('w_or')}({self.Q('w_and')}(w, {self.lit(hole)}), "
+                     f"sy_shl{k}({self.Q('w_and')}(f, {self.lit(mask)})))")
+        else:
+            p, q = self.lit(1 << off), self.lit(1 << width)
+            self.add(f"def {g}(+w: {W}) -> {W}:\n  {self.Q('w_mod')}({self.Q('w_div')}(w, {p}), {q})")
+            self.add(f"def {st}(+w: {W}, +f: {W}) -> {W}:\n  {self.Q('w_add')}({self.Q('w_sub')}(w, "
+                     f"{self.Q('w_mul')}({g}(w), {p})), {self.Q('w_mul')}({self.Q('w_mod')}(f, {q}), {p}))")
+        self._fields[key] = (g, st)
+        return g, st
+
     # ---------------------------------------------------------- the fixed part of the sym section
     def sym_fixed(self) -> None:
         W, SK, SP, KV, HSt, GSt = (self.Q(n) for n in ("W", "SK", "SP", "KV", "HSt", "GSt"))
@@ -340,8 +370,10 @@ class SymSection(Trace):
         two64 = self.lit(1 << 64)
         self.add(f"def sy_fit(+v: {W}, +d: {W}) -> Bool:\n  Bool.and({self.Q('w_lt')}(v, {two64}), Bool.and("
                  f"{self.Q('w_lt')}(d, {two64}), {self.Q('w_lt')}({self.Q('w_add')}(v, d), {two64})))")
-        self.add(f"def sy_tau_kv(h: {KV}, +d: {W}) -> {KV}:\n  match h:\n    case {KV}{{+k, +v}}:\n"
-                 f"      {KV}{{k, {self.Q('ite')}({W}, sy_time_key(k), {self.Q('w_add')}(v, d), v)}}")
+        self.add(f"def sy_tau_v(c: Bool, +v: {W}, +d: {W}) -> {W}:\n  match c:\n    case True{{}}:\n"
+                 f"      {self.Q('w_add')}(v, d)\n    case False{{}}:\n      v")
+        self.add(f"def sy_tau_kv(h: {KV}, +d: {W}) -> {KV}:\n  match h:\n    case {KV}{{+k, v}}:\n"
+                 f"      {KV}{{k, sy_tau_v(sy_time_key(k), v, d)}}")
         self.add(f"def sy_tau_kvs(xs: List<&2, {KV}>, +d: {W}) -> List<&2, {KV}>:\n  match xs:\n"
                  "    case Nil{}:\n      Nil{}\n    case Con{h, t}:\n      Con{sy_tau_kv(h, d), sy_tau_kvs(t, d)}")
         self.add(f"def sy_tau_st(s: {HSt}, +d: {W}) -> {HSt}:\n  match s:\n    case {HSt}{{sl}}:\n"
@@ -417,8 +449,10 @@ class SymSection(Trace):
         akeys = self.address_keyed()
         self.add(f"# the address-keyed families' base slots: {akeys}\ndef sy_akey(+b: {W}) -> Bool:\n"
                  f"  {self.disj([f'{weq}(b, {self.lit(s)})' for s in akeys])}")
+        self.add(f"def sy_pi_kw(c: Bool, +k: {W}, +a: {W}, +b: {W}) -> {W}:\n  match c:\n    case True{{}}:\n"
+                 "      sy_pw(k, a, b)\n    case False{}:\n      k")
         self.add(f"def sy_pi_sp(+b0: {W}, h: {SP}, +a: {W}, +b: {W}) -> {SP}:\n  match h:\n"
-                 f"    case {self.Q('SP_m')}{{+k, o}}:\n      {self.Q('SP_m')}{{{ite}({W}, sy_akey(b0), sy_pw(k, a, b), k), o}}")
+                 f"    case {self.Q('SP_m')}{{k, o}}:\n      {self.Q('SP_m')}{{sy_pi_kw(sy_akey(b0), k, a, b), o}}")
         self.add(f"def sy_pi_p(+b0: {W}, p: List<&2, {SP}>, +a: {W}, +b: {W}) -> List<&2, {SP}>:\n  match p:\n"
                  "    case Nil{}:\n      Nil{}\n    case Con{h, t}:\n      Con{sy_pi_sp(b0, h, a, b), t}")
         self.add(f"def sy_pi_k(k: {SK}, +a: {W}, +b: {W}) -> {SK}:\n  match k:\n    case {SK}{{+kb, ko, kp}}:\n"
@@ -426,9 +460,11 @@ class SymSection(Trace):
         locs = self.address_locations()
         chain = "v"
         for i, (path, loc) in enumerate(locs):
-            p, q = 1 << loc[4], 1 << loc[5]
+            g, st = self.field(loc[4], loc[5])
+            self.add(f"def sy_pi_v_{i}_m(c: Bool, +v: {W}, +a: {W}, +b: {W}) -> {W}:\n  match c:\n"
+                     f"    case True{{}}:\n      {st}(v, sy_pw({g}(v), a, b))\n    case False{{}}:\n      v")
             self.add(f"# {path}\ndef sy_pi_v_{i}(+k: {SK}, +v: {W}, +a: {W}, +b: {W}) -> {W}:\n"
-                     f"  {ite}({W}, {self.key_test(loc)}, sy_pf(v, a, b, {self.lit(p)}, {self.lit(q)}), v)")
+                     f"  sy_pi_v_{i}_m({self.key_test(loc)}, v, a, b)")
             chain = f"sy_pi_v_{i}(k, {chain}, a, b)"
         self.add(f"# the address-typed registers: {', '.join(p for p, _l in locs) or 'none'}\n"
                  f"def sy_pi_v(+k: {SK}, +v: {W}, +a: {W}, +b: {W}) -> {W}:\n  {chain}")
@@ -574,9 +610,9 @@ class SymSection(Trace):
                 if f.get("kind") != "mapping" or f.get("key") != "address":
                     raise GenError(f"role {role}: its predicate's family {pred[1][1]} is not address-keyed")
                 base, _o, _d, _m, off, width = self.locations(pred[1][1])[0]
-                t = (f"{self.Q('w_nz')}(sy_fld({self.Q('sload')}(sy_st_of(g), {self.Q('SK')}{{{self.lit(base)}, "
-                     f"{self.Q('w0')}(), [{self.Q('SP_m')}{{w, {self.Q('w0')}()}}]}}), {self.lit(1 << off)}, "
-                     f"{self.lit(1 << width)}))")
+                fg, _fs = self.field(off, width)
+                t = (f"{self.Q('w_nz')}({fg}({self.Q('sload')}(sy_st_of(g), {self.Q('SK')}{{{self.lit(base)}, "
+                     f"{self.Q('w0')}(), [{self.Q('SP_m')}{{w, {self.Q('w0')}()}}]}})))")
                 if t not in terms:
                     terms.append(t)
             elif not (isinstance(pred, list) and pred[:1] == ["call"]):
@@ -596,10 +632,10 @@ class SymSection(Trace):
                         regs.append(wr["family"])
         for i, path in enumerate(regs):
             loc = self.locations(path)[0]
-            p, q = 1 << loc[4], 1 << loc[5]
+            fg, _fs = self.field(loc[4], loc[5])
             self.add(f"# a register of the role {role}: {path}\n"
                      f"def sy_rh_{bname(role)}_{i}(h: {KV}, +w: {W}) -> Bool:\n  match h:\n    case {KV}{{+k, v}}:\n"
-                     f"      Bool.and({self.key_test(loc)}, {self.Q('w_eq')}(sy_fld(v, {self.lit(p)}, {self.lit(q)}), w))")
+                     f"      Bool.and({self.key_test(loc)}, {self.Q('w_eq')}({fg}(v), w))")
             self.add(f"def sy_rm_{bname(role)}_{i}(xs: List<&2, {KV}>, +w: {W}) -> Bool:\n  match xs:\n"
                      "    case Nil{}:\n      False{}\n    case Con{h, t}:\n"
                      f"      Bool.or(sy_rh_{bname(role)}_{i}(h, w), sy_rm_{bname(role)}_{i}(t, w))")
@@ -640,8 +676,8 @@ class SymSection(Trace):
         for b in sorted(set(maps)):
             cmp.append(f"ux_imp(sy_at_b(k, {self.lit(b)}), {weq}(v1, v2))")
         for path, loc in scal:
-            p, q = self.lit(1 << loc[4]), self.lit(1 << loc[5])
-            cmp.append(f"ux_imp({self.key_test(loc)}, {weq}(sy_fld(v1, {p}, {q}), sy_fld(v2, {p}, {q})))")
+            fg, _fs = self.field(loc[4], loc[5])
+            cmp.append(f"ux_imp({self.key_test(loc)}, {weq}({fg}(v1), {fg}(v2)))")
         self.add(f"def sy_sink_cmp(+k: {SK}, +v1: {W}, +v2: {W}) -> Bool:\n  {self.conj(cmp)}")
         self.add(f"def sy_sk1(h: {KV}, +xs: List<&2, {KV}>, +ys: List<&2, {KV}>) -> Bool:\n  match h:\n"
                  f"    case {KV}{{+k, v}}:\n      ux_imp(sy_sink_key(k), sy_sink_cmp(k, {self.Q('kv_get')}(xs, k), "
@@ -756,6 +792,7 @@ class SymSection(Trace):
 
     def build(self) -> list[str]:
         self.defs, self.mine = [], set()
+        self._fields = {}
         self.fixed()
         self.observations()
         self.sym_fixed()

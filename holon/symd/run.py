@@ -351,14 +351,21 @@ class Decider:
             return r["out"]
         sub = el["subform"]
         x = m.act(w["x"])
-        if sub == "tau":
-            d = _w(w["d"])
-            return {"u1": run(x, {"$ref": g}),
-                    "u2": run({"$call": "sy_tau_x", "args": [x, d]}, {"$call": "sy_tau_g", "args": [{"$ref": g}, d]})}
-        if sub == "pi":
-            a, b = _w(w["a"]), _w(w["b"])
-            return {"u1": run(x, {"$ref": g}),
-                    "u2": run({"$call": "sy_pi_x", "args": [x, a, b]}, {"$call": "sy_pi_g", "args": [{"$ref": g}, a, b]})}
+        if sub in ("tau", "pi"):
+            if sub == "tau":
+                gen = [_w(w["d"])]
+                fx, fg, fu = "sy_tau_x", "sy_tau_g", "sy_tau_uos"
+            else:
+                gen = [_w(w["a"]), _w(w["b"])]
+                fx, fg, fu = "sy_pi_x", "sy_pi_g", f"sy_pi_uos_{bname(el['basis']['action'])}"
+            h1 = m.fresh()
+            out = {"u1": run(x, {"$ref": g}, h1),
+                   "px": m.mreq({"fn": fx, "args": [x] + gen})["out"],
+                   "ps": m.mreq({"fn": fg, "args": [{"$ref": g}] + gen})["out"],
+                   "u2": run({"$call": fx, "args": [x] + gen}, {"$call": fg, "args": [{"$ref": g}] + gen}),
+                   "pu1": m.mreq({"fn": fu, "args": [{"$ref": h1}] + gen})["out"]}
+            m.drop([h1])
+            return out
         y = m.act(w["y"])
         hx, hy = m.fresh(), m.fresh()
         out = {"ux": run(x, {"$ref": g}, hx), "uy": run(y, {"$ref": g}, hy)}
@@ -378,7 +385,7 @@ class Decider:
         li = os.path.relpath(self.paths(law["law_id"])["laws"], d).replace(os.sep, "/")
         p = d / "PROOF.bend"
         note = f"the witness ({el['subform']}: prefix {len(w['prefix'])} steps), every premise by computation"
-        lit = SP.SymLit(sc.recs, sc.mine)
+        lit = SP.SymLit(sc.recs, sc.mine, SP.constructors(sc.text))
         if runs is None:
             text = SP.counter_proof(law, n, mi, si, li, sc.hashes, [m.act(s) for s in w["prefix"]], states,
                                     self.values(el, w, m), {"keccak256": kh, "sha256": sh}, lit, note)
