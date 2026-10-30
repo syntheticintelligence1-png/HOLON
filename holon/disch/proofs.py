@@ -626,9 +626,9 @@ class ActionProof:
                                   f"differs from only in words that are not literals ({at[0][:80]} against "
                                   f"{at[1][:80]}): no loop frame by evaluation")
                 if fr is None:
-                    raise NoProof(f"{self.action}: it stores at {kw.strip()[:160]}, which is B's key {K} when "
-                                  f"{at[0][:80]} == {at[1][:80]}: no passed check excludes that, and keeping B of the "
-                                  "stored word would need a monotone transport (not built)")
+                    raise NoProof(f"{self.action}: keeping B through its store at {kw.strip()[:160]} needs a monotone "
+                                  f"transport (not built): the store is at B's key {K[:160]} when {at[0][:80]} == "
+                                  f"{at[1][:80]}, and no passed check excludes that")
                 o2 = f"M.sstore({o}, {kw}, {v})"
                 if rel == "same" and self.route == "loop":
                     raise NoProof(f"{self.action}: its loop {self.L} stores at B's key {K}: no loop frame")
@@ -656,8 +656,21 @@ class ActionProof:
         ip = "".join(f", +inv{j}: {{M.sload(v_ov, {k}) == {state[j]} : M.W}}" for j, k in enumerate(self.keys))
         n = len(self.keys)
         body = "hb" if all(state[j] == self.same(j) for j in range(n)) else self.transported(state)
+        # a key that reads B's earlier keys (I68) is read in the post-state at the post-state's words: those slots must
+        # keep the pre-state's (framed), so that rewriting them turns the key back into the pre-state's key
+        tpl = self.g.sec.blk[self.tag].get("tpl") or list(self.keys)
+        var = re.compile(r"(?<![\w.])v(\d+)(?![\w{])")
+        for m in range(n):
+            for i in {int(x) for x in var.findall(tpl[m])}:
+                if state[i] != self.same(i):
+                    raise NoProof(f"{self.action}: B's key {self.keys[m]} reads the slot {self.keys[i]}, which a path of "
+                                  "the action changes")
+
+        def at(m: int, j: int) -> str:   # key m in the goal while component j is rewritten
+            return var.sub(lambda q: f"M.sload(st, {self.keys[int(q.group(1))]})" if int(q.group(1)) < j else "_"
+                           if int(q.group(1)) == j else f"M.sload(v_ov, {at(int(q.group(1)), j)})", tpl[m])
         for j in range(n - 1, -1, -1):
-            args = [state[i] for i in range(j)] + ["_"] + [f"M.sload(v_ov, {self.keys[i]})" for i in range(j + 1, n)]
+            args = [state[i] for i in range(j)] + ["_"] + [f"M.sload(v_ov, {at(i, j)})" for i in range(j + 1, n)]
             motive = f"{{D.blkv_{self.tag}({', '.join(args)}, D.d_time(e){self.g.targs}) == True{{}} : Bool}}"
             body = (f"(%Equal.sym(M.W, M.sload(v_ov, {self.keys[j]}), {state[j]}, inv{j}) "
                     f": {motive}\n      {body})")
@@ -735,12 +748,13 @@ class ActionProof:
         X = f"M.X_{self.ab}"
         ys = {f: (f"y_{f}" if f in self.fixed else f"v_{f}") for f in self.fields}
         canon = [self.fixed[f] if f in self.fixed else f"v_{f}" for f in self.fields]
-        obs_y = lp.obs([ys[f] for f in lp.fixed_order], [f"M.sload(v_ov, {k})" for k in lp.keys])
-        obs_x = lp.obs([self.fixed[f] for f in lp.fixed_order], [f"M.sload(o1, {k})" for k in lp.keys])
+        keys = self.keys if self.tracks else []
+        obs_y = lp.obs([ys[f] for f in lp.fixed_order], [f"M.sload(v_ov, {k})" for k in keys])
+        obs_x = lp.obs([self.fixed[f] for f in lp.fixed_order], [f"M.sload(o1, {k})" for k in keys])
         # the opened record's fixed fields rewritten to the context's, one at a time (outermost first)
         inner = self.after_loop_lemma(node.n, name, [r for _x, r in new_invs], conds)
         args = self.fixed_args() + "".join(f", v_{f}" for f in self.var_fields) + self.hb_arg()
-        for j, (k, (_x, r)) in enumerate(zip(lp.keys, new_invs)):
+        for j, (k, (_x, r)) in enumerate(zip(keys, new_invs)):
             gi = len(lp.fixed_order) + j
             args += (f", Equal.trans(M.W, M.sload(v_ov, {k}), M.sload(o1, {k}), {r}, Equal.cong({lp.O}, M.W, "
                      f"{lp.getter(gi)}, {obs_y}, {obs_x}, hy), i{j})")
@@ -757,15 +771,15 @@ class ActionProof:
             eq = (f"Equal.sym({ty}, {ys[f]}, {self.fixed[f]}, Equal.cong({lp.O}, {ty}, {lp.getter(i)}, {obs_y}, "
                   f"{obs_x}, hy))")
             body = f"(%{eq} : {self.goal(f'M.la_{self.ab}_{node.n}(M.u_nz(v_cd), {rec})')}\n      {body})"
-        ip = "".join(f", +i{j}: {{M.sload(o1, {k}) == {r} : M.W}}" for j, (k, (_x, r)) in enumerate(zip(lp.keys, new_invs)))
+        ip = "".join(f", +i{j}: {{M.sload(o1, {k}) == {r} : M.W}}" for j, (k, (_x, r)) in enumerate(zip(keys, new_invs)))
         pat = f"{X}{{{', '.join('+' + ys[f] for f in self.fields)}}}"
         self.defs.append(f"def {name}({self.fixed_params()}, +o1: M.HSt, y: {X}{self.hb_param()}{ip}"
-                         f"{self.carried_params(conds)}, +hy: {{{lp.ob}(y) == {obs_x} : {lp.O}}}) -> "
+                         f"{self.carried_params(conds)}, +hy: {{{lp.ob}(st, y) == {obs_x} : {lp.O}}}) -> "
                          f"{self.goal(f'M.la_{self.ab}_{node.n}(M.u_nz(M.gx_{self.ab}_cd(y)), y)')}:\n"
                          f"  match y:\n    case {pat}:\n      {body}\n")
         ls = f"M.ls_{self.ab}_{node.L}({X}{{{', '.join(node.rec.fields)}}})"
         y = f"M.lp_{self.ab}_{node.L}({node.fuel}, {node.d}, {ls})"
-        hy = f"{lp.lp}({node.fuel}, {node.d}, {ls}, {lp.ob}({ls}), {{==}})"
+        hy = f"{lp.lp}({node.fuel}, {node.d}, st, {ls}, {lp.ob}(st, {ls}), {{==}})"
         call = f"{name}({self.fixed_args()}, {vals['ov']}, {y}{self.hb_arg()}"
         call += "".join(f", {x}" for x, _r in new_invs) + "".join(f", {x}" for x, _c in carried) + f", {hy})"
         return call
@@ -814,7 +828,9 @@ class LoopProof(ActionProof):
         self.time = False
         self.T = "t"
         self.L = L
-        self.keys = list(keys)
+        # the keys as terms of s0, the context's pre-state (a key that reads B's earlier keys reads st, I68), so that
+        # the iteration's lemmas keep them fixed whatever the record's own store field is called
+        self.keys = [re.sub(r"(?<![\w.])st(?![\w{])", "s0", k) for k in keys]
         self.fixed_order = [f for f in self.fields if f in self.fixed]
         self.O = f"Ob_{prefix}"
         self.ob = f"ob_{prefix}"
@@ -843,17 +859,17 @@ class LoopProof(ActionProof):
         return ""
 
     def fixed_params(self) -> str:
-        return f"+st: M.HSt, +ar: M.AR_{self.ab}, +e: M.HEnv{self.g.tparams}, +o0: M.HSt"
+        return f"+st: M.HSt, +ar: M.AR_{self.ab}, +e: M.HEnv{self.g.tparams}, +o0: M.HSt, +s0: M.HSt"
 
     def fixed_args(self) -> str:
-        return f"st, ar, e{self.g.targs}, o0"
+        return f"st, ar, e{self.g.targs}, o0, s0"
 
     def goal(self, x: str) -> str:
         """The observation of x, or of lb's result for a term of the body's statement chain."""
         head = re.match(r"M\.(\w+)\(", x.strip())
         own = head is not None and head.group(1).startswith(tuple(f"{q}_{self.ab}_" for q in LOOP_PARTS))
         t = x if own else f"{self.lb}({x})"
-        return f"{{{self.ob}({t}) == {self.ref()} : {self.O}}}"
+        return f"{{{self.ob}(s0, {t}) == {self.ref()} : {self.O}}}"
 
     def emit(self, node, cur: dict, invs: list, nonzero: str | None = None, carried: tuple = ()) -> str:
         if isinstance(node, Next):    # the body's chain (in lb: its result goes through the loop's exit)
@@ -890,7 +906,7 @@ class LoopProof(ActionProof):
         pat = f"{X}{{{', '.join('+' + v for v in names)}}}"
         comps = [f"x_{f}" for f in self.fixed_order] + [f"M.sload(x_ov, {k})" for k in self.keys]
         out = [f"type {self.O} is Data:\n  {self.O}{{{', '.join(f'f{i}: {t}' for i, t in enumerate(tys))}}}\n",
-               f"def {self.ob}(r: {X}) -> {self.O}:\n  match r:\n    case {pat}:\n      {self.obs(comps[:len(self.fixed_order)], comps[len(self.fixed_order):])}\n"]
+               f"def {self.ob}(+s0: M.HSt, r: {X}) -> {self.O}:\n  match r:\n    case {pat}:\n      {self.obs(comps[:len(self.fixed_order)], comps[len(self.fixed_order):])}\n"]
         gs = ", ".join(f"+a{i}" for i in range(len(tys)))
         for i, t in enumerate(tys):
             out.append(f"def {self.getter(i)}(o: {self.O}) -> {t}:\n  match o:\n    case {self.O}{{{gs}}}:\n      a{i}\n")
@@ -905,23 +921,24 @@ class LoopProof(ActionProof):
                          f"{self.goal(f'M.li_{self.ab}_{self.L}({X}{{{', '.join(rec)}}})')}:\n  {body}\n")
         xrec = f"{X}{{{', '.join(names)}}}"
         targs = "".join(f", x_{n}" for n in self.g.tabs)
-        call = (f"{top}(x_st, x_ar, x_en{targs}, x_ov" + "".join(f", x_{f}" for f in self.var_fields)
+        call = (f"{top}(x_st, x_ar, x_en{targs}, x_ov, s0" + "".join(f", x_{f}" for f in self.var_fields)
                 + ", {==}" * len(self.keys) + ")")
-        li = (f"def {self.p}_li(+x: {X}, +o: {self.O}, h: {{{self.ob}(x) == o : {self.O}}}) -> "
-              f"{{{self.ob}(M.li_{self.ab}_{self.L}(x)) == o : {self.O}}}:\n  match x:\n    case {pat}:\n"
-              f"      Equal.trans({self.O}, {self.ob}(M.li_{self.ab}_{self.L}({xrec})), {self.ob}({xrec}), o, {call}, h)\n")
+        li = (f"def {self.p}_li(+s0: M.HSt, +x: {X}, +o: {self.O}, h: {{{self.ob}(s0, x) == o : {self.O}}}) -> "
+              f"{{{self.ob}(s0, M.li_{self.ab}_{self.L}(x)) == o : {self.O}}}:\n  match x:\n    case {pat}:\n"
+              f"      Equal.trans({self.O}, {self.ob}(s0, M.li_{self.ab}_{self.L}({xrec})), {self.ob}(s0, {xrec}), o, "
+              f"{call}, h)\n")
         ld = f"M.gx_{self.ab}_ld{self.L}"
         if f"gx_{self.ab}_ld{self.L}" not in self.mi.defs:
             raise NoProof(f"{self.action}: its loop {self.L} has no direction field ld{self.L}")
-        lp = (f"def {self.lp}(f: Nat, +d: Nat, +x: {X}, +o: {self.O}, h: {{{self.ob}(x) == o : {self.O}}}) -> "
-              f"{{{self.ob}(M.lp_{self.ab}_{self.L}(f, d, x)) == o : {self.O}}}:\n"
+        lp = (f"def {self.lp}(f: Nat, +d: Nat, +s0: M.HSt, +x: {X}, +o: {self.O}, h: {{{self.ob}(s0, x) == o : "
+              f"{self.O}}}) -> {{{self.ob}(s0, M.lp_{self.ab}_{self.L}(f, d, x)) == o : {self.O}}}:\n"
               f"  match f:\n    case 0n:\n      match d:\n        case 0n:\n          h\n        case 1n+q:\n"
               f"          match q:\n            case 0n:\n              match x:\n                case {pat}:\n"
               f"                  h\n            case 1n+s:\n              h\n"
               f"    case 1n+r:\n      match d:\n        case 0n:\n          h\n        case 1n+q:\n"
               f"          match q:\n            case 0n:\n"
-              f"              {self.lp}(r, {ld}(M.li_{self.ab}_{self.L}(x)), M.li_{self.ab}_{self.L}(x), o, "
-              f"{self.p}_li(x, o, h))\n            case 1n+s:\n              h\n")
+              f"              {self.lp}(r, {ld}(M.li_{self.ab}_{self.L}(x)), s0, M.li_{self.ab}_{self.L}(x), o, "
+              f"{self.p}_li(s0, x, o, h))\n            case 1n+s:\n              h\n")
         return out + self.defs + [li, lp]
 
 

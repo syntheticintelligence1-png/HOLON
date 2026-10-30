@@ -81,17 +81,18 @@ def _balanced(text: str, i: int) -> int:
     raise SectionError("an unbalanced storage read")
 
 
-def closed_key(k: str) -> bool:
+def closed_key(k: str, extra: frozenset = frozenset()) -> bool:
     """A literal storage key: a raw slot word M.W{..} or a structural key M.SK{..} of literal words, w0() and literal
-    steps (I68: a key that reads no state, argument or table)."""
+    steps (I68: a key that reads no state, argument or table; extra: variables it may also name)."""
     if not re.fullmatch(r"[\sA-Za-z0-9_.,{}\[\]()]*", k):
         return False
     toks = set(re.findall(r"(?<![\w.])[A-Za-z_][\w.]*", k))
-    return bool(toks) and toks <= _CLOSED_TOKENS
+    return bool(toks & _CLOSED_TOKENS) and toks <= _CLOSED_TOKENS | extra
 
 
-def sload_keys(code: str) -> list[str]:
-    """The literal keys of the storage reads M.sload(st, K) of a closed term, in order of first appearance."""
+def sload_keys(code: str, extra: frozenset = frozenset()) -> list[str]:
+    """The literal keys of the storage reads M.sload(st, K) of a closed term, in order of first appearance (extra:
+    variables a key may also name, I68's state-dependent keys)."""
     out: list[str] = []
     head = "M.sload(st, "
     i = code.find(head)
@@ -99,10 +100,28 @@ def sload_keys(code: str) -> list[str]:
         j = i + len(head)
         e = _balanced(code, j)
         k = code[j:e]
-        if code[e:e + 1] == ")" and closed_key(k) and k not in out:
+        if code[e:e + 1] == ")" and closed_key(k, extra) and k not in out:
             out.append(k)
         i = code.find(head, i + 1)
     return out
+
+
+def b_keys(code: str) -> tuple[list[str], str]:
+    """(keys, v) of a blocked condition over st: the keys of its storage reads, inner reads first, and the condition
+    over v<i>, the word at keys[i]. A read whose key reads only B's earlier keys (I68: B_363's
+    challenges[sload(st, 167)].startTime) is a key too, written with its inner reads (M.sload(st, K)) in keys and as
+    v<i> in v; reads that remain leave st in v."""
+    keys: list[str] = []
+    v = code
+    while True:
+        names = frozenset(f"v{i}" for i in range(len(keys)))
+        new = sload_keys(v, names)
+        if not new:
+            return keys, v
+        for k in new:
+            i = len(keys)
+            keys.append(re.sub(r"(?<![\w.])v(\d+)(?![\w{])", lambda m: f"M.sload(st, {keys[int(m.group(1))]})", k))
+            v = v.replace(f"M.sload(st, {k})", f"v{i}")
 
 
 class Section:
@@ -165,12 +184,14 @@ class Section:
         except Exception as e:  # noqa: BLE001: the model's compiler refuses the term (named)
             raise SectionError(f"{b['tag']}: the typed model's compiler refuses its blocked condition: {e}") from e
         blk = self.closed(bcode, a)
-        keys = sload_keys(blk)
-        v = blk
-        for i, k in enumerate(keys):
-            v = v.replace(f"M.sload(st, {k})", f"v{i}")
+        keys, v = b_keys(blk)
         literal = re.search(r"(?<![\w.])st(?![\w{])", v) is None
+        # tpl: each key with its inner reads as v<i> (a key that reads B's earlier keys, I68)
+        tpl = [k for k in keys]
+        for i in range(len(keys) - 1, -1, -1):
+            tpl = [t.replace(f"M.sload(st, {keys[i]})", f"v{i}") for t in tpl]
         self.blk[b["tag"]] = {"code": blk, "keys": keys if literal else [], "v": v if literal else None,
+                              "tpl": tpl if literal else [],
                               "time": re.search(r"(?<![\w.])t(?![\w{])", blk) is not None}
         self.chk[b["tag"]] = self.closed(ccode, a)
 
