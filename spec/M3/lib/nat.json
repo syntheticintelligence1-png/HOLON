@@ -1,0 +1,30 @@
+{
+  "nat_version": "holon-nat/0.1",
+  "doc": "I29's sidecar (rule NAT over I28's versioned machine; the contract is the docstring of tests_m3/test_nat.py). Fixed at the prereg; it holds no outcome. The versioned document, its per-version documents, the versioned layer and the deployment record are read through I28's versions sidecar (inputs.versions_sidecar); nothing here names a version, an action or a family of the target.",
+  "inputs": {
+    "versions_sidecar": "spec/M3/lib/versions.json"
+  },
+  "outputs": {
+    "analysis": "gen/M3/nat/nat.json",
+    "model_dir": "gen/M3/nat/models",
+    "module": "morph_rollup_nat.bend",
+    "laws_dir": "gen/M3/laws",
+    "proofs_dir": "gen/M3/proofs",
+    "replay": "replay/M3/nat/report.json"
+  },
+  "search": {
+    "doc": "Rule N7. Traces from vr0, breadth first by length up to max_trace, a state already reached (its version and its storage as a map) not expanded again. Candidate steps at a state, in this order: the migration along the path's next edge by the proxy admin, first by upgradeToAndCall with each initializer the edge introduces (in the edge's order) called with I28's upgrade-path arguments (spec/M3/lib/versions.json upgrade_path.arguments; for the entry edge's initializer, the deployment record's call of its selector; initialize4's expected index from inflight_arguments: the state's lastCommittedBatchIndex), then by upgradeTo; then the deployment record's calls whose selector names an action of the state's version, in record order, each by its recorded caller with its recorded calldata. At every state at the square's source version a: each of the op's candidate calls (op_calls) with each candidate migration of the edge (as above, upgradeToAndCall first) under I28's A-env (holon.versions.machine: the deployment record's block, no value, every external call answered by the labelled stand-in); the first whose claim is false on the versioned machine is the witness. 8 is the shortest trace reaching the path's V10 (the entry edge and seven migrations), so max_trace leaves two steps of slack.",
+    "max_trace": 10,
+    "op_calls": "the deployment record's calls of the op's selector (recorded caller and calldata), in record order; else, when upgrade_path.arguments names the op, one call with those arguments by the deployment record's first call's caller; else the zero call (every word parameter 0, every bytes parameter empty) and, for each bytes argument of the deployment record's calls (in record order), the call with every bytes parameter set to it and every word parameter 0, each by every distinct recorded caller of the deployment record's calls (in record order)",
+    "environment": "I28's A-env on both sides of a square: one environment for the op's call at a and at b, whose call table answers every external call either run makes as the labelled stand-in does and whose code table is the deployment record's code with the stand-in's at the binding's stand-ins"
+  },
+  "gaps": {
+    "native": {
+      "obligation": "whitepaper §5.3 (a), native equivalence op^(k+1)(eta(s)) = op^(k+1)(s^nat) over the in-flight type for this reader: no statement over the versioned machine (rule N4), so no law; whether the reader's behaviour on migrated in-flight objects matches native ones is open (O13, O14 for the cutover's readers)",
+      "question": "I29-Q1 (prompts/I29_nat.md): how should s^nat, the native state of an in-flight object whose writers' ABI changed, be defined"
+    }
+  },
+  "replay": {
+    "runs": "rule N9: per REFUTED NAT record, the run <id>:left (the witness's trace, then its left steps: the migration, then the op at the new version) and the run <id>:right (the trace, then the op at the old version, then the migration), each through I28's versioned harness (holon.versions.replay: the proxy over the placeholder, every path version's implementation built from its commit, the labelled stand-ins), compared step by step as I28's runs are (statuses, revert data, the words of the union of the model's and the real step's written slots, the proxy's EIP-1967 slots aside)"
+  }
+}
