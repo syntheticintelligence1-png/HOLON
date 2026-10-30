@@ -191,6 +191,22 @@ def rebind_facts(law: dict, facts_sha256: str) -> dict:
 
 # ---------------------------------------------------------------- rendering
 def render_term(t: dict) -> str:
+    # holon-ir/0.3 (I33): the typed statement terms over a holon-facts/0.3 document, matched by their exact key sets
+    # (an earlier term never has one of them; "act" alone is I7's action term)
+    ks = set(t)
+    if "sread" in t and ks - {"member"} == {"sread", "keys", "from"}:
+        mem = f".{t['member']}" if "member" in t else ""
+        return f"sread[{t['sread']}{mem}](" + ", ".join(render_term(k) for k in [*t["keys"], t["from"]]) + ")"
+    if ks == {"wnat"}:
+        return f"N({render_term(t['wnat'])})"
+    if ks == {"cmp", "args"}:
+        return f"{render_term(t['args'][0])} {t['cmp']} {render_term(t['args'][1])}"
+    if ks == {"ok", "from"}:
+        return f"ok({render_term(t['ok'])}, {render_term(t['from'])})"
+    if ks == {"is", "act"}:
+        return f"is[{t['is']}]({render_term(t['act'])})"
+    if ks == {"env", "of"}:
+        return f"env.{t['env']}({render_term(t['of'])})"
     # holon-ir/0.1 (header laws)
     if "var" in t:
         return t["var"]

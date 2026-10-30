@@ -397,6 +397,24 @@
     },
     {
      "$ref": "#/$defs/t_init"
+    },
+    {
+     "$ref": "#/$defs/t_sread"
+    },
+    {
+     "$ref": "#/$defs/t_wnat"
+    },
+    {
+     "$ref": "#/$defs/t_cmp"
+    },
+    {
+     "$ref": "#/$defs/t_ok"
+    },
+    {
+     "$ref": "#/$defs/t_is"
+    },
+    {
+     "$ref": "#/$defs/t_env"
     }
    ]
   },
@@ -1012,6 +1030,129 @@
      "$ref": "#/$defs/term"
     },
     "env": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_sread": {
+   "type": "object",
+   "required": [
+    "sread",
+    "keys",
+    "from"
+   ],
+   "additionalProperties": false,
+   "description": "I33 (B1): a Word, the word at storage family F of the law's holon-facts/0.3 document at the mapping keys K (one Word term per mapping level of F; [] for a scalar) and, for a struct family, its member M (required exactly when F declares fields), in state S; a packed member is its masked field and a key missing from the store reads 0; rendered sread[F.M](K.., S); its statement ref storage:F hashes the family's canonical facts entry (holon.gen.refs)",
+   "properties": {
+    "sread": {
+     "$ref": "#/$defs/ident"
+    },
+    "keys": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    },
+    "member": {
+     "$ref": "#/$defs/ident"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_wnat": {
+   "type": "object",
+   "required": [
+    "wnat"
+   ],
+   "additionalProperties": false,
+   "description": "I33 (B1): a Nat, N(W) = the sum over the eight 32-bit limbs of W of to_nat(limb_i) * 2^(32 i), the word read as a natural number; rendered N(W)",
+   "properties": {
+    "wnat": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_cmp": {
+   "type": "object",
+   "required": [
+    "cmp",
+    "args"
+   ],
+   "additionalProperties": false,
+   "description": "I33 (B1): a Bool, A C B over two Nat terms; rendered A C B",
+   "properties": {
+    "cmp": {
+     "enum": [
+      "<=",
+      "<",
+      "=="
+     ]
+    },
+    "args": {
+     "type": "array",
+     "minItems": 2,
+     "maxItems": 2,
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_ok": {
+   "type": "object",
+   "required": [
+    "ok",
+    "from"
+   ],
+   "additionalProperties": false,
+   "description": "I33 (B1): a Bool, every check of the act X's action holds from state S (the model's chk_<action> is 0); rendered ok(X, S)",
+   "properties": {
+    "ok": {
+     "$ref": "#/$defs/term"
+    },
+    "from": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_is": {
+   "type": "object",
+   "required": [
+    "is",
+    "act"
+   ],
+   "additionalProperties": false,
+   "description": "I33 (B1): a Bool, the act X is an act of action A of the law's document; rendered is[A](X); its statement ref action:A hashes the action's canonical facts entry (holon.gen.refs)",
+   "properties": {
+    "is": {
+     "$ref": "#/$defs/ident"
+    },
+    "act": {
+     "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_env": {
+   "type": "object",
+   "required": [
+    "env",
+    "of"
+   ],
+   "additionalProperties": false,
+   "description": "I33 (B1): a Word, the field E of the act X's environment; rendered env.E(X)",
+   "properties": {
+    "env": {
+     "enum": [
+      "caller",
+      "msg_value",
+      "block_timestamp",
+      "this",
+      "msg_data_length"
+     ]
+    },
+    "of": {
      "$ref": "#/$defs/term"
     }
    }

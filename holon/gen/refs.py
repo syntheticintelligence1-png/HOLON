@@ -28,6 +28,9 @@ refs is the transitive closure of what the statement names, over the facts def g
   consumer:NAME      facts.consumers[NAME] (doc removed), with `acts`
   hyp:H              the oracle sidecar entry whose hypothesis is H, restricted to {parameter, hypothesis} (I12;
                      holon.gen.oracles.Oracles.hyp_ref). Without a sidecar, the hash of null.
+  storage:F          (I33) the storage family F of a typed read {sread: F, ..} as the holon-facts/0.3 document declares
+                     it (doc and src removed): its slot, key, fields and widths
+  action:A           (I33) the action A of an is[A] test as the document states it (doc and src removed)
   eq_nat, ..         an IR builtin (holon.gen.mlaws.BUILTINS) under the rule catalog version
   tmpl:NAME, dsl:NAME  a generator-synthesized helper (step, run, obs, runs_ok, last_ok, no_code, perm, cost,
                      elapsed, is_act, consumer, observer, migration, s0, reach) or a DSL builtin the generator
@@ -190,6 +193,17 @@ class _Closure:
         for e in (a.get("effects") or {}).values():
             self.expr(e)
 
+    def storage(self, name: str) -> None:
+        """storage:<F> (I33): a typed read's family as the facts declare it (doc and src removed), so a change to its
+        layout (slot, key, fields and their slots and widths) moves the statement hash."""
+        fam = next((s for s in self.f.get("storage", []) or [] if s.get("name") == name), None)
+        self.put("storage:" + name, None if fam is None else strip_meta(fam))
+
+    def action_entry(self, name: str) -> None:
+        """action:<A> (I33): the action an is[A] test names, as the facts state it (doc and src removed)."""
+        a = self.acts.get(name)
+        self.put("action:" + name, None if a is None else strip_meta(a))
+
     def reach(self, t) -> None:
         """The actions a step/run/obs/runs_ok argument can reach: its literals, or every action."""
         lits = self.literal_actions(t)
@@ -325,6 +339,16 @@ class _Closure:
                     self.expr(e)
             self.term(t.get("of"))
             self.term(t.get("args", []))
+            return
+        ks = set(t)
+        if isinstance(t.get("sread"), str) and ks - {"member"} == {"sread", "keys", "from"}:   # I33 (B1): a storage read
+            self.storage(t["sread"])
+            self.term(t["keys"])
+            self.term(t["from"])
+            return
+        if isinstance(t.get("is"), str) and ks == {"is", "act"}:   # I33 (B1): an action test
+            self.action_entry(t["is"])
+            self.term(t["act"])
             return
         for k in ("run", "step", "obs"):
             if k in t:
