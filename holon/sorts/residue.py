@@ -492,7 +492,20 @@ class Loops:
         self.made[key] = (p, cx)
         return p, cx
 
+    def acc(self, ch: Chain, L: int):
+        key = (ch.p, "acc", L)
+        if key not in self.made:
+            try:
+                self.made[key] = Acc(self.md, ch, L, self.defs)
+            except NoProof as e:
+                self.made[key] = e
+        return self.made[key]
+
     def at(self, ch: Chain, node: Loop, cur: dict, pf: str, state: tuple) -> str:
+        if ch.f.goal[0] == "le" and state[0] == "eq":
+            acc = self.acc(ch, node.L)
+            if isinstance(acc, Acc):
+                return self.at_acc(ch, acc, node, pf, state)
         if state[0] != "eq":
             raise NoProof(f"{ch.ab}: its loop {node.L} meets a bounded fact (an accumulating loop is not built here)")
         vals = ch.vals(node.rec.fields)
@@ -542,6 +555,91 @@ class Loops:
             f"      {body}\n")
         return f"{cname}({ch.fixed_args()}{ch.var_args()}, {pf}, {y}, {hy}, hz)"
 
+    def rewrite_fixed(self, ch: Chain, O: str, obq: str, ref: str, getter: str, inner: str, la, hz: str):
+        """(hz rewritten to the context's fixed fields, the goal's proof from inner with them rewritten back)."""
+        ab, X = ch.ab, ch.X
+        fx = [("st", "M.HSt"), ("ar", f"M.AR_{ab}"), ("en", "M.HEnv"), ("kh", "List<&2, M.HKB>")]
+        eqs = {q: (t, f"Equal.cong({O}, {t}, z => {getter}_g{i}(z), {obq}, {ref}, hy)") for i, (q, t) in enumerate(fx)}
+        ctxn = {q: FX[q] for q, _t in fx}
+        cur_f = {q: f"y_{q}" for q in ch.fields}
+        for q, _t in fx:
+            holes = dict(cur_f)
+            holes[q] = "_"
+            r = f"{X}{{{', '.join(holes[z] for z in ch.fields)}}}"
+            hz = f"(%{eqs[q][1]} : {ch.hz(la(r))}\n        {hz})"
+            cur_f[q] = ctxn[q]
+        body = inner.replace("@HZ@", hz)
+        cur_f = {q: ctxn.get(q, f"y_{q}") for q in ch.fields}
+        for q, t in reversed(fx):
+            holes = dict(cur_f)
+            holes[q] = "_"
+            r = f"{X}{{{', '.join(holes[z] for z in ch.fields)}}}"
+            body = f"(%Equal.sym({t}, y_{q}, {ctxn[q]}, {eqs[q][1]}) : {ch.goal(la(r))}\n        {body})"
+            cur_f[q] = f"y_{q}"
+        return body, eqs
+
+    def at_acc(self, ch: Chain, acc: Acc, node: Loop, pf: str, state: tuple) -> str:
+        """The accumulating loop: its observation from the start (inv at it = 0, the shadow the pre-state), through
+        the fuel induction, then the continuation from the bound its invariant gives."""
+        acc.lemmas()
+        vals = ch.vals(node.rec.fields)
+        ab, X, q, O, ob = ch.ab, ch.X, acc.q, acc.n("Ob"), acc.n("ob")
+        OV, CD = vals["ov"], vals["cd"]
+        ls = f"M.ls_{ab}_{node.L}({ch.rec(vals)})"
+        y = f"M.lp_{ab}_{node.L}({node.fuel}, {node.d}, {ls})"
+        inv0 = f"{acc.n('inv')}({q}, st, {OV}, st, M.w0())"
+        oT = f"{O}{{st, ar, e, kh, True{{}}}}"
+        h0 = (f"(%Equal.sym(Bool, Bool.or(M.u_nz({CD}), {inv0}), True{{}}, or_r(M.u_nz({CD}), {inv0}, "
+              f"{acc.n('init')}({q}, st, {OV}, {pf}))) : {{{O}{{st, ar, e, kh, _}} == {oT} : {O}}}\n        {{==}})")
+        hy = f"{acc.p}_lp({node.fuel}, {node.d}, {q}, {ls}, st, ar, e, kh, {h0})"
+        ch.nb += 1
+        cname = f"{ch.p}_c{ch.nb}"
+        aname = self.after_acc(ch, acc, node.n)
+        ys = [f"y_{z}" for z in ch.fields]
+        pat = f"{X}{{{', '.join('+' + v for v in ys)}}}"
+        yrec = f"{X}{{{', '.join(ys)}}}"
+        obq = f"{ob}({q}, {yrec})"
+        la = lambda r: f"M.la_{ab}_{node.n}(M.u_nz(y_cd), {r})"
+        hiy0 = f"Equal.cong({O}, Bool, z => {ob}_g4(z), {obq}, {oT}, hy)"
+        hiy = (f"(%Equal.cong({O}, M.HSt, z => {ob}_g0(z), {obq}, {oT}, hy) : {{Bool.or(M.u_nz(y_cd), "
+               f"{acc.n('inv')}({q}, _, y_ov, y_{acc.SH}, y_{acc.IX})) == True{{}} : Bool}}\n        {hiy0})")
+        inner = f"{aname}({ch.fixed_args()}" + "".join(f", y_{z}" for z in ch.var) + f", {hiy}, @HZ@)"
+        body, _eqs = self.rewrite_fixed(ch, O, obq, oT, ob, inner, la, "hz")
+        x = f"M.la_{ab}_{node.n}(M.u_nz(M.gx_{ab}_cd(y)), y)"
+        self.defs.append(
+            f"def {cname}({ch.fixed_params()}, +y: {X}, +hy: {{{ob}({q}, y) == {oT} : {O}}}, +hz: {ch.hz(x)}) -> "
+            f"{ch.goal(x)}:\n  match y:\n    case {pat}:\n      {body}\n")
+        return f"{cname}({ch.fixed_args()}, {y}, {hy}, hz)"
+
+    def after_acc(self, ch: Chain, acc: Acc, n: int) -> str:
+        key = (ch.p, "after_acc", n)
+        if key in self.made:
+            return self.made[key]
+        ch.nb += 1
+        name = f"{ch.p}_aa{ch.nb}"
+        self.made[key] = name
+        rv = [ch.fixed.get(z, f"v_{z}") for z in ch.fields]
+        node = ch.mi.after_loop(n, Record(f"X_{ch.ab}", rv))
+        if not isinstance(node, Branch) or not isinstance(node.other, Next):
+            raise NoProof(f"{ch.ab}: its loop statement {n} does not continue to a next statement")
+        REC = ch.vrec()
+        la = lambda c: f"M.la_{ch.ab}_{n}({c}, {REC})"
+        q = acc.q
+        invv = f"{acc.n('inv')}({q}, st, v_ov, v_{acc.SH}, v_{acc.IX})"
+        hI = f"+hI: {{Bool.or(M.u_nz(v_cd), {invv}) == True{{}} : Bool}}"
+        bnd = (f"{acc.n('bnd')}({q}, st, v_ov, v_{acc.SH}, v_{acc.IX}, (%ec : {{Bool.or(_, {invv}) == True{{}} : Bool}}\n"
+               f"      hI))")
+        nxt = ch.call(ch.stmt(node.other.j, ch.f.goal), ch.vals(node.other.fields), bnd)
+        self.defs.append(
+            f"def {name}c(c: Bool, {ch.fixed_params()}{ch.var_params()}, {hI}, +ec: {{M.u_nz(v_cd) == c : Bool}}, "
+            f"+hz: {ch.hz(la('c'))}) -> {ch.goal(la('c'))}:\n  match c:\n    case True{{}}:\n"
+            f"      efq({ch.goal(la('True{}'))}, true_ne_false(Equal.trans(Bool, True{{}}, M.u_nz(v_cd), False{{}}, "
+            f"Equal.sym(Bool, M.u_nz(v_cd), True{{}}, ec), hz)))\n    case False{{}}:\n      {nxt}\n")
+        self.defs.append(
+            f"def {name}({ch.fixed_params()}{ch.var_params()}, {hI}, +hz: {ch.hz(la('M.u_nz(v_cd)'))}) -> "
+            f"{ch.goal(la('M.u_nz(v_cd)'))}:\n  {name}c(M.u_nz(v_cd), {ch.fixed_args()}{ch.var_args()}, hI, {{==}}, hz)\n")
+        return name
+
     def after(self, ch: Chain, n: int, state: tuple) -> str:
         """la_<a>_<n> on the record of the loop's result (its varying fields v_<f>), the invariant on its overlay."""
         key = (ch.p, "after", n, state)
@@ -583,6 +681,27 @@ def helpers(actions: list) -> str:
         f"def le_rw(+a: {W}, +r1: {W}, +r2: {W}, +d1: {W}, +d2: {W}, e: {le('a', 'r1', 'd1')}, er: {{r1 == r2 : {W}}}, "
         f"ed: {{d1 == d2 : {W}}}) -> {le('a', 'r2', 'd2')}:\n"
         f"  (%er : {le('a', '_', 'd2')}\n  (%ed : {le('a', 'r1', '_')}\n  e))\n",
+        "def neq_r(+a: Nat) -> {Nat.is_eq(a, a) == True{} : Bool}:\n"
+        "  (%Equal.sym(Cmp, Nat.cmp(a, a), EQ{}, n_cmp_refl(a)) : {Cmp.is_eq(_) == True{} : Bool}\n  {==})\n",
+        "def neq_t(a: Nat, b: Nat, e: {Nat.is_eq(a, b) == True{} : Bool}) -> {a == b : Nat}:\n  match a b:\n"
+        "    case 0n 0n:\n      {==}\n    case 0n 1n+q:\n      efq({0n == 1n+q : Nat}, false_ne_true(e))\n"
+        "    case 1n+p 0n:\n      efq({1n+p == 0n : Nat}, false_ne_true(e))\n"
+        "    case 1n+p 1n+q:\n      Equal.cong(Nat, Nat, z => 1n+z, p, q, neq_t(p, q, e))\n",
+        "def neq_i(+a: Nat, +b: Nat, e: {a == b : Nat}) -> {Nat.is_eq(a, b) == True{} : Bool}:\n"
+        "  (%Equal.sym(Nat, a, b, e) : {Nat.is_eq(_, b) == True{} : Bool}\n  neq_r(b))\n",
+        f"def weq_i(+a: {W}, +b: {W}, e: {{a == b : {W}}}) -> {{M.w_eq(a, b) == True{{}} : Bool}}:\n"
+        f"  (%Equal.sym({W}, a, b, e) : {{M.w_eq(_, b) == True{{}} : Bool}}\n  w_eq_self(b))\n",
+        "def or_l(a: Bool, +b: Bool, +e: {a == True{} : Bool}) -> {Bool.or(a, b) == True{} : Bool}:\n  match a:\n"
+        "    case True{}:\n      {==}\n    case False{}:\n      efq({Bool.or(False{}, b) == True{} : Bool}, false_ne_true(e))\n",
+        "def or_r(a: Bool, +b: Bool, +e: {b == True{} : Bool}) -> {Bool.or(a, b) == True{} : Bool}:\n  match a:\n"
+        "    case True{}:\n      {==}\n    case False{}:\n      e\n",
+        "def val_up(a: Bool, +l: Bool, +t1: Bool, +t2: Bool, +e: {Bool.or(a, Bool.and(l, t1)) == True{} : Bool}, "
+        "f: {t1 == True{} : Bool} -> {t2 == True{} : Bool}) -> {Bool.or(a, Bool.and(l, t2)) == True{} : Bool}:\n"
+        "  match a:\n    case True{}:\n      {==}\n    case False{}:\n"
+        "      and_intro(l, t2, and_l(l, t1, e), f(and_r(l, t1, e)))\n",
+        "def val_hit(a: Bool, +l: Bool, +t1: Bool, +x: Bool, ea: {a == True{} : Bool} -> {x == True{} : Bool}, "
+        "eb: {Bool.and(l, t1) == True{} : Bool} -> {x == True{} : Bool}, e: {Bool.or(a, Bool.and(l, t1)) == True{} : "
+        "Bool}) -> {x == True{} : Bool}:\n  match a:\n    case True{}:\n      ea({==})\n    case False{}:\n      eb(e)\n",
     ]
     return "\n".join(out)
 
@@ -626,3 +745,333 @@ def step_lemma(ch: Chain, name: str) -> str:
             f"M.gx_{ab}_cd({F})) == False{{}} : Bool}}) -> {gl}:\n"
             f"  (%Equal.sym(M.HSt, M.gh_get_st(M.gh_go_{ab}({F}, g)), M.gx_{ab}_ov({F}), go_ov_{ab}({F}, g, hz)) : "
             f"{motive}\n  {top}(M.gh_get_st(g), ar, e, kh{f.pa()}, hz))\n")
+
+
+# ------------------------------------------------------------------------------------------------ accumulating loops
+W1 = "M.W{1, 0, 0, 0, 0, 0, 0, 0}"
+LOOP_PARTS = ("li", "lh", "lb", "lc", "lk", "ln", "lbk", "lx", "lz", "ls")
+
+
+class Acc:
+    """A loop that adds D to the word at its key K(c0 + it) of the overlay and of a shadow store it reads, once per
+    iteration, it stepping by one under the checked increment of c0 + it (holon.sorts.residue_lemmas' ks_*): the
+    word at the fact's key k grows by at most D over the whole loop. The invariant (inv_<p>, over the record's own
+    pre-state s, overlay ov, shadow c1 and index it) is
+
+      N(c0 + it) == N(c0) + N(it),  ov and c1 agree at k,  and c1 holds at k the pre-state's word, or a word at most
+      N(pre-state's) + N(D) with N(k) < N(c0 + it) (k already met)
+
+    or the record's code is not 0 (a revert ends the loop). It is the last component of the loop's observation, the
+    others the record's fixed fields, kept by every iteration and by induction on the fuel."""
+
+    def __init__(self, md: Model, ch: "Chain", L: int, defs: list):
+        self.md, self.ch, self.L, self.defs = md, ch, L, defs
+        f = ch.f
+        if f.goal[0] != "le" or len(f.params) != 1 or f.params[0][1] != "M.W":
+            raise NoProof(f"{ch.ab}: an accumulating loop needs a bounded fact at a key of one word")
+        self.q = f.params[0][0]
+        self.K, self.D = f.K, f.goal[2]
+        if f.goal[1] != f"M.sload(st, {self.K})":
+            raise NoProof(f"{ch.ab}: the bounded fact is not over the pre-state's word")
+        ab, mi = ch.ab, ch.mi
+        self.ab, self.p, self.X = ab, f"{ch.p}A{L}", ch.X
+        vals = [ch.fixed.get(q, f"v_{q}") for q in ch.fields]
+        lc = mi.apply(f"lb_{ab}_{L}", [Record(f"X_{ab}", vals)])
+        if not isinstance(lc, Branch) or not isinstance(lc.other, Record) or lc.cond.strip() != "M.u_nz(v_cd)":
+            raise NoProof(f"{ab}: its loop {L}'s step is not of the known shape (lb, lc)")
+        ln = dict(zip(ch.fields, [x.strip() for x in lc.other.fields]))
+        self.IX = self.SH = None
+        for q, v in ln.items():
+            if v == f"M.w_add(v_{q}, M.w_u(1))":
+                self.IX = q
+            c = as_call(v)
+            if c and c[0] == "M.ite" and len(c[1]) == 4 and c[1][0].strip() == "M.HSt" and c[1][3].strip() == f"v_{q}":
+                self.SH, self.COND = q, _strip(c[1][1])
+                s = as_call(c[1][2].strip())
+                if not s or s[0] != "M.sstore" or s[1][0].strip() != f"v_{q}":
+                    raise NoProof(f"{ab}: its loop {L}'s shadow store is not of the known shape")
+                self.KEYW, self.VAL = _strip(s[1][1]), _strip(s[1][2])
+        if self.IX is None or self.SH is None:
+            raise NoProof(f"{ab}: its loop {L} has no index stepping by one and shadow store")
+        from ..disch.proofs import sk_parts
+        pk, pf = sk_parts(self.KEYW), sk_parts(self.K)
+        if not pk or not pf or pk[:2] != pf[:2] or len(pk[2]) != 1 or len(pf[2]) != 1 or pk[2][0][1] != pf[2][0][1] \
+                or pf[2][0][0] != self.q:
+            raise NoProof(f"{ab}: its loop {L} stores at {self.KEYW[:120]}, not the fact's key at another word")
+        self.KW = _strip(pk[2][0][0])
+        c = as_call(self.KW)
+        if not c or c[0] != "M.w_add" or c[1][1].strip() != f"v_{self.IX}" or re.search(r"(?<![\w.])v_\w+", c[1][0]):
+            raise NoProof(f"{ab}: its loop {L}'s key word is not c0 + its index")
+        self.C0 = _strip(c[1][0])
+        if _strip(norm_value(self.VAL)) != _strip(f"M.w_add(M.sload(v_{self.SH}, {self.KEYW}), {self.D})"):
+            raise NoProof(f"{ab}: its loop {L} stores {self.VAL[:120]}, not the shadow's word plus the fact's bound")
+        ls = mi.apply(f"ls_{ab}_{L}", [Record(f"X_{ab}", vals)])
+        lsd = dict(zip(ch.fields, [x.strip() for x in ls.fields])) if isinstance(ls, (Record, Final)) else {}
+        if lsd.get(self.SH) != "st" or lsd.get(self.IX) != "M.w0()" or lsd.get("ov") != "v_ov" or lsd.get("cd") != "v_cd":
+            raise NoProof(f"{ab}: its loop {L} does not start its shadow at the pre-state and its index at 0")
+        self.nb = 0
+        self.made = False
+
+    # names and terms
+    def n(self, s: str) -> str:
+        return f"{s}_{self.p}"
+
+    def kat(self, w: str) -> str:
+        return _sub(self.K, {self.q: w})
+
+    def lemmas(self) -> None:
+        if self.made:
+            return
+        self.made = True
+        q, K, p = self.q, self.K, self.p
+        c0, kw, dd, invw, inv_ = self.n("c0"), self.n("kw"), self.n("dd"), self.n("invw"), self.n("inv")
+        J = lambda s, it: f"Nat.is_eq({N}({kw}({s}, {it})), Nat.add({N}({c0}({s})), {N}({it})))"
+        SY = lambda wo, wc: f"M.w_eq({wo}, {wc})"
+        A = lambda s: f"M.sload({s}, {K})"
+        EQA = lambda wc, s: f"M.w_eq({wc}, {A(s)})"
+        LE = lambda wc, s: f"Nat.is_le({N}({wc}), Nat.add({N}({A(s)}), {N}({dd}({s}))))"
+        LT = lambda s, it: f"Nat.is_lt({N}({q}), {N}({kw}({s}, {it})))"
+        VL = lambda wc, s, it: f"Bool.or({EQA(wc, s)}, Bool.and({LE(wc, s)}, {LT(s, it)}))"
+        it1 = f"M.w_add(it, {W1})"
+        X = self.X
+        d = [f"def {c0}(+s: M.HSt) -> M.W:\n  {_sub(self.C0, {'st': 's'})}\n",
+             f"def {kw}(+s: M.HSt, +it: M.W) -> M.W:\n  M.w_add({c0}(s), it)\n",
+             f"def {dd}(+s: M.HSt) -> M.W:\n  {_sub(self.D, {'st': 's'})}\n",
+             f"def {invw}(+{q}: M.W, +s: M.HSt, +wo: M.W, +wc: M.W, +it: M.W) -> Bool:\n"
+             f"  Bool.and({J('s', 'it')}, Bool.and({SY('wo', 'wc')}, {VL('wc', 's', 'it')}))\n",
+             f"def {inv_}(+{q}: M.W, +s: M.HSt, +ov: M.HSt, +c1: M.HSt, +it: M.W) -> Bool:\n"
+             f"  {invw}({q}, s, M.sload(ov, {K}), M.sload(c1, {K}), it)\n"]
+        hdr = (f"+{q}: M.W, +s: M.HSt, +wo: M.W, +wc: M.W, +it: M.W, +hI: {{{invw}({q}, s, wo, wc, it) == True{{}} : "
+               f"Bool}}, +ok: {{M.w_add_ok({kw}(s, it), {W1}) == True{{}} : Bool}}")
+        lets = (f"  +hJ = and_l({J('s', 'it')}, Bool.and({SY('wo', 'wc')}, {VL('wc', 's', 'it')}), hI)\n"
+                f"  +hR = and_r({J('s', 'it')}, Bool.and({SY('wo', 'wc')}, {VL('wc', 's', 'it')}), hI)\n"
+                f"  +hS = and_l({SY('wo', 'wc')}, {VL('wc', 's', 'it')}, hR)\n"
+                f"  +hV = and_r({SY('wo', 'wc')}, {VL('wc', 's', 'it')}, hR)\n"
+                f"  +Je = neq_t({N}({kw}(s, it)), Nat.add({N}({c0}(s)), {N}(it)), hJ)\n")
+        jn = (f"neq_i({N}({kw}(s, {it1})), Nat.add({N}({c0}(s)), {N}({it1})), ks_j({c0}(s), it, Je, ok))")
+        kss = f"ks_s({c0}(s), it, Je, ok)"
+        ltup = (f"h => (%Equal.sym(Nat, {N}({kw}(s, {it1})), Nat.add({N}({kw}(s, it)), {N}({W1})), {kss}) : "
+                f"{{Nat.is_lt({N}({q}), _) == True{{}} : Bool}}\n    lt_up({N}({q}), {N}({kw}(s, it)), h))")
+        # the index steps, the key is not met (or not written)
+        d.append(f"def {self.n('stn')}({hdr}) -> {{{invw}({q}, s, wo, wc, {it1}) == True{{}} : Bool}}:\n{lets}"
+                 f"  and_intro({J('s', it1)}, Bool.and({SY('wo', 'wc')}, {VL('wc', 's', it1)}), {jn}, "
+                 f"and_intro({SY('wo', 'wc')}, {VL('wc', 's', it1)}, hS, val_up({EQA('wc', 's')}, {LE('wc', 's')}, "
+                 f"{LT('s', 'it')}, {LT('s', it1)}, hV, {ltup})))\n")
+        # the key is met: the word becomes wc + D, at most the pre-state's + D, and k < c0 + it + 1
+        VW = f"M.w_add(wc, {dd}(s))"
+        lsucc = (f"(%Equal.sym(Nat, {N}({kw}(s, {it1})), Nat.add({N}({kw}(s, it)), {N}({W1})), {kss}) : "
+                 f"{{Nat.is_lt({N}({q}), _) == True{{}} : Bool}}\n  (%Equal.sym(M.W, {kw}(s, it), {q}, e) : "
+                 f"{{Nat.is_lt({N}({q}), Nat.add({N}(_), {N}({W1}))) == True{{}} : Bool}}\n  lt_succ({N}({q}))))")
+        casea = (f"h1 => (%Equal.sym(M.W, wc, {A('s')}, w_refl(wc, {A('s')}, h1)) : {{Nat.is_le({N}(M.w_add(_, {dd}(s))), "
+                 f"Nat.add({N}({A('s')}), {N}({dd}(s)))) == True{{}} : Bool}}\n    w_wrap({A('s')}, {dd}(s)))")
+        caseb = (f"h2 => efq({{{LE(VW, 's')} == True{{}} : Bool}}, false_ne_true(Equal.trans(Bool, False{{}}, "
+                 f"Nat.is_lt({N}({q}), {N}({q})), True{{}}, Equal.sym(Bool, Nat.is_lt({N}({q}), {N}({q})), False{{}}, "
+                 f"lt_irr({N}({q}))), (%e : {{Nat.is_lt({N}({q}), {N}(_)) == True{{}} : Bool}}\n    "
+                 f"and_r({LE('wc', 's')}, {LT('s', 'it')}, h2)))))")
+        lep = f"val_hit({EQA('wc', 's')}, {LE('wc', 's')}, {LT('s', 'it')}, {LE(VW, 's')}, {casea}, {caseb}, hV)"
+        d.append(f"def {self.n('hit')}({hdr}, +e: {{{kw}(s, it) == {q} : M.W}}) -> {{{invw}({q}, s, {VW}, {VW}, {it1}) "
+                 f"== True{{}} : Bool}}:\n{lets}"
+                 f"  and_intro({J('s', it1)}, Bool.and({SY(VW, VW)}, {VL(VW, 's', it1)}), {jn}, "
+                 f"and_intro({SY(VW, VW)}, {VL(VW, 's', it1)}, w_eq_self({VW}), or_r({EQA(VW, 's')}, "
+                 f"Bool.and({LE(VW, 's')}, {LT('s', it1)}), and_intro({LE(VW, 's')}, {LT('s', it1)}, {lep}, {lsucc}))))\n")
+        # the step with the store: by cases on the key word meeting k
+        Kw = self.kat(f"{kw}(s, it)")
+        V = lambda key: f"M.w_add(M.sload(c1, {key}), {dd}(s))"
+        RO = f"M.sload(M.sstore(ov, {Kw}, {V(Kw)}), {K})"
+        RC = f"M.sload(M.sstore(c1, {Kw}, {V(Kw)}), {K})"
+        goal_w = f"{{{invw}({q}, s, {RO}, {RC}, {it1}) == True{{}} : Bool}}"
+        hw = (f"+{q}: M.W, +s: M.HSt, +ov: M.HSt, +c1: M.HSt, +it: M.W, +hI: {{{inv_}({q}, s, ov, c1, it) == True{{}} : "
+              f"Bool}}, +ok: {{M.w_add_ok({kw}(s, it), {W1}) == True{{}} : Bool}}")
+        ne1, ne2 = sk_ne_proof(Kw, K, "ec"), sk_ne_proof(K, Kw, f"w_ne_sym({kw}(s, it), {q}, ec)")
+        if ne1 is None or ne2 is None:
+            raise NoProof(f"{self.ab}: no key inequality for its loop's key")
+        Kh = self.kat("_")
+        VQ = V(K)
+        hit = (f"(%Equal.sym(M.W, M.sload(M.sstore(ov, {K}, {VQ}), {K}), {VQ}, st_same(ov, {K}, {VQ})) : "
+               f"{{{invw}({q}, s, _, M.sload(M.sstore(c1, {K}, {VQ}), {K}), {it1}) == True{{}} : Bool}}\n"
+               f"        (%Equal.sym(M.W, M.sload(M.sstore(c1, {K}, {VQ}), {K}), {VQ}, st_same(c1, {K}, {VQ})) : "
+               f"{{{invw}({q}, s, {VQ}, _, {it1}) == True{{}} : Bool}}\n"
+               f"        {self.n('hit')}({q}, s, M.sload(ov, {K}), M.sload(c1, {K}), it, hI, ok, e)))")
+        d.append(
+            f"def {self.n('stwc')}(c: Bool, {hw}, +ec: {{M.w_eq({kw}(s, it), {q}) == c : Bool}}) -> {goal_w}:\n"
+            f"  match c:\n    case True{{}}:\n      +e = w_refl({kw}(s, it), {q}, ec)\n"
+            f"      (%Equal.sym(M.W, {kw}(s, it), {q}, e) : {{{invw}({q}, s, M.sload(M.sstore(ov, {Kh}, {V(Kh)}), {K}), "
+            f"M.sload(M.sstore(c1, {Kh}, {V(Kh)}), {K}), {it1}) == True{{}} : Bool}}\n      {hit})\n"
+            f"    case False{{}}:\n"
+            f"      (%Equal.sym(M.W, {RO}, M.sload(ov, {K}), st_frame(ov, {Kw}, {V(Kw)}, {K}, {ne1}, {ne2})) : "
+            f"{{{invw}({q}, s, _, {RC}, {it1}) == True{{}} : Bool}}\n"
+            f"      (%Equal.sym(M.W, {RC}, M.sload(c1, {K}), st_frame(c1, {Kw}, {V(Kw)}, {K}, {ne1}, {ne2})) : "
+            f"{{{invw}({q}, s, M.sload(ov, {K}), _, {it1}) == True{{}} : Bool}}\n"
+            f"      {self.n('stn')}({q}, s, M.sload(ov, {K}), M.sload(c1, {K}), it, hI, ok)))\n")
+        d.append(f"def {self.n('stw')}({hw}) -> {goal_w}:\n"
+                 f"  {self.n('stwc')}(M.w_eq({kw}(s, it), {q}), {q}, s, ov, c1, it, hI, ok, {{==}})\n")
+        # the start and the end
+        w0 = "M.w0()"
+        d.append(f"def {self.n('init')}(+{q}: M.W, +s: M.HSt, +ov: M.HSt, +e: {{M.sload(ov, {K}) == {A('s')} : M.W}}) -> "
+                 f"{{{inv_}({q}, s, ov, s, {w0}) == True{{}} : Bool}}:\n"
+                 f"  and_intro({J('s', w0)}, Bool.and({SY(f'M.sload(ov, {K})', A('s'))}, {VL(A('s'), 's', w0)}), "
+                 f"neq_i({N}({kw}(s, {w0})), Nat.add({N}({c0}(s)), {N}({w0})), ks_0({c0}(s))), "
+                 f"and_intro({SY(f'M.sload(ov, {K})', A('s'))}, {VL(A('s'), 's', w0)}, weq_i(M.sload(ov, {K}), {A('s')}, e), "
+                 f"or_l({EQA(A('s'), 's')}, Bool.and({LE(A('s'), 's')}, {LT('s', w0)}), w_eq_self({A('s')}))))\n")
+        wo, wc = f"M.sload(ov, {K})", f"M.sload(c1, {K})"
+        d.append(f"def {self.n('bnd')}(+{q}: M.W, +s: M.HSt, +ov: M.HSt, +c1: M.HSt, +it: M.W, +hI: {{{inv_}({q}, s, ov, c1, "
+                 f"it) == True{{}} : Bool}}) -> {{{LE(wo, 's')} == True{{}} : Bool}}:\n"
+                 f"  +hR = and_r({J('s', 'it')}, Bool.and({SY(wo, wc)}, {VL(wc, 's', 'it')}), hI)\n"
+                 f"  +hS = and_l({SY(wo, wc)}, {VL(wc, 's', 'it')}, hR)\n"
+                 f"  +hV = and_r({SY(wo, wc)}, {VL(wc, 's', 'it')}, hR)\n"
+                 f"  (%Equal.sym(M.W, {wo}, {wc}, w_refl({wo}, {wc}, hS)) : {{Nat.is_le({N}(_), Nat.add({N}({A('s')}), "
+                 f"{N}({dd}(s)))) == True{{}} : Bool}}\n"
+                 f"  val_hit({EQA(wc, 's')}, {LE(wc, 's')}, {LT('s', 'it')}, {LE(wc, 's')}, h1 => wk({wc}, {A('s')}, "
+                 f"{dd}(s), w_refl({wc}, {A('s')}, h1)), h2 => and_l({LE(wc, 's')}, {LT('s', 'it')}, h2), hV))\n")
+        # the observation and the fuel induction
+        ab, L, O, ob = self.ab, self.L, self.n("Ob"), self.n("ob")
+        fields = self.ch.fields
+        tys = ["M.HSt", f"M.AR_{ab}", "M.HEnv", "List<&2, M.HKB>", "Bool"]
+        pat = f"{X}{{{', '.join('+x_' + z for z in fields)}}}"
+        xrec = f"{X}{{{', '.join('x_' + z for z in fields)}}}"
+        d.append(f"type {O} is Data:\n  {O}{{{', '.join(f'f{i}: {t}' for i, t in enumerate(tys))}}}\n")
+        d.append(f"def {ob}(+{q}: M.W, r: {X}) -> {O}:\n  match r:\n    case {pat}:\n"
+                 f"      {O}{{x_st, x_ar, x_en, x_kh, Bool.or(M.u_nz(x_cd), {inv_}({q}, x_st, x_ov, x_{self.SH}, "
+                 f"x_{self.IX}))}}\n")
+        gs = ", ".join(f"+a{i}" for i in range(5))
+        for i, t in enumerate(tys):
+            d.append(f"def {ob}_g{i}(o: {O}) -> {t}:\n  match o:\n    case {O}{{{gs}}}:\n      a{i}\n")
+        oo = f"{O}{{o0, o1, o2, o3, True{{}}}}"
+        op = f"+o0: M.HSt, +o1: M.AR_{ab}, +o2: M.HEnv, +o3: List<&2, M.HKB>"
+        self.defs.extend(d)
+        # one iteration: the tree of li, each leaf's observation
+        ch = self.ch
+        vals = [ch.fixed.get(z, f"v_{z}") for z in fields]
+        node = ch.mi.apply(f"li_{ab}_{L}", [Record(f"X_{ab}", vals)])
+        body = self.emit(node, [])
+        rec = f"{X}{{{', '.join(vals)}}}"
+        self.defs.append(f"def {p}_top({self.scope_params()}) -> {self.goal(f'M.li_{ab}_{L}({rec})')}:\n  {body}\n")
+        hI = f"Equal.cong({O}, Bool, z => {ob}_g4(z), {ob}({q}, {xrec}), {oo}, h)"
+        var = [z for z in fields if z not in self.ch.fixed]
+        self.defs.append(
+            f"def {p}_li(+{q}: M.W, +x: {X}, {op}, +h: {{{ob}({q}, x) == {oo} : {O}}}) -> {{{ob}({q}, M.li_{ab}_{L}(x)) == "
+            f"{oo} : {O}}}:\n  match x:\n    case {pat}:\n"
+            f"      Equal.trans({O}, {ob}({q}, M.li_{ab}_{L}({xrec})), {O}{{x_st, x_ar, x_en, x_kh, True{{}}}}, {oo}, "
+            f"{p}_top(x_st, x_ar, x_en, x_kh, {q}" + "".join(f", x_{z}" for z in var) + f", {hI}), "
+            f"(%{hI} : {{{O}{{x_st, x_ar, x_en, x_kh, _}} == {oo} : {O}}}\n      h))\n")
+        ld = f"M.gx_{ab}_ld{L}"
+        self.defs.append(
+            f"def {p}_lp(f: Nat, +d: Nat, +{q}: M.W, +x: {X}, {op}, +h: {{{ob}({q}, x) == {oo} : {O}}}) -> "
+            f"{{{ob}({q}, M.lp_{ab}_{L}(f, d, x)) == {oo} : {O}}}:\n"
+            f"  match f:\n    case 0n:\n      match d:\n        case 0n:\n          h\n        case 1n+q:\n"
+            f"          match q:\n            case 0n:\n              match x:\n                case {pat}:\n"
+            f"                  (%{hI} : {{{O}{{x_st, x_ar, x_en, x_kh, _}} == {oo} : {O}}}\n                  h)\n"
+            f"            case 1n+s:\n              h\n"
+            f"    case 1n+r:\n      match d:\n        case 0n:\n          h\n        case 1n+q:\n"
+            f"          match q:\n            case 0n:\n"
+            f"              {p}_lp(r, {ld}(M.li_{ab}_{L}(x)), {q}, M.li_{ab}_{L}(x), o0, o1, o2, o3, "
+            f"{p}_li({q}, x, o0, o1, o2, o3, h))\n            case 1n+s:\n              h\n")
+
+    # the iteration's lemmas
+    def scope_params(self, carried: list = ()) -> str:
+        ch = self.ch
+        out = f"+st: M.HSt, +ar: M.AR_{self.ab}, +e: M.HEnv, +kh: List<&2, M.HKB>, +{self.q}: M.W{ch.var_params()}"
+        out += (f", +hI: {{Bool.or(M.u_nz(v_cd), {self.n('inv')}({self.q}, st, v_ov, v_{self.SH}, v_{self.IX})) == "
+                f"True{{}} : Bool}}")
+        return out + "".join(f", +hc{i}: {{{c} == {'True' if v else 'False'}{{}} : Bool}}"
+                             for i, (_fn, c, v, _nm) in enumerate(carried))
+
+    def scope_args(self, carried: list = ()) -> str:
+        return f"st, ar, e, kh, {self.q}{self.ch.var_args()}, hI" + "".join(f", {nm}" for _f, _c, _v, nm in carried)
+
+    def goal(self, x: str) -> str:
+        head = re.match(r"M\.(\w+)\(", x.strip())
+        own = head is not None and head.group(1).startswith(tuple(f"{z}_{self.ab}_" for z in LOOP_PARTS))
+        t = x if own else f"M.lb_{self.ab}_{self.L}({x})"
+        return f"{{{self.n('ob')}({self.q}, {t}) == {self.n('Ob')}{{st, ar, e, kh, True{{}}}} : {self.n('Ob')}}}"
+
+    def emit(self, node, carried: list) -> str:
+        mi, ab = self.ch.mi, self.ab
+        if isinstance(node, Branch):
+            return self.branch(node, carried)
+        if isinstance(node, Next):
+            return self.emit(mi.step(node.j, list(node.fields)), carried)
+        if isinstance(node, Final):
+            return self.emit(mi.apply(f"lb_{ab}_{self.L}", [Record(f"X_{ab}", list(node.fields))]), carried)
+        if isinstance(node, Record):
+            return self.leaf(node, carried)
+        raise NoProof(f"{ab}: its loop {self.L} holds a {type(node).__name__} the accumulating route does not step")
+
+    def branch(self, br: Branch, carried: list) -> str:
+        self.nb += 1
+        name = f"{self.p}_b{self.nb}"
+        x = f"{br.fn}(c, {', '.join(br.args)})"
+        inner = [(f, c, v, f"hc{i}") for i, (f, c, v, _nm) in enumerate(carried)]
+        cond = _strip(br.cond)
+        lit = re.fullmatch(r"M\.u_nz\((\d+)\)", cond)
+        arms = []
+        for val, sub in ((True, br.then), (False, br.other)):
+            if lit and (int(lit.group(1)) != 0) != val:
+                g = self.goal(f"{br.fn}({'True' if val else 'False'}{{}}, {', '.join(br.args)})")
+                arms.append(f"efq({g}, {'false_ne_true' if val else 'true_ne_false'}(ec))")
+            else:
+                arms.append(self.emit(sub, inner + [(br.fn, cond, val, "ec")]))
+        self.defs.append(f"def {name}(c: Bool, {self.scope_params(carried)}, +ec: {{{br.cond} == c : Bool}}) -> "
+                         f"{self.goal(x)}:\n  match c:\n    case True{{}}:\n      {arms[0]}\n    case False{{}}:\n"
+                         f"      {arms[1]}\n")
+        return f"{name}({br.cond}, {self.scope_args(carried)}, {{==}})"
+
+    def fact(self, carried: list, fn_part: str):
+        for f, c, v, nm in carried:
+            if f.startswith(f"M.{fn_part}_{self.ab}_"):
+                yield c, v, nm
+
+    def leaf(self, rec: Record, carried: list) -> str:
+        ch, q = self.ch, self.q
+        d = dict(zip(ch.fields, [x.strip() for x in rec.fields]))
+        for z, want in ch.fixed.items():
+            if d[z] != want:
+                raise NoProof(f"{self.ab}: its loop changes its context's {z}")
+        O = self.n("Ob")
+        cd = d["cd"]
+        if re.fullmatch(r"\d+", cd) and int(cd) != 0:
+            return "{==}"
+        invl = f"{self.n('inv')}({q}, st, {d['ov']}, {d[self.SH]}, {d[self.IX]})"
+        ob1 = lambda hole: f"{{{O}{{st, ar, e, kh, {hole}}} == {O}{{st, ar, e, kh, True{{}}}} : {O}}}"
+        lc = list(self.fact(carried, "lc"))
+        if cd != "v_cd":
+            raise NoProof(f"{self.ab}: its loop sets its code to {cd[:60]}")
+        if lc and lc[0][1]:
+            return f"(%Equal.sym(Bool, M.u_nz(v_cd), True{{}}, {lc[0][2]}) : {ob1(f'Bool.or(_, {invl})')}\n      {{==}})"
+        if not lc:
+            if (d["ov"], d[self.SH], d[self.IX]) != ("v_ov", f"v_{self.SH}", f"v_{self.IX}"):
+                raise NoProof(f"{self.ab}: its loop leaves an iteration with its overlay changed and no step")
+            return (f"(%Equal.sym(Bool, Bool.or(M.u_nz(v_cd), {invl}), True{{}}, hI) : {ob1('_')}\n      {{==}})")
+        # the step: the guard held, the write's condition c4, the increment's check passed
+        elc = lc[0][2]
+        g = list(self.fact(carried, "lh"))
+        if not g or not g[0][1]:
+            raise NoProof(f"{self.ab}: its loop steps without its guard")
+        G, eg = g[0][0], g[0][2]
+        wc = [(c, v, nm) for c, v, nm in self.fact(carried, "wc") if c == _strip(f"Bool.and({G}, {self.COND})")]
+        k3 = [(c, v, nm) for c, v, nm in self.fact(carried, "k")
+              if c == _strip(f"Bool.or(Bool.not({G}), M.w_add_ok({self.KW}, {W1}))") and v]
+        if len(wc) != 1 or len(k3) != 1:
+            raise NoProof(f"{self.ab}: its loop's write is not under its guard and the shadow's condition, or its "
+                          "index's increment is not checked")
+        c4, ewc, ek3 = wc[0][1], wc[0][2], k3[0][2]
+        store = f"M.sstore(v_ov, {self.KEYW}, {self.VAL})"
+        if d["ov"] != (store if c4 else "v_ov"):
+            raise NoProof(f"{self.ab}: its loop's overlay at the step is not the shadow's store")
+        if d[self.IX] != f"M.w_add(v_{self.IX}, M.w_u(1))":
+            raise NoProof(f"{self.ab}: its loop's index does not step by one")
+        c1 = as_call(d[self.SH])
+        a1, b1 = c1[1][2].strip(), c1[1][3].strip()
+        hi0 = f"(%{elc} : {{Bool.or(_, {self.n('inv')}({q}, st, v_ov, v_{self.SH}, v_{self.IX})) == True{{}} : Bool}}\n      hI)"
+        ok = f"(%{eg} : {{Bool.or(Bool.not(_), M.w_add_ok({self.KW}, {W1})) == True{{}} : Bool}}\n      {ek3})"
+        econd = f"(%{eg} : {{Bool.and(_, {self.COND}) == {'True' if c4 else 'False'}{{}} : Bool}}\n      {ewc})"
+        if c4:
+            s = f"{self.n('stw')}({q}, st, v_ov, v_{self.SH}, v_{self.IX}, {hi0}, {ok})"
+        else:
+            s = (f"{self.n('stn')}({q}, st, M.sload(v_ov, {self.K}), M.sload(v_{self.SH}, {self.K}), v_{self.IX}, "
+                 f"{hi0}, {ok})")
+        cv = "True{}" if c4 else "False{}"
+        step1 = (f"(%Equal.sym(Bool, {self.COND}, {cv}, {econd}) : {{{self.n('inv')}({q}, st, {d['ov']}, "
+                 f"M.ite(M.HSt, _, {a1}, {b1}), {d[self.IX]}) == True{{}} : Bool}}\n      {s})")
+        big = f"(%Equal.sym(Bool, M.u_nz(v_cd), False{{}}, {elc}) : {{Bool.or(_, {invl}) == True{{}} : Bool}}\n      {step1})"
+        return f"(%Equal.sym(Bool, Bool.or(M.u_nz(v_cd), {invl}), True{{}}, {big}) : {ob1('_')}\n      {{==}})"
