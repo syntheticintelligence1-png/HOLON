@@ -610,13 +610,16 @@ class TestRegressions(unittest.TestCase):
                   "docs/BEND_PRIMER.md", "AGENTS.md", "tools/freeze.py")
         never = ("laws/M0/", "laws/M1/", "laws/M2/", "gen/M0/", "gen/M1/", "gen/M2/", "results/M0/", "replay/M0/",
                  "replay/M1/", "replay/M2/")
+        # amended (spec/M3/amendments.jsonl, iteration I71): I82's report outputs, which a key moving M3 statuses
+        # regenerates (holon report --milestone M3), are admitted beside C10's paths, and nothing else
+        allowed = OWN_PATHS + ("docs/M3_COMPARISON.md", "spec/M3/appendixA_map.json")
         for c, paths in own_commits().items():
             for p in paths:
                 with self.subTest(commit=c[:12], path=p):
                     self.assertFalse(p.startswith(frozen))
                     self.assertFalse(p.startswith(never))
                     self.assertIsNone(re.match(r"spec/M\d+/facts/", p))
-                    self.assertTrue(p.startswith(OWN_PATHS), "a path C10 does not name")
+                    self.assertTrue(p.startswith(allowed), "a path C10 does not name")
                     if re.fullmatch(r"results/(M1|M2|T32)/(.+/)?L[^/]*\.json", p):
                         old, new = at(c + "^", p), at(c, p)
                         self.assertIsNotNone(old)
