@@ -5504,6 +5504,158 @@
         ],
         "disclosed": "Read before this prereg: node/derivation/batch_info.go in full; derivation.go's fetch, UnPackData, unpackModernRollupCall, parseBatch, handleL1Message and derive; common/batch's BatchHeaderBytes getters and validate, RetrieveBlobBytes, DecodeTxsFromBytes and its helpers; common/codec/zstd; node/types DecodeBlockContext; the go-ethereum fork's RPCRollupBatch and SafeL2Data and the DA codec's Go binding (module cache); Rollup.sol's commit path, _commitBatch and _computeBlobVersionedHash; the queue's getFirstUnfinalizedMessageEnqueueTime; I18's derivation document (ParseBatch: paths null, reason loop; its sites); the adopted Rollup document's commitBatch record (calls, parameter, the committedBatches write term); I17's header document; I20's harness (header rule, genesis, actors); I80's deployment record. Run: go build ./derivation/ in a scratch copy of the workspace with the proxy off (66 s, success: the plan's dependency risk does not hold locally); the instrument's corpus and genesis check; an RLP self-check of the generated transactions with a session-only decoder; git show of batch_info.go; the generator closures with holon's functions. Never run on the target: ssadump, the frontend, the interpreter, the Go replay, the oracle, the compressor, or holon.extracted_eval on commitBatch."
       }
+    },
+    "I87": {
+      "title": "I87 (= I45a): the audit-loop machinery (round records with the auditor's family, Q9's labels and the convergence rule, results/M3/audit_status.json; the hostile-review packet; A4's vacuity classes, degenerate rules, representatives and oracle tables; rule-gap records and the L7 admission rule; the coordinator, which renders prompts and docs/STATUS.md), exercised on today's M3 by one same-family dry-run round",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I87)",
+      "prompt": "prompts/I87_audit_loop.md",
+      "predictions": [
+        {
+          "id": "I87-P1",
+          "claim": "A4's classes over the base's 136 M3 laws (V1-V7 and D1-D3 of the contract): no_premises 40, not_decided 24, counter_witness 20, vacuous 0, degenerate 40, unreadable 0, ok 12. The 40 degenerate inhabitants are the 38 PAR codec inhabitants (35 round_trip, 3 cross_component_codec) by D3 (every byte the premises leave free is zero: the generator's zeros with the premise classes applied), the FACT kernel law's by D2 (one run used for both) and one DISCH revert law's by D1 (its state is the initial state); the 12 ok are the six other PROVED revert laws and the six PROVED external laws. Every class is the instrument's own reading.",
+          "check": "tests_m3/test_audit_loop.py::TestVacuity::test_p1_classes"
+        },
+        {
+          "id": "I87-P2",
+          "claim": "None of the six PROVED external DISCH laws' inhabitants (their checked existential witnesses) sits at the initial state: each witness has at least two steps (a non-empty prefix before the law's own step), so each classifies ok.",
+          "check": "tests_m3/test_audit_loop.py::TestVacuity::test_p2_external_inhabitants"
+        },
+        {
+          "id": "I87-P3",
+          "claim": "Each of the 38 degenerate PAR codec inhabitants has a representative: holon.gen.linked's counting fill with the law's premise classes applied, written by the law's own inhabitant generator, is accepted by bend2 and BendTT and meets no degenerate rule (no premise set of today's PAR laws is a single point). The two degenerate state-law inhabitants (the FACT kernel law, D2; the DISCH revert law, D1) are reported not_searched: I87 builds no state-law representative search, so they stay open for the I45 round's A4 auditor.",
+          "check": "tests_m3/test_audit_loop.py::TestVacuity::test_p3_representatives"
+        },
+        {
+          "id": "I87-P4",
+          "claim": "A4's oracle tables (O3): every hash-table entry in every M3 record's witness, witnesses and non_vacuity witness at the base (the keccak256 and sha256 answers the models were given) equals the real oracle on its key's bytes: at least one entry, no mismatch; holon's count of entries is the instrument's.",
+          "check": "tests_m3/test_audit_loop.py::TestOracles::test_p4_tables"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I87-R1",
+          "claim": "Construction: on the instrument's 17 synthetic scenarios, holon's convergence (CV1-CV4) and round validity (RD1-RD3) are the instrument's: same-family rounds never count, a high finding of any round resets the streak, a counted round needs another family, all four auditor types, no dry run and a fresh session, an open high finding blocks; 4 scenarios converge and 5 are invalid.",
+          "check": "tests_m3/test_audit_loop.py::TestConverge::test_r1_rule_on_fixtures"
+        },
+        {
+          "id": "I87-R2",
+          "claim": "results/M3/audit_status.json says converged = false (k 3, streak 0, no counted round), is valid against its schema, agrees with the instrument and regenerates byte for byte.",
+          "check": "tests_m3/test_audit_loop.py::TestConverge::test_r2_status_document"
+        },
+        {
+          "id": "I87-R3",
+          "claim": "Round 1 of M3 is valid against the extended round schema, labelled same-family, a dry run and not counted, with its packet's sha256; every committed round of M0-M3 stays valid and `holon audit round` passes on each milestone.",
+          "check": "tests_m3/test_audit_loop.py::TestRounds::test_r3_round_files"
+        },
+        {
+          "id": "I87-R4",
+          "claim": "The hostile-review packet regenerates from its target commit byte for byte, two runs agree, and its laws and auditor targets are the instrument's reading of the target.",
+          "check": "tests_m3/test_audit_loop.py::TestPacket::test_r4_packet"
+        },
+        {
+          "id": "I87-R5",
+          "claim": "`holon audit vacuity --milestone M3 --round 1 --check` rebuilds a4.json from its target commit byte for byte.",
+          "check": "tests_m3/test_audit_loop.py::TestVacuity::test_r5_regenerates"
+        },
+        {
+          "id": "I87-R6",
+          "claim": "A4's four canaries (an unsatisfiable premise, a degenerate state inhabitant, a degenerate pure inhabitant, a false oracle answer) are all detected.",
+          "check": "tests_m3/test_audit_loop.py::TestVacuity::test_r6_canaries"
+        },
+        {
+          "id": "I87-R7",
+          "claim": "audit/rule_gaps.jsonl is valid and admits nothing; on the synthetic fixtures the L7 verdicts are the instrument's, and a candidate signed by a key the human froze is refused where no key is frozen and admitted where one is.",
+          "check": "tests_m3/test_audit_loop.py::TestGaps::test_r7_admission"
+        },
+        {
+          "id": "I87-R8",
+          "claim": "The coordinator renders docs/STATUS.md byte-identically (--check), with every key of every predictions file, and renders a session prompt from BUILD_PLAN deterministically without ever writing over an existing prompt.",
+          "check": "tests_m3/test_audit_loop.py::TestCoordinator::test_r8_status and tests_m3/test_audit_loop.py::TestCoordinator::test_r8_prompts"
+        },
+        {
+          "id": "I87-R9",
+          "claim": "Construction honesty: I87's new modules name no law, action, register or target and import no test code.",
+          "check": "tests_m3/test_audit_loop.py::TestHonesty::test_r9_no_target_vocabulary"
+        },
+        {
+          "id": "I87-R10",
+          "claim": "Judged at each of I87's own commits: no law, record, generated or replay file changes except results/M3/audit_status.json, and no frozen root is touched.",
+          "check": "tests_m3/test_audit_loop.py::TestHonesty::test_r10_nothing_else_changes"
+        },
+        {
+          "id": "I87-R11",
+          "claim": "A4 reports G11V's in-flight clause as G11V does (on the base: 0 of 8 MIG edges inhabited, I28's P5 miss, a known red); the base's M3 has no oracle hypothesis and no premise constrains an oracle parameter.",
+          "check": "tests_m3/test_audit_loop.py::TestVacuity::test_r11_in_flight_and_hypotheses"
+        },
+        {
+          "id": "I87-R12",
+          "claim": "The instrument, the policy sidecar and the contract are the bytes the thresholds name.",
+          "check": "tests_m3/test_audit_loop.py::TestHonesty::test_r12_instruments_are_the_prereg"
+        },
+        {
+          "id": "I87-R13",
+          "claim": "`holon audit oracles --milestone M3 --json` reports on the working tree's M3 the instrument's count of table entries and mismatches.",
+          "check": "tests_m3/test_audit_loop.py::TestOracles::test_cli"
+        }
+      ],
+      "outcome_paths": [
+        "results/M3/audit_status.json",
+        "audit/rounds/M3/",
+        "audit/M3_findings.jsonl",
+        "audit/M3_round1.md",
+        "audit/rule_gaps.jsonl",
+        "docs/STATUS.md",
+        "docs/iterations/I87.md"
+      ],
+      "tests": [
+        "tests_m3/test_audit_loop.py"
+      ],
+      "thresholds": {
+        "base": "92c98e40 (the lead after I72's build merge: 136 M3 laws, holon-rules/1.6), with BUILD_PLAN's row I87 (b116d6f8)",
+        "instrument": "tests_m3/_i87.py",
+        "instrument_sha256": "eab2613b47dc20f5ba8981f3c9f31410346dbe08cbeb526ce27fbb1e993b16e6",
+        "sidecar": {
+          "path": "spec/M3/lib/audit_loop.json",
+          "sha256": "5bebc1affd4605469a0ac22e0b916e44991875c0f59372718b2addcad5761b47"
+        },
+        "contract_docstring_sha256": "26f5d6070dca898a39518f2737160d4d408ea1267b0141ba128ad38218d140bb",
+        "laws": 136,
+        "k": 3,
+        "classes": {
+          "no_premises": 40,
+          "not_decided": 24,
+          "counter_witness": 20,
+          "vacuous": 0,
+          "degenerate": 40,
+          "unreadable": 0,
+          "ok": 12
+        },
+        "representatives": {
+          "found": 38,
+          "not_found": 0,
+          "not_searched": 2
+        },
+        "convergence_fixtures": {
+          "scenarios": 17,
+          "converged": 4,
+          "invalid": 5
+        },
+        "family": "Every round I87 writes is labelled same-family and dry_run, with counts_toward_convergence false (HUMAN_ANSWERS Q9): no auditor of another model family can be run here. results/M3/audit_status.json must say converged = false until real rounds exist; I45 owns the rounds and the exit.",
+        "observed_before_prereg": {
+          "read": "Before writing this key the author read: every M3 record's rule, subform, status, non_vacuity status and its degenerate and reachable flags (tabulated); the non_vacuity bound texts of the 13 PROVED DISCH laws and of the PROVED FACT kernel law (the seven revert laws' prefixes of 1, 1, 1, 1, 3, 2 and 0 steps; the FACT inhabitant 'both runs a call of commitState after 2 prefix steps'); the shape (keys only) of the FACT inhabitant's witness and of one external DISCH inhabitant's witness, and the FACT prefix's length; one external DISCH law's attempts (its search bound: B held at a candidate time in 1 of 355 states); the generators' code (holon.codecrun.non_vacuity and holon.gen.linked.inhabitant_witness: zeros with the premise classes applied; holon.fact.run's inhabitant: one run used for both; holon.disch.run's inhabitants and the external laws' non_vacuity); the premises of two PAR codec laws; the hash tables' shapes (the first entry's key and word lengths only); that no M3 law has a hyp or cf premise; and, from the lane rules, G11V's in-flight failure on M3 (0 of 8 edges).",
+          "not_read": "No external DISCH inhabitant's steps; no hash-table entry was checked against any oracle; no representative was built or checked by any kernel; the instrument's classify_all and table_mismatches were never run on M3 data before this commit (its rules were exercised on synthetic inputs only), and holon's audit modules did not exist.",
+          "I87-P1": "mostly: the counts follow from the statuses and non_vacuity statuses read, the bound texts and the generators' code; not the six external inhabitants (P2) nor V4's structural checks",
+          "I87-P2": "no: one external law's search bound was read, none of the six witnesses' steps",
+          "I87-P3": "no",
+          "I87-P4": "no"
+        },
+        "counted_predictions": [
+          "I87-P2",
+          "I87-P3",
+          "I87-P4"
+        ],
+        "disclosure": "P2, P3 and P4 count toward prediction accuracy: nobody computed their outcomes before this commit. P1 is recorded, not counted: the author read most of what decides it (observed_before_prereg). I87 builds machinery, so most of its claims are construction checks (R1-R13). A miss in any prediction is reported as a miss, never fixed by changing the policy or the instrument after the outcome."
+      }
     }
   }
 }
