@@ -318,6 +318,14 @@ def _store_sk(prefix: str) -> list[str]:
         f"          kv_same_c({P}sk_eq(hk, k), hv, k, v, t, kv_same(t, k, v))\n",
         f"def st_same(s: {P}HSt, +k: {P}SK, +v: {W}) -> {{{P}sload({P}sstore(s, k, v), k) == v : {W}}}:\n"
         f"  match s:\n    case {P}HSt{{sl}}:\n      kv_same(sl, k, v)\n",
+        # the key split's symmetry: w_eq(a, b) false gives w_eq(b, a) false (equal words would compare equal)
+        f"def w_ne_sym_c(c: Bool, +a: {W}, +b: {W}, e: {{{P}w_eq(a, b) == False{{}} : Bool}}, ec: {{{P}w_eq(b, a) == c : "
+        f"Bool}}) -> {{c == False{{}} : Bool}}:\n  match c:\n    case True{{}}:\n"
+        f"      efq({{True{{}} == False{{}} : Bool}}, true_ne_false(Equal.trans(Bool, True{{}}, {P}w_eq(b, b), False{{}}, "
+        f"Equal.sym(Bool, {P}w_eq(b, b), True{{}}, w_eq_self(b)), (%Equal.sym({W}, b, a, w_refl(b, a, ec)) : "
+        f"{{{P}w_eq(_, b) == False{{}} : Bool}}\n      e))))\n    case False{{}}:\n      {{==}}\n",
+        f"def w_ne_sym(+a: {W}, +b: {W}, e: {{{P}w_eq(a, b) == False{{}} : Bool}}) -> {{{P}w_eq(b, a) == False{{}} : "
+        f"Bool}}:\n  w_ne_sym_c({P}w_eq(b, a), a, b, e, {{==}})\n",
     ]
 
 

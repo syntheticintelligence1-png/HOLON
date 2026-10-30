@@ -276,6 +276,41 @@ def st_frame(s: M.HSt, +kw: M.SK, +v: M.W, +k: M.SK, ne1: {M.sk_eq(kw, k) == Fal
   match s:
     case M.HSt{sl}:
       kv_frame(sl, kw, v, False{}, k, ne1, ne2)
+
+# the key split: two keys differ when the first of their words compared differently does (the comparisons before it
+# evaluate to True); the symmetry of a word disequality, w_ne_sym, follows w_eq_self (holon.disch.order)
+def sp_ne_o(+ak: M.W, +ao: M.W, +bk: M.W, +bo: M.W, e: {M.w_eq(ao, bo) == False{} : Bool}) -> {M.sp_eq(M.SP_m{ak, ao}, M.SP_m{bk, bo}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ao, bo), False{}, e) : {Bool.and(_, M.w_eq(ak, bk)) == False{} : Bool}
+  {==})
+
+def sp_ne_k(+ak: M.W, +ao: M.W, +bk: M.W, +bo: M.W, eo: {M.w_eq(ao, bo) == True{} : Bool}, e: {M.w_eq(ak, bk) == False{} : Bool}) -> {M.sp_eq(M.SP_m{ak, ao}, M.SP_m{bk, bo}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ao, bo), True{}, eo) : {Bool.and(_, M.w_eq(ak, bk)) == False{} : Bool}
+  (%Equal.sym(Bool, M.w_eq(ak, bk), False{}, e) : {Bool.and(True{}, _) == False{} : Bool}
+  {==}))
+
+def sps_ne_h(+x: M.SP, +xs: List<&2, M.SP>, +y: M.SP, +ys: List<&2, M.SP>, e: {M.sp_eq(x, y) == False{} : Bool}) -> {M.sps_eq(Con{x, xs}, Con{y, ys}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.sp_eq(x, y), False{}, e) : {Bool.and(_, M.sps_eq(xs, ys)) == False{} : Bool}
+  {==})
+
+def sps_ne_t(+x: M.SP, +xs: List<&2, M.SP>, +y: M.SP, +ys: List<&2, M.SP>, eh: {M.sp_eq(x, y) == True{} : Bool}, e: {M.sps_eq(xs, ys) == False{} : Bool}) -> {M.sps_eq(Con{x, xs}, Con{y, ys}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.sp_eq(x, y), True{}, eh) : {Bool.and(_, M.sps_eq(xs, ys)) == False{} : Bool}
+  (%Equal.sym(Bool, M.sps_eq(xs, ys), False{}, e) : {Bool.and(True{}, _) == False{} : Bool}
+  {==}))
+
+def sk_ne_b(+ab: M.W, +ao: M.W, +ap: List<&2, M.SP>, +bb: M.W, +bo: M.W, +bp: List<&2, M.SP>, e: {M.w_eq(ab, bb) == False{} : Bool}) -> {M.sk_eq(M.SK{ab, ao, ap}, M.SK{bb, bo, bp}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ab, bb), False{}, e) : {Bool.and(_, Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp))) == False{} : Bool}
+  {==})
+
+def sk_ne_o(+ab: M.W, +ao: M.W, +ap: List<&2, M.SP>, +bb: M.W, +bo: M.W, +bp: List<&2, M.SP>, eb: {M.w_eq(ab, bb) == True{} : Bool}, e: {M.w_eq(ao, bo) == False{} : Bool}) -> {M.sk_eq(M.SK{ab, ao, ap}, M.SK{bb, bo, bp}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ab, bb), True{}, eb) : {Bool.and(_, Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp))) == False{} : Bool}
+  (%Equal.sym(Bool, M.w_eq(ao, bo), False{}, e) : {Bool.and(True{}, Bool.and(_, M.sps_eq(ap, bp))) == False{} : Bool}
+  {==}))
+
+def sk_ne_p(+ab: M.W, +ao: M.W, +ap: List<&2, M.SP>, +bb: M.W, +bo: M.W, +bp: List<&2, M.SP>, eb: {M.w_eq(ab, bb) == True{} : Bool}, eo: {M.w_eq(ao, bo) == True{} : Bool}, e: {M.sps_eq(ap, bp) == False{} : Bool}) -> {M.sk_eq(M.SK{ab, ao, ap}, M.SK{bb, bo, bp}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ab, bb), True{}, eb) : {Bool.and(_, Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp))) == False{} : Bool}
+  (%Equal.sym(Bool, M.w_eq(ao, bo), True{}, eo) : {Bool.and(True{}, Bool.and(_, M.sps_eq(ap, bp))) == False{} : Bool}
+  (%Equal.sym(Bool, M.sps_eq(ap, bp), False{}, e) : {Bool.and(True{}, Bool.and(True{}, _)) == False{} : Bool}
+  {==})))
 """
 
 LIBRARY = _COMMON + _RAW_STORE
