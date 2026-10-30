@@ -21,6 +21,7 @@ Deterministic (sorted); nothing here names a target.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -112,15 +113,16 @@ def _sk_of_hex(x: str) -> tuple:
     return sk_of_hex(x)
 
 
-def gather(milestone: str, root: Path) -> tuple[dict, list]:
-    """({"raw", "literal", "structural"} sets, the sources read) over the deployment, R5 and the committed records."""
+def gather(milestone: str, root: Path) -> tuple[dict, list, dict]:
+    """({"raw", "literal", "structural"} sets, the sources read, {typed model: sha256}) over the deployment, R5 and the
+    committed records."""
     from . import model3 as M3
     from .evaluate3 import Evaluator
     from .search3 import Hints, Model
     from ..machine import load_extracted
     root = Path(root)
     keys = {"raw": set(), "literal": set(), "structural": set()}
-    sources = []
+    sources, shas = [], {}
     models = sorted((root / "gen" / milestone / "sorts" / "models").glob("*.init.json"))
     if not models:
         raise KeysCmdError(f"gen/{milestone}/sorts/models/ holds no typed model")
@@ -130,6 +132,7 @@ def gather(milestone: str, root: Path) -> tuple[dict, list]:
         text = mp.read_text(encoding="utf-8")
         if "\ntype SK is Data:\n" not in text:
             raise KeysCmdError(f"{mp.relative_to(root)} is not a structural model")
+        shas[mp.relative_to(root).as_posix()] = hashlib.sha256(mp.read_bytes()).hexdigest()
         doc_rel = M3.documents_of(milestone, root, None)
         rel = next((d for d in doc_rel if M3.model_name(d) == name), None)
         if rel is None:
@@ -175,7 +178,7 @@ def gather(milestone: str, root: Path) -> tuple[dict, list]:
                             sources.append(kind)
         finally:
             ev.close()
-    return keys, sources
+    return keys, sources, shas
 
 
 def main(argv=None) -> int:
@@ -186,11 +189,11 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else ROOT
     try:
-        keys, sources = gather(a.milestone, root)
+        keys, sources, shas = gather(a.milestone, root)
     except (KeysCmdError, SK.KeysError, OSError) as e:
         print(f"holon keys: {e}", file=sys.stderr)
         return 2
-    doc = SK.keys_document(a.milestone, keys, sources)
+    doc = SK.keys_document(a.milestone, keys, sources, shas)
     out = Path(a.out) if a.out else root / "gen" / a.milestone / "sorts" / "keys.json"
     SK.write_json(out, doc)
     print(f"holon keys: {len(doc['raw'])} raw, {len(doc['literal'])} literal, {len(doc['structural'])} structural "

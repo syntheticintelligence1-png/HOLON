@@ -406,7 +406,7 @@ class Decider:
             rec["candidate"] = witness_kept
         try:
             b, match = R.resolve_bundle(rec["facts_sha256"], law["facts"], ctx.root, tc.combined, set(cone), ctx.m)
-            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, law["facts"])
+            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, law["facts"], ctx.m)
         except R.LedgerError:
             match, assumptions = "none", []
         rec.update({"record_version": R.RECORD_VERSION, "prover": "generator", "model_sha256": sha256_file(tc.path),

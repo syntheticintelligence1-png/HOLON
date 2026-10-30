@@ -212,24 +212,19 @@ def collisions(structural, raw, literal) -> list[str]:
     return out
 
 
-def keys_document(milestone: str, keys: dict, sources: list) -> dict:
+def keys_document(milestone: str, keys: dict, sources: list, models: dict | None = None) -> dict:
     """gen/<M>/sorts/keys.json from {"raw": set, "literal": set, "structural": set of (b, o, path)} gathered over the
-    sources (deployment, r5, witnesses, inhabitants): every number a 0x-prefixed hex string, sorted."""
+    sources (deployment, r5, witnesses, inhabitants): every number a 0x-prefixed hex string, sorted. models: {the
+    typed model's path: its sha256}, the models the keys were taken on (a remodel's check ties the document to them,
+    holon.statement_diff._remodel)."""
     st = sorted({norm_key(k) for k in keys.get("structural") or ()})
     raw = sorted({int(x) for x in keys.get("raw") or ()})
     lit = sorted({int(x) for x in keys.get("literal") or ()})
-    return {"document": "structural_keys", "milestone": milestone,
+    return {"document": "structural_keys", "milestone": milestone, "models": dict(sorted((models or {}).items())),
             "raw": [hex(s) for s in raw], "literal": [hex(s) for s in lit],
             "structural": [{"b": hex(b), "o": hex(o), "p": [{"k": hex(k), "o": hex(o2)} for _t, k, o2 in p],
                             "real": hex(real_slot(b, o, p))} for b, o, p in st],
             "collisions": collisions(st, raw, lit), "sources": sorted(set(sources))}
-
-
-def split_key(key) -> tuple[str, tuple]:
-    """("structural", key) for a key with a path; ("literal" or "raw", slot) otherwise, judged by the layout's
-    literal slots (keys_from_json's callers pass them)."""
-    b, o, p = norm_key(key)
-    return ("structural", (b, o, p)) if p else ("flat", (b, o, p))
 
 
 def key_of_json(v) -> tuple:

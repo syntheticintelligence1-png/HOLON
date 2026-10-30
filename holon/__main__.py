@@ -306,6 +306,9 @@ def _main(argv: list) -> int:
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
     bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
                                    "(or stays unbound)")
+    bd.add_argument("--remodel", metavar="LICENSE",
+                    help="(I68) first append the remodel entries the license covers (holon.statement_diff.remodel_entries, "
+                         "each checked by check_entry), then rebind through them")
     orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
                                         "(the oracle sidecar's hypotheses, I12); both write results/M2/hypotheses.json")
     orc.add_argument("which", choices=["zero-blob", "check"])

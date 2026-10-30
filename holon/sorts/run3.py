@@ -672,7 +672,7 @@ class Decider:
         try:
             b, match = R.resolve_bundle(rec["facts_sha256"], base_facts, ctx.root, mp.read_text(encoding="utf-8"),
                                         set(cone), ctx.m)
-            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, base_facts)
+            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, base_facts, ctx.m)
         except R.LedgerError:
             match, assumptions = "none", []
         compiled = ev.compiled()

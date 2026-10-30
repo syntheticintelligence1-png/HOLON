@@ -36,7 +36,11 @@ which can only add assumptions, never hide one. Since I2 it is cross-checked aga
 checker's own BendTT dependency graph (holon/bindings.py): for all 24 laws the two agree on
 the model's own definitions (tests_m2/test_bindings.py, prediction I2-P4).
 
-model_assumptions are the spec/ledger entries whose introducing definitions meet the cone.
+model_assumptions are the spec/ledger entries whose introducing definitions meet the cone; with a milestone (the typed
+runners pass theirs), the entries its ledger extension spec/<M>/ledger.json adds to the bundle too (milestone_entries;
+I68: A-keccak-structural, for the structural store of the M3 model). An entry with "requires" meets only a cone that
+also holds a definition matching one of those patterns (the structural store's key type SK: a model without it is not
+the model the entry describes).
 Which bundle applies (resolve_bundle):
   * exact: the facts sha256 has a ledger bundle; the only match the v2 schema accepts;
   * derived: a run over facts derived from a registered file (the planted mutations of
@@ -302,9 +306,25 @@ def _window_bundles(root: Path, facts_path) -> list[dict]:
 def milestone_extensions(root: Path | str, milestone: str) -> list[dict]:
     """spec/<milestone>/ledger.json "extends": per facts bundle, the no_assumption groups of the definitions that
     milestone's model generator adds to the bundle's model (I15: the M2 model's Reach, oracle tables and permission
-    predicates). The base ledger is unchanged, so what reads it (the diagrams) is unchanged."""
+    predicates), and the entries of what it adds that carry an assumption (I68: the M3 model's structural store). The
+    base ledger is unchanged, so what reads it (the diagrams) is unchanged."""
     p = Path(root) / "spec" / milestone / "ledger.json"
     return list(json.loads(p.read_text(encoding="utf-8")).get("extends") or []) if p.exists() else []
+
+
+def milestone_entries(root: Path | str, milestone: str | None, b: dict) -> list[dict]:
+    """The entries spec/<milestone>/ledger.json's extension of bundle b adds (I68, rule S8 of
+    tests_m3/test_structural_keys.py): [] without a milestone or an extension of b."""
+    if not milestone:
+        return []
+    return [e for x in milestone_extensions(root, milestone)
+            if x.get("facts") == b.get("facts") and x.get("facts_sha256") == b.get("facts_sha256")
+            for e in x.get("entries") or []]
+
+
+def bundle_entries(b: dict, root: Path | str = ROOT, milestone: str | None = None) -> list[dict]:
+    """Bundle b's entries, with its milestone extension's (milestone_entries)."""
+    return list(b["entries"]) + milestone_entries(root, milestone, b)
 
 
 def bundle(facts_sha256: str, root: Path | str = ROOT, facts_path: Path | str | None = None,
@@ -339,13 +359,15 @@ def resolve_bundle(facts_sha256: str, base_facts: str | None, root: Path | str =
 
 
 def _meets(entry: dict, cone_set: set[str]) -> bool:
+    if entry.get("requires") and not any(fnmatch.fnmatchcase(d, p) for p in entry["requires"] for d in cone_set):
+        return False
     return any(p == "*" or any(fnmatch.fnmatchcase(d, p) for d in cone_set) for p in entry["introduced_by"])
 
 
 def model_assumptions(facts_sha256: str, cone_set: set[str], root: Path | str = ROOT,
-                      facts_path: Path | str | None = None) -> list[str]:
+                      facts_path: Path | str | None = None, milestone: str | None = None) -> list[str]:
     b = bundle(facts_sha256, root, facts_path)
-    return sorted(e["id"] for e in b["entries"] if _meets(e, set(cone_set)))
+    return sorted(e["id"] for e in bundle_entries(b, root, milestone) if _meets(e, set(cone_set)))
 
 
 def unclassified(facts_sha256: str, model_text: str, root: Path | str = ROOT,
@@ -357,7 +379,8 @@ def unclassified(facts_sha256: str, model_text: str, root: Path | str = ROOT,
     b = bundle(facts_sha256, root, facts_path, milestone)
     bad = []
     for d in model_defs(model_text.split(GHOST_MARKER, 1)[0]):
-        by_entry = any(p != "*" and fnmatch.fnmatchcase(d, p) for e in b["entries"] for p in e["introduced_by"])
+        by_entry = any(p != "*" and fnmatch.fnmatchcase(d, p) for e in bundle_entries(b, root, milestone)
+                       for p in e["introduced_by"])
         groups = sum(1 for g in b["no_assumption"] if any(fnmatch.fnmatchcase(d, p) for p in g["defs"]))
         if not by_entry and groups != 1:
             bad.append(d)
