@@ -1,0 +1,1613 @@
+{
+  "abstracted": [
+    "l1TxHashes"
+  ],
+  "constructors": [
+    {
+      "function": "morph-l2/common/batch.NewBatchData",
+      "stores": []
+    }
+  ],
+  "document": "spec/M3/facts/morph_blob.go.extracted.json",
+  "document_sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e",
+  "lost_writes": [],
+  "methods": {
+    "Append": {
+      "cases": [],
+      "params": [
+        {
+          "name": "cks",
+          "type": "*morph-l2/common/batch.BatchData"
+        },
+        {
+          "name": "blockContext",
+          "type": "[]byte"
+        },
+        {
+          "name": "txsPayload",
+          "type": "[]byte"
+        },
+        {
+          "name": "l1TxHashes",
+          "type": "[]github.com/morph-l2/go-ethereum/common.Hash"
+        }
+      ],
+      "pointer": true,
+      "receiver": "cks",
+      "results": [],
+      "source": "(*morph-l2/common/batch.BatchData).Append",
+      "span": "common/batch/batch_data.go:31",
+      "stores": [
+        {
+          "function": "(*morph-l2/common/batch.BatchData).Append",
+          "site": "common/batch/batch_data.go:35:6",
+          "target": [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "blockContexts"
+          ],
+          "value": [
+            "append",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ],
+            [
+              "param",
+              "blockContext"
+            ]
+          ]
+        },
+        {
+          "function": "(*morph-l2/common/batch.BatchData).Append",
+          "site": "common/batch/batch_data.go:36:6",
+          "target": [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "txsPayload"
+          ],
+          "value": [
+            "append",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "txsPayload"
+            ],
+            [
+              "param",
+              "txsPayload"
+            ]
+          ]
+        },
+        {
+          "function": "(*morph-l2/common/batch.BatchData).Append",
+          "site": "common/batch/batch_data.go:37:6",
+          "target": [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "blockNum"
+          ],
+          "value": [
+            "op",
+            "+",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockNum"
+            ],
+            [
+              "const",
+              1
+            ]
+          ]
+        },
+        {
+          "function": "(*morph-l2/common/batch.BatchData).Append",
+          "site": "common/batch/batch_data.go:39:7",
+          "target": [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "l1TxHashes"
+          ],
+          "value": [
+            "append",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "l1TxHashes"
+            ],
+            [
+              "call",
+              "(github.com/morph-l2/go-ethereum/common.Hash).Bytes",
+              [
+                [
+                  "index",
+                  [
+                    "param",
+                    "l1TxHashes"
+                  ],
+                  [
+                    "op",
+                    "+",
+                    [
+                      "var",
+                      "t14",
+                      "rangeindex"
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        },
+        {
+          "function": "(*morph-l2/common/batch.BatchData).Append",
+          "site": "common/batch/batch_data.go:41:6",
+          "target": [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "l1TxNum"
+          ],
+          "value": [
+            "op",
+            "+",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "l1TxNum"
+            ],
+            [
+              "convert",
+              "uint16",
+              [
+                "len",
+                [
+                  "param",
+                  "l1TxHashes"
+                ]
+              ]
+            ]
+          ]
+        }
+      ],
+      "writes": [
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "param",
+                "cks"
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "param",
+                    "blockContext"
+                  ]
+                ]
+              ],
+              [
+                "cap",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "blockContexts"
+                ]
+              ]
+            ]
+          ],
+          "field": "blockContexts",
+          "from": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ]
+          ],
+          "method": "Append",
+          "site": "common/batch/batch_data.go:35:28",
+          "to": [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "blockContext"
+              ]
+            ]
+          ],
+          "via": "append"
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "param",
+                "cks"
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "txsPayload"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "param",
+                    "txsPayload"
+                  ]
+                ]
+              ],
+              [
+                "cap",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "txsPayload"
+                ]
+              ]
+            ]
+          ],
+          "field": "txsPayload",
+          "from": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "txsPayload"
+            ]
+          ],
+          "method": "Append",
+          "site": "common/batch/batch_data.go:36:25",
+          "to": [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "txsPayload"
+              ]
+            ]
+          ],
+          "via": "append"
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "param",
+                "cks"
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t14",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "l1TxHashes"
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "l1TxHashes"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "call",
+                    "(github.com/morph-l2/go-ethereum/common.Hash).Bytes",
+                    [
+                      [
+                        "index",
+                        [
+                          "param",
+                          "l1TxHashes"
+                        ],
+                        [
+                          "op",
+                          "+",
+                          [
+                            "var",
+                            "t14",
+                            "rangeindex"
+                          ],
+                          [
+                            "const",
+                            1
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "cap",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "l1TxHashes"
+                ]
+              ]
+            ]
+          ],
+          "field": "l1TxHashes",
+          "from": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "l1TxHashes"
+            ]
+          ],
+          "method": "Append",
+          "site": "common/batch/batch_data.go:39:26",
+          "to": [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "l1TxHashes"
+              ]
+            ],
+            [
+              "len",
+              [
+                "call",
+                "(github.com/morph-l2/go-ethereum/common.Hash).Bytes",
+                [
+                  [
+                    "index",
+                    [
+                      "param",
+                      "l1TxHashes"
+                    ],
+                    [
+                      "op",
+                      "+",
+                      [
+                        "var",
+                        "t14",
+                        "rangeindex"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "via": "append"
+        }
+      ]
+    },
+    "EstimateCompressedSizeWithNewPayload": {
+      "cases": [],
+      "params": [
+        {
+          "name": "cks",
+          "type": "*morph-l2/common/batch.BatchData"
+        },
+        {
+          "name": "txPayload",
+          "type": "[]byte"
+        },
+        {
+          "name": "maxBlobCount",
+          "type": "int"
+        }
+      ],
+      "pointer": true,
+      "receiver": "cks",
+      "results": [
+        "bool",
+        "error"
+      ],
+      "source": "(*morph-l2/common/batch.BatchData).EstimateCompressedSizeWithNewPayload",
+      "span": "common/batch/batch_data.go:124",
+      "stores": [],
+      "writes": [
+        {
+          "cond": [
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "txsPayload"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "param",
+                    "txPayload"
+                  ]
+                ]
+              ],
+              [
+                "cap",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "txsPayload"
+                ]
+              ]
+            ]
+          ],
+          "field": "txsPayload",
+          "from": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "txsPayload"
+            ]
+          ],
+          "method": "EstimateCompressedSizeWithNewPayload",
+          "site": "common/batch/batch_data.go:126:21",
+          "to": [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "txPayload"
+              ]
+            ]
+          ],
+          "via": "append"
+        }
+      ]
+    },
+    "TxsPayload": {
+      "cases": [
+        {
+          "backing": [
+            "of",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "txsPayload"
+            ]
+          ],
+          "cap": [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "txsPayload"
+            ]
+          ],
+          "cond": [],
+          "len": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "txsPayload"
+            ]
+          ],
+          "offset": [
+            "const",
+            0
+          ],
+          "result": 0
+        }
+      ],
+      "params": [
+        {
+          "name": "cks",
+          "type": "*morph-l2/common/batch.BatchData"
+        }
+      ],
+      "pointer": true,
+      "receiver": "cks",
+      "results": [
+        "[]byte"
+      ],
+      "source": "(*morph-l2/common/batch.BatchData).TxsPayload",
+      "span": "common/batch/batch_data.go:113",
+      "stores": [],
+      "writes": []
+    },
+    "TxsPayloadV2": {
+      "cases": [
+        {
+          "backing": [
+            "of",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ]
+          ],
+          "cap": [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ]
+          ],
+          "cond": [
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "txsPayload"
+                  ]
+                ]
+              ],
+              [
+                "cap",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "blockContexts"
+                ]
+              ]
+            ]
+          ],
+          "len": [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ]
+          ],
+          "offset": [
+            "const",
+            0
+          ],
+          "result": 0
+        },
+        {
+          "backing": [
+            "fresh",
+            "common/batch/batch_data.go:119:15"
+          ],
+          "cap": [
+            "unknown",
+            "growth"
+          ],
+          "cond": [
+            [
+              ">",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "txsPayload"
+                  ]
+                ]
+              ],
+              [
+                "cap",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "blockContexts"
+                ]
+              ]
+            ]
+          ],
+          "len": [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ]
+          ],
+          "offset": [
+            "const",
+            0
+          ],
+          "result": 0
+        }
+      ],
+      "params": [
+        {
+          "name": "cks",
+          "type": "*morph-l2/common/batch.BatchData"
+        }
+      ],
+      "pointer": true,
+      "receiver": "cks",
+      "results": [
+        "[]byte"
+      ],
+      "source": "(*morph-l2/common/batch.BatchData).TxsPayloadV2",
+      "span": "common/batch/batch_data.go:118",
+      "stores": [],
+      "writes": [
+        {
+          "cond": [
+            [
+              "<=",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "txsPayload"
+                  ]
+                ]
+              ],
+              [
+                "cap",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "blockContexts"
+                ]
+              ]
+            ]
+          ],
+          "field": "blockContexts",
+          "from": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ]
+          ],
+          "method": "TxsPayloadV2",
+          "site": "common/batch/batch_data.go:119:15",
+          "to": [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ]
+          ],
+          "via": "append"
+        }
+      ]
+    }
+  },
+  "modelled": [
+    "blockContexts",
+    "txsPayload"
+  ],
+  "own_version": "holon-own/0.1",
+  "stem": "batch_BatchData",
+  "type": "morph-l2/common/batch.BatchData",
+  "views": [
+    {
+      "cap": [
+        "cap",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "txsPayload"
+        ]
+      ],
+      "case": 0,
+      "cond": [],
+      "field": "txsPayload",
+      "len": [
+        "len",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "txsPayload"
+        ]
+      ],
+      "method": "TxsPayload",
+      "offset": [
+        "const",
+        0
+      ],
+      "result": 0
+    },
+    {
+      "cap": [
+        "cap",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "blockContexts"
+        ]
+      ],
+      "case": 0,
+      "cond": [
+        [
+          "<=",
+          [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ]
+          ],
+          [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ]
+          ]
+        ]
+      ],
+      "field": "blockContexts",
+      "len": [
+        "op",
+        "+",
+        [
+          "len",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "blockContexts"
+          ]
+        ],
+        [
+          "len",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "txsPayload"
+          ]
+        ]
+      ],
+      "method": "TxsPayloadV2",
+      "offset": [
+        "const",
+        0
+      ],
+      "result": 0
+    }
+  ],
+  "writers": [
+    {
+      "cond": [
+        [
+          "!=",
+          [
+            "param",
+            "cks"
+          ],
+          [
+            "nil"
+          ]
+        ],
+        [
+          "<=",
+          [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "blockContext"
+              ]
+            ]
+          ],
+          [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ]
+          ]
+        ]
+      ],
+      "field": "blockContexts",
+      "from": [
+        "len",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "blockContexts"
+        ]
+      ],
+      "method": "Append",
+      "site": "common/batch/batch_data.go:35:28",
+      "to": [
+        "op",
+        "+",
+        [
+          "len",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "blockContexts"
+          ]
+        ],
+        [
+          "len",
+          [
+            "param",
+            "blockContext"
+          ]
+        ]
+      ],
+      "via": "append"
+    },
+    {
+      "cond": [
+        [
+          "!=",
+          [
+            "param",
+            "cks"
+          ],
+          [
+            "nil"
+          ]
+        ],
+        [
+          "<=",
+          [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "txsPayload"
+              ]
+            ]
+          ],
+          [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "txsPayload"
+            ]
+          ]
+        ]
+      ],
+      "field": "txsPayload",
+      "from": [
+        "len",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "txsPayload"
+        ]
+      ],
+      "method": "Append",
+      "site": "common/batch/batch_data.go:36:25",
+      "to": [
+        "op",
+        "+",
+        [
+          "len",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "txsPayload"
+          ]
+        ],
+        [
+          "len",
+          [
+            "param",
+            "txsPayload"
+          ]
+        ]
+      ],
+      "via": "append"
+    },
+    {
+      "cond": [
+        [
+          "!=",
+          [
+            "param",
+            "cks"
+          ],
+          [
+            "nil"
+          ]
+        ],
+        [
+          "<",
+          [
+            "op",
+            "+",
+            [
+              "var",
+              "t14",
+              "rangeindex"
+            ],
+            [
+              "const",
+              1
+            ]
+          ],
+          [
+            "len",
+            [
+              "param",
+              "l1TxHashes"
+            ]
+          ]
+        ],
+        [
+          "<=",
+          [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "l1TxHashes"
+              ]
+            ],
+            [
+              "len",
+              [
+                "call",
+                "(github.com/morph-l2/go-ethereum/common.Hash).Bytes",
+                [
+                  [
+                    "index",
+                    [
+                      "param",
+                      "l1TxHashes"
+                    ],
+                    [
+                      "op",
+                      "+",
+                      [
+                        "var",
+                        "t14",
+                        "rangeindex"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "l1TxHashes"
+            ]
+          ]
+        ]
+      ],
+      "field": "l1TxHashes",
+      "from": [
+        "len",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "l1TxHashes"
+        ]
+      ],
+      "method": "Append",
+      "site": "common/batch/batch_data.go:39:26",
+      "to": [
+        "op",
+        "+",
+        [
+          "len",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "l1TxHashes"
+          ]
+        ],
+        [
+          "len",
+          [
+            "call",
+            "(github.com/morph-l2/go-ethereum/common.Hash).Bytes",
+            [
+              [
+                "index",
+                [
+                  "param",
+                  "l1TxHashes"
+                ],
+                [
+                  "op",
+                  "+",
+                  [
+                    "var",
+                    "t14",
+                    "rangeindex"
+                  ],
+                  [
+                    "const",
+                    1
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "via": "append"
+    },
+    {
+      "cond": [
+        [
+          "<=",
+          [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "txPayload"
+              ]
+            ]
+          ],
+          [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "txsPayload"
+            ]
+          ]
+        ]
+      ],
+      "field": "txsPayload",
+      "from": [
+        "len",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "txsPayload"
+        ]
+      ],
+      "method": "EstimateCompressedSizeWithNewPayload",
+      "site": "common/batch/batch_data.go:126:21",
+      "to": [
+        "op",
+        "+",
+        [
+          "len",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "txsPayload"
+          ]
+        ],
+        [
+          "len",
+          [
+            "param",
+            "txPayload"
+          ]
+        ]
+      ],
+      "via": "append"
+    },
+    {
+      "cond": [
+        [
+          "<=",
+          [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ]
+          ],
+          [
+            "cap",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ]
+          ]
+        ]
+      ],
+      "field": "blockContexts",
+      "from": [
+        "len",
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "blockContexts"
+        ]
+      ],
+      "method": "TxsPayloadV2",
+      "site": "common/batch/batch_data.go:119:15",
+      "to": [
+        "op",
+        "+",
+        [
+          "len",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "blockContexts"
+          ]
+        ],
+        [
+          "len",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "txsPayload"
+          ]
+        ]
+      ],
+      "via": "append"
+    }
+  ]
+}
