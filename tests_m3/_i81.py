@@ -77,6 +77,7 @@ def layout_bound(law: dict, codec: dict) -> list[int] | None:
         return None
     fns = codec.get("functions") or {}
     vers = _version_pins(st.get("assume") or [])
+    law_versions = sorted(set(vers.values()))
     sides = []
     for s in (lhs, rhs):
         f = fns.get(s["call"])
@@ -86,9 +87,12 @@ def layout_bound(law: dict, codec: dict) -> list[int] | None:
         if f.get("versions") is None:
             lay = next(iter(f["layouts"].values()))
         else:
-            if var not in vers or str(vers[var]) not in f["layouts"]:
+            # amended (spec/M3/amendments.jsonl): the law pins one version; a side without a version premise of its
+            # own (a Go encoder's source has no version field) takes it
+            v = vers.get(var, law_versions[0] if len(law_versions) == 1 else None)
+            if v is None or str(v) not in f["layouts"]:
                 return None
-            lay = f["layouts"][str(vers[var])]
+            lay = f["layouts"][str(v)]
         sides.append((var, lay))
     parent: dict = {}
 
@@ -277,8 +281,11 @@ def channel_of(law: dict, record: dict, root: Path = ROOT) -> str:
         e = (load(root / "replay" / M / "sorts" / "report.json").get("laws") or {}).get(law["law_id"])
         if not e:
             return "undecided"
-        ends = [x["model"][-1].get("status") for x in e["entries"].values() if x.get("model")]
-        return "revert" if "revert" in ends else "store"
+        # amended (spec/M3/amendments.jsonl): the typed replay records outcome strings ("ok", "rev <reason>")
+        ends = [x["model"][-1] for x in e["entries"].values() if x.get("model")]
+        rev = [o for o in ends if (isinstance(o, str) and o.startswith("rev"))
+               or (isinstance(o, dict) and o.get("status") == "revert")]
+        return "revert" if rev else "store"
     if rule == "PAR":
         if law["facts"].startswith(f"gen/{M}/goops/"):
             d = record.get("difference") or {}
