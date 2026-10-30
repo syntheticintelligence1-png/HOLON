@@ -1,0 +1,79 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_disch_stale_commit",
+  "milestone": "M1",
+  "rule": "DISCH",
+  "subform": "blocking",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "s",
+        "type": "State"
+      },
+      {
+        "q": "forall",
+        "name": "a",
+        "type": "Act"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "obsv": "kappa",
+            "of": {
+              "var": "s"
+            }
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "is_commitBatchWithProof",
+            "args": [
+              {
+                "var": "a"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "last_ok",
+          "args": [
+            {
+              "step": {
+                "var": "a"
+              },
+              "from": {
+                "var": "s"
+              }
+            }
+          ]
+        },
+        {
+          "bool": false
+        }
+      ]
+    }
+  },
+  "notes": "While kappa holds, the permissionless commit path always reverts: permissionless committers are blocked until another principal (an active submitter's proveState, or the owner) acts.",
+  "maps_to": "O31 (F4)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "PROVED"
+}
