@@ -285,23 +285,44 @@ class SymSearch(US.UndoSearch):
         return None
 
     def omega_at(self, e: dict, n: int, trace: list, g: str):
+        """Each pair of successful calls x of a and y of b from g, at their own clocks, then both at the later one (two
+        transactions of one block: a reorder compares the same two calls in either order, and an action whose guard
+        reads the clock may succeed at the pair's common clock only)."""
         b = e["basis"]
         xs_ = self.cands_of(g, trace, b["a"])
         ys_ = self.cands_of(g, trace, b["b"])
         try:
             for xs, gx in xs_:
                 for ys, gy in ys_:
-                    args = [{"$ref": g}, self.m.act(xs), self.m.act(ys)]
-                    if self.ok(n, args, xs):
-                        if not self.hit(n, args, xs):
-                            self.race(e, trace, g, xs, ys, gx, gy)
-                        continue
-                    w = {"law": e["law_id"], "subform": "omega", "prefix": list(trace), "x": xs, "y": ys}
-                    if self.accepted(w):
-                        return w
+                    for x1, y1, own in self.clocks(g, xs, ys):
+                        args = [{"$ref": g}, self.m.act(x1), self.m.act(y1)]
+                        if self.ok(n, args, x1):
+                            if own and not self.hit(n, args, x1):
+                                self.race(e, trace, g, x1, y1, gx, gy)
+                            continue
+                        w = {"law": e["law_id"], "subform": "omega", "prefix": list(trace), "x": x1, "y": y1}
+                        if self.accepted(w):
+                            return w
         finally:
             self.m.drop([h for _s, h in xs_] + [h for _s, h in ys_])
         return None
+
+    def clocks(self, g: str, xs: S3.Step, ys: S3.Step):
+        """(x, y, at their own clocks?): the pair as found, then, when the clocks differ, both retimed to the later one,
+        each run once from g so that its calls are answered again at that clock (a retimed call that fails from g gives
+        no pair)."""
+        yield xs, ys, True
+        tx, ty = int(xs.env.get("block.timestamp") or 0), int(ys.env.get("block.timestamp") or 0)
+        if tx == ty:
+            return
+        t = max(tx, ty)
+        x1, y1 = US.retime(xs, t), US.retime(ys, t)
+        for st in (x1, y1):
+            self.tick()
+            code, _g1, _calls = self.m.run_step(g, st, save=False)
+            if code != 0:
+                return
+        yield x1, y1, False
 
     def race(self, e: dict, trace: list, g: str, xs, ys, gx: str, gy: str) -> None:
         """Both succeed from g and one order's second step fails: race_disabling (J5), the first per law kept."""
