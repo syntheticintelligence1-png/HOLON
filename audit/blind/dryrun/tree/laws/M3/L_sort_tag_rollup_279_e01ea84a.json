@@ -1,0 +1,50 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sort_tag_rollup_279_e01ea84a",
+  "milestone": "M3",
+  "notes": "at the copy write, the union register's generated tag is the member the write assumes (Prop 6.19: ghost-tag exactness at a read site); coercion morph_rollup.extracted:as_member:contracts/contracts/l1/rollup/Rollup.sol:279:e01ea84a",
+  "rule": "SORT",
+  "rule_catalog_version": "holon-rules/1.6",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "a",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "coerce": "morph_rollup.extracted:as_member:contracts/contracts/l1/rollup/Rollup.sol:279:e01ea84a",
+          "from": {
+            "var": "s"
+          },
+          "on": {
+            "var": "a"
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "as_member"
+}

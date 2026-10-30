@@ -1,0 +1,167 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_undo_BVH",
+  "milestone": "M1",
+  "rule": "UNDO",
+  "subform": "undo_pair",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "c",
+        "type": "Act"
+      },
+      {
+        "q": "forall",
+        "name": "k",
+        "type": "Nat"
+      },
+      {
+        "q": "forall",
+        "name": "q",
+        "type": "Trace"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "is_commitBatch",
+            "args": [
+              {
+                "var": "c"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "last_ok",
+            "args": [
+              {
+                "step": {
+                  "var": "c"
+                },
+                "from": {
+                  "run": {
+                    "var": "p"
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "var": "k"
+          },
+          {
+            "plus": [
+              {
+                "obsv": "lci_of",
+                "of": {
+                  "run": {
+                    "var": "p"
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              },
+              {
+                "nat": 1
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "run": {
+              "cat": [
+                {
+                  "trace": [
+                    {
+                      "var": "c"
+                    }
+                  ]
+                },
+                {
+                  "trace": [
+                    {
+                      "act": "revertBatch",
+                      "args": {
+                        "who": {
+                          "nat": 1
+                        },
+                        "idx": {
+                          "var": "k"
+                        },
+                        "count": {
+                          "nat": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "from": {
+              "run": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            }
+          }
+        },
+        {
+          "obs": {
+            "var": "q"
+          },
+          "from": {
+            "run": {
+              "var": "p"
+            },
+            "from": {
+              "s0": {}
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": "Undo pair (commitBatch, revertBatch): after a successful commit at index k and its revert, every continuation q behaves as from the state before the commit.",
+  "maps_to": "O11/O32 (F2)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "REFUTED"
+}

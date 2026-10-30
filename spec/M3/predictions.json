@@ -3908,6 +3908,1603 @@
         "disclosure": "Only I81-P1 counts toward prediction accuracy: its outcome rests on the layout bound, which nobody computed before this commit. The others are recorded, not counted: the author read most of what decides them (observed_before_prereg), and the rest follow from the preregistered policy applied to committed data. A miss in any of them is still reported as a miss."
       }
     },
+    "I82": {
+      "title": "I82 (= I46a): the blind pack, the comparison generator and the agreement metric (I46 keeps its number for the blind rerun and the M3 exit): tools/blind_pack.py (I46's sealed bundle, byte-identical for a given commit, with a manifest, sha256s and a leak list that is reported, never filtered), holon/report.py writing spec/M3/appendixA_map.json and docs/M3_COMPARISON.md under G1 (each section 11.8 row, a cell for every F1-F14, Appendix A's items mapped to law ids), and the blind_agreement metric (holon compare --blind) over the statuses of alpha-equivalent statements, dry-run on the lead's own regenerated records and on synthetic perturbations",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I82)",
+      "prompt": "prompts/I82_blind_tooling.md",
+      "predictions": [
+        {
+          "id": "I82-P1",
+          "claim": "The pack holds exactly I46's protocol (K1-K4, K6, K9): python tools/blind_pack.py --commit <HEAD> --out DIR exits 0 and bundle.tar's members are exactly the instrument's: target/<p> for each of the 1080 blobs of morph-l2/morph at 3e44e795586af3e11285b603ab642c67823add51 (its one gitlink, go-ethereum, listed under excluded.target and not packed), tooling/<p> for every blob of the packed commit under .github/ci/, config/, holon/, schemas/ and tools/ and the files .gitattributes, .gitignore and requirements-dev.txt, less tools/blind_pack.py and tools/casestudy.py (excluded.holon.path), and tooling/whitepaper.md redacted; each member's bytes and mode equal its git blob's (0o755 for a 100755 blob); no member lies under facts/, spec/, laws/, gen/, results/, replay/, docs/, prompts/, tests/, tests_m*/ or audit/, and none is a maps_to sidecar or policy_hints.mjs (checked from the protocol's own list, not the sidecar's); members are sorted, with mtime 0, uid and gid 0 and empty owner names; manifest.json lists exactly those members with size and sha256, the exclusions by rule, the redactions, the leak summary and the bundle's sha256, in K8's form, and records no absolute path of the packing machine. Derivation: K3 over the sidecar's lists; the target's tree was counted with git ls-tree at the prereg (1055 blobs of mode 100644, 25 of 100755, 1 gitlink).",
+          "check": "tests_m3/test_blind.py::TestPack::test_p1_the_bundle_holds_exactly_the_protocols_members"
+        },
+        {
+          "id": "I82-P2",
+          "claim": "The pack is deterministic (K7): packing the same commit again from another working directory into another output directory, under TZ=Pacific/Kiritimati and LC_ALL=C, gives byte-identical bundle.tar, manifest.json and leaks.json. Derivation: every byte comes from git objects and the sidecar, every tar header field is fixed, every list is sorted, and no output records a time or a path of the machine.",
+          "check": "tests_m3/test_blind.py::TestPack::test_p2_the_pack_is_byte_identical_across_runs_and_environments"
+        },
+        {
+          "id": "I82-P3",
+          "claim": "The whitepaper is redacted exactly as the protocol says (K5): tooling/whitepaper.md equals the instrument's redaction of the packed commit's whitepaper.md, which removes exactly four sections (## 2 Motivating Example, ## 11 Case Study, ## Appendix A., ## Appendix B., each once) and the seven Morph instances lists of section 5 (each with its items and the blank line after it), and nothing else; no removed heading and no '**Morph instances:**' line is left; the manifest's redactions equal the instrument's spans.",
+          "check": "tests_m3/test_blind.py::TestPack::test_p3_the_whitepaper_is_redacted_as_the_protocol_says"
+        },
+        {
+          "id": "I82-P4",
+          "claim": "The leak scan reports leaks, and they are the instrument's (L1-L6): leaks.json equals the instrument's scan of the bundle's tooling/ members, and it is not empty. In the redacted whitepaper it finds the case_id O12 on section 5.9's 'Example (O12)' line (the protocol leaves section 5.9's worked example), the law_name L_dom_v0 (section 15.1's day-one list) and a section_ref to section 11.8 (section 12's L8 row and section 15.1 keep it); in tooling/holon it finds at least 5 files with a section_ref match, at least 5 files with an O-id case_id match outside rule context, and at least one code_site and one law_name match (holon/ docstrings quote the case study). So the bundle I46's protocol defines is not leak-free, and I46's blind rerun must state these leaks. Derivation and disclosure: the whitepaper sites were read before the prereg; a grep before the prereg over holon/, tools/, config/, schemas/ and bend/ found 10 files with a section 11, Appendix A/B or section 2.x reference and 19 with O-id-shaped tokens (rule names among them, e.g. tests_m3/test_o12.py's rules O1-O6), so the thresholds sit below those counts; the full scan was not run before the prereg.",
+          "check": "tests_m3/test_blind.py::TestPack::test_p4_the_leak_scan_finds_what_the_instrument_finds_and_it_is_not_empty"
+        },
+        {
+          "id": "I82-P5",
+          "claim": "The map links every item from its sources (A2-A7): spec/M3/appendixA_map.json equals the instrument's derivation in version, inputs, sets, unmapped, absent and every item; the catalog parses to exactly O1-O37, D1-D9, N1-N4, F1-F14 and R1-R14; every link's source is sidecar, maps_to, ledger, name or backtest; at the base every sidecar link's law has a record (absent is empty). The links themselves are derived data, not predictions.",
+          "check": "tests_m3/test_blind.py::TestMap::test_p5_the_map_links_every_item_by_its_generated_and_sidecar_sources"
+        },
+        {
+          "id": "I82-P6",
+          "claim": "The comparison regenerates byte-identically and G1 covers it (A1, G1): holon report --milestone M3 --check exits 0 on the committed tree; with a copy of results/M3 in place of the M3 set, --check exits 0 on an unflipped copy and 1 when the copy flips the decided status of the first counted M3 link's law; holon/gate.py's G1 calls holon.report.regenerate_check.",
+          "check": "tests_m3/test_blind.py::TestMap::test_p6_the_comparison_regenerates_byte_identically_and_g1_covers_it"
+        },
+        {
+          "id": "I82-P7",
+          "claim": "Every F-id has a cell, and every verdict follows the rules (A8, A9): docs/M3_COMPARISON.md has exactly one table line, with A9's columns, for each of R1-R14, F1-F14, O1-O37, D1-D9 and N1-N4; each verdict cell equals the instrument's A8 verdict and each link cell its rendering over the committed records ('not mechanized' allowed); the document states the contamination caveat. The verdicts are derived data, not predictions.",
+          "check": "tests_m3/test_blind.py::TestMap::test_p7_every_f_id_has_a_cell_and_every_verdict_follows_the_rules"
+        },
+        {
+          "id": "I82-P8",
+          "claim": "The dry run agrees fully (B1-B6; the prompt's steps 1-5): with the lead's M0 and M1 records re-made in full and M3's re-made for every PAR law outside PAR-init (84 laws at this key's base) into a scratch tree, projected into audit/blind/dryrun/tree and compared with the lead's projection at the same base (audit/blind/dryrun/lead), blind_agreement is 1.0 for M0, M1 and M3 and pooled; matched_fraction is 1.0 for M0 (8 classes) and M1 (16) and, for M3, the fraction of the lead's classes that hold a PAR law outside PAR-init (84 of 136 at the base); compare.json equals holon compare's output on the two committed trees and the instrument's recomputation; the lead tree is the projection of the lead at dryrun.json's base; the tree's laws are the lead's and its M3 records are exactly those PAR laws'. Derivation: the generators are deterministic and G1 checks them byte for byte; every one of these statuses is decided by a proof or counter-law check or, for the four UNKNOWN PAR laws, by a fixed probe set or candidate list, none by a time budget. The least certain part: the local checker is not the pinned build, so a re-made status could differ; that would be a miss, and a finding about environment sensitivity.",
+          "check": "tests_m3/test_blind.py::TestMetric::test_p8_the_dry_run_on_the_leads_regenerated_records_agrees_fully"
+        },
+        {
+          "id": "I82-P9",
+          "claim": "Synthetic perturbations move the metric exactly (B2-B5): on trees the instrument builds from the lead's M0, M1 and M3 projections, holon compare reports identity: agreement 1.0, matched fraction 1.0; alpha (every binder renamed, every law id renamed, premises and conjuncts reordered, eq sides swapped): the same; flip (3 M3 and 1 M1 singleton statuses flipped): agree lower by exactly 3 and 1; drop (5 M3 records removed): matched and blind keys lower by 5, agreement 1.0; change (one M1 claim strengthened): that law alone lead_only and blind_only; mixed (an M0 law duplicated under a new id with another status): one disagreement whose blind status is MIXED:<both>; empty (no blind record): matched 0, blind_agreement null, matched_fraction 0.0; --threshold 0.9 exits 0 on identity and 1 on empty; a blind tree without laws/M3 exits 2; and every report equals the instrument's own B2-B4 recomputation.",
+          "check": "tests_m3/test_blind.py::TestMetric::test_p9_synthetic_perturbations_move_the_metric_exactly"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I82-R0",
+          "claim": "The contract docstring, the instrument and the two sidecars keep the sha256 pinned in thresholds.",
+          "check": "tests_m3/test_blind.py::TestRegressions::test_r0_the_prereg_pins_hold"
+        },
+        {
+          "id": "I82-R1",
+          "claim": "I82's own commits (rule R) change only the files rule R allows: no law, record, generated model, frozen file or sidecar, and no other test.",
+          "check": "tests_m3/test_blind.py::TestRegressions::test_r1_own_commits_touch_only_what_the_contract_allows"
+        },
+        {
+          "id": "I82-R2",
+          "claim": "holon audit prereg passes for M2 and M3.",
+          "check": "tests_m3/test_blind.py::TestRegressions::test_r2_the_prereg_audits_pass"
+        },
+        {
+          "id": "I82-R3",
+          "claim": "No own commit changes a generator closure file (so no record is re-made), and holon/report.py and holon/blind.py hold no law-id literal, import no test module and are in no closure.",
+          "check": "tests_m3/test_blind.py::TestRegressions::test_r3_no_generator_closure_file_changes_and_holon_names_no_law"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M3/appendixA_map.json",
+        "docs/M3_COMPARISON.md",
+        "audit/blind/",
+        "docs/iterations/I82.md"
+      ],
+      "tests": [
+        "tests_m3/test_blind.py"
+      ],
+      "thresholds": {
+        "base": "00b12f7083ac3ed886c73af17a05a447edcc1f66 (the lead after I28's build merge, PR #50), with BUILD_PLAN's row I82 (d037c410) committed before this commit",
+        "instrument": "tests_m3/_i82.py",
+        "instrument_sha256": "3d446a12056fb1203cba3086e2d4f43e0385e003a5a27e394dba20bc1ae4e2c9",
+        "contract_docstring_sha256": "47ec12dc2fcd13847116137addb775632b93dfa96604a596dbf049c82cec51c7",
+        "pack_sidecar": {
+          "path": "spec/M3/lib/blind_pack.json",
+          "sha256": "3e8dfad1395d1b9f5e66e576fda5ed49d33192ec61ffee3da3251e4a8b9430a9"
+        },
+        "map_sidecar": {
+          "path": "spec/M3/lib/appendixA.json",
+          "sha256": "ac4cf55ea9937eb04c1ee805be83316c89df891542e46dca72d98aa3b1141599"
+        },
+        "target": {
+          "repo": "morph-l2/morph",
+          "commit": "3e44e795586af3e11285b603ab642c67823add51",
+          "blobs": 1080,
+          "gitlinks": [
+            "go-ethereum"
+          ]
+        },
+        "redaction": {
+          "sections": [
+            "## 2 ",
+            "## 11 ",
+            "## Appendix A.",
+            "## Appendix B."
+          ],
+          "morph_instances_lists": 7
+        },
+        "leaks": {
+          "whitepaper": {
+            "case_id": "O12",
+            "law_name": "L_dom_v0",
+            "section_ref": "§11.8"
+          },
+          "holon_section_ref_files_min": 5,
+          "holon_case_id_O_files_min": 5,
+          "holon_code_site_min": 1,
+          "holon_law_name_min": 1
+        },
+        "dry_run": {
+          "milestones": [
+            "M0",
+            "M1",
+            "M3"
+          ],
+          "m3_subset": "every PAR law of laws/M3 whose subform is not init_chain",
+          "m3_laws_at_base": 84,
+          "m3_classes_at_base": 136,
+          "m0_classes": 8,
+          "m1_classes": 16,
+          "blind_agreement": 1.0
+        },
+        "perturbations": {
+          "flip": {
+            "M3": 3,
+            "M1": 1
+          },
+          "drop": {
+            "M3": 5
+          },
+          "change": {
+            "M1": 1
+          },
+          "mixed": {
+            "M0": 1
+          },
+          "threshold": 0.9
+        },
+        "counted_predictions": [
+          "I82-P1",
+          "I82-P2",
+          "I82-P3",
+          "I82-P4",
+          "I82-P6",
+          "I82-P8",
+          "I82-P9"
+        ],
+        "not_counted": {
+          "I82-P5": "the map is derived data: the prediction is the instrument's equality and coverage, which the instrument's derivation over the committed data, run before the prereg to check it parses, already showed",
+          "I82-P7": "the verdicts are derived data: the prediction is the instrument's equality and one cell per id"
+        },
+        "observed_before_prereg": {
+          "I82-P4": "the whitepaper's leak sites, by reading; a grep over the tooling directories (counts in the claim); the instrument's scan run on a synthetic three-member tar only",
+          "I82-P5": "the instrument's catalog parse and map derivation over the committed data (no tool existed): 78 items, no absent sidecar link, 110 unmapped M3 laws and 11 unmapped M2 laws",
+          "I82-P8": "the instrument's class count over the committed laws (8, 16 and 136 classes, all singletons; 84 PAR laws outside PAR-init, 84 classes); no record was re-made",
+          "records": "the lead's committed records, which the comparison reads, were read while writing the sidecar (e.g. results/T32 holds one REFUTED law of five; I31's DISCH records and I27's UNDO records differ from their keys' predictions at the base)"
+        },
+        "sources_without_links": {
+          "I48's corpus": "spec/eval/corpus.json holds no Morph entry (its collectors excluded Scroll and Morph material), so it contributes no link"
+        },
+        "closures": "holon.records.generator_files (every IR version), holon.profile.generator_files and the generator_sha256 closures of holon.sorts.run3, holon.undo.run, holon.fact.run, holon.disch.run and holon.versions.run; at the base none holds holon/gate.py or holon/__main__.py",
+        "known_reds_at_base": "LANE_RULES' base items (tests_m3.test_undo 11, tests_m3.test_disch_profile 3, tests_m2 groups 2 and 3, I43-R1, the local-checker items) and, since I28's merge, gate-M3-partial's G11V in-flight clause with test_fact TestGate.test_partial_gate_on_a_copy, test_sort_types TestRecordsAndGate.test_gate_m3_passes and test_disch TestGateAndRegressions.test_gate_m3_passes_and_rejects_the_disch_canaries"
+      }
+    },
+    "I69": {
+      "title": "= I36a: Bundle I's extraction and acquisition, no laws: the message queue, the messenger, the whitelist and the Submitter extracted at the pinned head (overloads, dynamic storage arrays, abi.encodeWithSignature and encodeCall, packed hashing over loop-carried values) and modelled, one linked machine in which calls between members run the callee's extracted transitions, refined against a forge harness of the real bundle, and the legacy registry L1Staking extracted at v0.6.1 with its proxy's on-chain implementation matched by metadata-stripped bytecode (Q12), the live members matched to their head builds (Q18)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I69)",
+      "prompt": "prompts/I69_bundle_extraction.md",
+      "predictions": [
+        {
+          "id": "I69-P1",
+          "claim": "The legacy registry is recovered (Q12), decided on tests_m3/_i69.py::timeline's recomputation from the committed snapshot's raw logs, receipts and code (rules A3-A6: each upgrade rebuilt from the proxy's raw Upgraded logs, confirmed by its committed receipt, the proxy addresses the sidecar's, the scan's end anchored by the EIP-1967 implementation slot at the fetch block), and UNKNOWN (neither held nor missed) when the anchor test test_the_second_read_agrees (A7) fails: the registry proxy 0x0dc417f8af88388737c5053ff73f345f080543f7 (the old registry of I63's cutover receipt) has exactly two Upgraded logs in the window [19426587, 26179508]. The first is in its creation transaction: the receipt's contractAddress is the proxy, its implementation is I63's placeholder 0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f, its sender is the Rollup proxy's deployer 0x2818a3af785975a32611155a6ee36c21cec068ca, and it logs one AdminChanged (from zero to that sender), no Initialized and matches nothing. The second, before the cutover block 26031669, sets an implementation that matches the registry's version V3 (the 22 tags v0.4.0..v0.6.1) under the hardhat configuration alone, logs Initialized(1) in its transaction, and holds at its immutables OTHER_STAKING = 0x5300000000000000000000000000000000000015 (the L2 staking predeploy) and MESSENGER = the MESSENGER word of the queue proxy's last implementation. Derivation: Morph's deploy scripts create every proxy over one placeholder from one deployer (I63 saw it for the Rollup proxy at block 20996846); L1Staking's code is one identity across all 22 tags of the mainnet era under every configuration (the basis), so nothing called for an upgrade after launch; every pre-cutover Rollup implementation matched under hardhat alone (I63's timeline), so the launch-era pipeline is hardhat's; the legacy registry was built against the same L1 messenger proxy as the queue. Disclosed: OTHER_STAKING's value follows from the constructor, which passes Predeploys.L2_STAKING (L1Staking.sol:93 at v0.6.1), read before the prereg; the on-chain word is still read, since the code identity masks immutables.",
+          "check": "tests_m3/test_bundle_extraction.py::TestAcquisition::test_p1_the_legacy_registry_is_recovered_and_matches"
+        },
+        {
+          "id": "I69-P2",
+          "claim": "The live bundle is the modelled code (Q18's cross-check for the members), decided on the instrument's timeline (A6; UNKNOWN when the A7 anchor test fails): the last implementation in the window of the queue proxy 0x3931ade842f5bb8763164bdd81e5361dce6cc1ef (the receiver of the Rollup's IL1MessageQueue calls in I23's record) matches the queue's head build under hardhat alone, with ROLLUP_CONTRACT = the Rollup proxy 0x759894ced0e6af42c26668076ffa84d02e3cef60; the messenger proxy (the low 20 bytes of the queue's MESSENGER word) has a last implementation that matches the messenger's head build under hardhat alone; the Submitter proxy 0xf2d50000c994565a4742059802fdbb0bee1cbef6 (the new registry of I63's cutover receipt) has a last implementation that matches the Submitter's head build under deployed alone; and the whitelist the queue names at the fetch block (the low 20 bytes of its word at the whitelistChecker slot) matches the Whitelist's head build under hardhat and foundry (whose builds are equal) and not under deployed. Derivation: the head's L1MessageQueueWithGasPriceOracle.sol is the blob of every tag from v0.4.10 on, its L1CrossDomainMessenger.sol the blob from v0.4.2 on and its Whitelist.sol the blob of every tag (git ls-tree, no blob read), all released in the hardhat era (I63: every Rollup implementation before the cutover matched under hardhat); Submitter.sol first appears at v0.6.3, the cutover's version, whose Rollup implementation matched under deployed alone.",
+          "check": "tests_m3/test_bundle_extraction.py::TestAcquisition::test_p2_the_live_bundle_is_the_modelled_code"
+        },
+        {
+          "id": "I69-P3",
+          "claim": "Five documents and their coverage (E1-E5): holon bundle extract declares five documents (messenger, queue, whitelist and Submitter at the head; L1Staking at v0.6.1) with no member debt; the declaration's coverage gives each no unaccounted statement and exactly the debt entries of thresholds.debt (messenger 18: the queue calls at :198, :208, :209, :286, :290, :298 and :320, IRollup.withdrawalRoots at :147, and the low-level transfers at :161, :203, :240, :293 and :313, each an external_call and a value_transfer; queue 1: IWhitelist.isSenderAllowed at :115; whitelist 1: the loop writing isWhitelisted at :25-28; Submitter 4: the getters at :134 and :172 and the transfer at :178; L1Staking 10: six storage-writing loops, the transfer at :467 and the two ICrossDomainMessenger.sendMessage_b2267a7b calls at :475-480 and :486-491); and holon coverage --milestone M3 lists the four head documents with the declaration's entries beside the unchanged Rollup entry, with no unaccounted statement in all. Derivation: reading the sources under I19's coverage rules, which make every external call, value transfer and storage-writing loop debt at its site; every other statement is a construct the build's extensions extract, so none is unsupported.",
+          "check": "tests_m3/test_bundle_extraction.py::TestExtraction::test_p3_documents_and_coverage"
+        },
+        {
+          "id": "I69-P4",
+          "claim": "The documents are as read (thresholds.structure's loops and cost): per document, the loop records per action and the loop spans of the cost terms per action. Derivation: reading the sources, most derived first, by I19's rules; for example the queue's Yul length loop (:154-157) is recorded at each of its 5 or 6 uses with one cost span, and L1Staking.slash holds its own storage-writing loop and getStakersFromBitmap's two counting loops. The action names (E2's sendMessage_b2267a7b and sendMessage_5f7b1577; 16 messenger, 17 queue, 4 whitelist, 15 Submitter and 27 L1Staking actions), the own storage families, the inherited entries (13, 5, 1, 7 and L1Staking's 7) and the constants (the queue's APPROPRIATE_INTRINSIC_GAS_PER_BYTE 16 and INTRINSIC_GAS_TX 21000; none elsewhere) are construction facts of solc's AST and layout, checked under I69-R5 (the prereg review's m1), not predicted.",
+          "check": "tests_m3/test_bundle_extraction.py::TestExtraction::test_p4_the_documents_are_as_read"
+        },
+        {
+          "id": "I69-P5",
+          "claim": "Member models (M1-M4): holon bundle model compiles the four head members' documents with no model debt, and on every top-level corpus step on its member each model agrees with the real code (status, the revert key on two reverts, the return data on two oks, the member's storage at every slot a write of the step touches on either side, and its logs) from the member's real pre-state with the recorded answers to its own calls: no disagreement and no unsupported step. Derivation: the extensions M1 and M2 name cover every construct the four documents hold, as read; a disagreement would be an extraction or model error.",
+          "check": "tests_m3/test_bundle_extraction.py::TestModel::test_p5_member_models_compile_and_refine"
+        },
+        {
+          "id": "I69-P6",
+          "claim": "The linked machine refines the bundle (L1-L8, C1-C6): the declaration's static links are the 28 rows of thresholds.links (Rollup 12, messenger 11, Submitter 4, queue 1; 22 to actions, 5 to getters, 1 to the Rollup's receive), of which the 16 rows of the messenger, the queue and the Submitter are predicted by reading and the Rollup's 12 are rule L2 on the committed adopted document (construction, reproduced by the review); and on the whole corpus (300 m1, 7 seed and 120 random traces) the linked machine agrees with the real bundle in every observable (status, revert key, return data, every member's storage at every touched slot, logs, balances, outgoing calls) and in its frames (C2's form, equal to the harness's): no disagreement and no unsupported step, in the record and in every compared step of results/M3/bundle/steps.json. Derivation: the members' call graph has no writing re-entry (messenger to queue to whitelist and the Rollup to queue and Submitter call down only; the Submitter calls the Rollup's getters and its empty receive), so L5 never refuses a step of the corpus.",
+          "check": "tests_m3/test_bundle_extraction.py::TestLink::test_p6_the_linked_machine_refines_the_bundle"
+        },
+        {
+          "id": "I69-P7",
+          "claim": "The corpus reaches every link and action, decided on tests_m3/_i69.py::recount of the harness's frames in results/M3/bundle/steps.json (C6), with the record's frames_ok, links_ok and by_member_action equal to the recount: each of the 28 link rows is executed with a kept frame (C2's ok) at least once, and each action of the four head members that is not an initializer (49 by rule E2, a construction count: 15 messenger, 16 queue, 4 whitelist, 14 Submitter) ends ok in at least one kept frame, top-level or nested. Derivation: the seven planted traces call each action past its guards as read (fees, the whitelist, the poked withdrawal root, the gateway caller, the Rollup as caller, a won challenge), and I20's m1 rows drive the Rollup's calls into the queue and the Submitter.",
+          "check": "tests_m3/test_bundle_extraction.py::TestLink::test_p7_the_corpus_reaches_every_link_and_action"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I69-R1",
+          "claim": "Earlier extractions and models do not move (E6, M2, M5; green at the prereg): the adopted Rollup document re-extracts byte for byte with its sidecar (holon extract solidity --check), holon coverage --milestone M2 --check passes, the typed and untyped M3 models of the adopted document (holon model --milestone M3 [--untyped]) regenerate byte for byte (the typed model's init equal to the committed one but for F40's code table init.code, which holon.sorts.run3 adds since 5b369d4c and holon model does not; found when rebasing onto 2ef07b6d), I20's M2 model gen/M2/extracted/{model.bend, layout.json, window_check.json} regenerates byte for byte (holon.machine.write_model, as gate-M2's G1 does; the prereg review's m9), the twelve inputs of thresholds.inputs_sha256 keep their sha256, and gen/M3/coverage.json's Rollup entry is the prereg's.",
+          "check": "tests_m3/test_bundle_extraction.py::TestRegressions::test_r1_earlier_extractions_and_models_regenerate"
+        },
+        {
+          "id": "I69-R2",
+          "claim": "I69's own commits (the contract's one-PR definition: the non-merge commits of git log --first-parent <C_K>..<end>, end the oldest commit adding docs/iterations/I69.md, HEAD while none does; shown on toy repositories in docs/iterations/I69_prereg_fold.json) change only what the contract allows: at least one adds gen/M3/bundle/bundle.json; none changes a frozen root, laws/, spec/ (but lines of iteration I69 appended to spec/M3/amendments.jsonl), holon/rules/, a file under replay/ outside replay/M3/bundle/, a file under gen/ outside gen/M3/bundle/ but gen/M3/coverage.json (whose entries at the commit's parent stay as they are), or a file under results/ outside results/M3/bundle/ but the records directly under results/M1, results/M2 and results/T32, none of which it adds or deletes, each keeping its status and differing from its parent's version only in generator_sha256 and keys named seconds (so I40's filter stage is re-applied in the same commit, and the lean4 kernel entries rebuild as they are). No M3 record is re-made: every M3 record's generator_sha256 trails I69's closures (GEN3, GEN_FACT, GEN_UNDO, GEN_DISCH, holon-ir/0.3) until the next M3 re-make. These rules imply I63-R2, I43-R8, I26-R1, I31-R2 and I40-R2 for I69's commits.",
+          "check": "tests_m3/test_bundle_extraction.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I69-R3",
+          "claim": "On the build head: holon coverage --milestone M3 --check reproduces the committed report (G8's reproduction, over the four head documents) and holon audit prereg exits 0 for M3 and M2 (checked by the test); in CI on the PR, every job that passed at the base (run 40116936084 on 2ef07b6d: all 11 jobs, gate-M0, gate-M1, gate-M2 in full, gate-M3-partial --checks G3,G5,G8,G9,G10,G11,G11V,GEVID with G8 covering the four head documents, gate-M3-G2, tests-m3-catalog, the frozen suite, freeze-check, prereg-M2, prereg-M3 and the toolchain) passes, and a job fails only on an item it fails on at the lead the branch last merged (after I28's build: G11V's 'in-flight: 0 of 8 edges inhabited'), I69 adding none, save G8 on a head document if I69-P3 misses by an unaccounted statement (P3's miss, not counted again). The full M3 gate is not claimed: its G1 fails on the M3 records' staleness until the next M3 re-make, as after I66.",
+          "check": "tests_m3/test_bundle_extraction.py::TestRegressions::test_r3_coverage_reproduces_and_the_audits_pass"
+        },
+        {
+          "id": "I69-R4",
+          "claim": "Construction (E7, the linked machine's placement; the prereg review's m2): holon/bundle/ exists; neither its files nor the lines I69's own commits add to any other file under holon/ name a member contract, a member-specific function or immutable, a proxy address, a host of the sidecar's rpc (url and second), the target's name or an I69 id, or import a tests module; no module of a generator closure (holon-ir/0.1-0.3, GEN3, GEN_FACT, GEN_UNDO, GEN_DISCH and I32's GEN_PROFILE; transitively, by holon.records._holon_imports) imports holon/bundle/.",
+          "check": "tests_m3/test_bundle_extraction.py::TestRegressions::test_r4_holon_is_generic_and_the_link_is_outside_every_closure"
+        },
+        {
+          "id": "I69-R5",
+          "claim": "Construction checks, not counted as predictions (green at the prereg where they read only the instruments): the key pins the instruments, the basis recomputes from the repository's objects, the sidecar names committed facts (the 24 tags, the cutover receipt's proxies, I23's queue, I63's configurations, events, window and host, the relay literals, the Rollup's families), the construction pins (thresholds.structure's actions, storage, inherited and constants for all five documents) are solc's and the 28 link rows are decidable from frames, the random corpus regenerates to its recorded sha256, the legacy sources are one unit from v0.4.0, and rule E2 reads the adopted Rollup; on the built tree, every document carries solc's structure, holon bundle extract, model, corpus, history, fetch and timeline --check reproduce their outputs, every generated sidecar is the Rollup's with the member's fields and every document's action names are E2 over solc's AST at its commit, the links are rule L2 over the committed documents, the corpus is rule C3 (the m1 part's pinned sha256, the seed part verbatim, the random part regenerated), and the history equals the basis's registry part. The anchor test test_the_second_read_agrees (A7) is listed here: when it fails, I69-P1 and I69-P2 are UNKNOWN.",
+          "check": "tests_m3/test_bundle_extraction.py::TestInstrument::test_the_key_pins_the_instruments and tests_m3/test_bundle_extraction.py::TestInstrument::test_the_basis_recomputes and tests_m3/test_bundle_extraction.py::TestInstrument::test_the_sidecar_names_committed_facts and tests_m3/test_bundle_extraction.py::TestInstrument::test_the_legacy_sources_are_one_unit_from_v040 and tests_m3/test_bundle_extraction.py::TestInstrument::test_the_construction_pins_are_solc_s and tests_m3/test_bundle_extraction.py::TestInstrument::test_the_random_corpus_is_pinned and tests_m3/test_bundle_extraction.py::TestInstrument::test_rule_e2_reads_the_adopted_rollup and tests_m3/test_bundle_extraction.py::TestExtraction::test_the_documents_carry_solc_s_structure and tests_m3/test_bundle_extraction.py::TestExtraction::test_extract_reproduces and tests_m3/test_bundle_extraction.py::TestExtraction::test_the_generated_sidecars_and_rule_e2 and tests_m3/test_bundle_extraction.py::TestModel::test_models_reproduce and tests_m3/test_bundle_extraction.py::TestLink::test_the_links_follow_rule_l2 and tests_m3/test_bundle_extraction.py::TestLink::test_corpus_reproduces and tests_m3/test_bundle_extraction.py::TestLink::test_the_corpus_is_rule_c3 and tests_m3/test_bundle_extraction.py::TestAcquisition::test_history_is_the_basis and tests_m3/test_bundle_extraction.py::TestAcquisition::test_fetch_check_and_timeline_reproduce and tests_m3/test_bundle_extraction.py::TestAcquisition::test_the_second_read_agrees"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/bundle/",
+        "results/M3/bundle/",
+        "replay/M3/bundle/",
+        "docs/iterations/I69.md"
+      ],
+      "tests": [
+        "tests_m3/test_bundle_extraction.py"
+      ],
+      "thresholds": {
+        "base": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874",
+        "instrument": "tests_m3/_i69.py",
+        "instrument_sha256": "cc810222f6dd2d4cf2fa6af9543167f40cebebc465745cd2e80ef9536fcd1c72",
+        "i63_instrument": "tests_m3/_i63.py",
+        "i63_instrument_sha256": "64b8c1115e2604cf986a61f353613a5a6cfc26834fc822b224abdc7d7aa3acb5",
+        "contract_docstring_sha256": "098c67a0d189afb7386ddadd209710d4ce464b8b1123b16261405c6cfda38a6a",
+        "sidecar": "spec/M3/lib/bundle.json",
+        "sidecar_sha256": "f6c91cab9f4d1941f8999b6ba2378dd488b7224891b477d9e731b8034e380a40",
+        "basis": "spec/M3/lib/bundle_basis.json",
+        "basis_sha256": "a765d06ff152bef9a7a9deef5d31fa4bda67862130296608363c3b85e682350a",
+        "inputs_sha256": {
+          "replay/M1/solidity/HolonTraceReplay.t.sol": "3e651a254861603f30c9614ee85ccaa85b6b012d3c2bf88e2aa8813b26959853",
+          "replay/M2/fragments.json": "ec501c2be31737cb3ceffe910384e316b9ced7f1b2ccc58efb9c57b16fc10c9d",
+          "replay/M2/solidity/HolonExtractedStep.t.sol": "8a4e31d7cc0cfd7b86db08c71e7ad27c618ec75808b67afa1fc8eecfbfa8a5da",
+          "replay/M2/solidity/HolonStepBase.sol": "d6b490fad4b5da0ae4438c32be6dab6a3e301eff1a06b7b111b470a6874f6334",
+          "results/M2/historical/trans.json": "df48dfb324e7a308dd99deaa746217327a97e60b9cc6c9cd883e0e6e9ec1da1f",
+          "results/M3/history/onchain.json": "0641743e42f604b8134af2901947a737a0fb4257cac6740fae6a25b894f90843",
+          "results/M3/history/receipts/0xdeb5268cbec1b47c77ad46cb8dd29491833e45ae374d2905f94f4e0499e8110e.json": "0e8cadbc85c939f5f9357765dfaacd8cd8a7236e9863f3d72f941b78830a711f",
+          "spec/M1/facts/morph_rollup.json": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+          "spec/M2/facts/morph_rollup.extracted.json": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+          "spec/M2/lib/extract_rollup.json": "73c1242801c3781193f744d14f7f67a5c96ef1d29c5574bf94bdc1208d6affef",
+          "spec/M2/lib/extract_solidity.json": "43db32a60e0396250be1917a9b750d24232a718a63968a1d50d20ef77f70a9f2",
+          "spec/M3/lib/history.json": "1e51846f539d5042d2c42e8a6c465b62a4b5252f6ce7c43106c00c9851b364a9"
+        },
+        "target": {
+          "repo": "morph-l2/morph",
+          "head": "3e44e795586af3e11285b603ab642c67823add51",
+          "l1staking": {
+            "tag": "v0.6.1",
+            "commit": "4a1607dbe3288643827154738e28e5ef0734dccf"
+          }
+        },
+        "registry_versions": [
+          [
+            "V1",
+            [
+              "v0.2.0-beta"
+            ]
+          ],
+          [
+            "V2",
+            [
+              "v0.2.1"
+            ]
+          ],
+          [
+            "V3",
+            [
+              "v0.4.0",
+              "v0.4.1",
+              "v0.4.2",
+              "v0.4.3",
+              "v0.4.4",
+              "v0.4.5",
+              "v0.4.6",
+              "v0.4.7",
+              "v0.4.8",
+              "v0.4.9",
+              "v0.4.10",
+              "v0.4.11",
+              "v0.5.0",
+              "v0.5.1",
+              "v0.5.2",
+              "v0.5.3",
+              "v0.5.4",
+              "v0.5.5",
+              "v0.5.6",
+              "v0.5.7",
+              "v0.6.0",
+              "v0.6.1"
+            ]
+          ]
+        ],
+        "rollup_coverage_entry_sha256": "d4d9f63cb80d048c2d6041935de5db9b14c823729dd6c6e249a3aa29f1048a88",
+        "debt": {
+          "l1staking": [
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:148-151",
+              "loop_storage_write",
+              "whitelist"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:152-154",
+              "loop_storage_write",
+              "whitelist"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:179-189",
+              "loop_storage_write",
+              "deleteList, deleteableHeight, removedList, whitelist, withdrawals"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:221-233",
+              "loop_storage_write",
+              "deleteList, deleteableHeight, removedList, whitelist, withdrawals"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:444-450",
+              "loop_storage_write",
+              "stakerIndexes, stakerSet"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:467",
+              "external_call",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:467",
+              "value_transfer",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:475-480",
+              "external_call",
+              "ICrossDomainMessenger.sendMessage_b2267a7b"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:486-491",
+              "external_call",
+              "ICrossDomainMessenger.sendMessage_b2267a7b"
+            ],
+            [
+              "contracts/contracts/l1/staking/L1Staking.sol:497-513",
+              "loop_storage_write",
+              "deleteList, deleteableHeight, stakerIndexes, stakerSet, stakers"
+            ]
+          ],
+          "messenger": [
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:147",
+              "external_call",
+              "IRollup.withdrawalRoots"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:161",
+              "external_call",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:161",
+              "value_transfer",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:198",
+              "external_call",
+              "IL1MessageQueue.estimateCrossDomainMessageFee"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:203",
+              "external_call",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:203",
+              "value_transfer",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:208",
+              "external_call",
+              "IL1MessageQueue.nextCrossDomainMessageIndex"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:209",
+              "external_call",
+              "IL1MessageQueue.appendCrossDomainMessage"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:240",
+              "external_call",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:240",
+              "value_transfer",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:286",
+              "external_call",
+              "IL1MessageQueue.nextCrossDomainMessageIndex"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:290",
+              "external_call",
+              "IL1MessageQueue.estimateCrossDomainMessageFee"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:293",
+              "external_call",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:293",
+              "value_transfer",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:298",
+              "external_call",
+              "IL1MessageQueue.appendCrossDomainMessage"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:313",
+              "external_call",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:313",
+              "value_transfer",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/L1CrossDomainMessenger.sol:320",
+              "external_call",
+              "IL1MessageQueue.nextCrossDomainMessageIndex"
+            ]
+          ],
+          "queue": [
+            [
+              "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:115",
+              "external_call",
+              "IWhitelist.isSenderAllowed"
+            ]
+          ],
+          "submitter": [
+            [
+              "contracts/contracts/l1/rollup/Submitter.sol:134",
+              "external_call",
+              "IRollupSubmitterView.lastFinalizedBatchIndex"
+            ],
+            [
+              "contracts/contracts/l1/rollup/Submitter.sol:172",
+              "external_call",
+              "IRollupSubmitterView.lastCommittedBatchIndex"
+            ],
+            [
+              "contracts/contracts/l1/rollup/Submitter.sol:178",
+              "external_call",
+              "address.call"
+            ],
+            [
+              "contracts/contracts/l1/rollup/Submitter.sol:178",
+              "value_transfer",
+              "address.call"
+            ]
+          ],
+          "whitelist": [
+            [
+              "contracts/contracts/libraries/common/Whitelist.sol:25-28",
+              "loop_storage_write",
+              "isWhitelisted"
+            ]
+          ]
+        },
+        "structure": {
+          "l1staking": {
+            "actions": [
+              "claimSlashRemaining",
+              "claimWithdrawal",
+              "cleanStakerStore",
+              "getActiveStakers",
+              "getStakerBitmap",
+              "getStakers",
+              "getStakersBitmap",
+              "getStakersFromBitmap",
+              "initialize",
+              "isActiveStaker",
+              "isStaker",
+              "isStakerInDeleteList",
+              "messenger",
+              "owner",
+              "register",
+              "removeStaker",
+              "renounceOwnership",
+              "slash",
+              "transferOwnership",
+              "updateChallengeDeposit",
+              "updateGasLimitAddStaker",
+              "updateGasLimitRemoveStakers",
+              "updateRewardPercentage",
+              "updateStakingValue",
+              "updateWhitelist",
+              "verifySignature",
+              "withdraw"
+            ],
+            "cost": {
+              "getActiveStakers": [
+                "contracts/contracts/l1/staking/L1Staking.sol:352-358",
+                "contracts/contracts/l1/staking/L1Staking.sol:361-366"
+              ],
+              "getStakersBitmap": [
+                "contracts/contracts/l1/staking/L1Staking.sol:406-409"
+              ],
+              "getStakersFromBitmap": [
+                "contracts/contracts/l1/staking/L1Staking.sol:419-422",
+                "contracts/contracts/l1/staking/L1Staking.sol:426-434"
+              ],
+              "slash": [
+                "contracts/contracts/l1/staking/L1Staking.sol:419-422",
+                "contracts/contracts/l1/staking/L1Staking.sol:426-434"
+              ]
+            },
+            "loops": {
+              "claimWithdrawal": 1,
+              "cleanStakerStore": 1,
+              "getActiveStakers": 2,
+              "getStakersBitmap": 1,
+              "getStakersFromBitmap": 2,
+              "register": 1,
+              "removeStaker": 1,
+              "slash": 3,
+              "updateWhitelist": 2
+            },
+            "storage": [
+              "rollupContract",
+              "stakingValue",
+              "withdrawalLockBlocks",
+              "rewardPercentage",
+              "gasLimitAddStaker",
+              "gasLimitRemoveStakers",
+              "slashRemaining",
+              "whitelist",
+              "removedList",
+              "stakerSet",
+              "stakerIndexes",
+              "deleteList",
+              "deleteableHeight",
+              "stakers",
+              "blsKeys",
+              "tmKeys",
+              "withdrawals",
+              "challengeDeposit"
+            ],
+            "inherited": 7,
+            "constants": {}
+          },
+          "messenger": {
+            "actions": [
+              "initialize",
+              "messageNonce",
+              "owner",
+              "paused",
+              "proveAndRelayMessage",
+              "receive",
+              "renounceOwnership",
+              "replayMessage",
+              "sendMessage_5f7b1577",
+              "sendMessage_b2267a7b",
+              "setPause",
+              "transferOwnership",
+              "updateFeeVault",
+              "updateMaxReplayTimes",
+              "updateRollup",
+              "verifyMerkleProof"
+            ],
+            "constants": {},
+            "cost": {
+              "proveAndRelayMessage": [
+                "contracts/contracts/libraries/common/Verify.sol:14-17"
+              ],
+              "verifyMerkleProof": [
+                "contracts/contracts/libraries/common/Verify.sol:14-17"
+              ]
+            },
+            "inherited": 13,
+            "loops": {
+              "proveAndRelayMessage": 1,
+              "verifyMerkleProof": 1
+            },
+            "storage": [
+              "finalizedWithdrawals",
+              "messageSendTimestamp",
+              "__isL1MessageDropped",
+              "rollup",
+              "messageQueue",
+              "maxReplayTimes",
+              "replayStates",
+              "prevReplayIndex"
+            ]
+          },
+          "queue": {
+            "actions": [
+              "appendCrossDomainMessage",
+              "appendEnforcedTransaction",
+              "calculateIntrinsicGasFee",
+              "computeTransactionHash",
+              "estimateCrossDomainMessageFee",
+              "getCrossDomainMessage",
+              "getFirstUnfinalizedMessageEnqueueTime",
+              "getMessageEnqueueTimestamp",
+              "initialize",
+              "nextCrossDomainMessageIndex",
+              "owner",
+              "popCrossDomainMessage",
+              "renounceOwnership",
+              "setL2BaseFee",
+              "transferOwnership",
+              "updateMaxGasLimit",
+              "updateWhitelistChecker"
+            ],
+            "constants": {
+              "APPROPRIATE_INTRINSIC_GAS_PER_BYTE": "16",
+              "INTRINSIC_GAS_TX": "21000"
+            },
+            "cost": {
+              "appendCrossDomainMessage": [
+                "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:154-157"
+              ],
+              "appendEnforcedTransaction": [
+                "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:154-157"
+              ],
+              "computeTransactionHash": [
+                "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:154-157"
+              ]
+            },
+            "inherited": 5,
+            "loops": {
+              "appendCrossDomainMessage": 5,
+              "appendEnforcedTransaction": 6,
+              "computeTransactionHash": 6
+            },
+            "storage": [
+              "l2BaseFee",
+              "messageQueue",
+              "pendingQueueIndex",
+              "maxGasLimit",
+              "__droppedMessageBitmap",
+              "__skippedMessageBitmap",
+              "whitelistChecker",
+              "messageEnqueueTime"
+            ]
+          },
+          "submitter": {
+            "actions": [
+              "addSubmitter",
+              "claimSlashRemaining",
+              "claimWithdrawal",
+              "initialize",
+              "isActive",
+              "owner",
+              "removeSubmitter",
+              "renounceOwnership",
+              "setMinimumStake",
+              "slash",
+              "stake",
+              "transferOwnership",
+              "updateChallengeDeposit",
+              "updateRewardPercentage",
+              "withdraw"
+            ],
+            "constants": {},
+            "cost": {},
+            "inherited": 7,
+            "loops": {},
+            "storage": [
+              "rollupContract",
+              "minimumStake",
+              "challengeDeposit",
+              "rewardPercentage",
+              "slashRemaining",
+              "registered",
+              "stakeOf",
+              "withdrawing",
+              "withdrawalBatchIndex",
+              "__gap"
+            ]
+          },
+          "whitelist": {
+            "actions": [
+              "isSenderAllowed",
+              "renounceOwnership",
+              "transferOwnership",
+              "updateWhitelistStatus"
+            ],
+            "constants": {},
+            "cost": {},
+            "inherited": 1,
+            "loops": {
+              "updateWhitelistStatus": 1
+            },
+            "storage": [
+              "isWhitelisted"
+            ]
+          }
+        },
+        "links": [
+          [
+            "messenger",
+            "messageNonce",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:320",
+            "IL1MessageQueue.nextCrossDomainMessageIndex",
+            "queue",
+            "action",
+            "nextCrossDomainMessageIndex"
+          ],
+          [
+            "messenger",
+            "proveAndRelayMessage",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:147",
+            "IRollup.withdrawalRoots",
+            "rollup",
+            "getter",
+            "withdrawalRoots"
+          ],
+          [
+            "messenger",
+            "replayMessage",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:198",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            "queue",
+            "action",
+            "estimateCrossDomainMessageFee"
+          ],
+          [
+            "messenger",
+            "replayMessage",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:208",
+            "IL1MessageQueue.nextCrossDomainMessageIndex",
+            "queue",
+            "action",
+            "nextCrossDomainMessageIndex"
+          ],
+          [
+            "messenger",
+            "replayMessage",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:209",
+            "IL1MessageQueue.appendCrossDomainMessage",
+            "queue",
+            "action",
+            "appendCrossDomainMessage"
+          ],
+          [
+            "messenger",
+            "sendMessage_5f7b1577",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:286",
+            "IL1MessageQueue.nextCrossDomainMessageIndex",
+            "queue",
+            "action",
+            "nextCrossDomainMessageIndex"
+          ],
+          [
+            "messenger",
+            "sendMessage_5f7b1577",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:290",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            "queue",
+            "action",
+            "estimateCrossDomainMessageFee"
+          ],
+          [
+            "messenger",
+            "sendMessage_5f7b1577",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:298",
+            "IL1MessageQueue.appendCrossDomainMessage",
+            "queue",
+            "action",
+            "appendCrossDomainMessage"
+          ],
+          [
+            "messenger",
+            "sendMessage_b2267a7b",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:286",
+            "IL1MessageQueue.nextCrossDomainMessageIndex",
+            "queue",
+            "action",
+            "nextCrossDomainMessageIndex"
+          ],
+          [
+            "messenger",
+            "sendMessage_b2267a7b",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:290",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            "queue",
+            "action",
+            "estimateCrossDomainMessageFee"
+          ],
+          [
+            "messenger",
+            "sendMessage_b2267a7b",
+            "contracts/contracts/l1/L1CrossDomainMessenger.sol:298",
+            "IL1MessageQueue.appendCrossDomainMessage",
+            "queue",
+            "action",
+            "appendCrossDomainMessage"
+          ],
+          [
+            "queue",
+            "estimateCrossDomainMessageFee",
+            "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:115",
+            "IWhitelist.isSenderAllowed",
+            "whitelist",
+            "action",
+            "isSenderAllowed"
+          ],
+          [
+            "rollup",
+            "challengeState",
+            "contracts/contracts/l1/rollup/Rollup.sol:483",
+            "ISubmitter.challengeDeposit",
+            "submitter",
+            "getter",
+            "challengeDeposit"
+          ],
+          [
+            "rollup",
+            "commitBatch",
+            "contracts/contracts/l1/rollup/Rollup.sol:120",
+            "ISubmitter.isActive",
+            "submitter",
+            "action",
+            "isActive"
+          ],
+          [
+            "rollup",
+            "commitBatch",
+            "contracts/contracts/l1/rollup/Rollup.sol:263",
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+            "queue",
+            "action",
+            "getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          [
+            "rollup",
+            "commitBatch",
+            "contracts/contracts/l1/rollup/Rollup.sol:937",
+            "IL1MessageQueue.getCrossDomainMessage",
+            "queue",
+            "action",
+            "getCrossDomainMessage"
+          ],
+          [
+            "rollup",
+            "commitBatchWithProof",
+            "contracts/contracts/l1/rollup/Rollup.sol:393",
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+            "queue",
+            "action",
+            "getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          [
+            "rollup",
+            "commitBatchWithProof",
+            "contracts/contracts/l1/rollup/Rollup.sol:937",
+            "IL1MessageQueue.getCrossDomainMessage",
+            "queue",
+            "action",
+            "getCrossDomainMessage"
+          ],
+          [
+            "rollup",
+            "commitState",
+            "contracts/contracts/l1/rollup/Rollup.sol:120",
+            "ISubmitter.isActive",
+            "submitter",
+            "action",
+            "isActive"
+          ],
+          [
+            "rollup",
+            "commitState",
+            "contracts/contracts/l1/rollup/Rollup.sol:281",
+            "IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+            "queue",
+            "action",
+            "getFirstUnfinalizedMessageEnqueueTime"
+          ],
+          [
+            "rollup",
+            "commitState",
+            "contracts/contracts/l1/rollup/Rollup.sol:937",
+            "IL1MessageQueue.getCrossDomainMessage",
+            "queue",
+            "action",
+            "getCrossDomainMessage"
+          ],
+          [
+            "rollup",
+            "finalizeBatch",
+            "contracts/contracts/l1/rollup/Rollup.sol:749",
+            "IL1MessageQueue.popCrossDomainMessage",
+            "queue",
+            "action",
+            "popCrossDomainMessage"
+          ],
+          [
+            "rollup",
+            "proveState",
+            "contracts/contracts/l1/rollup/Rollup.sol:120",
+            "ISubmitter.isActive",
+            "submitter",
+            "action",
+            "isActive"
+          ],
+          [
+            "rollup",
+            "proveState",
+            "contracts/contracts/l1/rollup/Rollup.sol:806",
+            "ISubmitter.slash",
+            "submitter",
+            "action",
+            "slash"
+          ],
+          [
+            "submitter",
+            "claimWithdrawal",
+            "contracts/contracts/l1/rollup/Submitter.sol:134",
+            "IRollupSubmitterView.lastFinalizedBatchIndex",
+            "rollup",
+            "getter",
+            "lastFinalizedBatchIndex"
+          ],
+          [
+            "submitter",
+            "removeSubmitter",
+            "contracts/contracts/l1/rollup/Submitter.sol:172",
+            "IRollupSubmitterView.lastCommittedBatchIndex",
+            "rollup",
+            "getter",
+            "lastCommittedBatchIndex"
+          ],
+          [
+            "submitter",
+            "slash",
+            "contracts/contracts/l1/rollup/Submitter.sol:178",
+            "address.call",
+            "rollup",
+            "receive",
+            "receive"
+          ],
+          [
+            "submitter",
+            "withdraw",
+            "contracts/contracts/l1/rollup/Submitter.sol:172",
+            "IRollupSubmitterView.lastCommittedBatchIndex",
+            "rollup",
+            "getter",
+            "lastCommittedBatchIndex"
+          ]
+        ],
+        "corpus_traces": {
+          "m1": 300,
+          "seed": 7,
+          "random": 120
+        },
+        "p1": {
+          "proxy": "0x0dc417f8af88388737c5053ff73f345f080543f7",
+          "placeholder": "0x98df320641c2e65ab4bbef1e6f6c66d9b50ede5f",
+          "deployer": "0x2818a3af785975a32611155a6ee36c21cec068ca",
+          "cutover_block": 26031669,
+          "other_staking": "0x5300000000000000000000000000000000000015",
+          "upgrades": 2,
+          "match": [
+            "V3",
+            "hardhat"
+          ],
+          "initialized": [
+            1
+          ]
+        },
+        "p2": {
+          "rollup_proxy": "0x759894ced0e6af42c26668076ffa84d02e3cef60",
+          "queue_proxy": "0x3931ade842f5bb8763164bdd81e5361dce6cc1ef",
+          "submitter_proxy": "0xf2d50000c994565a4742059802fdbb0bee1cbef6",
+          "matches": {
+            "queue": [
+              [
+                "queue",
+                "hardhat"
+              ]
+            ],
+            "messenger": [
+              [
+                "messenger",
+                "hardhat"
+              ]
+            ],
+            "submitter": [
+              [
+                "submitter",
+                "deployed"
+              ]
+            ],
+            "whitelist": [
+              [
+                "whitelist",
+                "foundry"
+              ],
+              [
+                "whitelist",
+                "hardhat"
+              ]
+            ]
+          }
+        },
+        "counts": {
+          "actions": {
+            "messenger": 16,
+            "queue": 17,
+            "whitelist": 4,
+            "submitter": 15,
+            "l1staking": 27
+          },
+          "non_initializer_actions_head": {
+            "messenger": 15,
+            "queue": 16,
+            "whitelist": 4,
+            "submitter": 14,
+            "total": 49
+          },
+          "debt_entries": {
+            "l1staking": 10,
+            "messenger": 18,
+            "queue": 1,
+            "submitter": 4,
+            "whitelist": 1
+          },
+          "links": {
+            "rows": 28,
+            "by_member": {
+              "rollup": 12,
+              "messenger": 11,
+              "submitter": 4,
+              "queue": 1
+            },
+            "by_kind": {
+              "action": 22,
+              "getter": 5,
+              "receive": 1
+            }
+          }
+        },
+        "laws": 0,
+        "rule_catalog": "unchanged (laws/M3 at holon-rules/1.5; I69 adds no rule, sub-form or catalog)",
+        "derivation": "spec/M3/lib/derive_extracted.json stays I24's: no bundle document enters M3's derivation, evidence set, bindings or records",
+        "closures": {
+          "note": "files per closure at the base 2ef07b6d (holon.records._holon_imports, transitively); I67's build added holon/diagram/goops.py and holon/gen/goloop.py to every closure but holon-ir/0.1",
+          "sizes": {
+            "holon-ir/0.1": 6,
+            "holon-ir/0.2": 127,
+            "holon-ir/0.3": 128,
+            "GEN3": 126,
+            "GEN3+GEN_FACT": 136,
+            "GEN3+GEN_UNDO": 129,
+            "GEN3+GEN_DISCH": 131,
+            "GEN_PROFILE (I32: holon.profile.generator_files)": 127
+          },
+          "in_every_closure_but_holon_ir_0_1": [
+            "holon/extracted_eval.py",
+            "holon/frontends/__init__.py",
+            "holon/frontends/solidity/__init__.py",
+            "holon/frontends/solidity/compile.py",
+            "holon/frontends/solidity/transitions.py",
+            "holon/machine.py",
+            "holon/mreplay.py",
+            "holon/refinement.py",
+            "holon/replay_fragments.py",
+            "holon/sorts/deploy3.py",
+            "holon/sorts/evaluate3.py",
+            "holon/sorts/model3.py"
+          ],
+          "in_no_closure": [
+            "holon/__main__.py",
+            "holon/coverage.py",
+            "holon/gate.py",
+            "holon/sorts/gate3.py",
+            "holon/frontends/solidity/history.py",
+            "holon/bundle/ (new; I69-R4)"
+          ],
+          "lean": "holon/lean.py and holon/gen/lean_*.py import none of the files above, so holon run rebuilds every lean4 kernel entry as it is and holon lean need not run",
+          "records_at_base": {
+            "M1": {
+              "records": 16,
+              "generator_sha256": "27f717ba0f275022 (holon-ir/0.2, current)"
+            },
+            "M2": {
+              "records": 13,
+              "generator_sha256": "d1fd1e3709c806e8 (holon-ir/0.3, current)"
+            },
+            "M3": {
+              "records": 135,
+              "generator_sha256": "five digests (84 at d1fd1e37, 35 at 81a06b9c, 8 at 03ffc198, 5 at 8d0a176c, 3 at b40f7a78): they trail already"
+            },
+            "T32": {
+              "records": 5,
+              "current": 5,
+              "generator_sha256": "bd51e9b7ee904d63",
+              "hints": "spec/M1/policy_hints.mjs",
+              "timing_keys": [
+                "seconds"
+              ]
+            }
+          }
+        },
+        "remake": [
+          "every record directly under results/M1 (16) and results/M2 (13): holon run --milestone M1 and --milestone M2, then I40's filter stage holon refute --milestone M3 --only filter, in the same commit; generator_sha256 and keys named seconds alone; results/M3/refute/filter.json unchanged (I66's precedent, 925141c1)",
+          "the five records of results/T32 (I32's, current at the base): holon profile --milestone T32, since I32's GEN_PROFILE (127 files) holds every closure file I69 is expected to edit; generator_sha256 and keys named seconds alone; laws/T32, gen/T32, results/T32/summary.json and gen/M3/disch/classification.json byte-identical (I66's precedent, 8515f349)",
+          "no M3 record: they trail I69's closures until the next M3 re-make, as after I66 (I69 moves no M3 record's content: no M3 law reads a bundle output)"
+        ],
+        "base_gate_M3": "the base is 2ef07b6d, the lead after I67's build, I72's prereg and the I25 commit-test fix. Its CI run 40116936084 passed all 11 jobs (toolchain, frozen-suite, freeze-check, prereg-M2, prereg-M3, gate-M0, gate-M1, gate-M2, gate-M3-partial, gate-M3-G2, tests-m3-catalog). When I28's build (PR #50) merges first, the lead's own known item follows it: G11V on M3 fails with 'in-flight: 0 of 8 edges inhabited' (I28's P5 miss), and R3 then counts it as a base item. The gate cannot run in the prereg's environment (GENV: the checker is not the pinned one), so the build report states CI's own run",
+        "known_red_at_base": [
+          "tests_m3.test_undo: 11 (UNDO records trail)",
+          "tests_m3.test_disch_profile: 3 (I32's documented misses)",
+          "tests_m2 group 2: 2 (solidity history.py honesty)",
+          "tests_m2 group 3: 14 failures and 6 errors (historical snapshot, extract toolchain, transitions, filter bins, historical exit)",
+          "tests_m3/test_lean_promoted.py I43-R1 (the lead re-baselines it later)",
+          "locally only: tests_m3.test_par_lossy.TestCore.test_inj_push_is_proved (local Bend linearity; the bun is not the pinned build), and tests needing Git LFS content (results/M2/historical/index.json is a pointer in this worktree)",
+          "after I28's build lands: G11V on M3 ('in-flight: 0 of 8 edges inhabited')"
+        ],
+        "coordination": "I69 is one PR (LANE_RULES): the prereg C_K, its fold, the build, the outcomes and the report on claude/brave-wright-2c5d0o-i36, which takes the lead only by merge commits (the lead's lines first in append-only logs) and reaches the lead as the second parent of a merge commit. I32-R2 was re-scoped by I66's prereg (merged at a0bfc521), so I69 needs no amendment of it. I28's build (PR #50) shares rule E3's tag-tree mechanism with its V5 (one implementation in holon.frontends.solidity; whichever key merges second merges the other's and keeps one) and compiles V3..V10 with model3, where I69's additive extensions can only remove model debt; if it merges first, I69 merges the lead and regenerates what the merge makes stale. I72 (the lead's) writes gen/M2/evidence.json; I69 never writes it. I80 (Bundle II extraction) and I29 are other agents' keys; I69 shares no output path with them. I68 (Q21's structural keys) may change model3's storage representation: the member models follow it, and every storage claim here is in real slots (M6). Later keys (the review's m7): a key that changes holon.frontends.solidity, holon.extracted_eval, holon.sorts.model3, holon.sorts.evaluate3 or holon/bundle/ so that a bundle --check differs re-makes gen/M3/bundle/ and results/M3/bundle/ under its own commit rules; until it does, I69's R5 --check tests are expected red, and that key says so. The adoption of the head members' documents into M3's derivation is I36's (= I36b), at spec/M3/facts/morph_<member>.extracted.json, when its laws need them.",
+        "deferred": "every law (I36 = I36b: O29, O30, O34, D7, D8, D9, Q28's BMC rerun, D4 if Q63 moves it there; I70 = I36c: O13 and O20's economic half); the delay guard's M3 profile (BUILD_PLAN I32, as built: it follows I36's extraction of the queue; I36b, over the linked queue); the Bend composition of the linked machine (I36b, when a law needs it); L1Staking's model and its link with the V10 Rollup of I28's versioned machine (I70); the earlier implementations of the members' proxies matched to tag builds (Q66); the explorer's verified source of the registry (Q65); M3's records re-made against I69's closures (the next M3 re-make); the adoption of the member documents into M3's derivation (I36 = I36b, at spec/M3/facts/morph_<member>.extracted.json)",
+        "disclosed": "prompts/I69_bundle_extraction.md, 'What was known before this prereg': the sources read, the tree listings, the committed records read, the runs (the basis; E2 on the Rollup; L2 on the Rollup; the relay literals; holon model --milestone M3 typed and untyped into scratch; the Rollup's extract --check and coverage --milestone M3 --check), the re-checks after each rebase (onto e215fbf5, f5534775 and 2ef07b6d), and that nothing was fetched from the target or a chain and the frontend, model3, forge, Bend and the gates were never run on a new member. Added by the fold of the prereg review (docs/iterations/I69_prereg_review.json, docs/iterations/I69_prereg_fold.json): the review computed, and the fold re-computed with the instrument, solc's construction facts for all five documents (rule E2's action lists, own families, inherited counts, constants; L1Staking's storage, inherited and constants first pinned here) and rule L2's 12 Rollup rows; holon.mreplay.random_corpus's m1 part was run (300 traces, 2432 rows; its sha256 pinned); the instrument's random part was generated (its sha256 recorded); the five code readings of Q67 were confirmed by the review against v0.6.1's source; no chain read was made beyond eth_blockNumber on the three hosts (to check that they answer)",
+        "questions": [
+          "Q65 (anchors and the verified source)",
+          "Q66 (history of the other members)",
+          "Q67 (the findings-lane readings)"
+        ],
+        "construction_not_scored": "I69-R4 and I69-R5",
+        "drafted_on": "fde1f819acbf8322dfc59cf02c2904ab5bfa08a8, rebased onto e215fbf5, then f5534775, then the base 2ef07b6d (the lead after I67's build, I72's prereg and the I25 fix): none of the twelve inputs, config/holon.json, gen/M3/coverage.json or the basis's builds moved (the basis changed only in its sidecar_sha256, the sidecar having gained the fold's output paths and machine-readable acquisition sources); the closures, record counts and the T32 re-make are the base's",
+        "structure_parts": {
+          "predicted (I69-P4, read before the prereg)": [
+            "loops",
+            "cost"
+          ],
+          "construction (I69-R5: solc's AST and layout at the member's commit, tests_m3/_i69.py::structure; the review computed them and the fold pinned them, L1Staking's storage, inherited and constants among them)": [
+            "actions",
+            "storage",
+            "inherited",
+            "constants"
+          ]
+        },
+        "links_parts": {
+          "construction (rule L2 on the committed adopted Rollup document; the review reproduced them)": 12,
+          "predicted (I69-P6, read from the sources; the documents do not exist before the build)": 16
+        },
+        "corpus": {
+          "m1_sha256": "0b82e5f5401b90c38206fbfc4a85209f05354c54356036e28195cdc6ad911c4a",
+          "m1_form": "tests_m3/_i69.py::m1_sha256: sha256 of json.dumps(the 300 lists of row dicts of holon.mreplay.random_corpus(CompiledMachine.build(spec/M1/facts/morph_rollup.json), 300, seed=20261011), sort_keys=True, separators=(',', ':'))",
+          "m1_computed": "at the prereg, twice (on f5534775 and on 2ef07b6d, byte-identical): 300 traces, 2432 rows, ops challengeState, commitBatch, commitBatchWithProof, commitState, finalizeBatch, proveState, revertBatch, sendMessage, setPause, wait",
+          "random_sha256": "5e4ea3d5b8b4f601d9d07ece205098ed187d4d413413213121d2d0b877390dad",
+          "random_form": "tests_m3/_i69.py::random_corpus (the contract's C3), canonical JSON as for m1; regenerated by the instrument, so the pin only records it",
+          "seed": "the sidecar's corpus.seed verbatim"
+        },
+        "fold": "docs/iterations/I69_prereg_fold.json (M1-M5, m1-m9 and n1-n3 of docs/iterations/I69_prereg_review.json, each with what changed); the review and the fold notes are a separate own commit after C_K (docs/ only)"
+      }
+    },
+    "I85": {
+      "title": "= I39a: the Go derivation extracted (ParseBatch as an extracted consumer: I18's skeleton document of node/derivation plus the SSA of ParseBatch's closure, its environment named) and the product machine joining the Solidity commit (the adopted Rollup document's commitBatch, evaluator-level) with Go derivation through the derivation's own calldata join and the committed header as the next parent (the cycle), its consumer half refined against a Go replay of the real BatchInfo.ParseBatch on 169 batches; no laws",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I85)",
+      "prompt": "prompts/I85_derivation_extraction.md",
+      "predictions": [
+        {
+          "id": "I85-P1",
+          "claim": "The consumer is extracted as read (D1-D4): spec/M3/facts/morph_derivation.extracted.json, less its consumer key, is I18's spec/M2/facts/morph_derivation.go.extracted.json (the same frontend, config and package set); its consumer section's closure is the 14 functions of thresholds.closure (ParseBatch, the BlockContext decoder and node/types' DecodeBlockContext, the transaction queue's enqueue and dequeue and constructor, encodeTransactions, the five BatchHeaderBytes methods it reaches (BatchIndex, TotalL1MessagePopped, Version, LastBlockNumber, validate), RetrieveBlobBytes and the zstd wrapper DecompressBatchBytes); its environment is exactly the 13 callees of thresholds.environment with their kinds (9 standard-library natives: fmt.Errorf, errors.New, bytes.NewReader, encoding/binary.Read, the big-endian Uint16 and Uint64, math/big's NewInt, SetBytes and Cmp; the oracles DecompressMorphDABatch and DecodeTxsFromBytes; Transactions.Len as a slice length; Transaction.MarshalBinary as an encoding); no callee, global or instruction is unaccounted; the instrument's walk over the section gives the same closure and environment. Derivation: reading the sources at the head: every static call of those bodies, with the sidecar's boundary at DecodeTxsFromBytes and the cgo decompressor; the bodies use structs, pointers, slices, append, copy, make, interfaces for fmt's and binary.Read's arguments and two counted loops, all ops the interpreter evaluates; the globals they read are common/batch's three error variables (assigned by errors.New in a package initializer) and binary.BigEndian.",
+          "check": "tests_m3/test_derivation_extraction.py::TestExtraction::test_p1_the_consumer_is_extracted_as_read"
+        },
+        {
+          "id": "I85-P2",
+          "claim": "The join is as read (J1): gen/M3/derivation/product.json's join rows are the seven of thresholds.join, which the instrument recomputes from the document's join function and the Rollup document's commitBatch parameter: each BatchDataInput member, through the Go field its first letter capitalized names (go-ethereum's ABI decoder fills modernBatchDataInput by those names), lands in the RPCRollupBatch field unpackModernRollupCall's literal stores it into: version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot and postStateRoot under their own names, withdrawalRoot as WithdrawRoot. Derivation: reading unpackModernRollupCall (the composite literal at derivation.go:700-708); no member is dropped by the join.",
+          "check": "tests_m3/test_derivation_extraction.py::TestProduct::test_p2_the_join_is_as_read"
+        },
+        {
+          "id": "I85-P3",
+          "claim": "The consumer's read set (D5): ParseBatch reads exactly BlockContexts, LastBlockNumber, ParentBatchHeader, PostStateRoot, Sidecar (and Sidecar.Blobs), Version and WithdrawRoot of its batch, and never reads NumL1Messages, PrevStateRoot, Hash, CurrentSequencerSetBytes or Signatures (thresholds.reads, thresholds.unread; together they are every field of RPCRollupBatch). Derivation: reading batch_info.go:87-248. The committed L1-message count reaches the derived batch (P2) and is then discarded: F11's L1-count observation, as an extraction fact; I39 states its law.",
+          "check": "tests_m3/test_derivation_extraction.py::TestExtraction::test_p3_the_consumer_reads"
+        },
+        {
+          "id": "I85-P4",
+          "claim": "The product machine commits and closes the cycle (J2, J3, K1-K5): on the 8 product traces (20 commits) every planned commit is ok on the adopted Rollup document from I80's deployment record under the declared environment, with batch index k for the k-th commit; each committed header (the argument of the keccak256 written to committedBatches) hashes to the word written; each next commit's parent is that header (the first's is I20's genesis); and the derivation of each committed batch agrees with the real ParseBatch and is ok with batchIndex the committed index for versions 1 and 2, and fails with \"invalid batch: zero block count\" for version 0 (thresholds.product_v0_error). Derivation: the commits follow I20's harness rule (parent hash, index, previous state root, non-zero roots, an active submitter, an empty queue so no L1-message delay); a modern commit carries no calldata contexts, so a version 0 batch has no block count (batch_info.go:114-198), while versions 1 and 2 count blocks from the parent's last block number, which the Solidity header stores.",
+          "check": "tests_m3/test_derivation_extraction.py::TestProduct::test_p4_the_product_commits_and_closes_the_cycle"
+        },
+        {
+          "id": "I85-P5",
+          "claim": "The consumer refines the real ParseBatch (G1-G5, C4-C5): on all 169 cases (thresholds.cases: 29 planted, 120 random, 20 product) the interpreter of the document's consumer SSA, its environment answered by Go's standard-library semantics and by the real library's decompressor and transaction decoder, agrees with the Go replay of the real BatchInfo.ParseBatch in status, error text, panic text and the whole receiver's dump: 0 disagreements, 0 unsupported; steps.json recounts to refinement.json and its real sides are the replay report's. Derivation: the closure's ops have exact Go semantics in the interpreter; the texts come from the same format strings and runtime messages; the environment is the real library's. This is the least certain prediction: one formatting verb, one nil-versus-empty slice or one runtime text the interpreter gets wrong misses it.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRefinement::test_p5_the_consumer_refines_the_real_parsebatch"
+        },
+        {
+          "id": "I85-P6",
+          "claim": "The corpus reaches every live return (C4-C5): among the agreeing cases, each of ParseBatch's 15 live returns (thresholds.sites.reached: batch_info.go:89, 94, 118, 124, 138, 147, 158, 171, 175, 186, 198, 203, 229, 235 and the ok return at 247) ends at least one case; its 5 dead returns (98, 131, 142, 153, 212) end none; and at least one case panics with \"runtime error: index out of range [126976] with length 126976\" (O4's site in RetrieveBlobBytes, reached through derivation). Derivation: reading ParseBatch: 98 and 131 re-check a header that BatchIndex has already validated, 153 asks a validated version-1-or-later parent for its last block number, and 142 and 212 decode exactly 60 bytes, which DecodeBlockContext always accepts; the planted cases were chosen for the other returns.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRefinement::test_p6_the_corpus_reaches_every_live_return"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I85-R1",
+          "claim": "Earlier Go extractions do not move: holon extract go --milestone M2 and --milestone M3 reproduce I18's five documents and I67's M3 document byte for byte (green at the prereg by CI's G1).",
+          "check": "tests_m3/test_derivation_extraction.py::TestRegressions::test_r1_the_go_documents_regenerate"
+        },
+        {
+          "id": "I85-R2",
+          "claim": "I85's own commits (the contract's definition) change only what the contract allows: at least one adds spec/M3/facts/morph_derivation.extracted.json; none changes a frozen root, laws/, spec/ but that document, holon/rules/, holon/frontends/, a file of thresholds.closures (the generator closures at the prereg), a file under replay/ outside replay/M3/derivation/, under gen/ outside gen/M3/derivation/ or under results/ outside results/M3/derivation/. So no record is re-made.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I85-R3",
+          "claim": "holon audit prereg passes for M2 and M3 (tested). On CI, on the build head: gate-M0, gate-M1 and gate-M2 pass; gate-M3-partial and gate-M3-G2 fail only on the base's items (thresholds.base_gate_M3); tests-m3-catalog, the frozen suite, freeze-check and both audits pass. The full M3 gate is not claimed.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRegressions::test_r3_the_prereg_audits_pass"
+        },
+        {
+          "id": "I85-R4",
+          "claim": "holon/derivation/ (construction) exists, imports no test module, names no target (thresholds.forbidden, no address) and no file of it is in any generator closure at HEAD.",
+          "check": "tests_m3/test_derivation_extraction.py::TestRegressions::test_r4_holon_derivation_is_generic_and_outside_every_closure"
+        }
+      ],
+      "outcome_paths": [
+        "spec/M3/facts/morph_derivation.extracted.json",
+        "gen/M3/derivation/",
+        "results/M3/derivation/",
+        "replay/M3/derivation/",
+        "docs/iterations/I85.md"
+      ],
+      "tests": [
+        "tests_m3/test_derivation_extraction.py"
+      ],
+      "thresholds": {
+        "base": "92c98e40b17a8bdbe516c67e46190098a898f270 (the lead), with BUILD_PLAN's row I85 committed before this commit",
+        "instrument": "tests_m3/_i85.py",
+        "instrument_sha256": "c1b7cc5b882884d64638a51a0b25ead771fcb966bf932b2ac8b192adba97ce4d",
+        "sidecar": "spec/M3/lib/derivation.json",
+        "sidecar_sha256": "175d292ff4b0afbb46e483bad38ceba7c78770c8efa91028cd8fc4b000a1e9ec",
+        "contract_docstring_sha256": "bdba8618d7075f8bc4341df412a2e3631aeb8b94606278feaa004b2e652f4a3a",
+        "inputs_sha256": {
+          "spec/M2/lib/go_frontend.json": "5f948249c90f8ac6d5092db74fcf51a196cd8ed34584fe23982f926b0db98f5f",
+          "spec/M2/facts/morph_derivation.go.extracted.json": "f0f1ee13857f10a38c73f0f2b0e002d5602d2fbea266fdf3c87ffa4cc5e8a89d",
+          "spec/M2/facts/morph_rollup.extracted.json": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+          "replay/M3/bundle2/deployment.json": "85a123ff929532440952b33cd613ca44b7a6b798701d4f8f6c47fc5a2817a8b6",
+          "tests_m2/_keccak.py": "0ea4d7f52b7994b7fc1f6c4fad806b5db228f01dd02bc7800936d3924d060c16"
+        },
+        "closure": [
+          "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+          "(*morph-l2/node/derivation.BlockContext).Decode",
+          "(*morph-l2/node/derivation.txQueue).dequeue",
+          "(*morph-l2/node/derivation.txQueue).enqueue",
+          "(*morph-l2/node/types.WrappedBlock).DecodeBlockContext",
+          "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+          "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+          "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+          "(morph-l2/common/batch.BatchHeaderBytes).Version",
+          "(morph-l2/common/batch.BatchHeaderBytes).validate",
+          "morph-l2/common/batch.RetrieveBlobBytes",
+          "morph-l2/common/codec/zstd.DecompressBatchBytes",
+          "morph-l2/node/derivation.encodeTransactions",
+          "morph-l2/node/derivation.newTxQueue"
+        ],
+        "environment": {
+          "(*math/big.Int).Cmp": "native",
+          "(*math/big.Int).SetBytes": "native",
+          "(*github.com/morph-l2/go-ethereum/core/types.Transaction).MarshalBinary": "encoding",
+          "(encoding/binary.bigEndian).Uint16": "native",
+          "(encoding/binary.bigEndian).Uint64": "native",
+          "(github.com/morph-l2/go-ethereum/core/types.Transactions).Len": "slice_len",
+          "bytes.NewReader": "native",
+          "encoding/binary.Read": "native",
+          "errors.New": "native",
+          "fmt.Errorf": "native",
+          "github.com/morph-l2/morph-da-codec/bindings/codec/zstd.DecompressMorphDABatch": "oracle",
+          "math/big.NewInt": "native",
+          "morph-l2/common/batch.DecodeTxsFromBytes": "oracle"
+        },
+        "join": [
+          [
+            "version",
+            "Version",
+            "Version"
+          ],
+          [
+            "parentBatchHeader",
+            "ParentBatchHeader",
+            "ParentBatchHeader"
+          ],
+          [
+            "lastBlockNumber",
+            "LastBlockNumber",
+            "LastBlockNumber"
+          ],
+          [
+            "numL1Messages",
+            "NumL1Messages",
+            "NumL1Messages"
+          ],
+          [
+            "prevStateRoot",
+            "PrevStateRoot",
+            "PrevStateRoot"
+          ],
+          [
+            "postStateRoot",
+            "PostStateRoot",
+            "PostStateRoot"
+          ],
+          [
+            "withdrawalRoot",
+            "WithdrawalRoot",
+            "WithdrawRoot"
+          ]
+        ],
+        "reads": [
+          "BlockContexts",
+          "LastBlockNumber",
+          "ParentBatchHeader",
+          "PostStateRoot",
+          "Sidecar",
+          "Sidecar.Blobs",
+          "Version",
+          "WithdrawRoot"
+        ],
+        "unread": [
+          "CurrentSequencerSetBytes",
+          "Hash",
+          "NumL1Messages",
+          "PrevStateRoot",
+          "Signatures"
+        ],
+        "cases": {
+          "planted": 29,
+          "random": 120,
+          "product": 20
+        },
+        "sites": {
+          "reached": [
+            "node/derivation/batch_info.go:89",
+            "node/derivation/batch_info.go:94",
+            "node/derivation/batch_info.go:118",
+            "node/derivation/batch_info.go:124",
+            "node/derivation/batch_info.go:138",
+            "node/derivation/batch_info.go:147",
+            "node/derivation/batch_info.go:158",
+            "node/derivation/batch_info.go:171",
+            "node/derivation/batch_info.go:175",
+            "node/derivation/batch_info.go:186",
+            "node/derivation/batch_info.go:198",
+            "node/derivation/batch_info.go:203",
+            "node/derivation/batch_info.go:229",
+            "node/derivation/batch_info.go:235",
+            "node/derivation/batch_info.go:247"
+          ],
+          "dead": [
+            "node/derivation/batch_info.go:98",
+            "node/derivation/batch_info.go:131",
+            "node/derivation/batch_info.go:142",
+            "node/derivation/batch_info.go:153",
+            "node/derivation/batch_info.go:212"
+          ],
+          "panic": "runtime error: index out of range [126976] with length 126976"
+        },
+        "product_v0_error": "invalid batch: zero block count",
+        "forbidden": [
+          "morph",
+          "Morph",
+          "ParseBatch",
+          "BatchInfo",
+          "RPCRollupBatch",
+          "commitBatch",
+          "committedBatches",
+          "Rollup",
+          "zstd",
+          "go-ethereum",
+          "DecodeTxsFromBytes",
+          "BlockContext",
+          "batchDataInput",
+          "unpackModernRollupCall",
+          "MarshalBinary",
+          "Sidecar"
+        ],
+        "closures": [
+          "holon/__init__.py",
+          "holon/analysis/__init__.py",
+          "holon/analysis/abstraction.py",
+          "holon/analysis/closure.py",
+          "holon/analysis/deadness.py",
+          "holon/bend.py",
+          "holon/bindings.py",
+          "holon/codecrun.py",
+          "holon/consumers.py",
+          "holon/corpus.py",
+          "holon/diagram/__init__.py",
+          "holon/diagram/access.py",
+          "holon/diagram/build.py",
+          "holon/diagram/evidence.py",
+          "holon/diagram/goops.py",
+          "holon/diagram/linked.py",
+          "holon/diagram/model.py",
+          "holon/diagram/principals.py",
+          "holon/diagram/transitions.py",
+          "holon/disch/__init__.py",
+          "holon/disch/lemmas.py",
+          "holon/disch/mirror.py",
+          "holon/disch/order.py",
+          "holon/disch/proofs.py",
+          "holon/disch/run.py",
+          "holon/disch/search.py",
+          "holon/disch/section.py",
+          "holon/evidence.py",
+          "holon/evm_abi.py",
+          "holon/extracted_eval.py",
+          "holon/fact/__init__.py",
+          "holon/fact/product.py",
+          "holon/fact/proofs.py",
+          "holon/fact/run.py",
+          "holon/fact/search.py",
+          "holon/fact/section.py",
+          "holon/facts.py",
+          "holon/filter.py",
+          "holon/fragments_corpus.py",
+          "holon/fragments_doc.py",
+          "holon/frontends/__init__.py",
+          "holon/frontends/go/document.py",
+          "holon/frontends/solidity/__init__.py",
+          "holon/frontends/solidity/ast.py",
+          "holon/frontends/solidity/compile.py",
+          "holon/frontends/solidity/layout_extract.py",
+          "holon/frontends/solidity/storage.py",
+          "holon/frontends/solidity/transitions.py",
+          "holon/gen/__init__.py",
+          "holon/gen/cdriver.py",
+          "holon/gen/codec01.py",
+          "holon/gen/coercion.py",
+          "holon/gen/core.py",
+          "holon/gen/eqlib.py",
+          "holon/gen/eqprove.py",
+          "holon/gen/eqsearch.py",
+          "holon/gen/eqterms.py",
+          "holon/gen/equivalence.py",
+          "holon/gen/goloop.py",
+          "holon/gen/implication.py",
+          "holon/gen/laws.py",
+          "holon/gen/lean_common.py",
+          "holon/gen/lean_laws.py",
+          "holon/gen/lean_linked.py",
+          "holon/gen/lean_machine.py",
+          "holon/gen/lean_mlaws.py",
+          "holon/gen/lean_model.py",
+          "holon/gen/lean_mproofs.py",
+          "holon/gen/lean_proofs.py",
+          "holon/gen/lean_sites.py",
+          "holon/gen/linked.py",
+          "holon/gen/machine.py",
+          "holon/gen/mlaws.py",
+          "holon/gen/model.py",
+          "holon/gen/mproofs.py",
+          "holon/gen/oracles.py",
+          "holon/gen/profile.py",
+          "holon/gen/proofs.py",
+          "holon/gen/refs.py",
+          "holon/gen/targetlib.py",
+          "holon/gen/trace_bound.py",
+          "holon/inhabit.py",
+          "holon/intake.py",
+          "holon/ir.py",
+          "holon/js/eval3.mjs",
+          "holon/js/profile.mjs",
+          "holon/keccak.py",
+          "holon/layout.py",
+          "holon/lean.py",
+          "holon/machine.py",
+          "holon/machine_bend.py",
+          "holon/measures_fact.py",
+          "holon/model_eval.py",
+          "holon/model_native.py",
+          "holon/mpipeline.py",
+          "holon/mreplay.py",
+          "holon/oracles/zero_blob.py",
+          "holon/pipeline.py",
+          "holon/profile.py",
+          "holon/records.py",
+          "holon/refinement.py",
+          "holon/refute.py",
+          "holon/replay.py",
+          "holon/replay_fragments.py",
+          "holon/rules/__init__.py",
+          "holon/rules/disch.py",
+          "holon/rules/disch_profile.py",
+          "holon/rules/fact.py",
+          "holon/rules/par.py",
+          "holon/rules/par_init.py",
+          "holon/rules/sort.py",
+          "holon/rules/undo.py",
+          "holon/schema.py",
+          "holon/sorts/__init__.py",
+          "holon/sorts/affine3.py",
+          "holon/sorts/assign.py",
+          "holon/sorts/check.py",
+          "holon/sorts/constraints.py",
+          "holon/sorts/core.py",
+          "holon/sorts/deploy3.py",
+          "holon/sorts/envcode3.py",
+          "holon/sorts/evaluate3.py",
+          "holon/sorts/extracted.py",
+          "holon/sorts/flow.py",
+          "holon/sorts/grammar.py",
+          "holon/sorts/model3.py",
+          "holon/sorts/prelude3.py",
+          "holon/sorts/prelude3_lemmas.py",
+          "holon/sorts/proofs3.py",
+          "holon/sorts/reextract.py",
+          "holon/sorts/run3.py",
+          "holon/sorts/search3.py",
+          "holon/sorts/sites.py",
+          "holon/sorts/solve.py",
+          "holon/sorts/termsize.py",
+          "holon/sorts/typed_sidecar.py",
+          "holon/sorts/unions.py",
+          "holon/sorts/width.py",
+          "holon/statement_diff.py",
+          "holon/undo/__init__.py",
+          "holon/undo/proofs.py",
+          "holon/undo/run.py",
+          "holon/undo/search.py",
+          "holon/undo/trace.py",
+          "holon/window.py",
+          "spec/M1/lib/morph_rollup.lib.json",
+          "spec/M1/lib/morph_rollup.pointwise.json",
+          "spec/M1/policy_hints.mjs",
+          "spec/M2/lib/oracles.json",
+          "spec/M2/lib/window_rollup.json",
+          "spec/lib/go_slices.lib.json"
+        ],
+        "base_gate_M3": "gate-M3-partial at the base fails G11V's in-flight clause alone (I28's P5 miss: \"in-flight: 0 of 8 edges inhabited\"); gate-M3-G2 passes. I85 adds no law, record or coverage entry, so its build may change neither.",
+        "known_red_at_base": [
+          "tests_m3.test_undo: 11 (UNDO records trail)",
+          "tests_m3.test_disch_profile: 3 (I32's misses)",
+          "tests_m2 group 2: 2 (solidity history.py honesty)",
+          "tests_m2 group 3: 14 failures and 6 errors (historical snapshot, extract toolchain, transitions, filter bins, historical exit)",
+          "I43-R1 (tests_m3/test_lean_promoted.py), re-baselined by the lead",
+          "since I28's build: test_fact TestGate.test_partial_gate_on_a_copy, test_sort_types TestRecordsAndGate.test_gate_m3_passes, test_disch TestGateAndRegressions.test_gate_m3_passes_and_rejects_the_disch_canaries",
+          "I80's tests_m3/test_bundle2_extraction.py: P2, P4, P6 and the zkevm subtest",
+          "I81's tests_m3.test_ranking: test_p4_reach_against_impact, test_p6_persistence_and_cost, test_p7_order",
+          "locally: tests_m3.test_par_lossy.TestCore.test_inj_push_is_proved (the bun is not the pinned build)"
+        ],
+        "coordination": "I85 writes spec/M3/facts/morph_derivation.extracted.json, gen/M3/derivation/, results/M3/derivation/, replay/M3/derivation/, spec/M3/lib/derivation.json and holon/derivation/, and adds one dispatch line to holon/__main__.py; it touches no closure file, frontend or earlier output. Whoever merges second keeps every dispatch line.",
+        "deferred": [
+          "I39 proper: O7, the O8 law pair under HypC with splits.json, O24, the F11 L1-count law",
+          "a Bend product model (the product machine is evaluator-level; a law that needs one builds it)",
+          "extracting DecodeTxsFromBytes and the decompressor (named environment here; Q-I85-a)",
+          "real KZG versioned hashes in the product (a stand-in here; Q-I85-b)",
+          "the derivation's L1-message handling (handleL1Message) and block application (derive): the product stops at ParseBatch"
+        ],
+        "disclosed": "Read before this prereg: node/derivation/batch_info.go in full; derivation.go's fetch, UnPackData, unpackModernRollupCall, parseBatch, handleL1Message and derive; common/batch's BatchHeaderBytes getters and validate, RetrieveBlobBytes, DecodeTxsFromBytes and its helpers; common/codec/zstd; node/types DecodeBlockContext; the go-ethereum fork's RPCRollupBatch and SafeL2Data and the DA codec's Go binding (module cache); Rollup.sol's commit path, _commitBatch and _computeBlobVersionedHash; the queue's getFirstUnfinalizedMessageEnqueueTime; I18's derivation document (ParseBatch: paths null, reason loop; its sites); the adopted Rollup document's commitBatch record (calls, parameter, the committedBatches write term); I17's header document; I20's harness (header rule, genesis, actors); I80's deployment record. Run: go build ./derivation/ in a scratch copy of the workspace with the proxy off (66 s, success: the plan's dependency risk does not hold locally); the instrument's corpus and genesis check; an RLP self-check of the generated transactions with a session-only decoder; git show of batch_info.go; the generator closures with holon's functions. Never run on the target: ssadump, the frontend, the interpreter, the Go replay, the oracle, the compressor, or holon.extracted_eval on commitBatch."
+      }
+    },
     "I71": {
       "title": "UNDO's third sub-form cancel (I33's catalog key): the cancel restore U3' and criterion U4' over the extracted transitions, their residues and static class, one law per cancellation comparing x;y with y alone, catalog holon-rules/1.7, decided by refutation on I30's typed model and replayed on the real Rollup; closes I27's gap G5 and gives I33's O12 contract on M3 its scope law",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I71)",
