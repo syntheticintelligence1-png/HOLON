@@ -47,6 +47,9 @@ refs is the transitive closure of what the statement names, over the facts def g
                      {"template": "holon.rules.par_init/init_chain", "template_version": 1, "basis", "documents"},
                      recomputed from the law's versioned document and the per-version documents it lists
                      (holon.rules.par_init.init_ref)
+  bundle:ID          a bundle term {"bundle": ID, "on": [...]} (I84): sha256 (hex) of canonical
+                     {"template": "holon.rules.bundle2/<subform>", "template_version": 1, "basis"}, recomputed from the
+                     milestone's bundle-laws sidecar, its declaration and documents (holon.rules.bundle2.bundle_ref)
   site:ID            a SORT-site term {"site": ID, "on": A, "from": S} (I15): the site's spec as holon.sorts.sites
                      computes it from the facts and the SORT-site sidecar of the law's milestone (template id and
                      version, the basis element and the hit points), so G2 needs no derive output; the term also
@@ -402,6 +405,11 @@ class _Closure:
                 if k in t:
                     self.term(t[k])
             return
+        if isinstance(t.get("bundle"), str) and isinstance(t.get("on"), list):   # a bundle term (I84)
+            self.bundle(t["bundle"])
+            for a in t["on"]:
+                self.term(a)
+            return
         if isinstance(t.get("undo"), str) and isinstance(t.get("on"), list):   # an UNDO term (I27)
             self.undo(t["undo"])
             self.term(t["on"])
@@ -465,6 +473,15 @@ class _Closure:
             return
         from ..rules.par_init import init_ref
         self.out["init:" + iid] = init_ref(iid, self.law, self.root)
+
+    def bundle(self, bid: str) -> None:
+        """bundle:<ID>: the sha256 of the canonical {template, template_version, basis} of the bundle basis element whose
+        id is ID (holon.rules.bundle2.bundle_ref), recomputed from the milestone's bundle-laws sidecar, its declaration
+        and documents."""
+        if "bundle:" + bid in self.out:
+            return
+        from ..rules.bundle2 import bundle_ref
+        self.out["bundle:" + bid] = bundle_ref(bid, self.law, self.root)
 
     def undo(self, uid: str) -> None:
         """undo:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the pair or residue

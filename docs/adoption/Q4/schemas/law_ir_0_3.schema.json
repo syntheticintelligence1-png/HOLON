@@ -397,6 +397,9 @@
     },
     {
      "$ref": "#/$defs/t_init"
+    },
+    {
+     "$ref": "#/$defs/t_bundle"
     }
    ]
   },
@@ -1013,6 +1016,28 @@
     },
     "env": {
      "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_bundle": {
+   "type": "object",
+   "required": [
+    "bundle",
+    "on"
+   ],
+   "additionalProperties": false,
+   "description": "a bundle term (I84, holon.rules.bundle2): the bundle id <model>:<link_domain|public_input|self_controlled>:<action>:<...> of a basis element over a bundle of linked members applied to the law's binders, in order: the Bool 'a call x of the action that succeeds from the reachable state s has its (version, index) resolved to a non-zero verifier by the callee in the state the trace vt reaches from the callee's deployment' (link_domain: s, x, vt), 'two calls x1, x2 of the action that succeed from reachable states s1, s2 with equal public inputs take parent headers holding equal values of the consumer field' (public_input: s1, x1, s2, x2) or 'a call x of the action that succeeds from the reachable state s costs, by the calibrated model, at most the gas ceiling' (self_controlled: s, x), then the hash binders; rendered bundle_ok[ID](args); its statement ref bundle:ID hashes the template, version, subform and basis recomputed from the milestone's bundle-laws sidecar, its declaration and documents (holon.gen.refs)",
+   "properties": {
+    "bundle": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:(link_domain|public_input|self_controlled):[A-Za-z0-9_]+(:[A-Za-z0-9_]+)*$"
+    },
+    "on": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/term"
+     }
     }
    }
   }
