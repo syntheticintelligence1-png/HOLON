@@ -226,31 +226,35 @@ class BSearch(FSR.FactSearch):
         return out
 
     def states(self, entry: str):
-        """(depth, trace, state) breadth first from the deployment, each state once (fingerprint and clock)."""
+        """(depth, trace, state) breadth first from the deployment, each state once (fingerprint and clock). A level's
+        states are expanded lazily, parent by parent, as the walk reaches them: the order is breadth first, and a
+        witness at an early state of a level is found before the rest of the level is computed."""
         g0 = self.m.s0()
         seen = {(self.m.fingerprint(g0), self.ref.ts0)}
-        level = [([], g0)]
-        n = 1
-        self.visited = 0
+        self.visited, self.n = 0, 1
+        level_iter = iter([([], g0)])
         for d in range(self.depth + 1):
-            nxt = []
-            for trace, g in level:
+            cur = []
+            self.log(f"  {(self.law.get('basis') or {}).get('action', '')}: prefix depth {d} ({self.visited} states "
+                     f"visited, {self.cands} candidates)")
+            for trace, g in level_iter:
                 self.timebox()
                 self.visited += 1
+                cur.append((trace, g))
                 yield d, trace, g
-                if d == self.depth:
-                    continue
-                for t2, g2 in self.successors(g, trace, entry):
-                    key = (self.m.fingerprint(g2), int(t2[-1].env.get("block.timestamp") or 0))
-                    if key in seen or n >= self.maxp:
-                        continue
-                    seen.add(key)
-                    n += 1
-                    nxt.append((t2, g2))
-            level = nxt
-            if not level:
+            if d == self.depth or not cur:
                 break
-        self.n_states = n
+            level_iter = self.expand(cur, entry, seen)
+
+    def expand(self, level: list, entry: str, seen: set):
+        for trace, g in level:
+            for t2, g2 in self.successors(g, trace, entry):
+                key = (self.m.fingerprint(g2), int(t2[-1].env.get("block.timestamp") or 0))
+                if key in seen or self.n >= self.maxp:
+                    continue
+                seen.add(key)
+                self.n += 1
+                yield t2, g2
 
     def candidates(self, g: str, trace: list, a: str) -> list:
         st = self.synth(g, a, trace)
@@ -438,8 +442,27 @@ def claim_counter_proof(dc: DCtx, law: dict, d: Path, li: str, prefix: list, sta
     return "\n".join(lines) + "\n"
 
 
+CHECK_TIMEOUT = 900       # seconds of bend2 per proof file (holon.bend's default is 180: a loaded machine needs more)
+MAX_REJECTED = 6          # counter-laws the kernels do not both accept before a search stops (each is an attempt)
+
+
 def check(p: Path) -> tuple[dict, str]:
-    return run3.check_file(p)
+    """(checker, verdict) of a proof file: bend2 (time box CHECK_TIMEOUT), then BendTT (--verdict) when bend2 accepts
+    it, as holon.sorts.run3.check_file reports them."""
+    from .. import bend
+    import re as _re
+    t = time.time()
+    r = bend.check(p, timeout=CHECK_TIMEOUT)
+    checker = {"exit_code": r.code, "marker": "ALL PROOFS CHECK" if r.ok else "SOME PROOFS FAIL",
+               "seconds": round(time.time() - t, 3)}
+    if not r.ok:
+        m = _re.search(r"(?m)^Location:\s*(\S+)", r.out or "")
+        checker["failing"] = m.group(1) if m else ("[timeout]" if (r.out or "").endswith("[timeout]") else None)
+        return checker, "not_run"
+    v = bend.check_verdict(p)
+    if not v.ok:
+        checker["verdict_detail"] = " ".join((v.out or "").split())[-240:]
+    return checker, ("checked" if v.ok else "failed")
 
 
 # ------------------------------------------------------------------------------------------------ deciding
@@ -465,9 +488,10 @@ class Decider:
         x = LC.claim_x(lid)
         depth = int(dc.search.get("link_domain_max_prefix", 3))
         S = BSearch(dc, e, depth, {"versions": dc.search.get("versions") or []}, deadline)
-        attempts, refused = [], []
+        attempts, refused, counters = [], [], []
         t0 = time.time()
-        w = None
+        rec = None
+        stop = None
         try:
             for d, trace, g in S.states(a):
                 for st in S.candidates(g, trace, a):
@@ -484,24 +508,30 @@ class Decider:
                     cand = {"prefix": list(trace), "x": st, "link": {"version": v, "index": i}, "resolution": r,
                             "depth": d}
                     why, cand2 = self.accept_link(S, lid, cand)
-                    if why is None:
-                        w = cand2
+                    if why is not None:
+                        refused.append(why)
+                        continue
+                    att = []
+                    rec = self.emit_link(lid, e, S, cand2, att)
+                    counters += att
+                    if rec is not None or len(counters) >= MAX_REJECTED:
                         break
-                    refused.append(why)
-                if w is not None:
+                if rec is not None or len(counters) >= MAX_REJECTED:
                     break
         except (US.Budget, US.TimeBox) as ex:
-            attempts.append({"kind": "refute", "engine": "holon.bundle2.laws_decide", "found": False,
-                             "bound": f"{type(ex).__name__}: {S.cands} candidates"})
+            stop = type(ex).__name__
         bound = (f"prefix states of at most {depth} steps from the laws' deployment, breadth first "
                  f"({getattr(S, 'visited', 0)} states visited), {S.cands} candidates (versions "
-                 f"{dc.search.get('versions')}); {len(refused)} model witnesses refused by the real side")
-        attempts.append({"kind": "refute", "engine": "holon.bundle2.laws_decide (LD4)", "found": w is not None,
-                         "bound": bound, "seconds": round(time.time() - t0, 1),
-                         "refused": refused[:8]})
-        if w is None:
+                 f"{dc.search.get('versions')}); {len(refused)} model witnesses refused by the real side; "
+                 f"{len(counters) - (1 if rec is not None else 0)} counter-laws the kernels did not both accept"
+                 + (f"; stopped: {stop}" if stop else ""))
+        attempts.append({"kind": "refute", "engine": "holon.bundle2.laws_decide (LD4)", "found": rec is not None,
+                         "bound": bound, "seconds": round(time.time() - t0, 1), "refused": refused[:8]})
+        attempts += counters
+        if rec is None:
             return self.unknown(lid, e, attempts, bound)
-        return self.emit_link(lid, e, S, w, attempts)
+        rec["attempts"] = attempts
+        return rec
 
     def accept_link(self, S: BSearch, lid: str, cand: dict) -> tuple[str | None, dict]:
         """The real side: every prefix step succeeds on the laws' deployment and the action reverts there; the model,
@@ -582,16 +612,17 @@ class Decider:
         pp = d / "PROOF.bend"
         pp.write_text(text, encoding="utf-8")
         checker, verdict = check(pp)
-        attempts.append({"kind": "counter", "checker": checker, "verdict": verdict,
-                         "evaluator": "the antecedent holds and the callee's model does not resolve the arguments"})
         ok = checker["marker"] == "ALL PROOFS CHECK" and verdict == "checked"
+        attempts.append({"kind": "counter", "checker": checker, "verdict": verdict,
+                         "witness": {"depth": len(w["prefix"]), "steps": [st.action for st in w["prefix"]],
+                                     "link": {k: int(v) for k, v in w["link"].items()}},
+                         "evaluator": "the antecedent holds and the callee's model does not resolve the arguments"})
+        if not ok:
+            pp.unlink(missing_ok=True)
+            return None
         wj = {"prefix": steps_json(dc, m, w["prefix"]), "x": steps_json(dc, m, [w["x"]])[0],
               "vt": [], "link": {"version": int(w["link"]["version"]), "index": int(w["link"]["index"])},
               "hashes": {"keccak256": [["0x" + k[2:], hexw(v)] for k, v in sorted(kh.items())]}}
-        if not ok:
-            attempts.append({"kind": "note", "detail": "the counter-law was not accepted; the law stays UNKNOWN"})
-            return self.unknown(lid, e, attempts, "a model witness whose counter-law the checker did not accept",
-                                laws_file=p["laws"], counter_failed=True)
         return self.record(lid, e, "REFUTED", attempts, p["laws"], pp, checker, verdict, wj, None,
                            extra={"link": wj["link"], "real": w.get("real")})
 
@@ -616,6 +647,8 @@ class Decider:
         buckets = {lid: {} for lid in lids}
         found: dict = {}
         refused = {lid: [] for lid in lids}
+        counters = {lid: [] for lid in lids}
+        self.bad_runs = {}   # a run (its steps' keys) the deployment refused: every pair holding it is refused
         t0 = time.time()
         cands = []           # (trace, g, st) of every succeeding candidate, in order
         stop = None
@@ -643,33 +676,46 @@ class Decider:
                             w = {"runs": [{"prefix": list(t1), "x": s1}, {"prefix": list(trace), "x": st}],
                                  "pi": pi, "field": [f1, fval]}
                             why, w2 = self.accept_pi(lid, w)
-                            if why is None:
-                                found[lid] = w2
+                            if why is not None:
+                                refused[lid].append(why)
+                                continue
+                            att = []
+                            rec = self.emit_pi(lid, dc.cl.laws[lid], w2, att)
+                            counters[lid] += att
+                            if rec is not None:
+                                found[lid] = rec
                                 break
-                            refused[lid].append(why)
+                            if len(counters[lid]) >= MAX_REJECTED:
+                                found[lid] = None
+                                break
                         if lid not in found:
                             b.append((trace, g, st, fval))
                     if len(found) == len(lids):
                         break
                 if len(found) == len(lids):
                     break
+                self.log(f"  public_input: {d} {len(cands)} candidates, decided {sorted(found)}")
         except (US.Budget, US.TimeBox) as ex:
             stop = f"{type(ex).__name__}"
         res = {}
         for lid in lids:
             e = dc.cl.laws[lid]
+            rec = found.get(lid)
+            nrej = len(counters[lid]) - (1 if rec is not None else 0)
             bound = (f"prefixes of at most {depth} steps from the laws' deployment, breadth first "
                      f"({getattr(S, 'visited', 0)} states visited), "
                      f"{len(cands)} succeeding candidates of {a} bucketed by the public input (versions "
                      f"{focus['versions']}, last block numbers {focus['last_block_numbers']}, L1 message counts "
-                     f"{focus['num_l1_messages']}); {len(refused[lid])} model witnesses refused by the real side"
-                     + (f"; stopped: {stop}" if stop else ""))
-            attempts = [{"kind": "refute", "engine": "holon.bundle2.laws_decide (FP3)", "found": lid in found,
+                     f"{focus['num_l1_messages']}); {len(refused[lid])} model witnesses refused by the real side; "
+                     f"{nrej} counter-laws the kernels did not both accept" + (f"; stopped: {stop}" if stop else ""))
+            attempts = [{"kind": "refute", "engine": "holon.bundle2.laws_decide (FP3)", "found": rec is not None,
                          "bound": bound, "seconds": round(time.time() - t0, 1), "refused": refused[lid][:8]}]
-            if lid not in found:
+            attempts += counters[lid]
+            if rec is None:
                 res[lid] = self.unknown(lid, e, attempts, bound)
             else:
-                res[lid] = self.emit_pi(lid, e, found[lid], attempts)
+                rec["attempts"] = attempts
+                res[lid] = rec
         return res
 
     def accept_pi(self, lid: str, w: dict) -> tuple[str | None, dict]:
@@ -679,6 +725,10 @@ class Decider:
         dc = self.dc
         m = dc.factory()
         traces = [list(r["prefix"]) + [r["x"]] for r in w["runs"]]
+        keys = [tuple(st.key() for st in t) for t in traces]
+        for j, k in enumerate(keys):
+            if k in self.bad_runs:
+                return f"run {j + 1}: {self.bad_runs[k]} (refused before)", w
         sjs = [steps_json(dc, m, t) for t in traces]
         try:
             runs = dc.forge().traces([[real_call(s) for s in sj] for sj in sjs], jobs=2, tag="pi")
@@ -689,7 +739,8 @@ class Decider:
             execs = [e for e in run.execs if e.id != "d"]
             bad = [i for i, e in enumerate(execs) if not e.ok]
             if bad:
-                return f"run {j + 1}: step {bad[0]} reverts on the deployment", w
+                self.bad_runs[keys[j]] = f"step {bad[0]} ({traces[j][bad[0]].action}) reverts on the deployment"
+                return f"run {j + 1}: {self.bad_runs[keys[j]]}", w
             member = run.members[0]
             reps.append([with_calls(st, raw_calls(execs[i], member)) for i, st in enumerate(traces[j])])
         x = LC.fact_x(lid)
@@ -753,16 +804,18 @@ class Decider:
             pp.write_text(FP.counter_proof(law, mi, si, li, dc.cl.hashes, prefixes, values, tables, dc.lit(), note),
                           encoding="utf-8")
             checker, verdict = check(pp)
-        attempts.append({"kind": "counter", "checker": checker, "verdict": verdict,
-                         "evaluator": "fact is false at the witness"})
         ok = checker["marker"] == "ALL PROOFS CHECK" and verdict == "checked"
+        attempts.append({"kind": "counter", "checker": checker, "verdict": verdict,
+                         "witness": {"prefixes": [[st.action for st in r["prefix"]] for r in w["runs"]],
+                                     "field": [None if f is None else int(f) for f in w["field"]]},
+                         "evaluator": "fact is false at the witness"})
+        if not ok:
+            pp.unlink(missing_ok=True)
+            return None
         wj = {"runs": [{"prefix": steps_json(dc, m, r["prefix"]), "x": steps_json(dc, m, [r["x"]])[0]}
                        for r in w["runs"]],
               "pi": hexw(w["pi"]), "field": [None if f is None else int(f) for f in w["field"]],
               "hashes": {"keccak256": [["0x" + k[2:], hexw(v)] for k, v in sorted(kh.items())]}}
-        if not ok:
-            return self.unknown(lid, e, attempts, "a model witness whose counter-law the checker did not accept",
-                                laws_file=p["laws"], counter_failed=True)
         meas = dict(e["measure"])
         return self.record(lid, e, "REFUTED", attempts, p["laws"], pp, checker, verdict, wj, None,
                            extra={"real": w.get("real")}, measure=meas)
@@ -1047,7 +1100,7 @@ def main(argv: list) -> int:
     except Refused as e:
         print(f"holon run: the bundle laws: refused: {e}", file=sys.stderr)
         return 2
-    dc = DCtx(L, cl, log=print)
+    dc = DCtx(L, cl, log=lambda s: print(s, flush=True))
     out = Path(a.out) if a.out else root / "results" / a.milestone
     gen = Path(a.gen_dir) if a.gen_dir else root / "gen" / a.milestone
     D = Decider(dc, gen=gen, out=out)
@@ -1077,5 +1130,5 @@ def main(argv: list) -> int:
         if rp is not None:
             rec["replay"] = rp
         (out / f"{lid}.json").write_text(dumps(rec), encoding="utf-8")
-        print(f"holon run: {lid}: {rec['status']}")
+        print(f"holon run: {lid}: {rec['status']}", flush=True)
     return 0
