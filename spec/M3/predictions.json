@@ -3402,6 +3402,342 @@
         "disclosure": "What was known before this commit. (1) The rule was probed on the committed Rollup document in scratch in three steps (family level: 479 pairs; with paths and the post section read as reads: 474 atoms; with the threading positions: 421 atoms, the rule written here), then the instrument ran on the documents of M2 and M3. (2) law_evidence and I66's instrument on the probe over the committed sets (covered, both edges named, levels []); law_evidence over every law of laws/M2 and laws/M3 whose facts is the Rollup document (none names an edge); GEVID on M0-M3 (passing; the mismatches pinned here); the hand abstraction's E2 pairs against the instrument's (R5's observation: 60 of 60 covered, one extracted-only pair). (3) A draft of the build's walker (transitions_atoms and its build hook) was written in scratch before this commit and is backed up, never merged, at f962efe on claude/ci-i72-wip (wip/I72_transitions_atoms_draft.py.txt); it was never applied to the tree, never run and never compared with the instrument. (4) The independent prereg review simulated a build in a scratch clone from the contract text: its own walker equals the instrument atom for atom (421), and with the schema's two patterns widened I72-P1, R3 and R5 passed there and GEVID passed on M0-M3 with the pinned mismatches (docs/iterations/I72_prereg_review.json). So I72-P1's outcome was observed before this commit, and it is recorded, not counted.",
         "known_red_at_base": "Red at the base 2d173e3 and not caused or hidden by I72: tests_m3/test_par_lossy.py::TestGateAndRegressions.test_i25_outcome_commits_touch_no_frozen_or_earlier_output, on I67's commits 1ebec02 and d106a83 (each changes gen/M3/par_lossy/ together with laws/M3/DERIVATION.json, gen/M3/evidence.json and gen/M3/diagram/blob_ops.json; found by the prereg review, M3; I72 commits holon lossy's output alone, rule Z6); tests_m3/test_lean_promoted.py's sidecar and baseline checks (I26's Question 5: 107 laws/M3 input pins, the typed records' baselines and the F40 bend files; I43's re-baseline is planned after the M3 keys in flight land); and tests_m3/test_refute.py::TestRecordsAndShared.test_outcome_commits_touch_no_earlier_milestone on I26's commits e122e7a and 4784042. Locally, without the pinned checker, every gate check is skipped (GENV); CI runs them with the pinned checker."
       }
+    },
+    "I35": {
+      "title": "Rule OWN from extracted backing identities: OWN-alias pairs and OWN-lost-write laws over the Go document's slice facts, decided on a generated Go heap model and replayed on the real Go code",
+      "plan": "docs/BUILD_PLAN.md row I35 and section I35",
+      "prompt": "prompts/I35_own.md",
+      "tests": [
+        "tests_m3/test_own.py"
+      ],
+      "predictions": [
+        {
+          "id": "I35-P1",
+          "claim": "Recorded, not counted (the instrument's inventory is known at the prereg): holon own writes exactly three carrier documents (batch_BatchData, batch_BatchHeaderV0, batch_BatchHeaderV1); BatchData's views are TxsPayload (txsPayload) and TxsPayloadV2 (blockContexts), its writers Append (blockContexts, txsPayload, l1TxHashes), EstimateCompressedSizeWithNewPayload (txsPayload) and TxsPayloadV2 (blockContexts), its modelled fields blockContexts and txsPayload; each header's lost write is Bytes on EncodedBytes with the reader Bytes, a law.",
+          "check": "tests_m3/test_own.py::TestBuild::test_w6_carrier_documents"
+        },
+        {
+          "id": "I35-P2",
+          "claim": "Recorded, not counted: rule OWN derives exactly the six laws of thresholds.own_laws (four alias laws on BatchData, each pairing a view with a writer of the field it returns: (TxsPayload, Append), (TxsPayload, EstimateCompressedSizeWithNewPayload), (TxsPayloadV2, Append), (TxsPayloadV2, TxsPayloadV2); two lost-write laws), under the next free catalog version.",
+          "check": "tests_m3/test_own.py::TestBuild::test_w8_derivation"
+        },
+        {
+          "id": "I35-P3",
+          "claim": "O37: both lost-write laws (BatchHeaderV0 and BatchHeaderV1, Bytes on EncodedBytes) are REFUTED by counter-laws bend accepts and BendTT's verdict checks, each replayed on the real Go code with the obstruction observed: after h.Bytes() on a zero header, h.EncodedBytes is still empty.",
+          "check": "tests_m3/test_own.py::TestPredictions::test_p3_lost_writes_refuted_and_replayed"
+        },
+        {
+          "id": "I35-P4",
+          "claim": "The O36 analogue on the extracted code: L_own_alias_batch_BatchData_TxsPayloadV2_Append is REFUTED by a counter-law at a witness of the bounded search, replayed on the real Go code with the obstruction observed (the view's bytes change across Append) and every capacity the replay records equal to the model's (A-go-growth). Expected witness shape: a prefix of Appends after which blockContexts has spare capacity for txsPayload and for part of the next context.",
+          "check": "tests_m3/test_own.py::TestPredictions::test_p4_txspayloadv2_append_refuted_and_replayed"
+        },
+        {
+          "id": "I35-P5",
+          "claim": "The two alias laws whose writer writes the view's field only past the view's end, or reallocates it, are PROVED by heap_disjoint in both kernels: (TxsPayload, Append) and (TxsPayload, EstimateCompressedSizeWithNewPayload).",
+          "check": "tests_m3/test_own.py::TestPredictions::test_p5_disjoint_pairs_proved"
+        },
+        {
+          "id": "I35-P6",
+          "claim": "L_own_alias_batch_BatchData_TxsPayloadV2_TxsPayloadV2 is UNKNOWN: the second call writes the view's tail region again with the same bytes, so no witness exists in the search and heap_disjoint does not apply (an overlapping write); its record names the overlap.",
+          "check": "tests_m3/test_own.py::TestPredictions::test_p6_self_pair_unknown_named"
+        },
+        {
+          "id": "I35-P7",
+          "claim": "Every OWN law's record lists E2 among its computed evidence levels (from the carrier diagrams' access sets).",
+          "check": "tests_m3/test_own.py::TestPredictions::test_p7_every_own_law_has_e2_and_gevid_passes"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I35-R1",
+          "claim": "M1's L_own_txspayload law file and spec/M1/facts/morph_batchdata.json are byte-identical to the prereg's, and the law's record stays REFUTED.",
+          "check": "tests_m3/test_own.py::TestRegressions::test_r1_the_m1_own_law_is_unchanged"
+        },
+        {
+          "id": "I35-R2",
+          "claim": "No commit of I35's own changes the status of a record it did not add (results/M1-M3 L*.json, each judged against its first parent); another key's changes merged into I35's branch (I28, I71, I68) are not counted.",
+          "check": "tests_m3/test_own.py::TestRegressions::test_r2_own_commits_change_no_other_status"
+        },
+        {
+          "id": "I35-R3",
+          "claim": "No commit of I35's own changes a file under laws/M0, laws/M1 or laws/M2.",
+          "check": "tests_m3/test_own.py::TestRegressions::test_r3_own_commits_change_no_earlier_law"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/own/",
+        "laws/M3/L_own_",
+        "results/M3/L_own_",
+        "replay/M3/own/",
+        "docs/iterations/I35.md"
+      ],
+      "thresholds": {
+        "base": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874 (the lead after the I25 commit-test fix; CI run 40116936084 on it passed)",
+        "contract_docstring_sha256": "431e51a918e8ec611a1fab7adce9c7ce12dbaf36934e49dcdb728259f47c68a4",
+        "instrument_sha256": "8007c7e0a44cf3fdca709bcfa13f91c723dde2a5ca3c1648728f3c38046a909f",
+        "sidecar_sha256": "ec0d42b9aecf0d751546ac355d253a500dd07320e87033ef1fbfc84afa8ddbfd",
+        "own_laws": [
+          "L_own_alias_batch_BatchData_TxsPayloadV2_Append",
+          "L_own_alias_batch_BatchData_TxsPayloadV2_TxsPayloadV2",
+          "L_own_alias_batch_BatchData_TxsPayload_Append",
+          "L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload",
+          "L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes",
+          "L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes"
+        ],
+        "views": [
+          [
+            "morph-l2/common/batch.BatchData",
+            "TxsPayload",
+            "txsPayload"
+          ],
+          [
+            "morph-l2/common/batch.BatchData",
+            "TxsPayloadV2",
+            "blockContexts"
+          ],
+          [
+            "morph-l2/common/batch.BatchHeaderV0",
+            "Bytes",
+            "EncodedBytes"
+          ],
+          [
+            "morph-l2/common/batch.BatchHeaderV1",
+            "Bytes",
+            "EncodedBytes"
+          ]
+        ],
+        "writers": [
+          [
+            "morph-l2/common/batch.BatchData",
+            "Append",
+            "blockContexts"
+          ],
+          [
+            "morph-l2/common/batch.BatchData",
+            "Append",
+            "txsPayload"
+          ],
+          [
+            "morph-l2/common/batch.BatchData",
+            "Append",
+            "l1TxHashes"
+          ],
+          [
+            "morph-l2/common/batch.BatchData",
+            "EstimateCompressedSizeWithNewPayload",
+            "txsPayload"
+          ],
+          [
+            "morph-l2/common/batch.BatchData",
+            "TxsPayloadV2",
+            "blockContexts"
+          ]
+        ],
+        "lost_writes": [
+          [
+            "morph-l2/common/batch.BatchHeaderV0",
+            "Bytes",
+            "EncodedBytes",
+            [
+              "Bytes"
+            ]
+          ],
+          [
+            "morph-l2/common/batch.BatchHeaderV1",
+            "Bytes",
+            "EncodedBytes",
+            [
+              "Bytes"
+            ]
+          ]
+        ],
+        "batchdata_trace": {
+          "appends": [
+            {
+              "len": 60,
+              "cap": 64,
+              "in_place": false
+            },
+            {
+              "len": 120,
+              "cap": 128,
+              "in_place": false
+            },
+            {
+              "len": 180,
+              "cap": 256,
+              "in_place": false
+            }
+          ],
+          "view": [
+            0,
+            183
+          ],
+          "view_in_place": true,
+          "txs_len": 3,
+          "last_write": [
+            180,
+            240
+          ],
+          "last_in_place": true,
+          "cap_after": 256,
+          "overlap": true
+        },
+        "m1_pins": {
+          "laws/M1/L_own_txspayload.json": "e8acc056e10babb50bcc47c66ba4a7962de7b1dac788f2c4c2caeb675569a880",
+          "spec/M1/facts/morph_batchdata.json": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d"
+        },
+        "statuses_at_prereg": {
+          "L_disch_blk_initializable_120_b8d46c45_anyone": "UNKNOWN",
+          "L_disch_blk_initializable_120_b95c70f1_anyone": "UNKNOWN",
+          "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210": "UNKNOWN",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone": "UNKNOWN",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter": "UNKNOWN",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger": "UNKNOWN",
+          "L_disch_blk_rollup_132_d953872f_anyone": "UNKNOWN",
+          "L_disch_blk_rollup_132_d953872f_caller_rollup_210": "UNKNOWN",
+          "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter": "UNKNOWN",
+          "L_disch_blk_rollup_132_d953872f_onlyChallenger": "UNKNOWN",
+          "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210": "UNKNOWN",
+          "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger": "UNKNOWN",
+          "L_disch_blk_rollup_228_79cc3e9a_onlyOwner": "UNKNOWN",
+          "L_disch_blk_rollup_363_e11d8bb2_anyone": "UNKNOWN",
+          "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": "REFUTED",
+          "L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner": "PROVED",
+          "L_disch_ext_rollup_132_d953872f_onlyOwner": "PROVED",
+          "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter": "PROVED",
+          "L_disch_ext_rollup_213_f2e7faf8_onlyOwner": "PROVED",
+          "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter": "PROVED",
+          "L_disch_ext_rollup_363_e11d8bb2_onlyOwner": "PROVED",
+          "L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": "REFUTED",
+          "L_disch_noext_rollup_132_d953872f_onlyOwner": "REFUTED",
+          "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": "REFUTED",
+          "L_disch_noext_rollup_213_f2e7faf8_onlyOwner": "REFUTED",
+          "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": "REFUTED",
+          "L_disch_noext_rollup_363_e11d8bb2_onlyOwner": "REFUTED",
+          "L_disch_rev_initializable_120_b8d46c45": "PROVED",
+          "L_disch_rev_initializable_120_b95c70f1": "PROVED",
+          "L_disch_rev_initializable_120_d9a34b48": "PROVED",
+          "L_disch_rev_pausableupgradeable_77_ed0ce816": "PROVED",
+          "L_disch_rev_rollup_132_d953872f": "PROVED",
+          "L_disch_rev_rollup_213_f2e7faf8": "PROVED",
+          "L_disch_rev_rollup_228_79cc3e9a": "PROVED",
+          "L_disch_rev_rollup_363_e11d8bb2": "UNKNOWN",
+          "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter": "REFUTED",
+          "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter": "REFUTED",
+          "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash": "REFUTED",
+          "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash": "REFUTED",
+          "L_fact_kernel_Rollup_commitState_committedBatches_blobhash": "PROVED",
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": "REFUTED",
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned": "PROVED",
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": "REFUTED",
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned": "PROVED",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": "REFUTED",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned": "PROVED",
+          "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": "REFUTED",
+          "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": "REFUTED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2": "PROVED",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0": "PROVED",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1": "PROVED",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1": "PROVED",
+          "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2": "PROVED",
+          "L_par_tot_batch_RetrieveBlobBytes": "REFUTED",
+          "L_par_tot_blob_RetrieveBlobBytes": "UNKNOWN",
+          "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2": "UNKNOWN",
+          "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0": "UNKNOWN",
+          "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1": "UNKNOWN",
+          "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": "REFUTED",
+          "L_sort_realize_rollup_363_4a64383b": "REFUTED",
+          "L_sort_tag_rollup_279_e01ea84a": "REFUTED",
+          "L_sort_tag_rollup_406_e01ea84a": "UNKNOWN",
+          "L_undo_pair_Rollup_addChallenger_removeChallenger": "UNKNOWN",
+          "L_undo_pair_Rollup_commitBatchWithProof_revertBatch": "UNKNOWN",
+          "L_undo_pair_Rollup_commitBatch_revertBatch": "REFUTED",
+          "L_undo_pair_Rollup_commitState_revertBatch": "UNKNOWN",
+          "L_undo_pair_Rollup_removeChallenger_addChallenger": "UNKNOWN",
+          "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": "REFUTED",
+          "L_undo_res_Rollup_revertBatch_batchDataStore": "REFUTED",
+          "L_undo_res_Rollup_revertBatch_committedStateRoots": "UNKNOWN"
+        },
+        "counted_predictions": [
+          "I35-P3",
+          "I35-P4",
+          "I35-P5",
+          "I35-P6",
+          "I35-P7"
+        ],
+        "disclosure": "Before this prereg commit, in this session: the instrument tests_m3/_i35.py ran on the committed Go document (views, writers, lost writes, the six laws, the BatchData trace under Go 1.24's growth: lengths 60/120/180, capacities 64/128/256, view [0, 183), the next Append in place over [180, 240)); the Go sources common/batch/batch_data.go and batch_header.go at the pinned commit and the Go toolchain's runtime/sizeclasses.go and slice.go were read. No build code exists, no law was derived or decided, and no Go replay ran. The prereg was checked by its author's own adversarial pass (code red: no separate review agent), recorded in docs/iterations/I35_prereg_review.json. P1 and P2 are recorded, not counted: the build reproducing the instrument's inventory is a construction.",
+        "questions": [
+          "Q-I35a: each alias law is attributed to one writer (only W runs between V and the check); an obstruction that needs two writers in sequence would be missed by every pair law. Conservative choice, recorded.",
+          "Q-I35b: Go's slice growth is an oracle (A-go-growth: Go 1.24's size classes), validated by every replay's capacities, not proved.",
+          "Q-I35c: the volatile-view exception through intent contracts (whitepaper §5.8) is not applied: no contract declares a view volatile yet (I33's O12 contract is the first M3 contract)."
+        ]
+      }
     }
   }
 }
