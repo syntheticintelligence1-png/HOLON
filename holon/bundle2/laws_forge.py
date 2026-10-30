@@ -105,3 +105,100 @@ class Forge:
     def toolchain(self) -> dict:
         """The pinned toolchain's hashes, as I80's records name them."""
         return {k: self.tc[k] for k in ("forge_sha256", "sol_deps_sha256", "solc_sha256") if k in self.tc}
+
+    # ------------------------------------------------------------------ concrete traces (the law replay harness)
+    def traces(self, traces: list, jobs: int = 2, tag: str = "laws") -> list:
+        """Each trace (a list of concrete calls {"to": 1 (member 0) | 2 (member 1), "caller", "value", "timestamp",
+        "data", "blobs"}) through the law replay harness from a fresh laws' deployment each; the parsed runs
+        (holon.bundle2.harness.B2Run), in trace order. A trace with no call records the deployment alone."""
+        import json
+        from . import harness as H
+        datas: list = []
+        index: dict = {}
+        rows_of = []
+        for t in traces:
+            rows = []
+            for c in t:
+                d = str(c["data"]).lower()
+                if d not in index:
+                    index[d] = len(datas)
+                    datas.append(d)
+                blobs = [int(b, 16) if isinstance(b, str) else int(b) for b in c.get("blobs") or []]
+                caller = int(c["caller"], 16) if isinstance(c["caller"], str) else int(c["caller"])
+                rows.append([100, caller, int(c.get("value") or 0), int(c.get("timestamp") or 0), int(c["to"]),
+                             index[d], len(blobs)] + blobs)
+            rows_of.append(rows)
+        parts = [(i, i + 1) for i in range(len(rows_of))]
+        runs: list = [None] * len(rows_of)
+        pending = []
+        for k, (a, b) in enumerate(parts):
+            fin, fout = self.proj / f"holon_b2l_{tag}_{k}.json", self.proj / f"holon_b2l_{tag}_{k}.out"
+            fin.write_text(json.dumps({"lens": [len(t) for t in rows_of[a:b]],
+                                       "steps": [H._encode(r) for t in rows_of[a:b] for r in t],
+                                       "slot_members": [], "slots": [], "init": [int(x) for x in self.init],
+                                       "calldata": datas}))
+            fout.unlink(missing_ok=True)
+            env = self.env({"HOLON_STEPS_IN": fin.name, "HOLON_STEPS_OUT": fout.name, "HOLON_LO": 0,
+                            "HOLON_HI": b - a})
+            pending.append((k, a, b, fin, fout, env))
+        active: list = []
+
+        def finish(item, proc):
+            k, a, b, fin, fout, _env = item
+            out, _ = proc.communicate()
+            text = fout.read_text() if fout.exists() else ""
+            if proc.returncode != 0 or not text.rstrip().endswith(f"DONE 0 {b - a}"):
+                raise BundleError(f"the law replay harness, trace {a} failed (exit {proc.returncode}): "
+                                  f"{(out or '')[-2500:]}")
+            for r in H.parse_output(text):
+                r.tid += a
+                for e in r.execs:
+                    e.tid = r.tid
+                runs[r.tid] = r
+            fin.unlink(missing_ok=True)
+            fout.unlink(missing_ok=True)
+
+        for item in pending:
+            while len(active) >= max(1, jobs):
+                it, pr = active.pop(0)
+                finish(it, pr)
+            proc = subprocess.Popen(self.command("HolonBundle2LawReplayTest", "test_steps"), cwd=self.proj,
+                                    env=item[5], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            active.append((item, proc))
+        for it, pr in active:
+            finish(it, pr)
+        for i, r in enumerate(runs):
+            if r is None or len([e for e in r.execs if e.id != "d"]) != len(rows_of[i]):
+                raise BundleError(f"the law replay harness recorded no complete run for trace {i}")
+        return runs
+
+    def deployment(self) -> dict:
+        """The laws' deployment as the harness records it: the members (in the declaration's order) with their
+        addresses, storage (the deployment's surviving writes, non-zero words) and code (and an EIP-1967 proxy's
+        implementation and its code), the accounts it created, the harness's address and the clock and chain."""
+        probe = {"to": 1, "caller": "0x" + "%040x" % 0x1005, "value": 0, "timestamp": 0, "data": "0x", "blobs": []}
+        run = self.traces([[probe]], jobs=1, tag="deploy")[0]
+        d = next(e for e in run.execs if e.id == "d")
+        call = next(e for e in run.execs if e.id != "d")
+        from . import harness as H
+        from ..replay_fragments import immutables_of
+        storage: dict = {m: {} for m in run.members}
+        for m, slot, val, rev in d.writes:
+            if rev or m not in storage:
+                continue
+            storage[m][slot] = val
+        members = []
+        for (_i, mem, art), m in zip(H.member_layouts(self.bctx, self.proj), run.members):
+            impl = run.impl.get(m)
+            src = (impl[1] if impl else None) or run.code.get(m) or "0x"
+            imm = {}
+            for name, (start, n) in sorted(immutables_of(self.proj, art).items()):
+                w = src[2 + 2 * start: 2 + 2 * (start + n)]
+                if len(w) == 2 * n:
+                    imm[name] = "0x" + w
+            members.append({"name": mem["name"], "address": m, "code": run.code.get(m, "0x"),
+                            "implementation": impl[0] if impl else None, "implementation_code": impl[1] if impl else None,
+                            "immutables": imm,
+                            "storage": {"0x%064x" % k: "0x%064x" % v for k, v in sorted(storage[m].items()) if v}})
+        return {"harness": run.harness, "members": members, "created": sorted(run.created),
+                "timestamp": d.timestamp, "number": d.number, "chainid": int(call.env.get("block.chainid") or 0)}

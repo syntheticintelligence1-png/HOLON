@@ -380,10 +380,10 @@ BINDERS = {"link_domain": [("s", "Reach"), ("x", "Act"), ("vt", "Trace")],
 def notes(x: dict) -> str:
     b = x["basis"]
     if x["subform"] == "link_domain":
-        return (f"if a call x of {b['action']} succeeds from a reachable state s (its call {b['fn']} at {b['src']} "
-                f"answered as an oracle), then {b['callee']}'s resolution of the call's (version, index) by the view of "
-                f"x's input is defined and non-zero in every state the trace vt reaches from {b['callee']}'s deployment "
-                f"(domain coherence at the interface, §5.1)")
+        return (f"if a call x of {b['action']} succeeds from a reachable state s and makes its call {b['fn']} at "
+                f"{b['src']} (answered as an oracle), then {b['callee']}'s resolution of the call's (version, index) "
+                f"by the view of x's input is defined and non-zero in every state the trace vt reaches from "
+                f"{b['callee']}'s deployment (domain coherence at the interface, §5.1)")
     if x["subform"] == "public_input":
         c = b["consumer"]
         return (f"if calls x1 and x2 of {b['action']} both succeed from reachable states and pass equal public inputs "
