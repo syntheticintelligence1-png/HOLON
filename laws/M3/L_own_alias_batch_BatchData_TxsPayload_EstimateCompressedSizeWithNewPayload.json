@@ -1,0 +1,47 @@
+{
+  "facts": "gen/M3/own/batch_BatchData.json",
+  "facts_sha256": "18ea631f461b970bad739ac9c606dd97ee1a70f6d72949f90b3033c34624b0bc",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload",
+  "milestone": "M3",
+  "notes": "OWN-alias (whitepaper \u00a75.8): after any trace p of morph-l2/common/batch.BatchData's methods from its constructor's value, the view TxsPayload returns keeps its bytes across one call w of EstimateCompressedSizeWithNewPayload, which writes txsPayload in place; own batch_BatchData:alias:TxsPayload:EstimateCompressedSizeWithNewPayload",
+  "rule": "OWN",
+  "rule_catalog_version": "holon-rules/1.8",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "p",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "w",
+        "q": "forall",
+        "type": "Call_batch_BatchData"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "p"
+            },
+            {
+              "var": "w"
+            }
+          ],
+          "own": "batch_BatchData:alias:TxsPayload:EstimateCompressedSizeWithNewPayload"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "alias"
+}
