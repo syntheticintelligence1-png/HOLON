@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import subprocess
 from pathlib import Path
 
 from . import bend, ir, records
@@ -100,6 +101,10 @@ def decide(law: dict, models: Models, milestone: str, root: Path, gen: Path, cfg
     except ir.IRError as e:
         res = {"status": "UNKNOWN", "attempts": [{"kind": "ir", "error": f"rejected by the IR rules (G3): {e}"}],
                "bound": "not searched: the IR rejects the statement"}
+    except (RuntimeError, subprocess.TimeoutExpired) as e:   # the compiled model's evaluation (search, values) failed
+        res = {"status": "UNKNOWN", "attempts": [{"kind": "model", "error": f"the compiled model's evaluation failed: "
+                                                                          f"{type(e).__name__}: {str(e)[:1200]}"}],
+               "bound": "not decided: the compiled model's evaluation failed (named in attempts)"}
     shutil.rmtree(d / "nv_check", ignore_errors=True)
     status = res["status"]
     if res.get("statement_text"):

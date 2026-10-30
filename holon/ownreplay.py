@@ -95,14 +95,15 @@ def _caps_src(fields: list[str], view: bool) -> str:
     return "caps = append(caps, map[string]int{" + ", ".join(kv) + "})"
 
 
-def alias_block(lid: str, doc: dict, law_basis: dict, witness: dict) -> str:
+def alias_block(lid: str, doc: dict, law_basis: dict, witness: dict, fns: dict) -> str:
+    """fns: the Go document's functions (a constructor the test calls takes no parameter)."""
     V, W = law_basis["view"], law_basis["writer"]
     fields = list(doc["modelled"])
     if not all(IDENT.match(f) for f in fields):
         raise Refused(f"a modelled field of {doc['stem']} cannot be named in a generated test")
-    ctors = [c for c in doc.get("constructors") or [] if not (doc["methods"].get(c["function"]))]
+    ctors = [c for c in doc.get("constructors") or [] if not (fns.get(c["function"]) or {}).get("params")]
     if not ctors:
-        raise Refused("the carrier has no constructor")
+        raise Refused("the carrier has no constructor without parameters")
     fid = ctors[0]["function"]
     cname = fid.rsplit(".", 1)[-1]
     if not IDENT.match(cname):
@@ -261,7 +262,7 @@ def build(root: Path, milestone: str) -> dict | None:
             if pkg not in pkgs:
                 raise Refused(f"the package {pkg} is not one of the Go document's")
             if law["subform"] == "alias":
-                block = alias_block(lid, doc, basis, rec["witness"])
+                block = alias_block(lid, doc, basis, rec["witness"], go_doc["go"]["functions"])
                 raw = (root / law["facts"]).read_bytes()
                 cm = OH.CompiledModel.build(doc, hashlib.sha256(raw).hexdigest(), OW.model_name(doc),
                                             OH.growth_of(root, milestone), bend.config(root))
