@@ -1,0 +1,34 @@
+{
+  "ranking_version": "holon-ranking/0.1",
+  "iteration": "I81",
+  "doc": "I81 prereg instrument (BUILD_PLAN row I81 = I44a; whitepaper Def 6.13, Thm 6.8, Thm 6.9, Def 6.20, §10.10, §11.3 Impact column; the contract is the docstring of tests_m3/test_ranking.py). Frozen at the I81 prereg; the build reads it and never edits it. It fixes the policy the ranking applies, never a value: which measure each rule has (Def 6.13), the key a measure waits on when its rule or input does not exist yet, the sink class of each divergence channel, and the order of each ranking dimension (most severe first; the names inside one inner list share a rank). How a channel, a persistence class, a reach kind and a cost are computed from the records, witnesses, replay reports and model documents is the contract's rules K1-K8, PE1-PE3, RE1-RE3 and CO1; nothing here names a law, an action or a target.",
+  "measures": {
+    "PAR": {"name": "holonomy_defect_size", "unit": "positions"},
+    "NAT": {"name": "naturality_defect_mass", "pending": "I29", "why": "no NAT producer exists in the M3 rule catalog until I29"},
+    "FACT": {"name": "adversarial_freedom", "unit": "bits", "subforms": ["kernel"], "why_not": "an attribution law relates the principal whose bond a call puts at risk to the chooser of the content; it states no kernel pair (m, c), so Thm 6.8's F(m, c) has no instance"},
+    "UNDO": {"name": "residue_liveness_distance", "unit": "steps"},
+    "DISCH": {"name": "discharge_profile", "pending": "I37", "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"}
+  },
+  "pending_measures": [
+    {"rule": "FACT", "pair": "F(PI, parent lbn)", "key": "I37", "why": "the public input is extracted by I37"},
+    {"rule": "FACT", "pair": "F(Z, derivation)", "key": "I39", "why": "the Go derivation is extracted by I39"},
+    {"rule": "NAT", "pair": "naturality defect mass", "key": "I29", "why": "the NAT rule is I29's"}
+  ],
+  "channels": {
+    "abort": "process",
+    "revert": "liveness",
+    "guard": "liveness",
+    "view": "off-chain",
+    "attribution": "economic",
+    "representation": "derivation",
+    "commitment": "derivation",
+    "store": "state",
+    "intent": "intent question"
+  },
+  "sink_order": [["safety"], ["economic"], ["finality"], ["liveness"], ["derivation"], ["state"], ["process"], ["off-chain"], ["intent question"], ["undecided"]],
+  "persistence_order": [["code", "non-dischargeable"], ["undecided"], ["external-dependent"], ["delay"], ["cost-bearing"], ["mixed"], ["dischargeable", "immediate"]],
+  "reach_order": [["anyone"], ["undecided", "pending"], ["call"], ["mapping"], ["owner"], ["slot"]],
+  "pending_reach": {"go_only": "I39"},
+  "cost": {"unit": "calls", "counts": "the state-changing calls of the witness schedule (calls of view or pure actions, and migrate steps, are not counted)", "gas": "I37", "unknown": "last"},
+  "order_doc": "Sink: the classes §11.3 names, by severity (funds and safety first, an off-chain view last); undecided last. Persistence (§10.10: discharge profiles feed it; a mixed profile ranks below a non-dischargeable one): a pure-function defect (code) and a non-dischargeable guard persist until the code changes; an undecided class ranks right below them, since it may be either; then the classes a principal can discharge, the self-dischargeable last. Reach: the obstruction reachable by anyone first; an undecided or pending reach right below it (it may be anyone's); then by the privilege the witness needs, the most privileged last. Cost: fewer calls first; an unknown cost last. Ties: the law id."
+}

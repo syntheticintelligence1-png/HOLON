@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON measures and ranking (results/<M>/ranking.json, holon-ranking/0.1; BUILD_PLAN row I81)",
+  "description": "Def 6.13's measure of every law of laws/<M> (holon.measures) and §10.10's lexicographic ranking of the REFUTED laws (holon.rank). The contract is the docstring of tests_m3/test_ranking.py.",
+  "type": "object",
+  "required": ["ranking_version", "milestone", "doc", "sidecar", "inputs", "rules", "pending_measures", "measures", "ranking", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "ranking_version": {"const": "holon-ranking/0.1"},
+    "milestone": {"type": "string", "pattern": "^[MT][0-9]+$"},
+    "doc": {"type": "string"},
+    "sidecar": {"$ref": "#/$defs/file"},
+    "inputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/file"}},
+    "rules": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["measure", "laws", "status", "pending"],
+        "additionalProperties": false,
+        "properties": {
+          "measure": {"type": ["string", "null"]},
+          "laws": {"type": "integer"},
+          "status": {"enum": ["computed", "pending", "not_applicable"]},
+          "pending": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "pending_measures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule", "pair", "key"],
+        "properties": {"rule": {"type": "string"}, "pair": {"type": "string"}, "key": {"type": "string", "pattern": "^I[0-9]+$"}, "why": {"type": "string"}}
+      }
+    },
+    "measures": {"type": "object", "additionalProperties": {"$ref": "#/$defs/measure"}},
+    "ranking": {"type": "array", "items": {"$ref": "#/$defs/entry"}},
+    "summary": {
+      "type": "object",
+      "required": ["laws", "refuted", "kinds", "sinks", "persistence", "reach"],
+      "additionalProperties": false,
+      "properties": {
+        "laws": {"type": "integer"},
+        "refuted": {"type": "integer"},
+        "kinds": {"$ref": "#/$defs/counts"},
+        "sinks": {"$ref": "#/$defs/counts"},
+        "persistence": {"$ref": "#/$defs/counts"},
+        "reach": {"$ref": "#/$defs/counts"}
+      }
+    }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {"path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+    },
+    "counts": {"type": "object", "additionalProperties": {"type": "integer"}},
+    "bound": {"type": ["number", "string", "null"]},
+    "ranges": {
+      "type": ["array", "null"],
+      "items": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer"}}
+    },
+    "measure": {
+      "type": "object",
+      "required": ["rule", "measure", "unit", "kind", "value", "lower", "upper", "certified", "scope", "pending", "why", "detail"],
+      "additionalProperties": false,
+      "properties": {
+        "rule": {"type": "string"},
+        "measure": {"enum": ["holonomy_defect_size", "naturality_defect_mass", "adversarial_freedom", "residue_liveness_distance", "discharge_profile", null]},
+        "unit": {"type": ["string", "null"]},
+        "kind": {"enum": ["value", "bound", "pending", "not_applicable"]},
+        "value": {"$ref": "#/$defs/bound"},
+        "lower": {"$ref": "#/$defs/bound"},
+        "upper": {"$ref": "#/$defs/bound"},
+        "certified": {"type": "boolean"},
+        "scope": {"type": ["string", "null"]},
+        "pending": {"type": ["string", "null"]},
+        "why": {"type": "string"},
+        "detail": {
+          "type": "object",
+          "properties": {
+            "over": {"enum": ["bytes", "value", null]},
+            "positions": {"$ref": "#/$defs/ranges"},
+            "lower_positions": {"$ref": "#/$defs/ranges"},
+            "upper_positions": {"$ref": "#/$defs/ranges"},
+            "class": {"type": "string"}
+          }
+        }
+      },
+      "allOf": [
+        {"if": {"properties": {"kind": {"const": "pending"}}}, "then": {"properties": {"pending": {"type": "string", "pattern": "^I[0-9]+$"}}}},
+        {"if": {"properties": {"kind": {"const": "not_applicable"}}}, "then": {"properties": {"measure": {"const": null}, "value": {"const": null}}}},
+        {"if": {"properties": {"kind": {"const": "value"}}}, "then": {"properties": {"value": {"type": ["number", "string"]}}}}
+      ]
+    },
+    "entry": {
+      "type": "object",
+      "required": ["rank", "law_id", "rule", "subform", "triage", "filter_bin", "measure", "impact", "key"],
+      "additionalProperties": false,
+      "properties": {
+        "rank": {"type": "integer"},
+        "law_id": {"type": "string", "pattern": "^L"},
+        "rule": {"type": "string"},
+        "subform": {"type": ["string", "null"]},
+        "triage": {"type": ["string", "null"]},
+        "filter_bin": {"type": ["string", "null"]},
+        "measure": {
+          "type": "object",
+          "required": ["kind", "value"],
+          "additionalProperties": false,
+          "properties": {"kind": {"enum": ["value", "bound", "pending", "not_applicable"]}, "value": {"$ref": "#/$defs/bound"}}
+        },
+        "impact": {
+          "type": "object",
+          "required": ["sink", "persistence", "reach", "cost"],
+          "additionalProperties": false,
+          "properties": {
+            "sink": {
+              "type": "object", "required": ["class", "channel", "why"], "additionalProperties": false,
+              "properties": {"class": {"type": "string"}, "channel": {"enum": ["abort", "revert", "guard", "view", "attribution", "representation", "commitment", "store", "intent", "undecided"]}, "why": {"type": "string"}}
+            },
+            "persistence": {
+              "type": "object", "required": ["class", "why"], "additionalProperties": false,
+              "properties": {"class": {"type": "string"}, "why": {"type": "string"}}
+            },
+            "reach": {
+              "type": "object", "required": ["class", "kind", "classes", "pending", "why"], "additionalProperties": false,
+              "properties": {
+                "class": {"type": ["string", "null"]},
+                "kind": {"enum": ["anyone", "undecided", "pending", "call", "mapping", "owner", "slot"]},
+                "classes": {"type": "array", "items": {"type": "string"}},
+                "pending": {"type": ["string", "null"]},
+                "why": {"type": "string"}
+              }
+            },
+            "cost": {
+              "type": "object", "required": ["calls", "gas", "why"], "additionalProperties": false,
+              "properties": {"calls": {"type": ["integer", "null"]}, "gas": {"type": ["string", "null"]}, "why": {"type": "string"}}
+            }
+          }
+        },
+        "key": {
+          "type": "array", "minItems": 5, "maxItems": 5,
+          "items": {"type": ["integer", "string"]}
+        }
+      }
+    }
+  }
+}

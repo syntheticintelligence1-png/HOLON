@@ -3781,6 +3781,133 @@
         "disclosed": "Read before this prereg: the router's, ZkEvmVerifierV1's, SP1VerifierPlonk's and PlonkVerifier's sources and their interfaces at the head; Rollup.sol's _verifyProof, proof actions, commit and finalize logic; OpenZeppelin's Ownable 4.9; the adopted Rollup document's call records of IRollupVerifier.verifyAggregateProof (their receivers and argument terms: P3's Rollup rows and E4's view); I63's committed receipts (the anchor); the tag tree listings (no blob read but the head's units); the basis (the instrument's builds of the head units under I63's configurations). Run: the instrument's basis; a toy forge test of the state-diff 'reverted' flag (it is set for a frame whose enclosing frame reverted). Never run on a Bundle II member: the frontend, model3, the evaluator, forge or Bend."
       }
     },
+    "I81": {
+      "title": "I81 (= I44a): Def 6.13's measures (holon/measures.py, one interface over PAR's holonomy defect size, NAT's naturality defect mass, FACT's F(m, c), UNDO's residue liveness distance and DISCH's discharge profile) and §10.10's lexicographic ranking (holon/rank.py: sink class, persistence, reach class, adversary cost) over the M3 laws that exist today, written to results/M3/ranking.json by holon rank and compared with §11.3's Impact column",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I81)",
+      "prompt": "prompts/I81_measures_ranking.md",
+      "predictions": [
+        {
+          "id": "I81-P1",
+          "claim": "M-PAR on the three REFUTED cross-component codec laws (L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0, L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1, L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2: Go's header encoders against enc_sol, the analogues of M0's L_par_hdr_ssvh): each holonomy defect is exactly the 32 byte positions 185..216 (the field Go's encoders write where enc_sol writes constants), certified: the witness's sides differ exactly there and the two layouts, under the law's premises, can differ nowhere else. No REFUTED M3 PAR law's byte-string defect holds byte 0: the analogue of M0's L_par_hdr_v2 (BUILD_PLAN I44's '1 byte position, byte 0') does not exist on today's M3, whose Go encoders write the version byte enc_sol writes at every version a law pins. The other five REFUTED PAR laws compare a verdict or an outcome: one position each, certified. Observed before the prereg (thresholds.observed_before_prereg): the three records' differences (the lower bound); the layout bound was not computed.",
+          "check": "tests_m3/test_ranking.py::TestMeasures::test_p1_par_cc_defects"
+        },
+        {
+          "id": "I81-P2",
+          "claim": "M-UNDO: the residue liveness distance of the L_undo_BVH analogue (L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes), of L_undo_pair_Rollup_commitBatch_revertBatch and of L_undo_res_Rollup_revertBatch_batchDataStore is 1, certified minimal under the stated bound: lower 1 (an empty continuation observes nothing), upper 1 (in replay/M3/undo/report.json the model's observations of the two runs first differ at t[0], and Bend checked the counter-law over that one-step continuation). The five UNKNOWN UNDO laws get the bound [1, unbounded). Observed before the prereg: every witness's t has one step; the BVH entry's model observations were read (they differ at t[0]).",
+          "check": "tests_m3/test_ranking.py::TestMeasures::test_p2_undo_distance"
+        },
+        {
+          "id": "I81-P3",
+          "claim": "Sink classes (rules K1-K8 and the sidecar's channels) of the 24 REFUTED laws of the base: economic 2 (the FACT attribution laws), liveness 10 (the UNDO pair and BVH residue laws, the SORT realize law, the 7 DISCH laws), derivation 6 (the 3 cross-component codec laws, the header domain law, the 2 FACT kernel laws), state 2 (the PAR-init law, the SORT tag law), process 3 (the three Go-op laws over the clone pair), off-chain 1 (the batchDataStore residue law, whose first divergent step is a view), as tests_m3/_i81.py EXPECTED lists them. Against §11.3's Impact column (the instrument's IMPACT: 16 laws with an O-row analogue, O1, O4 x3, O9, O11 x2, O22 x2, O25 x2, O26, O27, O31 x3), the computed sink class matches for 14 and differs for 2: the PAR-init law (O9) and the SORT tag law (O26) are 'state' where §11.3 says finality, because a stored value's later reader is not traced. The 8 other REFUTED laws have no §11.3 row (the codec laws' sequencer-set field, the batchDataStore residue, which §11.6 D5 lists as dead, and five DISCH laws).",
+          "check": "tests_m3/test_ranking.py::TestRanking::test_p3_sink_classes"
+        },
+        {
+          "id": "I81-P4",
+          "claim": "Reach (RE1-RE3: the most privileged principal class the witness schedule needs) of the 24 REFUTED laws, as EXPECTED lists them; against §11.3 (the instrument's REACH_WORDS: onlyActiveSubmitter is bonded, onlyChallenger challenger, onlyOwner owner), the reach matches for 5 analogue laws (PAR-init: owner; the commitBatch FACT kernel law: bonded; the SORT realize law and the two rollup_363 DISCH laws whose schedules need the challenger: challenger) and differs for the other 11: the header domain law (undecided: no concretization path), the three Go-op laws (pending I39: no node-level path), the two O11 laws, the two O25 laws and the O26 law (owner: their schedules need the owner's revertBatch, where §11.3 names the bonded class), the commitBatchWithProof kernel law (anyone, where §11.3 says bonded) and the owner's rollup_363 DISCH law (owner, where §11.3 says challenger).",
+          "check": "tests_m3/test_ranking.py::TestRanking::test_p4_reach_against_impact"
+        },
+        {
+          "id": "I81-P5",
+          "claim": "Measure kinds over the base's 136 laws: value 87 (73 PROVED PAR laws at 0, 8 REFUTED PAR laws, 3 REFUTED UNDO laws, 3 FACT kernel laws), bound 9 (4 UNKNOWN PAR laws, 5 UNKNOWN UNDO laws), pending 35 (every DISCH law: pending I37, the profile needs a cost model), not_applicable 5 (2 FACT attribution laws, 3 SORT laws); no NAT law, and rules.NAT pending I29.",
+          "check": "tests_m3/test_ranking.py::TestMeasures::test_p5_measure_kinds"
+        },
+        {
+          "id": "I81-P6",
+          "claim": "Persistence (PE1-PE3) and cost (CO1) of the 24 REFUTED laws, as EXPECTED lists them: code for the 7 pure-function PAR laws, dischargeable for the onlyActiveSubmitter blocking law of rollup_363 (its I32 class), undecided for the other 16 (no DISCH class decides them: I31's blocking laws are UNKNOWN, and nothing links an UNDO, FACT, SORT or PAR-init divergence to a DISCH basis element); costs from 1 call (the v0 and v1 codec laws' concretization paths) to 5 (the attribution laws), unknown for the 5 PAR laws without a path. Against §11.3, the persistence matches for the 4 pure-function analogue laws (O1, O4 x3) only.",
+          "check": "tests_m3/test_ranking.py::TestRanking::test_p6_persistence_and_cost"
+        },
+        {
+          "id": "I81-P7",
+          "claim": "The ranking's order is EXPECTED's: the two FACT attribution laws first (economic), then the ten liveness laws (undecided persistence before the dischargeable blocking law; challenger before owner schedules; fewer calls first), the six derivation laws, the PAR-init and SORT tag laws, the three Go-op laws, and the batchDataStore residue law last.",
+          "check": "tests_m3/test_ranking.py::TestRanking::test_p7_order"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I81-R1",
+          "claim": "M-FACT is I26's F(m, c), recomputed: each FACT kernel law's value equals its record's fact.measure.bits (1.0, 1.0 and 0.0); the attribution laws are not_applicable.",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r1_fact_bits"
+        },
+        {
+          "id": "I81-R2",
+          "claim": "M-DISCH reads I32's classes: holon.profile.classification regenerates gen/M3/disch/classification.json exactly (1 dischargeable, 14 undecided entries), and every DISCH law is pending I37 with its class.",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r2_disch_classes"
+        },
+        {
+          "id": "I81-R3",
+          "claim": "Determinism: holon rank --milestone M3 --check passes on the committed results/M3/ranking.json, and two runs write the same bytes.",
+          "check": "tests_m3/test_ranking.py::TestCommand::test_r3_regenerates_byte_identically"
+        },
+        {
+          "id": "I81-R4",
+          "claim": "Construction honesty: holon/measures.py and holon/rank.py name no law, action, register, span or target and import no test code.",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r4_no_target_vocabulary"
+        },
+        {
+          "id": "I81-R5",
+          "claim": "Judged at each of I81's own commits: no law, record, generated or replay file changes except results/M3/ranking.json (no generator closure moves).",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r5_nothing_else_changes"
+        },
+        {
+          "id": "I81-R6",
+          "claim": "results/M3/ranking.json is valid against spec/schemas/ranking.schema.json, and every input it lists is the file on disk (its sha256).",
+          "check": "tests_m3/test_ranking.py::TestDocument::test_r6_schema and tests_m3/test_ranking.py::TestDocument::test_r6_inputs_are_current"
+        },
+        {
+          "id": "I81-R7",
+          "claim": "Construction: for every REFUTED law, holon's channel, persistence, reach, cost and PAR lower bound are what the instrument computes by its own reading of the contract's rules.",
+          "check": "tests_m3/test_ranking.py::TestRegressions::test_r7_instrument_agrees"
+        }
+      ],
+      "outcome_paths": [
+        "results/M3/ranking.json",
+        "docs/iterations/I81.md"
+      ],
+      "tests": [
+        "tests_m3/test_ranking.py"
+      ],
+      "thresholds": {
+        "base": "00b12f70 (the lead after I28's build merge, PR #50: 136 M3 laws, holon-rules/1.6), with BUILD_PLAN's row I81 (13756f4a)",
+        "instrument": "tests_m3/_i81.py",
+        "instrument_sha256": "103043e987a531e9132f3a941e32ede857520bbb9334d8b0a8b3726d442c69b1",
+        "sidecar": {
+          "path": "spec/M3/lib/ranking.json",
+          "sha256": "4063d2dbdef536bc19223a346594a26f8b03b63f93ddff24064f0b6f48398385"
+        },
+        "contract_docstring_sha256": "9011e4989e1f5b5b0d204b90c2ab32b377eded6f6114643a6300948b0c41f109",
+        "laws": 136,
+        "refuted": 24,
+        "kinds": {
+          "value": 87,
+          "bound": 9,
+          "pending": 35,
+          "not_applicable": 5
+        },
+        "pending": {
+          "NAT": "I29",
+          "DISCH profile": "I37",
+          "gas cost": "I37",
+          "Go-op reach": "I39",
+          "F(PI, parent lbn)": "I37",
+          "F(Z, derivation)": "I39"
+        },
+        "observed_before_prereg": {
+          "read": "Before writing this key the author read: every REFUTED record's status, subform, triage, filter bin, evidence levels, concretization kind, result, length and reason, and its witness keys; the full witness schedules (actions and callers) of the PAR-init, SORT realize, SORT tag, rollup_363 onlyActiveSubmitter blocking, rollup_132 owner external-none, commitState attribution and commitBatch kernel laws, and the UNDO witnesses (prefix, x, y, t); the three codec laws' differences; the concretization path of the v1 codec law; the BVH entry of replay/M3/undo/report.json (both runs' model observations); the records' replay details of the SORT laws; I32's classification and I31's basis; I26's F(m, c) of the FACT laws (holon.rules.fact.analyse was run).",
+          "not_read": "The witness schedules of the commitBatchWithProof attribution and kernel laws and of the five other external-none DISCH laws; the replay entries of the UNDO pair and batchDataStore laws (only their records' replay detail); the sorts replay report's entries; the codec layouts (beyond the first cells of two functions); the instrument's functions were never run before this commit (only compiled, and its tables checked for consistency with each other).",
+          "I81-P1": "the lower bound (the differences); not the layout bound",
+          "I81-P2": "fully (the one-step continuations and the BVH entry's divergence at t[0])",
+          "I81-P3": "mostly: the channels follow from the rules and data read, except the UNDO pair law's step (its replay entry was not read)",
+          "I81-P4": "partly: 7 of the 24 schedules were not read",
+          "I81-P5": "fully (the statuses and subforms, with the rules)",
+          "I81-P6": "partly: persistence follows from the rules and I32's classes; 7 schedules' costs were not read",
+          "I81-P7": "partly (follows from P3, P4 and P6)"
+        },
+        "counted_predictions": [
+          "I81-P1"
+        ],
+        "disclosure": "Only I81-P1 counts toward prediction accuracy: its outcome rests on the layout bound, which nobody computed before this commit. The others are recorded, not counted: the author read most of what decides them (observed_before_prereg), and the rest follow from the preregistered policy applied to committed data. A miss in any of them is still reported as a miss."
+      }
+    },
     "I69": {
       "title": "= I36a: Bundle I's extraction and acquisition, no laws: the message queue, the messenger, the whitelist and the Submitter extracted at the pinned head (overloads, dynamic storage arrays, abi.encodeWithSignature and encodeCall, packed hashing over loop-carried values) and modelled, one linked machine in which calls between members run the callee's extracted transitions, refined against a forge harness of the real bundle, and the legacy registry L1Staking extracted at v0.6.1 with its proxy's on-chain implementation matched by metadata-stripped bytecode (Q12), the live members matched to their head builds (Q18)",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I69)",
