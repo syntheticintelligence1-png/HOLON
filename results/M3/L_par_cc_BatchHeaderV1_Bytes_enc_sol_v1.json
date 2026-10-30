@@ -42,6 +42,33 @@
     "seconds": 0.386
   },
   "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "concretization": {
+    "bound": {
+      "H": 8,
+      "rlimit": 200000000
+    },
+    "kind": "commit_class",
+    "length": 1,
+    "reason": "a commit at version 1 from R0 (rule K3, the M0 commit-path rule): sat at k = 1 (the first sat depth); unrealistic clock (> 2^64): block.timestamp up to 57896044618658097711785492504343953926634992332820282019728792003956564819968",
+    "result": "path",
+    "sides": {
+      "go": {
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      },
+      "solidity": {
+        "obstruction_observed": true,
+        "provenance": "public_schedule",
+        "status": "passed"
+      }
+    },
+    "target": null,
+    "tests": [
+      "gen/M3/tests/foundry/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.t.sol",
+      "gen/M3/tests/go/M3/L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_test.go"
+    ]
+  },
   "cone": [
     "BatchHeaderV1_Bytes",
     "R_BatchHeaderV1",
@@ -61,7 +88,7 @@
   "evidence_override": null,
   "evidence_triage": "finding",
   "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
-  "filter_bin": "pending",
+  "filter_bin": "finding",
   "generator_sha256": "75dbc9954d4167ba1a2b26c8448d492b68fb50ecef5bb540652395cc1a7e0e4c",
   "independence_class": "I2",
   "kernel": {
