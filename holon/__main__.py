@@ -9,6 +9,12 @@
   python -m holon audit regress --from A --to B [--json] [--root DIR]
   python -m holon audit hostile --milestone M2 --round 2 [--surface S ..] [--checkout PATH] [--snapshot DIR] [--check]
   python -m holon audit vacuity --milestone M2 --round 2 [--out FILE] [--check]   (auditors A2 and A4, round M2/2; I21)
+  python -m holon audit hostile|vacuity --milestone M3 --round N [--target C] [--out F] [--check]
+                                                        (the hostile-review packet and auditor A4 of a round; I87)
+  python -m holon audit round|converge|oracles --milestone M [--root DIR] ...   (rounds, convergence, A4's oracle
+                                                        half: results/<M>/audit_status.json; I87)
+  python -m holon audit gaps [--root DIR] [--json]      (rule-gap records and the L7 admission rule; I87)
+  python -m holon coordinator status|prompt|audit-prompt ...   (docs/STATUS.md and session prompts; I87)
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
   python -m holon oracle check --milestone M2 [--root DIR]   (oracle sidecar hypotheses: A4, G11V; I12)
@@ -337,8 +343,14 @@ def _main(argv: list) -> int:
                                       "law, result and prediction was first committed (A3); "
                                       "`audit hostile|vacuity --milestone M2 --round 2 [--check]` are auditors A2 "
                                       "and A4 of audit round M2/2 (I21)")
-    au.add_argument("what", choices=["prereg", "status", "regress", "hostile", "vacuity"])
+    au.add_argument("what", choices=["prereg", "status", "regress", "hostile", "vacuity", "round", "converge",
+                                     "oracles", "gaps"])
     au.add_argument("rest", nargs=argparse.REMAINDER)
+    co = sub.add_parser("coordinator", help="the coordinator (I87): `coordinator status` renders docs/STATUS.md, "
+                                            "`coordinator prompt --key I<n>` a session prompt from BUILD_PLAN, "
+                                            "`coordinator audit-prompt` an auditor's prompt for a round")
+    co.add_argument("what", choices=["status", "prompt", "audit-prompt"])
+    co.add_argument("rest", nargs=argparse.REMAINDER)
     rp = sub.add_parser("replay", help="replay REFUTED witnesses on the real Go and Solidity code")
     rp.add_argument("--milestone", default="M0")
     rp.add_argument("--morph", help="morph-l2/morph checkout at the facts' commit (default: config replay.morph)")
@@ -411,8 +423,15 @@ def _main(argv: list) -> int:
         if a.what == "vacuity":
             from .audit import vacuity
             return vacuity.main(a.rest)
+        if a.what in ("round", "converge", "oracles", "gaps"):   # I87
+            import importlib
+            mod = {"round": "rounds", "converge": "converge", "oracles": "oracles", "gaps": "gaps"}[a.what]
+            return importlib.import_module(f".audit.{mod}", __package__).main(a.rest)
         from .audit import prereg
         return prereg.main(a.rest)
+    if a.cmd == "coordinator":   # I87
+        from . import coordinator
+        return coordinator.main([a.what] + a.rest)
     if a.cmd == "replay":
         from .replay import main_replay
         return main_replay(a)

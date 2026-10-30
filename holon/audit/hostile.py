@@ -2449,6 +2449,9 @@ def default_checkout() -> Path:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if milestone_of(argv) not in (None, "M2"):   # I87: M3 and later get the hostile-review packet
+        return packet_main(argv)
     ap = argparse.ArgumentParser(prog="holon audit hostile", description=__doc__.split("\n\n")[0])
     ap.add_argument("--milestone", default="M2")
     ap.add_argument("--round", type=int, default=2)
@@ -2504,6 +2507,184 @@ def main(argv: list[str] | None = None) -> int:
     if not a.work:
         shutil.rmtree(work, ignore_errors=True)
     return 0
+
+# ====================================================================== I87: the hostile-review packet (M3 and later)
+# The contract is the docstring of tests_m3/test_audit_loop.py ("The hostile-review packet"):
+#
+#   python -m holon audit hostile --milestone M --round n [--target COMMIT] [--out PATH] [--work DIR] [--check]
+#
+# writes audit/rounds/<M>/round<n>/packet.json (holon-audit-packet/0.1), what every auditor of the round is given. Every
+# input, the policy spec/<M>/lib/audit_loop.json included, is read from the target commit's tree (git archive into a
+# scratch directory); --check reads target_commit from the committed file, rebuilds and compares byte for byte. M2 keeps
+# I21's A2 instrument above. Nothing in this section names a law or a target: it selects by rule, subform, status and
+# premises.
+PACKET_VERSION = "holon-audit-packet/0.1"
+DECIDED = ("PROVED", "REFUTED")
+
+
+def milestone_of(argv: list[str]) -> str | None:
+    for i, x in enumerate(argv):
+        if x == "--milestone" and i + 1 < len(argv):
+            return argv[i + 1]
+        if x.startswith("--milestone="):
+            return x.split("=", 1)[1]
+    return None
+
+
+def materialize_tree(commit: str, dest: Path) -> Path:
+    """The commit's whole tree in dest (git archive). Unlike I21's materialize it does not refuse Git LFS pointers in
+    files it never reads; Inputs refuses a pointer it is asked to read."""
+    shutil.rmtree(dest, ignore_errors=True)
+    dest.mkdir(parents=True)
+    tar = dest.parent / (dest.name + ".tar")
+    p = subprocess.run(["git", "-C", str(ROOT), "archive", "--format=tar", "-o", str(tar), commit],
+                       capture_output=True, text=True)
+    if p.returncode != 0:
+        raise HostileError(f"git archive {commit} failed: {p.stderr[-400:]}")
+    p = subprocess.run(["tar", "-xf", str(tar), "-C", str(dest)], capture_output=True, text=True)
+    tar.unlink(missing_ok=True)
+    if p.returncode != 0:
+        raise HostileError(f"untar failed: {p.stderr[-400:]}")
+    return dest
+
+
+class Inputs:
+    """The files a build reads from a tree, each with its sha256 (listed sorted by path)."""
+
+    def __init__(self, tree: Path):
+        self.tree = Path(tree)
+        self.read: dict[str, str] = {}
+
+    def bytes(self, rel: str) -> bytes:
+        b = (self.tree / rel).read_bytes()
+        if len(b) < 1024 and b.startswith(b"version https://git-lfs"):
+            raise HostileError(f"{rel} is a Git LFS pointer in the target's archive: git lfs pull")
+        self.read[rel] = sha256_hex(b)
+        return b
+
+    def json(self, rel: str):
+        return json.loads(self.bytes(rel))
+
+    def rels(self, d: str, pattern: str = "L*.json") -> list[str]:
+        base = self.tree / d
+        return sorted(f"{d}/{p.name}" for p in base.glob(pattern) if p.is_file()) if base.is_dir() else []
+
+    def listing(self) -> list[dict]:
+        return [{"path": k, "sha256": v} for k, v in sorted(self.read.items())]
+
+
+def policy_rel(milestone: str) -> str:
+    return f"spec/{milestone}/lib/audit_loop.json"
+
+
+def load_policy_at(inp: Inputs, milestone: str) -> dict:
+    rel = policy_rel(milestone)
+    if not (inp.tree / rel).is_file():
+        raise HostileError(f"the target commit has no audit policy {rel}")
+    return inp.json(rel)
+
+
+def laws_records(inp: Inputs, milestone: str) -> tuple[dict, dict, dict]:
+    """(laws, records, registry statements) of the milestone in the tree, each read through inp."""
+    laws = {Path(r).stem: inp.json(r) for r in inp.rels(f"laws/{milestone}")}
+    recs = {Path(r).stem: inp.json(r) for r in inp.rels(f"results/{milestone}")}
+    reg = inp.json(f"laws/{milestone}/REGISTRY.json").get("statements") or {}
+    return laws, recs, reg
+
+
+def previous_target(milestone: str, rnd: int) -> str | None:
+    """The target_commit of round n-1 of the milestone, from this repository; None for round 1."""
+    if rnd <= 1:
+        return None
+    p = ROOT / "audit" / "rounds" / milestone / f"round{rnd - 1}.json"
+    if not p.is_file():
+        raise HostileError(f"round {rnd - 1} of {milestone} does not exist ({p.relative_to(ROOT)})")
+    return json.loads(p.read_text())["target_commit"]
+
+
+def packet(tree: Path, milestone: str, rnd: int, commit: str) -> dict:
+    from .. import ir
+    from ..inhabit import premised
+    inp = Inputs(tree)
+    pol = load_policy_at(inp, milestone)
+    laws, recs, _reg = laws_records(inp, milestone)
+    reg_sha = inp.read[f"laws/{milestone}/REGISTRY.json"]
+    out_laws: dict = {}
+    for lid, law in sorted(laws.items()):
+        r = recs.get(lid) or {}
+        w = r.get("witness")
+        out_laws[lid] = {
+            "rule": r.get("rule", law.get("rule")), "subform": r.get("subform", law.get("subform")),
+            "status": r.get("status"), "statement_hash": r.get("statement_hash"), "facts": law.get("facts"),
+            "premises": list(r.get("premises") or []),
+            "binders": [[b.get("name"), b.get("type"), b.get("q")] for b in law["statement"].get("binders") or []],
+            "kernels": [f"{k.get('name')}:{k.get('result')}" for k in r.get("kernels") or [] if isinstance(k, dict)],
+            "filter_bin": r.get("filter_bin"), "triage": r.get("triage"),
+            "non_vacuity": (r.get("non_vacuity") or {}).get("status"),
+            "witness_sha256": sha256_hex(ir.canonical_json(w)) if w is not None else None}
+    at = pol["auditor_types"]
+    a1: dict = {}
+    for lid, e in out_laws.items():
+        if e["status"] in DECIDED:
+            a1.setdefault(str(e["facts"]), []).append(lid)
+    a2_sub = at["A2"].get("subforms") or {}
+    a2 = sorted(lid for lid, e in out_laws.items() if e["subform"] in (a2_sub.get(e["rule"]) or []))
+    a4 = sorted(lid for lid, law in laws.items() if premised(law))
+    targets = {"A1": {k: sorted(v) for k, v in sorted(a1.items())}, "A2": a2,
+               "A3": {"registry_sha256": reg_sha, "previous_target": previous_target(milestone, rnd)}, "A4": a4}
+    auditors = {t: {"name": at[t]["name"], "what": at[t]["what"], "targets": targets[t]} for t in sorted(targets)}
+    return {"packet_version": PACKET_VERSION, "milestone": milestone, "round": rnd, "target_commit": commit,
+            "policy": {"path": policy_rel(milestone), "sha256": inp.read[policy_rel(milestone)]},
+            "inputs": inp.listing(), "laws": out_laws, "auditors": auditors}
+
+
+def at_target(name: str, out: Path, target: str | None, check: bool, work_arg: str | None, build) -> int:
+    """Materialize the target commit's tree, build(tree, commit, work) -> text, then write it to out or, with --check,
+    compare it with out byte for byte. The target is --target, else the committed out's target_commit."""
+    out = out if out.is_absolute() else ROOT / out
+    if check or not target:
+        if not out.is_file():
+            print(f"{name}: {out} does not exist: pass --target", file=sys.stderr)
+            return 2
+        target = json.loads(out.read_text())["target_commit"]
+    work = Path(work_arg).resolve() if work_arg else Path(tempfile.mkdtemp(prefix=f"holon-i87-{name}-"))
+    try:
+        commit = resolve_commit(target)
+        tree = materialize_tree(commit, work / "tree")
+        text = build(tree, commit, work)
+    except HostileError as e:
+        print(f"{name}: {e}", file=sys.stderr)
+        return 2
+    finally:
+        if not work_arg:
+            shutil.rmtree(work, ignore_errors=True)
+    if check:
+        same = out.read_text() == text
+        print(f"{name} --check: {'identical' if same else 'DIFFERS from'} {out} (target {commit[:12]})")
+        return 0 if same else 1
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text)
+    print(f"{name}: wrote {out} (target {commit[:12]})")
+    return 0
+
+
+def packet_main(argv: list[str]) -> int:
+    ap = argparse.ArgumentParser(prog="holon audit hostile", description="I87: the hostile-review packet of an audit "
+                                                                         "round (M3 and later)")
+    ap.add_argument("--milestone", required=True)
+    ap.add_argument("--round", type=int, required=True)
+    ap.add_argument("--target", help="the audited commit (default: the target_commit of the committed packet)")
+    ap.add_argument("--out", help="default: audit/rounds/<M>/round<n>/packet.json")
+    ap.add_argument("--work", help="scratch directory (default: a fresh temporary directory, removed after)")
+    ap.add_argument("--check", action="store_true", help="rebuild from the committed packet's target commit and "
+                                                         "compare byte for byte")
+    a = ap.parse_args(argv)
+    if a.round < 1:
+        print("hostile: rounds are numbered from 1", file=sys.stderr)
+        return 2
+    out = Path(a.out) if a.out else Path("audit") / "rounds" / a.milestone / f"round{a.round}" / "packet.json"
+    return at_target("hostile", out, a.target, a.check, a.work,
+                     lambda tree, commit, _work: canonical(packet(tree, a.milestone, a.round, commit)))
 
 
 if __name__ == "__main__":
