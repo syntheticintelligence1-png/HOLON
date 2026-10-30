@@ -259,6 +259,17 @@ def _disch_section(law: dict, m: str, root: Path) -> Path:
     return Path(root) / "gen" / m / "disch" / "models" / section_file(typed_name(law["facts"]))
 
 
+def _contract3(law: dict) -> bool:
+    """A typed contract law (I33): a holon-ir/0.3 intended_weak law whose statement uses the typed terms (sread, wnat,
+    cmp, ok, is, env). holon.sorts.contract3_run decides it over the typed model of its document, and
+    holon.sorts.contract3.law_file emits its law file (imported by name, as FACT's generator is, so it stays out of
+    the records' closures)."""
+    if law.get("ir_version") != "holon-ir/0.3" or law.get("subform") != "intended_weak":
+        return False
+    import importlib
+    return importlib.import_module("holon.sorts.contract3").uses_b1(law.get("statement") or {})
+
+
 def _typed_model(law: dict, m: str, root: Path, importable: bool = False) -> Path:
     """The typed model of a typed-SORT law, as its records name it (gen/<m>/sorts/models/<model>.bend, a link: docs/
     HUMAN_ANSWERS.md Q25) or, with importable, the file behind that link which its law file imports."""
@@ -402,8 +413,8 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
         from .sorts.width import model_path as width_model
         return width_model(m, root)
-    if _typed(law) or _disch(law):   # F30: the typed model gen/<m>/sorts/models/<model>.bend (I30; I31's DISCH laws)
-        return _typed_model(law, m, root)
+    if _typed(law) or _disch(law) or _contract3(law):   # F30: the typed model gen/<m>/sorts/models/<model>.bend (I30;
+        return _typed_model(law, m, root)                # I31's DISCH laws; I33's typed contract laws)
     from .codecrun import codec_kind
     kind = codec_kind(law, root)
     if kind == "linked":   # I24: the component model gen/<m>/model/<role>.bend (rule X9)
@@ -455,6 +466,16 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
         return FP.law_file(law, statement_hash(law, m, root),
                            rel_import(laws_dir, _typed_model(law, m, root, importable=True)),
                            rel_import(laws_dir, _fact_section(law, m, root, importable=True)), hashes, counter=counter)
+    if _contract3(law):   # I33: emitted as holon.sorts.contract3_run writes it (holon.sorts.contract3.law_file), its
+        import importlib   # tables the typed model's hash parameters; the counter-law of conjunct 0 by default
+        from .sorts.evaluate3 import hashes_of
+        from .sorts.proofs3 import rel_import, tabs_binders
+        C3 = importlib.import_module("holon.sorts.contract3")
+        laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
+        tm = _typed_model(law, m, root, importable=True)
+        tables = [n for n, _h in tabs_binders(hashes_of(tm.read_text()))]
+        return C3.law_file(law, F.load(root / law["facts"]), statement_hash(law, m, root), rel_import(laws_dir, tm),
+                           tables, "counter" if counter else "law", (conjunct or 0) if counter else None)
     if _typed(law):   # F30: emitted as holon.sorts.run3 writes it (holon.sorts.proofs3.law_file), one law-parameter
         from .sorts import proofs3 as P3   # table per hash function the IR's Fn binders name, importing the typed model
         laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]

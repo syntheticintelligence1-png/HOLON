@@ -23,7 +23,8 @@ listed under not_applicable with a reason.
   G4    canaries: per I30 subform among the laws, a counter-law whose witness is mutated (its entry step's clock or
         its first argument changed) must be rejected by Bend
 
-The DISCH laws (I31) and the FACT laws (I26) have their own checks (holon.disch.gate, holon.fact.gate), joined by name.
+The DISCH laws (I31), the FACT laws (I26) and the typed contract laws (I33) have their own checks (holon.disch.gate,
+holon.fact.gate, holon.sorts.contract3_gate), joined by name.
 
 The UNDO laws (I27, holon.undo.run): G1 also regenerates their analysis (holon undo), records, trace section and law
 and proof files and compares the classification regenerated from the records with results/<M>/undo/classification.json;
@@ -518,6 +519,11 @@ class Gate3:
                     fact_gate.join(self, only)
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
                     self.join_crashed("FACT", fact_gate.CHECKS, only, e)
+                from . import contract3_gate               # I33: the typed contract laws' checks, joined by name
+                try:
+                    contract3_gate.join(self, only)
+                except Exception as e:  # noqa: BLE001  (a crash is a failed check)
+                    self.join_crashed("contract", contract3_gate.CHECKS, only, e)
             if self.setup_error is None:
                 self.whole_milestone(g, ok, only, ("G2", "G8"))
                 self.other_laws(g, ok, only)
@@ -604,6 +610,8 @@ class Gate3:
             mine |= {e["law_id"] for e in dv["laws"] if e.get("rule") in ("DISCH", "FACT")}
         except (OSError, ValueError, KeyError):
             pass
+        from .contract3_run import contract_ids   # I33: the typed contract laws have their own checks too
+        mine |= set(contract_ids(self.m, self.root))
         others = [law["law_id"] for law in ir.load_laws_any(self.m, self.root) if law["law_id"] not in mine]
         has_ev = (self.gen / "evidence.json").is_file()
         want = [k for k in self.OTHER if (not only or k in only) and (others if k != "GEVID" else has_ev)]
