@@ -825,6 +825,66 @@ class TestBindings(unittest.TestCase):
         self.assertEqual(laws, [], msgs)
 
 
+class TestChangeLog(unittest.TestCase):
+    """Added after C_K (the coordinator's decision, revocable): a committed change line's covered_by numbers are read at
+    the commit that appended it (holon.bindings.resolve_covered). A lead merge that appends other
+    laws/STATEMENT_DIFF.jsonl lines before a branch's own then keeps G2's change log sound: the referenced entry must
+    still be present by its exact text, accepted, and an entry covering the law. A line not yet committed reads the
+    current numbering, and an unreadable appending commit fails closed."""
+
+    def setUp(self):
+        self.B = holon_module("holon.bindings")
+        law = load_json(ROOT / "laws" / "M3" / f"{PINIT}.json")
+        other_id = sorted(p.stem for p in (ROOT / "laws" / "M3").glob("L_*.json") if p.stem != PINIT)[0]
+        other = load_json(ROOT / "laws" / "M3" / f"{other_id}.json")
+        self.mine = json.dumps({"kind": "model_extension", "law_id": PINIT, "old": law, "new": law, "defs": ["a", "b"]},
+                               sort_keys=True).encode()
+        self.other = json.dumps({"kind": "model_extension", "law_id": other_id, "old": other, "new": other,
+                                 "defs": ["a", "b"]}, sort_keys=True).encode()
+        self.line = {"milestone": "M3", "laws": [PINIT], "law_defs": {PINIT: ["a"]}, "covered_by": {PINIT: 3}}
+        self.at_commit = [b'{"x": 1}', b'{"x": 2}', self.mine]   # the log when the change line was committed
+
+    def problems(self, now: list, accepted: set, commit="c" * 40, line=None, at_commit=None, unreadable=False) -> list:
+        where: dict = {}
+        for k, x in enumerate(now, start=1):
+            where.setdefault(x, []).append(k)
+        entries = {k: json.loads(x) for k, x in enumerate(now, start=1) if k in accepted}
+        at = self.at_commit if at_commit is None else at_commit
+        return self.B.change_line_problems(line or self.line, 7, commit, entries, lambda c: None if unreadable else at,
+                                           where)
+
+    def test_a_concurrent_branch_appending_before_yours_keeps_the_reference(self):
+        """Positive: a lead merge put three lines before the branch's own entry (3 -> 6); position 3 now names one of
+        them, and the content still names the entry."""
+        now = [b'{"x": 1}', b'{"x": 2}', b'{"y": 1}', b'{"y": 2}', b'{"y": 3}', self.mine]
+        self.assertEqual(self.problems(now, {6}), [])
+        self.assertNotEqual(self.problems(now, {6}, commit=None), [])   # read by position, it would not be covered
+
+    def test_rejects_the_entry_missing_from_the_current_file(self):
+        self.assertNotEqual(self.problems([b'{"x": 1}', b'{"x": 2}', b'{"y": 1}'], {3}), [])
+
+    def test_rejects_the_same_text_but_not_accepted(self):
+        self.assertNotEqual(self.problems([b'{"x": 1}', b'{"x": 2}', self.mine], set()), [])
+
+    def test_rejects_an_entry_for_another_law(self):
+        at = [b'{"x": 1}', b'{"x": 2}', self.other]
+        self.assertNotEqual(self.problems([b'{"x": 1}', b'{"x": 2}', self.other], {3}, at_commit=at), [])
+
+    def test_rejects_a_number_out_of_range_at_the_appending_commit(self):
+        line = dict(self.line, covered_by={PINIT: 9})
+        problems = self.problems([b'{"x": 1}', b'{"x": 2}', self.mine], {3}, line=line)
+        self.assertTrue(any("has no line 9" in p for p in problems), problems)
+
+    def test_rejects_an_uncommitted_line_with_a_wrong_current_number(self):
+        now = [b'{"x": 1}', b'{"x": 2}', b'{"y": 1}', self.mine]
+        self.assertNotEqual(self.problems(now, {3, 4}, commit=None), [])
+        self.assertEqual(self.problems(now, {4}, commit=None, line=dict(self.line, covered_by={PINIT: 4})), [])
+
+    def test_an_unreadable_appending_commit_fails_closed(self):
+        problems = self.problems([b'{"x": 1}', b'{"x": 2}', self.mine], {3}, unreadable=True)
+        self.assertTrue(any("cannot be read" in p for p in problems), problems)
+
+
 # ---------------------------------------------------------------------------------------------- generic code
 class TestGenericCode(unittest.TestCase):
     def test_new_code_names_no_target(self):
