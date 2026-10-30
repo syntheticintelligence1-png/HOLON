@@ -322,8 +322,10 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
 
 def _typed_rules(catalog: dict) -> list[str]:
     """The rules of a catalog after holon-rules/1.0 whose producers take the typed context (produce(ctx), I30): every
-    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document)."""
-    return sorted(r for r in catalog if r != "PAR")
+    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document), and OWN,
+    which derives over the carrier documents in a part of its own (_own_part, I35)."""
+    from . import own as _own
+    return sorted(r for r in catalog if r not in ("PAR", _own.RULE))
 
 
 def _transitions(doc) -> bool:
@@ -685,6 +687,51 @@ def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
     return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
 
 
+def _own_part(milestone: str, root: Path, cv: str) -> dict | None:
+    """derive's part for rule OWN (I35, holon.rules.own; rule W8 of tests_m3/test_own.py), when the catalog holds it:
+    its producers over the milestone's committed carrier documents gen/<M>/own/*.json, read through its own input list
+    (DERIVATION.json lists them, the obstructions document does not), refused when they are stale against `holon own`
+    (the OWN sidecar and its Go document, which it lists too). Returns the laws, their DERIVATION entries, the inputs
+    read and the documents' sha256, or None when the catalog has no OWN."""
+    from ..gen import refs as R
+    from .. import own as OW
+    from . import own as _own
+    subs = CATALOGS[cv].get(_own.RULE)
+    if not subs:
+        return None
+    inputs = Inputs(root)
+    sc = OW.load_sidecar(root, milestone)
+    if sc is not None:
+        inputs.read(root / OW.sidecar_rel(milestone))
+        inputs.read(root / sc["document"])
+    try:
+        want = OW.render_all(root, milestone)
+    except OW.OwnError as e:
+        raise ValueError(f"{_own.RULE}: {e}") from e
+    have = {p.name: p.read_text(encoding="utf-8") for p in OW.committed(milestone, root)}
+    if want != have:
+        raise Refused(f"the OWN carrier documents gen/{milestone}/own/ are stale: run `holon own --milestone "
+                      f"{milestone}` (differ: {sorted(set(want) ^ set(have) | {k for k in want if want[k] != have.get(k)})})")
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for sub in sorted(subs):
+            pairs += subs[sub].produce(ctx)
+    except _own.OwnRuleError as e:
+        raise DeriveError(str(e)) from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        if law["law_id"] in laws:
+            raise DeriveError(f"two basis elements map to one law id: {law['law_id']}")
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
 def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
                     codecs: list[str] | None = None, assignment: str | None = None, sidecar: str | None = None,
                     disch: str | None = None, undo_sidecar: str | None = None,
@@ -725,8 +772,11 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
     init = _init_chain_part(milestone, root, cv) if not given else None
     if init is not None:
         inputs.files.update(init["inputs"].files)
+    own = _own_part(milestone, root, cv) if not given else None   # I35: rule OWN over the carrier documents
+    if own is not None:
+        inputs.files.update(own["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed, init):
+    for part in (par, typed, init, own):
         if part is None:
             continue
         for lid, law in part["laws"].items():

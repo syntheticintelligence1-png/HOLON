@@ -39,8 +39,9 @@ def sha256_bytes(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
 
-def volatile_views(root: Path, milestone: str) -> set[tuple[str, int]]:
-    """(function id, result index) of every valid volatile-view contract of the milestone (I64, K9)."""
+def volatile_views(root: Path, milestone: str, inputs=None) -> set[tuple[str, int]]:
+    """(function id, result index) of every valid volatile-view contract of the milestone (I64, K9); each such contract
+    file is listed in inputs (derive's input list) when given."""
     out = set()
     try:
         from .. import contracts as C
@@ -62,6 +63,8 @@ def volatile_views(root: Path, milestone: str) -> set[tuple[str, int]]:
         v = c.get("view") or {}
         if isinstance(v.get("function"), str) and isinstance(v.get("result"), int):
             out.add((v["function"], v["result"]))
+            if inputs is not None:
+                inputs.read(p)
     return out
 
 
@@ -169,7 +172,7 @@ class _Producer:
 
     def produce(self, ctx) -> list:
         out = []
-        vol = volatile_views(Path(ctx.root), ctx.milestone)
+        vol = volatile_views(Path(ctx.root), ctx.milestone, getattr(ctx, "inputs", None))
         for rel, raw, doc in documents(ctx):
             sha = sha256_bytes(raw)
             for e in elements(doc, vol):
