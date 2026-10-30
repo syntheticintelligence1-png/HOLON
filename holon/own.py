@@ -291,9 +291,18 @@ def atoms(doc: dict, diag: dict) -> list[dict]:
 
 
 def anchors(diag: dict) -> dict:
-    """What laws over the carrier name: every OWN edge by its method ("own"), and the edges a trace binder ranges over
-    ("trans": every method's, holon.diagram.evidence rule L3)."""
-    return {"own": {e["model_fn"]: e["id"] for e in diag["edges"]}, "trans": sorted(e["id"] for e in diag["edges"])}
+    """What laws over the carrier name, in the evidence schema's anchor shape: every OWN edge by its method
+    ("actions"), each field's writers and readers ("carriers"), and the edges a trace binder ranges over ("trans":
+    every method's, holon.diagram.evidence rule L3); nothing else."""
+    cars: dict[str, dict] = {}
+    for e in diag["edges"]:
+        for side, key in (("writes", "writers"), ("reads", "readers")):
+            for f, _ in e["access"][side]:
+                cars.setdefault(f, {"writers": [], "readers": []})[key].append(e["id"])
+    return {"codec": {}, "domains": {}, "actions": {e["model_fn"]: e["id"] for e in diag["edges"]}, "reasons": {},
+            "permissionless": [], "observers": {}, "migrations": {}, "consumers": {},
+            "carriers": {f: {k: sorted(v) for k, v in c.items()} for f, c in sorted(cars.items())},
+            "trans": sorted(e["id"] for e in diag["edges"]), "sites": {}}
 
 
 def diagrams(milestone: str, root: Path | str) -> dict[str, dict]:

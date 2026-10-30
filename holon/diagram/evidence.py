@@ -994,12 +994,12 @@ def _named(st: dict, irv: str, an: dict) -> set[str]:
                     out.update(an["sites"].get(s, []))
             # I35 (tests_m3/test_own.py rule W7): an own term names its methods' OWN edges (an alias law its view's and
             # its writer's, a lost-write law its method's)
-            ow = t.get("own") if irv == IR03 and "own" in an else None
+            ow = t.get("own") if irv == IR03 else None
             if isinstance(ow, str) and ow.count(":") == 3:
                 _, sub, m1, m2 = ow.split(":")
                 for m in ((m1, m2) if sub == "alias" else (m1,)):
-                    if m in an["own"]:
-                        out.add(an["own"][m])
+                    if m in an["actions"]:
+                        out.add(an["actions"][m])
             for v in t.values():
                 walk(v)
         elif isinstance(t, list):

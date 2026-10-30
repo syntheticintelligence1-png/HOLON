@@ -28,7 +28,8 @@
   },
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "edge": {"type": "string", "pattern": "^(CODEC|TRANS|MIG|CONS|LOAD\\.obs)\\.[^:]+$"},
+    "edge": {"type": "string", "pattern": "^(CODEC|TRANS|MIG|CONS|OWN|LOAD\\.obs)\\.[^:]+$",
+             "description": "an edge id: a codec, transition, migration, consumer or (I35, rule W7 of tests_m3/test_own.py) OWN method edge, or a load observation"},
     "edges": {"type": "array", "items": {"$ref": "#/$defs/edge"}},
     "strings": {"type": "array", "items": {"type": "string"}},
     "input": {
