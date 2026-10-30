@@ -2693,10 +2693,7218 @@
           "morph"
         ]
       }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.addChallenger:TRANS.addChallenger:3f0e05c9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.addChallenger",
+      "q": "TRANS.addChallenger",
+      "src": null,
+      "via": {
+        "carrier": "isChallenger",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.addChallenger:TRANS.challengeState:3f0e05c9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.addChallenger",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "isChallenger",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.addChallenger:TRANS.removeChallenger:3f0e05c9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.addChallenger",
+      "q": "TRANS.removeChallenger",
+      "src": null,
+      "via": {
+        "carrier": "isChallenger",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.batchChallengedSuccess:39ad5576",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.batchChallengedSuccess",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.batchInChallenge:9d63a744",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.batchInChallenge",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.batchInsideChallengeWindow:549dbea2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.batchInsideChallengeWindow",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp"
+        ],
+        "writes": [
+          "[*].finalizeTimestamp"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.challengeState:549dbea2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp"
+        ],
+        "writes": [
+          "[*].finalizeTimestamp"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.challengeState:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.challengeState:da2a753a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challenger"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitBatch:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitBatch:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitBatch:eeee21a5",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchChallenged",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitBatchWithProof:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitBatchWithProof:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitBatchWithProof:eeee21a5",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchChallenged",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitState:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitState:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.commitState:eeee21a5",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "batchChallenged",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.finalizeBatch:549dbea2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp"
+        ],
+        "writes": [
+          "[*].finalizeTimestamp"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.finalizeBatch:a144fea1",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess",
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.initialize4:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.proveState:b0fd28f2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger",
+          "[*].finished",
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.revertBatch:c796fe16",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.setPause:47d07468",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.setPause:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.challengeState:TRANS.setPause:eeee21a5",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.challengeState",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "batchChallenged",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.claimProveRemaining:TRANS.claimProveRemaining:6adc8697",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.claimProveRemaining",
+      "q": "TRANS.claimProveRemaining",
+      "src": null,
+      "via": {
+        "carrier": "proveRemaining",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.claimProveRemaining:TRANS.proveState:6adc8697",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.claimProveRemaining",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "proveRemaining",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.claimReward:TRANS.claimReward:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.claimReward",
+      "q": "TRANS.claimReward",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.claimReward:TRANS.proveState:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.claimReward",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.claimReward:TRANS.revertBatch:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.claimReward",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.claimReward:TRANS.setPause:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.claimReward",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.batchExist:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.batchExist:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.batchInsideChallengeWindow:a5b666de",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.batchInsideChallengeWindow",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.challengeState:1c5aff58",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.challengeState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.challengeState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatch:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatch:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatch:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatchWithProof:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatchWithProof:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatchWithProof:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatchWithProof:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitBatchWithProof:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitState:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitState:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.commitState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.finalizeBatch:1c5aff58",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.finalizeBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.initialize2:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.initialize2:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.initialize4:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.proveCommittedBatchState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.proveCommittedBatchState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.proveState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.proveState:499c25b7",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].submitter"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatch:TRANS.revertBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.batchExist:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.batchExist:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.batchInsideChallengeWindow:60770020",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.batchInsideChallengeWindow",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp"
+        ],
+        "writes": [
+          "[*]",
+          "[*].finalizeTimestamp"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.challengeState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.challengeState:43a895de",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]",
+          "[*].finalizeTimestamp"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.challengeState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatch:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatch:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatch:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatchWithProof:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatchWithProof:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatchWithProof:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatchWithProof:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitBatchWithProof:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitState:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitState:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.commitState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.finalizeBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.finalizeBatch:43a895de",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]",
+          "[*].finalizeTimestamp"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.initialize2:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.initialize2:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.initialize4:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.proveCommittedBatchState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.proveCommittedBatchState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.proveState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.proveState:499c25b7",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].submitter"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitBatchWithProof:TRANS.revertBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitBatchWithProof",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.batchExist:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.batchExist:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.batchInsideChallengeWindow:a5b666de",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.batchInsideChallengeWindow",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.challengeState:1c5aff58",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.challengeState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.challengeState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatch:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatch:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatch:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatchWithProof:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatchWithProof:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatchWithProof:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatchWithProof:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitBatchWithProof:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitState:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitState:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.commitState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.finalizeBatch:1c5aff58",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.finalizeBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.initialize2:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.initialize2:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.initialize4:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.proveCommittedBatchState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.proveCommittedBatchState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.proveState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.proveState:499c25b7",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].submitter"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.commitState:TRANS.revertBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.commitState",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.batchChallengedSuccess:39ad5576",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.batchChallengedSuccess",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.batchExist:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.batchInChallenge:9d63a744",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.batchInChallenge",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.batchInsideChallengeWindow:a5b666de",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.batchInsideChallengeWindow",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.challengeState:1c5aff58",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.challengeState:2a0b6720",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "lastFinalizedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.challengeState:da2a753a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challenger"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitBatch:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitBatch:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitBatch:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitBatchWithProof:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitBatchWithProof:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitBatchWithProof:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitBatchWithProof:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitState:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitState:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.commitState:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.finalizeBatch:1c5aff58",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.finalizeBatch:2a0b6720",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastFinalizedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.finalizeBatch:a144fea1",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess",
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.finalizeBatch:f386283f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "finalizedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.importGenesisBatch:9ce705f2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.importGenesisBatch",
+      "src": null,
+      "via": {
+        "carrier": "finalizedStateRoots",
+        "reads": [
+          "[0]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.initialize2:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.isBatchFinalized:2a0b6720",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.isBatchFinalized",
+      "src": null,
+      "via": {
+        "carrier": "lastFinalizedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.proveState:499c25b7",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].submitter"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.proveState:b0fd28f2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger",
+          "[*].finished",
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.revertBatch:2a0b6720",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastFinalizedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.revertBatch:c796fe16",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.finalizeBatch:TRANS.setPause:47d07468",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.finalizeBatch",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.batchExist:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.batchExist:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.batchInsideChallengeWindow:a5b666de",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.batchInsideChallengeWindow",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.challengeState:1c5aff58",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.challengeState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.challengeState:2a0b6720",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "lastFinalizedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.challengeState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatch:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatch:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatch:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatchWithProof:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatchWithProof:4b3777ac",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatchWithProof:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatchWithProof:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitBatchWithProof:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitState:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitState:8a65ff11",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "batchBlobVersionedHashes",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.commitState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.finalizeBatch:1c5aff58",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].finalizeTimestamp",
+          "[*].originTimestamp"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.finalizeBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.finalizeBatch:2a0b6720",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastFinalizedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.finalizeBatch:f386283f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "finalizedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.importGenesisBatch:9ce705f2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.importGenesisBatch",
+      "src": null,
+      "via": {
+        "carrier": "finalizedStateRoots",
+        "reads": [
+          "[0]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.initialize2:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.initialize2:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.initialize4:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.isBatchFinalized:2a0b6720",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.isBatchFinalized",
+      "src": null,
+      "via": {
+        "carrier": "lastFinalizedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.proveCommittedBatchState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.proveCommittedBatchState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.proveState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.proveState:499c25b7",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchDataStore",
+        "reads": [
+          "[*].submitter"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.revertBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.importGenesisBatch:TRANS.revertBatch:2a0b6720",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.importGenesisBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastFinalizedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.commitBatch:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.commitBatchWithProof:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.commitState:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize2:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize2:64573f42",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "committedStateRoots",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize2:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize3:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize3",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize3:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize3",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize4:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize4:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize2:TRANS.initialize:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize2",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.commitBatch:5366ed0f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "rollupDelayPeriod",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.commitBatchWithProof:5366ed0f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "rollupDelayPeriod",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.commitState:5366ed0f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "rollupDelayPeriod",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.initialize2:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.initialize2:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.initialize3:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.initialize3",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.initialize3:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.initialize3",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.initialize4:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.initialize4:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.initialize:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.initialize:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize3:TRANS.updateRollupDelayPeriod:5366ed0f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize3",
+      "q": "TRANS.updateRollupDelayPeriod",
+      "src": null,
+      "via": {
+        "carrier": "rollupDelayPeriod",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.challengeState:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.commitBatch:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.commitState:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize2:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize2:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize3:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize3",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize3:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize3",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize4:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize4:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize4:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.initialize:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize4:TRANS.proveState:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize4",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.addChallenger:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.addChallenger",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.challengeState:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.challengeState:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.challengeState:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.claimProveRemaining:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.claimProveRemaining",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatch:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatch:1f7af9a9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "finalizationPeriodSeconds",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatch:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatch:da0c9d86",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "messageQueue",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatch:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatchWithProof:02c01cba",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "verifier",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatchWithProof:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatchWithProof:1f7af9a9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "finalizationPeriodSeconds",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatchWithProof:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitBatchWithProof:da0c9d86",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "messageQueue",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitState:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitState:1f7af9a9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "finalizationPeriodSeconds",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitState:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitState:da0c9d86",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "messageQueue",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.commitState:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.finalizeBatch:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.finalizeBatch:da0c9d86",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "messageQueue",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.importGenesisBatch:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.importGenesisBatch",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize2:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize2:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize3:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize3",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize3:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize3",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize4:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize4:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize4:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize:40259e32",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_initialized",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize:987cea5e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_initializing",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.initialize:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.owner:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.owner",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.paused:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.paused",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.proveCommittedBatchState:02c01cba",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.proveCommittedBatchState",
+      "src": null,
+      "via": {
+        "carrier": "verifier",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.proveState:02c01cba",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "verifier",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.proveState:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.proveState:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.proveState:cfb85d92",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "proofRewardPercent",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.proveState:e6338d29",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "submitterContract",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.removeChallenger:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.removeChallenger",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.renounceOwnership:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.renounceOwnership",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.revertBatch:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.setPause:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.setPause:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.transferOwnership:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.transferOwnership",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateFinalizePeriodSeconds:1f7af9a9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateFinalizePeriodSeconds",
+      "src": null,
+      "via": {
+        "carrier": "finalizationPeriodSeconds",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateFinalizePeriodSeconds:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateFinalizePeriodSeconds",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateProofWindow:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateProofWindow",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateProofWindow:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateProofWindow",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateRewardPercentage:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateRewardPercentage",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateRewardPercentage:cfb85d92",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateRewardPercentage",
+      "src": null,
+      "via": {
+        "carrier": "proofRewardPercent",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateRollupDelayPeriod:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateRollupDelayPeriod",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateVerifier:02c01cba",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateVerifier",
+      "src": null,
+      "via": {
+        "carrier": "verifier",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.initialize:TRANS.updateVerifier:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.initialize",
+      "q": "TRANS.updateVerifier",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.batchChallengedSuccess:8c2e5f06",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.batchChallengedSuccess",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess"
+        ],
+        "writes": [
+          "[*].challengeSuccess"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.batchInChallenge:04da5954",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.batchInChallenge",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].finished"
+        ],
+        "writes": [
+          "[*].finished"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.challengeState:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.challengeState:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.claimProveRemaining:6adc8697",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.claimProveRemaining",
+      "src": null,
+      "via": {
+        "carrier": "proveRemaining",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.claimReward:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.claimReward",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.commitBatch:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.commitBatch:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.commitBatchWithProof:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.commitBatchWithProof:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.commitState:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.commitState:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.finalizeBatch:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.finalizeBatch:be84d13c",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*].challengeSuccess",
+          "[*].finished"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.initialize4:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.initialize4:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.proveState:04da5954",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].finished"
+        ],
+        "writes": [
+          "[*].finished"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.proveState:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.proveState:6adc8697",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "proveRemaining",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.proveState:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.revertBatch:04da5954",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].finished"
+        ],
+        "writes": [
+          "[*].finished"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.revertBatch:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.revertBatch:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.setPause:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.proveState:TRANS.setPause:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.proveState",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.removeChallenger:TRANS.addChallenger:3f0e05c9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.removeChallenger",
+      "q": "TRANS.addChallenger",
+      "src": null,
+      "via": {
+        "carrier": "isChallenger",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.removeChallenger:TRANS.challengeState:3f0e05c9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.removeChallenger",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "isChallenger",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.removeChallenger:TRANS.removeChallenger:3f0e05c9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.removeChallenger",
+      "q": "TRANS.removeChallenger",
+      "src": null,
+      "via": {
+        "carrier": "isChallenger",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.addChallenger:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.addChallenger",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.claimProveRemaining:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.claimProveRemaining",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.importGenesisBatch:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.importGenesisBatch",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.initialize:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.owner:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.owner",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.removeChallenger:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.removeChallenger",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.renounceOwnership:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.renounceOwnership",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.revertBatch:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.setPause:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.transferOwnership:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.transferOwnership",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.updateFinalizePeriodSeconds:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.updateFinalizePeriodSeconds",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.updateProofWindow:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.updateProofWindow",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.updateRewardPercentage:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.updateRewardPercentage",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.updateRollupDelayPeriod:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.updateRollupDelayPeriod",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.renounceOwnership:TRANS.updateVerifier:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.renounceOwnership",
+      "q": "TRANS.updateVerifier",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.batchChallengedSuccess:39ad5576",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.batchChallengedSuccess",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.batchExist:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.batchExist",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.batchInChallenge:9d63a744",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.batchInChallenge",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.challengeState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.challengeState:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.challengeState:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.challengeState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.challengeState:da2a753a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challenger"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.claimReward:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.claimReward",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatch:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatch:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatch:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatch:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatchWithProof:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatchWithProof:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatchWithProof:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatchWithProof:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitBatchWithProof:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitState:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitState:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitState:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.commitState:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.finalizeBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.finalizeBatch:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.finalizeBatch:a144fea1",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess",
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.initialize2:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.initialize2",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.initialize4:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.initialize4:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.initialize4:98d6198e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "lastCommittedBatchIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.proveCommittedBatchState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.proveCommittedBatchState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.proveState:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.proveState:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.proveState:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.proveState:b0fd28f2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger",
+          "[*].finished",
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.revertBatch:24d4c322",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "committedBatches",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.revertBatch:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.revertBatch:87d5987a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "revertReqIndex",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.revertBatch:c796fe16",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.setPause:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.setPause:47d07468",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.revertBatch:TRANS.setPause:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.revertBatch",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.batchChallengedSuccess:39ad5576",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.batchChallengedSuccess",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.batchInChallenge:9d63a744",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.batchInChallenge",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.challengeState:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.challengeState:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.challengeState:da2a753a",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challenger"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.claimReward:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.claimReward",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitBatch:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitBatch:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitBatch:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitBatchWithProof:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitBatchWithProof:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitBatchWithProof:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitState:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitState:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.commitState:e6de1685",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.finalizeBatch:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.finalizeBatch:a144fea1",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.finalizeBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeSuccess",
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.initialize4:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.initialize4",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.paused:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.paused",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.proveState:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.proveState:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.proveState:b0fd28f2",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger",
+          "[*].finished",
+          "[*].startTime"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.revertBatch:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.revertBatch:c796fe16",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger",
+          "[*].finished"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.setPause:155d7760",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "_paused",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.setPause:3ef73492",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "batchChallengeReward",
+        "reads": [
+          "[*]"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.setPause:47d07468",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "challenges",
+        "reads": [
+          "[*].challengeDeposit",
+          "[*].challenger"
+        ],
+        "writes": [
+          "[*]"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.setPause:TRANS.setPause:90799bbe",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.setPause",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "inChallenge",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.addChallenger:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.addChallenger",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.claimProveRemaining:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.claimProveRemaining",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.importGenesisBatch:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.importGenesisBatch",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.initialize:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.initialize",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.owner:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.owner",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.removeChallenger:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.removeChallenger",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.renounceOwnership:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.renounceOwnership",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.revertBatch:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.revertBatch",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.setPause:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.setPause",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.transferOwnership:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.transferOwnership",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.updateFinalizePeriodSeconds:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.updateFinalizePeriodSeconds",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.updateProofWindow:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.updateProofWindow",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.updateRewardPercentage:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.updateRewardPercentage",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.updateRollupDelayPeriod:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.updateRollupDelayPeriod",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.transferOwnership:TRANS.updateVerifier:bc3e0c47",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.transferOwnership",
+      "q": "TRANS.updateVerifier",
+      "src": null,
+      "via": {
+        "carrier": "_owner",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateFinalizePeriodSeconds:TRANS.commitBatch:1f7af9a9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateFinalizePeriodSeconds",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "finalizationPeriodSeconds",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateFinalizePeriodSeconds:TRANS.commitBatchWithProof:1f7af9a9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateFinalizePeriodSeconds",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "finalizationPeriodSeconds",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateFinalizePeriodSeconds:TRANS.commitState:1f7af9a9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateFinalizePeriodSeconds",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "finalizationPeriodSeconds",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateFinalizePeriodSeconds:TRANS.updateFinalizePeriodSeconds:1f7af9a9",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateFinalizePeriodSeconds",
+      "q": "TRANS.updateFinalizePeriodSeconds",
+      "src": null,
+      "via": {
+        "carrier": "finalizationPeriodSeconds",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateProofWindow:TRANS.challengeState:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateProofWindow",
+      "q": "TRANS.challengeState",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateProofWindow:TRANS.commitBatch:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateProofWindow",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateProofWindow:TRANS.commitBatchWithProof:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateProofWindow",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateProofWindow:TRANS.commitState:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateProofWindow",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateProofWindow:TRANS.proveState:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateProofWindow",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateProofWindow:TRANS.updateProofWindow:59876d8e",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateProofWindow",
+      "q": "TRANS.updateProofWindow",
+      "src": null,
+      "via": {
+        "carrier": "proofWindow",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateRewardPercentage:TRANS.proveState:cfb85d92",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateRewardPercentage",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "proofRewardPercent",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateRewardPercentage:TRANS.updateRewardPercentage:cfb85d92",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateRewardPercentage",
+      "q": "TRANS.updateRewardPercentage",
+      "src": null,
+      "via": {
+        "carrier": "proofRewardPercent",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateRollupDelayPeriod:TRANS.commitBatch:5366ed0f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateRollupDelayPeriod",
+      "q": "TRANS.commitBatch",
+      "src": null,
+      "via": {
+        "carrier": "rollupDelayPeriod",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateRollupDelayPeriod:TRANS.commitBatchWithProof:5366ed0f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateRollupDelayPeriod",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "rollupDelayPeriod",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateRollupDelayPeriod:TRANS.commitState:5366ed0f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateRollupDelayPeriod",
+      "q": "TRANS.commitState",
+      "src": null,
+      "via": {
+        "carrier": "rollupDelayPeriod",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateRollupDelayPeriod:TRANS.updateRollupDelayPeriod:5366ed0f",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateRollupDelayPeriod",
+      "q": "TRANS.updateRollupDelayPeriod",
+      "src": null,
+      "via": {
+        "carrier": "rollupDelayPeriod",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateVerifier:TRANS.commitBatchWithProof:02c01cba",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateVerifier",
+      "q": "TRANS.commitBatchWithProof",
+      "src": null,
+      "via": {
+        "carrier": "verifier",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateVerifier:TRANS.proveCommittedBatchState:02c01cba",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateVerifier",
+      "q": "TRANS.proveCommittedBatchState",
+      "src": null,
+      "via": {
+        "carrier": "verifier",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateVerifier:TRANS.proveState:02c01cba",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateVerifier",
+      "q": "TRANS.proveState",
+      "src": null,
+      "via": {
+        "carrier": "verifier",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
+    },
+    {
+      "id": "morph_rollup.extracted:E2:TRANS.updateVerifier:TRANS.updateVerifier:02c01cba",
+      "level": "E2",
+      "model": "morph_rollup.extracted",
+      "p": "TRANS.updateVerifier",
+      "q": "TRANS.updateVerifier",
+      "src": null,
+      "via": {
+        "carrier": "verifier",
+        "reads": [
+          "*"
+        ],
+        "writes": [
+          "*"
+        ]
+      }
     }
   ],
   "document": "evidence",
-  "evidence_sha256": "f0ba5b9817074d31d4eb2186b6afa675516087de4a8ee99777a86c5719e76c47",
+  "evidence_sha256": "23037a4cec6e328188ebff28b10f04465eaab34acd24c961bc41dd64a263cef5",
   "evidence_version": "holon-evidence/0.1",
   "inputs": [
     {

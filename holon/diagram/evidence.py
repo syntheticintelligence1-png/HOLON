@@ -38,8 +38,14 @@ over them (rule SORT-width), so the set covers them: one model each, keyed by th
 TRANS.<action> (actions, trans), and every storage family (a name two contracts declare is "<declared_in>.<name>")
 is a carrier whose writers are the actions with a write to it and whose readers are the actions with a
 ["storage", family] term; the other anchors are empty. E1-E6 are defined over the diagrams of facts 0.1 and 0.2
-(holon.diagram.build has no 0.3 adapter), so such a model contributes no atoms: a law over it that names an edge has
-no evidence (levels []), and its triage is the computed default.
+(holon.diagram.build has no 0.3 adapter). Since I72 (rules Z1-Z4 of tests_m3/test_e2_transitions.py) such a model has
+E2 atoms read from the document's own terms (holon.diagram.transitions, whose docstring states the rule: write records,
+map and member selections over the families' states, threading positions that are no reads, overlap separated only by
+member names and literal keys), when a target milestone's build covers it from the committed diagrams (milestone
+M<k>, diagrams None): transitions_atoms gives them, ids, p, q and via as E2 over a diagram gives them, src null, and a
+construct the rule does not map is an EvidenceError. E1 and E3-E6 stay uncomputed over these documents. A build for a
+test milestone, given its own diagrams, for no milestone or with adopted off gives such a model no atom, so a law over
+it then has no evidence (levels []), and its triage is the computed default.
 
 Window views (I66, rule V5 of tests_m3/test_view_evidence.py). A build that reads the committed diagrams (diagrams
 None) for a target milestone (M<k>) also models every window view of gen_milestone(M) (holon.diagram.window_views:
@@ -71,6 +77,7 @@ from ..gen.targetlib import Library, LibError, lib_files
 from ..sorts import grammar as G
 from ..sorts.flow import span
 from . import access as A
+from . import transitions as TR
 from .build import ROOT, Machine
 from .model import DiagramError
 
@@ -714,6 +721,18 @@ def transitions_anchors(doc: dict) -> dict:
             "migrations": {}, "consumers": {}, "carriers": carriers, "trans": sorted(actions.values()), "sites": {}}
 
 
+def transitions_atoms(model: str, doc: dict) -> list[dict]:
+    """The E2 atoms of an adopted transitions document's model (module docstring, "Adopted transitions documents";
+    holon.diagram.transitions), sorted by id; EvidenceError on a construct the rule does not map."""
+    try:
+        pairs = TR.e2_pairs(doc)
+    except TR.TransitionsError as e:
+        raise EvidenceError(f"{model}: a construct the E2 rule over transitions documents does not map ({e})") from e
+    atoms = [_atom(model, "E2", f"TRANS.{p}", f"TRANS.{q}", {"carrier": f, "writes": ws, "reads": rs}, None)
+             for p, q, f, ws, rs in pairs]
+    return sorted(atoms, key=lambda a: a["id"])
+
+
 def adopted_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, bytes, dict]]:
     """(path, bytes, document) of every transitions document spec/<gm>/lib/derive_extracted.json adopts (I20)."""
     side = root / "spec" / gm / "lib" / "derive_extracted.json"
@@ -897,6 +916,8 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
         models[key] = {"facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(), "facts_version": FACTS03,
                        "diagram": None, "anchors": an}
+        if diagrams is None and re.fullmatch(r"M\d+", milestone or ""):   # I72: E2 over the document (rule Z4)
+            atoms += transitions_atoms(key, d)
     # I28: the milestone's versioned document, no diagram, anchors only (versioned_documents)
     for rel, raw, d, an in (versioned_documents(gm, root, inp) if adopted and milestone is not None else []):
         key = Path(rel).name[:-len(".json")]
