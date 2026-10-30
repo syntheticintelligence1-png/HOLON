@@ -95,16 +95,25 @@ CANCEL_CATALOG_VERSION = "holon-rules/1.7"
 CATALOGS[CANCEL_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[INIT_CHAIN_CATALOG_VERSION].items()}}
 CATALOGS[CANCEL_CATALOG_VERSION]["UNDO"] = {**CATALOGS[INIT_CHAIN_CATALOG_VERSION]["UNDO"],
                                             _undo.CANCEL_SUBFORM: _undo.CANCEL}
+#   holon-rules/1.8  I35's: the rules of holon-rules/1.7 unchanged (the same producer objects), plus rule OWN
+#                    (holon.rules.own: sub-forms alias and lost_write over the OWN carrier documents gen/<M>/own/*.json,
+#                    rules W4, W5 and W8 of tests_m3/test_own.py), derived in a part of its own (_own_part); M3 and later.
+#                    A typed test milestone keeps holon-rules/1.2.
+from . import own as _own  # noqa: E402
+OWN_CATALOG_VERSION = "holon-rules/1.8"
+CATALOGS[OWN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[CANCEL_CATALOG_VERSION].items()},
+                                 _own.RULE: dict(_own.PRODUCERS)}
 
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.7 for the typed target milestones (M3 and
-    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain and I71's UNDO/cancel); holon-rules/1.2 for the
+    """The rule-catalog version a milestone derives with: holon-rules/1.8 for the typed target milestones (M3 and
+    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel and I35's OWN); holon-rules/1.2
+    for the
     typed test milestones (T<n> with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every
     other test milestone. A test milestone's catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return CANCEL_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return OWN_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
