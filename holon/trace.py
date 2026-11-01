@@ -5,12 +5,13 @@ A trace is recorded for every law whose record a `holon run` writes (results/<M>
 process had read up to that write: an over-approximation of the law's own inputs (laws decided earlier in the same
 process add theirs), which is sound and needs no change in any runner. It lives beside the record, in
 results/<M>/traces/<law>.json, and is applied with it from the CI run that made both. It carries:
-  reads      every file of the repository the process opened for reading (Python opens, through an audit hook),
-             with its sha256 at the moment it was read; the law's own record and every file the process wrote
-             before reading it are outputs, not inputs
+  reads      every file of the repository the process opened for reading (Python opens, through an audit hook);
+             other laws' records apart (records), which a check counts only on request
+  outputs    every path the process wrote, deleted or renamed, and every directory it wrote into, are outputs: no
+             entry of the trace; the trace is evaluated at the end of the run, the state committed with its records
   listings   every directory it listed (os.listdir, os.scandir, glob), keyed by its sorted names
   stats      every path whose existence or kind it asked about (os.stat and os.lstat, which os.path and pathlib use),
-             with the answer
+             with the answer (none for a path whose directory listing is recorded)
   subprocs   every subprocess: its argv, the content of each argument that is a file (with the import closure of a
              .bend argument), the bytes it was given on stdin, and its binary's sha256
   code       every module of holon/ loaded in the process, by sha256
@@ -35,7 +36,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-VERSION = 1
+VERSION = 2
 RECORD = re.compile(r"results/(M\d+|T\d+)/(L_[^/]+)\.json")
 SKIP = re.compile(r"(^|/)(__pycache__|\.git)(/|$)|\.pyc$|^results/[^/]+/traces/")
 
@@ -62,7 +63,7 @@ def bend_closure(p: Path, root: Path, seen: dict) -> None:
         return
     if rel in seen:
         return
-    seen[rel] = file_sha(p)
+    seen[rel] = h(p)
     try:
         text = p.read_text(encoding="utf-8")
     except OSError:
@@ -78,16 +79,22 @@ def bend_closure(p: Path, root: Path, seen: dict) -> None:
 
 
 class Tracer:
+    """Records which paths a process touched; their content is read when the trace is written, at the end of the run
+    (the end state is what the run committed beside its records, and what a later check compares with). Every path
+    the process wrote, deleted or renamed is an output, and so is every directory it wrote into: neither is an input
+    of the trace."""
+
     def __init__(self, root: Path, argv: list[str]):
         self.root = root.resolve()
         self.argv = list(argv)
-        self.reads: dict[str, str | None] = {}
-        self.listings: dict[str, str] = {}
-        self.stats: dict[str, str] = {}
-        self.subprocs: list[dict] = []
+        self.reads: dict[str, None] = {}
+        self.lists: dict[str, None] = {}
+        self.stats: dict[str, None] = {}
+        self.procs: dict[str, dict] = {}
         self.written: set[str] = set()
+        self.cleared: set[str] = set()        # directories removed whole (shutil.rmtree, os.rmdir)
         self.network = False
-        self.snaps: dict[str, dict] = {}      # law -> its trace at its record's last write
+        self.records: dict[str, str] = {}     # law -> the path of its record, written by this process
         self.busy = False
         self.bins: dict[str, str | None] = {}
 
@@ -115,81 +122,126 @@ class Tracer:
         wr = (isinstance(mode, str) and any(c in mode for c in "wax+")) or \
             (isinstance(flags, int) and flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_APPEND | os.O_TRUNC))
         if wr:
-            self.written.add(r)
-            m = RECORD.fullmatch(r)
-            if m:
-                self.snaps[m.group(2)] = {"milestone": m.group(1), "path": r}
-            return
-        if r in self.written or r in self.reads:
-            return
-        p = self.root / r
-        if p.is_file():
-            self.reads[r] = file_sha(p)
+            self.wrote(r)
+        else:
+            self.reads.setdefault(r, None)
+
+    def wrote(self, r: str) -> None:
+        self.written.add(r)
+        m = RECORD.fullmatch(r)
+        if m:
+            self.records[m.group(2)] = r
+
+    def on_remove(self, path, whole_dir: bool = False) -> None:
+        r = self.rel(path)
+        if r is not None:
+            (self.cleared if whole_dir else self.written).add(r)
 
     def on_list(self, path) -> None:
         r = self.rel(path if path not in (None, b"", "") else ".")
-        if r is None or r in self.listings or r in self.written:
-            return
-        try:
-            names = sorted(os.listdir(self.root / r))
-        except OSError:
-            names = None
-        self.listings[r] = sha(json.dumps(names).encode())
+        if r is not None:
+            self.lists.setdefault(r, None)
 
     def on_stat(self, path) -> None:
         r = self.rel(path)
-        if r is None or r in self.stats or r in self.written:
-            return
-        p = self.root / r
-        self.stats[r] = "file" if p.is_file() else ("dir" if p.is_dir() else ("absent" if not p.exists() else "other"))
+        if r is not None:
+            self.stats.setdefault(r, None)
 
     def on_proc(self, argv, cwd, stdin: bytes | None) -> None:
         if isinstance(argv, (str, bytes)):
             argv = [argv]
         argv = [os.fsdecode(x) if isinstance(x, (bytes, os.PathLike)) else str(x) for x in argv]
-        base = Path(cwd) if cwd else Path(os.getcwd())
-        files: dict[str, str | None] = {}
-        for x in argv[1:]:
-            q = Path(x) if Path(x).is_absolute() else base / x
-            if q.is_file():
-                if q.suffix == ".bend":
-                    bend_closure(q, self.root, files)
-                else:
-                    r = self.rel(q)
-                    if r is not None:
-                        files[r] = file_sha(q)
-        exe = argv[0] if argv else ""
-        if exe not in self.bins:
-            w = shutil.which(exe) if exe else None
-            self.bins[exe] = file_sha(Path(w)) if w else None
-        self.subprocs.append({"argv": [self.rel(x) or x if "/" in x else x for x in argv], "files": files,
-                              "stdin": sha(stdin) if stdin else None, "binary": self.bins[exe]})
+        base = str(Path(cwd) if cwd else Path(os.getcwd()))
+        key = json.dumps([argv, base, sha(stdin)[:16] if stdin else None])
+        if key not in self.procs:
+            exe = argv[0] if argv else ""
+            if exe not in self.bins:
+                w = shutil.which(exe) if exe else None
+                self.bins[exe] = (file_sha(Path(w)) or "")[:16] if w else None
+            self.procs[key] = {"argv": argv, "cwd": base, "stdin": sha(stdin)[:16] if stdin else None,
+                               "binary": self.bins[exe]}
 
-    # ------------------------------------------------------------------ the trace of one law
-    def trace_of(self, law: str, record: str) -> dict:
+    # ------------------------------------------------------------------ the trace, at the end of the run
+    def output(self, r: str) -> bool:
+        if r in self.written:
+            return True
+        return any(r == d or r.startswith(d + "/") for d in self.cleared)
+
+    def out_dir(self, d: str) -> bool:
+        pre = "" if d in ("", ".") else d + "/"
+        return self.output(d) or any(w.startswith(pre) for w in self.written) or \
+            any(c.startswith(pre) for c in self.cleared)
+
+    def snapshot(self) -> dict:
+        root = self.root
+        reads = {r: h(root / r) for r in self.reads if not self.output(r) and not RECORD.fullmatch(r)}
+        recs = {r: h(root / r) for r in self.reads if RECORD.fullmatch(r) and not self.output(r)}
+        lists = {d: listing(root / d) for d in self.lists if not self.out_dir(d)}
+        listed = set(self.lists)
+        stats = {r: kind(root / r) for r in self.stats
+                 if r not in self.reads and not self.output(r) and not self.out_dir(str(Path(r).parent))
+                 and (str(Path(r).parent) if str(Path(r).parent) != "." else ".") not in listed}
+        procs = []
+        for sp in self.procs.values():
+            files: dict[str, str | None] = {}
+            for x in sp["argv"][1:]:
+                q = Path(x) if Path(x).is_absolute() else Path(sp["cwd"]) / x
+                if q.is_file():
+                    if q.suffix == ".bend":
+                        bend_closure(q, root, files)
+                    else:
+                        rq = self.rel(q)
+                        if rq is not None:
+                            files[rq] = h(q)
+            files = {k: v for k, v in files.items() if not self.output(k)}
+            procs.append({"argv": [self.rel(x) or x if "/" in x else x for x in sp["argv"]], "files": files,
+                          "stdin": sp["stdin"], "binary": sp["binary"]})
         code = {}
         for mod in list(sys.modules.values()):
             f = getattr(mod, "__file__", None)
             r = self.rel(f) if f else None
             if r and r.startswith("holon/") and r.endswith(".py"):
-                code[r] = file_sha(self.root / r)
-        return {"version": VERSION, "law": law, "record": record, "reads": dict(sorted(
-                    (k, v) for k, v in self.reads.items() if k != record)),
-                "listings": dict(sorted(self.listings.items())), "stats": dict(sorted(self.stats.items())),
-                "subprocs": self.subprocs, "code": dict(sorted(code.items())), "env": env_of(self.root, self.argv),
-                "network": self.network, "run_id": os.environ.get("GITHUB_RUN_ID")}
+                code[r] = h(root / r)
+        return {"reads": dict(sorted(reads.items())), "records": dict(sorted(recs.items())),
+                "listings": dict(sorted(lists.items())), "stats": dict(sorted(stats.items())),
+                "subprocs": sorted(procs, key=lambda x: json.dumps(x, sort_keys=True)), "code": dict(sorted(code.items())),
+                "env": env_of(root, self.argv), "network": self.network}
 
     def flush(self) -> int:
+        if not self.records:
+            return 0
+        snap = self.snapshot()
         n = 0
-        for law, s in sorted(self.snaps.items()):
-            rec = self.root / s["path"]
-            if not rec.is_file():
+        for law, rec in sorted(self.records.items()):
+            if not (self.root / rec).is_file():
                 continue
-            out = self.root / "results" / s["milestone"] / "traces" / f"{law}.json"
+            out = self.root / rec.rsplit("/", 1)[0] / "traces" / f"{law}.json"
             out.parent.mkdir(parents=True, exist_ok=True)
-            out.write_text(json.dumps(self.trace_of(law, s["path"]), indent=1, sort_keys=True) + "\n", encoding="utf-8")
+            body = dict(snap, records={k: v for k, v in snap["records"].items() if k != rec})
+            out.write_text(json.dumps({"version": VERSION, "law": law, "record": rec, "run_id":
+                                       os.environ.get("GITHUB_RUN_ID"), **body}, indent=1, sort_keys=True) + "\n",
+                           encoding="utf-8")
             n += 1
         return n
+
+
+def h(p: Path) -> str | None:
+    """A file's identity in a trace: the first 64 bits of its sha256 (change detection; claims are re-checked by the
+    gate, so the hash is never what makes a result true)."""
+    v = file_sha(p)
+    return v[:16] if v else None
+
+
+def listing(p: Path) -> str:
+    try:
+        names = sorted(os.listdir(p))
+    except OSError:
+        names = None
+    return sha(json.dumps(names).encode())[:16]
+
+
+def kind(p: Path) -> str:
+    return "file" if p.is_file() else ("dir" if p.is_dir() else ("absent" if not p.exists() else "other"))
 
 
 def env_of(root: Path, argv: list[str]) -> dict:
@@ -219,6 +271,13 @@ def _hook(event: str, args) -> None:
             pat = os.fsdecode(pat) if isinstance(pat, (bytes, os.PathLike)) else str(pat)
             head = pat.split("*")[0].split("?")[0].split("[")[0]
             t.on_list(os.path.dirname(head) or ".")
+        elif event in ("os.remove", "os.unlink"):
+            t.on_remove(args[0])
+        elif event == "os.rename":
+            t.on_remove(args[0])
+            t.on_remove(args[1])
+        elif event in ("shutil.rmtree", "os.rmdir"):
+            t.on_remove(args[0], whole_dir=True)
         elif event == "socket.connect":
             t.network = True
     finally:
@@ -280,34 +339,29 @@ def finish() -> int:
 
 
 # ------------------------------------------------------------------------------------------------ validity
-def check(root: Path, trace: dict) -> str | None:
-    """None when every entry of the trace still holds in the tree at root, else the first entry that does not."""
+def check(root: Path, trace: dict, records: bool = False) -> str | None:
+    """None when every entry of the trace still holds in the tree at root, else the first entry that does not. Other
+    laws' records the run read count only with records=True: a law's verdict is not computed from other laws'
+    records (runners read them for aggregates such as summary.json), the gate re-checks every reused PROVED and
+    REFUTED, and a milestone exit re-makes every record."""
     if trace.get("version") != VERSION:
         return "trace version"
     if trace.get("network"):
         return "the run read the network"
-    for r, h in (trace.get("reads") or {}).items():
-        if file_sha(root / r) != h:
-            return f"read {r} changed"
-    for r, h in (trace.get("listings") or {}).items():
-        try:
-            names = sorted(os.listdir(root / r))
-        except OSError:
-            names = None
-        if sha(json.dumps(names).encode()) != h:
+    for part in ("reads", "records", "code") if records else ("reads", "code"):
+        for r, v in (trace.get(part) or {}).items():
+            if h(root / r) != v:
+                return f"{part[:-1] if part != 'code' else 'code'} {r} changed"
+    for r, v in (trace.get("listings") or {}).items():
+        if listing(root / r) != v:
             return f"listing of {r or '.'} changed"
-    for r, kind in (trace.get("stats") or {}).items():
-        p = root / r
-        now = "file" if p.is_file() else ("dir" if p.is_dir() else ("absent" if not p.exists() else "other"))
-        if now != kind:
-            return f"{r} is now {now}, was {kind}"
+    for r, v in (trace.get("stats") or {}).items():
+        if kind(root / r) != v:
+            return f"{r} is now {kind(root / r)}, was {v}"
     for sp in trace.get("subprocs") or []:
-        for r, h in (sp.get("files") or {}).items():
-            if file_sha(root / r) != h:
+        for r, v in (sp.get("files") or {}).items():
+            if h(root / r) != v:
                 return f"subprocess input {r} changed"
-    for r, h in (trace.get("code") or {}).items():
-        if file_sha(root / r) != h:
-            return f"code {r} changed"
     env = trace.get("env") or {}
     now = env_of(root, env.get("argv") or [])
     for k in ("checker", "pins", "python"):
