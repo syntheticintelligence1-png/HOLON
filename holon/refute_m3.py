@@ -423,6 +423,13 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             from .versions.replay import side as versions_side
             vs = versions_side(root, key.rpartition("/")[0], key.rpartition("/")[2], rec.get("witness"))
             ss = {"solidity": vs} if vs else {}
+        nat = law.get("rule") == "NAT" and law.get("ir_version") == "holon-ir/0.3"
+        if not ss and nat:
+            # I29 (N9): a NAT record's side is its two runs of the NAT replay report (holon.rules.nat_replay)
+            from .rules.nat_replay import side as nat_side
+            vs = nat_side(root, key.rpartition("/")[0], key.rpartition("/")[2], rec.get("witness"))
+            ss = {"solidity": vs} if vs else {}
+        versioned = versioned or nat
         kind = kind_of(rec, law, ss)
         gen = ((rep.get("records") or {}).get(key) or {}).get("sides") or {}
         final_sides = {**ss, **gen}
@@ -457,8 +464,9 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
                             reason=f"a commit at version {v} from R0 (rule K3, the M0 commit-path rule): {r['reason']}")
                 path = r["path"] if r["verdict"] == "path" else None
         elif kind == "direct":
-            conc.update(result="path", length=(len((rec.get("witness") or {}).get("trace") or []) or None) if versioned
-                        else trace_length(rec),
+            conc.update(result="path", length=(len((rec.get("witness") or {}).get("trace") or [])
+                                               + len(((rec.get("witness") or {}).get("square") or {}).get("right") or [])
+                                               or None) if versioned else trace_length(rec),
                         reason=("the witness is a schedule of public calls; its emitted tests are its side"
                                 if gen else "the witness is a schedule of public calls (its replay is the record's side)"))
         else:
@@ -1094,8 +1102,9 @@ def _outcome(obs) -> str:
 def direct_items(root: Path) -> list[dict]:
     """Rule K4's emitted tests for the direct REFUTED records of M3 that have no I4 side: each schedule the record's
     rule replayed (replay/M3/<rule>/report.json: a SORT entry point's trace, a DISCH trace, an UNDO pair's runs with
-    and without x;y) as a Foundry test from its calldata, asserting the model's outcome at every step (the replay
-    report's model column, never the real one). Generic: the schedules are read from the reports' shapes."""
+    and without x;y, a cancel law's with x;y and with y alone) as a Foundry test from its calldata, asserting the
+    model's outcome at every step (the replay report's model column, never the real one). Generic: the schedules are
+    read from the reports' shapes."""
     from .gen.foundry import sanitize
     recs = records(root)
     sides = i4_sides(root)
@@ -1225,7 +1234,9 @@ def direct_side(items: list[dict], tests_out: dict) -> dict:
         pre, t_at = len(wo) - (len(w) - int(e["t_at"])), int(e["t_at"])
         dm = next((i for i in range(len(w) - t_at) if w[t_at + i] != wo[pre + i]), None)
         obs = passed and rule_ok and dm is not None and dm == e.get("diverges_at")
-        basis = (f"the two emitted runs (with and without x;y) diverge at t[{dm}] in the outcomes they assert"
+        # a cancel law's run without x keeps y (I71: the replay entry carries t_at_without)
+        runs = "with x;y and with y alone" if "t_at_without" in e else "with and without x;y"
+        basis = (f"the two emitted runs ({runs}) diverge at t[{dm}] in the outcomes they assert"
                  if dm is not None else "the runs diverge only in logs or calls, which the tests do not assert")
     return {"status": "passed" if passed else "failed", "provenance": "public_schedule", "obstruction_observed": obs,
             "test": items[0]["test"], "tests": [it["test"] for it in items],

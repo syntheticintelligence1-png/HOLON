@@ -13,8 +13,8 @@ tests_m3/test_undo.py, "Deciding", "Replay" and "Records").
      counter-law gen/<M>/proofs/<id>/witness/PROOF.bend is accepted only when bend2 and BendTT check it (the law file
      then states the counter-law);
   3. without an accepted counter-law, the law's proof generator (a pair without residue: the restore proof; a residue
-     or a pair with residues: index-relative noninterference); a law it does not decide stays UNKNOWN with what was
-     tried (holon.undo.proofs states what each generator needs);
+     or a pair with residues: index-relative noninterference; none for a cancel law, I71); a law it does not decide stays
+     UNKNOWN with what was tried (holon.undo.proofs states what each generator needs);
   4. every REFUTED law's two runs replayed on the real contract (the binding's step harness): replay/<M>/undo/
      report.json when the records are the milestone's own;
   5. the record results/<M>/<id>.json (v1 and v2, with the undo field and the nz premises), and
@@ -182,9 +182,16 @@ def real_runs(real: run3.Real, traces: list) -> list:
     return out
 
 
-def with_without(w: dict) -> tuple[list, list]:
+def with_without(w: dict, subform: str = "pair") -> tuple[list, list]:
+    """(the run with x, the run without it) of a witness: prefix + [x, y] + t, and prefix + t (a pair, a residue) or
+    prefix + [y] + t (a cancel law, I71: y alone)."""
     pre, t = list(w.get("prefix") or []), list(w.get("t") or [])
-    return pre + [w["x"], w["y"]] + t, pre + t
+    return pre + [w["x"], w["y"]] + t, pre + ([w["y"]] if subform == U.CANCEL_SUBFORM else []) + t
+
+
+def t_without(pre: int, subform: str) -> int:
+    """The index of t's first step in the run without x."""
+    return pre + (1 if subform == U.CANCEL_SUBFORM else 0)
 
 
 # ------------------------------------------------------------------------------------------------ deciding a law
@@ -222,13 +229,15 @@ class Decider:
         if real is not None:
             def accept(w):
                 try:
-                    w2, res = self.repair(real, tc, w)
+                    w2, res = self.repair(real, tc, w, el["subform"])
                 except Exception as e:  # noqa: BLE001: a witness the real side cannot run is no witness
                     return f"the real side cannot run it: {type(e).__name__}: {str(e)[:200]}"
                 pre = len(w.get("prefix") or [])
                 for i, st in ((pre, w["x"]), (pre + 1, w["y"])):
                     if res[0][0][i]["status"] != "ok":
                         return f"pair:{st.action}"
+                if el["subform"] == U.CANCEL_SUBFORM and res[1][0][pre]["status"] != "ok":   # y alone (I71)
+                    return f"pair:{w['y'].action}"
                 if self.model_value(el, tc, w2) is not False:
                     return "with the deployment's call answers the model finds undo true"
                 kept["w"] = w2
@@ -254,17 +263,21 @@ class Decider:
     def _search(self, s, el: dict, tc: TraceCtx) -> tuple[dict | None, str]:
         if el["subform"] == "pair":
             return s.pair(el)
+        if el["subform"] == U.CANCEL_SUBFORM:
+            return s.cancel(el)
         pls = {e["basis"]["a"]: e for e in tc.elements
                if e["subform"] == "pair" and e["basis"]["undo"] == el["basis"]["undo"]}
         return s.residue(el, pls)
 
-    def repair(self, real, tc: TraceCtx, w: dict) -> tuple[dict, list]:
+    def repair(self, real, tc: TraceCtx, w: dict, subform: str = "pair") -> tuple[dict, list]:
         """The witness's steps with every external call answered as the deployment answers it: both runs on the real
-        contract, each step's environment the calls its runs made, in order (a step of t runs in both)."""
-        wr, wo = with_without(w)
+        contract, each step's environment the calls its runs made, in order (a step of t runs in both; so does a cancel
+        law's y)."""
+        wr, wo = with_without(w, subform)
         res = real_runs(real, [self.steps_json(tc, wr), self.steps_json(tc, wo)])
         (_ow, cw), (_oo, co) = res
         pre = len(w.get("prefix") or [])
+        tw = t_without(pre, subform)
 
         def env_of(st, *lists):
             calls = []
@@ -279,12 +292,12 @@ class Decider:
         out = dict(w)
         out["prefix"] = [env_of(st, cw[i]) for i, st in enumerate(w.get("prefix") or [])]
         out["x"] = env_of(w["x"], cw[pre])
-        out["y"] = env_of(w["y"], cw[pre + 1])
-        out["t"] = [env_of(st, cw[pre + 2 + i], co[pre + i]) for i, st in enumerate(w["t"])]
+        out["y"] = env_of(w["y"], cw[pre + 1], *([co[pre]] if subform == U.CANCEL_SUBFORM else []))
+        out["t"] = [env_of(st, cw[pre + 2 + i], co[tw + i]) for i, st in enumerate(w["t"])]
         return out, res
 
     def args_of(self, el: dict, w: dict):
-        if el["subform"] == "pair":
+        if el["subform"] in ("pair", U.CANCEL_SUBFORM):
             return lambda m, g: [m.act(w["x"]), m.act(w["y"]), [m.act(s) for s in w["t"]]]
         return lambda m, g: [{"$w": "0x%064x" % int(w["k"])}, w["v"], [m.act(s) for s in w["t"]]]
 
@@ -292,7 +305,7 @@ class Decider:
         x = U.ghost_x(law["law_id"])
         kh, sh, val, states = US.settle_witness(tc.factory, w["prefix"], f"undo_{x}", self.args_of(el, w))
         m = tc.factory(empty=True, native=False)
-        if el["subform"] == "pair":
+        if el["subform"] in ("pair", U.CANCEL_SUBFORM):
             values = {"x": m.act(w["x"]), "y": m.act(w["y"]), "t": [m.act(s) for s in w["t"]]}
         else:
             values = {"k": int(w["k"]), "v": w["v"], "t": [m.act(s) for s in w["t"]]}
@@ -322,9 +335,12 @@ class Decider:
     # ---------------------------------------------------------- proofs
     def prove(self, el: dict) -> dict:
         """The law's proof generator (a pair without residue: the restore proof; a residue or a pair with residues:
-        index-relative noninterference), as an attempt record. Neither is generated over the typed M3 model: see
-        holon.undo.proofs.NO_PROOF for what each needs."""
-        gen = "restore" if (el["subform"] == "pair" and not el["basis"]["residues"]) else "noninterference"
+        index-relative noninterference; a cancel law: none), as an attempt record. None is generated over the typed M3
+        model: see holon.undo.proofs.NO_PROOF for what each needs."""
+        if el["subform"] == U.CANCEL_SUBFORM:
+            gen = U.CANCEL_SUBFORM
+        else:
+            gen = "restore" if (el["subform"] == "pair" and not el["basis"]["residues"]) else "noninterference"
         return {"kind": "proof", "generator": gen, "marker": None, "error": UP.NO_PROOF[gen]}
 
     # ---------------------------------------------------------- the law
@@ -364,7 +380,7 @@ class Decider:
         rec = self.record(law, e, el, tc, status, wj if status == "REFUTED" else None, attempts, lp, prim,
                           bound if status == "UNKNOWN" else None, diag, witness_kept=wj)
         if status == "REFUTED" and real is not None:
-            rep = replay_entry(self, tc, real, rec["witness"])
+            rep = replay_entry(self, tc, real, rec["witness"], el["subform"])
             rec["replay"] = {"status": rep["status"], "detail": f"diverges at t[{rep.get('diverges_at')}]; calls_agree "
                                                                  f"{rep['calls_agree']}"}
         elif status == "REFUTED":
@@ -436,28 +452,29 @@ class Decider:
 
 
 # ------------------------------------------------------------------------------------------------ the replay
-def replay_entry(dec: Decider, tc: TraceCtx, real, wj: dict) -> dict:
+def replay_entry(dec: Decider, tc: TraceCtx, real, wj: dict, subform: str = "pair") -> dict:
     """holon's replay of one REFUTED witness: both runs on the model (from Reach's initial state, the steps as the
-    witness states them) and on the real contract (the binding's deployment), step by step."""
+    witness states them) and on the real contract (the binding's deployment), step by step. A cancel law's entry (I71)
+    also carries t_at_without, where t starts in the run without x."""
     steps = {k: ([run3.step_of_json(s) for s in wj[k]] if isinstance(wj[k], list) else run3.step_of_json(wj[k]))
              for k in ("prefix", "x", "y", "t")}
     w = {"prefix": steps["prefix"], "x": steps["x"], "y": steps["y"], "t": steps["t"]}
-    wr, wo = with_without(w)
+    wr, wo = with_without(w, subform)
     m = tc.factory()
     o = US.Obs(m)
     model = []
     for run in (wr, wo):
         obs, _gs = o.run(m.s0(), [US.fresh_step(s) for s in run])
         model.append([{k: x[k] for k in ("status", "ret", "logs", "calls")} for x in obs])
-    jw, jo = with_without(wj)
+    jw, jo = with_without(wj, subform)
     res = real_runs(real, [jw, jo])
     (rw, cw), (ro, co) = res
     pre = len(wj.get("prefix") or [])
-    t_at = pre + 2
+    t_at, tw = pre + 2, t_without(pre, subform)
 
     def first_diff(a, b):
         for i in range(len(wj["t"])):
-            if a[t_at + i] != b[pre + i]:
+            if a[t_at + i] != b[tw + i]:
                 return i
         return None
     dm, dr = first_diff(model[0], model[1]), first_diff(rw, ro)
@@ -474,9 +491,12 @@ def replay_entry(dec: Decider, tc: TraceCtx, real, wj: dict) -> dict:
         return True
     calls_agree = agree(jw, cw) and agree(jo, co)
     ok = model[0] == rw and model[1] == ro and calls_agree and dm is not None and dm == dr
-    return {"with": {"trace": jw, "model": model[0], "real": rw}, "without": {"trace": jo, "model": model[1], "real": ro},
-            "t_at": t_at, "diverges_at": dr if dr is not None else dm, "calls_agree": calls_agree,
-            "status": "passed" if ok else "failed"}
+    out = {"with": {"trace": jw, "model": model[0], "real": rw}, "without": {"trace": jo, "model": model[1], "real": ro},
+           "t_at": t_at, "diverges_at": dr if dr is not None else dm, "calls_agree": calls_agree,
+           "status": "passed" if ok else "failed"}
+    if subform == U.CANCEL_SUBFORM:
+        out["t_at_without"] = tw
+    return out
 
 
 # ------------------------------------------------------------------------------------------------ the CLI
@@ -542,7 +562,8 @@ def replay_main(a) -> int:
             if real is None:
                 real = run3.Real(ctx.rc, json.loads((ctx.root / ctx.rc.derivation[lid]["facts"]).read_text()))
             tc = ctx.trace(ctx.rc.derivation[lid]["facts"])
-            report["laws"][lid] = replay_entry(Decider(ctx), tc, real, r["witness"])
+            report["laws"][lid] = replay_entry(Decider(ctx), tc, real, r["witness"],
+                                               ctx.rc.derivation[lid].get("subform") or "pair")
         rp = ctx.root / "replay" / ctx.m / "undo" / "report.json"
         rp.parent.mkdir(parents=True, exist_ok=True)
         rp.write_text(dumps(report), encoding="utf-8")

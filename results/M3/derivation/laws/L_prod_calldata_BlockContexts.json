@@ -1,0 +1,141 @@
+{
+ "artifacts": {
+  "law_name": null,
+  "laws": "laws/M3/derivation/L_prod_calldata_BlockContexts.json",
+  "model": "gen/M3/codec/header_length.json",
+  "proof": null
+ },
+ "attempts": [
+  {
+   "engine": "bend",
+   "reason": "no Bend model of the consumer: the consumer runs only on the evaluator-level interpreter of its SSA (holon.derivation.interp), so no counter-law or proof can be checked over it, and AGENTS rules 5 and 6 leave the law UNKNOWN until a Bend model of the consumer decides it",
+   "result": "not_run"
+  },
+  {
+   "candidates": 200,
+   "consumer": "holon.derivation.interp over the derivation document's consumer section, refined against the real code by results/M3/derivation/refinement.json",
+   "engine": "product-evaluator",
+   "evaluations": "results/M3/derivation/laws/evaluations.json",
+   "held": 6,
+   "observation": {
+    "lhs": [
+     1
+    ],
+    "rhs": [
+     2
+    ]
+   },
+   "replay": {
+    "report": "replay/M3/derivation/laws.json",
+    "status": "passed"
+   },
+   "result": "witness",
+   "witness": {
+    "candidate": 39,
+    "mutation": "calldata+calldata_last_number",
+    "n": 1,
+    "step": {
+     "k": 1,
+     "trace": "product/02"
+    }
+   }
+  }
+ ],
+ "bound": "200 candidates: every commit of the product traces of spec/M3/lib/derivation.json (W1), each with n in [1, 2] blocks and the mutations ['consistent', 'last_number', 'l1_count', 'trailing'], and the calldata pairs [['calldata', 'calldata_last_number']]; the hypotheses' evaluator instances (W2)",
+ "checker": {
+  "exit_code": null,
+  "marker": "not_run"
+ },
+ "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+ "cone": [
+  "BatchHeaderBytes_L1MessagePopped",
+  "BatchHeaderBytes_LastBlockNumber"
+ ],
+ "coverage": {
+  "debt": 12,
+  "document": "spec/M2/facts/morph_rollup.extracted.json",
+  "unaccounted": 0
+ },
+ "difference": null,
+ "evidence_levels": null,
+ "evidence_override": null,
+ "evidence_triage": "none",
+ "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+ "filter_bin": null,
+ "generator_sha256": "cb615061270dadfd921e842e1979e96ee56d4030735765274999d935a365c059",
+ "independence_class": "none",
+ "kernel": {
+  "name": "bend",
+  "verdict": "not_run",
+  "version": "2.0.36"
+ },
+ "kernels": [
+  {
+   "name": "bend2",
+   "result": "not_run",
+   "role": "primary",
+   "version": "2.0.36"
+  }
+ ],
+ "law_id": "L_prod_calldata_BlockContexts",
+ "ledger_match": "exact",
+ "maps_to": [
+  {
+   "id": "O24"
+  },
+  {
+   "id": "F11",
+   "role": "f"
+  }
+ ],
+ "model_assumptions": [
+  "HypB",
+  "HypT"
+ ],
+ "model_sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492",
+ "non_vacuity": {
+  "bound": "premises hold at 6 of 200 candidates (evaluator level)",
+  "degenerate": null,
+  "law": null,
+  "parent_statement_hash": "sha256:1d1c6ec050a673adc76df9fdd8404cba54a3220e3ded219cafe3bb409b5a47d2",
+  "reachable": null,
+  "status": "unknown",
+  "witness": null
+ },
+ "premises": [
+  "is_commitBatch(x) == true",
+  "last_ok(step(x, s)) == true",
+  "blobs_match(x, p, cb, vh) == true",
+  "HypB(cb, pl)",
+  "HypT(et, dt)",
+  "input:version(x) == 0",
+  "txs_data(x, p, cb, pl | c1) == et(ts)",
+  "derive_ok(x, p, cb, pl, dt | c1) == true",
+  "txs_data(x, p, cb, pl | c2) == et(ts)",
+  "derive_ok(x, p, cb, pl, dt | c2) == true"
+ ],
+ "prover": "generator",
+ "record_version": "holon-record/0.2",
+ "refinement_refs": [],
+ "replay": {
+  "detail": "no kernel-checked witness; the evaluator witness's replay is its attempt's",
+  "status": "not_applicable"
+ },
+ "rule": "FACT",
+ "scope": "unbounded",
+ "scope_v2": {
+  "at_state": null,
+  "horizon": null,
+  "kind": "unbounded"
+ },
+ "statement": "∀ s: Reach, ∀ x: Act, ∀ p: List<Nat>, ∀ ts: List<Nat>, ∀ cb: Fn<Bytes,Blobs>, ∀ pl: Fn<Blobs,Payload>, ∀ vh: Fn<Blob,Word>, ∀ et: Fn<Txs,Bytes>, ∀ dt: Fn<Bytes,Txs>, ∀ c1: List<Nat>, ∀ c2: List<Nat>. is_commitBatch(x) == true ∧ last_ok(step(x, s)) == true ∧ blobs_match(x, p, cb, vh) == true ∧ HypB(cb, pl) ∧ HypT(et, dt) ∧ input:version(x) == 0 ∧ txs_data(x, p, cb, pl | c1) == et(ts) ∧ derive_ok(x, p, cb, pl, dt | c1) == true ∧ txs_data(x, p, cb, pl | c2) == et(ts) ∧ derive_ok(x, p, cb, pl, dt | c2) == true ⇒ derived_blocks(x, p, cb, pl, dt | c1) == derived_blocks(x, p, cb, pl, dt | c2)",
+ "statement_hash": "sha256:1d1c6ec050a673adc76df9fdd8404cba54a3220e3ded219cafe3bb409b5a47d2",
+ "statement_scope": {
+  "kind": "unbounded"
+ },
+ "status": "UNKNOWN",
+ "subform": "product_calldata",
+ "triage": "none",
+ "witness": null,
+ "witness_provenance": null
+}

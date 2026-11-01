@@ -1,4 +1,39 @@
 {
+  "cancellations": [
+    {
+      "a": "challengeState",
+      "class": "live",
+      "criteria": [
+        "cond"
+      ],
+      "residues": [
+        "batchChallenged",
+        "batchDataStore",
+        "challenges"
+      ],
+      "restores": [
+        {
+          "a_write": "writes[3]",
+          "cond": [
+            "&&",
+            [
+              "param",
+              "_status"
+            ],
+            [
+              "storage",
+              "inChallenge"
+            ]
+          ],
+          "family": "inChallenge",
+          "how": "cancel",
+          "pin": "guards[3]",
+          "undo_write": "writes[3]"
+        }
+      ],
+      "undo": "setPause"
+    }
+  ],
   "contract": "Rollup",
   "document": "undo",
   "facts": "spec/M2/facts/morph_rollup.extracted.json",
@@ -179,6 +214,7 @@
       "undo": "finalizeBatch"
     }
   ],
+  "rejected_cancellations": [],
   "residues": [
     {
       "class": "live",

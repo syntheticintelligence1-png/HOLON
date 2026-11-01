@@ -72,6 +72,8 @@
   python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
                                                         (the theory core and basis sufficiency by application:
                                                         gen/<M>/theory/; I42)
+  python -m holon nat analyze|replay [--check]          (rule NAT over the versioned machine: the basis, the
+                                                        claims module, the witnesses on the real code; I29)
   python -m holon versions extract|model|analyze|inhabit|replay [--check]   (versioned machines over the deployment
                                                         history, PAR-init and the in-flight inhabitants; I28)
   python -m holon types|termsize|model|run|replay --milestone M3 ...   (typed milestones, M3+ and T30+: I30's
@@ -128,6 +130,26 @@ def _untyped_laws(argv: list) -> bool:
     # rules UNDO (I27) and FACT (I26) are decided on the typed model too (holon.undo.run, holon.fact.run)
     return all(i in entries and not (entries[i].get("rule") == "SORT" and entries[i].get("subform") in typed_subforms)
                and entries[i].get("rule") not in ("UNDO", "FACT") for i in ids)
+
+
+def _product_laws(argv: list) -> bool:
+    """`holon run --milestone M --laws ID,..` naming only laws of the plan-stated product law set (I88: the law set
+    of holon.derivation.laws's sidecar, for its milestone): `holon derivation decide` re-makes their records."""
+    from pathlib import Path
+    m, laws = _arg(argv, "--milestone"), _arg(argv, "--laws")
+    ids = [x.strip() for x in (laws or "").split(",") if x.strip()]
+    if argv[:1] != ["run"] or not m or not ids:
+        return False
+    from .derivation import laws as LW
+    root = Path(_arg(argv, "--root") or Path(__file__).resolve().parents[1]).resolve()
+    try:
+        side = json.loads((root / LW.LAWS_SIDECAR).read_text())
+        d = root / side["law_set"]["laws"]
+        if side["law_set"]["milestone"] != m:
+            return False
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+    return all((d / f"{i}.json").is_file() for i in ids)
 
 
 def _disch_milestone(argv: list) -> bool:
@@ -222,6 +244,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["historical"]:  # likewise for holon.historical (fetch | replay, I59)
         from . import historical
         return historical.main(argv[1:])
+    if argv[:1] == ["nat"]:  # likewise for rule NAT over the versioned machine (I29: rules N1-N10)
+        from .rules import nat_run
+        return nat_run.main(argv[1:])
     if argv[:1] == ["versions"]:  # likewise for holon.versions (versioned machines, I28: rules V1-V9, PI1-PI6)
         from . import versions
         return versions.main(argv[1:])
@@ -291,6 +316,11 @@ def _main(argv: list) -> int:
     if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
         from .sorts import termsize
         return termsize.main(argv[1:])
+    if argv[:1] == ["run"] and _product_laws(argv):
+        # I88: the plan-stated product laws (laws/<M>/derivation/) are decided by holon derivation decide, which
+        # re-makes every record of the set; a run naming any other law, and a whole-milestone run, are unchanged
+        from . import derivation
+        return derivation.main(["decide"] + (["--root", _arg(argv, "--root")] if _arg(argv, "--root") else []))
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
@@ -305,6 +335,17 @@ def _main(argv: list) -> int:
             if others:
                 rc = _main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
             return max(rc, versions_run.main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(vids)]))
+    if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I29: the NAT laws a --laws list names are decided over the versioned machine (holon.rules.nat_run); the
+        # list's other laws go on as before
+        from .rules import nat_run
+        split = nat_run.ids_of(argv)
+        if split is not None:
+            nids, others = split
+            rc = 0
+            if others:
+                rc = _main(nat_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, nat_run.run_main(nat_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(nids)]))
     if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv):
         from .fact import run as fact_run
         if fact_run.has_fact_laws(argv):
