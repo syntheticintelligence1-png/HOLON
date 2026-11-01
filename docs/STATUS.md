@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 26 | 166 | 139 | 26 |
+| M3 | 27 | 169 | 142 | 26 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -48,6 +48,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I26 | M3 | FACT rule, attribution (O25) and F(m, c), decided on the extracted real code | `prompts/I26_fact.md` | 9 | 4 | 1 | `docs/iterations/I26.md` |
 | I27 | M3 | UNDO rule and static deadness, decided on the extracted real code | `prompts/I27_undo.md` | 11 | 5 | 1 | `docs/iterations/I27.md` |
 | I28 | M3 | I28 (the laws half; I63 = I28a holds the history half): versioned machines over the extracted deployment history (one e… | `prompts/I28_versions.md` | 6 | 2 | 1 | `docs/iterations/I28.md` |
+| I29 | M3 | I29: rule NAT over I28's versioned machine (catalog holon-rules/1.8): naturality squares across the deployed path's MIG… | `prompts/I29_nat.md` | 3 | 3 | 1 | none |
 | I30 | M3 | Sorts III: nominal types, hole-free coercions, generated ghost tags | `prompts/I30_typed_sorts.md` | 8 | 6 | 1 | `docs/iterations/I30.md` |
 | I31 | M3 | DISCH I: guard conjuncts, the enableable write closure over the extracted principal classes, blocking and external depe… | `prompts/I31_disch.md` | 12 | 3 | 1 | `docs/iterations/I31.md` |
 | I32 | M3 | DISCH II: discharge profiles in the §8.4 form, Pareto search, bounded dominance and classification (test milestone T32:… | `prompts/I32_disch_profile.md` | 5 | 2 | 1 | `docs/iterations/I32.md` |
