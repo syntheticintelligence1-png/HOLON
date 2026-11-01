@@ -2523,8 +2523,8 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
             else:
                 store_write(root, content)
             done.append(sha)
-        for side in ("old", "new"):   # G2's resolver (_closure_top): every file a model file imports is named too
-            files = {r: contents.get(s) for r, s in ((ext.get("models") or {}).get(side) or {}).items()}
+        for half in ("old", "new"):   # G2's resolver (_closure_top): every file a model file imports is named too
+            files = {r: contents.get(s) for r, s in ((ext.get("models") or {}).get(half) or {}).items()}
             if not files or any(v is None for v in files.values()):
                 continue   # a file that cannot be read is a problem above
             try:
@@ -2532,7 +2532,7 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
             except UnicodeDecodeError:
                 top, why = None, "a file is not UTF-8 text"
             if top is None:
-                probs.append(f"line {n}: the {side} model files are not one model: {why}")
+                probs.append(f"line {n}: the {half} model files are not one model: {why}")
     d = root / STORE
     for q in sorted(d.iterdir()) if d.is_dir() else []:
         if not (q.name.endswith(".gz") and q.name[:-3] in named):
