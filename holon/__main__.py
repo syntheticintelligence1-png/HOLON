@@ -84,7 +84,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+from pathlib import Path
 
 
 def _typed_milestone(argv: list) -> bool:
@@ -188,11 +190,45 @@ def _typed_run(argv: list) -> int | None:
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
-    rc = _main(argv)
-    if rc == 0 and argv[:1] == ["run"]:   # K5 (I64): the run's last step applies the milestone's intent contracts
-        from . import contracts
-        rc = contracts.after_run(argv)
-    return rc
+    if argv[:1] == ["run"]:
+        # pipeline v2 (B): with HOLON_TRACE=1 a run records what it read for each law it decides (holon.trace); with
+        # --reuse it first drops the laws whose record and trace still hold
+        from . import trace
+        if "--reuse" in argv:
+            argv = _reuse(argv)
+            if argv is None:
+                return 0
+        if os.environ.get("HOLON_TRACE") == "1":
+            trace.install(Path(__file__).resolve().parents[1], argv)
+        try:
+            rc = _main(argv)
+            if rc == 0:   # K5 (I64): the run's last step applies the milestone's intent contracts
+                from . import contracts
+                rc = contracts.after_run(argv)
+        finally:
+            n = trace.finish()
+            if n:
+                print(f"holon run: {n} decision traces written")
+        return rc
+    return _main(argv)
+
+
+def _reuse(argv: list) -> list | None:
+    """argv without --reuse and with --laws narrowed to the laws holon.trace cannot reuse; None when none is left."""
+    from . import trace
+    argv = [x for x in argv if x != "--reuse"]
+    if "--laws" not in argv or "--milestone" not in argv:
+        raise SystemExit("holon run --reuse needs --milestone and --laws (a run without --laws does more than decide "
+                         "laws)")
+    i, j = argv.index("--laws"), argv.index("--milestone")
+    laws = [x for x in argv[i + 1].split(",") if x]
+    left = trace.reusable(Path(__file__).resolve().parents[1], argv[j + 1], laws)
+    for lid in laws:
+        if lid not in left:
+            print(f"holon run: {lid} reused (its record and trace still hold)")
+    if not left:
+        return None
+    return argv[:i + 1] + [",".join(lid for lid in laws if lid in left)] + argv[i + 2:]
 
 
 def _main(argv: list) -> int:
@@ -283,6 +319,12 @@ def _main(argv: list) -> int:
     if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
         from . import profile
         return profile.main(argv[1:])
+    if argv[:1] == ["trace"]:  # likewise for holon.trace (pipeline v2: decision traces, checked against the tree)
+        from . import trace
+        return trace.main(argv[1:])
+    if argv[:1] == ["land"]:  # likewise for holon.land (pipeline v2: land a branch on the lead, resumable)
+        from . import land
+        return land.main(argv[1:])
     if argv[:1] == ["rank"]:  # likewise for holon.rank (Def 6.13's measures and §10.10's ranking, I81)
         from . import rank
         return rank.main(argv[1:])
