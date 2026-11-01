@@ -3,6 +3,13 @@
 The statement hash is the identity of a frozen claim (whitepaper §8.9, §9.4). Only
 ir_version, law_id, rule, facts_sha256 and statement are hashed; notes and evidence
 are metadata.
+
+statement_hash is the one implementation of that identity (PV2A): every other module resolves a law's refs and hands
+them in. A law's hash scheme is law.get("hash_scheme", 1), so every historical file hashes as scheme 1:
+  scheme 1  0.1/0.2 over HASHED_KEYS (docs/M0_SPEC.md §3); 0.3 over HASHED_KEYS_03 plus refs; the DISCH-profile IR of a
+            test milestone (holon.rules.disch_profile) over its statement alone.
+  scheme 2  0.3 only: over HASHED_KEYS_03_S2 (HASHED_KEYS_03 without rule_catalog_version) plus refs, so a rule-catalog
+            bump moves no statement hash; rule_catalog_version stays in the law file as an audit trail.
 """
 from __future__ import annotations
 
@@ -17,6 +24,14 @@ HASHED_KEYS = ("ir_version", "law_id", "rule", "facts_sha256", "statement")
 # holon-ir/0.3 (I7): the statement and the content hashes of the definitions it names, never a whole
 # facts bundle, so an extraction change outside a law's refs leaves its hash unchanged
 HASHED_KEYS_03 = ("ir_version", "law_id", "rule", "rule_catalog_version", "statement")
+# hash scheme 2 (PV2A): the 0.3 keys without rule_catalog_version, so a catalog bump adds only its own laws
+HASHED_KEYS_03_S2 = ("ir_version", "law_id", "rule", "statement")
+HASH_SCHEMES = (1, 2)
+# a test milestone's DISCH profile laws (holon.rules.disch_profile): the statement hash is its statement's sha256
+DISCH_PROFILE_IR = "holon-disch-profile/0.1"
+# a milestone's hash scheme declaration (PV2A): spec/<M>/hash_scheme.json, written by `python -m holon.statement_diff
+# migrate-hash --apply`; the generators stamp hash_scheme on every 0.3 law of a milestone that declares scheme 2
+HASH_SCHEME_FILE = "hash_scheme.json"
 # law files, and the result records named after them: L_* (0.1, 0.2) and, from 0.3, L3_*, L8_* etc.
 # (the 0.3 schema's law_id pattern ^L[0-9]?_). Every glob over laws/<m>/ or results/<m>/ uses this one.
 LAW_GLOB = "L*.json"
@@ -33,16 +48,59 @@ def canonical_json(obj) -> bytes:
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
-def statement_hash(law: dict, refs: dict | None = None) -> str:
-    """The identity of a frozen claim. 0.1/0.2: over HASHED_KEYS. 0.3: over HASHED_KEYS_03 plus
-    `refs`, which maps each definition the statement names to the content hash of its source
-    (holon.gen.refs)."""
-    if law.get("ir_version") == "holon-ir/0.3":
-        core = {k: law[k] for k in HASHED_KEYS_03}
-        core["refs"] = dict(sorted((refs or {}).items()))
+def hash_scheme(law: dict) -> int:
+    """The law's statement-hash scheme: law["hash_scheme"], 1 when absent (every file written before PV2A). Scheme 2
+    exists for holon-ir/0.3 only; anything else raises IRError."""
+    s = law.get("hash_scheme", 1)
+    if isinstance(s, bool) or s not in HASH_SCHEMES:
+        raise IRError(f"{law.get('law_id')}: hash_scheme {s!r} is not one of {list(HASH_SCHEMES)}")
+    if s != 1 and law.get("ir_version") != "holon-ir/0.3":
+        raise IRError(f"{law.get('law_id')}: hash_scheme {s} is defined for holon-ir/0.3 laws only")
+    return s
+
+
+def statement_hash(law: dict, refs=None) -> str:
+    """The identity of a frozen claim, the one implementation (the schemes: see the module docstring). `refs` maps each
+    definition a 0.3 statement names to the content hash of its source (holon.gen.refs): a dict, or a callable
+    law -> dict that resolves them, called only when the law's hash covers refs (holon-ir/0.3)."""
+    irv, scheme = law.get("ir_version"), hash_scheme(law)
+    if irv == DISCH_PROFILE_IR:
+        core = law["statement"]
+    elif irv == "holon-ir/0.3":
+        core = {k: law[k] for k in (HASHED_KEYS_03 if scheme == 1 else HASHED_KEYS_03_S2)}
+        r = refs(law) if callable(refs) else refs
+        core["refs"] = dict(sorted((r or {}).items()))
     else:
         core = {k: law[k] for k in HASHED_KEYS}
     return "sha256:" + hashlib.sha256(canonical_json(core)).hexdigest()
+
+
+def with_hash_scheme(law: dict, scheme: int) -> dict:
+    """The law under hash scheme `scheme`: scheme 2 gives a holon-ir/0.3 law "hash_scheme": 2 (placed after
+    rule_catalog_version); scheme 1 leaves every law as it is (a scheme-1 law carries no hash_scheme key)."""
+    if scheme == 1 or law.get("ir_version") != "holon-ir/0.3":
+        return law
+    out = {}
+    for k, v in law.items():
+        if k != "hash_scheme":
+            out[k] = v
+        if k == "rule_catalog_version":
+            out["hash_scheme"] = scheme
+    out.setdefault("hash_scheme", scheme)
+    hash_scheme(out)
+    return out
+
+
+def milestone_hash_scheme(milestone: str, root: Path | str | None = None) -> int:
+    """The hash scheme a milestone's 0.3 laws are generated under: spec/<M>/hash_scheme.json's "hash_scheme" (the
+    migration writes it: holon.statement_diff migrate-hash), 1 without the file."""
+    p = Path(root or ROOT) / "spec" / str(milestone) / HASH_SCHEME_FILE
+    if not p.is_file():
+        return 1
+    s = json.loads(p.read_text(encoding="utf-8")).get("hash_scheme")
+    if isinstance(s, bool) or s not in HASH_SCHEMES:
+        raise IRError(f"{p}: hash_scheme {s!r} is not one of {list(HASH_SCHEMES)}")
+    return s
 
 
 def check_premises(law: dict) -> None:

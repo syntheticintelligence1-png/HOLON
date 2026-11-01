@@ -45,7 +45,22 @@ A frozen statement may change only through an entry that this module accepts:
                    ref. The statement-change tie (covers) also requires the entry's two hashes to be the registry
                    change's. It never covers a claim change, a binding change or a deletion. `python -m
                    holon.statement_diff recatalog --milestone M [--append]` builds the entries the milestone's
-                   uncovered registry changes need (catalog_rederivation_entries).
+                   uncovered registry changes need (catalog_rederivation_entries). A law under hash scheme 2
+                   (PV2A, below) takes no catalog_rederivation line: its hash does not cover the catalog version, so
+                   recatalog skips it and check_entry rejects such a line.
+  hash_migration   (PV2A) a law moved from statement-hash scheme 1 to scheme 2 (holon.ir: the 0.3 hash without
+                   rule_catalog_version). Accepted unsigned only when (_hash_migration): old and new are 0.3 IR of one
+                   law of the entry's milestone, old under scheme 1 and new under scheme 2, the two law files identical
+                   but for "hash_scheme" (the byte-identical statement), and the entry's old_hash and new_hash are
+                   holon.ir.statement_hash of old and of new with the refs recomputed on the tree (no Bend run). The
+                   statement-change tie also requires the entry's two hashes to be the registry change's. `python -m
+                   holon.statement_diff migrate-hash --milestone M [--apply]` (migrate_hash) moves M and every earlier
+                   milestone's 0.3 laws to scheme 2 and appends one line per law.
+
+Line ids (PV2A): every line appended from PV2A on carries "id", the sha256 of its canonical JSON without the id
+("sha256:<hex>"; line_id). G2 rejects a line whose id is not that, and a second line with an id already in the log
+(append refuses it too). References to a line (spec/bindings/changes.jsonl covered_by, a binding_change's statement-
+hash bridge) name its id; earlier references name a line number and stay valid.
 
 API:
   check_entry(entry, root) -> {"ok", "reason", "implication"}      implication: holon.gen.implication.prove
@@ -89,11 +104,14 @@ from pathlib import Path
 
 from . import ir
 
-KINDS = ("reextraction", "binding_change", "strengthening", "weakening", "cross_milestone", "catalog_rederivation")
+KINDS = ("reextraction", "binding_change", "strengthening", "weakening", "cross_milestone", "catalog_rederivation",
+         "hash_migration")
 KEY_SUFFIXES = (".asc", ".gpg", ".pub", ".key")
 LOG = Path("laws") / "STATEMENT_DIFF.jsonl"
 STATEMENT_KINDS = ("reextraction", "binding_change", "strengthening", "weakening",
-                   "catalog_rederivation")   # kinds that change one law
+                   "catalog_rederivation", "hash_migration")   # kinds that change one law
+HASH_KEY = "hash_scheme"   # the one IR key a hash_migration changes (PV2A)
+HASHED_KINDS = ("catalog_rederivation", "hash_migration")   # kinds the tie also matches by their two statement hashes
 CATALOG_KEY = "rule_catalog_version"   # the one IR key a catalog_rederivation may change
 # what identifies a statement (the hashed keys of every IR version, and the facts file it is about)
 _CORE = tuple(dict.fromkeys(ir.HASHED_KEYS + ir.HASHED_KEYS_03 + ("facts",)))
@@ -111,7 +129,17 @@ def _is_law(x) -> bool:
 
 
 def core(law: dict) -> bytes:
-    return ir.canonical_json({k: law.get(k) for k in _CORE})
+    """What identifies a statement, as canonical JSON: the hashed keys of every IR version and the facts file, and the
+    hash scheme when it is not 1 (PV2A; a scheme-1 law's core is what it was before hash schemes existed)."""
+    c = {k: law.get(k) for k in _CORE}
+    if law.get(HASH_KEY, 1) != 1:
+        c[HASH_KEY] = law.get(HASH_KEY)
+    return ir.canonical_json(c)
+
+
+def line_id(entry: dict) -> str:
+    """A line's id (PV2A): "sha256:" + the sha256 of the line's canonical JSON without its own "id"."""
+    return "sha256:" + hashlib.sha256(ir.canonical_json({k: v for k, v in entry.items() if k != "id"})).hexdigest()
 
 
 # ---------------------------------------------------------------- signatures (Q3)
@@ -237,12 +265,14 @@ def check_entry(entry: dict, root: Path | None = None) -> dict:
     old, new = entry.get("old"), entry.get("new")
     if not (_is_law(old) and _is_law(new)):
         return _res(False, "an entry carries the old and the new statement as law IR")
-    if kind in ("reextraction", "binding_change", "strengthening", "catalog_rederivation"):
+    if kind in ("reextraction", "binding_change", "strengthening", "catalog_rederivation", "hash_migration"):
         lid = entry.get("law_id", old["law_id"])
         if not old["law_id"] == new["law_id"] == lid:
             return _res(False, f"a {kind} changes one law: old, new and law_id must name the same law")
     if kind == "catalog_rederivation":
         return _catalog_rederivation(entry, old, new, root)
+    if kind == "hash_migration":
+        return _hash_migration(entry, old, new, root)
     if kind == "weakening":
         ok, why = verify_signature(entry, root)
         if not ok:
@@ -321,7 +351,9 @@ def reproduce_extraction(rel: str, root: Path) -> tuple[bool, str]:
     return _REPRO[key]
 
 
-def _derived(milestone: str, root: Path) -> dict:
+def _derived(milestone: str, root: Path, scheme: int | None = None) -> dict:
+    """holon.rules.compute on the tree, under hash scheme `scheme` (default: the milestone's declaration), reused within
+    a process while its reextraction inputs are unchanged."""
     from . import rules
     from .sorts import reextract
     fp = []
@@ -331,9 +363,11 @@ def _derived(milestone: str, root: Path) -> dict:
     for rel in sc.get("documents") or []:
         q = root / rel
         fp.append((rel, hashlib.sha256(q.read_bytes()).hexdigest() if q.is_file() else None))
-    key = (str(root.resolve()), milestone, json.dumps(fp))
+    if scheme is None:
+        scheme = ir.milestone_hash_scheme(milestone, root)
+    key = (str(root.resolve()), milestone, json.dumps(fp), scheme)
     if key not in _DERIVED:
-        _DERIVED[key] = rules.compute(milestone, root)
+        _DERIVED[key] = rules.compute(milestone, root, hash_scheme=scheme)
     return _DERIVED[key]
 
 
@@ -396,8 +430,8 @@ def _reextraction(entry: dict, old: dict, new: dict, root: Path) -> dict:
             return _res(False, f"ref {k}: its spec carries no evidence of {rel}")
     if (h_old, h_new) != (entry["old_hash"], entry["new_hash"]):
         return _res(False, "the entry's statement hashes are not the recomputed ones")
-    try:
-        der = _derived(entry["milestone"], root)
+    try:   # under the scheme of the line's statements (PV2A: a line appended before the migration is scheme 1)
+        der = _derived(entry["milestone"], root, ir.hash_scheme(new))
     except Exception as e:  # noqa: BLE001  (a derive that fails reproduces nothing)
         return _res(False, f"holon derive fails on the tree: {type(e).__name__}: {e}")
     law = der["laws"].get(new["law_id"])
@@ -470,16 +504,18 @@ def _inputs_fresh(listing: list, root: Path) -> bool:
     return True
 
 
-def derived_under(milestone: str, root: Path, catalog: str) -> dict:
-    """holon.rules.compute(milestone, root, catalog=catalog), reused within a process while every file it read is
-    unchanged."""
+def derived_under(milestone: str, root: Path, catalog: str, scheme: int | None = None) -> dict:
+    """holon.rules.compute(milestone, root, catalog=catalog, hash_scheme=scheme), reused within a process while every
+    file it read is unchanged. scheme: default the milestone's declaration (holon.ir.milestone_hash_scheme)."""
     from . import rules
     root = Path(root)
-    key = (str(root.resolve()), milestone, catalog)
+    if scheme is None:
+        scheme = ir.milestone_hash_scheme(milestone, root)
+    key = (str(root.resolve()), milestone, catalog, scheme)
     hit = _CATALOG_DERIVED.get(key)
     if hit is not None and _inputs_fresh(hit[0], root):
         return hit[1]
-    der = rules.compute(milestone, root, catalog=catalog)
+    der = rules.compute(milestone, root, catalog=catalog, hash_scheme=scheme)
     _CATALOG_DERIVED[key] = (der["derivation"].get("inputs") or [{"path": "<outside>/"}], der)
     return der
 
@@ -500,6 +536,9 @@ def _catalog_rederivation(entry: dict, old: dict, new: dict, root: Path) -> dict
     lid = new["law_id"]
     if not (old.get("ir_version") == new.get("ir_version") == "holon-ir/0.3"):
         return _res(False, "only a holon-ir/0.3 statement hash covers the rule catalog version: old and new must be 0.3")
+    if old.get(HASH_KEY, 1) != 1 or new.get(HASH_KEY, 1) != 1:
+        return _res(False, f"a hash scheme 2 statement hash does not cover {CATALOG_KEY} (PV2A): a scheme-2 law takes no "
+                           "catalog_rederivation line")
     if old.get("milestone") != m or new.get("milestone") != m:
         return _res(False, f"old and new must be laws of the entry's milestone {m!r}")
     if old.get(CATALOG_KEY) != oc or new.get(CATALOG_KEY) != nc:
@@ -525,8 +564,8 @@ def _catalog_rederivation(entry: dict, old: dict, new: dict, root: Path) -> dict
                            "re-derivation")
     sides = {}
     for tag, cv, law, h in (("old", oc, old, entry["old_hash"]), ("new", nc, new, entry["new_hash"])):
-        try:
-            der = derived_under(m, root, cv)
+        try:   # under scheme 1, the only scheme whose hash covers the catalog version (PV2A)
+            der = derived_under(m, root, cv, 1)
         except Exception as e:  # noqa: BLE001  (a derive that fails reproduces nothing)
             return _res(False, f"holon derive --milestone {m} under {cv} fails on the tree: {type(e).__name__}: {e}")
         got, de = der["laws"].get(lid), _derivation_entry(der, lid)
@@ -570,6 +609,11 @@ def catalog_rederivation_entries(milestone: str, root: Path) -> tuple[list[dict]
             notes.append(f"{lid} ({ch['at']}): {'deleted' if new is None else 'no law IR on one side'}: not a catalog "
                          "re-derivation")
             continue
+        if new.get(HASH_KEY, 1) != 1:   # PV2A: a scheme-2 hash does not cover the catalog version: no line, ever
+            notes.append(f"{lid} ({ch['at']}): a hash scheme 2 law takes no catalog_rederivation line"
+                         + (" (a scheme migration: holon.statement_diff migrate-hash)" if old.get(HASH_KEY, 1) == 1
+                            else ""))
+            continue
         if masked(old) != masked(new) or old.get(CATALOG_KEY) == new.get(CATALOG_KEY):
             notes.append(f"{lid} ({ch['at']}): the law files differ beyond {CATALOG_KEY}: not a catalog re-derivation")
             continue
@@ -579,7 +623,7 @@ def catalog_rederivation_entries(milestone: str, root: Path) -> tuple[list[dict]
         seen.add(key)
         nc = new[CATALOG_KEY]
         try:
-            de = _derivation_entry(derived_under(milestone, root, nc), lid) or {}
+            de = _derivation_entry(derived_under(milestone, root, nc, 1), lid) or {}
         except Exception as e:  # noqa: BLE001
             notes.append(f"{lid} ({ch['at']}): holon derive under {nc} fails: {type(e).__name__}: {e}")
             continue
@@ -592,6 +636,287 @@ def catalog_rederivation_entries(milestone: str, root: Path) -> tuple[list[dict]
                               f"catalog (registry change at {ch['at']}); the claim is unchanged: the statement hash "
                               "covers the catalog version"})
     return out, notes
+
+
+# ---------------------------------------------------------------- hash scheme 2 (PV2A)
+def unschemed(law: dict) -> bytes:
+    """A law file without the one key a hash_migration changes, as canonical JSON."""
+    return ir.canonical_json({k: v for k, v in law.items() if k != HASH_KEY})
+
+
+def _hash_migration(entry: dict, old: dict, new: dict, root: Path) -> dict:
+    """A hash_migration (see the module docstring) is accepted only when the two law files differ in hash_scheme alone,
+    1 -> 2, and both hashes recompute on the tree (holon.ir.statement_hash, refs as `holon run` resolves them)."""
+    from .gen import refs as R
+    for k in ("milestone", "old_hash", "new_hash"):
+        if k not in entry:
+            return _res(False, f"a hash_migration entry carries {k!r}")
+    m, lid = entry["milestone"], new["law_id"]
+    if not (old.get("ir_version") == new.get("ir_version") == "holon-ir/0.3"):
+        return _res(False, "only a holon-ir/0.3 law has hash scheme 2: old and new must be 0.3")
+    if old.get("milestone") != m or new.get("milestone") != m:
+        return _res(False, f"old and new must be laws of the entry's milestone {m!r}")
+    try:
+        schemes = (ir.hash_scheme(old), ir.hash_scheme(new))
+    except ir.IRError as e:
+        return _res(False, str(e))
+    if schemes != (1, 2):
+        return _res(False, f"a hash_migration moves a law from hash scheme 1 to 2 (old is {schemes[0]}, new {schemes[1]})")
+    if unschemed(old) != unschemed(new):
+        diff = sorted(k for k in (set(old) | set(new)) - {HASH_KEY}
+                      if ir.canonical_json(old.get(k)) != ir.canonical_json(new.get(k)))
+        return _res(False, f"the law files differ in {diff}, not only in {HASH_KEY}: a hash_migration keeps the statement "
+                           "byte-identical")
+    try:
+        h_old, h_new = R.tree_law_hash(old, root), R.tree_law_hash(new, root)
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        return _res(False, f"the statement hashes cannot be recomputed on the tree: {type(e).__name__}: {e}")
+    if (h_old, h_new) != (entry["old_hash"], entry["new_hash"]):
+        return _res(False, f"the entry's hashes are not the recomputed ones (scheme 1 {h_old}, scheme 2 {h_new})")
+    return _res(True, f"hash_migration: {lid}'s statement is byte-identical; its hash recomputed under scheme 1 "
+                      f"({h_old[:19]}..) and scheme 2 ({h_new[:19]}..), which drops {CATALOG_KEY}")
+
+
+def hash_migration_entry(old: dict, milestone: str, root: Path, why: str) -> dict:
+    """The hash_migration entry that moves law `old` (scheme 1) to scheme 2, its hashes recomputed on the tree."""
+    from .gen import refs as R
+    new = ir.with_hash_scheme(old, 2)
+    return {"kind": "hash_migration", "law_id": old["law_id"], "milestone": milestone,
+            "old_hash": R.tree_law_hash(old, root), "new_hash": R.tree_law_hash(new, root), "old": old, "new": new,
+            "reason": f"{old['law_id']} moved to statement-hash scheme 2 (holon.ir, PV2A: the 0.3 hash without "
+                      f"{CATALOG_KEY}, so a catalog bump moves no hash) {why}; the statement is byte-identical"}
+
+
+def hash_migration_entries(milestone: str, root: Path) -> tuple[list[dict], list[str]]:
+    """(entries, notes): one hash_migration entry for every statement-hash change of laws/<M>/REGISTRY.json
+    (registry_changes: every commit since the log was introduced, and the working tree) that no accepted entry covers
+    and whose old and new law files differ only in hash_scheme 1 -> 2, with the registry's two hashes (so a merge that
+    brings a law to scheme 2 against a scheme-1 parent gets its line too). Nothing is appended here."""
+    root = Path(root)
+    rc = registry_changes(milestone, root)
+    if not rc["git"]:
+        return [], [rc["note"]]
+    cands = [ch for ch in rc["changes"] if _is_law(ch.get("old")) and _is_law(ch.get("new"))
+             and ch["old"].get(HASH_KEY, 1) == 1 and ch["new"].get(HASH_KEY, 1) == 2
+             and unschemed(ch["old"]) == unschemed(ch["new"])]   # every other change is another kind's
+    # only a hash_migration line names a scheme migration's two hashes: the other kinds' lines (and their proofs) are
+    # not re-checked here
+    ok = [x["entry"] for x in scan(root / LOG, root, kinds=("hash_migration",))["entries"] if x.get("ok")] if cands \
+        else []
+    out, notes, seen = [], [], set()
+    for ch in cands:
+        lid = ch["law_id"]
+        if any(covers(e, ch) for e in ok):
+            continue
+        key = (lid, ch["old_hash"], ch["new_hash"])
+        if key in seen:
+            continue
+        seen.add(key)
+        e = hash_migration_entry(ch["old"], milestone, root, f"(registry change at {ch['at']})")
+        if (e["old_hash"], e["new_hash"]) != (ch["old_hash"], ch["new_hash"]):
+            notes.append(f"{lid} ({ch['at']}): the registry's hashes are not the recomputed ones: not a hash migration")
+            continue
+        out.append(e)
+    return out, notes
+
+
+def _law_sets(milestone: str, root: Path) -> list[tuple[str, dict, object]]:
+    """The milestone's law sets, each with its registry and the generator that writes it: (laws dir, registry,
+    regenerate) for laws/<M> (holon derive) and, when the plan-stated product laws are the milestone's, their own
+    directory (holon derivation laws)."""
+    out = [(f"laws/{milestone}", None, "derive")]
+    from .derivation import laws as DL
+    if (root / DL.LAWS_SIDECAR).is_file():
+        side = DL.side_of(root, DL.LAWS_SIDECAR)
+        if side["law_set"]["milestone"] == milestone:
+            out.append((side["law_set"]["laws"], side, "derivation"))
+    return out
+
+
+def _milestones_through(milestone: str, root: Path) -> list[str]:
+    """M and every earlier target milestone (M<k>, k < n) that holds a holon-ir/0.3 law, in order."""
+    import re
+    mm = re.fullmatch(r"M(\d+)", milestone or "")
+    if not mm:
+        raise ValueError(f"migrate-hash takes a target milestone M<n>, not {milestone!r}")
+    out = []
+    for k in range(int(mm.group(1)) + 1):
+        m = f"M{k}"
+        d = root / "laws" / m
+        if d.is_dir() and any(json.loads(f.read_text()).get("ir_version") == "holon-ir/0.3"
+                              for f in sorted(d.rglob(ir.LAW_GLOB))):
+            out.append(m)
+    return out
+
+
+def _restamp(pairs: dict, root: Path, dirs: list[str]) -> dict:
+    """Replace every old statement hash token by its new one in the text files under dirs (records, generated LAWS.bend
+    headers, the Lean report): {path: count}. A hash is a unique sha256 string, so nothing else can match."""
+    import re
+    rx = re.compile(r"sha256:[0-9a-f]{64}")
+    done = {}
+    for d in dirs:
+        base = root / d
+        if not base.is_dir():
+            continue
+        for f in sorted(base.rglob("*")):
+            if not f.is_file() or f.is_symlink():
+                continue
+            b = f.read_bytes()
+            if b"sha256:" not in b:
+                continue
+            try:
+                text = b.decode("utf-8")
+            except UnicodeDecodeError:
+                continue
+            n = 0
+
+            def rep(mt):
+                nonlocal n
+                new = pairs.get(mt.group(0))
+                if new is None:
+                    return mt.group(0)
+                n += 1
+                return new
+            out = rx.sub(rep, text)
+            if n:
+                f.write_bytes(out.encode("utf-8"))
+                done[f.relative_to(root).as_posix()] = n
+    return done
+
+
+def migrate_hash(milestone: str, root: Path, apply: bool = False, log=print) -> int:
+    """`python -m holon.statement_diff migrate-hash --milestone M [--apply]` (PV2A): move every holon-ir/0.3 law of M and
+    of every earlier milestone (M2 for M3) to hash scheme 2. A dry run (the default) prints the plan and writes nothing.
+    --apply, for each milestone with a scheme-1 law:
+      1. writes spec/<M>/hash_scheme.json (scheme 2), which the generators read;
+      2. regenerates laws/<M> with holon derive (and the plan-stated product laws with holon derivation laws), and
+         refuses unless every law file is the committed one plus "hash_scheme": 2 and each hash is the recomputed one;
+      3. appends one hash_migration line per law (append: checked, with its acceptance record and id), and one for
+         every uncovered registry change that is a scheme migration (hash_migration_entries: a merge's);
+      4. rebinds spec/bindings/<M>.json (each statement hash, nothing else) and logs it in spec/bindings/changes.jsonl,
+         covered by the lines' ids;
+      5. re-stamps every old statement hash in results/ and gen/ (records, LAWS.bend headers, Lean reports) with the
+         new one: no law is decided again.
+    Idempotent: a milestone already under scheme 2 has nothing to migrate. Exit 0 when done (or nothing to do), 1 when
+    refused."""
+    from . import bindings as B
+    from . import contracts, rules
+    from .gen import refs as R
+    root = Path(root).resolve()
+    ms = _milestones_through(milestone, root)
+    plan = {}
+    for m in ms:
+        for d, side, gen in _law_sets(m, root):
+            regp = root / d / "REGISTRY.json"
+            reg = json.loads(regp.read_text()).get("statements") or {} if regp.is_file() else {}
+            for f in sorted((root / d).glob(ir.LAW_GLOB)):
+                law = json.loads(f.read_text())
+                if law.get("ir_version") != "holon-ir/0.3" or law.get(HASH_KEY, 1) != 1:
+                    continue
+                h1 = R.tree_law_hash(law, root)
+                if reg.get(law["law_id"]) != h1:
+                    log(f"migrate-hash: refused: {d}/{f.name}: the registry's hash {reg.get(law['law_id'])} is not its "
+                        f"recomputed scheme-1 hash {h1} (the tree is stale: a migration changes nothing else)")
+                    return 1
+                plan.setdefault(m, []).append((d, gen, side, law, h1, R.tree_law_hash(ir.with_hash_scheme(law, 2), root)))
+    extra = {m: hash_migration_entries(m, root)[0] for m in ms}
+    n = sum(len(v) for v in plan.values())
+    log(f"migrate-hash --milestone {milestone}: milestones {', '.join(ms) or 'none'}; {n} law(s) under scheme 1"
+        + "".join(f"; {m}: {len(v)}" for m, v in sorted(plan.items()))
+        + "".join(f"; {m}: {len(v)} uncovered scheme migration(s) in the registry history" for m, v in extra.items() if v))
+    for m, items in sorted(plan.items()):
+        for d, _g, _s, law, h1, h2 in items:
+            log(f"  {d}/{law['law_id']}: {h1} -> {h2}")
+    if not apply:
+        log("dry run: nothing written (--apply migrates)")
+        return 0
+    pairs = {}
+    for m in ms:
+        items = plan.get(m, [])
+        if items:
+            decl = root / "spec" / m / ir.HASH_SCHEME_FILE
+            decl.write_text(json.dumps({"document": "hash_scheme", "milestone": m, "hash_scheme": 2,
+                                        "doc": "The statement-hash scheme of this milestone's holon-ir/0.3 laws (holon.ir:"
+                                               " scheme 2 drops rule_catalog_version from the hash). Written by python -m"
+                                               " holon.statement_diff migrate-hash; holon derive stamps every law with "
+                                               "it."}, indent=2, ensure_ascii=False) + "\n")
+            want = {(d, law["law_id"]): (rules.dumps(ir.with_hash_scheme(law, 2)), h2) for d, _g, _s, law, _h1, h2 in items}
+            # 2. the generators, checked before anything is written (holon derive's own computation, as G1 runs it)
+            res = contracts.with_contracts(m, root, rules.compute(m, root))
+            outs = {f"laws/{m}/{lid}.json": rules.dumps(law) for lid, law in res["laws"].items()}
+            hashes = {f"laws/{m}/{lid}": h for lid, h in res["registry"]["statements"].items()}
+            sides = [s for d, s, g in _law_sets(m, root) if g == "derivation"]
+            from .derivation import laws as DL
+            for side in sides:
+                for rel, text in DL.outputs(root, side).items():
+                    outs[rel] = text
+                    if rel.endswith("/REGISTRY.json"):
+                        hashes.update({f"{side['law_set']['laws']}/{k}": v
+                                       for k, v in json.loads(text)["statements"].items()})
+            bad = []
+            for (d, lid), (text, h2) in sorted(want.items()):
+                if outs.get(f"{d}/{lid}.json") != text:
+                    bad.append(f"{d}/{lid}.json is not the committed law plus hash_scheme 2")
+                if hashes.get(f"{d}/{lid}") != h2:
+                    bad.append(f"{d}/{lid}: the generated hash {hashes.get(f'{d}/{lid}')} is not {h2}")
+            for d, _s, _g in _law_sets(m, root):
+                have = {f.stem for f in (root / d).glob(ir.LAW_GLOB)}
+                gen_ids = {k.rpartition("/")[2] for k in hashes if k.rpartition("/")[0] == d}
+                if have != gen_ids:
+                    bad.append(f"{d}: the generators give other laws ({sorted(have ^ gen_ids)[:4]})")
+            if bad:
+                decl.unlink()
+                log("migrate-hash: refused, nothing written: " + "; ".join(bad[:8]))
+                return 1
+            # holon derive writes laws/<M> (and its obstructions document), holon derivation laws its own set
+            argv = ["derive", "--milestone", m, "--root", str(root)]
+            rc = contracts.before_derive(argv)
+            rc = rc or rules.main(argv[1:])
+            rc = rc or contracts.after_derive(argv)
+            if rc:
+                log(f"migrate-hash: holon derive --milestone {m} failed ({rc})")
+                return 1
+            for side in sides:
+                for rel, text in DL.outputs(root, side).items():
+                    (root / rel).write_text(text)
+            for d, _g, _s, law, h1, h2 in items:
+                pairs[h1] = h2
+        # 3. the lines: one per migrated law, and one per uncovered scheme migration of the registry history
+        es = [hash_migration_entry(law, m, root, "by holon.statement_diff migrate-hash") for _d, _g, _s, law, _h, _h2
+              in items]
+        es += [e for e in hash_migration_entries(m, root)[0]
+               if (e["law_id"], e["old_hash"]) not in {(x["law_id"], x["old_hash"]) for x in es}]
+        ids = {}
+        for e in es:
+            r = append(e, root)
+            if not r["ok"] and not str(r.get("reason", "")).startswith("not appended: the log already holds"):
+                log(f"migrate-hash: {e['law_id']}: line rejected: {r['reason']}")
+                return 1
+            ids[e["law_id"]] = r.get("id")
+            pairs[e["old_hash"]] = e["new_hash"]
+        # 4. the bindings: each migrated law's statement hash, logged and covered by its line's id
+        bp = B.path(m, root)
+        if bp.is_file() and ids:
+            bound = json.loads(bp.read_text())
+            changed = sorted(lid for lid, x in bound.get("laws", {}).items() if x.get("statement_hash") in pairs
+                             and lid in ids)
+            for lid in changed:
+                bound["laws"][lid]["statement_hash"] = pairs[bound["laws"][lid]["statement_hash"]]
+            if changed:
+                bp.write_text(B.dump(bound))
+                with (root / B.CHANGES).open("a") as fh:
+                    fh.write(json.dumps({"milestone": m, "laws": changed, "defs": [],
+                                         "law_defs": {lid: [] for lid in changed}, "added": [], "removed": [],
+                                         "covered_by": {lid: ids[lid] for lid in changed},
+                                         "reason": "PV2A: each law's statement hash moved to hash scheme 2 (holon.ir), "
+                                                   "nothing else in its binding changed; covered by its hash_migration "
+                                                   "line"}, sort_keys=True) + "\n")
+        log(f"  {m}: {len(items)} law(s) migrated, {len(es)} line(s) appended or present")
+    # 5. the records and generated files: every old hash token, new hash (no re-decision)
+    done = _restamp(pairs, root, ["results", "gen"])
+    log(f"migrate-hash: re-stamped {sum(done.values())} statement hash(es) in {len(done)} file(s) under results/ and gen/")
+    return 0
 
 
 # ---------------------------------------------------------------- binding changes (F31)
@@ -711,19 +1036,23 @@ def _binding_change(entry: dict, old: dict, new: dict, root: Path) -> dict:
 
 
 def catalog_bridge(m: str, lid: str, old_hash, new_hash, root: Path) -> dict | None:
-    """(F33) {"old", "new", "line"}: the accepted catalog_rederivation line of laws/STATEMENT_DIFF.jsonl for law lid of
-    milestone m whose old_hash and new_hash are the two binding statement hashes, or None. Such a line establishes that
+    """(F33) {"old", "new", "line"[, "id"]}: the accepted catalog_rederivation (or, PV2A, hash_migration) line of
+    laws/STATEMENT_DIFF.jsonl for law lid of milestone m whose old_hash and new_hash are the two binding statement
+    hashes, or None. Such a line establishes that
     the hash moved only with rule_catalog_version (the claim is the same), so a binding_change may carry the hash change
     with it; the change of the cone still needs the binding_change's own equivalence. Only catalog_rederivation lines
     are checked here (scan with kinds), so a binding_change line never checks itself."""
     if not isinstance(old_hash, str) or not isinstance(new_hash, str):
         return None
-    s = scan(Path(root) / LOG, root, kinds=("catalog_rederivation",))
+    s = scan(Path(root) / LOG, root, kinds=HASHED_KINDS)
     for x in s["entries"]:
         e = x["entry"]
         if (x.get("ok") and isinstance(e, dict) and e.get("milestone") == m and e.get("law_id") == lid
                 and e.get("old_hash") == old_hash and e.get("new_hash") == new_hash):
-            return {"old": old_hash, "new": new_hash, "line": x["line"]}
+            out = {"old": old_hash, "new": new_hash, "line": x["line"]}
+            if e.get("id"):   # PV2A: a line with an id is named by it (line numbers move when logs are merged)
+                out["id"] = e["id"]
+            return out
     return None
 
 
@@ -891,6 +1220,8 @@ def acceptance(entry: dict, result: dict, root: Path) -> dict:
     acc = {"kind": entry.get("kind"), "facts": dict(sorted(facts.items()))}
     if entry.get("kind") == "catalog_rederivation":   # F30: the two catalogs holon derive reproduced each side under
         acc["catalogs"] = [entry.get("old_catalog"), entry.get("new_catalog")]
+    if entry.get("kind") == "hash_migration":   # PV2A: the two schemes both hashes were recomputed under
+        acc["schemes"] = [1, 2]
     imp = result.get("implication") or {}
     if imp.get("status") == "PROVED":
         acc["implication"] = {"law_id": imp.get("law_id"), "generator": imp.get("generator"),
@@ -946,6 +1277,7 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
     spans, side, probs = merged_lines(data, path, root) if hist is not None else ([], {}, [])
     out["problems"] += probs
     committed_len = spans[-1][0] if spans else 0
+    ids: dict = {}   # PV2A: id -> the line that holds it
     out["note"] = ("no git history (a copied tree): every line checked against the working tree" if hist is None else
                    f"{len(hist)} committed versions, {committed_len} committed bytes; committed lines verified against "
                    "the commit that appended them, new lines checked against the working tree")
@@ -962,6 +1294,13 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
             continue
         if kinds is not None and (not isinstance(e, dict) or e.get("kind") not in kinds):
             continue   # only these kinds are checked (catalog_bridge)
+        if isinstance(e, dict) and "id" in e:   # PV2A: a line's id is its content's, and names one line only
+            if e["id"] != line_id(e):
+                out["problems"].append(f"line {n}: {_line_tag(e)}: its id is not the sha256 of its canonical JSON")
+            elif e["id"] in ids:
+                out["problems"].append(f"line {n}: {_line_tag(e)}: a second line with id {e['id']} (line {ids[e['id']]})")
+            else:
+                ids[e["id"]] = n
         if hist is None and milestone and isinstance(e, dict) and e.get("kind") == "binding_change" \
                 and e.get("law_id") and not (root / "laws" / milestone / f"{e['law_id']}.json").is_file():
             out.setdefault("unchecked", []).append(n)
@@ -1056,6 +1395,8 @@ def _verify_committed(e, acc, commit: str, root: Path, recheck: bool = True) -> 
         return "its acceptance record does not name the extracted document the entry comes from"
     if e.get("kind") == "catalog_rederivation" and acc.get("catalogs") != [e.get("old_catalog"), e.get("new_catalog")]:
         return "its acceptance record does not name the two catalogs the entry re-derives under"
+    if e.get("kind") == "hash_migration" and acc.get("schemes") != [1, 2]:
+        return "its acceptance record does not name the two hash schemes the entry recomputed its hashes under"
     for rel, sha in sorted(acc["facts"].items()):
         b = blob_at(root, commit, rel)
         if b is None or _sha(b) != sha:
@@ -1090,10 +1431,15 @@ def _verify_equivalence(e: dict, eqv, commit: str, root: Path, kernels: bool = T
         log = blob_at(root, commit, LOG.as_posix()) or b""
         lines = log.decode("utf-8", errors="replace").splitlines()
         n = cb.get("line")
-        x = _json_or_none(lines[n - 1].encode()) if isinstance(n, int) and 0 < n <= len(lines) else None
-        if not (isinstance(x, dict) and x.get("kind") == "catalog_rederivation" and x.get("law_id") == lid
+        if isinstance(cb.get("id"), str):   # PV2A: the bridged line by its id
+            x = next((y for y in map(lambda s: _json_or_none(s.encode()), lines)
+                      if isinstance(y, dict) and y.get("id") == cb["id"] and line_id(y) == cb["id"]), None)
+        else:
+            x = _json_or_none(lines[n - 1].encode()) if isinstance(n, int) and 0 < n <= len(lines) else None
+        if not (isinstance(x, dict) and x.get("kind") in HASHED_KINDS and x.get("law_id") == lid
                 and x.get("old_hash") == br.get("old") and x.get("new_hash") == br.get("new")):
-            return f"line {n} of {LOG} at {commit[:7]} is not the catalog_rederivation its statement hash moved with"
+            return (f"line {cb.get('id') or n} of {LOG} at {commit[:7]} is not the catalog_rederivation or "
+                    "hash_migration its statement hash moved with")
     law = _json_or_none(blob_at(root, commit, f"laws/{m}/{lid}.json") or b"")
     try:   # the law's statement as it was when the line was appended, emitted as bind_law emits it
         from . import bindings as B
@@ -1231,18 +1577,36 @@ def check_file(path: Path, root: Path) -> list[str]:
     return scan(path, root)["problems"]
 
 
+def log_ids(data: bytes) -> set:
+    """The ids the lines of a log's bytes carry (PV2A)."""
+    out = set()
+    for raw in data.splitlines():
+        e = _json_or_none(raw) if raw.strip() else None
+        if isinstance(e, dict) and isinstance(e.get("id"), str):
+            out.add(e["id"])
+    return out
+
+
 def append(entry: dict, root: Path) -> dict:
-    """Check an entry against the working tree and, when accepted, append it with its acceptance record to
-    laws/STATEMENT_DIFF.jsonl. Returns check_entry's result."""
+    """Check an entry against the working tree and, when accepted, append it with its acceptance record and its id
+    (PV2A: line_id) to laws/STATEMENT_DIFF.jsonl, unless the log already holds that line. Returns check_entry's result,
+    with "id" when appended."""
     root = Path(root)
+    entry = {k: v for k, v in entry.items() if k not in ("id", "accepted")}
     r = check_entry(entry, root)
     if r["ok"]:
         acc = acceptance(entry, r, root)
-        if acc.get("equivalence"):   # F33: the proof artifacts G2 re-checks in both kernels
-            write_artifacts(entry, acc["equivalence"], r["equivalence"], root)
-        line = json.dumps({**entry, "accepted": acc}, sort_keys=True, ensure_ascii=False)
+        obj = {**entry, "accepted": acc}
+        obj["id"] = line_id(obj)   # PV2A: every new line carries its id
         p = root / LOG
         data = p.read_bytes() if p.exists() else b""
+        if obj["id"] in log_ids(data):
+            return {**r, "ok": False, "reason": f"not appended: the log already holds this line (id {obj['id']})",
+                    "id": obj["id"]}
+        if acc.get("equivalence"):   # F33: the proof artifacts G2 re-checks in both kernels
+            write_artifacts(entry, acc["equivalence"], r["equivalence"], root)
+        line = json.dumps(obj, sort_keys=True, ensure_ascii=False)
+        r = {**r, "id": obj["id"]}
         if data and not data.endswith(b"\n"):
             data += b"\n"
         p.write_bytes(data + line.encode("utf-8") + b"\n")
@@ -1330,9 +1694,9 @@ def registry_changes(milestone: str, root: Path) -> dict:
 
 
 def covers(e: dict, ch: dict) -> bool:
-    """Does an entry carry exactly the two statements of a registry change? A catalog_rederivation must also carry the
-    change's two statement hashes (old_hash, new_hash) exactly: a change that does not name them is not covered by
-    one (F30)."""
+    """Does an entry carry exactly the two statements of a registry change? A catalog_rederivation (F30) or a
+    hash_migration (PV2A) must also carry the change's two statement hashes (old_hash, new_hash) exactly: a change that
+    does not name them is not covered by one."""
     if not isinstance(e, dict) or e.get("kind") not in STATEMENT_KINDS or not _is_law(e.get("old")):
         return False
     if (e.get("law_id") or e["old"].get("law_id")) != ch["law_id"] or not _is_law(ch.get("old")):
@@ -1341,7 +1705,7 @@ def covers(e: dict, ch: dict) -> bool:
         return False
     if ch.get("new") is None:   # a deletion drops a claim: only a signed weakening covers it
         return e.get("kind") == "weakening"
-    if e.get("kind") == "catalog_rederivation":
+    if e.get("kind") in HASHED_KINDS:   # F30, PV2A: a catalog_rederivation or hash_migration names both hashes
         for k in ("old_hash", "new_hash"):
             if not isinstance(ch.get(k), str) or e.get(k) != ch[k]:
                 return False
@@ -1431,14 +1795,16 @@ def main(argv: list[str] | None = None) -> int:
     """python -m holon.statement_diff append ENTRY.json [--root DIR]: check the entry against the working tree and
     append it, with its acceptance record, only if accepted. python -m holon.statement_diff check [--root DIR]:
     print the verdict of every line. reextract / recatalog --milestone M [--append]: build (and append the accepted
-    ones of) the reextraction / catalog_rederivation entries the milestone needs."""
+    ones of) the reextraction / catalog_rederivation entries the milestone needs. migrate-hash --milestone M [--apply]:
+    hash scheme 2 (PV2A, migrate_hash)."""
     import argparse
     ap = argparse.ArgumentParser(prog="python -m holon.statement_diff")
-    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog", "rebind"))
+    ap.add_argument("command", choices=("append", "check", "reextract", "recatalog", "rebind", "migrate-hash"))
     ap.add_argument("entry", nargs="?")
     ap.add_argument("--root", default=str(ir.ROOT))
     ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
     ap.add_argument("--append", action="store_true", help="reextract, recatalog, rebind: append every accepted entry")
+    ap.add_argument("--apply", action="store_true", help="migrate-hash: migrate (the default is a dry run)")
     ap.add_argument("--report", help="rebind: write every entry's equivalence result (JSON) to this file, rewritten "
                                      "after each entry")
     ap.add_argument("--deadline", type=float, help="rebind: a time box in seconds for the whole run; when it fires, the "
@@ -1446,6 +1812,8 @@ def main(argv: list[str] | None = None) -> int:
                                                    "with its stats in the report")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve()
+    if a.command == "migrate-hash":   # PV2A: hash scheme 2 for M and every earlier milestone's 0.3 laws
+        return migrate_hash(a.milestone, root, apply=a.apply)
     if a.command == "rebind":   # F31: the binding_change entries of laws whose cone changed under a fixed statement
         global EQV_DEADLINE
         if a.deadline is not None:

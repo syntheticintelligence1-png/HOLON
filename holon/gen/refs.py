@@ -28,7 +28,8 @@ refs is the transitive closure of what the statement names, over the facts def g
   consumer:NAME      facts.consumers[NAME] (doc removed), with `acts`
   hyp:H              the oracle sidecar entry whose hypothesis is H, restricted to {parameter, hypothesis} (I12;
                      holon.gen.oracles.Oracles.hyp_ref). Without a sidecar, the hash of null.
-  eq_nat, ..         an IR builtin (holon.gen.mlaws.BUILTINS) under the rule catalog version
+  eq_nat, ..         an IR builtin (holon.gen.mlaws.BUILTINS) under the rule catalog version; under hash scheme 2
+                     (PV2A, holon.ir) its Bend name alone, so a catalog bump moves no scheme-2 statement hash
   tmpl:NAME, dsl:NAME  a generator-synthesized helper (step, run, obs, runs_ok, last_ok, no_code, perm, cost,
                      elapsed, is_act, consumer, observer, migration, s0, reach) or a DSL builtin the generator
                      renders itself (len, take, ..): {template_id, template_version}, never its text (TEMPLATES).
@@ -495,8 +496,10 @@ class _Closure:
     def fn(self, n: str, args: list) -> None:
         from .mlaws import BUILTINS
         if n in BUILTINS:
-            self.out[n] = _h({"builtin": n, "bend": BUILTINS[n][0],
-                              "rule_catalog_version": self.law.get("rule_catalog_version")})
+            spec = {"builtin": n, "bend": BUILTINS[n][0]}
+            if ir.hash_scheme(self.law) == 1:
+                spec["rule_catalog_version"] = self.law.get("rule_catalog_version")
+            self.out[n] = _h(spec)
         elif n == "runs_ok":
             self.tmpl("runs_ok")
             self.sig()
@@ -673,10 +676,25 @@ def _oracles(oracles):
     return Oracles(oracles)
 
 
+def tree_refs(law: dict, root: Path | str | None = None) -> dict:
+    """The refs `holon run` and G2 hash a 0.3 law with on the tree at root (holon.mpipeline.check_registry_multi's
+    inputs): its facts as holon.facts loads them, the target library under root and the oracle sidecar of its
+    milestone's model (Oracles.for_milestone)."""
+    from .. import facts as F
+    from .oracles import Oracles
+    root = Path(root or ROOT)
+    rel = law["facts"]
+    return refs(law, F.load(root / rel), Oracles.for_milestone(law["milestone"], root / rel, root), None, root)
+
+
+def tree_law_hash(law: dict, root: Path | str | None = None) -> str:
+    """holon.ir.statement_hash of a law with tree_refs (resolved only for a 0.3 law)."""
+    return ir.statement_hash(law, lambda l: tree_refs(l, root))
+
+
 def law_hash(law: dict, facts: dict | None, oracles=None, lib=None, root: Path | str | None = None) -> str:
-    """The law's statement hash: 0.1/0.2 over the hashed keys; 0.3 with its refs into `facts`, the target library
-    `lib` (default: the law's facts' libraries under root) and, for hyp premises and oracle parameters, the oracle
-    sidecar `oracles` (I12; default: the one its milestone's model takes, milestone_oracles)."""
-    if law.get("ir_version") == "holon-ir/0.3":
-        return ir.statement_hash(law, refs=refs(law, facts or {}, oracles, lib, root))
-    return ir.statement_hash(law)
+    """The law's statement hash (holon.ir.statement_hash, the one implementation, under the law's hash scheme): 0.1/0.2
+    over the hashed keys; 0.3 with its refs into `facts`, the target library `lib` (default: the law's facts' libraries
+    under root) and, for hyp premises and oracle parameters, the oracle sidecar `oracles` (I12; default: the one its
+    milestone's model takes, milestone_oracles), resolved only for a 0.3 law."""
+    return ir.statement_hash(law, lambda l: refs(l, facts or {}, oracles, lib, root))

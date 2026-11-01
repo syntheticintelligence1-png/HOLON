@@ -545,15 +545,15 @@ def model_definitions(m: str, rec: dict, root: Path = ROOT) -> set[str]:
 
 # ---------------------------------------------------------------- derive, compare, write
 def statement_hash(law: dict, m: str, root: Path) -> str:
-    """The registry's hash of a law: 0.1/0.2 over the IR; 0.3 with its refs (holon.gen.refs.law_hash), the oracle
-    sidecar of an M2+ milestone included, as `holon run` and G2 compute it."""
-    if law.get("ir_version") != "holon-ir/0.3":
-        return ir.statement_hash(law)
-    from .gen import refs as R
-    from .gen.oracles import Oracles
-    from .mpipeline import m2plus
-    fp = Path(root) / law_facts(law, m, root)
-    return R.law_hash(law, F.load(fp), oracles=Oracles.for_facts(fp) if m2plus(m) else None, root=root)
+    """The registry's hash of a law (holon.ir.statement_hash under its hash scheme): 0.1/0.2 over the IR; 0.3 with its
+    refs (holon.gen.refs), the oracle sidecar of an M2+ milestone included, as `holon run` and G2 compute it."""
+    def refs(law):
+        from .gen import refs as R
+        from .gen.oracles import Oracles
+        from .mpipeline import m2plus
+        fp = Path(root) / law_facts(law, m, root)
+        return R.refs(law, F.load(fp), Oracles.for_facts(fp) if m2plus(m) else None, None, root)
+    return ir.statement_hash(law, refs)
 
 
 def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
@@ -715,14 +715,15 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
     definition, emitted statement, counter-law or model changed; anything more needs its own entry). F33: a
     binding_change whose statement hash moved with an accepted catalog_rederivation (its "statement_hash" bridge, which
     its own acceptance verified) covers a rebinding that changes the hash and the cone together; hashes: (bound,
-    current) statement hashes, which must then be the bridge's (None: not compared)."""
+    current) statement hashes, which must then be the bridge's (None: not compared). PV2A: a hash_migration (the law
+    moved to hash scheme 2) covers a rebinding exactly as a catalog_rederivation does."""
     from .statement_diff import core
     if not isinstance(e, dict) or (e.get("law_id") or (e.get("new") or {}).get("law_id")) != lid:
         return False
     if not isinstance(e.get("new"), dict) or (law is not None and core(e["new"]) != core(law)):
         return False
     if stmt_changed:
-        if e.get("kind") == "catalog_rederivation":
+        if e.get("kind") in ("catalog_rederivation", "hash_migration"):   # F30; PV2A: a scheme move changes no claim
             return hash_only and not defs
         br = e.get("statement_hash")
         if e.get("kind") == "binding_change" and isinstance(br, dict):
@@ -740,7 +741,7 @@ def hash_only_change(x: dict, y: dict) -> bool:
 
 
 def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_defs: dict):
-    """({law: STATEMENT_DIFF line}, [(law, why)]) for the changed laws. With none (laws only added or removed) there is
+    """({law: STATEMENT_DIFF line id, or line number for a line without one}, [(law, why)]) for the changed laws. With none (laws only added or removed) there is
     nothing to cover, so the accepted entries' proofs are not re-checked (I67: that re-check takes most of an hour)."""
     if not changed:
         return {}, []
@@ -753,7 +754,8 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
         hs = (a[lid].get("statement_hash"), b[lid].get("statement_hash"))
         n = next((n for n, e in sorted(entries.items())
                   if entry_covers(e, lid, current.get(lid), sc, law_defs[lid], ho, hs)), None)
-        if n is None:
+        if n is not None and isinstance(entries[n].get("id"), str):
+            n = entries[n]["id"]   # PV2A: a line with an id is named by it, not by its line number
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
                                  + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
                                     "catalog_rederivation when nothing else in its binding changed" if sc else
@@ -783,6 +785,7 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
         problems.append(f"{CHANGES} does not extend its committed versions (append-only)")
         return problems, ""
     entries = _accepted_entries(root, m)
+    by_id = {e["id"]: e for e in entries.values() if isinstance(e.get("id"), str)}   # PV2A: a reference by id
     n_lines = 0
     for i, raw in enumerate(data[len(base):].decode("utf-8", errors="replace").splitlines(), start=1):
         if not raw.strip():
@@ -798,7 +801,8 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
         cov = ln.get("covered_by") if isinstance(ln.get("covered_by"), dict) else {}
         defs = ln.get("law_defs") if isinstance(ln.get("law_defs"), dict) else {}
         for lid in ln.get("laws") or []:
-            e = entries.get(cov.get(lid)) if isinstance(cov.get(lid), int) else None
+            ref = cov.get(lid)
+            e = entries.get(ref) if isinstance(ref, int) else by_id.get(ref) if isinstance(ref, str) else None
             ld = defs.get(lid, ln.get("defs") or [])   # a catalog_rederivation covers a line only when it logs no def
             ok = e is not None and (entry_covers(e, lid, None, True, ld) or entry_covers(e, lid, None, False, ld))
             if not ok:
