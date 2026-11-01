@@ -82,6 +82,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -188,14 +189,15 @@ def _typed_run(argv: list) -> int | None:
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
     if argv[:1] == ["run"]:
-        # pipeline v2 (B): every run records what it read for each law it decides (holon.trace); with --reuse it
-        # first drops the laws whose record and trace still hold
+        # pipeline v2 (B): with HOLON_TRACE=1 a run records what it read for each law it decides (holon.trace); with
+        # --reuse it first drops the laws whose record and trace still hold
         from . import trace
         if "--reuse" in argv:
             argv = _reuse(argv)
             if argv is None:
                 return 0
-        trace.install(Path(__file__).resolve().parents[1], argv)
+        if os.environ.get("HOLON_TRACE") == "1":
+            trace.install(Path(__file__).resolve().parents[1], argv)
         try:
             rc = _main(argv)
             if rc == 0:   # K5 (I64): the run's last step applies the milestone's intent contracts

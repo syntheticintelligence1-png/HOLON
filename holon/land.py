@@ -53,6 +53,7 @@ GENERATED = ("laws/M*/*.json", "docs/M*_COMPARISON.md", "spec/M*/appendixA_map.j
              "results/M*/ranking.json", "results/M*/metrics.json", "results/M*/metrics_timing.json",
              "gen/M*/evidence.json", "gen/M*/coverage.json", "gen/M*/diagram/**", "gen/M*/own/**",
              "gen/M*/par_lossy/**", "spec/M*/evidence_review.jsonl", "replay/M*/**", "results/M*/refute/**")
+AGGREGATE = re.compile(r"spec/(M\d+)/(?:predictions\.json|amendments\.jsonl)")   # generated from per-key sources (A)
 LAW_OUTPUTS = (re.compile(r"results/M\d+/(L_[^/]+)\.json"), re.compile(r"gen/M\d+/(?:laws|proofs)/(L_[^/]+)/.+"))
 
 # the generators `regen` runs over the merged tree, in dependency order: (command, module that must exist)
@@ -113,6 +114,8 @@ def matches(pattern: str, path: str) -> bool:
 
 
 def kind_of(path: str) -> tuple[str, str | None]:
+    if AGGREGATE.fullmatch(path) and (top() / "holon" / "aggregate.py").is_file():
+        return "aggregate", AGGREGATE.fullmatch(path).group(1)
     for rx in LAW_OUTPUTS:
         m = rx.fullmatch(path)
         if m:
@@ -259,6 +262,19 @@ def step_merge(a) -> int:
 
 def resolve(path: str, kind: str, lid: str | None, root: Path, st: dict) -> str | None:
     base, ours, theirs = blob(1, path), blob(2, path), blob(3, path)
+    if kind == "aggregate":
+        # A's per-key sources: absorb what the branch's aggregate holds and no source does (a branch made before the
+        # split keeps its own keys), then the lead's, then write the aggregate from the union of the sources; a key
+        # whose value differs between an aggregate and its source stops here (a prereg key is never edited)
+        from . import aggregate as AG
+        m = lid
+        for side in (ours, theirs):
+            if side is not None:
+                (root / path).write_text(side)
+                AG.split(m, root)
+        AG.write(m, root)
+        git("add", "-A", "--", f"spec/{m}")
+        return "regenerated from the per-key sources (the branch's and the lead's absorbed first)"
     if kind in ("generated", "law"):
         if theirs is None:
             git("rm", "-q", "--", path)
@@ -300,6 +316,10 @@ def resolve(path: str, kind: str, lid: str | None, root: Path, st: dict) -> str 
 
 def step_regen(a) -> int:
     root = top()
+    if (root / "holon" / "aggregate.py").is_file():    # A: the aggregates from their per-key sources first
+        from . import aggregate as AG
+        for d in sorted((root / "spec").glob("M*/predictions")):
+            AG.regenerate(d.parent.name, root)
     for cmd, need in REGEN:
         if need and not (root / need).is_file():
             continue
@@ -347,7 +367,7 @@ def dirty_laws(root: Path, m: str, st: dict) -> dict[str, str]:
         elif lid in (st.get("dirty_both") or []):
             out[lid] = "decided on both sides"
         else:
-            tp = root / "results" / m / "traces" / f"{lid}.json"
+            tp = root / "traces" / m / f"{lid}.json"
             if tp.is_file():     # B: a decision trace that no longer holds (an input changed)
                 from . import trace
                 why = trace.check(root, json.loads(tp.read_text()))

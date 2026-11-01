@@ -115,6 +115,7 @@ jobs:
           EXTRA: ${{ matrix.extra }}
           LEAN: ${{ matrix.lean }}
           CMD: ${{ matrix.cmd }}
+          HOLON_TRACE: '1'
         run: |
           set -o pipefail
           date -u +"%FT%TZ start" | tee "$RUNNER_TEMP/run.log"

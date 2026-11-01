@@ -1,10 +1,11 @@
 """Decision traces (pipeline v2, part B): what a `holon run` read when it decided a law, so a later run can tell, without
 deciding it again, that every input is unchanged.
 
-A trace is recorded for every law whose record a `holon run` writes (results/<M>/<law>.json). It holds everything the
-process had read up to that write: an over-approximation of the law's own inputs (laws decided earlier in the same
-process add theirs), which is sound and needs no change in any runner. It lives beside the record, in
-results/<M>/traces/<law>.json, and is applied with it from the CI run that made both. It carries:
+With HOLON_TRACE=1 (the re-make workflows set it; local runs and tests leave the process untouched), a trace is
+recorded for every law whose record a `holon run` writes (results/<M>/<law>.json). It is an over-approximation of
+the law's own inputs (laws decided in the same process add theirs), which is sound and needs no change in any runner.
+It lives at traces/<M>/<law>.json, outside results/ (record scanners glob results/), and is applied with the record
+from the CI run that made both. It carries:
   reads      every file of the repository the process opened for reading (Python opens, through an audit hook)
   records    every other law's record the process read BEFORE this law's record was last written (a verdict
              computed from them: a back-test, an attribution, a profile); a read after it (contracts.after_run, a
@@ -40,7 +41,7 @@ from pathlib import Path
 
 VERSION = 2
 RECORD = re.compile(r"results/(M\d+|T\d+)/(L_[^/]+)\.json")
-SKIP = re.compile(r"(^|/)(__pycache__|\.git)(/|$)|\.pyc$|^results/[^/]+/traces/")
+SKIP = re.compile(r"(^|/)(__pycache__|\.git)(/|$)|\.pyc$|^traces/")
 
 _T: "Tracer | None" = None
 
@@ -222,7 +223,7 @@ class Tracer:
         for law, (rec, last) in sorted(self.records.items()):
             if not (self.root / rec).is_file():
                 continue
-            out = self.root / rec.rsplit("/", 1)[0] / "traces" / f"{law}.json"
+            out = self.root / "traces" / RECORD.fullmatch(rec).group(1) / f"{law}.json"
             out.parent.mkdir(parents=True, exist_ok=True)
             # another law's record counts for this law when it was read before this law's record was last written
             # (inside the decision: a back-test, an attribution, a profile); reads after it (contracts.after_run,
@@ -386,7 +387,7 @@ def reusable(root: Path, m: str, laws: list[str]) -> dict[str, str]:
     reg = json.loads((root / "laws" / m / "REGISTRY.json").read_text())["statements"]
     out = {}
     for lid in laws:
-        rec, tr = root / "results" / m / f"{lid}.json", root / "results" / m / "traces" / f"{lid}.json"
+        rec, tr = root / "results" / m / f"{lid}.json", root / "traces" / m / f"{lid}.json"
         if not rec.is_file():
             out[lid] = "no record"
         elif json.loads(rec.read_text()).get("statement_hash") != reg.get(lid):
