@@ -823,11 +823,24 @@ class TestBindings(unittest.TestCase):
         on the new model; and G2's lifecycle and binding checks over M3 find nothing: every line accepted
         (holon.statement_diff.scan), the statement-change tie, the binding change log (holon.bindings.check_change_log)
         and the bindings re-derived from the committed models (holon.bindings.diff of spec/bindings/M3.json against
-        holon.bindings.derive)."""
+        holon.bindings.derive).
+        Amended (spec/M3/amendments.jsonl, iteration I83, this test): a law is bound to the versioned layer when its
+        binding's model is the layer's link, or (I29's NAT laws, once its build has merged) a module that imports I83's
+        current layer file, sha-verified through the confined resolver (holon.statement_diff._model_files)."""
         item(KEY, "I83-P6")
         S, B = sd(), holon_module("holon.bindings")
         bound = load_json(B.path("M3", ROOT))
-        layered = sorted(lid for lid, x in bound["laws"].items() if x.get("model") == LAYER_LINK)
+        layer, sha, reach = need(LAYER_LINK).resolve().relative_to(ROOT.resolve()).as_posix(), layer_sha256(), {}
+
+        def on_layer(model) -> bool:
+            if model == LAYER_LINK:
+                return True
+            if model not in reach:
+                files, why = S._model_files(ROOT, model) if isinstance(model, str) else (None, "no model")
+                reach[model] = (why is None and layer in files
+                                and hashlib.sha256(files[layer].encode("utf-8")).hexdigest() == sha)
+            return reach[model]
+        layered = sorted(lid for lid, x in bound["laws"].items() if on_layer(x.get("model")))
         self.assertIn(PINIT, layered)
         base = show_text(thresholds()["base_commit"], LOG) or ""
         lines = [json.loads(x) for x in (ROOT / LOG).read_text().splitlines()[len(base.splitlines()):] if x.strip()]
