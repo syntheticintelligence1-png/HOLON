@@ -905,6 +905,17 @@ def merged_lines(data: bytes, path: Path, root: Path) -> tuple[list[tuple[int, s
     return spans, side, problems
 
 
+def _line_origins(path: Path, root: Path) -> dict:
+    """{line bytes: the oldest commit, among the committed versions reachable from HEAD (topological order), whose
+    version of `path` holds that line}: the commit that appended a line, also when a merge on HEAD's first-parent chain
+    brought it in from another line of history (read-only git; {} without history)."""
+    out: dict = {}
+    for c, v in committed_history(path, root) or []:
+        for ln in v.splitlines(keepends=True):
+            out.setdefault(ln, c)
+    return out
+
+
 def committed_versions(path: Path, root: Path) -> list[bytes]:
     """Every committed version of `path` reachable from HEAD, oldest first (read-only git); [] without git."""
     return [b for _, b in committed_history(path, root) or []]
@@ -991,7 +1002,7 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
     out["note"] = ("no git history (a copied tree): every line checked against the working tree" if hist is None else
                    f"{len(hist)} committed versions, {committed_len} committed bytes; committed lines verified against "
                    "the commit that appended them, new lines checked against the working tree")
-    offset = 0
+    offset, origins = 0, None
     for n, raw in enumerate(data.splitlines(keepends=True), start=1):
         start, offset = offset, offset + len(raw)
         line = raw.decode("utf-8", errors="replace")
@@ -1032,7 +1043,12 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
         if commit is not None:
             if not own:
                 out.setdefault("elsewhere", []).append(n)
-            why = _verify_committed(e, acc, commit, root, recheck=own) or \
+            at = commit
+            if ext_line:   # I83: its files are tied to the commit that appended it, the oldest commit whose version
+                # holds the line; a merge on HEAD's chain that brought the line in (a PR's merge ref) is not that commit
+                origins = _line_origins(path, root) if origins is None else origins
+                at = origins.get(raw, commit)
+            why = _verify_committed(e, acc, at, root, recheck=own) or \
                 (_verify_extension_store(e, acc, root) if ext_line else None)
             if why:
                 out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
@@ -2466,6 +2482,7 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
     data, git = path.read_bytes(), in_git(root)
     spans, side, _ = merged_lines(data, path, root) if git else ([], {}, [])
     committed_len = spans[-1][0] if spans else 0
+    origins = _line_origins(path, root) if git else {}
     done, probs, named, contents, offset = [], [], set(), {}, 0
     for n, raw in enumerate(data.splitlines(keepends=True), start=1):
         start, offset = offset, offset + len(raw)
@@ -2473,6 +2490,7 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
         if not isinstance(e, dict) or e.get("kind") != "model_extension":
             continue
         commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(raw)
+        commit = origins.get(raw, commit)   # the commit that appended the line (scan's rule for model_extension)
         ext = (e.get("accepted") or {}).get("extension") if isinstance(e.get("accepted"), dict) else None
         if not isinstance(ext, dict) or not isinstance(ext.get("bound_commit"), str):
             probs.append(f"line {n}: no model_extension acceptance record")
