@@ -278,6 +278,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
         from . import profile
         return profile.main(argv[1:])
+    if argv[:1] == ["land"]:  # likewise for holon.land (pipeline v2: land a branch on the lead, resumable)
+        from . import land
+        return land.main(argv[1:])
     if argv[:1] == ["rank"]:  # likewise for holon.rank (Def 6.13's measures and §10.10's ranking, I81)
         from . import rank
         return rank.main(argv[1:])
