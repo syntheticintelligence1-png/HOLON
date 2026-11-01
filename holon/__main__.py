@@ -257,6 +257,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["theory2"]:  # likewise for holon.gen.theory2 (theory core II, I43)
         from .gen import theory2
         return theory2.main(argv[1:])
+    if argv[:1] == ["aggregate"]:  # likewise for holon.aggregate (PV2A: per-key prereg sources, generated aggregates)
+        from . import aggregate
+        return aggregate.main(argv[1:])
     if argv[:1] == ["differential"]:  # likewise for holon.differential (I20)
         from . import differential
         return differential.main(argv[1:])

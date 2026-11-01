@@ -1,0 +1,69 @@
+{
+  "title": "Sorts I: grammar, constraints, union-find, unsat cores, frozen assignment",
+  "plan": "docs/BUILD_PLAN.md#i13",
+  "prompt": "prompts/I13_sorts.md",
+  "predictions": [
+    {
+      "id": "I13-P1",
+      "claim": "t is Time and wait.dt is Dur; W, F and D are Dur; Ch.start (assignment key Ch.s, the BatchChallenge startTime field) is Time.",
+      "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_time_and_duration_sorts"
+    },
+    {
+      "id": "I13-P2",
+      "claim": "W + cstart - t is SDur at one source site, Rollup.sol:363 (site span exactly contracts/contracts/l1/rollup/Rollup.sol:363). Three entry points reach it through _commitBatchWithBatchData: commitBatch (:268), commitState (:285) and commitBatchWithProof (:411). The M1 facts duplicate the guard per action (morph_rollup.json lines 1110, 1502, 2017); deduplication by span yields one site, whose entry points are those three actions.",
+      "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_one_signed_duration_site_at_rollup_363 and tests_m2/test_sorts_morph.py::TestPredictions::test_site_and_entry_points_in_the_pinned_source"
+    },
+    {
+      "id": "I13-P3",
+      "claim": "qpend and Entry.tot get distinct sorts, Idx[queue]_fin and Idx[queue]_inc, through writer provenance (labels fin and inc, derived from the writer sets {finalizeBatch} and the commit actions).",
+      "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_queue_cursors_get_distinct_writer_refined_sorts"
+    },
+    {
+      "id": "I13-P4",
+      "claim": "win.bvh (assignment key Entry.bvh) and s_bvh form the union Dig[VH] + Dig[Agg].",
+      "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_bvh_registers_form_the_digest_union"
+    },
+    {
+      "id": "I13-P5",
+      "claim": "0 SORT-affine conflicts on the M1 facts (spec/M1/facts/morph_rollup.json and morph_batchdata.json): no conflict of kind affine and none whose core holds an affine or compare constraint.",
+      "check": "tests_m2/test_sorts_morph.py::TestPredictions::test_no_affine_conflicts_on_the_m1_facts"
+    },
+    {
+      "id": "I13-P6",
+      "claim": "The planted Time+Time fixture's minimal core has exactly 2 constraints (tests_m2/fixtures/sorts/time_plus_time.json: one conflict, at the planted sum t + t; its core is unsatisfiable and irreducible under holon.sorts.solve.satisfiable).",
+      "check": "tests_m2/test_sorts_fixture.py::TestPlantedTimePlusTime::test_planted_conflict_has_a_two_constraint_minimal_core and tests_m2/test_sorts_fixture.py::TestPlantedTimePlusTime::test_core_is_unsatisfiable_and_irreducible"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I13-R1",
+      "claim": "No existing statement, record or generated file under gen/M0, gen/M1, results/M0 or results/M1 changes; gates M0 and M1 pass.",
+      "check": "gate"
+    },
+    {
+      "id": "I13-R2",
+      "claim": "gen/M2/diagram is unchanged and regenerates byte for byte (sorts live in gen/M2/sorts; carrier sort_ref stays null).",
+      "check": "tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_the_diagram_carries_no_sorts"
+    },
+    {
+      "id": "I13-R3",
+      "claim": "Exit (construction check, not a prediction): two runs of python -m holon sorts write byte-identical files, assignment included, equal to the committed gen/M2/sorts/.",
+      "check": "tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files"
+    },
+    {
+      "id": "I13-R4",
+      "claim": "Construction check (not a prediction): the solver's only target vocabulary is spec/M2/lib/sort_seeds.json, frozen in the I13 prereg commit; every other input is a fact document, a target library or the ledger.",
+      "check": "tests_m2/test_sorts_morph.py::TestSortsContract::test_the_only_target_vocabulary_is_the_frozen_seed_sidecar"
+    }
+  ],
+  "outcome_paths": [
+    "gen/M2/sorts/"
+  ],
+  "tests": [
+    "tests_m2/test_sorts_morph.py",
+    "tests_m2/test_sorts_fixture.py",
+    "tests_m2/test_sorts_unit.py",
+    "tests_m2/test_sorts_honesty.py"
+  ],
+  "thresholds": {}
+}

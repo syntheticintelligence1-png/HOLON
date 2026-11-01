@@ -1,0 +1,79 @@
+{
+  "title": "Semantic bindings and dependency index",
+  "plan": "docs/BUILD_PLAN.md#i2",
+  "prompt": "prompts/I2_bindings.md",
+  "predictions": [
+    {
+      "id": "I2-P1",
+      "claim": "In the kernel (BendTT) dependency graph, the laws whose cone contains step_finalizeBatch are exactly the 15 rollup laws: every rollup statement names run, obs or step, and all of them dispatch to every action; L_own_txspayload and every M0 law are outside.",
+      "check": "tests_m2/test_bindings.py::TestBindings::test_dependents_match_prediction",
+      "expected": {
+        "step_finalizeBatch": [
+          "L_disch_delay_nofree",
+          "L_disch_delay_pay",
+          "L_disch_delay_prove",
+          "L_disch_delay_wait",
+          "L_disch_stale",
+          "L_disch_stale_commit",
+          "L_fact_Z",
+          "L_nat_eta2",
+          "L_sort_remaining",
+          "L_sym_omega",
+          "L_tag_BVH",
+          "L_undo_BD",
+          "L_undo_BVH",
+          "L_undo_CSR",
+          "L_undo_cancel"
+        ]
+      }
+    },
+    {
+      "id": "I2-P2",
+      "claim": "The laws whose kernel cone contains b_tags_exact are exactly {L_tag_BVH} (only the ghost observer tags_ok calls it).",
+      "check": "tests_m2/test_bindings.py::TestBindings::test_dependents_match_prediction",
+      "expected": {
+        "b_tags_exact": [
+          "L_tag_BVH"
+        ]
+      }
+    },
+    {
+      "id": "I2-P3",
+      "claim": "The laws whose kernel cone contains the Go size-class lookup b_first_ge are exactly {L_own_txspayload}.",
+      "check": "tests_m2/test_bindings.py::TestBindings::test_dependents_match_prediction",
+      "expected": {
+        "b_first_ge": [
+          "L_own_txspayload"
+        ]
+      }
+    },
+    {
+      "id": "I2-P4",
+      "claim": "For all 24 laws, the kernel cone restricted to the model file's own definitions equals the I1 token cone stored in the record (no spurious token edge from a local spelled like a definition, no edge the token graph misses).",
+      "check": "tests_m2/test_bindings.py::TestBindings::test_kernel_cone_equals_token_cone"
+    },
+    {
+      "id": "I2-P5",
+      "claim": "Changing the body of b_tags_exact in a copy (its Nil case True -> False) makes G2 FAIL naming exactly L_tag_BVH; swapping two Nat arguments in step_finalizeBatch's call to exec_finalizeBatch makes G2 FAIL naming exactly the 15 rollup laws; renaming a local variable of b_tags_exact or adding a comment leaves G2 passing.",
+      "check": "tests_m2/test_bindings.py::TestBindingTamper"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I2-R1",
+      "claim": "All 24 statuses, statement hashes and generated .bend files unchanged; G1 and G2 pass on M0 and M1.",
+      "check": "gate G1, G2"
+    }
+  ],
+  "outcome_paths": [
+    "spec/bindings/",
+    "results/M0/",
+    "results/M1/",
+    "gen/M0/",
+    "gen/M1/"
+  ],
+  "tests": [
+    "tests_m2/test_bindings.py"
+  ],
+  "thresholds": {}
+}
