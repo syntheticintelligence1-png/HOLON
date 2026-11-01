@@ -320,8 +320,15 @@ def step_regen(a) -> int:
         from . import aggregate as AG
         for d in sorted((root / "spec").glob("M*/predictions")):
             AG.regenerate(d.parent.name, root)
+    base = load_state().get("lead_sha") or "HEAD"
+    moved = [p for p in git("diff", "--name-only", base, "--", f"results/{a.milestone}").splitlines()
+             if re.fullmatch(rf"results/{a.milestone}/L_[^/]+\.json", p)]
     for cmd, need in REGEN:
         if need and not (root / need).is_file():
+            continue
+        if cmd.startswith("metrics") and not moved:
+            # metrics are computed from the records (and its timing file is wall-clock): only when records moved
+            print(f"  holon {cmd.format(m=a.milestone)}: skipped (no record differs from {base[:8]})")
             continue
         c = cmd.format(m=a.milestone)
         rc, out = holon(c, root)
