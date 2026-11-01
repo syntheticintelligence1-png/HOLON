@@ -784,17 +784,35 @@ class TestNat(unittest.TestCase):
     def test_p5_i29_cutover_squares_stay_unknown(self):
         """I83-P5 (judged once I29's build has merged into the lead and this branch: its laws are in laws/M3): re-run on
         I83's versioned model, I29's three cutover squares (the key's i29_squares) are UNKNOWN, each record made on the
-        versioned model I83 committed (its model_sha256, when it names one, is the layer's)."""
+        versioned model I83 committed (its model_sha256, when it names one, is the layer's).
+        Amended (spec/M3/amendments.jsonl, iteration I83, this test): a record whose model_sha256 names I29's NAT claims
+        module (holon.rules.nat_run records the module, not the layer) counts only if that module imports I83's current
+        layer file, sha-verified through the confined resolver (holon.statement_diff._model_files), and the record was
+        re-made after the merge that brought I29's build (its last first-parent change is a later commit)."""
         item(KEY, "I83-P5")
         ids = thresholds()["i29_squares"]
         missing = [lid for lid in ids if not (ROOT / "laws" / "M3" / f"{lid}.json").is_file()]
         self.assertEqual(missing, [], "I29's build has not merged here: I83-P5 is not observed")
         sha = layer_sha256()
+        layer = need(LAYER_LINK).resolve().relative_to(ROOT.resolve()).as_posix()
         for lid in ids:
             with self.subTest(law=lid):
-                rec = load_json(need(f"results/M3/{lid}.json"))
+                rel = f"results/M3/{lid}.json"
+                rec = load_json(need(rel))
                 self.assertEqual(rec.get("status"), "UNKNOWN")
-                self.assertEqual(rec.get("model_sha256", sha), sha)
+                if rec.get("model_sha256", sha) == sha:
+                    continue
+                model = (rec.get("artifacts") or {}).get("model")
+                files, why = sd()._model_files(ROOT, model)
+                self.assertIsNone(why, why)
+                self.assertEqual(rec["model_sha256"], file_sha256(ROOT / model))
+                self.assertIn(layer, files)
+                self.assertEqual(hashlib.sha256(files[layer].encode("utf-8")).hexdigest(), sha)
+                added = git("log", "--first-parent", "--reverse", "--format=%H", "HEAD", "--",
+                            f"laws/M3/{lid}.json").split()[0]
+                last = git("log", "--first-parent", "-1", "--format=%H", "HEAD", "--", rel).strip()
+                self.assertNotEqual(last, added, f"{rel} was not re-made after the merge that brought I29's build")
+                git("merge-base", "--is-ancestor", added, last)
 
 
 # ---------------------------------------------------------------------------------------------- G2
