@@ -38,6 +38,10 @@ import sys
 import tarfile
 from pathlib import Path
 
+if __package__ in (None, ""):   # run as a script: the package's modules by name
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    __package__ = "holon"
+
 LEAD = os.environ.get("HOLON_LEAD", "origin/claude/holon-v2-bend2-c6z3cd")
 
 LOGS = ("laws/STATEMENT_DIFF.jsonl", "laws/*/STATEMENT_DIFF.jsonl", "spec/*/amendments.jsonl",
@@ -342,6 +346,13 @@ def dirty_laws(root: Path, m: str, st: dict) -> dict[str, str]:
             out[lid] = "statement changed"
         elif lid in (st.get("dirty_both") or []):
             out[lid] = "decided on both sides"
+        else:
+            tp = root / "results" / m / "traces" / f"{lid}.json"
+            if tp.is_file():     # B: a decision trace that no longer holds (an input changed)
+                from . import trace
+                why = trace.check(root, json.loads(tp.read_text()))
+                if why:
+                    out[lid] = f"inputs changed: {why}"
     return out
 
 
