@@ -5,8 +5,10 @@ A trace is recorded for every law whose record a `holon run` writes (results/<M>
 process had read up to that write: an over-approximation of the law's own inputs (laws decided earlier in the same
 process add theirs), which is sound and needs no change in any runner. It lives beside the record, in
 results/<M>/traces/<law>.json, and is applied with it from the CI run that made both. It carries:
-  reads      every file of the repository the process opened for reading (Python opens, through an audit hook);
-             other laws' records apart (records), which a check counts only on request
+  reads      every file of the repository the process opened for reading (Python opens, through an audit hook)
+  records    every other law's record the process read BEFORE this law's record was last written (a verdict
+             computed from them: a back-test, an attribution, a profile); a read after it (contracts.after_run, a
+             summary) is not an input of this verdict
   outputs    every path the process wrote, deleted or renamed, and every directory it wrote into, are outputs: no
              entry of the trace; the trace is evaluated at the end of the run, the state committed with its records
   listings   every directory it listed (os.listdir, os.scandir, glob), keyed by its sorted names
@@ -94,7 +96,9 @@ class Tracer:
         self.written: set[str] = set()
         self.cleared: set[str] = set()        # directories removed whole (shutil.rmtree, os.rmdir)
         self.network = False
-        self.records: dict[str, str] = {}     # law -> the path of its record, written by this process
+        self.records: dict[str, tuple[str, int]] = {}   # law -> (its record's path, the event of its last write)
+        self.rec_reads: dict[str, int] = {}  # another law's record -> the event of its first read
+        self.n = 0                            # the event counter
         self.busy = False
         self.bins: dict[str, str | None] = {}
 
@@ -119,10 +123,13 @@ class Tracer:
         r = self.rel(path)
         if r is None:
             return
+        self.n += 1
         wr = (isinstance(mode, str) and any(c in mode for c in "wax+")) or \
             (isinstance(flags, int) and flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_APPEND | os.O_TRUNC))
         if wr:
             self.wrote(r)
+        elif RECORD.fullmatch(r):
+            self.rec_reads.setdefault(r, self.n)
         else:
             self.reads.setdefault(r, None)
 
@@ -130,7 +137,7 @@ class Tracer:
         self.written.add(r)
         m = RECORD.fullmatch(r)
         if m:
-            self.records[m.group(2)] = r
+            self.records[m.group(2)] = (r, self.n)
 
     def on_remove(self, path, whole_dir: bool = False) -> None:
         r = self.rel(path)
@@ -174,8 +181,8 @@ class Tracer:
 
     def snapshot(self) -> dict:
         root = self.root
-        reads = {r: h(root / r) for r in self.reads if not self.output(r) and not RECORD.fullmatch(r)}
-        recs = {r: h(root / r) for r in self.reads if RECORD.fullmatch(r) and not self.output(r)}
+        reads = {r: h(root / r) for r in self.reads if not self.output(r)}
+        recs = {r: (i, h(root / r)) for r, i in self.rec_reads.items() if not self.output(r)}
         lists = {d: listing(root / d) for d in self.lists if not self.out_dir(d)}
         listed = set(self.lists)
         stats = {r: kind(root / r) for r in self.stats
@@ -212,12 +219,15 @@ class Tracer:
             return 0
         snap = self.snapshot()
         n = 0
-        for law, rec in sorted(self.records.items()):
+        for law, (rec, last) in sorted(self.records.items()):
             if not (self.root / rec).is_file():
                 continue
             out = self.root / rec.rsplit("/", 1)[0] / "traces" / f"{law}.json"
             out.parent.mkdir(parents=True, exist_ok=True)
-            body = dict(snap, records={k: v for k, v in snap["records"].items() if k != rec})
+            # another law's record counts for this law when it was read before this law's record was last written
+            # (inside the decision: a back-test, an attribution, a profile); reads after it (contracts.after_run,
+            # aggregates) are not inputs of this verdict
+            body = dict(snap, records={k: v for k, (i, v) in snap["records"].items() if k != rec and i < last})
             out.write_text(json.dumps({"version": VERSION, "law": law, "record": rec, "run_id":
                                        os.environ.get("GITHUB_RUN_ID"), **body}, indent=1, sort_keys=True) + "\n",
                            encoding="utf-8")
@@ -339,11 +349,11 @@ def finish() -> int:
 
 
 # ------------------------------------------------------------------------------------------------ validity
-def check(root: Path, trace: dict, records: bool = False) -> str | None:
-    """None when every entry of the trace still holds in the tree at root, else the first entry that does not. Other
-    laws' records the run read count only with records=True: a law's verdict is not computed from other laws'
-    records (runners read them for aggregates such as summary.json), the gate re-checks every reused PROVED and
-    REFUTED, and a milestone exit re-makes every record."""
+def check(root: Path, trace: dict, records: bool = True) -> str | None:
+    """None when every entry of the trace still holds in the tree at root, else the first entry that does not. The
+    other laws' records in a trace are those read before this law's record was last written (holon.trace.Tracer),
+    so they count: a verdict computed from them (a back-test, an attribution, a profile) is stale when they change.
+    records=False skips them (diagnostics only)."""
     if trace.get("version") != VERSION:
         return "trace version"
     if trace.get("network"):
