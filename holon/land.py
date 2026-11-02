@@ -664,14 +664,26 @@ def step_apply(a) -> int:
             print(f"  {job}: no changed.tgz")
             continue
         with tarfile.open(fileobj=io.BytesIO(r.stdout)) as t:
-            ms = [x for x in t.getmembers() if x.isfile() and not x.name.startswith(("/", "."))
-                  and ".." not in Path(x.name).parts]
+            safe = [x for x in t.getmembers() if not x.name.startswith(("/", ".")) and ".." not in Path(x.name).parts]
+            ms = [x for x in safe if x.isfile()]
+            # A model's second name is a symbolic link to the file beside it (holon.sorts.model3.write_model_file:
+            # <name>.bend -> its importable name), and records and traces name the link. A link member is applied
+            # only when it names a sibling file, never a path that leaves its directory.
+            ls = [x for x in safe if x.issym() and x.linkname not in ("", ".", "..") and "/" not in x.linkname]
             for x in ms:
                 dest = root / x.name
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 dest.write_bytes(t.extractfile(x).read())
-            n += len(ms)
-            print(f"  {job}: {len(ms)} files")
+            for x in ls:
+                dest = root / x.name
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                if dest.is_symlink() and os.readlink(dest) == x.linkname:
+                    continue
+                if dest.is_symlink() or dest.is_file():
+                    dest.unlink()
+                os.symlink(x.linkname, dest)
+            n += len(ms) + len(ls)
+            print(f"  {job}: {len(ms)} files" + (f", {len(ls)} links" if ls else ""))
     git("add", "-A")
     print(f"holon land: applied {n} files from {ref}")
     return 0

@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 37 | 243 | 186 | 37 |
+| M3 | 38 | 249 | 188 | 38 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -53,6 +53,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I31 | M3 | DISCH I: guard conjuncts, the enableable write closure over the extracted principal classes, blocking and external depe… | `prompts/I31_disch.md` | 12 | 3 | 1 | `docs/iterations/I31.md` |
 | I32 | M3 | DISCH II: discharge profiles in the §8.4 form, Pareto search, bounded dominance and classification (test milestone T32:… | `prompts/I32_disch_profile.md` | 5 | 2 | 1 | `docs/iterations/I32.md` |
 | I33 | M3 | O12's intent contract on M3, the typed extracted Rollup: C_o12_m3 bounds the residue of one cancellation (challengeStat… | `prompts/I33_o12_m3.md` | 8 | 4 | 1 | `docs/iterations/I33.md` |
+| I34 | M3 | Rule SYM on M3, the typed extracted Rollup: families admitted by sorts (τ over the Time words, π over the set roles; ι … | `prompts/I34_sym.md` | 6 | 2 | 1 | `docs/iterations/I34.md` |
 | I35 | M3 | Rule OWN from extracted backing identities: OWN-alias pairs and OWN-lost-write laws over the Go document's slice facts,… | `prompts/I35_own.md` | 7 | 3 | 1 | `docs/iterations/I35.md` |
 | I40 | M3 | Refutation engines, Appendix D encodings, BMC over the extracted TRANS edges, concretization, emitted tests and the fin… | `prompts/I40_refute.md` | 11 | 5 | 1 | `docs/iterations/I40.md` |
 | I41 | M3 | Untrusted prover intake | `prompts/I41_prover_intake.md` | 9 | 3 | 1 | `docs/iterations/I41.md` |
