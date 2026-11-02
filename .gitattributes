@@ -1,0 +1,16 @@
+results/M2/historical/index.json filter=lfs diff=lfs merge=lfs -text
+results/M2/historical/replay.json filter=lfs diff=lfs merge=lfs -text
+results/M2/historical/supplement.json filter=lfs diff=lfs merge=lfs -text
+
+# Generated outputs (AGENTS.md rule 4): left out of GitHub's language statistics and collapsed in diffs.
+gen/** linguist-generated=true
+
+# PV2A: the prereg aggregates are generated from their per-key sources (spec/<M>/predictions/, spec/<M>/amendments/;
+# python -m holon aggregate). With a merge driver named "ours" configured (git config merge.ours.driver true), a merge
+# keeps this side's aggregate and `python -m holon aggregate --milestone <M> --split` regenerates it from the merged
+# sources; without one (GitHub's merge included) git merges them as text, as before.
+spec/M2/predictions.json merge=ours
+spec/M2/amendments.jsonl merge=ours
+spec/M3/predictions.json merge=ours
+spec/M3/amendments.jsonl merge=ours
+spec/M4/predictions.json merge=ours

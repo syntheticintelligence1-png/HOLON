@@ -1,0 +1,24 @@
+{
+  "disch_version": "holon-disch/0.1",
+  "doc": "Blind rerun, authored (README rule 7, step 3.4) from the target code and holon/analysis/closure.py. documents: the one transitions document of the extraction scope (the Rollup contract). r0: the deployment's abstraction, the storage of the deployed Rollup after what its constructor and initializer write at deployment. The constructor writes the immutable LAYER_2_CHAIN_ID and disables initializers on the implementation's own storage; the deployment (contracts/deploy/016-RollupInit.ts, upgradeToAndCall of initialize on the proxy) runs initialize under the initializer modifier: _initialized 1, _initializing false, __Pausable_init (_paused false), __Ownable_init (_owner the deployer), and the parameters submitterContract, messageQueue, verifier (each required nonzero), finalizationPeriodSeconds, proofWindow and proofRewardPercent, whose values the code does not fix (T). Every other path is 0. hypotheses: none (the target code names no oracle hypothesis); hypothesis_verdicts: none (I21's verdicts are results of M2, which cannot be derived from code); inputs: none pinned beyond the documents.",
+  "documents": [
+    "spec/M2/facts/morph_rollup.extracted.json"
+  ],
+  "r0": {
+    "values": {
+      "_initialized": [1],
+      "_initializing": [0],
+      "_owner": ["T"],
+      "_paused": [0],
+      "finalizationPeriodSeconds": ["T"],
+      "messageQueue": ["T"],
+      "proofRewardPercent": ["T"],
+      "proofWindow": ["T"],
+      "submitterContract": ["T"],
+      "verifier": ["T"]
+    }
+  },
+  "hypotheses": {},
+  "hypothesis_verdicts": null,
+  "inputs": []
+}
