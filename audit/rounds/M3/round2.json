@@ -1,0 +1,108 @@
+{
+  "attacks": [
+    {
+      "auditor_type": "A1",
+      "category": "mutation_adequacy",
+      "findings": [],
+      "id": "A1",
+      "result": "no_finding",
+      "run": false,
+      "tried": "Not run. The repository's mutation tool refuses M3: `python -m holon mutate run --milestone M3` prints 'holon mutate run: refused: milestone M3 (I62 runs on M2)' (holon/mutate/run.py). No other repository tool plants misimplementations in M3's sources and re-derives; hand-planting would not be the repo's own tooling, so no result is claimed."
+    },
+    {
+      "auditor_type": "A2",
+      "category": "model_vs_code",
+      "findings": [],
+      "id": "A2",
+      "result": "no_finding",
+      "run": false,
+      "tried": "Not run. `python -m holon audit hostile --milestone M3 --round 2 --target c3eda1976c6811ff181fd71ae6ad1166f7e86a49` builds the packet (84 A2 PAR targets; `--check`: identical), but the hostile-input instrument (holon/audit/hostile.py, I21) is M2's only: its harness, sidecar and output paths are audit/rounds/M2/round2/ and spec/M2/lib/audit_round2.json. No repository tool drives hostile input at M3's carriers."
+    },
+    {
+      "auditor_type": "A3",
+      "category": "statement_fidelity",
+      "evidence": [
+        "audit/rounds/M3/round2/a3_summary.json"
+      ],
+      "findings": [
+        "F-M3-07"
+      ],
+      "id": "A3",
+      "result": "finding",
+      "run": true,
+      "tried": "`python -m holon audit regress --from 2b4578afc7bb71c19715c1df680c824b218bd4ec --to c3eda1976c6811ff181fd71ae6ad1166f7e86a49 --json` (round 1's target to this one): 1126 hash changes, 680 reported uncovered, 0 deletions, 116 additions; transitions: 14 UNKNOWN->PROVED (bend2 not_run -> bend2 and BendTT checked), no status, kernel or premise loss. Every reported-uncovered change was checked against the commit's actual parents: none is uncovered (F-M3-07, an instrument false positive). `python -m holon audit prereg --milestone M3`: PREREG OK."
+    },
+    {
+      "auditor_type": "A4",
+      "category": "vacuity",
+      "evidence": [
+        "audit/rounds/M3/round2/a4.json",
+        "results/M3/backtest.json"
+      ],
+      "findings": [
+        "F-M3-04",
+        "F-M3-05",
+        "F-M3-06",
+        "F-M3-08"
+      ],
+      "id": "A4",
+      "result": "finding",
+      "run": true,
+      "tried": "`python -m holon audit vacuity --milestone M3 --round 2 --target c3eda1976c6811ff181fd71ae6ad1166f7e86a49`: counter_witness 48, degenerate 43, no_premises 49, not_decided 87, ok 27, unreadable 4, vacuous 0 over 258 laws. Degenerate representatives: found 38 (D3, linked codec laws), not_searched 5: F-M3-01's two and three new D1 laws (F-M3-04). Unreadable 4: F-M3-05 (the push law, on inspection a diagonal x1 = x2 inhabitant with a constant hash) and F-M3-06. In-flight: 8 of 8 edges inhabited. Canaries 4 of 4 detected. Oracles: no hypotheses; keccak256 bound in 89 laws, constrained in 1; 467 table entries, 0 mismatches. `--check` rebuilt a4.json from the target tree: identical. Representativeness of the four back-test exit blockers (the B2 rows) was examined by hand against the M0 laws, the M3 candidates and the Morph sources: F-M3-08 for L_rt_go_v0/v1/v2, no finding for L_par_hdr_v2 (see notes)."
+    },
+    {
+      "auditor_type": "A4",
+      "category": "bindings_ledger",
+      "evidence": [
+        "audit/rounds/M3/round2/a4.json"
+      ],
+      "findings": [],
+      "id": "A5",
+      "result": "no_finding",
+      "run": true,
+      "tried": "A4's oracle half (holon/audit/oracles.py, inside a4.json): O1 M3 has no oracle sidecar, so no hypothesis to test; O2 the one oracle parameter, keccak256 (Fn<Bytes,Word>), is bound in 89 laws and constrained by 1 premise (the CF premise of a push law, F-M3-05); O3 every one of the 467 hash-table entries in M3's witnesses and inhabitants (all keccak256) equals the real Keccak-256 of its key: no mismatch."
+    },
+    {
+      "category": "determinism",
+      "evidence": [
+        "audit/rounds/M3/round2/packet.json",
+        "audit/rounds/M3/round2/a4.json"
+      ],
+      "findings": [],
+      "id": "A6",
+      "result": "no_finding",
+      "run": true,
+      "tried": "`python -m holon audit hostile --milestone M3 --round 2 --check` and `python -m holon audit vacuity --milestone M3 --round 2 --check` rebuilt the packet and a4.json from the target commit's tree (git archive into a scratch directory): both byte-identical."
+    },
+    {
+      "category": "gate_evasion",
+      "findings": [],
+      "id": "A7",
+      "result": "no_finding",
+      "run": false,
+      "tried": "Not run to completion: G2's statement-diff tie (holon.statement_diff.scan + tie_problems on M3) was started but had not finished within this session. The parent-based check of every change regress reported uncovered was done by hand under A3 (F-M3-07)."
+    }
+  ],
+  "auditor": {
+    "counts_toward_convergence": false,
+    "family": "same",
+    "session": "Devin (Cognition AI), 2026-11-02"
+  },
+  "dry_run": false,
+  "findings": [
+    "F-M3-04",
+    "F-M3-05",
+    "F-M3-06",
+    "F-M3-07",
+    "F-M3-08"
+  ],
+  "milestone": "M3",
+  "notes": "Requested as a different-family round with session 'GPT-6 Astra via Codex'. The auditor is Devin (Cognition AI) and cannot attest that it is that model or of a family other than the builders', so the round records family 'same' and does not count toward convergence (CV1 freshness and family cannot be vouched for). Environment: tools/setup_env.sh's prefix (~/.holon) plus symlinks for config/holon.json's /root/work/{morph,foundry,solc-0.8.24} and replay.sol_deps (built by holon.replay.ensure_sol_deps; tree sha256 equals the pin 57ff084f..). A first A4 run without them reported in-flight 0 of 8 by PermissionError, an environment artefact; the recorded a4.json is the run with them. F-M3-02 is not reproduced at this target: in-flight 8 of 8 (I83, 5bac041); its line is left unedited. Back-test exit blockers: gap:M0:L_par_hdr_v2 is no finding (Go's v2 producer is BatchCache.createBatchHeaderWithSequencerSetHash, V1 bytes with byte 0 set to 2, common/batch/batch_cache.go; M3 states it as L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned, PROVED by bend2, BendTT and Lean, while the unpinned law is REFUTED on a nonzero SequencerSetVerifyHash, which Solidity zeroes; M0's REFUTED L_par_hdr_v2 compares with enc_go_v1, which writes version byte 1; the gap is the map's, enc_go_v1 having only the image BatchHeaderV1_Bytes). gap:M0:L_rt_go_v0/v1/v2: F-M3-08.",
+  "packet": {
+    "path": "audit/rounds/M3/round2/packet.json",
+    "sha256": "9b57e49ee5d8d93926d266c97fd04300162c3b6b1bb09c0166b67d10c22a127c"
+  },
+  "round": 2,
+  "round_version": "holon-audit-round/0.2",
+  "target_commit": "c3eda1976c6811ff181fd71ae6ad1166f7e86a49"
+}
