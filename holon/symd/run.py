@@ -33,6 +33,7 @@ from pathlib import Path
 
 from ..gen import symsec as SS
 from ..gen.mlaws import law_name
+from ..inhabit import premised
 from ..machine_bend import bname
 from ..rules import sym as R
 from ..sorts import evaluate3 as E3
@@ -619,6 +620,15 @@ class Decider:
         nv = None
         if status != "REFUTED":
             nv = self.inhabit(el, law, sc)
+            if status == "PROVED" and nv.get("status") != "inhabited" and premised(law):
+                # A premised PROVED law needs a checked reachable inhabitant (G11V, holon.inhabit.g11v). Without one
+                # the checked proof is vacuous on the model: no reachable state the search reaches satisfies the
+                # premises. The law stays UNKNOWN; the checked proof stays among the attempts, the bound in the record.
+                bound = f"vacuous on the model: the proof checks, but {nv.get('bound')}"
+                attempts.append({"kind": "non_vacuity", "found": False, "bound": nv.get("bound"),
+                                 "consequence": "a checked proof without an inhabitant is not PROVED (G11V)"})
+                status, prim = "UNKNOWN", None
+                shutil.rmtree(self.paths(lid)["proofs"], ignore_errors=True)
         rec = self.record(law, e, el, sc, status, wj if status == "REFUTED" else None, attempts, lp, prim,
                           bound if status == "UNKNOWN" else None, diag, nv)
         rs = [{"law_id": r["law"], "a": r["a"], "b": r["b"], "disabled": r["disabled"], "code": r["code"],
