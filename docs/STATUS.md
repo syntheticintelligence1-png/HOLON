@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 36 | 236 | 181 | 34 |
+| M3 | 36 | 236 | 181 | 36 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -52,7 +52,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I30 | M3 | Sorts III: nominal types, hole-free coercions, generated ghost tags | `prompts/I30_typed_sorts.md` | 8 | 6 | 1 | `docs/iterations/I30.md` |
 | I31 | M3 | DISCH I: guard conjuncts, the enableable write closure over the extracted principal classes, blocking and external depe… | `prompts/I31_disch.md` | 12 | 3 | 1 | `docs/iterations/I31.md` |
 | I32 | M3 | DISCH II: discharge profiles in the §8.4 form, Pareto search, bounded dominance and classification (test milestone T32:… | `prompts/I32_disch_profile.md` | 5 | 2 | 1 | `docs/iterations/I32.md` |
-| I33 | M3 | O12's intent contract on M3, the typed extracted Rollup: C_o12_m3 bounds the residue of one cancellation (challengeStat… | `prompts/I33_o12_m3.md` | 8 | 4 | 1 | none |
+| I33 | M3 | O12's intent contract on M3, the typed extracted Rollup: C_o12_m3 bounds the residue of one cancellation (challengeStat… | `prompts/I33_o12_m3.md` | 8 | 4 | 1 | `docs/iterations/I33.md` |
 | I35 | M3 | Rule OWN from extracted backing identities: OWN-alias pairs and OWN-lost-write laws over the Go document's slice facts,… | `prompts/I35_own.md` | 7 | 3 | 1 | `docs/iterations/I35.md` |
 | I40 | M3 | Refutation engines, Appendix D encodings, BMC over the extracted TRANS edges, concretization, emitted tests and the fin… | `prompts/I40_refute.md` | 11 | 5 | 1 | `docs/iterations/I40.md` |
 | I41 | M3 | Untrusted prover intake | `prompts/I41_prover_intake.md` | 9 | 3 | 1 | `docs/iterations/I41.md` |
@@ -78,7 +78,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I83 | M3 | I83 (= I28b): I28's model debt paid. | `prompts/I83_versions_debt.md` | 6 | 3 | 1 | `docs/iterations/I83.md` |
 | I84 | M3 | = I37b: Bundle II's laws over I80's extraction: rule catalog holon-rules/1.10 adds PAR link_domain (O3: a proof call th… | `prompts/I84_bundle2_laws.md` | 8 | 4 | 1 | `docs/iterations/I84.md` |
 | I85 | M3 | = I39a: the Go derivation extracted (ParseBatch as an extracted consumer: I18's skeleton document of node/derivation pl… | `prompts/I85_derivation_extraction.md` | 6 | 4 | 1 | `docs/iterations/I85.md` |
-| I86 | M3 | = I36b: Bundle I's laws over the current deployment, over I69's extraction: rule catalog holon-rules/1.11 adds SORT pay… | `prompts/I86_bundle_laws.md` | 11 | 4 | 1 | none |
+| I86 | M3 | = I36b: Bundle I's laws over the current deployment, over I69's extraction: rule catalog holon-rules/1.11 adds SORT pay… | `prompts/I86_bundle_laws.md` | 11 | 4 | 1 | `docs/iterations/I86.md` |
 | I87 | M3 | I87 (= I45a): the audit-loop machinery (round records with the auditor's family, Q9's labels and the convergence rule, … | `prompts/I87_audit_loop.md` | 4 | 13 | 1 | `docs/iterations/I87.md` |
 | I88 | M3 | = I39b: I39's laws over I85's product machine (O7 PAR-cycle, the O8 law pair under HypC with a hypothesis split, O24, t… | `prompts/I88_derivation_laws.md` | 6 | 4 | 1 | `docs/iterations/I88.md` |
 | I89 | M3 | = I39c: the Go consumer compiled to Bend from I85's extracted SSA by a generator (holon/derivation/bendgen.py: Go's int… | `prompts/I89_derivation_bend.md` | 10 | 4 | 1 | `docs/iterations/I89.md` |
