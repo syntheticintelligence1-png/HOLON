@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 24 | 154 | 129 | 24 |
+| M3 | 36 | 234 | 181 | 35 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -48,9 +48,11 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I26 | M3 | FACT rule, attribution (O25) and F(m, c), decided on the extracted real code | `prompts/I26_fact.md` | 9 | 4 | 1 | `docs/iterations/I26.md` |
 | I27 | M3 | UNDO rule and static deadness, decided on the extracted real code | `prompts/I27_undo.md` | 11 | 5 | 1 | `docs/iterations/I27.md` |
 | I28 | M3 | I28 (the laws half; I63 = I28a holds the history half): versioned machines over the extracted deployment history (one e… | `prompts/I28_versions.md` | 6 | 2 | 1 | `docs/iterations/I28.md` |
+| I29 | M3 | I29: rule NAT over I28's versioned machine (catalog holon-rules/1.8): naturality squares across the deployed path's MIG… | `prompts/I29_nat.md` | 3 | 3 | 1 | `docs/iterations/I29.md` |
 | I30 | M3 | Sorts III: nominal types, hole-free coercions, generated ghost tags | `prompts/I30_typed_sorts.md` | 8 | 6 | 1 | `docs/iterations/I30.md` |
 | I31 | M3 | DISCH I: guard conjuncts, the enableable write closure over the extracted principal classes, blocking and external depe… | `prompts/I31_disch.md` | 12 | 3 | 1 | `docs/iterations/I31.md` |
 | I32 | M3 | DISCH II: discharge profiles in the §8.4 form, Pareto search, bounded dominance and classification (test milestone T32:… | `prompts/I32_disch_profile.md` | 5 | 2 | 1 | `docs/iterations/I32.md` |
+| I35 | M3 | Rule OWN from extracted backing identities: OWN-alias pairs and OWN-lost-write laws over the Go document's slice facts,… | `prompts/I35_own.md` | 7 | 3 | 1 | `docs/iterations/I35.md` |
 | I40 | M3 | Refutation engines, Appendix D encodings, BMC over the extracted TRANS edges, concretization, emitted tests and the fin… | `prompts/I40_refute.md` | 11 | 5 | 1 | `docs/iterations/I40.md` |
 | I41 | M3 | Untrusted prover intake | `prompts/I41_prover_intake.md` | 9 | 3 | 1 | `docs/iterations/I41.md` |
 | I42 | M3 | Theory core I: generic graphs, walks and holonomy with Lemma 6.2, Thm 6.3, Thm 6.4 and Cor 6.5 kernel-checked in Lean i… | `prompts/I42_theory_core.md` | 4 | 9 | 1 | `docs/iterations/I42.md` |
@@ -65,13 +67,23 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I65 | M3 | = I33b: the O12 intent contract on M2's window view of the extracted Rollup: a ghost counter (IR 0.3 term), the proof c… | `prompts/I65_o12_view.md` | 4 | 4 | 1 | `docs/iterations/I65.md` |
 | I66 | M3 | holon differential's window view in M2's evidence set (Q62): its diagram by I11's adapters and its E2, E3, E4 and E6 at… | `prompts/I66_view_evidence.md` | 1 | 5 | 1 | `docs/iterations/I66.md` |
 | I67 | M3 | I67 (= I38a): Go codecs at loop granularity (holon-go-frontend/0.2 loop bodies), Go-op components over interface carrie… | `prompts/I67_go_loop.md` | 5 | 5 | 1 | `docs/iterations/I67.md` |
+| I68 | M3 | Structural storage keys in the M3 model (the Q21 fix): mapping storage keyed as (base slot, key path) instead of a look… | `prompts/I68_structural_keys.md` | 7 | 8 | 1 | `docs/iterations/I68.md` |
 | I69 | M3 | = I36a: Bundle I's extraction and acquisition, no laws: the message queue, the messenger, the whitelist and the Submitt… | `prompts/I69_bundle_extraction.md` | 7 | 5 | 1 | `docs/iterations/I69.md` |
+| I70 | M3 | = I36c: the cutover x slash laws, O13 and O20's economic half, over the real legacy staking code (Q12): the legacy regi… | `prompts/I70_cutover_slash.md` | 6 | 4 | 1 | none |
+| I71 | M3 | UNDO's third sub-form cancel (I33's catalog key): the cancel restore U3' and criterion U4' over the extracted transitio… | `prompts/I71_undo_cancel.md` | 6 | 6 | 1 | `docs/iterations/I71.md` |
 | I72 | M3 | E2 over the adopted holon-facts/0.3 transitions documents (I33's evidence key): written-via-p, read-via-q atoms from th… | `prompts/I72_e2_transitions.md` | 1 | 5 | 1 | `docs/iterations/I72.md` |
 | I80 | M3 | = I37a: Bundle II's extraction and acquisition, no laws: the verifier router (MultipleVersionRollupVerifier) extracted … | `prompts/I80_bundle2_extraction.md` | 6 | 4 | 1 | `docs/iterations/I80.md` |
 | I81 | M3 | I81 (= I44a): Def 6.13's measures (holon/measures.py, one interface over PAR's holonomy defect size, NAT's naturality d… | `prompts/I81_measures_ranking.md` | 7 | 7 | 1 | `docs/iterations/I81.md` |
 | I82 | M3 | I82 (= I46a): the blind pack, the comparison generator and the agreement metric (I46 keeps its number for the blind rer… | `prompts/I82_blind_tooling.md` | 9 | 4 | 1 | `docs/iterations/I82.md` |
+| I83 | M3 | I83 (= I28b): I28's model debt paid. | `prompts/I83_versions_debt.md` | 6 | 3 | 1 | `docs/iterations/I83.md` |
+| I84 | M3 | = I37b: Bundle II's laws over I80's extraction: rule catalog holon-rules/1.10 adds PAR link_domain (O3: a proof call th… | `prompts/I84_bundle2_laws.md` | 8 | 4 | 1 | `docs/iterations/I84.md` |
 | I85 | M3 | = I39a: the Go derivation extracted (ParseBatch as an extracted consumer: I18's skeleton document of node/derivation pl… | `prompts/I85_derivation_extraction.md` | 6 | 4 | 1 | `docs/iterations/I85.md` |
+| I86 | M3 | = I36b: Bundle I's laws over the current deployment, over I69's extraction: rule catalog holon-rules/1.11 adds SORT pay… | `prompts/I86_bundle_laws.md` | 11 | 4 | 1 | `docs/iterations/I86.md` |
 | I87 | M3 | I87 (= I45a): the audit-loop machinery (round records with the auditor's family, Q9's labels and the convergence rule, … | `prompts/I87_audit_loop.md` | 4 | 13 | 1 | `docs/iterations/I87.md` |
+| I88 | M3 | = I39b: I39's laws over I85's product machine (O7 PAR-cycle, the O8 law pair under HypC with a hypothesis split, O24, t… | `prompts/I88_derivation_laws.md` | 6 | 4 | 1 | `docs/iterations/I88.md` |
+| I89 | M3 | = I39c: the Go consumer compiled to Bend from I85's extracted SSA by a generator (holon/derivation/bendgen.py: Go's int… | `prompts/I89_derivation_bend.md` | 10 | 4 | 1 | `docs/iterations/I89.md` |
+| I90 | M3 | I90 (= I38b): O28 at 65,536 L1 messages, through the count channels of a Go component: a Go count component over the ca… | `prompts/I90_go_counts.md` | 4 | 5 | 1 | `docs/iterations/I90.md` |
+| I91 | M3 | I91 (= I38c): the compression oracle, HypZ and HypZ_len (§8.5; distinct from Hyp-Z0-kzg), tested on the real codec at t… | `prompts/I91_compression_oracle.md` | 6 | 4 | 1 | `docs/iterations/I91.md` |
 
 ## Reports without a predictions key
 

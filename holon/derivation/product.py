@@ -30,7 +30,7 @@ PRODUCT_VERSION = "holon-derivation-product/0.1"
 WORD = 1 << 256
 
 
-def blob_hash(b: bytes) -> int:
+def stand_in_blobhash(b: bytes) -> int:
     return int.from_bytes(b"\x01" + hashlib.sha256(b).digest()[1:], "big")
 
 
@@ -127,7 +127,7 @@ class Product:
             else:
                 raise Refused(f"call answer {c['answer']!r}")
         return {"caller": actor, "this": self.address, "msg.value": 0, "msg.data.length": calldata_len,
-                "block.timestamp": ts, "block.number": 1000 + k, "blobhash": [blob_hash(b) for b in blobs],
+                "block.timestamp": ts, "block.number": 1000 + k, "blobhash": [stand_in_blobhash(b) for b in blobs],
                 "calls": calls}
 
     def commit(self, state: dict, parent: bytes, plan: dict, blobs: list, k: int, prev_root: str) -> dict:

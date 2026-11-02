@@ -384,7 +384,12 @@ def rec(lid: str) -> dict:
 
 
 def disch_laws(root: Path = ROOT, m: str = M3) -> dict[str, dict]:
-    return {p.stem: load_json(p) for p in sorted((root / "laws" / m).glob("L_disch_*.json"))}
+    """I31's DISCH laws: the L_disch_* laws of I31's four sub-forms (I84's law of sub-form self_controlled, over I80's
+    bundle declaration, which I31's checks never covered: amended at I84's build; I86's keyed DISCH laws, sub-forms
+    keyed_*, are the bundle laws', checked by tests_m3/test_bundle_laws.py: amended at I86's build;
+    spec/M3/amendments.jsonl)."""
+    laws = {p.stem: load_json(p) for p in sorted((root / "laws" / m).glob("L_disch_*.json"))}
+    return {k: v for k, v in laws.items() if v.get("subform") in SUBFORMS}
 
 
 def derivation(root: Path = ROOT, m: str = M3) -> dict[str, dict]:

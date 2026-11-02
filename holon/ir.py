@@ -3,6 +3,13 @@
 The statement hash is the identity of a frozen claim (whitepaper §8.9, §9.4). Only
 ir_version, law_id, rule, facts_sha256 and statement are hashed; notes and evidence
 are metadata.
+
+statement_hash is the one implementation of that identity (PV2A): every other module resolves a law's refs and hands
+them in. A law's hash scheme is law.get("hash_scheme", 1), so every historical file hashes as scheme 1:
+  scheme 1  0.1/0.2 over HASHED_KEYS (docs/M0_SPEC.md §3); 0.3 over HASHED_KEYS_03 plus refs; the DISCH-profile IR of a
+            test milestone (holon.rules.disch_profile) over its statement alone.
+  scheme 2  0.3 only: over HASHED_KEYS_03_S2 (HASHED_KEYS_03 without rule_catalog_version) plus refs, so a rule-catalog
+            bump moves no statement hash; rule_catalog_version stays in the law file as an audit trail.
 """
 from __future__ import annotations
 
@@ -17,11 +24,24 @@ HASHED_KEYS = ("ir_version", "law_id", "rule", "facts_sha256", "statement")
 # holon-ir/0.3 (I7): the statement and the content hashes of the definitions it names, never a whole
 # facts bundle, so an extraction change outside a law's refs leaves its hash unchanged
 HASHED_KEYS_03 = ("ir_version", "law_id", "rule", "rule_catalog_version", "statement")
+# hash scheme 2 (PV2A): the 0.3 keys without rule_catalog_version, so a catalog bump adds only its own laws
+HASHED_KEYS_03_S2 = ("ir_version", "law_id", "rule", "statement")
+HASH_SCHEMES = (1, 2)
+# a test milestone's DISCH profile laws (holon.rules.disch_profile): the statement hash is its statement's sha256
+DISCH_PROFILE_IR = "holon-disch-profile/0.1"
+# a milestone's hash scheme declaration (PV2A): spec/<M>/hash_scheme.json, written by `python -m holon.statement_diff
+# migrate-hash --apply`; the generators stamp hash_scheme on every 0.3 law of a milestone that declares scheme 2
+HASH_SCHEME_FILE = "hash_scheme.json"
+# the plan-stated product laws' sidecar (BUILD_PLAN I88): holon.derivation.laws reads its path from here, so that a
+# generator-closure module that needs the law set's location (holon.statement_diff's migrate-hash) never imports
+# holon.derivation, which no generator closure may hold (I85's and I88's R4)
+PLAN_LAWS_SIDECAR = "spec/M3/lib/derivation_laws.json"
 # law files, and the result records named after them: L_* (0.1, 0.2) and, from 0.3, L3_*, L8_* etc.
 # (the 0.3 schema's law_id pattern ^L[0-9]?_). Every glob over laws/<m>/ or results/<m>/ uses this one.
 LAW_GLOB = "L*.json"
 # binder types every IR version may use; 0.3 adds Fn<A,B>, Bytes(n), List<Nat> and record refs (a facts type)
-BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>", "Word", "Env")
+# (I86: Args, the input of an action, its arguments as the law model's AR_<action> record holds them)
+BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>", "Word", "Env", "Args")
 
 
 class IRError(ValueError):
@@ -33,16 +53,69 @@ def canonical_json(obj) -> bytes:
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
-def statement_hash(law: dict, refs: dict | None = None) -> str:
-    """The identity of a frozen claim. 0.1/0.2: over HASHED_KEYS. 0.3: over HASHED_KEYS_03 plus
-    `refs`, which maps each definition the statement names to the content hash of its source
-    (holon.gen.refs)."""
-    if law.get("ir_version") == "holon-ir/0.3":
-        core = {k: law[k] for k in HASHED_KEYS_03}
-        core["refs"] = dict(sorted((refs or {}).items()))
+def hash_scheme(law: dict) -> int:
+    """The law's statement-hash scheme: law["hash_scheme"], 1 when absent (every file written before PV2A). Scheme 2
+    exists for holon-ir/0.3 only; anything else raises IRError."""
+    s = law.get("hash_scheme", 1)
+    if isinstance(s, bool) or s not in HASH_SCHEMES:
+        raise IRError(f"{law.get('law_id')}: hash_scheme {s!r} is not one of {list(HASH_SCHEMES)}")
+    if s != 1 and law.get("ir_version") != "holon-ir/0.3":
+        raise IRError(f"{law.get('law_id')}: hash_scheme {s} is defined for holon-ir/0.3 laws only")
+    return s
+
+
+def statement_hash(law: dict, refs=None) -> str:
+    """The identity of a frozen claim, the one implementation (the schemes: see the module docstring). `refs` maps each
+    definition a 0.3 statement names to the content hash of its source (holon.gen.refs): a dict, or a callable
+    law -> dict that resolves them, called only when the law's hash covers refs (holon-ir/0.3)."""
+    irv, scheme = law.get("ir_version"), hash_scheme(law)
+    if irv == DISCH_PROFILE_IR:
+        core = law["statement"]
+    elif irv == "holon-ir/0.3":
+        core = {k: law[k] for k in (HASHED_KEYS_03 if scheme == 1 else HASHED_KEYS_03_S2)}
+        r = refs(law) if callable(refs) else refs
+        core["refs"] = dict(sorted((r or {}).items()))
     else:
         core = {k: law[k] for k in HASHED_KEYS}
     return "sha256:" + hashlib.sha256(canonical_json(core)).hexdigest()
+
+
+def with_hash_scheme(law: dict, scheme: int) -> dict:
+    """The law under hash scheme `scheme`: scheme 2 gives a holon-ir/0.3 law "hash_scheme": 2 (placed after
+    rule_catalog_version); scheme 1 leaves every law as it is (a scheme-1 law carries no hash_scheme key)."""
+    if scheme == 1 or law.get("ir_version") != "holon-ir/0.3":
+        return law
+    out = {}
+    for k, v in law.items():
+        if k != "hash_scheme":
+            out[k] = v
+        if k == "rule_catalog_version":
+            out["hash_scheme"] = scheme
+    out.setdefault("hash_scheme", scheme)
+    hash_scheme(out)
+    return out
+
+
+def plan_law_set(root: Path | str | None = None) -> dict | None:
+    """The "law_set" section ({milestone, laws, facts, ...}) of the plan-stated product laws' sidecar, read as data
+    (holon.derivation.laws validates and generates the set), or None without the sidecar."""
+    p = Path(root or ROOT) / PLAN_LAWS_SIDECAR
+    if not p.is_file():
+        return None
+    ls = json.loads(p.read_text(encoding="utf-8")).get("law_set")
+    return ls if isinstance(ls, dict) else None
+
+
+def milestone_hash_scheme(milestone: str, root: Path | str | None = None) -> int:
+    """The hash scheme a milestone's 0.3 laws are generated under: spec/<M>/hash_scheme.json's "hash_scheme" (the
+    migration writes it: holon.statement_diff migrate-hash), 1 without the file."""
+    p = Path(root or ROOT) / "spec" / str(milestone) / HASH_SCHEME_FILE
+    if not p.is_file():
+        return 1
+    s = json.loads(p.read_text(encoding="utf-8")).get("hash_scheme")
+    if isinstance(s, bool) or s not in HASH_SCHEMES:
+        raise IRError(f"{p}: hash_scheme {s!r} is not one of {list(HASH_SCHEMES)}")
+    return s
 
 
 def check_premises(law: dict) -> None:
@@ -74,6 +147,10 @@ def check_binder_types(law: dict, facts: dict | None) -> None:
         types = set(facts.get("carriers", {}))
     if (facts or {}).get("goops_version") == "holon-goops/0.1":     # a Go-op document (I67): its interface carrier
         types = {(facts.get("carrier") or {}).get("id")}
+    if (facts or {}).get("gocount_version") == "holon-gocount/0.1":   # a count document (I90): its carrier
+        types = {(facts.get("carrier") or {}).get("id")}
+    if (facts or {}).get("own_version") == "holon-own/0.1":   # an OWN carrier document (I35, W8): its type's calls, values
+        types = {f"{k}_{facts.get('stem')}" for k in ("Call", "Val")}
     for b in law.get("statement", {}).get("binders", []):
         t = str(b.get("type", ""))
         if t in BASE_TYPES or t.startswith("Fn<") or re.fullmatch(r"Bytes\([0-9]+\)", t):
@@ -253,9 +330,22 @@ def render_term(t: dict) -> str:
     if isinstance(t.get("init"), str) and "on" in t and "from" in t:
         return (f"init_ok[{t['init']}]({render_term(t['on'])}, {render_term(t['from'])}, "
                 f"{render_term(t.get('env'))})")
+    # holon-ir/0.3 (I29): a NAT square term, square_ok[ID](A, U, S, E) over the versioned machine (holon.rules.nat)
+    if isinstance(t.get("square"), str) and isinstance(t.get("on"), list):
+        return f"square_ok[{t['square']}]({', '.join(render_term(a) for a in t['on'])})"
+    # holon-ir/0.3: a bundle term, bundle_ok[ID](args) over the law's binders (I84, holon.rules.bundle2: args its
+    # "on" list) or over its member's law model (I86, holon.rules.bundle: args its on, from, at and env, a premise of
+    # it bundle_<premise>[ID](..)); the id's sub-form names the module (holon.rules.bundle_terms)
+    if isinstance(t.get("bundle"), str):
+        args = [t[k] for k in ("on", "from", "at", "env") if k in t]
+        flat = [x for a in args for x in (a if isinstance(a, list) else [a])]
+        return f"bundle_{t.get('premise') or 'ok'}[{t['bundle']}]({', '.join(render_term(a) for a in flat)})"
     # holon-ir/0.3 (I27): an UNDO term, the undo law of the pair or residue ID over the law's binders (holon.rules.undo)
     if "undo" in t and isinstance(t.get("on"), list):
         return f"undo_ok[{t['undo']}]({', '.join(render_term(a) for a in t['on'])})"
+    # holon-ir/0.3 (I35): an OWN term, the alias or lost-write law ID over the law's binders (holon.rules.own)
+    if "own" in t and isinstance(t.get("on"), list):
+        return f"own_ok[{t['own']}]({', '.join(render_term(a) for a in t['on'])})"
     # holon-ir/0.3 (I65): a ghost counter, the sum of E over the successful A steps of T run from S
     if isinstance(t.get("ghost"), str) and "over" in t:
         from .diagram.access import render as render_expr

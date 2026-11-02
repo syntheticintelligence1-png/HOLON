@@ -1,0 +1,58 @@
+{
+  "title": "Hashes and oracles as parameters",
+  "plan": "docs/BUILD_PLAN.md#i12",
+  "prompt": "prompts/I12_oracles.md",
+  "predictions": [
+    {
+      "id": "I12-P1",
+      "claim": "The parametric model checks with term size per law at most 1.5x the M1 model's on the same fixture laws. Operationalized on fixture milestone T12 (toy machine tests_m2/fixtures/oracles/, parameters agg and dec from its oracle sidecar): the generated model passes bend; the model is parametric (L_orc_agg_value, true of the agg stand-in, is REFUTED by a witness other than the stand-in); the four parameter laws are decided as the fixtures predict (3 PROVED, 1 REFUTED) with BendTT verdict checked; and for each fixture law PROVED in both encodings (L_orc_cf_commit, L_orc_runs_ok, L_orc_run_post, L_orc_dec_pad), term size (characters of the BendTT kernel entries in the law's kernel cone over its model, plus its emitted LAWS.bend without comment lines) is at most 1.5x that of the same law in its M1 form (parameter binders and CF/hypothesis premises removed, claim kept) on the M1 model of the same machine (tests_m2/fixtures/oracles_standin/: byte-identical facts, each oracle compiled in as a target-library stand-in builtin), run as the same milestone.",
+      "check": "tests_m2/test_oracles.py::TestParametricModel::test_parametric_model_checks and tests_m2/test_oracles.py::TestParametricModel::test_model_is_parametric_in_agg and tests_m2/test_oracles.py::TestParametricModel::test_term_size_at_most_1_5x_the_stand_in_model"
+    },
+    {
+      "id": "I12-P2",
+      "claim": "A fixture oracle with two hypothesis variants yields a law pair with different statuses, reported as a split: the oracle dec with variants HypD-pad and HypD-exact (family HypD) gives L_orc_dec_pad PROVED and L_orc_dec_exact REFUTED (BendTT verdict checked), and splits.json reports the pair on family HypD with split true.",
+      "check": "tests_m2/test_oracles.py::TestSplits::test_variant_pair_has_different_statuses and tests_m2/test_oracles.py::TestSplits::test_splits_json_reports_the_split"
+    },
+    {
+      "id": "I12-P3",
+      "claim": "The agg inhabitant of CF(h, S) checks: the premise CF(agg, {[1], [2]}) of L_orc_cf_commit (PROVED) is inhabited with agg := the oracle record's concrete instance (AGG_BASE + enc(xs)), recorded as {\"instance\": \"agg\"}; the inhabitant states the law's premise and re-checks under bend; and with an agg instance that violates the premise (a constant) no inhabitant claims the instance.",
+      "check": "tests_m2/test_oracles.py::TestNonVacuity::test_cf_premise_inhabited_by_the_agg_instance and tests_m2/test_oracles.py::TestNonVacuity::test_cf_inhabitant_is_the_instance_not_a_label"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I12-R1",
+      "claim": "M1 models untouched: gen/M0 and gen/M1 byte-identical.",
+      "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged"
+    },
+    {
+      "id": "I12-R2",
+      "claim": "M1 laws untouched: laws/M0 and laws/M1 byte-identical to the prereg tree, and the 24 statement hashes recompute equal.",
+      "check": "tests_m2/test_oracles.py::TestRegression::test_m0_m1_laws_untouched and tests_m2/test_ir03.py::TestSchemaAndHash::test_existing_hashes_recompute_equal"
+    },
+    {
+      "id": "I12-R3",
+      "claim": "results/M2/hypotheses.json keeps I3's Hyp-Z0-kzg entry unchanged: oracle check extends the file and never rewrites that entry.",
+      "check": "tests_m2/test_zero_blob.py::TestZeroBlob::test_hypotheses_file and tests_m2/test_oracles.py::TestHypotheses::test_oracle_check_reproduces_and_keeps_zero_blob"
+    },
+    {
+      "id": "I12-R4",
+      "claim": "24 statuses unchanged; gates M0 and M1 pass.",
+      "check": "gate"
+    }
+  ],
+  "outcome_paths": [
+    "gen/M0/",
+    "gen/M1/",
+    "results/M0/",
+    "results/M1/",
+    "results/M2/hypotheses.json",
+    "gen/M2/oracles/"
+  ],
+  "tests": [
+    "tests_m2/test_oracles.py"
+  ],
+  "thresholds": {
+    "term_size_ratio_max": 1.5
+  }
+}

@@ -884,11 +884,16 @@ def doc_basis() -> dict:
 
 
 def undo_laws(root: Path = ROOT, milestone: str = M3) -> dict:
-    return {p.stem: load_json(p) for p in sorted((root / "laws" / milestone).glob("L_undo_*.json"))}
+    """The UNDO laws of I27's sub-forms (pair and residue). Amended at the I71 prereg (spec/M3/amendments.jsonl): I71
+    adds UNDO's sub-form cancel, whose law ids start L_undo_cancel_; tests_m3/test_undo_cancel.py checks them."""
+    return {p.stem: load_json(p) for p in sorted((root / "laws" / milestone).glob("L_undo_*.json"))
+            if not p.stem.startswith("L_undo_cancel_")}
 
 
 def undo_records(root: Path = ROOT, milestone: str = M3) -> dict:
-    return {p.stem: load_json(p) for p in sorted((root / "results" / milestone).glob("L_undo_*.json"))}
+    """The records of I27's UNDO laws (pair and residue; amended at the I71 prereg as undo_laws is)."""
+    return {p.stem: load_json(p) for p in sorted((root / "results" / milestone).glob("L_undo_*.json"))
+            if not p.stem.startswith("L_undo_cancel_")}
 
 
 def derivation(root: Path = ROOT, milestone: str = M3) -> dict:
@@ -1523,8 +1528,11 @@ class TestOutcomes(unittest.TestCase):
         on a copy writes a report whose "warnings" list holds no GUNDO entry."""
         c = need(CLASSIFICATION)
         self.assertEqual(c["document"], "undo_classification")
-        self.assertEqual(sorted(c["laws"]), sorted(PREDICTED))
-        for lid, x in c["laws"].items():
+        # amended at the I71 prereg (spec/M3/amendments.jsonl): I71's cancel laws join the classification; I27's laws
+        # are its pair and residue laws, and the whole classification still has no disagreement (below)
+        mine = {lid: x for lid, x in c["laws"].items() if not lid.startswith("L_undo_cancel_")}
+        self.assertEqual(sorted(mine), sorted(PREDICTED))
+        for lid, x in mine.items():
             want = "dead" if PREDICTED[lid][1] == "PROVED" else "live"
             self.assertEqual((x["static"], x["kernel"], x["agree"], x["blocks"]), (want, want, True, []), lid)
         self.assertEqual(c["disagreements"], [])
@@ -1640,8 +1648,20 @@ class TestBacktest(unittest.TestCase):
         exp = basis()["backtest"]
         got = [{k: x[k] for k in ("m1_law", "m1_status", "analogue", "analogue_status", "same_status")}
                for x in self.bt["rows"]]
-        self.assertEqual(got, exp["rows"])
-        self.assertEqual(self.bt["gaps"], ["L_undo_cancel"])
+        # amended at the I71 prereg (spec/M3/amendments.jsonl): I71's cancel sub-form gives L_undo_cancel an analogue,
+        # L_undo_cancel_<contract>_challengeState_setPause (I71-P5 checks it); the other rows are I27's, and
+        # L_undo_cancel's row is I27's gap row as long as laws/M3 holds no cancel law
+        cancel_law = f"L_undo_cancel_{CONTRACT}_challengeState_setPause"
+        has_cancel = (LAWS3 / f"{cancel_law}.json").is_file()
+        self.assertEqual([x for x in got if x["m1_law"] != "L_undo_cancel"],
+                         [x for x in exp["rows"] if x["m1_law"] != "L_undo_cancel"])
+        row = next(x for x in got if x["m1_law"] == "L_undo_cancel")
+        if has_cancel:
+            self.assertEqual(row["analogue"], cancel_law)
+            self.assertEqual(self.bt["gaps"], [])
+        else:
+            self.assertEqual(row, next(x for x in exp["rows"] if x["m1_law"] == "L_undo_cancel"))
+            self.assertEqual(self.bt["gaps"], ["L_undo_cancel"])
         bd = next(x for x in self.bt["rows"] if x["m1_law"] == "L_undo_BD")
         self.assertEqual((bd["m1_status"], bd["analogue_status"], bd["same_status"]), ("PROVED", "REFUTED", False))
         self.assertTrue(all(x.get("reason") for x in self.bt["rows"]))

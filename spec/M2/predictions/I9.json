@@ -1,0 +1,44 @@
+{
+  "title": "Lean second kernel for M0",
+  "plan": "docs/BUILD_PLAN.md#i9",
+  "prompt": "prompts/I9_lean_kernel.md",
+  "predictions": [
+    {
+      "id": "I9-P1",
+      "claim": "The 5 PROVED M0 laws are re-proved in Lean 4.34.0 (no Mathlib, axioms within {propext, Quot.sound}), each file in 120 s or less.",
+      "check": "tests_m2/test_lean.py::TestLeanVerdicts::test_every_file_checks_with_only_standard_axioms"
+    },
+    {
+      "id": "I9-P2",
+      "claim": "The 3 M0 counter-laws check in Lean at the recorded witnesses.",
+      "check": "tests_m2/test_lean.py::TestLeanVerdicts::test_every_file_checks_with_only_standard_axioms"
+    },
+    {
+      "id": "I9-P3",
+      "claim": "Cross-kernel agreement is 8/8: every M0 record lists lean4 as checked and gets independence class I2.",
+      "check": "tests_m2/test_lean.py::TestLeanVerdicts::test_cross_kernel_agreement"
+    },
+    {
+      "id": "I9-P4",
+      "claim": "A flipped-equality Lean canary is rejected.",
+      "check": "tests_m2/test_lean.py::TestLeanVerdicts::test_flipped_equality_canary_is_rejected"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I9-R1",
+      "claim": "M0 statuses, statement hashes and gen/M0 Bend files unchanged; the M0 gate passes.",
+      "check": "gate"
+    }
+  ],
+  "outcome_paths": [
+    "gen/M0/lean/",
+    "results/M0/"
+  ],
+  "tests": [
+    "tests_m2/test_lean.py"
+  ],
+  "thresholds": {
+    "seconds_per_file": 120
+  }
+}

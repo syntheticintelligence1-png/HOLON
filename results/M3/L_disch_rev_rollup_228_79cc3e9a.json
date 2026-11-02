@@ -12,11 +12,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 2.519
+          "seconds": 1.977
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 1.096
+        "seconds": 0.915
       },
       "generator": "holon.disch.proofs",
       "kind": "proof",
@@ -33,13 +33,13 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 2.519
+      "seconds": 1.977
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.096
+    "seconds": 0.915
   },
-  "compiled_sha256": "37562c1fcace527b4db860dbb0449e2d521f48134ac358a7529291a77bf0316d",
+  "compiled_sha256": "f838c64a012f2b3c50f0a10a19dd21af80aa24664dca21312acf7a2153a89c3a",
   "cone": [
     "AR_addChallenger",
     "AR_batchChallengedSuccess",
@@ -84,8 +84,10 @@
     "HLog",
     "HSt",
     "KB",
-    "KW",
+    "KV",
     "Reach",
+    "SK",
+    "SP",
     "S_IRollup_BatchDataInput",
     "T_Dig_Agg",
     "T_Dig_Agg_Dig_VH",
@@ -729,9 +731,9 @@
     "k_updateVerifier_6",
     "k_updateVerifier_7",
     "kb_get",
-    "kw_get",
-    "kw_put",
-    "kw_set",
+    "kv_get",
+    "kv_put",
+    "kv_set",
     "l_add",
     "l_at",
     "l_hi_zero",
@@ -1329,7 +1331,10 @@
     "s_updateVerifier_5",
     "s_updateVerifier_6",
     "s_updateVerifier_7",
+    "sk_eq",
     "sload",
+    "sp_eq",
+    "sps_eq",
     "sstore",
     "sub_Time_Time",
     "sx_addChallenger_cd",
@@ -1855,7 +1860,7 @@
   "evidence_triage": "none",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": null,
-  "generator_sha256": "c20cb10859918b9ec26e17b2ed9b16cf1e2c953c3c8725377fd4c7f1c86d666c",
+  "generator_sha256": "5e8fd3f4363cce62a1da48d091d407192f87424792161e290f5e5f66ac464117",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -1882,24 +1887,20 @@
   "ledger_match": "exact",
   "model_assumptions": [
     "A-env",
+    "A-keccak-structural",
     "A-reach"
   ],
-  "model_sha256": "5102c459bfde59a2ccc5d2c5c3ae78ee72a5d2dc95cc093a185a0f88aff545d7",
+  "model_sha256": "0b6f25426ff619e6320ceade30cc8826b392ae39f9722c72c05cc27776c55d46",
   "non_vacuity": {
     "bound": "a reachable state of 0 steps where B holds at t, and importGenesisBatch",
     "degenerate": false,
     "law": "gen/M3/L_disch_rev_rollup_228_79cc3e9a/nonvac/LAWS.bend",
-    "parent_statement_hash": "sha256:83118a92eb1fcf1589e2056f913993835f9f498a4f2701741a080e2c52f7940d",
+    "parent_statement_hash": "sha256:4ab2fbb55621f0e3e542e095c3e5639c988f49ebb39f38b41e6b49a17d7118b1",
     "reachable": true,
     "status": "inhabited",
     "witness": {
       "hashes": {
-        "keccak256": [
-          [
-            "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0",
-            "0xb84a74ec6ef4d0e83b6006dfaa014ab4026f9f3b97d186e604d29998a4e808ea"
-          ]
-        ]
+        "keccak256": []
       },
       "steps": [
         {
@@ -1936,7 +1937,7 @@
     "kind": "unbounded"
   },
   "statement": "the generalized chain_revert: every action excluded under the blocked condition reverts while it holds (the blocked theorem is the obstruction, whitepaper §8.4); morph_rollup.extracted:revert:rollup_228_79cc3e9a:all",
-  "statement_hash": "sha256:83118a92eb1fcf1589e2056f913993835f9f498a4f2701741a080e2c52f7940d",
+  "statement_hash": "sha256:4ab2fbb55621f0e3e542e095c3e5639c988f49ebb39f38b41e6b49a17d7118b1",
   "status": "PROVED",
   "subform": "revert",
   "triage": "none",

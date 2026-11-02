@@ -1,0 +1,214 @@
+{
+ "deployment": {
+  "init": [
+   40,
+   10,
+   20,
+   10,
+   100
+  ],
+  "versions": [
+   1
+  ]
+ },
+ "laws": {
+  "L_disch_self_Rollup_challengeState_489_493": {
+   "detail": "k*_real = 5328: the call succeeds within G at 5327 and fails within G, succeeds within 2G at 5328",
+   "key": "calibration:cc6a77a8ed0db58fad7dc53579710d65d44f9ed8637bc78c7fabbc5b747b4ca6",
+   "observed": {
+    "at": {
+     "backlog": 5328,
+     "within_2G": "ok",
+     "within_G": "fail"
+    },
+    "below": {
+     "backlog": 5327,
+     "within_G": "ok"
+    },
+    "k_star_real": 5328,
+    "probes": [
+     [
+      64,
+      30000000,
+      true
+     ],
+     [
+      2754,
+      30000000,
+      true
+     ],
+     [
+      4099,
+      30000000,
+      true
+     ],
+     [
+      4771,
+      30000000,
+      true
+     ],
+     [
+      5107,
+      30000000,
+      true
+     ],
+     [
+      5275,
+      30000000,
+      true
+     ],
+     [
+      5317,
+      30000000,
+      true
+     ],
+     [
+      5327,
+      30000000,
+      true
+     ],
+     [
+      5328,
+      30000000,
+      false
+     ],
+     [
+      5328,
+      60000000,
+      true
+     ],
+     [
+      5329,
+      30000000,
+      false
+     ],
+     [
+      5332,
+      30000000,
+      false
+     ],
+     [
+      5338,
+      30000000,
+      false
+     ],
+     [
+      5359,
+      30000000,
+      false
+     ],
+     [
+      5444,
+      30000000,
+      false
+     ],
+     [
+      10824,
+      30000000,
+      false
+     ]
+    ]
+   },
+   "status": "passed"
+  },
+  "L_fact_pi_Rollup_commitBatchWithProof_BatchIndex": {
+   "detail": "both runs succeed with one public input and different parent fields",
+   "key": "witness:0f5ed14f961b488f35491230c37fabfd2d8c5eeb0ff0602387c8592c45474d35",
+   "observed": {
+    "field": [
+     1,
+     2
+    ],
+    "pi": [
+     "0x02d8cd9d5d3a1e1c122f9e7ca87a5c6801bd3f8bd64e4a903209dc8af565208e",
+     "0x02d8cd9d5d3a1e1c122f9e7ca87a5c6801bd3f8bd64e4a903209dc8af565208e"
+    ],
+    "runs": [
+     "ok",
+     "ok"
+    ]
+   },
+   "status": "passed"
+  },
+  "L_fact_pi_Rollup_commitBatchWithProof_LastBlockNumber": {
+   "detail": "both runs succeed with one public input and different parent fields",
+   "key": "witness:d00f0253108c1f98e31b73d45e54fa70e9d59ff4f35f6801393081793b1f309a",
+   "observed": {
+    "field": [
+     "none",
+     0
+    ],
+    "pi": [
+     "0x02d8cd9d5d3a1e1c122f9e7ca87a5c6801bd3f8bd64e4a903209dc8af565208e",
+     "0x02d8cd9d5d3a1e1c122f9e7ca87a5c6801bd3f8bd64e4a903209dc8af565208e"
+    ],
+    "runs": [
+     "ok",
+     "ok"
+    ]
+   },
+   "status": "passed"
+  },
+  "L_fact_pi_Rollup_commitBatchWithProof_TotalL1MessagePopped": {
+   "detail": "the law is UNKNOWN",
+   "key": "witness:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+   "observed": null,
+   "status": "not_run"
+  },
+  "L_fact_pi_Rollup_commitBatchWithProof_Version": {
+   "detail": "both runs succeed with one public input and different parent fields",
+   "key": "witness:71b7d8959823687fc5dc6b597d70aa48fe338c27b355ca02cf0c64340bdb0cbc",
+   "observed": {
+    "field": [
+     0,
+     1
+    ],
+    "pi": [
+     "0x02d8cd9d5d3a1e1c122f9e7ca87a5c6801bd3f8bd64e4a903209dc8af565208e",
+     "0x02d8cd9d5d3a1e1c122f9e7ca87a5c6801bd3f8bd64e4a903209dc8af565208e"
+    ],
+    "runs": [
+     "ok",
+     "ok"
+    ]
+   },
+   "status": "passed"
+  },
+  "L_par_ldom_Rollup_commitBatchWithProof_MultipleVersionRollupVerifier_verifyAggregateProof": {
+   "detail": "every prefix step succeeds, the action reverts and the callee does not resolve the call's (version, index)",
+   "key": "witness:353d8243fa28e7f584217c3719d54cd75f56f7cf60771418a46c4a5d8ac8c947",
+   "observed": {
+    "getVerifier": "0x0000000000000000000000000000000000000000",
+    "index": 1,
+    "proof_call": "revert",
+    "steps": [],
+    "version": 0
+   },
+   "status": "passed"
+  },
+  "L_par_ldom_Rollup_proveCommittedBatchState_MultipleVersionRollupVerifier_verifyAggregateProof": {
+   "detail": "every prefix step succeeds, the action reverts and the callee does not resolve the call's (version, index)",
+   "key": "witness:6fe8ab09c79d3f2ae664dad44aa83a018f2a316bd88d2a3d3a00e0782119dd3b",
+   "observed": {
+    "getVerifier": "0x0000000000000000000000000000000000000000",
+    "index": 0,
+    "proof_call": "revert",
+    "steps": [],
+    "version": 0
+   },
+   "status": "passed"
+  },
+  "L_par_ldom_Rollup_proveState_MultipleVersionRollupVerifier_verifyAggregateProof": {
+   "detail": "the law is UNKNOWN",
+   "key": "witness:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+   "observed": null,
+   "status": "not_run"
+  }
+ },
+ "replay_version": "holon-bundle2-laws-replay/0.1",
+ "toolchain": {
+  "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+  "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+  "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+ }
+}

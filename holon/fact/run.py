@@ -61,7 +61,7 @@ def sha256_file(p: Path) -> str:
 
 
 def fact_laws(derivation: dict) -> list[str]:
-    return sorted(lid for lid, e in derivation.items() if e.get("rule") == RF.RULE)
+    return sorted(lid for lid, e in derivation.items() if e.get("rule") == RF.RULE and e.get("subform") in RF.SUBFORMS)
 
 
 # ------------------------------------------------------------------------------------------------ the context
@@ -685,7 +685,7 @@ class Decider:
             rec["difference"] = {"lhs": False, "rhs": True}   # fact_<x> at the witness, against true
         try:
             b, match = R.resolve_bundle(rec["facts_sha256"], law["facts"], ctx.root, tc.combined, set(cone), ctx.m)
-            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, law["facts"])
+            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, law["facts"], ctx.m)
         except R.LedgerError:
             match, assumptions = "none", []
         rec.update({"record_version": R.RECORD_VERSION, "prover": "generator", "model_sha256": sha256_file(tc.path),
@@ -895,7 +895,8 @@ def has_fact_laws(argv: list, root: Path = ROOT) -> bool:
         dv = json.loads((Path(root) / "laws" / str(_arg(argv, "--milestone")) / "DERIVATION.json").read_text())
     except (OSError, ValueError):
         return False
-    return any(isinstance(e, dict) and e.get("rule") == RF.RULE for e in dv.get("laws") or [])
+    return any(isinstance(e, dict) and e.get("rule") == RF.RULE and e.get("subform") in RF.SUBFORMS
+               for e in dv.get("laws") or [])
 
 
 def fact_ids_of(argv: list, root: Path = ROOT) -> tuple[list[str], list[str]] | None:
@@ -907,7 +908,9 @@ def fact_ids_of(argv: list, root: Path = ROOT) -> tuple[list[str], list[str]] | 
         dv = json.loads((Path(root) / "laws" / m / "DERIVATION.json").read_text())
     except (OSError, ValueError):
         dv = {}
-    rules = {e.get("law_id"): e.get("rule") for e in dv.get("laws") or [] if isinstance(e, dict)}
+    # a FACT law of another sub-form (I84's public_input, holon.bundle2.laws_decide) is not this runner's
+    rules = {e.get("law_id"): e.get("rule") if e.get("subform") in RF.SUBFORMS else None
+             for e in dv.get("laws") or [] if isinstance(e, dict)}
     ids = [x.strip() for x in laws.split(",") if x.strip()]
     return [x for x in ids if rules.get(x) == RF.RULE], [x for x in ids if rules.get(x) != RF.RULE]
 

@@ -1,0 +1,221 @@
+{
+ "artifacts": {
+  "equivalence": "gen/M3/derivation/bend/equiv/PROOF.bend",
+  "law_name": "cl_l_prod_trailing_hypc_ignores_trailing",
+  "laws": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_ignores_trailing/LAWS.bend",
+  "model": "gen/M3/derivation/bend/consumer.bend",
+  "product": "gen/M3/derivation/bend/product.bend",
+  "proof": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_ignores_trailing/PROOF.bend"
+ },
+ "attempts": [
+  {
+   "class": "counter",
+   "engine": "bend",
+   "kernels": {
+    "bend": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    },
+    "bendtt": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    }
+   },
+   "law_name": "cl_l_prod_trailing_hypc_ignores_trailing",
+   "laws_file": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_ignores_trailing/LAWS.bend",
+   "proof_file": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_ignores_trailing/PROOF.bend",
+   "result": "refuted",
+   "tried": [
+    "class hyp_apply: L_prod_trailing_HypC_ignores_trailing: no hypothesis premise concludes the claim from the law's premises",
+    "candidate 4: the premises hold and the claim fails on the compiled models: {'lhs': 1, 'rhs': 0}",
+    "kernels: bend 'ALL PROOFS CHECK' (exit 0), bendtt 'ALL PROOFS CHECK' (exit 0)"
+   ]
+  },
+  {
+   "candidates": 200,
+   "consumer": "holon.derivation.interp over the derivation document's consumer section, refined against the real code by results/M3/derivation/refinement.json",
+   "engine": "product-evaluator",
+   "evaluations": "results/M3/derivation/laws/evaluations.json",
+   "held": 128,
+   "observation": {
+    "lhs": 1,
+    "rhs": 0
+   },
+   "replay": {
+    "report": "replay/M3/derivation/laws.json",
+    "status": "passed"
+   },
+   "result": "witness",
+   "witness": {
+    "candidate": 4,
+    "mutation": "trailing",
+    "n": 1,
+    "step": {
+     "k": 1,
+     "trace": "product/01"
+    }
+   }
+  }
+ ],
+ "bound": "200 candidates: every commit of the product traces of spec/M3/lib/derivation.json (W1), each with n in [1, 2] blocks and the mutations ['consistent', 'last_number', 'l1_count', 'trailing'], and the calldata pairs [['calldata', 'calldata_last_number']]; the hypotheses' evaluator instances (W2)",
+ "checker": {
+  "bendtt": {
+   "exit_code": 0,
+   "marker": "ALL PROOFS CHECK"
+  },
+  "exit_code": 0,
+  "marker": "ALL PROOFS CHECK"
+ },
+ "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+ "cone": [
+  "BatchHeaderBytes_L1MessagePopped",
+  "BatchHeaderBytes_LastBlockNumber"
+ ],
+ "coverage": {
+  "debt": 12,
+  "document": "spec/M2/facts/morph_rollup.extracted.json",
+  "unaccounted": 0
+ },
+ "difference": {
+  "lhs": 1,
+  "rhs": 0
+ },
+ "evidence_levels": null,
+ "evidence_override": null,
+ "evidence_triage": "finding",
+ "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+ "filter_bin": "finding",
+ "generator_sha256": "6da79605b4a3034001a0fb3311fda424401eee2c9c18e39a2be77fd42a0dd6db",
+ "independence_class": "I1-shared",
+ "kernel": {
+  "name": "bend",
+  "verdict": "checked",
+  "version": "2.0.36"
+ },
+ "kernels": [
+  {
+   "name": "bend2",
+   "result": "checked",
+   "role": "primary",
+   "version": "2.0.36"
+  },
+  {
+   "name": "bendtt",
+   "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+   "result": "checked",
+   "role": "second",
+   "shares_frontend_with": "bend2",
+   "version": "2.0.36"
+  }
+ ],
+ "law_id": "L_prod_trailing_HypC_ignores_trailing",
+ "ledger_match": "exact",
+ "maps_to": [
+  {
+   "id": "O8"
+  },
+  {
+   "id": "F11",
+   "role": "a"
+  }
+ ],
+ "model_assumptions": [
+  "HypB",
+  "HypC-ignores-trailing",
+  "HypT",
+  "I89-HypB-instance-132-canonical-cases",
+  "I89-consumer-model-refinement"
+ ],
+ "model_sha256": "3a43806071c3aa3f776c41ce38092186720d9c73062d31770185bf024540a492",
+ "non_vacuity": {
+  "bound": "the counter-law's witness satisfies every premise (Bend and BendTT): the commit from the deployment state, the consumer model's runs",
+  "degenerate": false,
+  "law": "cl_l_prod_trailing_hypc_ignores_trailing",
+  "parent_statement_hash": "sha256:b401cd60e1ca9822c256c2f5cb16bbb1a34da270e920d31446ebcfe9eed28f52",
+  "reachable": true,
+  "status": "counter_witness",
+  "witness": {
+   "candidate": 4
+  }
+ },
+ "premises": [
+  "is_commitBatch(x) == true",
+  "last_ok(step(x, s)) == true",
+  "blobs_match(x, p, cb, vh) == true",
+  "HypB(cb, pl)",
+  "HypT(et, dt)",
+  "txs_data(x, p, cb, pl) == et(ts)",
+  "derive_ok(x, p, cb, pl, dt) == true",
+  "circuit_accepts(circ, s, x, p, cb, pl, dt) == true",
+  "HypC_ignores_trailing(circ, cb, pl, vh, et, dt)"
+ ],
+ "prover": "generator",
+ "record_version": "holon-record/0.2",
+ "refinement_refs": [],
+ "replay": {
+  "model": [
+   1,
+   0
+  ],
+  "real": [
+   1,
+   0
+  ],
+  "report": "replay/M3/derivation/bend/witnesses.json",
+  "status": "passed"
+ },
+ "rule": "PAR",
+ "scope": "unbounded",
+ "scope_v2": {
+  "at_state": null,
+  "horizon": null,
+  "kind": "unbounded"
+ },
+ "statement": "∀ s: Reach, ∀ x: Act, ∀ p: List<Nat>, ∀ ts: List<Nat>, ∀ cb: Fn<Bytes,Blobs>, ∀ pl: Fn<Blobs,Payload>, ∀ vh: Fn<Blob,Word>, ∀ et: Fn<Txs,Bytes>, ∀ dt: Fn<Bytes,Txs>, ∀ circ: Fn<Step,Bool>. is_commitBatch(x) == true ∧ last_ok(step(x, s)) == true ∧ blobs_match(x, p, cb, vh) == true ∧ HypB(cb, pl) ∧ HypT(et, dt) ∧ txs_data(x, p, cb, pl) == et(ts) ∧ derive_ok(x, p, cb, pl, dt) == true ∧ circuit_accepts(circ, s, x, p, cb, pl, dt) == true ∧ HypC_ignores_trailing(circ, cb, pl, vh, et, dt) ⇒ trailing(x, p, cb, pl, dt) == 0",
+ "statement_hash": "sha256:b401cd60e1ca9822c256c2f5cb16bbb1a34da270e920d31446ebcfe9eed28f52",
+ "statement_scope": {
+  "kind": "unbounded"
+ },
+ "status": "REFUTED",
+ "subform": "product_trailing",
+ "triage": "finding",
+ "witness": {
+  "blobhash_word": "0x19d3ae2cd509c9f06738b8687f2c2de16a5f0671c1375d017a3edd23ed557ab",
+  "candidate": 4,
+  "commit": {
+   "code": 0,
+   "status": "ok"
+  },
+  "contexts": {},
+  "instances": {
+   "cb": "one blob, the payload itself",
+   "circ": "accepts every step",
+   "et/dt": "a codec of opaque tokens",
+   "pl": "PlOk with that blob's bytes",
+   "vh": "the constant blob hash"
+  },
+  "keccak_table": 5,
+  "members": {
+   "lastBlockNumber": 1,
+   "numL1Messages": 0,
+   "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+   "postStateRoot": "0x3d907c1a41f74a214eb90782d0d8abfb1d160c1c41987a1c1962a1e754fdb2c9",
+   "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+   "version": 1,
+   "withdrawalRoot": "0xcfdb6c5c2a09d69a998fe846aa6ce6ebb2211ea13fc07d9d214c8823a1050df8"
+  },
+  "payload": "0x0000000000000001000000006553f1020000000000000000000000000000000000000000000000000000006eb639900e0000000001d818360000000001f8cb82cf558201338502036be4ba830668a394f24f50862d39353878545ae337b03911d5a860808802fdadcb413afbe19fe6c18173935f0b4000b6fd41460ba67a9c932e0aae42da9496f682d7679620f838f7944dedd9e43eba9b64195fc04db558cba12b44e954e1a0e026cd1a527297bf803424bdc6da9728b3f2cbdad1bcf59a0fa71634c019d28880a0dbf5a55d5cce8586b3374c63b8c07f55513673e2797f4dcb17a5fe1158dd0c69a0f5aaedc4a477c91da984fa6ccb9b3084c6e32d41422f8d00bf3f24829ecd0b4d",
+  "step": {
+   "k": 1,
+   "trace": "product/01"
+  },
+  "ts": [
+   0
+  ],
+  "txs_data": "0x01f8cb82cf558201338502036be4ba830668a394f24f50862d39353878545ae337b03911d5a860808802fdadcb413afbe19fe6c18173935f0b4000b6fd41460ba67a9c932e0aae42da9496f682d7679620f838f7944dedd9e43eba9b64195fc04db558cba12b44e954e1a0e026cd1a527297bf803424bdc6da9728b3f2cbdad1bcf59a0fa71634c019d28880a0dbf5a55d5cce8586b3374c63b8c07f55513673e2797f4dcb17a5fe1158dd0c69a0f5aaedc4a477c91da984fa6ccb9b3084c6e32d41422f8d00bf3f24829ecd0b4d"
+ },
+ "witness_provenance": {
+  "go": "internal_harness",
+  "solidity": "internal_harness"
+ }
+}

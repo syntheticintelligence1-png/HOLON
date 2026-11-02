@@ -126,24 +126,24 @@ def classes(tree: Path, milestone: str) -> tuple[dict, list[str]]:
 # ====================================================================== the comparison (B4, B5)
 def compare_milestone(lead: Path, blind: Path, milestone: str) -> dict:
     lc, lu = classes(lead, milestone)
-    bc, bu = classes(blind, milestone)
-    matched = sorted(set(lc) & set(bc))
-    agree = [k for k in matched if lc[k]["status"] == bc[k]["status"]]
+    bcls, bunk = classes(blind, milestone)
+    matched = sorted(set(lc) & set(bcls))
+    agree = [k for k in matched if lc[k]["status"] == bcls[k]["status"]]
     return {
         "lead_keys": len(lc),
-        "blind_keys": len(bc),
+        "blind_keys": len(bcls),
         "matched": len(matched),
         "agree": len(agree),
         "blind_agreement": len(agree) / len(matched) if matched else None,
         "matched_fraction": len(matched) / len(lc) if lc else None,
-        "lead_only": sorted(lid for k in set(lc) - set(bc) for lid in lc[k]["laws"]),
-        "blind_only": sorted(lid for k in set(bc) - set(lc) for lid in bc[k]["laws"]),
+        "lead_only": sorted(lid for k in set(lc) - set(bcls) for lid in lc[k]["laws"]),
+        "blind_only": sorted(lid for k in set(bcls) - set(lc) for lid in bcls[k]["laws"]),
         "disagreements": [{"key": k, "lead": {"laws": lc[k]["laws"], "status": lc[k]["status"]},
-                           "blind": {"laws": bc[k]["laws"], "status": bc[k]["status"]}}
-                          for k in matched if lc[k]["status"] != bc[k]["status"]],
-        "unrecorded": {"lead": lu, "blind": bu},
-        "facts_differ": [{"key": k, "lead": lc[k]["facts"], "blind": bc[k]["facts"]}
-                         for k in matched if lc[k]["facts"] != bc[k]["facts"]],
+                           "blind": {"laws": bcls[k]["laws"], "status": bcls[k]["status"]}}
+                          for k in matched if lc[k]["status"] != bcls[k]["status"]],
+        "unrecorded": {"lead": lu, "blind": bunk},
+        "facts_differ": [{"key": k, "lead": lc[k]["facts"], "blind": bcls[k]["facts"]}
+                         for k in matched if lc[k]["facts"] != bcls[k]["facts"]],
     }
 
 

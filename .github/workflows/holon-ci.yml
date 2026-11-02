@@ -121,15 +121,21 @@ jobs:
             report: "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
           - name: gate-M3-G2
             # F38: each gate re-runs only its own milestone's binding_change proofs in the two kernels, so M3's are
-            # re-run here, once per CI run, in a job of their own (gate-M3-partial is red until G11V passes, Q36)
+            # re-run here, once per CI run, in a job of their own (gate-M3-partial is red until G11V passes, Q36).
+            # Pipeline v2 (E): under holon.kcache, the kernels' acceptance of a committed proof's exact bytes under
+            # the pinned checker is remembered in the Actions cache (kcache below); a milestone exit re-checks
+            # without it
             timeout: 90
-            run: python -m holon gate --milestone M3 --checks G2 --report "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
+            kcache: true
+            run: python -m holon.kcache selftest && python -m holon.kcache --dir ~/.cache/holon-kcache -m holon gate --milestone M3 --checks G2 --report "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
             report: "$RUNNER_TEMP/ci-out/gate_report_M3_G2.json"
           - name: tests-m3-catalog
             # F39: the catalog re-derivation bookkeeping on the real history (the registry tie, the lines the tool
             # generates, the typed bindings, and gate3's G2 on a clone); it re-runs M3's binding_change proofs once
+            # (under holon.kcache, as gate-M3-G2)
             timeout: 120
-            run: python -m unittest tests_m3.test_catalog_rederivation -v
+            kcache: true
+            run: python -m holon.kcache --dir ~/.cache/holon-kcache -m unittest tests_m3.test_catalog_rederivation -v
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -161,11 +167,25 @@ jobs:
             ~/holon-work
       - name: Verify the pins
         run: python .github/ci/verify_toolchain.py
+      # holon.kcache's entries (pipeline v2, E): written by workflow runs only; a pull request's run reads its base
+      # branch's entries and writes its own scope. Each job saves a new key; a restore takes the newest match
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: matrix.kcache
+        with:
+          key: holon-kcache-v1-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.name }}
+          restore-keys: holon-kcache-v1-
+          path: ~/.cache/holon-kcache
       - name: ${{ matrix.name }}
         run: |
           mkdir -p "$RUNNER_TEMP/ci-out"
           set -o pipefail
           ${{ matrix.run }} 2>&1 | tee "$RUNNER_TEMP/ci-out/${{ matrix.name }}.log"
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        # only acceptances are ever stored, so a failed check's entries are as good as a passing one's
+        if: ${{ !cancelled() && matrix.kcache }}
+        with:
+          key: holon-kcache-v1-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.name }}
+          path: ~/.cache/holon-kcache
       - name: Test summary
         if: always() && (matrix.name == 'frozen-suite' || matrix.name == 'tests-m3-catalog')
         run: |

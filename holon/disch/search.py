@@ -100,7 +100,7 @@ class DSynth(S3.Synth):
                 slot = int(self.m.doc.family(fam).slot)
             except Exception:  # noqa: BLE001
                 continue
-            for k in sorted(self.m.kh):
+            for k in self.m.preimages():
                 b = bytes.fromhex(k[2:])
                 if len(b) == 64 and int.from_bytes(b[32:], "big") == slot:
                     key = int.from_bytes(b[:32], "big")

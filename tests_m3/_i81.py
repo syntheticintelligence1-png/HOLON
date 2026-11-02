@@ -143,10 +143,11 @@ def ranges(ps: list[int]) -> list[list[int]]:
 # ------------------------------------------------------------------ UNDO: residue liveness distance
 def undo_divergence(entry: dict) -> int | None:
     """The first index i of t where the model observes the two runs differently (the run with the pair at t_at + i,
-    the run without it at t_at - 2 + i), or None."""
+    the run without it at t_at - 2 + i, or at t_at_without + i where the entry carries it: a cancel law's run without x
+    keeps y, amended for I71), or None."""
     w, wo = entry["with"]["model"], entry["without"]["model"]
     t_at = entry["t_at"]
-    pre = t_at - 2
+    pre = entry.get("t_at_without", t_at - 2)
     n = len(entry["with"]["trace"]) - t_at
     for i in range(n):
         if w[t_at + i] != wo[pre + i]:
@@ -267,7 +268,7 @@ def channel_of(law: dict, record: dict, root: Path = ROOT) -> str:
         step = e["with"]["trace"][e["t_at"] + i]
         if (acts.get(step.get("action")) or {}).get("mutability") in ("view", "pure"):
             return "view"
-        a, b = e["with"]["model"][e["t_at"] + i], e["without"]["model"][e["t_at"] - 2 + i]
+        a, b = e["with"]["model"][e["t_at"] + i], e["without"]["model"][e.get("t_at_without", e["t_at"] - 2) + i]
         return "revert" if a.get("status") != b.get("status") else "store"
     if rule == "FACT":
         fid = claim.get("fact", "")
@@ -314,7 +315,9 @@ def persistence_of(law: dict, root: Path = ROOT) -> str:
     if law["rule"] == "PAR" and not any(b.get("type") == "Reach" for b in st.get("binders") or []):
         return "code"
     if law["rule"] == "DISCH":
-        did = st["claim"]["eq"][0]["disch"]
+        did = st["claim"]["eq"][0].get("disch")
+        if not isinstance(did, str):   # amended (spec/M3/amendments.jsonl, I86): a keyed DISCH law states a bundle
+            return "undecided"         # term, no disch term, so no I32 class of a basis element decides it
         _model, sub, tag, cls = did.split(":")
         entries = load(root / "gen" / M / "disch" / "classification.json")["entries"]
         mine = [e for e in entries if e["tag"] == tag and (sub != "blocking" or e["class"] == cls)]

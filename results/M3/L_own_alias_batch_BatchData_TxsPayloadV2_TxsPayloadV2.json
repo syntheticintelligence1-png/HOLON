@@ -1,0 +1,163 @@
+{
+  "artifacts": {
+    "law_name": null,
+    "laws": null,
+    "model": "gen/M3/model/own_batch_BatchData.bend",
+    "proof": null
+  },
+  "attempts": [
+    {
+      "error": "does not apply: the view is not a field view, or the writer does not write the view's field exactly once by appending a parameter past the view's end (an overlapping write), or a method outside the model class stores into a field",
+      "generator": "heap_disjoint",
+      "kind": "proof"
+    },
+    {
+      "engine": "compiled-model search",
+      "hit": false,
+      "kind": "refute",
+      "pool": {
+        "byte_lengths": [
+          0,
+          1,
+          60
+        ],
+        "max_calls": 6
+      },
+      "tried": 579195
+    }
+  ],
+  "bound": "no trace of the pool refutes it (579195 candidates: up to 6 calls, byte lengths [0, 1, 60]); heap_disjoint does not apply (an overlapping write)",
+  "checker": {
+    "exit_code": null,
+    "marker": "not_run"
+  },
+  "compiled_sha256": "2320f9720aecb6e8517a3637dab828fa30d13cefe897c4a147e6f88d4abcad10",
+  "cone": [
+    "AR",
+    "Call",
+    "FS",
+    "OBk",
+    "OKey",
+    "OSl",
+    "St",
+    "TR",
+    "VR",
+    "ar_h",
+    "ar_s",
+    "b_app3",
+    "b_drop",
+    "b_len",
+    "b_over",
+    "b_take",
+    "b_write",
+    "b_zeros",
+    "do_Append",
+    "do_EstimateCompressedSizeWithNewPayload",
+    "do_TxsPayload",
+    "do_TxsPayloadV2",
+    "e_Append_0",
+    "e_Append_1",
+    "e_EstimateCompressedSizeWithNewPayload_0",
+    "e_TxsPayloadV2_0",
+    "fbytes",
+    "g_classes",
+    "g_grow",
+    "g_next",
+    "g_round_in",
+    "growcap",
+    "h_get",
+    "ite",
+    "key_eq",
+    "n_eq",
+    "oa_post_TxsPayloadV2_TxsPayloadV2",
+    "oa_pre_TxsPayloadV2_TxsPayloadV2",
+    "run",
+    "s0",
+    "st_app_e",
+    "st_h",
+    "step",
+    "tr_app_e",
+    "tr_fc",
+    "tr_h",
+    "tr_v",
+    "vbytes",
+    "view_TxsPayloadV2",
+    "vr_post_TxsPayloadV2_TxsPayloadV2",
+    "vr_pre",
+    "vw_TxsPayloadV2"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [
+    "E2"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "18ea631f461b970bad739ac9c606dd97ee1a70f6d72949f90b3033c34624b0bc",
+  "filter_bin": null,
+  "generator_sha256": "b3eaacada3ea088f4b0ef12482acac6c07600aeb896b0faeedb0852ffd8bad7d",
+  "independence_class": "none",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "not_run",
+      "role": "primary",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_own_alias_batch_BatchData_TxsPayloadV2_TxsPayloadV2",
+  "ledger_assumptions": [
+    "A-go-growth",
+    "A-own-fields",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim--github-com-morph-l2-go-ethereum-common-Hash--Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "0855bee276d7b50a3e15e73bafd0e6a820716d21fba529d9833ac857dc39dcc6",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:4bb91701ff1c70bfda765bf7c30c0151ec90a17581525f0d19527a182493095d",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "OWN",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 p: Trace, \u2200 w: Call_batch_BatchData. own_ok[batch_BatchData:alias:TxsPayloadV2:TxsPayloadV2](p, w) == true",
+  "statement_hash": "sha256:4bb91701ff1c70bfda765bf7c30c0151ec90a17581525f0d19527a182493095d",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "UNKNOWN",
+  "subform": "alias",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

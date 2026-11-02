@@ -407,7 +407,7 @@ def render(doc: dict, sets: list[dict], m: str) -> str:
            "far a fresh session reproduces them from code alone, and the held-out target of M4 is the real control.",
            "",
            f"Bases. **hand**: the record sets {hand} (laws over hand-written facts). **code**: the record sets {code} "
-           "(facts extracted from the pinned code; M2/view is M1's laws decided on the extracted Rollup's window view). "
+           "(facts extracted from the pinned code; M2/view is M1's laws decided on the extracted document's window view). "
            "A link reads `law (set) status`; \"(context)\" marks a link shown but not counted (its expect is null, or "
            "its law's rule is outside the item's rule families). Verdicts follow rule A8 of the docstring of "
            "tests_m3/test_blind.py: an obstruction is reproduced when some counted link has the status that agrees "

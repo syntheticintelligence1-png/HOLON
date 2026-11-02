@@ -21,6 +21,11 @@ in the log by their merge, not by the registry history the tool walks, so the to
 committed ones line for line by (law, old hash, new hash). A REFUTED typed law's checked LAWS.bend is its counter-law
 (G2 compares it with the bound counter-law). F35's binding_change lines are checked against the bound model at their
 bound commit, which needs the history, so gate3's G2 runs on a clone of the committed tree, not on a copy.
+
+PV2A (amended, spec/M3/amendments.jsonl): a law under statement-hash scheme 2 (holon.ir) has a hash without
+rule_catalog_version, so from the hash-scheme migration on a catalog bump adds no line for it (recatalog skips it and
+check_entry rejects one); the migration's own registry changes are tied to its hash_migration lines, and the catalog
+lines above are still checked under scheme 1.
 """
 from __future__ import annotations
 
@@ -62,10 +67,11 @@ class TestCatalogRederivation(unittest.TestCase):
     def test_the_80_par_laws_each_have_one_line(self):
         """F30's bump (holon-rules/1.1 -> 1.2) has one line per PAR law; every later bump's lines (F39: I27, I31 and
         I26 bumped the catalog again) are lines of the same kind, each between the two catalogs its sides name. The PAR
-        laws are those over the linked codec document (I67's laws over a Go-op document, derived after F30, have no F30
+        laws are those over the linked codec document (I67's laws over a Go-op document, I84's link_domain laws over
+        the adopted Rollup document and I86's push law over a bundle member's document, derived after F30, have no F30
         line)."""
         par = sorted(p.stem for p in (ROOT / "laws" / "M3").glob("L_par_*.json")
-                     if not str(json.loads(p.read_text()).get("facts") or "").startswith("gen/M3/goops/"))
+                     if str(json.loads(p.read_text()).get("facts") or "").startswith("gen/M3/codec/"))
         self.assertEqual(len(par), 80)
         f30 = [e for e in self.lines if (e["old_catalog"], e["new_catalog"]) == (OLD_CATALOG, NEW_CATALOG)]
         self.assertEqual(sorted(e["law_id"] for e in f30), par)
@@ -123,8 +129,8 @@ class TestCatalogRederivation(unittest.TestCase):
             m = AT.search(e["reason"])
             return m.group(1) if m else None
 
-        def masked(e):
-            return json.dumps({**{k: v for k, v in e.items() if k != "accepted"},
+        def masked(e):   # the acceptance record and (PV2A) the line id are written by append, checked below
+            return json.dumps({**{k: v for k, v in e.items() if k not in ("accepted", "id")},
                                "reason": AT.sub("(registry change at ..)", e["reason"])}, sort_keys=True)
         committed = {key(x): x for x in self.lines}
         self.assertEqual(len(committed), len(self.lines), "one line per registry change")
@@ -138,6 +144,8 @@ class TestCatalogRederivation(unittest.TestCase):
                 r = SD.check_entry(e, ROOT)
                 self.assertTrue(r["ok"], r["reason"])
                 self.assertEqual(SD.acceptance(e, r, ROOT), x["accepted"])
+                if "id" in x:   # PV2A: a line appended since carries its id, the sha256 of its own canonical JSON
+                    self.assertEqual(x["id"], SD.line_id(x))
 
     def test_a_claim_change_is_never_a_catalog_rederivation(self):
         SD = self.SD

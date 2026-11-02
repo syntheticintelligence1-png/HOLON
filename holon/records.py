@@ -36,7 +36,11 @@ which can only add assumptions, never hide one. Since I2 it is cross-checked aga
 checker's own BendTT dependency graph (holon/bindings.py): for all 24 laws the two agree on
 the model's own definitions (tests_m2/test_bindings.py, prediction I2-P4).
 
-model_assumptions are the spec/ledger entries whose introducing definitions meet the cone.
+model_assumptions are the spec/ledger entries whose introducing definitions meet the cone; with a milestone (the typed
+runners pass theirs), the entries its ledger extension spec/<M>/ledger.json adds to the bundle too (milestone_entries;
+I68: A-keccak-structural, for the structural store of the M3 model). An entry with "requires" meets only a cone that
+also holds a definition matching one of those patterns (the structural store's key type SK: a model without it is not
+the model the entry describes).
 Which bundle applies (resolve_bundle):
   * exact: the facts sha256 has a ledger bundle; the only match the v2 schema accepts;
   * derived: a run over facts derived from a registered file (the planted mutations of
@@ -200,7 +204,8 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
     """The ledger's bundles, the "bundles" of every milestone ledger spec/M<n>/ledger.json (a document first
     modelled at that milestone, I20: the extracted model's), plus the bundles of a sidecar ledger.json next to a
     facts file (a fixture or a target outside spec/ may carry its own ledger; I6), and the generated bundle of a facts
-    file that is a linked codec document (I24), a Go-op document (I67) or a window view (I65). With a milestone, a
+    file that is a linked codec document (I24), a Go-op document (I67), an OWN carrier document (I35) or a window view
+    (I65). With a milestone, a
     bundle extended by
     spec/<milestone>/ledger.json (milestone_extensions) carries the extension's no_assumption groups too."""
     out = list(load_ledger(root)["bundles"])
@@ -212,8 +217,11 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
             out += json.loads(side.read_text(encoding="utf-8"))["bundles"]
         out += _linked_bundles(Path(root), facts_path)
         out += _goops_bundles(Path(root), facts_path)
+        out += _gocount_bundles(Path(root), facts_path)
+        out += _own_bundles(Path(root), facts_path)
         out += _window_bundles(Path(root), facts_path)
         out += _versions_bundles(Path(root), facts_path)
+        out += _bundle_member_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
     for i, b in enumerate(out):
         for x in exts:
@@ -268,6 +276,48 @@ def _goops_bundles(root: Path, facts_path) -> list[dict]:
     return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
 
 
+def _gocount_bundles(root: Path, facts_path) -> list[dict]:
+    """I90 (rule C6b of tests_m3/test_go_counts.py): the bundle of a count document (holon.diagram.gocount), generated
+    from it by holon.gen.gocount.declared_bundle: the assumptions its Go document declares and the model's own
+    A-gocount-* entries. Never hand-written: the document is itself generated (holon codecs), so its bundle follows it."""
+    p = Path(root) / facts_path
+    if p.suffix != ".json" or not p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+    except (OSError, ValueError):
+        return []
+    from .diagram.gocount import is_gocount
+    if not is_gocount(doc):
+        return []
+    from .gen.gocount import declared_bundle
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
+        else str(facts_path)
+    return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
+
+
+def _own_bundles(root: Path, facts_path) -> list[dict]:
+    """I35 (rule W11 of tests_m3/test_own.py): the bundle of an OWN carrier document (holon.own), generated from it by
+    holon.gen.ownheap.declared_bundle: the assumptions its Go document declares and the heap model's A-go-growth,
+    A-own-fields and A-own-len. Never hand-written: the document is itself generated (holon own)."""
+    p = Path(root) / facts_path
+    if p.suffix != ".json" or not p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+    except (OSError, ValueError):
+        return []
+    from .own import is_own
+    if not is_own(doc):
+        return []
+    from .gen.ownheap import declared_bundle
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
+        else str(facts_path)
+    return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
+
+
 def _window_bundles(root: Path, facts_path) -> list[dict]:
     """I65 (= I33b, tests_m3/test_o12.py rule O4): the bundle of a window view (holon.differential's view of an
     abstraction; holon.gen.targetlib.window_declaration), generated, never hand-written: the bundle of the declaration's
@@ -298,6 +348,57 @@ def _window_bundles(root: Path, facts_path) -> list[dict]:
     rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
         else str(facts_path)
     return [{**b, "facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest()}]
+
+
+def _bundle_member_bundles(root: Path, facts_path) -> list[dict]:
+    """I86 (tests_m3/test_bundle_laws.py, rule RC1): the bundle of a bundle member's document (a generated transitions
+    document beside its bundle's declaration, <dir>/documents/<member>.json and <dir>/bundle.json: I69's extraction),
+    generated, never hand-written: the bundle of the same bundle's adopted member document (the declaration's member
+    with no generated sidecar, as the ledger registers it now), whose generator and declared assumptions the member
+    document shares, re-keyed to the member document's path and sha256, each declared entry's source pointing at the
+    member document's own assumption of the same id and text. [] for any other document, when the member document
+    declares other assumptions than the adopted one, and when the ledger has no bundle for the adopted document as it
+    is now."""
+    p = Path(root) / facts_path
+    decl_p = p.parent.parent / "bundle.json"
+    if p.suffix != ".json" or p.parent.name != "documents" or not p.is_file() or not decl_p.is_file():
+        return []
+    try:
+        raw = p.read_bytes()
+        doc = json.loads(raw)
+        decl = json.loads(decl_p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not p.resolve().is_relative_to(Path(root).resolve()):
+        return []
+    rel = p.resolve().relative_to(Path(root).resolve()).as_posix()
+    members = [m for m in decl.get("members") or [] if isinstance(m, dict)] if isinstance(decl, dict) else []
+    if not any((m.get("document") or {}).get("path") == rel and m.get("sidecar") is not None for m in members):
+        return []
+    adopted = [m for m in members if m.get("sidecar") is None]
+    if len(adopted) != 1:
+        return []
+    arel = (adopted[0].get("document") or {}).get("path")
+    try:
+        araw = (Path(root) / arel).read_bytes()
+        adoc = json.loads(araw)
+    except (OSError, ValueError, TypeError):
+        return []
+    a_sha = hashlib.sha256(araw).hexdigest()
+    base = [b for b in all_bundles(root) if b.get("facts") == arel and b.get("facts_sha256") == a_sha]
+    mine = doc.get("assumptions") if isinstance(doc, dict) else None
+    if len(base) != 1 or not isinstance(mine, list) or mine != adoc.get("assumptions"):
+        return []
+    b = base[0]
+    entries = []
+    for e in b["entries"]:
+        src = str(e.get("source") or "")
+        if src.startswith(f"{arel}#/assumptions/"):
+            e = dict(e, source=f"{rel}#/assumptions/{src.rsplit('/', 1)[1]}")
+        entries.append(e)
+    return [dict(b, facts=rel, facts_sha256=hashlib.sha256(raw).hexdigest(), entries=entries,
+                 doc=f"I86: generated from the bundle of {arel}, the adopted member of the same bundle "
+                     "(holon.records._bundle_member_bundles); the member document declares the same assumptions")]
 
 
 def _versions_bundles(root: Path, facts_path) -> list[dict]:
@@ -350,9 +451,25 @@ def _versions_bundles(root: Path, facts_path) -> list[dict]:
 def milestone_extensions(root: Path | str, milestone: str) -> list[dict]:
     """spec/<milestone>/ledger.json "extends": per facts bundle, the no_assumption groups of the definitions that
     milestone's model generator adds to the bundle's model (I15: the M2 model's Reach, oracle tables and permission
-    predicates). The base ledger is unchanged, so what reads it (the diagrams) is unchanged."""
+    predicates), and the entries of what it adds that carry an assumption (I68: the M3 model's structural store). The
+    base ledger is unchanged, so what reads it (the diagrams) is unchanged."""
     p = Path(root) / "spec" / milestone / "ledger.json"
     return list(json.loads(p.read_text(encoding="utf-8")).get("extends") or []) if p.exists() else []
+
+
+def milestone_entries(root: Path | str, milestone: str | None, b: dict) -> list[dict]:
+    """The entries spec/<milestone>/ledger.json's extension of bundle b adds (I68, rule S8 of
+    tests_m3/test_structural_keys.py): [] without a milestone or an extension of b."""
+    if not milestone:
+        return []
+    return [e for x in milestone_extensions(root, milestone)
+            if x.get("facts") == b.get("facts") and x.get("facts_sha256") == b.get("facts_sha256")
+            for e in x.get("entries") or []]
+
+
+def bundle_entries(b: dict, root: Path | str = ROOT, milestone: str | None = None) -> list[dict]:
+    """Bundle b's entries, with its milestone extension's (milestone_entries)."""
+    return list(b["entries"]) + milestone_entries(root, milestone, b)
 
 
 def bundle(facts_sha256: str, root: Path | str = ROOT, facts_path: Path | str | None = None,
@@ -387,13 +504,15 @@ def resolve_bundle(facts_sha256: str, base_facts: str | None, root: Path | str =
 
 
 def _meets(entry: dict, cone_set: set[str]) -> bool:
+    if entry.get("requires") and not any(fnmatch.fnmatchcase(d, p) for p in entry["requires"] for d in cone_set):
+        return False
     return any(p == "*" or any(fnmatch.fnmatchcase(d, p) for d in cone_set) for p in entry["introduced_by"])
 
 
 def model_assumptions(facts_sha256: str, cone_set: set[str], root: Path | str = ROOT,
-                      facts_path: Path | str | None = None) -> list[str]:
+                      facts_path: Path | str | None = None, milestone: str | None = None) -> list[str]:
     b = bundle(facts_sha256, root, facts_path)
-    return sorted(e["id"] for e in b["entries"] if _meets(e, set(cone_set)))
+    return sorted(e["id"] for e in bundle_entries(b, root, milestone) if _meets(e, set(cone_set)))
 
 
 def unclassified(facts_sha256: str, model_text: str, root: Path | str = ROOT,
@@ -405,7 +524,8 @@ def unclassified(facts_sha256: str, model_text: str, root: Path | str = ROOT,
     b = bundle(facts_sha256, root, facts_path, milestone)
     bad = []
     for d in model_defs(model_text.split(GHOST_MARKER, 1)[0]):
-        by_entry = any(p != "*" and fnmatch.fnmatchcase(d, p) for e in b["entries"] for p in e["introduced_by"])
+        by_entry = any(p != "*" and fnmatch.fnmatchcase(d, p) for e in bundle_entries(b, root, milestone)
+                       for p in e["introduced_by"])
         groups = sum(1 for g in b["no_assumption"] if any(fnmatch.fnmatchcase(d, p) for p in g["defs"]))
         if not by_entry and groups != 1:
             bad.append(d)

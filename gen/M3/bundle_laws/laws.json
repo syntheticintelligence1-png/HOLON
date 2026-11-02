@@ -1,0 +1,578 @@
+{
+ "bundle_laws_version": "holon-bundle-laws/0.1",
+ "conservation": [
+  {
+   "action": "receive",
+   "class": "unaccounted",
+   "contract": "L1CrossDomainMessenger",
+   "credited": [],
+   "dependencies": [],
+   "forwarded": [],
+   "law_id": "L_sort_cons_L1CrossDomainMessenger_receive",
+   "mapping_ledgers": [],
+   "member": "messenger"
+  },
+  {
+   "action": "replayMessage",
+   "class": "outflow",
+   "contract": "L1CrossDomainMessenger",
+   "credited": [],
+   "dependencies": [
+    "outflow"
+   ],
+   "forwarded": [
+    "contracts/contracts/l1/L1CrossDomainMessenger.sol:240"
+   ],
+   "law_id": "L_sort_cons_L1CrossDomainMessenger_replayMessage",
+   "mapping_ledgers": [],
+   "member": "messenger"
+  },
+  {
+   "action": "sendMessage_5f7b1577",
+   "class": "outflow",
+   "contract": "L1CrossDomainMessenger",
+   "credited": [],
+   "dependencies": [
+    "outflow"
+   ],
+   "forwarded": [
+    "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+   ],
+   "law_id": "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577",
+   "mapping_ledgers": [],
+   "member": "messenger"
+  },
+  {
+   "action": "sendMessage_b2267a7b",
+   "class": "outflow",
+   "contract": "L1CrossDomainMessenger",
+   "credited": [],
+   "dependencies": [
+    "outflow"
+   ],
+   "forwarded": [
+    "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+   ],
+   "law_id": "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b",
+   "mapping_ledgers": [],
+   "member": "messenger"
+  },
+  {
+   "action": "challengeState",
+   "class": "ledger",
+   "contract": "Rollup",
+   "credited": [
+    "challenges"
+   ],
+   "dependencies": [
+    "I68"
+   ],
+   "forwarded": [],
+   "law_id": "L_sort_cons_Rollup_challengeState",
+   "mapping_ledgers": [
+    "challenges"
+   ],
+   "member": "rollup"
+  },
+  {
+   "action": "commitBatch",
+   "class": "unaccounted",
+   "contract": "Rollup",
+   "credited": [],
+   "dependencies": [],
+   "forwarded": [],
+   "law_id": "L_sort_cons_Rollup_commitBatch",
+   "mapping_ledgers": [],
+   "member": "rollup"
+  },
+  {
+   "action": "receive",
+   "class": "unaccounted",
+   "contract": "Rollup",
+   "credited": [],
+   "dependencies": [],
+   "forwarded": [],
+   "law_id": "L_sort_cons_Rollup_receive",
+   "mapping_ledgers": [],
+   "member": "rollup"
+  },
+  {
+   "action": "stake",
+   "class": "ledger",
+   "contract": "Submitter",
+   "credited": [
+    "stakeOf"
+   ],
+   "dependencies": [
+    "I68"
+   ],
+   "forwarded": [],
+   "law_id": "L_sort_cons_Submitter_stake",
+   "mapping_ledgers": [
+    "stakeOf"
+   ],
+   "member": "submitter"
+  }
+ ],
+ "inputs": [
+  {
+   "path": "gen/M3/bundle/bundle.json",
+   "sha256": "e857b0e853b31945ceb8306c1451e43941bdf05aa1a3fb8491ced6423ff0e800"
+  },
+  {
+   "path": "gen/M3/bundle/documents/messenger.json",
+   "sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519"
+  },
+  {
+   "path": "gen/M3/bundle/documents/queue.json",
+   "sha256": "32786cbfecfc119492d4b12e1d29c02201c3b34d3adebeb6bd0553b118112d8c"
+  },
+  {
+   "path": "gen/M3/bundle/documents/submitter.json",
+   "sha256": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2"
+  },
+  {
+   "path": "gen/M3/bundle/documents/whitelist.json",
+   "sha256": "b122193f3b70420b928d127f39e99c0fbe402e598532ef8776da083696e66533"
+  },
+  {
+   "path": "spec/M2/facts/morph_rollup.extracted.json",
+   "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+  },
+  {
+   "path": "spec/M3/lib/bundle_laws.json",
+   "sha256": "a17b8b246e3f7e243acba169d078fc96ad589e9f53655e72b2b8468bc7ee6525"
+  },
+  {
+   "path": "spec/M3/lib/par_lossy.json",
+   "sha256": "461c61568690ae818c8f284dd68647e6c073e66e7db1253dd1d16f6220885155"
+  }
+ ],
+ "keyed": [
+  {
+   "action": "replayMessage",
+   "blocked": [
+    "!",
+    [
+     "<",
+     [
+      "member",
+      [
+       "map",
+       [
+        "storage",
+        "replayStates"
+       ],
+       [
+        "var",
+        "k"
+       ]
+      ],
+      "times"
+     ],
+     [
+      "storage",
+      "maxReplayTimes"
+     ]
+    ]
+   ],
+   "check": "replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:226#0",
+   "classes": {
+    "anyone": [
+     "proveAndRelayMessage",
+     "replayMessage",
+     "sendMessage_5f7b1577",
+     "sendMessage_b2267a7b"
+    ],
+    "onlyOwner": [
+     "receive",
+     "renounceOwnership",
+     "setPause",
+     "transferOwnership",
+     "updateFeeVault",
+     "updateMaxReplayTimes",
+     "updateRollup"
+    ]
+   },
+   "conjunct": [
+    "<",
+    [
+     "member",
+     [
+      "map",
+      [
+       "storage",
+       "replayStates"
+      ],
+      [
+       "keccak256",
+       [
+        "abi.encodeWithSignature",
+        [
+         "str",
+         "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+        ],
+        [
+         "param",
+         "_from"
+        ],
+        [
+         "param",
+         "_to"
+        ],
+        [
+         "param",
+         "_value"
+        ],
+        [
+         "param",
+         "_messageNonce"
+        ],
+        [
+         "param",
+         "_message"
+        ]
+       ]
+      ]
+     ],
+     "times"
+    ],
+    [
+     "storage",
+     "maxReplayTimes"
+    ]
+   ],
+   "families": [
+    "maxReplayTimes",
+    "replayStates"
+   ],
+   "key": [
+    "keccak256",
+    [
+     "abi.encodeWithSignature",
+     [
+      "str",
+      "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+     ],
+     [
+      "param",
+      "_from"
+     ],
+     [
+      "param",
+      "_to"
+     ],
+     [
+      "param",
+      "_value"
+     ],
+     [
+      "param",
+      "_messageNonce"
+     ],
+     [
+      "param",
+      "_message"
+     ]
+    ]
+   ],
+   "laws": {
+    "keyed_blocking": [
+     "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone"
+    ],
+    "keyed_external": [
+     "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner"
+    ],
+    "keyed_external_none": [
+     "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner"
+    ]
+   },
+   "obligation": "O34",
+   "status": {
+    "anyone": "blocked",
+    "onlyOwner": "discharges"
+   },
+   "tag": "l1crossdomainmessenger_226_18a62741",
+   "writers": {
+    "onlyOwner": [
+     "updateMaxReplayTimes"
+    ]
+   }
+  },
+  {
+   "action": "proveAndRelayMessage",
+   "blocked": [
+    "map",
+    [
+     "storage",
+     "finalizedWithdrawals"
+    ],
+    [
+     "var",
+     "k"
+    ]
+   ],
+   "check": "proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:141#0",
+   "classes": {
+    "anyone": [
+     "proveAndRelayMessage",
+     "replayMessage",
+     "sendMessage_5f7b1577",
+     "sendMessage_b2267a7b"
+    ],
+    "onlyOwner": [
+     "receive",
+     "renounceOwnership",
+     "setPause",
+     "transferOwnership",
+     "updateFeeVault",
+     "updateMaxReplayTimes",
+     "updateRollup"
+    ]
+   },
+   "conjunct": [
+    "!",
+    [
+     "map",
+     [
+      "storage",
+      "finalizedWithdrawals"
+     ],
+     [
+      "keccak256",
+      [
+       "abi.encodeWithSignature",
+       [
+        "str",
+        "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+       ],
+       [
+        "param",
+        "_from"
+       ],
+       [
+        "param",
+        "_to"
+       ],
+       [
+        "param",
+        "_value"
+       ],
+       [
+        "param",
+        "_nonce"
+       ],
+       [
+        "param",
+        "_message"
+       ]
+      ]
+     ]
+    ]
+   ],
+   "families": [
+    "finalizedWithdrawals"
+   ],
+   "key": [
+    "keccak256",
+    [
+     "abi.encodeWithSignature",
+     [
+      "str",
+      "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+     ],
+     [
+      "param",
+      "_from"
+     ],
+     [
+      "param",
+      "_to"
+     ],
+     [
+      "param",
+      "_value"
+     ],
+     [
+      "param",
+      "_nonce"
+     ],
+     [
+      "param",
+      "_message"
+     ]
+    ]
+   ],
+   "laws": {
+    "keyed_blocking": [
+     "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone",
+     "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_onlyOwner"
+    ],
+    "keyed_external": [],
+    "keyed_external_none": []
+   },
+   "obligation": "D9",
+   "status": {
+    "anyone": "blocked",
+    "onlyOwner": "blocked"
+   },
+   "tag": "l1crossdomainmessenger_141_f6e3bd5c",
+   "writers": {}
+  }
+ ],
+ "law_ids": {
+  "conservation": [
+   "L_sort_cons_L1CrossDomainMessenger_receive",
+   "L_sort_cons_L1CrossDomainMessenger_replayMessage",
+   "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577",
+   "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b",
+   "L_sort_cons_Rollup_challengeState",
+   "L_sort_cons_Rollup_commitBatch",
+   "L_sort_cons_Rollup_receive",
+   "L_sort_cons_Submitter_stake"
+  ],
+  "keyed_blocking": [
+   "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone",
+   "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_onlyOwner",
+   "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone"
+  ],
+  "keyed_external": [
+   "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner"
+  ],
+  "keyed_external_none": [
+   "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner"
+  ],
+  "payer": [
+   "L_sort_payer_L1CrossDomainMessenger_replayMessage_201",
+   "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291",
+   "L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291"
+  ],
+  "push": [
+   "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154"
+  ]
+ },
+ "payer": [
+  {
+   "action": "replayMessage",
+   "check_src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:201",
+   "contract": "L1CrossDomainMessenger",
+   "keyed_on_payer": false,
+   "keys": [
+    [
+     "param",
+     "_from"
+    ]
+   ],
+   "law_id": "L_sort_payer_L1CrossDomainMessenger_replayMessage_201",
+   "member": "messenger",
+   "payer": [
+    "caller"
+   ],
+   "price_call": "IL1MessageQueue.estimateCrossDomainMessageFee"
+  },
+  {
+   "action": "sendMessage_5f7b1577",
+   "check_src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:291",
+   "contract": "L1CrossDomainMessenger",
+   "keyed_on_payer": true,
+   "keys": [
+    [
+     "caller"
+    ]
+   ],
+   "law_id": "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291",
+   "member": "messenger",
+   "payer": [
+    "caller"
+   ],
+   "price_call": "IL1MessageQueue.estimateCrossDomainMessageFee"
+  },
+  {
+   "action": "sendMessage_b2267a7b",
+   "check_src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:291",
+   "contract": "L1CrossDomainMessenger",
+   "keyed_on_payer": true,
+   "keys": [
+    [
+     "caller"
+    ]
+   ],
+   "law_id": "L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291",
+   "member": "messenger",
+   "payer": [
+    "caller"
+   ],
+   "price_call": "IL1MessageQueue.estimateCrossDomainMessageFee"
+  }
+ ],
+ "push": [
+  {
+   "action": "proveAndRelayMessage",
+   "arguments": [
+    [
+     "_from",
+     "address"
+    ],
+    [
+     "_to",
+     "address"
+    ],
+    [
+     "_value",
+     "uint256"
+    ],
+    [
+     "_nonce",
+     "uint256"
+    ],
+    [
+     "_message",
+     "bytes"
+    ]
+   ],
+   "bound": 32,
+   "contract": "L1CrossDomainMessenger",
+   "index": [
+    "param",
+    "_nonce"
+   ],
+   "index_offset": 100,
+   "index_position": 3,
+   "law_id": "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154",
+   "leaf": [
+    "keccak256",
+    [
+     "abi.encodeWithSignature",
+     [
+      "str",
+      "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+     ],
+     [
+      "param",
+      "_from"
+     ],
+     [
+      "param",
+      "_to"
+     ],
+     [
+      "param",
+      "_value"
+     ],
+     [
+      "param",
+      "_nonce"
+     ],
+     [
+      "param",
+      "_message"
+     ]
+    ]
+   ],
+   "loop": "contracts/contracts/libraries/common/Verify.sol:14-17",
+   "member": "messenger",
+   "merkle_check": "contracts/contracts/l1/L1CrossDomainMessenger.sol:154-157",
+   "signature": "relayMessage(address,address,uint256,uint256,bytes)"
+  }
+ ]
+}

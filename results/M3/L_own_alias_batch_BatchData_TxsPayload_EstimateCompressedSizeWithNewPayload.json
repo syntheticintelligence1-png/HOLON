@@ -1,0 +1,190 @@
+{
+  "artifacts": {
+    "law_name": "l_own_alias_batch_batchdata_txspayload_estimatecompressedsizewithnewpayload",
+    "laws": "gen/M3/laws/L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload/LAWS.bend",
+    "model": "gen/M3/model/own_batch_BatchData.bend",
+    "proof": "gen/M3/proofs/L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "heap_disjoint",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.253
+    },
+    {
+      "candidate": 7,
+      "exit_code": 0,
+      "generator": "live",
+      "kind": "inhabitant",
+      "law": "nv_l_own_alias_batch_batchdata_txspayload_estimatecompressedsizewithnewpayload",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.215,
+      "witness": {
+        "p": [
+          {
+            "args": [
+              "0x",
+              "0x02"
+            ],
+            "method": "Append"
+          }
+        ],
+        "w": {
+          "args": [
+            "0x03"
+          ],
+          "method": "EstimateCompressedSizeWithNewPayload"
+        }
+      }
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.271
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.253
+  },
+  "compiled_sha256": "2320f9720aecb6e8517a3637dab828fa30d13cefe897c4a147e6f88d4abcad10",
+  "cone": [
+    "AR",
+    "Call",
+    "FS",
+    "OBk",
+    "OKey",
+    "OSl",
+    "St",
+    "TR",
+    "VR",
+    "ar_h",
+    "ar_s",
+    "b_app3",
+    "b_drop",
+    "b_len",
+    "b_over",
+    "b_take",
+    "b_write",
+    "b_zeros",
+    "do_Append",
+    "do_EstimateCompressedSizeWithNewPayload",
+    "do_TxsPayload",
+    "do_TxsPayloadV2",
+    "e_Append_0",
+    "e_Append_1",
+    "e_EstimateCompressedSizeWithNewPayload_0",
+    "e_TxsPayloadV2_0",
+    "fbytes",
+    "g_classes",
+    "g_grow",
+    "g_next",
+    "g_round_in",
+    "growcap",
+    "h_get",
+    "ite",
+    "key_eq",
+    "n_eq",
+    "oa_post_TxsPayload_EstimateCompressedSizeWithNewPayload",
+    "oa_pre_TxsPayload_EstimateCompressedSizeWithNewPayload",
+    "run",
+    "s0",
+    "st_app_e",
+    "st_h",
+    "step",
+    "tr_app_e",
+    "tr_fc",
+    "tr_h",
+    "vbytes",
+    "view_TxsPayload",
+    "vr_post_TxsPayload_EstimateCompressedSizeWithNewPayload",
+    "vr_pre"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [
+    "E2"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "18ea631f461b970bad739ac9c606dd97ee1a70f6d72949f90b3033c34624b0bc",
+  "filter_bin": null,
+  "generator_sha256": "b3eaacada3ea088f4b0ef12482acac6c07600aeb896b0faeedb0852ffd8bad7d",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload",
+  "ledger_assumptions": [
+    "A-go-growth",
+    "A-own-fields",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim--github-com-morph-l2-go-ethereum-common-Hash--Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "0855bee276d7b50a3e15e73bafd0e6a820716d21fba529d9833ac857dc39dcc6",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:3b236278a407ba0fbc960769916bfb782cf532c0ed2bf952862c333d12cb0988",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "OWN",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 p: Trace, \u2200 w: Call_batch_BatchData. own_ok[batch_BatchData:alias:TxsPayload:EstimateCompressedSizeWithNewPayload](p, w) == true",
+  "statement_hash": "sha256:3b236278a407ba0fbc960769916bfb782cf532c0ed2bf952862c333d12cb0988",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "PROVED",
+  "subform": "alias",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}
