@@ -1,8 +1,8 @@
 """I89 stage 2 (the contract is the docstring of tests_m3/test_derivation_bend.py, rules S1-S6): I88's frozen
 derivation laws decided by the checker over the consumer's Bend model, as I88's decider's consumer model.
 
-  holon derivation decide --model holon.derivation.bendlaws      (I88's decider; consumer_model(root) is here)
-  python -m holon derivation bend-decide [--check]               the same run, and results/M3/derivation/bend/
+  holon derivation decide --model holon.derivation.bendengine    (I88's decider; consumer_model(root) is there)
+  python -m holon derivation bend-decide [--check]               the same, offline, and results/M3/derivation/bend/
 
 The product module gen/M3/derivation/bend/product.bend (generated here, holon.derivation.bendproof writes the proofs)
 imports the consumer model (holon.derivation.bendgen), the committing contract's typed model (holon.sorts.model3;
