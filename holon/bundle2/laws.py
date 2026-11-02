@@ -188,8 +188,11 @@ class Claims:
                                                 (mem.get("implementation"), mem.get("implementation_code")))
                               if k and isinstance(v, str) and len(v) > 2}}
         origin = f"the laws' deployment ({RB.sidecar_path(ctx.m, root).relative_to(root).as_posix()})"
+        # the deployment's recorded preimages too: the structural model (I68) keys a mapping slot of s0 by its
+        # 64-byte preimage, and a slot with none stays raw, which no structural read sees (holon.sorts.skeys.s0_entries)
         self.text, self.mm = generate(ctx.m, root, ctx.doc_rel, typed=True,
-                                      init={"storage": mem["storage"], "binding": origin})
+                                      init={"storage": mem["storage"], "binding": origin,
+                                            "preimages": list(dep.get("preimages") or [])})
         self.model_name = model_name(ctx.doc_rel)
         sc = load_typed(ctx.m, root, None)
         from ..sorts.model3 import load_doc_model
