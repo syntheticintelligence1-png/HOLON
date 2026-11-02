@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 36 | 236 | 181 | 36 |
+| M3 | 37 | 243 | 186 | 37 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -58,6 +58,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I41 | M3 | Untrusted prover intake | `prompts/I41_prover_intake.md` | 9 | 3 | 1 | `docs/iterations/I41.md` |
 | I42 | M3 | Theory core I: generic graphs, walks and holonomy with Lemma 6.2, Thm 6.3, Thm 6.4 and Cor 6.5 kernel-checked in Lean i… | `prompts/I42_theory_core.md` | 4 | 9 | 1 | `docs/iterations/I42.md` |
 | I43 | M3 | Theory core II and Lean for the promoted set: Thm 6.6 (symmetries: identity, composition, inverses, the submonoid of pa… | `prompts/I43_theory_core2_lean.md` | 3 | 12 | 2 | `docs/iterations/I43.md` |
+| I44 | M3 | I44 (= I44b): Def 6.13's measures that I81 (= I44a) left pending, and the ranking over them: NAT's naturality defect ma… | `prompts/I44_measures_pending.md` | 7 | 5 | 1 | `docs/iterations/I44.md` |
 | I48 | M4 | Evaluation corpus and unsolved controls: 20 public defects across six fixed systems (two rollups, four beyond), collect… | `prompts/I48_eval_corpus.md` | 4 | 6 | 1 | `docs/iterations/I48.md` |
 | I59 | M2 | I23a track: historical on-chain acquisition and the first per-edge replay on real inputs (human answer Q5) | `prompts/I59_historical.md` | 9 | 2 | 1 | `docs/iterations/I59.md` |
 | I60 | M2 | A1 mutation adequacy on real code, replacement catalog | `prompts/I60_mutation_replacement.md` | 20 | 10 | 1 | `docs/iterations/I60.md` |
