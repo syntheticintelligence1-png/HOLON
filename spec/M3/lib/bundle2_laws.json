@@ -1,0 +1,137 @@
+{
+  "bundle2_laws_version": "holon-bundle2-laws/0.1",
+  "doc": "I84 (= I37b) sidecar, frozen at the I84 prereg: what Bundle II's laws read beyond I80's outputs. It names the laws' deployment (the router as the target's own deploy script constructs it), the gas ceiling's source, the calibration design, the derivation consumers' receiver binding (a fact of the Go source, with its lines) and the decision budgets. It holds no outcome: no law status, gas value, coefficient, witness or measure. The contract is the docstring of tests_m3/test_bundle2_laws.py; the instrument is tests_m3/_i84.py.",
+  "inputs": {
+    "bundle_sidecar": "spec/M3/lib/bundle2.json",
+    "declaration": "gen/M3/bundle2/bundle2.json",
+    "rollup_document": "spec/M2/facts/morph_rollup.extracted.json",
+    "router_document": "gen/M3/bundle2/documents/router.json",
+    "derivation_document": "spec/M2/facts/morph_derivation.go.extracted.json",
+    "codec_document": "spec/M2/facts/morph_batch.go.extracted.json",
+    "refute_sidecar": "spec/M3/lib/refute.json"
+  },
+  "catalog": {
+    "version": "holon-rules/1.10",
+    "after": [
+      "holon-rules/1.7 (I71, UNDO cancel)",
+      "holon-rules/1.8 (I29, NAT)",
+      "holon-rules/1.9 (I35, OWN)"
+    ],
+    "subforms": {
+      "PAR": "link_domain",
+      "FACT": "public_input",
+      "DISCH": "self_controlled"
+    }
+  },
+  "deployment": {
+    "doc": "The laws' bundle: I80's deployment (spec/M3/lib/bundle2.json deployment: I20's Rollup deployment, the stand-ins Z1 and Z2, the router initialized with the Rollup proxy) except the router's constructor arguments, which are the target's own deploy script's: one version, mapped to the zkEVM verifier, whose role the stand-in Z1 plays (HypC: the circuit is an oracle). I80's harness configured versions 0, 1 and 2 for its corpus; that configuration is a stand-in choice, this one is the code's.",
+    "router": {
+      "versions": [
+        1
+      ],
+      "verifier": "Z1",
+      "source": {
+        "repo": "morph-l2/morph",
+        "commit": "3e44e795586af3e11285b603ab642c67823add51",
+        "path": "contracts/deploy/016-RollupInit.ts",
+        "lines": [
+          38,
+          39,
+          40
+        ],
+        "versions_line": "    const version = [1]",
+        "verifiers_line": "    const verifiers = [ZkEvmVerifierV1Address]",
+        "deploy_line": "    const MultipleVersionRollupVerifierContract = await MultipleVersionRollupVerifierFactory.deploy(version, verifiers)"
+      }
+    }
+  },
+  "gas": {
+    "ceiling": {
+      "from": "spec/M3/lib/refute.json",
+      "key": "gas_limit",
+      "doc": "G of whitepaper §3.8 (En_G) and App. D (cost against G): I40's committed gas limit, read, never chosen here"
+    },
+    "evm_version": "cancun",
+    "intrinsic": {
+      "base": 21000,
+      "zero_byte": 4,
+      "nonzero_byte": 16,
+      "doc": "a transaction's intrinsic gas under Cancun (EIP-2028 calldata pricing): base plus, per calldata byte, 4 when zero and 16 otherwise"
+    },
+    "cost": "cost_a(s, x) = intrinsic(calldata of x) + the gas the call frame of a uses before refunds, as forge measures it on the real code (vm.lastCallGas().gasTotalUsed)"
+  },
+  "calibration": {
+    "doc": "Rule K1-K5 of the contract. The fitted model is App. D's c0 + c1 * iters(s), iters the loop record's count term of the state-indexed cost site (E5: a count reading storage only). Fit and evaluation backlogs are disjoint, so no evaluated point is fitted.",
+    "fit_backlogs": [
+      3,
+      6,
+      12,
+      24,
+      48
+    ],
+    "eval_backlogs": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "tolerance": 0.05,
+    "fit": "ordinary least squares of the measured cost on iters over the fit backlogs (exact rational arithmetic, rounded to 6 decimals only when written)",
+    "strategy": "from a fresh deployment (the laws' deployment), the first active submitter of the deployment commits k batches in order with commitBatch (version 1, no L1 message, no blob, lastBlockNumber the batch's index, postStateRoot the batch's index plus 1000, withdrawalRoot 0) at the deployment's clock, then the first challenger of the deployment challenges batch lastFinalizedBatchIndex + 1 with deposit challengeDeposit() at the same clock; iters is lastCommittedBatchIndex - lastFinalizedBatchIndex = k"
+  },
+  "consumers": {
+    "doc": "Rule FC1-FC3: the derivation's reads of a batch header are the derivation document's call edges whose callee is a decoder of the codec document; the receiver of those reads is the header the derivation takes from the commit transaction's parentBatchHeader. The Go document records the call edge but not its receiver, so the binding is stated here, with the source lines the instrument checks in the target's git objects.",
+    "receiver": {
+      "go_field": "ParentBatchHeader",
+      "solidity_member": "parentBatchHeader",
+      "match": "the Solidity struct member whose name equals the Go field's with its first letter lower-cased (the ABI binding's capitalization)",
+      "sites": [
+        {
+          "function": "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+          "path": "node/derivation/batch_info.go",
+          "line": 91,
+          "text": "\tparentBatchHeader := commonbatch.BatchHeaderBytes(batch.ParentBatchHeader)"
+        },
+        {
+          "function": "(*morph-l2/node/derivation.Derivation).fetchBatchInfoOutline",
+          "path": "node/derivation/verify_local.go",
+          "line": 66,
+          "text": "\tparentHeader := commonbatch.BatchHeaderBytes(batch.ParentBatchHeader)"
+        }
+      ]
+    },
+    "codec": "(morph-l2/common/batch.BatchHeaderBytes)"
+  },
+  "o35": {
+    "kernel_budget_steps": 64,
+    "doc": "Rule D4: a counter-law over Reach carries its witness's trace; a strategy longer than kernel_budget_steps steps is not emitted (the trace and its keccak table grow with every commit), and the law is UNKNOWN with the strategy recorded and replayed. 64 is BUILD_PLAN I37's bound on the backlog."
+  },
+  "search": {
+    "doc": "Rule S1-S3: bounded searches on the compiled models; their bounds are fixed here before any run.",
+    "link_domain_max_prefix": 3,
+    "public_input_max_prefix": 2,
+    "versions": [
+      0,
+      1,
+      2
+    ],
+    "last_block_numbers": [
+      0,
+      1
+    ],
+    "num_l1_messages": [
+      0,
+      1
+    ]
+  },
+  "outputs": {
+    "analysis": "gen/M3/bundle2/laws.json",
+    "claims_dir": "gen/M3/bundle2/claims",
+    "calibration": "results/M3/bundle2/calibration.json",
+    "calibration_harness": "replay/M3/bundle2/calibrate",
+    "replay": "replay/M3/bundle2/laws/report.json"
+  }
+}
