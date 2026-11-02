@@ -132,6 +132,8 @@ def check_binder_types(law: dict, facts: dict | None) -> None:
         types = set(facts.get("carriers", {}))
     if (facts or {}).get("goops_version") == "holon-goops/0.1":     # a Go-op document (I67): its interface carrier
         types = {(facts.get("carrier") or {}).get("id")}
+    if (facts or {}).get("gocount_version") == "holon-gocount/0.1":   # a count document (I90): its carrier
+        types = {(facts.get("carrier") or {}).get("id")}
     if (facts or {}).get("own_version") == "holon-own/0.1":   # an OWN carrier document (I35, W8): its type's calls, values
         types = {f"{k}_{facts.get('stem')}" for k in ("Call", "Val")}
     for b in law.get("statement", {}).get("binders", []):
