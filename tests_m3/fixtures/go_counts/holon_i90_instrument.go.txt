@@ -1,0 +1,79 @@
+// HOLON I90 prereg instrument (tests_m3/_i90.py run_instrument), fixed at the I90 prereg and independent of holon/.
+// The test copies it into a scratch copy of morph common/batch at the pinned commit as holon_i90_instrument_test.go
+// and runs
+//   (cd common && HOLON_I90_IN=... HOLON_I90_OUT=... go test ./batch -run '^TestHolonI90Instrument$' -count=1 -v)
+// It calls the real code and records what happens; it compares nothing.
+//
+// Input ($HOLON_I90_IN):  {"probes": [{"fresh": "new" | "zero", "calls": [n, ...]}, ...]}
+//   probe: a BatchData from NewBatchData() ("new") or the zero value new(BatchData) ("zero"), then one Append per
+//   entry of calls, in order, each with nil block context, nil payload and n zero L1 transaction hashes.
+// Output ($HOLON_I90_OUT): {"outcomes": [outcome per probe]}
+//   outcome: {"l1TxNum": the field after the calls, "l1TxHashes_len": len of the field after the calls,
+//             "blockNum": the field after the calls, "panic": "" or the recovered value}.
+package batch
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"testing"
+
+	"github.com/morph-l2/go-ethereum/common"
+)
+
+type holonI90Outcome struct {
+	L1TxNum      int    `json:"l1TxNum"`
+	L1TxHashLen  int    `json:"l1TxHashes_len"`
+	BlockNum     int    `json:"blockNum"`
+	Panic        string `json:"panic"`
+}
+
+func holonI90Run(fresh string, calls []int) (out holonI90Outcome) {
+	defer func() {
+		if r := recover(); r != nil {
+			out.Panic = fmt.Sprintf("%v", r)
+		}
+	}()
+	var cks *BatchData
+	if fresh == "zero" {
+		cks = new(BatchData)
+	} else {
+		cks = NewBatchData()
+	}
+	for _, n := range calls {
+		cks.Append(nil, nil, make([]common.Hash, n))
+	}
+	out.L1TxNum = int(cks.l1TxNum)
+	out.L1TxHashLen = len(cks.l1TxHashes)
+	out.BlockNum = int(cks.blockNum)
+	return out
+}
+
+func TestHolonI90Instrument(t *testing.T) {
+	var in struct {
+		Probes []struct {
+			Fresh string `json:"fresh"`
+			Calls []int  `json:"calls"`
+		} `json:"probes"`
+	}
+	raw, err := os.ReadFile(os.Getenv("HOLON_I90_IN"))
+	if err != nil {
+		t.Fatalf("read input: %v", err)
+	}
+	if err := json.Unmarshal(raw, &in); err != nil {
+		t.Fatalf("parse input: %v", err)
+	}
+	out := struct {
+		Outcomes []holonI90Outcome `json:"outcomes"`
+	}{Outcomes: []holonI90Outcome{}}
+	for _, p := range in.Probes {
+		out.Outcomes = append(out.Outcomes, holonI90Run(p.Fresh, p.Calls))
+	}
+	js, err := json.Marshal(out)
+	if err != nil {
+		t.Fatalf("encode output: %v", err)
+	}
+	if err := os.WriteFile(os.Getenv("HOLON_I90_OUT"), js, 0o644); err != nil {
+		t.Fatalf("write output: %v", err)
+	}
+}

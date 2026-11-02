@@ -1272,7 +1272,7 @@ def ckh_V3(xs: List<&2, HKB>) -> List<&2, K_V3.HKB>:
 def env_V3(en: VEnv, +cl: W) -> K_V3.HEnv:
   match en:
     case VEnv{e_blobs, e_block_timestamp, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
-      K_V3.HEnv{cw_V3(e_block_timestamp), cw_V3(cl), clHCall_V3(e_calls), clKB_V3(e_code), cw_V3(e_immutable_LAYER_2_CHAIN_ID), cw_V3(e_msg_data_length), cw_V3(e_msg_value), cw_V3(e_this)}
+      K_V3.HEnv{clW_V3(e_blobs), cw_V3(e_block_timestamp), cw_V3(cl), clHCall_V3(e_calls), clKB_V3(e_code), cw_V3(e_immutable_LAYER_2_CHAIN_ID), cw_V3(e_msg_data_length), cw_V3(e_msg_value), cw_V3(e_this)}
 
 def vfin_V3(o: K_V3.HOut, f: VSt) -> VSt:
   match o:
@@ -1362,7 +1362,7 @@ def ckh_V4(xs: List<&2, HKB>) -> List<&2, K_V4.HKB>:
 def env_V4(en: VEnv, +cl: W) -> K_V4.HEnv:
   match en:
     case VEnv{e_blobs, e_block_timestamp, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
-      K_V4.HEnv{cw_V4(e_block_timestamp), cw_V4(cl), clHCall_V4(e_calls), clKB_V4(e_code), cw_V4(e_immutable_LAYER_2_CHAIN_ID), cw_V4(e_msg_data_length), cw_V4(e_msg_value), cw_V4(e_this)}
+      K_V4.HEnv{clW_V4(e_blobs), cw_V4(e_block_timestamp), cw_V4(cl), clHCall_V4(e_calls), clKB_V4(e_code), cw_V4(e_immutable_LAYER_2_CHAIN_ID), cw_V4(e_msg_data_length), cw_V4(e_msg_value), cw_V4(e_this)}
 
 def vfin_V4(o: K_V4.HOut, f: VSt) -> VSt:
   match o:
@@ -1452,7 +1452,7 @@ def ckh_V5(xs: List<&2, HKB>) -> List<&2, K_V5.HKB>:
 def env_V5(en: VEnv, +cl: W) -> K_V5.HEnv:
   match en:
     case VEnv{e_blobs, e_block_timestamp, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
-      K_V5.HEnv{cw_V5(e_block_timestamp), cw_V5(cl), clHCall_V5(e_calls), clKB_V5(e_code), cw_V5(e_immutable_LAYER_2_CHAIN_ID), cw_V5(e_msg_data_length), cw_V5(e_msg_value), cw_V5(e_this)}
+      K_V5.HEnv{clW_V5(e_blobs), cw_V5(e_block_timestamp), cw_V5(cl), clHCall_V5(e_calls), clKB_V5(e_code), cw_V5(e_immutable_LAYER_2_CHAIN_ID), cw_V5(e_msg_data_length), cw_V5(e_msg_value), cw_V5(e_this)}
 
 def vfin_V5(o: K_V5.HOut, f: VSt) -> VSt:
   match o:
@@ -1542,7 +1542,7 @@ def ckh_V6(xs: List<&2, HKB>) -> List<&2, K_V6.HKB>:
 def env_V6(en: VEnv, +cl: W) -> K_V6.HEnv:
   match en:
     case VEnv{e_blobs, e_block_timestamp, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
-      K_V6.HEnv{cw_V6(e_block_timestamp), cw_V6(cl), clHCall_V6(e_calls), clKB_V6(e_code), cw_V6(e_immutable_LAYER_2_CHAIN_ID), cw_V6(e_msg_data_length), cw_V6(e_msg_value), cw_V6(e_this)}
+      K_V6.HEnv{clW_V6(e_blobs), cw_V6(e_block_timestamp), cw_V6(cl), clHCall_V6(e_calls), clKB_V6(e_code), cw_V6(e_immutable_LAYER_2_CHAIN_ID), cw_V6(e_msg_data_length), cw_V6(e_msg_value), cw_V6(e_this)}
 
 def vfin_V6(o: K_V6.HOut, f: VSt) -> VSt:
   match o:
@@ -1632,7 +1632,7 @@ def ckh_V7(xs: List<&2, HKB>) -> List<&2, K_V7.HKB>:
 def env_V7(en: VEnv, +cl: W) -> K_V7.HEnv:
   match en:
     case VEnv{e_blobs, e_block_timestamp, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
-      K_V7.HEnv{cw_V7(e_block_timestamp), cw_V7(cl), clHCall_V7(e_calls), clKB_V7(e_code), cw_V7(e_immutable_LAYER_2_CHAIN_ID), cw_V7(e_msg_data_length), cw_V7(e_msg_value), cw_V7(e_this)}
+      K_V7.HEnv{clW_V7(e_blobs), cw_V7(e_block_timestamp), cw_V7(cl), clHCall_V7(e_calls), clKB_V7(e_code), cw_V7(e_immutable_LAYER_2_CHAIN_ID), cw_V7(e_msg_data_length), cw_V7(e_msg_value), cw_V7(e_this)}
 
 def vfin_V7(o: K_V7.HOut, f: VSt) -> VSt:
   match o:
@@ -1722,7 +1722,7 @@ def ckh_V8(xs: List<&2, HKB>) -> List<&2, K_V8.HKB>:
 def env_V8(en: VEnv, +cl: W) -> K_V8.HEnv:
   match en:
     case VEnv{e_blobs, e_block_timestamp, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
-      K_V8.HEnv{cw_V8(e_block_timestamp), cw_V8(cl), clHCall_V8(e_calls), clKB_V8(e_code), cw_V8(e_immutable_LAYER_2_CHAIN_ID), cw_V8(e_msg_data_length), cw_V8(e_msg_value), cw_V8(e_this)}
+      K_V8.HEnv{clW_V8(e_blobs), cw_V8(e_block_timestamp), cw_V8(cl), clHCall_V8(e_calls), clKB_V8(e_code), cw_V8(e_immutable_LAYER_2_CHAIN_ID), cw_V8(e_msg_data_length), cw_V8(e_msg_value), cw_V8(e_this)}
 
 def vfin_V8(o: K_V8.HOut, f: VSt) -> VSt:
   match o:
@@ -1812,7 +1812,7 @@ def ckh_V9(xs: List<&2, HKB>) -> List<&2, K_V9.HKB>:
 def env_V9(en: VEnv, +cl: W) -> K_V9.HEnv:
   match en:
     case VEnv{e_blobs, e_block_timestamp, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
-      K_V9.HEnv{cw_V9(e_block_timestamp), cw_V9(cl), clHCall_V9(e_calls), clKB_V9(e_code), cw_V9(e_immutable_LAYER_2_CHAIN_ID), cw_V9(e_msg_data_length), cw_V9(e_msg_value), cw_V9(e_this)}
+      K_V9.HEnv{clW_V9(e_blobs), cw_V9(e_block_timestamp), cw_V9(cl), clHCall_V9(e_calls), clKB_V9(e_code), cw_V9(e_immutable_LAYER_2_CHAIN_ID), cw_V9(e_msg_data_length), cw_V9(e_msg_value), cw_V9(e_this)}
 
 def vfin_V9(o: K_V9.HOut, f: VSt) -> VSt:
   match o:
@@ -1902,7 +1902,7 @@ def ckh_V10(xs: List<&2, HKB>) -> List<&2, K_V10.HKB>:
 def env_V10(en: VEnv, +cl: W) -> K_V10.HEnv:
   match en:
     case VEnv{e_blobs, e_block_timestamp, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
-      K_V10.HEnv{cw_V10(e_block_timestamp), cw_V10(cl), clHCall_V10(e_calls), clKB_V10(e_code), cw_V10(e_immutable_LAYER_2_CHAIN_ID), cw_V10(e_msg_data_length), cw_V10(e_msg_value), cw_V10(e_this)}
+      K_V10.HEnv{clW_V10(e_blobs), cw_V10(e_block_timestamp), cw_V10(cl), clHCall_V10(e_calls), clKB_V10(e_code), cw_V10(e_immutable_LAYER_2_CHAIN_ID), cw_V10(e_msg_data_length), cw_V10(e_msg_value), cw_V10(e_this)}
 
 def vfin_V10(o: K_V10.HOut, f: VSt) -> VSt:
   match o:
@@ -2059,6 +2059,9 @@ def ar_V3_claimProveRemaining(p0: W) -> K_V3.AR_claimProveRemaining:
 def ar_V3_claimReward(p0: W) -> K_V3.AR_claimReward:
   K_V3.AR_claimReward{cw_V3(p0)}
 
+def ar_V3_commitBatch(p0: W, p1: List<&2, U32>, p2: List<&2, U32>, p3: List<&2, U32>, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V3.AR_commitBatch:
+  K_V3.AR_commitBatch{K_V3.S_IRollup_BatchDataInput{cw_V3(p0), p1, p2, p3, cw_V3(p4), cw_V3(p5), cw_V3(p6)}, K_V3.S_IRollup_BatchSignatureInput{cw_V3(p7), p8, p9}}
+
 def ar_V3_finalizeBatch(p0: List<&2, U32>) -> K_V3.AR_finalizeBatch:
   K_V3.AR_finalizeBatch{p0}
 
@@ -2133,6 +2136,9 @@ def ar_V4_claimProveRemaining(p0: W) -> K_V4.AR_claimProveRemaining:
 
 def ar_V4_claimReward(p0: W) -> K_V4.AR_claimReward:
   K_V4.AR_claimReward{cw_V4(p0)}
+
+def ar_V4_commitBatch(p0: W, p1: List<&2, U32>, p2: List<&2, U32>, p3: List<&2, U32>, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V4.AR_commitBatch:
+  K_V4.AR_commitBatch{K_V4.S_IRollup_BatchDataInput{cw_V4(p0), p1, p2, p3, cw_V4(p4), cw_V4(p5), cw_V4(p6)}, K_V4.S_IRollup_BatchSignatureInput{cw_V4(p7), p8, p9}}
 
 def ar_V4_finalizeBatch(p0: List<&2, U32>) -> K_V4.AR_finalizeBatch:
   K_V4.AR_finalizeBatch{p0}
@@ -2212,6 +2218,9 @@ def ar_V5_claimProveRemaining(p0: W) -> K_V5.AR_claimProveRemaining:
 def ar_V5_claimReward(p0: W) -> K_V5.AR_claimReward:
   K_V5.AR_claimReward{cw_V5(p0)}
 
+def ar_V5_commitBatch(p0: W, p1: List<&2, U32>, p2: List<&2, U32>, p3: W, p4: W, p5: W, p6: W, p7: List<&2, U32>, p8: List<&2, U32>) -> K_V5.AR_commitBatch:
+  K_V5.AR_commitBatch{K_V5.S_IRollup_BatchDataInput{cw_V5(p0), p1, p2, cw_V5(p3), cw_V5(p4), cw_V5(p5)}, K_V5.S_IRollup_BatchSignatureInput{cw_V5(p6), p7, p8}}
+
 def ar_V5_finalizeBatch(p0: List<&2, U32>) -> K_V5.AR_finalizeBatch:
   K_V5.AR_finalizeBatch{p0}
 
@@ -2290,6 +2299,9 @@ def ar_V6_claimProveRemaining(p0: W) -> K_V6.AR_claimProveRemaining:
 def ar_V6_claimReward(p0: W) -> K_V6.AR_claimReward:
   K_V6.AR_claimReward{cw_V6(p0)}
 
+def ar_V6_commitBatch(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V6.AR_commitBatch:
+  K_V6.AR_commitBatch{K_V6.S_IRollup_BatchDataInput{cw_V6(p0), p1, cw_V6(p2), cw_V6(p3), cw_V6(p4), cw_V6(p5), cw_V6(p6)}, K_V6.S_IRollup_BatchSignatureInput{cw_V6(p7), p8, p9}}
+
 def ar_V6_finalizeBatch(p0: List<&2, U32>) -> K_V6.AR_finalizeBatch:
   K_V6.AR_finalizeBatch{p0}
 
@@ -2367,6 +2379,12 @@ def ar_V7_claimProveRemaining(p0: W) -> K_V7.AR_claimProveRemaining:
 
 def ar_V7_claimReward(p0: W) -> K_V7.AR_claimReward:
   K_V7.AR_claimReward{cw_V7(p0)}
+
+def ar_V7_commitBatch(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V7.AR_commitBatch:
+  K_V7.AR_commitBatch{K_V7.S_IRollup_BatchDataInput{cw_V7(p0), p1, cw_V7(p2), cw_V7(p3), cw_V7(p4), cw_V7(p5), cw_V7(p6)}, K_V7.S_IRollup_BatchSignatureInput{cw_V7(p7), p8, p9}}
+
+def ar_V7_commitBatchWithProof(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>, p10: List<&2, U32>, p11: List<&2, U32>) -> K_V7.AR_commitBatchWithProof:
+  K_V7.AR_commitBatchWithProof{K_V7.S_IRollup_BatchDataInput{cw_V7(p0), p1, cw_V7(p2), cw_V7(p3), cw_V7(p4), cw_V7(p5), cw_V7(p6)}, K_V7.S_IRollup_BatchSignatureInput{cw_V7(p7), p8, p9}, p10, p11}
 
 def ar_V7_finalizeBatch(p0: List<&2, U32>) -> K_V7.AR_finalizeBatch:
   K_V7.AR_finalizeBatch{p0}
@@ -2451,6 +2469,12 @@ def ar_V8_claimProveRemaining(p0: W) -> K_V8.AR_claimProveRemaining:
 
 def ar_V8_claimReward(p0: W) -> K_V8.AR_claimReward:
   K_V8.AR_claimReward{cw_V8(p0)}
+
+def ar_V8_commitBatch(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V8.AR_commitBatch:
+  K_V8.AR_commitBatch{K_V8.S_IRollup_BatchDataInput{cw_V8(p0), p1, cw_V8(p2), cw_V8(p3), cw_V8(p4), cw_V8(p5), cw_V8(p6)}, K_V8.S_IRollup_BatchSignatureInput{cw_V8(p7), p8, p9}}
+
+def ar_V8_commitBatchWithProof(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>, p10: List<&2, U32>, p11: List<&2, U32>) -> K_V8.AR_commitBatchWithProof:
+  K_V8.AR_commitBatchWithProof{K_V8.S_IRollup_BatchDataInput{cw_V8(p0), p1, cw_V8(p2), cw_V8(p3), cw_V8(p4), cw_V8(p5), cw_V8(p6)}, K_V8.S_IRollup_BatchSignatureInput{cw_V8(p7), p8, p9}, p10, p11}
 
 def ar_V8_finalizeBatch(p0: List<&2, U32>) -> K_V8.AR_finalizeBatch:
   K_V8.AR_finalizeBatch{p0}
@@ -2539,6 +2563,15 @@ def ar_V9_claimProveRemaining(p0: W) -> K_V9.AR_claimProveRemaining:
 def ar_V9_claimReward(p0: W) -> K_V9.AR_claimReward:
   K_V9.AR_claimReward{cw_V9(p0)}
 
+def ar_V9_commitBatch(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V9.AR_commitBatch:
+  K_V9.AR_commitBatch{K_V9.S_IRollup_BatchDataInput{cw_V9(p0), p1, cw_V9(p2), cw_V9(p3), cw_V9(p4), cw_V9(p5), cw_V9(p6)}, K_V9.S_IRollup_BatchSignatureInput{cw_V9(p7), p8, p9}}
+
+def ar_V9_commitBatchWithProof(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>, p10: List<&2, U32>, p11: List<&2, U32>) -> K_V9.AR_commitBatchWithProof:
+  K_V9.AR_commitBatchWithProof{K_V9.S_IRollup_BatchDataInput{cw_V9(p0), p1, cw_V9(p2), cw_V9(p3), cw_V9(p4), cw_V9(p5), cw_V9(p6)}, K_V9.S_IRollup_BatchSignatureInput{cw_V9(p7), p8, p9}, p10, p11}
+
+def ar_V9_commitState(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V9.AR_commitState:
+  K_V9.AR_commitState{K_V9.S_IRollup_BatchDataInput{cw_V9(p0), p1, cw_V9(p2), cw_V9(p3), cw_V9(p4), cw_V9(p5), cw_V9(p6)}, K_V9.S_IRollup_BatchSignatureInput{cw_V9(p7), p8, p9}}
+
 def ar_V9_finalizeBatch(p0: List<&2, U32>) -> K_V9.AR_finalizeBatch:
   K_V9.AR_finalizeBatch{p0}
 
@@ -2625,6 +2658,15 @@ def ar_V10_claimProveRemaining(p0: W) -> K_V10.AR_claimProveRemaining:
 
 def ar_V10_claimReward(p0: W) -> K_V10.AR_claimReward:
   K_V10.AR_claimReward{cw_V10(p0)}
+
+def ar_V10_commitBatch(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V10.AR_commitBatch:
+  K_V10.AR_commitBatch{K_V10.S_IRollup_BatchDataInput{cw_V10(p0), p1, cw_V10(p2), cw_V10(p3), cw_V10(p4), cw_V10(p5), cw_V10(p6)}, K_V10.S_IRollup_BatchSignatureInput{cw_V10(p7), p8, p9}}
+
+def ar_V10_commitBatchWithProof(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>, p10: List<&2, U32>, p11: List<&2, U32>) -> K_V10.AR_commitBatchWithProof:
+  K_V10.AR_commitBatchWithProof{K_V10.S_IRollup_BatchDataInput{cw_V10(p0), p1, cw_V10(p2), cw_V10(p3), cw_V10(p4), cw_V10(p5), cw_V10(p6)}, K_V10.S_IRollup_BatchSignatureInput{cw_V10(p7), p8, p9}, p10, p11}
+
+def ar_V10_commitState(p0: W, p1: List<&2, U32>, p2: W, p3: W, p4: W, p5: W, p6: W, p7: W, p8: List<&2, U32>, p9: List<&2, U32>) -> K_V10.AR_commitState:
+  K_V10.AR_commitState{K_V10.S_IRollup_BatchDataInput{cw_V10(p0), p1, cw_V10(p2), cw_V10(p3), cw_V10(p4), cw_V10(p5), cw_V10(p6)}, K_V10.S_IRollup_BatchSignatureInput{cw_V10(p7), p8, p9}}
 
 def ar_V10_finalizeBatch(p0: List<&2, U32>) -> K_V10.AR_finalizeBatch:
   K_V10.AR_finalizeBatch{p0}
@@ -2807,6 +2849,7 @@ type VStep is Data:
   C_V3_challengeState{ar: K_V3.AR_challengeState, cl: W, en: VEnv}
   C_V3_claimProveRemaining{ar: K_V3.AR_claimProveRemaining, cl: W, en: VEnv}
   C_V3_claimReward{ar: K_V3.AR_claimReward, cl: W, en: VEnv}
+  C_V3_commitBatch{ar: K_V3.AR_commitBatch, cl: W, en: VEnv}
   C_V3_finalizeBatch{ar: K_V3.AR_finalizeBatch, cl: W, en: VEnv}
   C_V3_importGenesisBatch{ar: K_V3.AR_importGenesisBatch, cl: W, en: VEnv}
   C_V3_initialize{ar: K_V3.AR_initialize, cl: W, en: VEnv}
@@ -2832,6 +2875,7 @@ type VStep is Data:
   C_V4_challengeState{ar: K_V4.AR_challengeState, cl: W, en: VEnv}
   C_V4_claimProveRemaining{ar: K_V4.AR_claimProveRemaining, cl: W, en: VEnv}
   C_V4_claimReward{ar: K_V4.AR_claimReward, cl: W, en: VEnv}
+  C_V4_commitBatch{ar: K_V4.AR_commitBatch, cl: W, en: VEnv}
   C_V4_finalizeBatch{ar: K_V4.AR_finalizeBatch, cl: W, en: VEnv}
   C_V4_importGenesisBatch{ar: K_V4.AR_importGenesisBatch, cl: W, en: VEnv}
   C_V4_initialize{ar: K_V4.AR_initialize, cl: W, en: VEnv}
@@ -2858,6 +2902,7 @@ type VStep is Data:
   C_V5_challengeState{ar: K_V5.AR_challengeState, cl: W, en: VEnv}
   C_V5_claimProveRemaining{ar: K_V5.AR_claimProveRemaining, cl: W, en: VEnv}
   C_V5_claimReward{ar: K_V5.AR_claimReward, cl: W, en: VEnv}
+  C_V5_commitBatch{ar: K_V5.AR_commitBatch, cl: W, en: VEnv}
   C_V5_finalizeBatch{ar: K_V5.AR_finalizeBatch, cl: W, en: VEnv}
   C_V5_importGenesisBatch{ar: K_V5.AR_importGenesisBatch, cl: W, en: VEnv}
   C_V5_initialize{ar: K_V5.AR_initialize, cl: W, en: VEnv}
@@ -2884,6 +2929,7 @@ type VStep is Data:
   C_V6_challengeState{ar: K_V6.AR_challengeState, cl: W, en: VEnv}
   C_V6_claimProveRemaining{ar: K_V6.AR_claimProveRemaining, cl: W, en: VEnv}
   C_V6_claimReward{ar: K_V6.AR_claimReward, cl: W, en: VEnv}
+  C_V6_commitBatch{ar: K_V6.AR_commitBatch, cl: W, en: VEnv}
   C_V6_finalizeBatch{ar: K_V6.AR_finalizeBatch, cl: W, en: VEnv}
   C_V6_importGenesisBatch{ar: K_V6.AR_importGenesisBatch, cl: W, en: VEnv}
   C_V6_initialize{ar: K_V6.AR_initialize, cl: W, en: VEnv}
@@ -2910,6 +2956,8 @@ type VStep is Data:
   C_V7_challengeState{ar: K_V7.AR_challengeState, cl: W, en: VEnv}
   C_V7_claimProveRemaining{ar: K_V7.AR_claimProveRemaining, cl: W, en: VEnv}
   C_V7_claimReward{ar: K_V7.AR_claimReward, cl: W, en: VEnv}
+  C_V7_commitBatch{ar: K_V7.AR_commitBatch, cl: W, en: VEnv}
+  C_V7_commitBatchWithProof{ar: K_V7.AR_commitBatchWithProof, cl: W, en: VEnv}
   C_V7_finalizeBatch{ar: K_V7.AR_finalizeBatch, cl: W, en: VEnv}
   C_V7_importGenesisBatch{ar: K_V7.AR_importGenesisBatch, cl: W, en: VEnv}
   C_V7_initialize{ar: K_V7.AR_initialize, cl: W, en: VEnv}
@@ -2938,6 +2986,8 @@ type VStep is Data:
   C_V8_challengeState{ar: K_V8.AR_challengeState, cl: W, en: VEnv}
   C_V8_claimProveRemaining{ar: K_V8.AR_claimProveRemaining, cl: W, en: VEnv}
   C_V8_claimReward{ar: K_V8.AR_claimReward, cl: W, en: VEnv}
+  C_V8_commitBatch{ar: K_V8.AR_commitBatch, cl: W, en: VEnv}
+  C_V8_commitBatchWithProof{ar: K_V8.AR_commitBatchWithProof, cl: W, en: VEnv}
   C_V8_finalizeBatch{ar: K_V8.AR_finalizeBatch, cl: W, en: VEnv}
   C_V8_importGenesisBatch{ar: K_V8.AR_importGenesisBatch, cl: W, en: VEnv}
   C_V8_initialize{ar: K_V8.AR_initialize, cl: W, en: VEnv}
@@ -2967,6 +3017,9 @@ type VStep is Data:
   C_V9_challengeState{ar: K_V9.AR_challengeState, cl: W, en: VEnv}
   C_V9_claimProveRemaining{ar: K_V9.AR_claimProveRemaining, cl: W, en: VEnv}
   C_V9_claimReward{ar: K_V9.AR_claimReward, cl: W, en: VEnv}
+  C_V9_commitBatch{ar: K_V9.AR_commitBatch, cl: W, en: VEnv}
+  C_V9_commitBatchWithProof{ar: K_V9.AR_commitBatchWithProof, cl: W, en: VEnv}
+  C_V9_commitState{ar: K_V9.AR_commitState, cl: W, en: VEnv}
   C_V9_finalizeBatch{ar: K_V9.AR_finalizeBatch, cl: W, en: VEnv}
   C_V9_importGenesisBatch{ar: K_V9.AR_importGenesisBatch, cl: W, en: VEnv}
   C_V9_initialize{ar: K_V9.AR_initialize, cl: W, en: VEnv}
@@ -2996,6 +3049,9 @@ type VStep is Data:
   C_V10_challengeState{ar: K_V10.AR_challengeState, cl: W, en: VEnv}
   C_V10_claimProveRemaining{ar: K_V10.AR_claimProveRemaining, cl: W, en: VEnv}
   C_V10_claimReward{ar: K_V10.AR_claimReward, cl: W, en: VEnv}
+  C_V10_commitBatch{ar: K_V10.AR_commitBatch, cl: W, en: VEnv}
+  C_V10_commitBatchWithProof{ar: K_V10.AR_commitBatchWithProof, cl: W, en: VEnv}
+  C_V10_commitState{ar: K_V10.AR_commitState, cl: W, en: VEnv}
   C_V10_finalizeBatch{ar: K_V10.AR_finalizeBatch, cl: W, en: VEnv}
   C_V10_importGenesisBatch{ar: K_V10.AR_importGenesisBatch, cl: W, en: VEnv}
   C_V10_initialize{ar: K_V10.AR_initialize, cl: W, en: VEnv}
@@ -3571,6 +3627,30 @@ def vok_c_V3_claimReward(s: VSt, ar: K_V3.AR_claimReward, +cl: W, en: VEnv, +kh:
   match s:
     case VSt{+v, +st}:
       vokca_V3_claimReward(Bool.and(vis_V3(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V3_commitBatch(go: Bool, v: VV, +st: HSt, ar: K_V3.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V3(K_V3.run_commitBatch(cst_V3(st), ar, env_V3(en, cl), ckh_V3(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V3_commitBatch(s: VSt, ar: K_V3.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V3_commitBatch(Bool.and(vis_V3(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V3_commitBatch(go: Bool, +st: HSt, ar: K_V3.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V3(K_V3.run_commitBatch(cst_V3(st), ar, env_V3(en, cl), ckh_V3(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V3_commitBatch(s: VSt, ar: K_V3.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V3_commitBatch(Bool.and(vis_V3(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
 
 def vca_V3_finalizeBatch(go: Bool, v: VV, +st: HSt, ar: K_V3.AR_finalizeBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
   match go:
@@ -4171,6 +4251,30 @@ def vok_c_V4_claimReward(s: VSt, ar: K_V4.AR_claimReward, +cl: W, en: VEnv, +kh:
   match s:
     case VSt{+v, +st}:
       vokca_V4_claimReward(Bool.and(vis_V4(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V4_commitBatch(go: Bool, v: VV, +st: HSt, ar: K_V4.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V4(K_V4.run_commitBatch(cst_V4(st), ar, env_V4(en, cl), ckh_V4(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V4_commitBatch(s: VSt, ar: K_V4.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V4_commitBatch(Bool.and(vis_V4(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V4_commitBatch(go: Bool, +st: HSt, ar: K_V4.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V4(K_V4.run_commitBatch(cst_V4(st), ar, env_V4(en, cl), ckh_V4(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V4_commitBatch(s: VSt, ar: K_V4.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V4_commitBatch(Bool.and(vis_V4(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
 
 def vca_V4_finalizeBatch(go: Bool, v: VV, +st: HSt, ar: K_V4.AR_finalizeBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
   match go:
@@ -4796,6 +4900,30 @@ def vok_c_V5_claimReward(s: VSt, ar: K_V5.AR_claimReward, +cl: W, en: VEnv, +kh:
     case VSt{+v, +st}:
       vokca_V5_claimReward(Bool.and(vis_V5(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
 
+def vca_V5_commitBatch(go: Bool, v: VV, +st: HSt, ar: K_V5.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V5(K_V5.run_commitBatch(cst_V5(st), ar, env_V5(en, cl), ckh_V5(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V5_commitBatch(s: VSt, ar: K_V5.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V5_commitBatch(Bool.and(vis_V5(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V5_commitBatch(go: Bool, +st: HSt, ar: K_V5.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V5(K_V5.run_commitBatch(cst_V5(st), ar, env_V5(en, cl), ckh_V5(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V5_commitBatch(s: VSt, ar: K_V5.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V5_commitBatch(Bool.and(vis_V5(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
 def vca_V5_finalizeBatch(go: Bool, v: VV, +st: HSt, ar: K_V5.AR_finalizeBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
   match go:
     case True{}:
@@ -5420,6 +5548,30 @@ def vok_c_V6_claimReward(s: VSt, ar: K_V6.AR_claimReward, +cl: W, en: VEnv, +kh:
     case VSt{+v, +st}:
       vokca_V6_claimReward(Bool.and(vis_V6(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
 
+def vca_V6_commitBatch(go: Bool, v: VV, +st: HSt, ar: K_V6.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V6(K_V6.run_commitBatch(cst_V6(st), ar, env_V6(en, cl), ckh_V6(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V6_commitBatch(s: VSt, ar: K_V6.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V6_commitBatch(Bool.and(vis_V6(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V6_commitBatch(go: Bool, +st: HSt, ar: K_V6.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V6(K_V6.run_commitBatch(cst_V6(st), ar, env_V6(en, cl), ckh_V6(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V6_commitBatch(s: VSt, ar: K_V6.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V6_commitBatch(Bool.and(vis_V6(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
 def vca_V6_finalizeBatch(go: Bool, v: VV, +st: HSt, ar: K_V6.AR_finalizeBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
   match go:
     case True{}:
@@ -6043,6 +6195,54 @@ def vok_c_V7_claimReward(s: VSt, ar: K_V7.AR_claimReward, +cl: W, en: VEnv, +kh:
   match s:
     case VSt{+v, +st}:
       vokca_V7_claimReward(Bool.and(vis_V7(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V7_commitBatch(go: Bool, v: VV, +st: HSt, ar: K_V7.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V7(K_V7.run_commitBatch(cst_V7(st), ar, env_V7(en, cl), ckh_V7(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V7_commitBatch(s: VSt, ar: K_V7.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V7_commitBatch(Bool.and(vis_V7(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V7_commitBatch(go: Bool, +st: HSt, ar: K_V7.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V7(K_V7.run_commitBatch(cst_V7(st), ar, env_V7(en, cl), ckh_V7(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V7_commitBatch(s: VSt, ar: K_V7.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V7_commitBatch(Bool.and(vis_V7(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V7_commitBatchWithProof(go: Bool, v: VV, +st: HSt, ar: K_V7.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V7(K_V7.run_commitBatchWithProof(cst_V7(st), ar, env_V7(en, cl), ckh_V7(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V7_commitBatchWithProof(s: VSt, ar: K_V7.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V7_commitBatchWithProof(Bool.and(vis_V7(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V7_commitBatchWithProof(go: Bool, +st: HSt, ar: K_V7.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V7(K_V7.run_commitBatchWithProof(cst_V7(st), ar, env_V7(en, cl), ckh_V7(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V7_commitBatchWithProof(s: VSt, ar: K_V7.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V7_commitBatchWithProof(Bool.and(vis_V7(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
 
 def vca_V7_finalizeBatch(go: Bool, v: VV, +st: HSt, ar: K_V7.AR_finalizeBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
   match go:
@@ -6715,6 +6915,54 @@ def vok_c_V8_claimReward(s: VSt, ar: K_V8.AR_claimReward, +cl: W, en: VEnv, +kh:
   match s:
     case VSt{+v, +st}:
       vokca_V8_claimReward(Bool.and(vis_V8(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V8_commitBatch(go: Bool, v: VV, +st: HSt, ar: K_V8.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V8(K_V8.run_commitBatch(cst_V8(st), ar, env_V8(en, cl), ckh_V8(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V8_commitBatch(s: VSt, ar: K_V8.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V8_commitBatch(Bool.and(vis_V8(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V8_commitBatch(go: Bool, +st: HSt, ar: K_V8.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V8(K_V8.run_commitBatch(cst_V8(st), ar, env_V8(en, cl), ckh_V8(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V8_commitBatch(s: VSt, ar: K_V8.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V8_commitBatch(Bool.and(vis_V8(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V8_commitBatchWithProof(go: Bool, v: VV, +st: HSt, ar: K_V8.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V8(K_V8.run_commitBatchWithProof(cst_V8(st), ar, env_V8(en, cl), ckh_V8(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V8_commitBatchWithProof(s: VSt, ar: K_V8.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V8_commitBatchWithProof(Bool.and(vis_V8(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V8_commitBatchWithProof(go: Bool, +st: HSt, ar: K_V8.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V8(K_V8.run_commitBatchWithProof(cst_V8(st), ar, env_V8(en, cl), ckh_V8(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V8_commitBatchWithProof(s: VSt, ar: K_V8.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V8_commitBatchWithProof(Bool.and(vis_V8(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
 
 def vca_V8_finalizeBatch(go: Bool, v: VV, +st: HSt, ar: K_V8.AR_finalizeBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
   match go:
@@ -7412,6 +7660,78 @@ def vok_c_V9_claimReward(s: VSt, ar: K_V9.AR_claimReward, +cl: W, en: VEnv, +kh:
     case VSt{+v, +st}:
       vokca_V9_claimReward(Bool.and(vis_V9(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
 
+def vca_V9_commitBatch(go: Bool, v: VV, +st: HSt, ar: K_V9.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V9(K_V9.run_commitBatch(cst_V9(st), ar, env_V9(en, cl), ckh_V9(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V9_commitBatch(s: VSt, ar: K_V9.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V9_commitBatch(Bool.and(vis_V9(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V9_commitBatch(go: Bool, +st: HSt, ar: K_V9.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V9(K_V9.run_commitBatch(cst_V9(st), ar, env_V9(en, cl), ckh_V9(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V9_commitBatch(s: VSt, ar: K_V9.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V9_commitBatch(Bool.and(vis_V9(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V9_commitBatchWithProof(go: Bool, v: VV, +st: HSt, ar: K_V9.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V9(K_V9.run_commitBatchWithProof(cst_V9(st), ar, env_V9(en, cl), ckh_V9(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V9_commitBatchWithProof(s: VSt, ar: K_V9.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V9_commitBatchWithProof(Bool.and(vis_V9(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V9_commitBatchWithProof(go: Bool, +st: HSt, ar: K_V9.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V9(K_V9.run_commitBatchWithProof(cst_V9(st), ar, env_V9(en, cl), ckh_V9(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V9_commitBatchWithProof(s: VSt, ar: K_V9.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V9_commitBatchWithProof(Bool.and(vis_V9(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V9_commitState(go: Bool, v: VV, +st: HSt, ar: K_V9.AR_commitState, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V9(K_V9.run_commitState(cst_V9(st), ar, env_V9(en, cl), ckh_V9(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V9_commitState(s: VSt, ar: K_V9.AR_commitState, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V9_commitState(Bool.and(vis_V9(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V9_commitState(go: Bool, +st: HSt, ar: K_V9.AR_commitState, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V9(K_V9.run_commitState(cst_V9(st), ar, env_V9(en, cl), ckh_V9(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V9_commitState(s: VSt, ar: K_V9.AR_commitState, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V9_commitState(Bool.and(vis_V9(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
 def vca_V9_finalizeBatch(go: Bool, v: VV, +st: HSt, ar: K_V9.AR_finalizeBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
   match go:
     case True{}:
@@ -8107,6 +8427,78 @@ def vok_c_V10_claimReward(s: VSt, ar: K_V10.AR_claimReward, +cl: W, en: VEnv, +k
   match s:
     case VSt{+v, +st}:
       vokca_V10_claimReward(Bool.and(vis_V10(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V10_commitBatch(go: Bool, v: VV, +st: HSt, ar: K_V10.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V10(K_V10.run_commitBatch(cst_V10(st), ar, env_V10(en, cl), ckh_V10(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V10_commitBatch(s: VSt, ar: K_V10.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V10_commitBatch(Bool.and(vis_V10(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V10_commitBatch(go: Bool, +st: HSt, ar: K_V10.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V10(K_V10.run_commitBatch(cst_V10(st), ar, env_V10(en, cl), ckh_V10(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V10_commitBatch(s: VSt, ar: K_V10.AR_commitBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V10_commitBatch(Bool.and(vis_V10(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V10_commitBatchWithProof(go: Bool, v: VV, +st: HSt, ar: K_V10.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V10(K_V10.run_commitBatchWithProof(cst_V10(st), ar, env_V10(en, cl), ckh_V10(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V10_commitBatchWithProof(s: VSt, ar: K_V10.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V10_commitBatchWithProof(Bool.and(vis_V10(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V10_commitBatchWithProof(go: Bool, +st: HSt, ar: K_V10.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V10(K_V10.run_commitBatchWithProof(cst_V10(st), ar, env_V10(en, cl), ckh_V10(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V10_commitBatchWithProof(s: VSt, ar: K_V10.AR_commitBatchWithProof, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V10_commitBatchWithProof(Bool.and(vis_V10(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
+
+def vca_V10_commitState(go: Bool, v: VV, +st: HSt, ar: K_V10.AR_commitState, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match go:
+    case True{}:
+      vfin_V10(K_V10.run_commitState(cst_V10(st), ar, env_V10(en, cl), ckh_V10(kh)), VSt{v, st})
+    case False{}:
+      VSt{v, st}
+
+def vc_V10_commitState(s: VSt, ar: K_V10.AR_commitState, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
+  match s:
+    case VSt{+v, +st}:
+      vca_V10_commitState(Bool.and(vis_V10(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), v, st, ar, cl, en, kh)
+
+def vokca_V10_commitState(go: Bool, +st: HSt, ar: K_V10.AR_commitState, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match go:
+    case True{}:
+      vokf_V10(K_V10.run_commitState(cst_V10(st), ar, env_V10(en, cl), ckh_V10(kh)))
+    case False{}:
+      False{}
+
+def vok_c_V10_commitState(s: VSt, ar: K_V10.AR_commitState, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> Bool:
+  match s:
+    case VSt{+v, +st}:
+      vokca_V10_commitState(Bool.and(vis_V10(v), Bool.not(w_eq(cl, sload(st, vadmin_slot())))), st, ar, cl, en, kh)
 
 def vca_V10_finalizeBatch(go: Bool, v: VV, +st: HSt, ar: K_V10.AR_finalizeBatch, +cl: W, en: VEnv, +kh: List<&2, HKB>) -> VSt:
   match go:
@@ -9441,6 +9833,8 @@ def vstep(x: VStep, s: VSt, +kh: List<&2, HKB>) -> VSt:
       vc_V3_claimProveRemaining(s, ar, cl, en, kh)
     case C_V3_claimReward{ar, cl, en}:
       vc_V3_claimReward(s, ar, cl, en, kh)
+    case C_V3_commitBatch{ar, cl, en}:
+      vc_V3_commitBatch(s, ar, cl, en, kh)
     case C_V3_finalizeBatch{ar, cl, en}:
       vc_V3_finalizeBatch(s, ar, cl, en, kh)
     case C_V3_importGenesisBatch{ar, cl, en}:
@@ -9491,6 +9885,8 @@ def vstep(x: VStep, s: VSt, +kh: List<&2, HKB>) -> VSt:
       vc_V4_claimProveRemaining(s, ar, cl, en, kh)
     case C_V4_claimReward{ar, cl, en}:
       vc_V4_claimReward(s, ar, cl, en, kh)
+    case C_V4_commitBatch{ar, cl, en}:
+      vc_V4_commitBatch(s, ar, cl, en, kh)
     case C_V4_finalizeBatch{ar, cl, en}:
       vc_V4_finalizeBatch(s, ar, cl, en, kh)
     case C_V4_importGenesisBatch{ar, cl, en}:
@@ -9543,6 +9939,8 @@ def vstep(x: VStep, s: VSt, +kh: List<&2, HKB>) -> VSt:
       vc_V5_claimProveRemaining(s, ar, cl, en, kh)
     case C_V5_claimReward{ar, cl, en}:
       vc_V5_claimReward(s, ar, cl, en, kh)
+    case C_V5_commitBatch{ar, cl, en}:
+      vc_V5_commitBatch(s, ar, cl, en, kh)
     case C_V5_finalizeBatch{ar, cl, en}:
       vc_V5_finalizeBatch(s, ar, cl, en, kh)
     case C_V5_importGenesisBatch{ar, cl, en}:
@@ -9595,6 +9993,8 @@ def vstep(x: VStep, s: VSt, +kh: List<&2, HKB>) -> VSt:
       vc_V6_claimProveRemaining(s, ar, cl, en, kh)
     case C_V6_claimReward{ar, cl, en}:
       vc_V6_claimReward(s, ar, cl, en, kh)
+    case C_V6_commitBatch{ar, cl, en}:
+      vc_V6_commitBatch(s, ar, cl, en, kh)
     case C_V6_finalizeBatch{ar, cl, en}:
       vc_V6_finalizeBatch(s, ar, cl, en, kh)
     case C_V6_importGenesisBatch{ar, cl, en}:
@@ -9647,6 +10047,10 @@ def vstep(x: VStep, s: VSt, +kh: List<&2, HKB>) -> VSt:
       vc_V7_claimProveRemaining(s, ar, cl, en, kh)
     case C_V7_claimReward{ar, cl, en}:
       vc_V7_claimReward(s, ar, cl, en, kh)
+    case C_V7_commitBatch{ar, cl, en}:
+      vc_V7_commitBatch(s, ar, cl, en, kh)
+    case C_V7_commitBatchWithProof{ar, cl, en}:
+      vc_V7_commitBatchWithProof(s, ar, cl, en, kh)
     case C_V7_finalizeBatch{ar, cl, en}:
       vc_V7_finalizeBatch(s, ar, cl, en, kh)
     case C_V7_importGenesisBatch{ar, cl, en}:
@@ -9703,6 +10107,10 @@ def vstep(x: VStep, s: VSt, +kh: List<&2, HKB>) -> VSt:
       vc_V8_claimProveRemaining(s, ar, cl, en, kh)
     case C_V8_claimReward{ar, cl, en}:
       vc_V8_claimReward(s, ar, cl, en, kh)
+    case C_V8_commitBatch{ar, cl, en}:
+      vc_V8_commitBatch(s, ar, cl, en, kh)
+    case C_V8_commitBatchWithProof{ar, cl, en}:
+      vc_V8_commitBatchWithProof(s, ar, cl, en, kh)
     case C_V8_finalizeBatch{ar, cl, en}:
       vc_V8_finalizeBatch(s, ar, cl, en, kh)
     case C_V8_importGenesisBatch{ar, cl, en}:
@@ -9761,6 +10169,12 @@ def vstep(x: VStep, s: VSt, +kh: List<&2, HKB>) -> VSt:
       vc_V9_claimProveRemaining(s, ar, cl, en, kh)
     case C_V9_claimReward{ar, cl, en}:
       vc_V9_claimReward(s, ar, cl, en, kh)
+    case C_V9_commitBatch{ar, cl, en}:
+      vc_V9_commitBatch(s, ar, cl, en, kh)
+    case C_V9_commitBatchWithProof{ar, cl, en}:
+      vc_V9_commitBatchWithProof(s, ar, cl, en, kh)
+    case C_V9_commitState{ar, cl, en}:
+      vc_V9_commitState(s, ar, cl, en, kh)
     case C_V9_finalizeBatch{ar, cl, en}:
       vc_V9_finalizeBatch(s, ar, cl, en, kh)
     case C_V9_importGenesisBatch{ar, cl, en}:
@@ -9819,6 +10233,12 @@ def vstep(x: VStep, s: VSt, +kh: List<&2, HKB>) -> VSt:
       vc_V10_claimProveRemaining(s, ar, cl, en, kh)
     case C_V10_claimReward{ar, cl, en}:
       vc_V10_claimReward(s, ar, cl, en, kh)
+    case C_V10_commitBatch{ar, cl, en}:
+      vc_V10_commitBatch(s, ar, cl, en, kh)
+    case C_V10_commitBatchWithProof{ar, cl, en}:
+      vc_V10_commitBatchWithProof(s, ar, cl, en, kh)
+    case C_V10_commitState{ar, cl, en}:
+      vc_V10_commitState(s, ar, cl, en, kh)
     case C_V10_finalizeBatch{ar, cl, en}:
       vc_V10_finalizeBatch(s, ar, cl, en, kh)
     case C_V10_importGenesisBatch{ar, cl, en}:
@@ -9965,6 +10385,8 @@ def vok(x: VStep, s: VSt, +kh: List<&2, HKB>) -> Bool:
       vok_c_V3_claimProveRemaining(s, ar, cl, en, kh)
     case C_V3_claimReward{ar, cl, en}:
       vok_c_V3_claimReward(s, ar, cl, en, kh)
+    case C_V3_commitBatch{ar, cl, en}:
+      vok_c_V3_commitBatch(s, ar, cl, en, kh)
     case C_V3_finalizeBatch{ar, cl, en}:
       vok_c_V3_finalizeBatch(s, ar, cl, en, kh)
     case C_V3_importGenesisBatch{ar, cl, en}:
@@ -10015,6 +10437,8 @@ def vok(x: VStep, s: VSt, +kh: List<&2, HKB>) -> Bool:
       vok_c_V4_claimProveRemaining(s, ar, cl, en, kh)
     case C_V4_claimReward{ar, cl, en}:
       vok_c_V4_claimReward(s, ar, cl, en, kh)
+    case C_V4_commitBatch{ar, cl, en}:
+      vok_c_V4_commitBatch(s, ar, cl, en, kh)
     case C_V4_finalizeBatch{ar, cl, en}:
       vok_c_V4_finalizeBatch(s, ar, cl, en, kh)
     case C_V4_importGenesisBatch{ar, cl, en}:
@@ -10067,6 +10491,8 @@ def vok(x: VStep, s: VSt, +kh: List<&2, HKB>) -> Bool:
       vok_c_V5_claimProveRemaining(s, ar, cl, en, kh)
     case C_V5_claimReward{ar, cl, en}:
       vok_c_V5_claimReward(s, ar, cl, en, kh)
+    case C_V5_commitBatch{ar, cl, en}:
+      vok_c_V5_commitBatch(s, ar, cl, en, kh)
     case C_V5_finalizeBatch{ar, cl, en}:
       vok_c_V5_finalizeBatch(s, ar, cl, en, kh)
     case C_V5_importGenesisBatch{ar, cl, en}:
@@ -10119,6 +10545,8 @@ def vok(x: VStep, s: VSt, +kh: List<&2, HKB>) -> Bool:
       vok_c_V6_claimProveRemaining(s, ar, cl, en, kh)
     case C_V6_claimReward{ar, cl, en}:
       vok_c_V6_claimReward(s, ar, cl, en, kh)
+    case C_V6_commitBatch{ar, cl, en}:
+      vok_c_V6_commitBatch(s, ar, cl, en, kh)
     case C_V6_finalizeBatch{ar, cl, en}:
       vok_c_V6_finalizeBatch(s, ar, cl, en, kh)
     case C_V6_importGenesisBatch{ar, cl, en}:
@@ -10171,6 +10599,10 @@ def vok(x: VStep, s: VSt, +kh: List<&2, HKB>) -> Bool:
       vok_c_V7_claimProveRemaining(s, ar, cl, en, kh)
     case C_V7_claimReward{ar, cl, en}:
       vok_c_V7_claimReward(s, ar, cl, en, kh)
+    case C_V7_commitBatch{ar, cl, en}:
+      vok_c_V7_commitBatch(s, ar, cl, en, kh)
+    case C_V7_commitBatchWithProof{ar, cl, en}:
+      vok_c_V7_commitBatchWithProof(s, ar, cl, en, kh)
     case C_V7_finalizeBatch{ar, cl, en}:
       vok_c_V7_finalizeBatch(s, ar, cl, en, kh)
     case C_V7_importGenesisBatch{ar, cl, en}:
@@ -10227,6 +10659,10 @@ def vok(x: VStep, s: VSt, +kh: List<&2, HKB>) -> Bool:
       vok_c_V8_claimProveRemaining(s, ar, cl, en, kh)
     case C_V8_claimReward{ar, cl, en}:
       vok_c_V8_claimReward(s, ar, cl, en, kh)
+    case C_V8_commitBatch{ar, cl, en}:
+      vok_c_V8_commitBatch(s, ar, cl, en, kh)
+    case C_V8_commitBatchWithProof{ar, cl, en}:
+      vok_c_V8_commitBatchWithProof(s, ar, cl, en, kh)
     case C_V8_finalizeBatch{ar, cl, en}:
       vok_c_V8_finalizeBatch(s, ar, cl, en, kh)
     case C_V8_importGenesisBatch{ar, cl, en}:
@@ -10285,6 +10721,12 @@ def vok(x: VStep, s: VSt, +kh: List<&2, HKB>) -> Bool:
       vok_c_V9_claimProveRemaining(s, ar, cl, en, kh)
     case C_V9_claimReward{ar, cl, en}:
       vok_c_V9_claimReward(s, ar, cl, en, kh)
+    case C_V9_commitBatch{ar, cl, en}:
+      vok_c_V9_commitBatch(s, ar, cl, en, kh)
+    case C_V9_commitBatchWithProof{ar, cl, en}:
+      vok_c_V9_commitBatchWithProof(s, ar, cl, en, kh)
+    case C_V9_commitState{ar, cl, en}:
+      vok_c_V9_commitState(s, ar, cl, en, kh)
     case C_V9_finalizeBatch{ar, cl, en}:
       vok_c_V9_finalizeBatch(s, ar, cl, en, kh)
     case C_V9_importGenesisBatch{ar, cl, en}:
@@ -10343,6 +10785,12 @@ def vok(x: VStep, s: VSt, +kh: List<&2, HKB>) -> Bool:
       vok_c_V10_claimProveRemaining(s, ar, cl, en, kh)
     case C_V10_claimReward{ar, cl, en}:
       vok_c_V10_claimReward(s, ar, cl, en, kh)
+    case C_V10_commitBatch{ar, cl, en}:
+      vok_c_V10_commitBatch(s, ar, cl, en, kh)
+    case C_V10_commitBatchWithProof{ar, cl, en}:
+      vok_c_V10_commitBatchWithProof(s, ar, cl, en, kh)
+    case C_V10_commitState{ar, cl, en}:
+      vok_c_V10_commitState(s, ar, cl, en, kh)
     case C_V10_finalizeBatch{ar, cl, en}:
       vok_c_V10_finalizeBatch(s, ar, cl, en, kh)
     case C_V10_importGenesisBatch{ar, cl, en}:

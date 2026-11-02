@@ -1,0 +1,143 @@
+{
+  "title": "Sorts II: per-site SORT laws and the rules registry (the first generated M2 laws)",
+  "plan": "docs/BUILD_PLAN.md#i15",
+  "prompt": "prompts/I15_sort_sites.md",
+  "predictions": [
+    {
+      "id": "I15-P1",
+      "claim": "Six of the ten site laws are PROVED by the new proof class coercion_guard, each proof calling a core lemma through the imported core library: L_sort_site_rollup_441_b4cd5068 (revertBatch let p = idx - lfi, a window offset, after the require idx > lfi at :441), L_sort_site_rollup_485_495_b4cd5068 (challengeState effect win offset idx - lfi, after lfi < idx at :476), L_sort_site_rollup_644_660_e68daf06 (finalizeBatch effect idx - 1, the checked deletes at :657-660, after idx >= 1 at :636 passed), L_sort_site_def_w_b4cd5068 (def w: idx - lfi under in_win, i.e. idx >= lfi), L_sort_site_def_bvh_at_6126d1f1 and L_sort_site_def_bvh_at_e064679d (def bvh_at: idx - lci and (idx - lci) - 1, both under !(idx <= lci)). Basis: in each, a condition the evaluation has already passed implies minuend >= subtrahend by one Nat lemma (gt->le, lt->le, ge->le, and_left then ge->le, not_le->le, not_le->1<=sub), true in every state, so no reachability argument is needed. Bend probes on a toy machine (scratch, not Morph) checked this proof shape, including the equation-carrying match on a guard's Bool, under bend and BendTT.",
+      "check": "tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_guard_implied_sites_are_proved_by_coercion_guard"
+    },
+    {
+      "id": "I15-P2",
+      "claim": "Two site laws stay UNKNOWN, with a bounded record and no witness at any entry point: L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17 (finalizeBatch btot - bn, SIdx[queue] sign site; true on reachable states because every window entry has tot = parent tot + n >= n, but no guard implies it) and L_sort_site_def_lci_356891e4 (def lci: (lfi + len(win)) - 1, reached from the seven actions that compute lci; true because the window is never empty, which no guard states). No witness exists, coercion_guard does not apply, and reach_invariant does not take a law with an Act binder; BUILD_PLAN I15 risks: an unguarded site without a witness stays UNKNOWN, with its bound (I40 revisits).",
+      "check": "tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_invariant_sites_stay_unknown_with_their_bound"
+    },
+    {
+      "id": "I15-P3",
+      "claim": "The :363 site (W + cstart - t, SDur, sign) yields ONE law, L_sort_site_rollup_363_1fc7f88a, with entry points commitBatch, commitBatchWithProof and commitState, each hit at its realization check (the facts' require !inch || t <= W + cstart, reason panic:0x11, at guards[23], guards[27] and guards[22]); it is REFUTED with one Bend-checked counter-law witness per entry point, and each witness replays on the real code at the pinned commit with every prefix step succeeding and the entry point reverting with Panic(0x11) raised at Rollup.sol:363 (located by solc's source map in a Foundry debugger dump). Scored: one law with exactly these three entry points and hits, a checked witness for each entry point, and each replaying with a Panic(0x11) located at Rollup.sol:363. Not scored (context, decided by the search): the commitBatch entry point's refutation mirrors the M1 witness of L_sort_remaining already recorded in results/M1, and the expected witness shapes are: commitBatch after [commit 1, challenge 1, wait 11] (the M1 L_sort_remaining shape), commitBatchWithProof after [commit 1, challenge 1, wait 21] (rollup delay passed), commitState after a prefix that also commits and reverts a later batch so that a blob hash is stored for the next index (5 actions, found by the neighbourhood stage S3 around the commitBatch witness). This localizes O27 to a site, where L_sort_remaining was stated over a reason code.",
+      "check": "tests_m2/test_sort_sites.py::TestPredictedDerivation::test_363_is_one_law_reached_from_the_three_commits_at_their_realization_checks and tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_363_is_refuted_with_one_checked_witness_per_entry_point and tests_m2/test_sort_site_outcomes.py::TestReplay::test_363_witnesses_replay_as_panic_0x11_at_rollup_363"
+    },
+    {
+      "id": "I15-P4",
+      "claim": "Contrary to the plan's expectation (':636 PROVED by coercion_guard'), the :636 site (finalizeBatch idx - 1 in finalizedStateRoots[_batchIndex - 1]) is REFUTED: the facts' require idx >= 1 (reason panic:0x11, span :636) models the real code's own checked subtraction, so the obligation is evaluated before it (rule R8), and finalizeBatch with idx = 0 from a state with lfi = 0 (s0) passes every earlier require and reaches it with 0 < 1; on the real code finalizeBatch(genesis header) reverts with Panic(0x11) raised at Rollup.sol:636, before the 'incorrect batch index' check at :643. The witness is found by the boundary variants of stage S1 (idx := v - 1 of the policy's idx = lfi + 1). The guard-implied idx - 1 site is the finalizeBatch effect site :644-660 (I15-P1). The finding is benign (the call reverts either way, with another reason) but it is a reachable underflow.",
+      "check": "tests_m2/test_sort_sites.py::TestPredictedDerivation::test_636_is_hit_before_its_realization_check and tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_636_is_refuted_by_finalize_batch_at_index_zero and tests_m2/test_sort_site_outcomes.py::TestReplay::test_636_witness_replays_as_panic_0x11_at_rollup_636"
+    },
+    {
+      "id": "I15-P5",
+      "claim": "Under MUT2 (spec/M1/mutations.json MUT2_cwp_no_underflow_check: commitBatchWithProof's :363 require := true), re-derived from the mutated facts with their regenerated sorts: the :363 law is still generated under the same id with entry points commitBatch and commitState, and the derive diff against the committed laws/M2 lists commitBatchWithProof as lost from it (and nothing gained); a new law L_sort_site_rollup_360_364_1fc7f88a (commitBatchWithProof's now unchecked W + cstart - t, span :360-364, hit at its occurrence guards[28]) is added with that single entry point. Run on the mutated model, the :363 law is REFUTED through commitBatch and commitState, one checked witness each, and the new law is REFUTED through commitBatchWithProof: the SORT-site law catches what the dropped require modelled.",
+      "check": "tests_m2/test_sort_sites.py::TestMut2Derivation::test_derive_diff_lists_commit_batch_with_proof_as_no_longer_reaching_363 and tests_m2/test_sort_site_outcomes.py::TestMut2Outcomes::test_363_still_refuted_through_the_two_unmutated_entry_points"
+    },
+    {
+      "id": "I15-P6",
+      "claim": "Coherence obstructions (rule R11: a guard kappa => rho whose rho constrains the action's inputs must not read a writer-labelled register the action does not write) appear exactly at the three enq_first call sites of the l1msg delay guard !(ef + D < t) || n > 0 and nowhere else: commitBatch guards[5] (for the require guards[6]), commitState guards[10] (guards[11]) and commitBatchWithProof guards[4] (guards[6]); each passes qlen (Idx[queue]_wcf8ad7dc, writers {sendMessage}) and qpend (Idx[queue]_fin, writers {finalizeBatch}) into enq_first, while rho (n > 0) constrains the commit family, which advances Entry.tot (Idx[queue]_inc); each lists constrains = [n]. The :363 require's rho reads no input, and setPause's kappa reads only Bool registers, so neither yields one (O16/O33 coherence, whitepaper §7.8).",
+      "check": "tests_m2/test_sort_sites.py::TestPredictedDerivation::test_coherence_obstructions_at_the_enq_first_call_sites"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I15-R1",
+      "claim": "M0 and M1 are untouched: gen/M0 and gen/M1 are byte-identical (I6 GEN_PIN), the M0/M1 records are unchanged modulo seconds and generator hash (I6 RECORDS_PIN), and gates M0 and M1 pass.",
+      "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged and tests_m2/test_target_agnostic.py::TestByteIdentity::test_records_unchanged_modulo_seconds_and_generator_hash and gate"
+    },
+    {
+      "id": "I15-R2",
+      "claim": "The I13 assignment is unchanged: gen/M2/sorts/{constraints, assignment, conflicts, unions, unresolved}.json regenerate byte for byte, and holon/sorts/*.py (now with sites.py and check.py) stays pure, target-agnostic Python under the I13 static check.",
+      "check": "tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files and tests_m2/test_sorts_unit.py::TestModules::test_sorts_code_is_pure_python_and_target_agnostic"
+    },
+    {
+      "id": "I15-R3",
+      "claim": "laws/M2/REGISTRY.json carries sorts_sha256 equal to gen/M2/sorts/assignment.json's (the I13 contract's conditional check now applies).",
+      "check": "tests_m2/test_sorts_morph.py::TestSortsContract::test_sorts_sha256_is_the_hash_of_the_frozen_assignment and tests_m2/test_sort_sites.py::TestDeriveContract::test_registry"
+    },
+    {
+      "id": "I15-R4",
+      "claim": "Exit (construction check, not a prediction): python -m holon derive --milestone M2 is byte-identical across two runs and reproduces the committed laws/M2/ and gen/M2/sorts/obstructions.json.",
+      "check": "tests_m2/test_sort_sites.py::TestDeriveContract::test_two_runs_are_byte_identical_and_match_the_committed_files"
+    },
+    {
+      "id": "I15-R5",
+      "claim": "Construction check: the derivation, the hit points and the obstructions follow rules R7-R11 as the prereg instrument tests_m2/_i15.py computes them from the facts and the frozen assignment; the statement hash covers the site's hit points; a stale assignment is refused; the toy fixture derives and decides every class as designed.",
+      "check": "tests_m2/test_sort_sites.py::TestDeriveContract::test_derivation_follows_the_rules and tests_m2/test_sort_sites.py::TestDeriveContract::test_site_spec_is_hashed and tests_m2/test_sort_sites.py::TestDeriveContract::test_derive_refuses_a_stale_assignment and tests_m2/test_sort_sites.py::TestObstructions::test_obstructions_follow_rule_r11 and tests_m2/test_sort_sites.py::TestToyDerivation::test_toy_laws_hits_and_obstruction and tests_m2/test_sort_site_outcomes.py::TestToyOutcomes::test_toy_statuses"
+    },
+    {
+      "id": "I15-R6",
+      "claim": "Construction check: the ghost instrumentation cannot change non-ghost behaviour: the instrumented model is the M2 model (for the rollup without oracle tables: the M1 model plus the Reach block) followed by a ghost section that nothing above it names, it adds no state, and Bend checks it; the committed gen/M2/model/morph_rollup.bend is that text.",
+      "check": "tests_m2/test_sort_sites.py::TestInstrumentedMorphModel::test_ghost_section_follows_the_m2_model_unchanged and tests_m2/test_sort_sites.py::TestToyDerivation::test_toy_instrumented_model_checks_and_leaves_the_model_alone and tests_m2/test_sort_site_outcomes.py::TestRecords::test_the_committed_model_is_the_instrumented_model"
+    },
+    {
+      "id": "I15-R7",
+      "claim": "Exit (construction check): new witnesses replay or are labelled: replay/M2/report.json binds every REFUTED per-entry witness, passed and observed, at the panic site the prereg instrument locates; the M2 refinement corpus (the M1 corpus rule on the same transition function) shows 0 disagreements.",
+      "check": "tests_m2/test_sort_site_outcomes.py::TestReplay::test_holon_replay_report_agrees_with_the_instrument and tests_m2/test_sort_site_outcomes.py::TestRecords::test_m2_refinement_corpus_agrees"
+    },
+    {
+      "id": "I15-R8",
+      "claim": "Construction check: every M2 record validates against v1 and v2, carries site and witnesses, keeps the ledger assumptions of its cone (F-M2-12) and names the M2 refinement corpus.",
+      "check": "tests_m2/test_sort_site_outcomes.py::TestRecords::test_every_m2_law_has_a_record_valid_under_v1_and_v2 and tests_m2/test_sort_site_outcomes.py::TestRecords::test_ledger_assumptions_survive and tests_m2/test_sort_site_outcomes.py::TestRecords::test_refinement_refs_name_the_m2_corpus"
+    },
+    {
+      "id": "I15-R9",
+      "claim": "Exit (construction check): python -m holon gate --milestone M2 passes, with G1, G2, G4 (at least 10 canaries of at least 3 kinds), G5, G6 and G9 run on the M2 laws.",
+      "check": "tests_m2/test_sort_site_outcomes.py::TestGateM2::test_gate_m2_passes"
+    },
+    {
+      "id": "I15-R10",
+      "claim": "The earlier M2 outputs survive holon run, derive and gate for M2: gen/M2/diagram regenerates byte for byte, gen/M2/sorts is I13's, and the I12 and I16 outputs under gen/M2 and results/M2 are not removed.",
+      "check": "tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files"
+    },
+    {
+      "id": "I15-R11",
+      "claim": "Construction check (non-vacuity, I3 G11V, whitepaper 12.3 L21): the ghost section defines hit_<x>, the at_site premise of each site law, and every PROVED SORT-site law, on the Morph facts and on the toy, carries a Bend-checked inhabitant of it (exs s: Reach, a. hit_<x>(a, s) == True at a concrete reachable state and action), not merely of Reach; REFUTED laws point at their counter-law.",
+      "check": "tests_m2/test_sort_site_outcomes.py::TestRecords::test_proved_site_laws_are_not_vacuous and tests_m2/test_sort_site_outcomes.py::TestToyOutcomes::test_toy_statuses and tests_m2/test_sort_sites.py::TestInstrumentedMorphModel::test_ghost_section_follows_the_m2_model_unchanged and tests_m2/test_sort_sites.py::TestToyDerivation::test_toy_instrumented_model_checks_and_leaves_the_model_alone"
+    },
+    {
+      "id": "I15-R12",
+      "claim": "Construction check (honesty): derive reads spans, the reasons table, the sidecar and the frozen assignment only. On a copy mutated with I13's honesty mutations, stripping every site annotation, note and sort-stating doc changes no law, basis, entry point, hit or obstruction, and renaming the facts' hand-chosen identifiers renames them and changes nothing else; nothing under holon/ names a site span, a SORT-site law id or a site hash; holon/rules, holon/sorts/sites.py and holon/sorts/check.py name no target identifier and no revert-reason text.",
+      "check": "tests_m2/test_sort_sites.py::TestDeriveHonesty::test_stripping_hand_hints_changes_no_law_hit_or_obstruction and tests_m2/test_sort_sites.py::TestDeriveHonesty::test_renaming_fact_identifiers_renames_the_derivation_and_nothing_else and tests_m2/test_sort_sites.py::TestGenericCode::test_nothing_under_holon_names_a_site_span_or_site_law and tests_m2/test_sort_sites.py::TestGenericCode::test_the_rule_code_names_no_target_and_no_reason_text"
+    },
+    {
+      "id": "I15-R13",
+      "claim": "Construction check (ghost faithfulness and proof hygiene): with the toy's require idx > lfi replaced by true, the toy's window-offset law is REFUTED through revertTo with a checked witness; every coercion_guard proof imports and fills its own law (F-M2-07); holon run keeps what other commands wrote under its gen dir (F-M2-25: diagram/, sorts/, oracles/, evidence.json).",
+      "check": "tests_m2/test_sort_site_outcomes.py::TestToyOutcomes::test_toy_site_without_its_guard_is_refuted and tests_m2/test_sort_site_outcomes.py::TestPredictedOutcomes::test_guard_implied_sites_are_proved_by_coercion_guard and tests_m2/test_sort_site_outcomes.py::TestToyOutcomes::test_toy_statuses"
+    }
+  ],
+  "outcome_paths": [
+    "laws/M2/",
+    "gen/M2/model/",
+    "gen/M2/core/",
+    "gen/M2/laws/",
+    "gen/M2/proofs/",
+    "gen/M2/L_",
+    "gen/M2/sorts/obstructions.json",
+    "results/M2/L_",
+    "results/M2/summary.json",
+    "results/M2/deps.json",
+    "results/M2/splits.json",
+    "results/M2/metrics.json",
+    "results/M2/metrics_timing.json",
+    "results/M2/gate_report.json",
+    "results/M2/gate_timing.json",
+    "replay/M2/report.json",
+    "spec/bindings/M2.json"
+  ],
+  "tests": [
+    "tests_m2/test_sort_sites.py",
+    "tests_m2/test_sort_site_outcomes.py"
+  ],
+  "thresholds": {
+    "laws_per_site": 1,
+    "boundary_variants": [
+      "v - 1 (when v >= 1)",
+      "v + 1",
+      "0"
+    ],
+    "neighbourhood_insertion_length_max": 2,
+    "neighbourhood_prefixes_per_entry_point_max": 20000,
+    "g4_canaries_min": 10,
+    "g4_canary_kinds_min": 3,
+    "m2_refinement_corpus": {
+      "traces": 300,
+      "seed": 20261011
+    }
+  }
+}

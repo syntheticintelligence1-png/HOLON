@@ -19,6 +19,11 @@ them):
   obstructions.json          the coherence obstructions (holon.sorts.check)
   the derive diff            with --against DIR --diff PATH: this derivation against DIR/DERIVATION.json
 
+Hash scheme (PV2A): every holon-ir/0.3 law derive writes carries "hash_scheme": 2 when the milestone declares scheme 2
+(spec/<M>/hash_scheme.json, holon.ir.milestone_hash_scheme; DERIVATION then lists it as an input), and the statement
+hashes are scheme 2's; without the declaration every law is written as before. compute(hash_scheme=N) derives under
+scheme N instead, reading no declaration (holon.statement_diff re-checks a historical line under the line's scheme).
+
 Exit 0 on success; 2 when the assignment is stale (its inputs do not list every fact document with its current
 sha256, or its sites are not the sites the facts give: Thm 6.18's freezing condition), with nothing written; 3 when a
 site cannot be derived or instrumented (named); 1 when an input is unreadable.
@@ -31,6 +36,7 @@ import json
 import sys
 from pathlib import Path
 
+from .. import ir
 from ..sorts import check as _check
 from ..sorts import sites as _sites
 from ..sorts import width as _width
@@ -87,15 +93,65 @@ INIT_CHAIN_CATALOG_VERSION = "holon-rules/1.6"
 CATALOGS[INIT_CHAIN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[FACT_CATALOG_VERSION].items()}}
 CATALOGS[INIT_CHAIN_CATALOG_VERSION]["PAR"] = {**CATALOGS[FACT_CATALOG_VERSION]["PAR"],
                                                _par_init.SUBFORM: _par_init.PRODUCERS[_par_init.SUBFORM]}
-#   holon-rules/1.11  I86's: the rules of the newest version before it unchanged (the same producer objects), plus SORT's
-#                    payer and conservation, DISCH's keyed_blocking, keyed_external and keyed_external_none, and PAR's
-#                    push (holon.rules.bundle: the laws of a bundle of linked contracts over the milestone's bundle-laws
-#                    sidecar, run by derive's bundle part, _bundle_part); M3 and later. 1.7-1.10 are I71's, I29's, I35's
-#                    and I84's: whichever lands after this one is chained by whoever merges second.
+#   holon-rules/1.7  I71's: the rules of holon-rules/1.6 unchanged (the same producer objects), plus rule UNDO's sub-form
+#                    cancel (holon.rules.undo.CANCEL: cancellations, rules U3' and U4' of tests_m3/test_undo_cancel.py),
+#                    a producer of its own beside I27's pair and residue; M3 and later. A typed test milestone keeps
+#                    holon-rules/1.2.
+CANCEL_CATALOG_VERSION = "holon-rules/1.7"
+CATALOGS[CANCEL_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[INIT_CHAIN_CATALOG_VERSION].items()}}
+CATALOGS[CANCEL_CATALOG_VERSION]["UNDO"] = {**CATALOGS[INIT_CHAIN_CATALOG_VERSION]["UNDO"],
+                                            _undo.CANCEL_SUBFORM: _undo.CANCEL}
+#   holon-rules/1.8  I29's: the rules of holon-rules/1.7 (I71's) unchanged (the same producer objects), plus rule NAT
+#                    (holon.rules.nat: composition and naturality squares across a contract's versioned machine,
+#                    whitepaper §5.3), which, like PAR/init_chain, takes the milestone's versions sidecar and its
+#                    versioned document instead of the typed context (_nat_part); M3 and later.
+from . import nat as _nat  # noqa: E402
+NAT_CATALOG_VERSION = "holon-rules/1.8"
+CATALOGS[NAT_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[CANCEL_CATALOG_VERSION].items()},
+                                 _nat.RULE: {sub: _nat.PRODUCERS[sub] for sub in _nat.SUBFORMS}}
+VERSIONED_RULES = (_nat.RULE,)   # rules whose producers read the versioned document (_nat_part), not the typed context
+
+#   holon-rules/1.9  I35's: the rules of holon-rules/1.8 unchanged (the same producer objects), plus rule OWN
+#                    (holon.rules.own: sub-forms alias and lost_write over the OWN carrier documents gen/<M>/own/*.json,
+#                    rules W4, W5 and W8 of tests_m3/test_own.py), derived in a part of its own (_own_part); M3 and later.
+#                    A typed test milestone keeps holon-rules/1.2.
+from . import own as _own  # noqa: E402
+OWN_CATALOG_VERSION = "holon-rules/1.9"
+CATALOGS[OWN_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[NAT_CATALOG_VERSION].items()},
+                                 _own.RULE: dict(_own.PRODUCERS)}
+
+#   holon-rules/1.10 I84's: the rules of the newest catalog version before it, unchanged (the same producer objects),
+#                    plus the bundle sub-forms of holon.rules.bundle2: PAR's link_domain, FACT's public_input and DISCH's
+#                    self_controlled, read from the milestone's bundle-laws sidecar (spec/<M>/lib/bundle2_laws.json; a
+#                    milestone without one derives none of them); M3 and later. It chains over holon-rules/1.9 (I35's), the
+#                    newest catalog before it at I84's landing.
+from . import bundle2 as _bundle2  # noqa: E402
+BUNDLE2_CATALOG_VERSION = "holon-rules/1.10"
+
+
+def _catalog_key(version: str) -> tuple:
+    return tuple(int(x) for x in version.split("/", 1)[1].split("."))
+
+
+def _newest_catalog(below: str = BUNDLE2_CATALOG_VERSION) -> str:
+    """The newest catalog version below `below`: the version a catalog chains over (its predecessor in the chain),
+    whichever order the versions are defined in."""
+    return max((v for v in CATALOGS if _catalog_key(v) < _catalog_key(below)), key=_catalog_key)
+
+
+CATALOGS[BUNDLE2_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_newest_catalog()].items()}
+for _sub, _prod in _bundle2.PRODUCERS.items():
+    CATALOGS[BUNDLE2_CATALOG_VERSION].setdefault(_bundle2.RULE_OF[_sub], {})[_sub] = _prod
+
+#   holon-rules/1.11 I86's: the rules of holon-rules/1.10 (I84's, its predecessor in the chain) unchanged (the same
+#                    producer objects), plus SORT's payer and conservation, DISCH's keyed_blocking, keyed_external and
+#                    keyed_external_none, and PAR's push (holon.rules.bundle: the laws of a bundle of linked contracts
+#                    over the milestone's bundle-laws sidecar spec/<M>/lib/bundle_laws.json, run by derive's bundle part,
+#                    _bundle_part); M3 and later. Its sub-forms and holon-rules/1.10's are disjoint, and so are the ids
+#                    of their bundle terms (holon.rules.bundle_terms).
 from . import bundle as _bundle  # noqa: E402
 BUNDLE_CATALOG_VERSION = "holon-rules/1.11"
-_BUNDLE_BASE = max((v for v in CATALOGS if v.startswith("holon-rules/1.")),
-                   key=lambda v: tuple(int(x) for x in v.split("/")[1].split(".")))
+_BUNDLE_BASE = _newest_catalog(BUNDLE_CATALOG_VERSION)
 CATALOGS[BUNDLE_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_BUNDLE_BASE].items()}
 for _sub, _rule in _bundle.RULE_SUBFORMS.items():
     CATALOGS[BUNDLE_CATALOG_VERSION].setdefault(_rule, {})[_sub] = _bundle.PRODUCERS[_sub]
@@ -103,9 +159,10 @@ for _sub, _rule in _bundle.RULE_SUBFORMS.items():
 
 def catalog_version(milestone: str) -> str:
     """The rule-catalog version a milestone derives with: holon-rules/1.11 for the typed target milestones (M3 and
-    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain and I86's bundle sub-forms); holon-rules/1.2 for the typed test milestones
-    (T<n> with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A
-    test milestone's catalog may be replaced with `--catalog`."""
+    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel, I29's NAT, I35's OWN, I84's
+    and I86's bundle sub-forms); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
+    holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's
+    catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
     return BUNDLE_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
@@ -155,6 +212,19 @@ class Inputs:
 
     def listing(self) -> list[dict]:
         return [{"path": k, "sha256": v} for k, v in sorted(self.files.items())]
+
+
+def derive_scheme(milestone: str, root: Path, inputs: Inputs, hash_scheme: int | None = None) -> int:
+    """The hash scheme derive stamps on the milestone's 0.3 laws (holon.ir.with_hash_scheme): hash_scheme when given;
+    else the milestone's declaration (holon.ir.milestone_hash_scheme), which the derivation then lists as an input."""
+    if hash_scheme is not None:
+        if isinstance(hash_scheme, bool) or hash_scheme not in ir.HASH_SCHEMES:
+            raise ValueError(f"unknown hash scheme {hash_scheme!r} (known: {list(ir.HASH_SCHEMES)})")
+        return hash_scheme
+    p = Path(root) / "spec" / milestone / ir.HASH_SCHEME_FILE
+    if p.is_file():
+        inputs.read(p)
+    return ir.milestone_hash_scheme(milestone, root)
 
 
 class Document:
@@ -252,7 +322,7 @@ class TypedDocument:
 
 def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = None, assignment: str | None = None,
                 sidecar: str | None = None, disch: str | None = None, undo_sidecar: str | None = None,
-                fact_sidecar: str | None = None) -> dict:
+                fact_sidecar: str | None = None, scheme: int = 1) -> dict:
     """derive's typed part (I30), for a typed milestone (M3+, T30+): the sidecar's transitions documents (or --facts),
     the frozen assignment gen/<M>/sorts/assignment.json (read, never written: Thm 6.18) and every producer of catalog
     `cv` that takes the typed context (every rule but PAR, whose engine is _par_part). No hand-written fact document, no
@@ -320,6 +390,7 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
         if law["facts"] not in by_rel:   # a DISCH document the typed sidecar does not name
             by_rel[law["facts"]] = TypedDocument(root / law["facts"], inputs, A, seeds)
         d = by_rel[law["facts"]]
+        law = ir.with_hash_scheme(law, scheme)
         entry = dict(entry, statement_hash=R.law_hash(law, d.facts, root=root))
         laws[law["law_id"]] = law
         entries.append(entry)
@@ -336,8 +407,10 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
 
 def _typed_rules(catalog: dict) -> list[str]:
     """The rules of a catalog after holon-rules/1.0 whose producers take the typed context (produce(ctx), I30): every
-    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document)."""
-    return sorted(r for r in catalog if r != "PAR")
+    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document), the rules
+    over the versioned document (VERSIONED_RULES, I29: _nat_part), and OWN, which derives over the carrier documents
+    in a part of its own (_own_part, I35)."""
+    return sorted(r for r in catalog if r not in ("PAR", _own.RULE) and r not in VERSIONED_RULES)
 
 
 def _transitions(doc) -> bool:
@@ -367,18 +440,20 @@ def _is_transitions_file(f: str, root: Path) -> bool:
 def compute(milestone: str, root: Path, facts: list[str] | None = None, assignment: str | None = None,
             sidecar: str | None = None, catalog: str | None = None, codecs: list[str] | None = None,
             disch: str | None = None, undo_sidecar: str | None = None,
-                fact_sidecar: str | None = None) -> dict:
+                fact_sidecar: str | None = None, hash_scheme: int | None = None) -> dict:
     """Everything derive writes, as documents (nothing is written here), with the milestone's catalog or `catalog`:
     holon-rules/1.0 here (I15's SORT/site, I20's SORT/width); a later catalog in compute_catalog (I24's PAR, I30's
-    typed SORT, I31's DISCH)."""
+    typed SORT, I31's DISCH). hash_scheme: the scheme the 0.3 laws are stamped and hashed under (default: the
+    milestone's declaration, derive_scheme)."""
     cv = catalog or catalog_version(milestone)
     if cv not in CATALOGS:
         raise ValueError(f"unknown catalog {cv!r} (known: {sorted(CATALOGS)})")
     if CATALOGS[cv] is not CATALOG:
         return compute_catalog(milestone, root, cv, facts, codecs, assignment, sidecar, disch, undo_sidecar,
-                               fact_sidecar)
+                               fact_sidecar, hash_scheme=hash_scheme)
     from ..gen import refs as R
     inputs = Inputs(root)
+    scheme = derive_scheme(milestone, root, inputs, hash_scheme)
     paths = _documents(milestone, root, facts)
     stems = [p.stem for p in paths]
     if len(set(stems)) != len(stems):
@@ -422,6 +497,7 @@ def compute(milestone: str, root: Path, facts: list[str] | None = None, assignme
     laws, entries = {}, []
     for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
         d = by_rel[law["facts"]]
+        law = ir.with_hash_scheme(law, scheme)
         entry = dict(entry, statement_hash=R.law_hash(law, d.facts, oracles=d.orc, root=root))
         laws[law["law_id"]] = law
         entries.append(entry)
@@ -515,6 +591,14 @@ def _committed_par_inputs(milestone: str, root: Path, inputs: Inputs):
     if gsc is not None:
         inputs.read(root / GO.sidecar_rel(milestone))
         inputs.read(root / gsc["document"])
+    from ..diagram import gocount as GC   # I90 (rule C3 of tests_m3/test_go_counts.py): the count components, whose
+    csc, _ = GC.load_sidecar(root, milestone)   # documents GO.render_all checked above and GO.committed lists below
+    if csc is not None:
+        inputs.read(root / GC.sidecar_rel(milestone))
+        cdoc = inputs.json(root / csc["document"])
+        cfg = ((cdoc.get("extraction") or {}).get("config") or {}).get("path")
+        if isinstance(cfg, str):
+            inputs.read(root / cfg)
     for p in GO.committed(milestone, root):
         comps.append((p, inputs.json(root / "gen" / milestone / "diagram" / p.name)))
     try:
@@ -599,7 +683,7 @@ def _earlier_laws(milestone: str, root: Path, inputs: Inputs) -> list[tuple[str,
 
 
 def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[str] | None = None,
-              codecs: list[str] | None = None, assignment: str | None = None) -> dict:
+              codecs: list[str] | None = None, assignment: str | None = None, scheme: int = 1) -> dict:
     """derive's PAR part (I24: rules P0-P12, X8) over the --facts and --codec documents, or, with neither, a target
     milestone's committed linked codec layer. Returns the laws, their DERIVATION entries, the PAR keys of DERIVATION
     (links, evidence_sha256, cycle_rank, par_basis, uncovered), the --facts assignment and the documents' sha256."""
@@ -645,9 +729,10 @@ def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[s
         for lid, x in acc.laws.items():
             if lid in laws:
                 raise DeriveError(f"two basis elements map to one law id: {lid}")
-            law = {"ir_version": IR_VERSION, "law_id": lid, "milestone": milestone, "rule": "PAR",
-                   "subform": x["subform"], "rule_catalog_version": cv, "facts": d.rel, "facts_sha256": d.sha256,
-                   "notes": x["notes"], "statement": x["statement"]}
+            law = ir.with_hash_scheme({"ir_version": IR_VERSION, "law_id": lid, "milestone": milestone, "rule": "PAR",
+                                       "subform": x["subform"], "rule_catalog_version": cv, "facts": d.rel,
+                                       "facts_sha256": d.sha256, "notes": x["notes"], "statement": x["statement"]},
+                                      scheme)
             laws[lid] = law
             entries.append({"law_id": lid, "rule": "PAR", "subform": x["subform"], "facts": d.rel,
                             "basis": x["basis"], "entry_points": x["entry_points"],
@@ -673,7 +758,7 @@ def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[s
                      "par_basis": basis, "uncovered": unc}}
 
 
-def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
+def _init_chain_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
     """derive's part for rule PAR's sub-form init_chain (I28, holon.rules.par_init), when the catalog holds it: its
     producer over the milestone's versioned document (none without a versions sidecar), read through its own input
     list (DERIVATION.json lists it; the obstructions document does not). Returns the laws, their DERIVATION entries, the
@@ -693,17 +778,121 @@ def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
     laws, entries, shas = {}, [], {}
     for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
         facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
         entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
         laws[law["law_id"]] = law
         shas[law["facts"]] = law["facts_sha256"]
     return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
 
 
-def _bundle_part(milestone: str, root: Path, cv: str) -> dict | None:
+def _nat_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
+    """derive's part for rule NAT (I29, holon.rules.nat), when the catalog holds it: its producers over the milestone's
+    versioned document (none without a versions sidecar), read through their own input list (DERIVATION.json lists
+    it; the obstructions document does not). Returns the laws, their DERIVATION entries, the inputs read and the
+    documents' sha256, or None when the catalog has no rule NAT."""
+    from ..gen import refs as R
+    subs = CATALOGS[cv].get(_nat.RULE)
+    if not subs:
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for sub in sorted(subs):
+            pairs += subs[sub].produce(ctx)
+    except ValueError as e:
+        raise ValueError(f"{_nat.RULE}: {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
+def _own_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
+    """derive's part for rule OWN (I35, holon.rules.own; rule W8 of tests_m3/test_own.py), when the catalog holds it:
+    its producers over the milestone's committed carrier documents gen/<M>/own/*.json, read through its own input list
+    (DERIVATION.json lists them, the obstructions document does not), refused when they are stale against `holon own`
+    (the OWN sidecar and its Go document, which it lists too). Returns the laws, their DERIVATION entries, the inputs
+    read and the documents' sha256, or None when the catalog has no OWN."""
+    from ..gen import refs as R
+    from .. import own as OW
+    from . import own as _own
+    subs = CATALOGS[cv].get(_own.RULE)
+    if not subs:
+        return None
+    inputs = Inputs(root)
+    sc = OW.load_sidecar(root, milestone)
+    if sc is not None:
+        inputs.read(root / OW.sidecar_rel(milestone))
+        inputs.read(root / sc["document"])
+    try:
+        want = OW.render_all(root, milestone)
+    except OW.OwnError as e:
+        raise ValueError(f"{_own.RULE}: {e}") from e
+    have = {p.name: p.read_text(encoding="utf-8") for p in OW.committed(milestone, root)}
+    if want != have:
+        raise Refused(f"the OWN carrier documents gen/{milestone}/own/ are stale: run `holon own --milestone "
+                      f"{milestone}` (differ: {sorted(set(want) ^ set(have) | {k for k in want if want[k] != have.get(k)})})")
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for sub in sorted(subs):
+            pairs += subs[sub].produce(ctx)
+    except _own.OwnRuleError as e:
+        raise DeriveError(str(e)) from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        if law["law_id"] in laws:
+            raise DeriveError(f"two basis elements map to one law id: {law['law_id']}")
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
+def _link_domain_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
+    """derive's part for rule PAR's sub-form link_domain (I84, holon.rules.bundle2), when the catalog holds it: its
+    producer over the milestone's bundle-laws sidecar (none without one), read through its own input list (DERIVATION
+    lists it; the obstructions document does not), as _init_chain_part does for init_chain. Returns the laws, their
+    DERIVATION entries, the inputs read and the documents' sha256, or None when the catalog has no link_domain."""
+    from ..gen import refs as R
+    prod = (CATALOGS[cv].get("PAR") or {}).get("link_domain")
+    if prod is None:
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    try:
+        pairs = prod.produce(ctx)
+    except (_bundle2.Bundle2Error, ValueError) as e:
+        raise DeriveError(f"PAR/link_domain: {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
+def _bundle_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
     """derive's part for the bundle sub-forms (I86, holon.rules.bundle), when the catalog holds them and the milestone
     has a bundle-laws sidecar: every bundle producer of the catalog, in sub-form order, over the bundle's documents,
-    read through its own input list (DERIVATION.json lists it). Returns the laws, their DERIVATION entries, the inputs
-    read and the documents' sha256, or None."""
+    read through its own input list (DERIVATION.json lists it), each law stamped and hashed under the hash scheme
+    `scheme`, as the other parts do. Returns the laws, their DERIVATION entries, the inputs read and the documents'
+    sha256, or None."""
     from ..gen import refs as R
     prods = [(sub, (CATALOGS[cv].get(rule) or {}).get(sub)) for sub, rule in _bundle.RULE_SUBFORMS.items()]
     prods = [(sub, p) for sub, p in prods if p is not None]
@@ -722,6 +911,7 @@ def _bundle_part(milestone: str, root: Path, cv: str) -> dict | None:
     laws, entries, shas = {}, [], {}
     for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
         facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
         entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
         laws[law["law_id"]] = law
         shas[law["facts"]] = law["facts_sha256"]
@@ -731,7 +921,7 @@ def _bundle_part(milestone: str, root: Path, cv: str) -> dict | None:
 def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
                     codecs: list[str] | None = None, assignment: str | None = None, sidecar: str | None = None,
                     disch: str | None = None, undo_sidecar: str | None = None,
-                fact_sidecar: str | None = None) -> dict:
+                fact_sidecar: str | None = None, hash_scheme: int | None = None) -> dict:
     """Everything derive writes for a catalog after holon-rules/1.0, as documents (nothing is written): rule PAR (I24)
     and the rules that take the typed context (I30's SORT realize, as_member and reinterpret), each over its own
     documents, in one DERIVATION and one REGISTRY.
@@ -758,21 +948,32 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
         else:
             pfacts.append(f)
     inputs = Inputs(root)
+    scheme = derive_scheme(milestone, root, inputs, hash_scheme)
     par = typed = None
     if has_par and (pfacts or codecs or (not given and (target_milestone(milestone) or not typed_rules))):
-        par = _par_part(milestone, root, cv, inputs, pfacts, codecs, assignment)
+        par = _par_part(milestone, root, cv, inputs, pfacts, codecs, assignment, scheme)
     if typed_rules and (tfacts or not given):
-        typed = _typed_part(milestone, root, cv, tfacts, assignment, sidecar, disch, undo_sidecar, fact_sidecar)
+        typed = _typed_part(milestone, root, cv, tfacts, assignment, sidecar, disch, undo_sidecar, fact_sidecar,
+                            scheme)
         inputs.files.update(typed["inputs"].files)
         inputs.files.update(typed["disch_inputs"].files)
-    init = _init_chain_part(milestone, root, cv) if not given else None
+    init = _init_chain_part(milestone, root, cv, scheme) if not given else None
     if init is not None:
         inputs.files.update(init["inputs"].files)
-    bpart = _bundle_part(milestone, root, cv) if not given else None
+    nat = _nat_part(milestone, root, cv, scheme) if not given else None
+    if nat is not None:
+        inputs.files.update(nat["inputs"].files)
+    own = _own_part(milestone, root, cv, scheme) if not given else None   # I35: rule OWN over the carrier documents
+    if own is not None:
+        inputs.files.update(own["inputs"].files)
+    ldom = _link_domain_part(milestone, root, cv, scheme) if not given else None   # I84: PAR's link_domain
+    if ldom is not None:
+        inputs.files.update(ldom["inputs"].files)
+    bpart = _bundle_part(milestone, root, cv, scheme) if not given else None   # I86: the bundle laws
     if bpart is not None:
         inputs.files.update(bpart["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed, init, bpart):
+    for part in (par, typed, init, nat, own, ldom, bpart):
         if part is None:
             continue
         for lid, law in part["laws"].items():

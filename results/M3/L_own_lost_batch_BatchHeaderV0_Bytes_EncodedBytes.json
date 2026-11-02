@@ -1,0 +1,147 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_own_lost_batch_batchheaderv0_bytes_encodedbytes",
+    "laws": "gen/M3/laws/L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes/LAWS.bend",
+    "model": "gen/M3/model/own_batch_BatchHeaderV0.bend",
+    "proof": "gen/M3/proofs/L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "candidate": "the zero value (EncodedBytes of length 0)",
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.155
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.911
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.155
+  },
+  "compiled_sha256": "25dc9e28fe39dc98508cb97dcfa6bb8a5066f81cdd44fab1753c50eb0b76559d",
+  "concretization": {
+    "bound": null,
+    "kind": "go_only",
+    "length": null,
+    "reason": "node-level public path needs I39",
+    "result": null,
+    "sides": {
+      "go": {
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    },
+    "target": null,
+    "tests": []
+  },
+  "cone": [
+    "LC_Bytes_EncodedBytes",
+    "LS_Bytes_EncodedBytes",
+    "ol_assigned_Bytes_EncodedBytes",
+    "ol_field_Bytes_EncodedBytes",
+    "ol_go_Bytes_EncodedBytes"
+  ],
+  "coverage": null,
+  "difference": {
+    "assigned_len": 249,
+    "field_len_after": 0
+  },
+  "evidence_levels": [
+    "E2"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "03bbd8b15ef088a33f50c41c6584eaeef98818e0521dce2be4a65e86e2020311",
+  "filter_bin": "pending",
+  "generator_sha256": "05a28a9c475a895371e54052f49bb9c95b77eafcb7f404c690bb3cb2dccc33ca",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes",
+  "ledger_assumptions": [
+    "A-own-len",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim--github-com-morph-l2-go-ethereum-common-Hash--Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "83248be2b2ac22f73353ee27939c2eccc807a545ee1cd0a6a20577997191a9a4",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:d528236b8ec804f30c6da4e03d9f540c5cd20ee1a2a5056c2ce08c3c38eb1e41",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "go: passed @ morph 3e44e795586a",
+    "status": "passed"
+  },
+  "rule": "OWN",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 x: Val_batch_BatchHeaderV0, \u2200 c: Call_batch_BatchHeaderV0. own_ok[batch_BatchHeaderV0:lost_write:Bytes:EncodedBytes](x, c) == true",
+  "statement_hash": "sha256:d528236b8ec804f30c6da4e03d9f540c5cd20ee1a2a5056c2ce08c3c38eb1e41",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "REFUTED",
+  "subform": "lost_write",
+  "triage": "finding",
+  "witness": {
+    "c": "Bytes",
+    "x": {
+      "EncodedBytes": {
+        "len": 0
+      }
+    }
+  },
+  "witness_provenance": {
+    "go": "library_api"
+  }
+}

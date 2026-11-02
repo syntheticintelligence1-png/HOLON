@@ -697,7 +697,7 @@ class Run:
         try:
             b, match = R.resolve_bundle(rec["facts_sha256"], law_ir["facts"], ctx.root, mp.read_text(encoding="utf-8"),
                                         set(cone), ctx.m)
-            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, law_ir["facts"])
+            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, law_ir["facts"], ctx.m)
         except R.LedgerError:
             match, assumptions = "none", []
         rec.update({"record_version": R.RECORD_VERSION, "prover": "generator", "model_sha256": R3.sha256_file(mp),
@@ -896,7 +896,9 @@ def disch_ids_of(argv: list, root: Path = ROOT) -> tuple[list[str], list[str]] |
         dv = json.loads((Path(root) / "laws" / m / "DERIVATION.json").read_text())
     except (OSError, ValueError):
         dv = {}
-    rules = {e.get("law_id"): e.get("rule") for e in dv.get("laws") or [] if isinstance(e, dict)}
+    # a DISCH law of another sub-form (I84's self_controlled, holon.bundle2.laws_decide) is not this runner's
+    rules = {e.get("law_id"): e.get("rule") if e.get("subform") in SUBFORMS else None
+             for e in dv.get("laws") or [] if isinstance(e, dict)}
     ids = [x.strip() for x in laws.split(",") if x.strip()]
     return [x for x in ids if rules.get(x) == "DISCH"], [x for x in ids if rules.get(x) != "DISCH"]
 

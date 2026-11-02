@@ -87,7 +87,7 @@ STRENGTH = {"E1": "strong", "E2": "strong", "E3": "strong", "E4": "strong", "E5"
 LEXICAL = Path("spec") / "M2" / "lib" / "evidence_lexical.json"
 SCHEMA = Path("spec") / "schemas" / "evidence.schema.json"
 OVERRIDES = Path("config") / "evidence_overrides.json"
-ENDPOINT_KINDS = ("CODEC", "TRANS", "MIG", "CONS")
+ENDPOINT_KINDS = ("CODEC", "TRANS", "MIG", "CONS", "OWN")   # I35 (rule W7): an OWN carrier document's method edges
 E5_OPS = ("+", "-", "==", "!=", "<", "<=", ">", ">=")
 PATH_BINDERS = ("Trace", "State", "Act", "Reach")   # L3: the law ranges over the machine's own steps
 OVERRIDE_TRIAGES = ("finding", "intent_question")
@@ -296,7 +296,7 @@ def anchors(dg: dict, sites: list, model: str) -> dict:
 
 
 def endpoints(dg: dict) -> list[dict]:
-    """CODEC, TRANS, MIG and CONS edges and observer LOAD edges, by id (never the STORE/LOAD aggregates)."""
+    """CODEC, TRANS, MIG, CONS and OWN edges and observer LOAD edges, by id (never the STORE/LOAD aggregates)."""
     return sorted((e for e in dg["edges"]
                    if e["kind"] in ENDPOINT_KINDS or (e["kind"] == "LOAD" and e.get("observer"))),
                   key=lambda e: e["id"])
@@ -907,6 +907,7 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             atoms += a
             unresolved += u
     for cp, cdg in components or []:   # I24: linked codec documents (rule X7); I67: Go-op documents (rule Y4)
+        from . import gocount as GC      # I90: count documents (rule C2 of tests_m3/test_go_counts.py)
         from . import goops as GO
         from . import linked as L
         rel = inp.rel(Path(cp))
@@ -915,10 +916,16 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             doc = json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, ValueError) as e:
             raise EvidenceError(f"{rel}: not JSON ({e})") from e
-        layer, version = (GO, GO.GOOPS_VERSION) if GO.is_goops(doc) else (L, L.LINKED_VERSION)
-        if layer is L and not L.is_linked(doc):
-            raise EvidenceError(f"{rel}: not a linked codec document")
-        key = doc["component"]
+        from .. import own as OW   # I35 (rule W7 of tests_m3/test_own.py): OWN carrier documents
+        if OW.is_own(doc):
+            layer, version, key = OW, OW.OWN_VERSION, OW.model_name(doc)
+        else:
+            layer, version = (GO, GO.GOOPS_VERSION) if GO.is_goops(doc) else (L, L.LINKED_VERSION)
+            if GC.is_gocount(doc):
+                layer, version = GC, GC.GOCOUNT_VERSION
+            if layer is L and not L.is_linked(doc):
+                raise EvidenceError(f"{rel}: not a linked codec document")
+            key = doc["component"]
         if key in models:
             raise EvidenceError(f"two documents share the model name {key}")
         sha = hashlib.sha256(raw).hexdigest()
@@ -932,8 +939,8 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
                 raise EvidenceError(f"{key}: the diagram's {k} is {cdg.get(k)!r}, not {want!r} (a stale diagram: "
                                     "regenerate it with `holon diagram`)")
         try:
-            atoms += layer.atoms(doc, cdg, lex)
-        except (KeyError, TypeError, L.LinkedError) as e:
+            atoms += layer.atoms(doc, cdg) if layer is OW else layer.atoms(doc, cdg, lex)
+        except (KeyError, TypeError, L.LinkedError, OW.OwnError) as e:
             raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
         models[key] = {"facts": rel, "facts_sha256": sha, "facts_version": version, "diagram": drel,
                        "anchors": layer.anchors(cdg)}
@@ -990,6 +997,8 @@ def build_milestone(milestone: str, root: Path | str = ROOT) -> dict:
     if linked_milestone(milestone):
         comps = [(p, None) for p in committed_codecs(milestone, root)]
         comps += [(p, None) for p in GO.committed(milestone, root)]   # I67: the Go-op components (rule Y4)
+        from .. import own as OW
+        comps += [(p, None) for p in OW.committed(milestone, root)]   # I35: the OWN carrier documents (rule W7)
         if not comps:
             raise EvidenceError(f"no linked codec documents under gen/{milestone}/codec (run `holon codecs "
                                 f"--milestone {milestone}`)")
@@ -1054,6 +1063,14 @@ def _named(st: dict, irv: str, an: dict) -> set[str]:
                 s = t.get("site")
                 if irv == IR03 and isinstance(s, str):
                     out.update(an["sites"].get(s, []))
+            # I35 (tests_m3/test_own.py rule W7): an own term names its methods' OWN edges (an alias law its view's and
+            # its writer's, a lost-write law its method's)
+            ow = t.get("own") if irv == IR03 else None
+            if isinstance(ow, str) and ow.count(":") == 3:
+                _, sub, m1, m2 = ow.split(":")
+                for m in ((m1, m2) if sub == "alias" else (m1,)):
+                    if m in an["actions"]:
+                        out.add(an["actions"][m])
             for v in t.values():
                 walk(v)
         elif isinstance(t, list):

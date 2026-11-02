@@ -1,0 +1,41 @@
+{
+  "title": "Diagram 𝔇 and principal classes",
+  "plan": "docs/BUILD_PLAN.md#i11",
+  "prompt": "prompts/I11_diagram.md",
+  "predictions": [
+    {
+      "id": "I11-P1",
+      "claim": "M0 diagram: 4 CODEC edges (3 encoders, 1 partial decoder), 0 projection edges; one Bytes interface carrier with domains ok_sol and ok_go.",
+      "check": "tests_m2/test_diagram.py::TestPredictedShapes::test_m0_header_diagram"
+    },
+    {
+      "id": "I11-P2",
+      "claim": "Rollup diagram: 10 TRANS edges with wait as the environment edge; 2 MIG with legacy a pseudo-migration; 1 CONS; a STORE/LOAD pair per state field; 0 HASH edges, recorded as coverage debt; principal classes {owner, active submitter, challenger, anyone, environment}, the restricted ones with a predicate.",
+      "check": "tests_m2/test_diagram.py::TestPredictedShapes::test_rollup_diagram"
+    },
+    {
+      "id": "I11-P3",
+      "claim": "Batchdata diagram: 2 TRANS edges.",
+      "check": "tests_m2/test_diagram.py::TestPredictedShapes::test_batchdata_diagram"
+    },
+    {
+      "id": "I11-P4",
+      "claim": "Index terms include (win, idx-lfi), (chs, bc) and the shadow slot at lci+1.",
+      "check": "tests_m2/test_diagram.py::TestPredictedShapes::test_index_terms"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I11-R1",
+      "claim": "No existing generated file, record or statement hash changes.",
+      "check": "gate"
+    }
+  ],
+  "outcome_paths": [
+    "gen/M2/diagram/"
+  ],
+  "tests": [
+    "tests_m2/test_diagram.py"
+  ],
+  "thresholds": {}
+}

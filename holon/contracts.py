@@ -41,16 +41,12 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-VERSION = "holon-contract/0.1"
+# K1/K9 validity is a generator input (holon.rules.own), so it lives outside this module (K5).
+from .contract_check import (COMMON, EVIDENCE, EXTRA, KINDS, NOT_APPLICABLE, ROOT, RULES, VERSION,  # noqa: F401
+                             _load, l_weak_law, problems, repo_path)
+
 REGISTRY_VERSION = "holon-contracts-registry/0.1"
 STATUS_VERSION = "holon-contracts/0.1"
-KINDS = ("intended", "volatile_view")
-RULES = ("PAR", "UNDO", "NAT", "SYM", "FACT", "SORT", "DISCH", "OWN", "INTENT")
-EVIDENCE = ("E1", "E2", "E3", "E4", "E5", "E6")
-COMMON = {"contract_version", "id", "kind", "milestone", "rule", "facts", "maps_to", "evidence", "rationale"}
-EXTRA = {"intended": {"scope", "l_weak"}, "volatile_view": {"view"}}
-NOT_APPLICABLE = ("M0", "M1")
 MARK = "intended_bounded"
 VIEW = "extracted_m1"   # holon.differential's records of the M1 laws over a milestone's window view (I65)
 NOT_APPLICABLE_WHY = ("{m} holds no intent contracts: they start at M2 (BUILD_PLAN §2 invariant 10 and §4 I33; "
@@ -59,10 +55,6 @@ NOT_APPLICABLE_WHY = ("{m} holds no intent contracts: they start at M2 (BUILD_PL
 
 class Refused(Exception):
     """A missing or malformed input: the command writes nothing and exits 2."""
-
-
-def _load(p: Path):
-    return json.loads(Path(p).read_text(encoding="utf-8"))
 
 
 def _sha256(b: bytes) -> str:
@@ -125,91 +117,11 @@ def milestone_of(c) -> str | None:
     return m if isinstance(m, str) and re.fullmatch(r"[MT][0-9]+", m) and m not in NOT_APPLICABLE else None
 
 
-def repo_path(x) -> bool:
-    """K1: a repository path: relative, without '..'."""
-    return isinstance(x, str) and bool(x) and not Path(x).is_absolute() and ".." not in Path(x).parts
-
-
-def l_weak_law(lw) -> dict:
-    """K1: the law K3 would derive from an l_weak, with neutral values in every other field, so that a schema error
-    can only be the statement's."""
-    return {"ir_version": "holon-ir/0.3", "law_id": "L_contract_C_check", "milestone": "T0", "rule": "INTENT",
-            "subform": "intended_weak", "rule_catalog_version": "holon-rules/0.1", "facts": "facts.json",
-            "facts_sha256": "0" * 64, "statement": lw, "maps_to": "check", "evidence": ["E1"], "notes": "check"}
-
-
 def scope_of(c) -> list:
     """The sorted law ids of an intended contract's scope ([] for a view, or a scope that is not a list of ids)."""
     s = c.get("scope") if isinstance(c, dict) and c.get("kind") == "intended" else None
     laws = s.get("laws") if isinstance(s, dict) else None
     return sorted(x for x in laws if isinstance(x, str)) if isinstance(laws, list) else []
-
-
-# ---------------------------------------------------------------------------------------------------- K1, K9
-def problems(c, root: Path = ROOT, stem: str | None = None) -> list:
-    """Why a contract file is not valid (K1 format, K9 the volatile view's function), [] when it is. The texts are
-    those of tests_m3/_i64.problems, which results/<M>/contracts.json repeats."""
-    out = []
-    if not isinstance(c, dict):
-        return ["not a JSON object"]
-    kind = c.get("kind")
-    if kind not in KINDS:
-        return [f"kind {kind!r} is not one of {KINDS}"]
-    want = COMMON | EXTRA[kind]
-    if set(c) != want:
-        out.append(f"fields {sorted(set(c) ^ want)} are missing or not allowed")
-    if c.get("contract_version") != VERSION:
-        out.append("contract_version")
-    cid = c.get("id")
-    pref = "C_" if kind == "intended" else "V_"
-    if not isinstance(cid, str) or not re.fullmatch(r"[CV]_[A-Za-z0-9_]+", cid) or not cid.startswith(pref):
-        out.append(f"id {cid!r} (an intended contract is C_..., a volatile view V_...)")
-    if stem is not None and cid != stem:
-        out.append(f"id {cid!r} is not the file name {stem!r}")
-    m = c.get("milestone")
-    if not isinstance(m, str) or not re.fullmatch(r"[MT][0-9]+", m):
-        out.append("milestone")
-    elif m in NOT_APPLICABLE:
-        out.append(f"milestone {m} (no contracts on M0 and M1)")
-    if c.get("rule") not in RULES:
-        out.append("rule")
-    facts = c.get("facts")
-    if not repo_path(facts) or not (Path(root) / facts).is_file():
-        out.append(f"facts {facts!r} is not a file at a relative repository path")
-    ev = c.get("evidence")
-    if not isinstance(ev, list) or not ev or any(not isinstance(e, str) or e not in EVIDENCE for e in ev):
-        out.append("evidence")
-    for k in ("maps_to", "rationale"):
-        if not isinstance(c.get(k), str) or not c[k].strip():
-            out.append(k)
-    if kind == "intended":
-        scope = c.get("scope")
-        laws = scope.get("laws") if isinstance(scope, dict) else None
-        if not isinstance(scope, dict) or list(scope) != ["laws"] or not isinstance(laws, list) or not laws \
-                or any(not isinstance(x, str) or not re.fullmatch(r"L[0-9]?_[A-Za-z0-9_]+", x) for x in laws):
-            out.append("scope (exactly {\"laws\": [law ids]}, non-empty)")
-        lw = c.get("l_weak")
-        if not isinstance(lw, dict) or not {"binders", "claim"} <= set(lw):
-            out.append("l_weak (an IR 0.3 statement)")
-        else:
-            from .schema import errors
-            if errors(l_weak_law(lw), _load(ROOT / "spec" / "schemas" / "law_ir_0_3.schema.json")):
-                out.append("l_weak (an IR 0.3 statement)")
-    else:
-        v = c.get("view")
-        if not isinstance(v, dict) or set(v) != {"facts", "function", "result"} or type(v.get("result")) is not int \
-                or not repo_path(v.get("facts")) or not isinstance(v.get("function"), str):
-            out.append("view (exactly {facts, function, result}, result an integer)")
-        else:
-            try:
-                doc = _load(Path(root) / v["facts"])
-                res = ((doc.get("go") or {}).get("slices") or {}).get("results") or []
-                if not any(isinstance(r, dict) and r.get("function") == v["function"]
-                           and type(r.get("result")) is int and r.get("result") == v["result"] for r in res):
-                    out.append(f"view: {v['facts']} has no slice result {v['function']} #{v['result']}")
-            except (OSError, ValueError, AttributeError):
-                out.append(f"view: {v['facts']} is not a readable document")
-    return out
 
 
 # ---------------------------------------------------------------------------------------------------- K2, K3
@@ -223,13 +135,16 @@ def law_id(cid: str) -> str:
 
 
 def derived_law(c: dict, root: Path = ROOT) -> dict:
-    """K3: an intended contract's L_weak as a law of its milestone, over its facts file as it is now."""
+    """K3: an intended contract's L_weak as a law of its milestone, over its facts file as it is now, under the
+    milestone's hash scheme (PV2A: holon.ir.milestone_hash_scheme)."""
     facts = c["facts"]
-    return {"ir_version": "holon-ir/0.3", "law_id": law_id(c["id"]), "milestone": c["milestone"],
-            "rule": c["rule"], "subform": "intended_weak", "rule_catalog_version": "holon-rules/0.1",
-            "facts": facts, "facts_sha256": _sha256((Path(root) / facts).read_bytes()),
-            "statement": c["l_weak"], "maps_to": c["maps_to"], "evidence": c["evidence"],
-            "notes": f"L_weak of intent contract {c['id']} (laws/CONTRACTS/{c['id']}.json), derived by holon contracts"}
+    law = {"ir_version": "holon-ir/0.3", "law_id": law_id(c["id"]), "milestone": c["milestone"],
+           "rule": c["rule"], "subform": "intended_weak", "rule_catalog_version": "holon-rules/0.1",
+           "facts": facts, "facts_sha256": _sha256((Path(root) / facts).read_bytes()),
+           "statement": c["l_weak"], "maps_to": c["maps_to"], "evidence": c["evidence"],
+           "notes": f"L_weak of intent contract {c['id']} (laws/CONTRACTS/{c['id']}.json), derived by holon contracts"}
+    from . import ir
+    return ir.with_hash_scheme(law, ir.milestone_hash_scheme(c["milestone"], root))
 
 
 def contract_laws(milestone: str, root: Path = ROOT) -> list:
@@ -366,13 +281,10 @@ def after_derive(argv: list, root: Path = ROOT) -> int:
 
 # ---------------------------------------------------------------------------------------------------- K5
 def statement_hash(law: dict, root: Path) -> str:
-    """The statement hash `holon run` gives the law's record (holon.mpipeline.check_registry_multi's form)."""
-    from . import facts as F
-    from .gen import oracles as O
+    """The statement hash `holon run` gives the law's record (holon.mpipeline.check_registry_multi's form):
+    holon.gen.refs.tree_law_hash."""
     from .gen import refs as R
-    rel = law["facts"]
-    orc = O.Oracles.for_milestone(law["milestone"], root / rel, root)
-    return R.law_hash(law, F.load(root / rel), oracles=orc, root=root)
+    return R.tree_law_hash(law, Path(root))
 
 
 def states(milestone: str, root: Path = ROOT, results: Path | None = None) -> list:

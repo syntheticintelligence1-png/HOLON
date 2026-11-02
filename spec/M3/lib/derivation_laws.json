@@ -1,0 +1,2273 @@
+{
+ "derivation_laws_version": "holon-derivation-laws/0.1",
+ "doc": "I88 (= I39b) sidecar, fixed at the I88 prereg (contract: the docstring of tests_m3/test_derivation_laws.py; written by tests_m3/_i88.py --write). The five plan-stated laws over I85's product machine (whitepaper \u00a711.3's rows O7, O8 and O24, and F11's L1 count), their stated hypotheses, the target vocabulary of the product terms and the bounded search space of the evaluator-level witness search. It is the only place the target's names live for holon/derivation/laws.py. It states no outcome.",
+ "hypotheses": {
+  "HypB": {
+   "doc": "the blob layer recovers every payload the blob construction encodes: a stated oracle hypothesis (whitepaper \u00a78.5) in HypZ's form, for the retrieval, concatenation and decompression the consumer runs before it parses the payload",
+   "family": "HypB",
+   "instance": "cb is the batch's blob construction: the sidecar's compressor (I85's extract.compressor) then canonical packing (I85's rule C2); pl is the consumer's blob layer: the retrieval function of vocabulary.blob_layer on each blob, the concatenation, and the decompression function of vocabulary.blob_layer, its oracle answered by the real library",
+   "parameters": [
+    "cb",
+    "pl"
+   ],
+   "statement": {
+    "binders": [
+     {
+      "name": "q",
+      "q": "forall",
+      "type": "List<Nat>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "app": "pl",
+       "args": [
+        {
+         "app": "cb",
+         "args": [
+          {
+           "var": "q"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "on": [
+        {
+         "var": "q"
+        }
+       ],
+       "product": "ok_payload"
+      }
+     ]
+    }
+   }
+  },
+  "HypC_binds_trailing": {
+   "doc": "HypC_v (whitepaper \u00a78.5), the circuit binds trailing payload: it accepts no committed batch whose payload carries a transaction the derived blocks leave undequeued",
+   "family": "HypC",
+   "instance": "circ accepts a step iff its trailing count is 0",
+   "parameters": [
+    "circ",
+    "cb",
+    "pl",
+    "vh",
+    "et",
+    "dt"
+   ],
+   "statement": {
+    "assume": [
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "x"
+         }
+        ],
+        "fn": "is_commitBatch"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "var": "s"
+          },
+          "step": {
+           "var": "x"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "vh"
+         }
+        ],
+        "product": "blobs_match"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "circ"
+         },
+         {
+          "var": "s"
+         },
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "circuit_accepts"
+       },
+       {
+        "bool": true
+       }
+      ]
+     }
+    ],
+    "binders": [
+     {
+      "name": "s",
+      "q": "forall",
+      "type": "Reach"
+     },
+     {
+      "name": "x",
+      "q": "forall",
+      "type": "Act"
+     },
+     {
+      "name": "p",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "ts",
+      "q": "forall",
+      "type": "List<Nat>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "on": [
+        {
+         "var": "x"
+        },
+        {
+         "var": "p"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "trailing"
+      },
+      {
+       "nat": 0
+      }
+     ]
+    }
+   }
+  },
+  "HypC_ignores_trailing": {
+   "doc": "HypC_v (whitepaper \u00a78.5), the circuit ignores trailing payload: two steps of one commit whose derived batches are equal are accepted alike, so what the derivation ignores the circuit ignores",
+   "family": "HypC",
+   "instance": "circ accepts every step",
+   "parameters": [
+    "circ",
+    "cb",
+    "pl",
+    "vh",
+    "et",
+    "dt"
+   ],
+   "statement": {
+    "assume": [
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "x"
+         }
+        ],
+        "fn": "is_commitBatch"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "var": "s"
+          },
+          "step": {
+           "var": "x"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "vh"
+         }
+        ],
+        "product": "blobs_match"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "x"
+         }
+        ],
+        "fn": "is_commitBatch"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "var": "s"
+          },
+          "step": {
+           "var": "x"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p2"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "vh"
+         }
+        ],
+        "product": "blobs_match"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p2"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts2"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p2"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derived_batch"
+       },
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p2"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derived_batch"
+       }
+      ]
+     }
+    ],
+    "binders": [
+     {
+      "name": "s",
+      "q": "forall",
+      "type": "Reach"
+     },
+     {
+      "name": "x",
+      "q": "forall",
+      "type": "Act"
+     },
+     {
+      "name": "p",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "ts",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "p2",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "ts2",
+      "q": "forall",
+      "type": "List<Nat>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "on": [
+        {
+         "var": "circ"
+        },
+        {
+         "var": "s"
+        },
+        {
+         "var": "x"
+        },
+        {
+         "var": "p"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "circuit_accepts"
+      },
+      {
+       "on": [
+        {
+         "var": "circ"
+        },
+        {
+         "var": "s"
+        },
+        {
+         "var": "x"
+        },
+        {
+         "var": "p2"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "circuit_accepts"
+      }
+     ]
+    }
+   }
+  },
+  "HypT": {
+   "doc": "the transaction-stream decoder recovers every stream the encoder builds: a stated oracle hypothesis for the transaction codec (whitepaper \u00a711.1); a transaction is an opaque unit",
+   "family": "HypT",
+   "instance": "et concatenates one encoding per transaction (the search uses copies of search.transaction); dt is the transaction-stream decoder of vocabulary.decoder, answered by the real library",
+   "parameters": [
+    "et",
+    "dt"
+   ],
+   "statement": {
+    "binders": [
+     {
+      "name": "u",
+      "q": "forall",
+      "type": "List<Nat>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "app": "dt",
+       "args": [
+        {
+         "app": "et",
+         "args": [
+          {
+           "var": "u"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "on": [
+        {
+         "var": "u"
+        }
+       ],
+       "product": "ok_txs"
+      }
+     ]
+    }
+   }
+  }
+ },
+ "inputs": {
+  "corpus": "gen/M3/derivation/corpus.json",
+  "deployment": "replay/M3/bundle2/deployment.json",
+  "document": "spec/M3/facts/morph_derivation.extracted.json",
+  "header_component": "gen/M3/codec/header_length.json",
+  "product": "gen/M3/derivation/product.json",
+  "product_sidecar": "spec/M3/lib/derivation.json",
+  "rollup_document": "spec/M2/facts/morph_rollup.extracted.json"
+ },
+ "law_set": {
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "ir_version": "holon-ir/0.3",
+  "laws": "laws/M3/derivation",
+  "milestone": "M3",
+  "records": "results/M3/derivation/laws",
+  "rule_catalog_version": "holon-rules/0.1"
+ },
+ "laws": [
+  {
+   "id": "L_prod_cycle_lastBlockNumber",
+   "maps_to": [
+    {
+     "id": "O7"
+    },
+    {
+     "id": "F11",
+     "role": "b,c"
+    }
+   ],
+   "obligation": "the lastBlockNumber cycle closes: the last block number the consumer derives for a committed batch is the LastBlockNumber of the header the commit wrote, which the next batch's derivation reads as its parent's",
+   "rule": "PAR",
+   "statement": {
+    "assume": [
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "x"
+         }
+        ],
+        "fn": "is_commitBatch"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "var": "s"
+          },
+          "step": {
+           "var": "x"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "vh"
+         }
+        ],
+        "product": "blobs_match"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        }
+       ],
+       "name": "HypB"
+      }
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "et"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "name": "HypT"
+      }
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "s"
+         },
+         {
+          "var": "x"
+         }
+        ],
+        "product": "committed_ok:LastBlockNumber"
+       },
+       {
+        "bool": true
+       }
+      ]
+     }
+    ],
+    "binders": [
+     {
+      "name": "s",
+      "q": "forall",
+      "type": "Reach"
+     },
+     {
+      "name": "x",
+      "q": "forall",
+      "type": "Act"
+     },
+     {
+      "name": "p",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "ts",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "cb",
+      "q": "forall",
+      "type": "Fn<Bytes,Blobs>"
+     },
+     {
+      "name": "pl",
+      "q": "forall",
+      "type": "Fn<Blobs,Payload>"
+     },
+     {
+      "name": "vh",
+      "q": "forall",
+      "type": "Fn<Blob,Word>"
+     },
+     {
+      "name": "et",
+      "q": "forall",
+      "type": "Fn<Txs,Bytes>"
+     },
+     {
+      "name": "dt",
+      "q": "forall",
+      "type": "Fn<Bytes,Txs>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "on": [
+        {
+         "var": "x"
+        },
+        {
+         "var": "p"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "derived:lastBlockNumber"
+      },
+      {
+       "on": [
+        {
+         "var": "s"
+        },
+        {
+         "var": "x"
+        }
+       ],
+       "product": "committed:LastBlockNumber"
+      }
+     ]
+    },
+    "scope": {
+     "kind": "unbounded"
+    }
+   },
+   "subform": "product_cycle"
+  },
+  {
+   "id": "L_prod_count_l1MsgNum",
+   "maps_to": [
+    {
+     "id": "F11",
+     "role": "L1 count (no O-id)"
+    }
+   ],
+   "obligation": "the L1-message count the commit wrote (the header's L1MessagePopped) is the number of L1 messages the derived blocks consume (the sum of their l1MsgNum)",
+   "rule": "PAR",
+   "statement": {
+    "assume": [
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "x"
+         }
+        ],
+        "fn": "is_commitBatch"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "var": "s"
+          },
+          "step": {
+           "var": "x"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "vh"
+         }
+        ],
+        "product": "blobs_match"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        }
+       ],
+       "name": "HypB"
+      }
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "et"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "name": "HypT"
+      }
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "s"
+         },
+         {
+          "var": "x"
+         }
+        ],
+        "product": "committed_ok:L1MessagePopped"
+       },
+       {
+        "bool": true
+       }
+      ]
+     }
+    ],
+    "binders": [
+     {
+      "name": "s",
+      "q": "forall",
+      "type": "Reach"
+     },
+     {
+      "name": "x",
+      "q": "forall",
+      "type": "Act"
+     },
+     {
+      "name": "p",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "ts",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "cb",
+      "q": "forall",
+      "type": "Fn<Bytes,Blobs>"
+     },
+     {
+      "name": "pl",
+      "q": "forall",
+      "type": "Fn<Blobs,Payload>"
+     },
+     {
+      "name": "vh",
+      "q": "forall",
+      "type": "Fn<Blob,Word>"
+     },
+     {
+      "name": "et",
+      "q": "forall",
+      "type": "Fn<Txs,Bytes>"
+     },
+     {
+      "name": "dt",
+      "q": "forall",
+      "type": "Fn<Bytes,Txs>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "on": [
+        {
+         "var": "x"
+        },
+        {
+         "var": "p"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "derived_sum:l1MsgNum"
+      },
+      {
+       "on": [
+        {
+         "var": "s"
+        },
+        {
+         "var": "x"
+        }
+       ],
+       "product": "committed:L1MessagePopped"
+      }
+     ]
+    },
+    "scope": {
+     "kind": "unbounded"
+    }
+   },
+   "subform": "product_count"
+  },
+  {
+   "id": "L_prod_trailing_HypC_binds_trailing",
+   "maps_to": [
+    {
+     "id": "O8"
+    },
+    {
+     "id": "F11",
+     "role": "a"
+    }
+   ],
+   "obligation": "a committed batch the circuit accepts carries no transaction the derivation leaves undequeued (trailing payload), under the circuit hypothesis HypC_binds_trailing",
+   "rule": "PAR",
+   "statement": {
+    "assume": [
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "x"
+         }
+        ],
+        "fn": "is_commitBatch"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "var": "s"
+          },
+          "step": {
+           "var": "x"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "vh"
+         }
+        ],
+        "product": "blobs_match"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        }
+       ],
+       "name": "HypB"
+      }
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "et"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "name": "HypT"
+      }
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "circ"
+         },
+         {
+          "var": "s"
+         },
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "circuit_accepts"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "circ"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "vh"
+        },
+        {
+         "var": "et"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "name": "HypC_binds_trailing"
+      }
+     }
+    ],
+    "binders": [
+     {
+      "name": "s",
+      "q": "forall",
+      "type": "Reach"
+     },
+     {
+      "name": "x",
+      "q": "forall",
+      "type": "Act"
+     },
+     {
+      "name": "p",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "ts",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "cb",
+      "q": "forall",
+      "type": "Fn<Bytes,Blobs>"
+     },
+     {
+      "name": "pl",
+      "q": "forall",
+      "type": "Fn<Blobs,Payload>"
+     },
+     {
+      "name": "vh",
+      "q": "forall",
+      "type": "Fn<Blob,Word>"
+     },
+     {
+      "name": "et",
+      "q": "forall",
+      "type": "Fn<Txs,Bytes>"
+     },
+     {
+      "name": "dt",
+      "q": "forall",
+      "type": "Fn<Bytes,Txs>"
+     },
+     {
+      "name": "circ",
+      "q": "forall",
+      "type": "Fn<Step,Bool>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "on": [
+        {
+         "var": "x"
+        },
+        {
+         "var": "p"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "trailing"
+      },
+      {
+       "nat": 0
+      }
+     ]
+    },
+    "scope": {
+     "kind": "unbounded"
+    }
+   },
+   "subform": "product_trailing"
+  },
+  {
+   "id": "L_prod_trailing_HypC_ignores_trailing",
+   "maps_to": [
+    {
+     "id": "O8"
+    },
+    {
+     "id": "F11",
+     "role": "a"
+    }
+   ],
+   "obligation": "a committed batch the circuit accepts carries no transaction the derivation leaves undequeued (trailing payload), under the circuit hypothesis HypC_ignores_trailing",
+   "rule": "PAR",
+   "statement": {
+    "assume": [
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "x"
+         }
+        ],
+        "fn": "is_commitBatch"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "var": "s"
+          },
+          "step": {
+           "var": "x"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "vh"
+         }
+        ],
+        "product": "blobs_match"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        }
+       ],
+       "name": "HypB"
+      }
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "et"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "name": "HypT"
+      }
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "circ"
+         },
+         {
+          "var": "s"
+         },
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "circuit_accepts"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "circ"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "vh"
+        },
+        {
+         "var": "et"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "name": "HypC_ignores_trailing"
+      }
+     }
+    ],
+    "binders": [
+     {
+      "name": "s",
+      "q": "forall",
+      "type": "Reach"
+     },
+     {
+      "name": "x",
+      "q": "forall",
+      "type": "Act"
+     },
+     {
+      "name": "p",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "ts",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "cb",
+      "q": "forall",
+      "type": "Fn<Bytes,Blobs>"
+     },
+     {
+      "name": "pl",
+      "q": "forall",
+      "type": "Fn<Blobs,Payload>"
+     },
+     {
+      "name": "vh",
+      "q": "forall",
+      "type": "Fn<Blob,Word>"
+     },
+     {
+      "name": "et",
+      "q": "forall",
+      "type": "Fn<Txs,Bytes>"
+     },
+     {
+      "name": "dt",
+      "q": "forall",
+      "type": "Fn<Bytes,Txs>"
+     },
+     {
+      "name": "circ",
+      "q": "forall",
+      "type": "Fn<Step,Bool>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "on": [
+        {
+         "var": "x"
+        },
+        {
+         "var": "p"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "trailing"
+      },
+      {
+       "nat": 0
+      }
+     ]
+    },
+    "scope": {
+     "kind": "unbounded"
+    }
+   },
+   "subform": "product_trailing"
+  },
+  {
+   "id": "L_prod_calldata_BlockContexts",
+   "maps_to": [
+    {
+     "id": "O24"
+    },
+    {
+     "id": "F11",
+     "role": "f"
+    }
+   ],
+   "obligation": "the derivation of a committed version-0 batch is determined by what the commitment binds: two calldata block-context arguments, which no commitment binds, derive the same blocks",
+   "rule": "FACT",
+   "statement": {
+    "assume": [
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "var": "x"
+         }
+        ],
+        "fn": "is_commitBatch"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "args": [
+         {
+          "from": {
+           "var": "s"
+          },
+          "step": {
+           "var": "x"
+          }
+         }
+        ],
+        "fn": "last_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "vh"
+         }
+        ],
+        "product": "blobs_match"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        }
+       ],
+       "name": "HypB"
+      }
+     },
+     {
+      "hyp": {
+       "args": [
+        {
+         "var": "et"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "name": "HypT"
+      }
+     },
+     {
+      "eq": [
+       {
+        "on": [
+         {
+          "var": "x"
+         }
+        ],
+        "product": "input:version"
+       },
+       {
+        "nat": 0
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "contexts": {
+         "var": "c1"
+        },
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "contexts": {
+         "var": "c1"
+        },
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "contexts": {
+         "var": "c2"
+        },
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         }
+        ],
+        "product": "txs_data"
+       },
+       {
+        "app": "et",
+        "args": [
+         {
+          "var": "ts"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "eq": [
+       {
+        "contexts": {
+         "var": "c2"
+        },
+        "on": [
+         {
+          "var": "x"
+         },
+         {
+          "var": "p"
+         },
+         {
+          "var": "cb"
+         },
+         {
+          "var": "pl"
+         },
+         {
+          "var": "dt"
+         }
+        ],
+        "product": "derive_ok"
+       },
+       {
+        "bool": true
+       }
+      ]
+     }
+    ],
+    "binders": [
+     {
+      "name": "s",
+      "q": "forall",
+      "type": "Reach"
+     },
+     {
+      "name": "x",
+      "q": "forall",
+      "type": "Act"
+     },
+     {
+      "name": "p",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "ts",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "cb",
+      "q": "forall",
+      "type": "Fn<Bytes,Blobs>"
+     },
+     {
+      "name": "pl",
+      "q": "forall",
+      "type": "Fn<Blobs,Payload>"
+     },
+     {
+      "name": "vh",
+      "q": "forall",
+      "type": "Fn<Blob,Word>"
+     },
+     {
+      "name": "et",
+      "q": "forall",
+      "type": "Fn<Txs,Bytes>"
+     },
+     {
+      "name": "dt",
+      "q": "forall",
+      "type": "Fn<Bytes,Txs>"
+     },
+     {
+      "name": "c1",
+      "q": "forall",
+      "type": "List<Nat>"
+     },
+     {
+      "name": "c2",
+      "q": "forall",
+      "type": "List<Nat>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "contexts": {
+        "var": "c1"
+       },
+       "on": [
+        {
+         "var": "x"
+        },
+        {
+         "var": "p"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "derived_blocks"
+      },
+      {
+       "contexts": {
+        "var": "c2"
+       },
+       "on": [
+        {
+         "var": "x"
+        },
+        {
+         "var": "p"
+        },
+        {
+         "var": "cb"
+        },
+        {
+         "var": "pl"
+        },
+        {
+         "var": "dt"
+        }
+       ],
+       "product": "derived_blocks"
+      }
+     ]
+    },
+    "scope": {
+     "kind": "unbounded"
+    }
+   },
+   "subform": "product_calldata"
+  }
+ ],
+ "outputs": {
+  "candidates": "gen/M3/derivation/laws/candidates.json",
+  "environment": "gen/M3/derivation/laws/environment.json",
+  "evaluations": "results/M3/derivation/laws/evaluations.json",
+  "replay": "replay/M3/derivation/laws.json",
+  "splits": "results/M3/derivation/splits.json"
+ },
+ "search": {
+  "blocks": [
+   1,
+   2
+  ],
+  "context": {
+   "baseFee": "0x0000000000000000000000000000000000000000000000000000006eb639900e",
+   "gasLimit": 30939190,
+   "layout": [
+    [
+     "number",
+     8
+    ],
+    [
+     "timestamp",
+     8
+    ],
+    [
+     "baseFee",
+     32
+    ],
+    [
+     "gasLimit",
+     8
+    ],
+    [
+     "txsNum",
+     2
+    ],
+    [
+     "l1MsgNum",
+     2
+    ]
+   ],
+   "timestamp": 1700000002
+  },
+  "mutations": [
+   "consistent",
+   "last_number",
+   "l1_count",
+   "trailing"
+  ],
+  "pairs": [
+   [
+    "calldata",
+    "calldata_last_number"
+   ]
+  ],
+  "start": "the parent header's LastBlockNumber getter plus 1 when it returns a nil error, else 1",
+  "steps": "every commit of the product traces (I85's corpus.product), in trace order then commit order, from the state and parent header its trace reaches (I85's rules K1-K3)",
+  "transaction": "0x01f8cb82cf558201338502036be4ba830668a394f24f50862d39353878545ae337b03911d5a860808802fdadcb413afbe19fe6c18173935f0b4000b6fd41460ba67a9c932e0aae42da9496f682d7679620f838f7944dedd9e43eba9b64195fc04db558cba12b44e954e1a0e026cd1a527297bf803424bdc6da9728b3f2cbdad1bcf59a0fa71634c019d28880a0dbf5a55d5cce8586b3374c63b8c07f55513673e2797f4dcb17a5fe1158dd0c69a0f5aaedc4a477c91da984fa6ccb9b3084c6e32d41422f8d00bf3f24829ecd0b4d"
+ },
+ "vocabulary": {
+  "blob_layer": {
+   "decompress": "morph-l2/common/codec/zstd.DecompressBatchBytes",
+   "retrieve": "morph-l2/common/batch.RetrieveBlobBytes"
+  },
+  "block_number": "Number",
+  "blocks_field": "blockContexts",
+  "contexts_field": "BlockContexts",
+  "decoder": "morph-l2/common/batch.DecodeTxsFromBytes",
+  "dequeue": [
+   "txsNum",
+   "l1MsgNum"
+  ],
+  "header_component": "gen/M3/codec/header_length.json",
+  "header_getter": "BatchHeaderBytes_{}",
+  "header_type": "morph-l2/common/batch.BatchHeaderBytes",
+  "terms": {
+   "blobs_match": "Bool: x's blob hashes (blobhash(i)) are vh of cb(p)'s blobs in order, then zero",
+   "circuit_accepts": "Bool: circ applied to the step's statement (the committed header and the blobs cb(p))",
+   "committed:<G>": "Nat: that getter's bytes, big-endian",
+   "committed_ok:<G>": "Bool: the commit step of x from s succeeds and the getter G of header_type returns a nil error on the committed header (the argument of the keccak256 the step writes to I85's header family, rule J3), as the function header_getter.format(G) of the linked header component header_component (holon.gen.linked's compiled model) answers it: Some",
+   "derive_ok": "Bool: the consumer's entry, run on the step's batch, returns a nil error (no error, no panic)",
+   "derived:<F>": "Nat: the receiver's field F once the entry returns",
+   "derived_batch": "the receiver's whole value once the entry returns",
+   "derived_blocks": "List<Nat>: the block_number field of each element of the receiver's blocks_field",
+   "derived_sum:<f>": "Nat: the sum over the receiver's blocks_field of each element's field f",
+   "input:<m>": "Nat: the member m of x's commit parameter",
+   "ok_payload": "the blob layer's success answer carrying its argument's bytes",
+   "ok_txs": "the decoder's success answer carrying its argument's transactions",
+   "trailing": "Nat: the length of dt's answer on txs_data less the sum over the receiver's blocks_field of dequeue[0] - dequeue[1]",
+   "txs_data": "List<Nat>: the argument of the entry's call of the decoder (empty when the entry returns before)"
+  },
+  "version_member": "version"
+ }
+}

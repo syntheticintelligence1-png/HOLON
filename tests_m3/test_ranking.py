@@ -204,7 +204,11 @@ class TestDocument(unittest.TestCase):
 class TestMeasures(unittest.TestCase):
     def test_p1_par_cc_defects(self):
         """P1: each REFUTED cross-component codec law's holonomy defect is exactly bytes 185..216, certified (its
-        witness differs there and the layouts can differ nowhere else); no REFUTED PAR law's defect holds byte 0."""
+        witness differs there and the layouts can differ nowhere else); no REFUTED PAR law's defect holds byte 0.
+        Amended at I84's build (spec/M3/amendments.jsonl): the PAR laws of sub-form link_domain (I84's, over I80's
+        bundle declaration) are left out of the count, as I81's prereg never saw them.
+        Amended at the I90 prereg (spec/M3/amendments.jsonl): the count by kind is over the base's laws, so a REFUTED
+        PAR law another key adds (I90's count law, a value defect) is checked like the others and left out of it."""
         ms, lw, rc = doc()["measures"], laws(M), records(M)
         codec = I.load(ROOT / lw[I.CC[0]]["facts"])
         for lid in I.CC:
@@ -214,11 +218,13 @@ class TestMeasures(unittest.TestCase):
             self.assertEqual(I.par_positions(rc[lid]), I.SSVH, lid)
             self.assertEqual(I.layout_bound(lw[lid], codec), I.SSVH, lid)
         over: dict[str, int] = {}
+        base = base_law_ids()
         for lid, r in rc.items():
-            if r["rule"] != "PAR" or r["status"] != "REFUTED":
+            if r["rule"] != "PAR" or r["status"] != "REFUTED" or (lw.get(lid) or {}).get("subform") == "link_domain":
                 continue
             m = ms[lid]
-            over[m["detail"]["over"]] = over.get(m["detail"]["over"], 0) + 1
+            if lid in base:
+                over[m["detail"]["over"]] = over.get(m["detail"]["over"], 0) + 1
             if m["detail"]["over"] == "bytes":
                 for rng in ("lower_positions", "upper_positions"):
                     self.assertFalse(any(a <= 0 <= b for a, b in m["detail"][rng]), (lid, rng))

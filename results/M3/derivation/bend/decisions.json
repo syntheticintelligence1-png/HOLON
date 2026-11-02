@@ -1,0 +1,364 @@
+{
+ "decisions_version": "holon-derivation-bend-decisions/0.1",
+ "equivalence": {
+  "kernels": {
+   "bend": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK"
+   },
+   "bendtt": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK"
+   }
+  },
+  "laws_file": "gen/M3/derivation/bend/equiv/LAWS.bend",
+  "proof_file": "gen/M3/derivation/bend/equiv/PROOF.bend"
+ },
+ "laws": {
+  "L_prod_calldata_BlockContexts": {
+   "class": "counter",
+   "kernels": {
+    "bend": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    },
+    "bendtt": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    }
+   },
+   "law_name": "cl_l_prod_calldata_blockcontexts",
+   "laws_file": "gen/M3/derivation/bend/laws/L_prod_calldata_BlockContexts/LAWS.bend",
+   "observation": {
+    "lhs": [
+     1
+    ],
+    "rhs": [
+     2
+    ]
+   },
+   "proof_file": "gen/M3/derivation/bend/laws/L_prod_calldata_BlockContexts/PROOF.bend",
+   "replay": {
+    "command": "(cd node && go test ./derivation -run '^TestHolonReplay$' -count=1)",
+    "go_version": "go1.24.7",
+    "model": [
+     [
+      1
+     ],
+     [
+      2
+     ]
+    ],
+    "real": [
+     [
+      1
+     ],
+     [
+      2
+     ]
+    ],
+    "status": "passed",
+    "target_commit": "3e44e795586af3e11285b603ab642c67823add51"
+   },
+   "statement_hash": "sha256:0387450d5397841eb13e3c7c47bb68d5652a2f092780960a3f28df2aff3cad7a",
+   "status": "REFUTED",
+   "tried": [
+    "class hyp_apply: L_prod_calldata_BlockContexts: no hypothesis premise concludes the claim from the law's premises",
+    "candidate 39: the premises hold and the claim fails on the compiled models: {'lhs': [1], 'rhs': [2]}",
+    "kernels: bend 'ALL PROOFS CHECK' (exit 0), bendtt 'ALL PROOFS CHECK' (exit 0)"
+   ],
+   "witness": {
+    "blobhash_word": "0x1c2327490ea7b694c0110b461e4987297fcdfe8582099addcbcc6fd020bccc5",
+    "candidate": 39,
+    "commit": {
+     "code": 0,
+     "status": "ok"
+    },
+    "contexts": {
+     "c1": "0x00010000000000000001000000006553f1020000000000000000000000000000000000000000000000000000006eb639900e0000000001d8183600000000",
+     "c2": "0x00010000000000000002000000006553f1020000000000000000000000000000000000000000000000000000006eb639900e0000000001d8183600000000"
+    },
+    "instances": {
+     "cb": "one blob, the payload itself",
+     "circ": "accepts every step",
+     "et/dt": "a codec of opaque tokens",
+     "pl": "PlOk with that blob's bytes",
+     "vh": "the constant blob hash"
+    },
+    "keccak_table": 12,
+    "members": {
+     "lastBlockNumber": 1,
+     "numL1Messages": 0,
+     "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+     "postStateRoot": "0x09a6badde766b4a161f8a4a02bce9346c6558c7ce65eee461fca0ae2e5a3e72d",
+     "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+     "version": 0,
+     "withdrawalRoot": "0x1306341e420eb4c560de87f25020ddc9342e93d89ee2d9b77f011ac668c53f8b"
+    },
+    "payload": "0x01f8cb82cf558201338502036be4ba830668a394f24f50862d39353878545ae337b03911d5a860808802fdadcb413afbe19fe6c18173935f0b4000b6fd41460ba67a9c932e0aae42da9496f682d7679620f838f7944dedd9e43eba9b64195fc04db558cba12b44e954e1a0e026cd1a527297bf803424bdc6da9728b3f2cbdad1bcf59a0fa71634c019d28880a0dbf5a55d5cce8586b3374c63b8c07f55513673e2797f4dcb17a5fe1158dd0c69a0f5aaedc4a477c91da984fa6ccb9b3084c6e32d41422f8d00bf3f24829ecd0b4d",
+    "step": {
+     "k": 1,
+     "trace": "product/02"
+    },
+    "ts": [
+     0
+    ],
+    "txs_data": "0x01f8cb82cf558201338502036be4ba830668a394f24f50862d39353878545ae337b03911d5a860808802fdadcb413afbe19fe6c18173935f0b4000b6fd41460ba67a9c932e0aae42da9496f682d7679620f838f7944dedd9e43eba9b64195fc04db558cba12b44e954e1a0e026cd1a527297bf803424bdc6da9728b3f2cbdad1bcf59a0fa71634c019d28880a0dbf5a55d5cce8586b3374c63b8c07f55513673e2797f4dcb17a5fe1158dd0c69a0f5aaedc4a477c91da984fa6ccb9b3084c6e32d41422f8d00bf3f24829ecd0b4d"
+   }
+  },
+  "L_prod_count_l1MsgNum": {
+   "class": "counter",
+   "kernels": {
+    "bend": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    },
+    "bendtt": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    }
+   },
+   "law_name": "cl_l_prod_count_l1msgnum",
+   "laws_file": "gen/M3/derivation/bend/laws/L_prod_count_l1MsgNum/LAWS.bend",
+   "observation": {
+    "lhs": 1,
+    "rhs": 0
+   },
+   "proof_file": "gen/M3/derivation/bend/laws/L_prod_count_l1MsgNum/PROOF.bend",
+   "replay": {
+    "command": "(cd node && go test ./derivation -run '^TestHolonReplay$' -count=1)",
+    "go_version": "go1.24.7",
+    "model": [
+     1,
+     0
+    ],
+    "real": [
+     1,
+     0
+    ],
+    "status": "passed",
+    "target_commit": "3e44e795586af3e11285b603ab642c67823add51"
+   },
+   "statement_hash": "sha256:071f28965346bcae8420a4cfbc838ad643dd63626c47e81280641023738409f8",
+   "status": "REFUTED",
+   "tried": [
+    "class hyp_apply: L_prod_count_l1MsgNum: no hypothesis premise concludes the claim from the law's premises",
+    "candidate 3: the premises hold and the claim fails on the compiled models: {'lhs': 1, 'rhs': 0}",
+    "kernels: bend 'ALL PROOFS CHECK' (exit 0), bendtt 'ALL PROOFS CHECK' (exit 0)"
+   ],
+   "witness": {
+    "blobhash_word": "0x16235a07c465dfa382810dcd4a0d19d895fa68e6833821d826233824779c54f",
+    "candidate": 3,
+    "commit": {
+     "code": 0,
+     "status": "ok"
+    },
+    "contexts": {},
+    "instances": {
+     "cb": "one blob, the payload itself",
+     "circ": "accepts every step",
+     "et/dt": "a codec of opaque tokens",
+     "pl": "PlOk with that blob's bytes",
+     "vh": "the constant blob hash"
+    },
+    "keccak_table": 12,
+    "members": {
+     "lastBlockNumber": 1,
+     "numL1Messages": 0,
+     "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+     "postStateRoot": "0x3d907c1a41f74a214eb90782d0d8abfb1d160c1c41987a1c1962a1e754fdb2c9",
+     "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+     "version": 1,
+     "withdrawalRoot": "0xcfdb6c5c2a09d69a998fe846aa6ce6ebb2211ea13fc07d9d214c8823a1050df8"
+    },
+    "payload": "0x0000000000000001000000006553f1020000000000000000000000000000000000000000000000000000006eb639900e0000000001d8183600010001",
+    "step": {
+     "k": 1,
+     "trace": "product/01"
+    },
+    "ts": [],
+    "txs_data": "0x"
+   }
+  },
+  "L_prod_cycle_lastBlockNumber": {
+   "class": "counter",
+   "kernels": {
+    "bend": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    },
+    "bendtt": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    }
+   },
+   "law_name": "cl_l_prod_cycle_lastblocknumber",
+   "laws_file": "gen/M3/derivation/bend/laws/L_prod_cycle_lastBlockNumber/LAWS.bend",
+   "observation": {
+    "lhs": 3,
+    "rhs": 2
+   },
+   "proof_file": "gen/M3/derivation/bend/laws/L_prod_cycle_lastBlockNumber/PROOF.bend",
+   "replay": {
+    "command": "(cd node && go test ./derivation -run '^TestHolonReplay$' -count=1)",
+    "go_version": "go1.24.7",
+    "model": [
+     3,
+     2
+    ],
+    "real": [
+     3,
+     2
+    ],
+    "status": "passed",
+    "target_commit": "3e44e795586af3e11285b603ab642c67823add51"
+   },
+   "statement_hash": "sha256:ff886b218745e66961011db5ef98670265b6ba824146dd4685b90feac56f79cb",
+   "status": "REFUTED",
+   "tried": [
+    "class hyp_apply: L_prod_cycle_lastBlockNumber: no hypothesis premise concludes the claim from the law's premises",
+    "candidate 6: the premises hold and the claim fails on the compiled models: {'lhs': 3, 'rhs': 2}",
+    "kernels: bend 'ALL PROOFS CHECK' (exit 0), bendtt 'ALL PROOFS CHECK' (exit 0)"
+   ],
+   "witness": {
+    "blobhash_word": "0x1ea884c47365d47f10979a36c9a5ab7bdc75dc1cc09d4bae54202df41f3b9c7",
+    "candidate": 6,
+    "commit": {
+     "code": 0,
+     "status": "ok"
+    },
+    "contexts": {},
+    "instances": {
+     "cb": "one blob, the payload itself",
+     "circ": "accepts every step",
+     "et/dt": "a codec of opaque tokens",
+     "pl": "PlOk with that blob's bytes",
+     "vh": "the constant blob hash"
+    },
+    "keccak_table": 12,
+    "members": {
+     "lastBlockNumber": 2,
+     "numL1Messages": 0,
+     "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+     "postStateRoot": "0x3d907c1a41f74a214eb90782d0d8abfb1d160c1c41987a1c1962a1e754fdb2c9",
+     "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+     "version": 1,
+     "withdrawalRoot": "0xcfdb6c5c2a09d69a998fe846aa6ce6ebb2211ea13fc07d9d214c8823a1050df8"
+    },
+    "payload": "0x0000000000000001000000006553f1020000000000000000000000000000000000000000000000000000006eb639900e0000000001d81836000000000000000000000003000000006553f1020000000000000000000000000000000000000000000000000000006eb639900e0000000001d8183600000000",
+    "step": {
+     "k": 1,
+     "trace": "product/01"
+    },
+    "ts": [],
+    "txs_data": "0x"
+   }
+  },
+  "L_prod_trailing_HypC_binds_trailing": {
+   "class": "hyp_apply",
+   "kernels": {
+    "bend": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    },
+    "bendtt": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    }
+   },
+   "law_name": "l_prod_trailing_hypc_binds_trailing",
+   "laws_file": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_binds_trailing/LAWS.bend",
+   "observation": null,
+   "proof_file": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_binds_trailing/PROOF.bend",
+   "replay": null,
+   "statement_hash": "sha256:37ab9b72f96aaa1abecf4b040aea2304251422d52cf601e5c48ba3afd6a446bf",
+   "status": "UNKNOWN",
+   "tried": [
+    "kernels: bend 'ALL PROOFS CHECK' (exit 0), bendtt 'ALL PROOFS CHECK' (exit 0)",
+    "a proof checks, but non-vacuity of its premises is not established (G11V)"
+   ],
+   "witness": null
+  },
+  "L_prod_trailing_HypC_ignores_trailing": {
+   "class": "counter",
+   "kernels": {
+    "bend": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    },
+    "bendtt": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    }
+   },
+   "law_name": "cl_l_prod_trailing_hypc_ignores_trailing",
+   "laws_file": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_ignores_trailing/LAWS.bend",
+   "observation": {
+    "lhs": 1,
+    "rhs": 0
+   },
+   "proof_file": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_ignores_trailing/PROOF.bend",
+   "replay": {
+    "command": "(cd node && go test ./derivation -run '^TestHolonReplay$' -count=1)",
+    "go_version": "go1.24.7",
+    "model": [
+     1,
+     0
+    ],
+    "real": [
+     1,
+     0
+    ],
+    "status": "passed",
+    "target_commit": "3e44e795586af3e11285b603ab642c67823add51"
+   },
+   "statement_hash": "sha256:b401cd60e1ca9822c256c2f5cb16bbb1a34da270e920d31446ebcfe9eed28f52",
+   "status": "REFUTED",
+   "tried": [
+    "class hyp_apply: L_prod_trailing_HypC_ignores_trailing: no hypothesis premise concludes the claim from the law's premises",
+    "candidate 4: the premises hold and the claim fails on the compiled models: {'lhs': 1, 'rhs': 0}",
+    "kernels: bend 'ALL PROOFS CHECK' (exit 0), bendtt 'ALL PROOFS CHECK' (exit 0)"
+   ],
+   "witness": {
+    "blobhash_word": "0x19d3ae2cd509c9f06738b8687f2c2de16a5f0671c1375d017a3edd23ed557ab",
+    "candidate": 4,
+    "commit": {
+     "code": 0,
+     "status": "ok"
+    },
+    "contexts": {},
+    "instances": {
+     "cb": "one blob, the payload itself",
+     "circ": "accepts every step",
+     "et/dt": "a codec of opaque tokens",
+     "pl": "PlOk with that blob's bytes",
+     "vh": "the constant blob hash"
+    },
+    "keccak_table": 12,
+    "members": {
+     "lastBlockNumber": 1,
+     "numL1Messages": 0,
+     "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+     "postStateRoot": "0x3d907c1a41f74a214eb90782d0d8abfb1d160c1c41987a1c1962a1e754fdb2c9",
+     "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+     "version": 1,
+     "withdrawalRoot": "0xcfdb6c5c2a09d69a998fe846aa6ce6ebb2211ea13fc07d9d214c8823a1050df8"
+    },
+    "payload": "0x0000000000000001000000006553f1020000000000000000000000000000000000000000000000000000006eb639900e0000000001d818360000000001f8cb82cf558201338502036be4ba830668a394f24f50862d39353878545ae337b03911d5a860808802fdadcb413afbe19fe6c18173935f0b4000b6fd41460ba67a9c932e0aae42da9496f682d7679620f838f7944dedd9e43eba9b64195fc04db558cba12b44e954e1a0e026cd1a527297bf803424bdc6da9728b3f2cbdad1bcf59a0fa71634c019d28880a0dbf5a55d5cce8586b3374c63b8c07f55513673e2797f4dcb17a5fe1158dd0c69a0f5aaedc4a477c91da984fa6ccb9b3084c6e32d41422f8d00bf3f24829ecd0b4d",
+    "step": {
+     "k": 1,
+     "trace": "product/01"
+    },
+    "ts": [
+     0
+    ],
+    "txs_data": "0x01f8cb82cf558201338502036be4ba830668a394f24f50862d39353878545ae337b03911d5a860808802fdadcb413afbe19fe6c18173935f0b4000b6fd41460ba67a9c932e0aae42da9496f682d7679620f838f7944dedd9e43eba9b64195fc04db558cba12b44e954e1a0e026cd1a527297bf803424bdc6da9728b3f2cbdad1bcf59a0fa71634c019d28880a0dbf5a55d5cce8586b3374c63b8c07f55513673e2797f4dcb17a5fe1158dd0c69a0f5aaedc4a477c91da984fa6ccb9b3084c6e32d41422f8d00bf3f24829ecd0b4d"
+   }
+  }
+ },
+ "search_bound": 8,
+ "sidecar": {
+  "path": "spec/M3/lib/derivation_bend.json",
+  "sha256": "227bd14b058626ecacd74141d4cf427cefd4bb36ccf9a3006d489025485d9d38"
+ }
+}

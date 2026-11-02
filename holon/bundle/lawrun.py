@@ -130,10 +130,10 @@ def bundle_entries(milestone: str, root: Path) -> dict:
 
 
 def is_bundle_law(law: dict) -> bool:
-    """A holon-ir/0.3 law whose claim is a bundle term (holon.rules.bundle)."""
-    c = (law.get("statement") or {}).get("claim") or {}
-    return law.get("ir_version") == "holon-ir/0.3" and any(isinstance(x, dict) and isinstance(x.get("bundle"), str)
-                                                          for x in c.get("eq") or [])
+    """A holon-ir/0.3 law whose claim is a bundle term of holon.rules.bundle's sub-forms (the term's id names them,
+    holon.rules.bundle_terms: holon-rules/1.10's bundle terms are holon.rules.bundle2's)."""
+    from ..rules import bundle, bundle_terms
+    return bundle_terms.law_owner(law) is bundle
 
 
 def site_of(lctx: LawCtx, lid: str) -> tuple:

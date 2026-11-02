@@ -1,0 +1,106 @@
+{
+  "go_version": "go1.24.7",
+  "laws": {
+    "L_own_alias_batch_BatchData_TxsPayloadV2_Append": {
+      "go": {
+        "caps": [
+          {
+            "field": "blockContexts",
+            "model": 8,
+            "real": 8,
+            "step": "after call 1 (Append)"
+          },
+          {
+            "field": "txsPayload",
+            "model": 8,
+            "real": 8,
+            "step": "after call 1 (Append)"
+          },
+          {
+            "field": "blockContexts",
+            "model": 8,
+            "real": 8,
+            "step": "after TxsPayloadV2"
+          },
+          {
+            "field": "txsPayload",
+            "model": 8,
+            "real": 8,
+            "step": "after TxsPayloadV2"
+          },
+          {
+            "field": "$view",
+            "model": 8,
+            "real": 8,
+            "step": "after TxsPayloadV2"
+          },
+          {
+            "field": "blockContexts",
+            "model": 8,
+            "real": 8,
+            "step": "after Append"
+          },
+          {
+            "field": "txsPayload",
+            "model": 8,
+            "real": 8,
+            "step": "after Append"
+          }
+        ],
+        "command": "(cd common && go test ./batch -run ^TestHolonOwn$ -count=1)",
+        "expected": {
+          "view_after": "0103",
+          "view_before": "0102"
+        },
+        "observed": {
+          "view_after": "0103",
+          "view_before": "0102"
+        },
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    },
+    "L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes": {
+      "go": {
+        "caps": [],
+        "command": "(cd common && go test ./batch -run ^TestHolonOwn$ -count=1)",
+        "expected": {
+          "assigned_len": 249,
+          "field_len_after": 0
+        },
+        "observed": {
+          "assigned_len": 249,
+          "field_len_after": 0
+        },
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    },
+    "L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes": {
+      "go": {
+        "caps": [],
+        "command": "(cd common && go test ./batch -run ^TestHolonOwn$ -count=1)",
+        "expected": {
+          "assigned_len": 257,
+          "field_len_after": 0
+        },
+        "observed": {
+          "assigned_len": 257,
+          "field_len_after": 0
+        },
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    }
+  },
+  "milestone": "M3",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "witness_sha256": {
+    "L_own_alias_batch_BatchData_TxsPayloadV2_Append": "59d978cf61def8f50cb05729537f98f074b7d86cf2df0411cf53fc3343142069",
+    "L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes": "0cec144c28b55d5ac2988a3ff810f1ec9aeacf1e2d1b69e0eac6d72caf478564",
+    "L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes": "0cec144c28b55d5ac2988a3ff810f1ec9aeacf1e2d1b69e0eac6d72caf478564"
+  }
+}

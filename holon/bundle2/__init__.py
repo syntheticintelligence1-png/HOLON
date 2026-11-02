@@ -13,6 +13,8 @@ the docstring of tests_m3/test_bundle2_extraction.py).
   deploy   the harness's deployment record (one forge run)                              holon.bundle2.harness
   refine   the linked machine and the member models against the real code (forge)       holon.bundle2.harness
   acquire  acquisition notes from committed records and the target's git objects       holon.bundle2.acquire
+  laws     (I84) Bundle II's laws: the analysis and the claims modules                  holon.bundle2.laws
+  replay-laws  (I84) the laws' witnesses on the real code, and D5's bisection           holon.bundle2.laws_replay
 
 Everything specific to a target comes from the sidecar (default spec/M3/lib/bundle2.json), the documents it names and
 the compiler's output. Exit codes: 0 written (or --check reproduced), 1 --check differs, 2 refused (nothing written),
@@ -118,6 +120,13 @@ class Writer:
 
 
 def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["laws"]:            # I84: Bundle II's laws (holon.bundle2.laws), their own sidecar
+        from . import laws
+        return laws.main_laws(argv[1:])
+    if argv[:1] == ["replay-laws"]:     # I84: the laws' witnesses on the real code (holon.bundle2.laws_replay)
+        from . import laws_replay
+        return laws_replay.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon bundle2", description=__doc__.splitlines()[0])
     ap.add_argument("command", choices=["extract", "deploy", "model", "corpus", "refine", "acquire"])
     ap.add_argument("--check", action="store_true")

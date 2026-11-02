@@ -18,6 +18,7 @@
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
   python -m holon oracle check --milestone M2 [--root DIR]   (oracle sidecar hypotheses: A4, G11V; I12)
+  python -m holon oracle compression --milestone M3 [--root DIR] [--check]   (HypZ and HypZ_len on the real codec; I91)
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
   python -m holon replay [--milestone M] [--morph PATH] [--forge F] [--solc S] [--work DIR] [--write-pins]
   python -m holon lean --milestone M0 [--json] [--jobs N]   (Lean 4 second kernel, I9)
@@ -52,7 +53,10 @@
                                                         (the linked codec documents gen/<M>/codec/<role>.json; I24;
                                                          and the Go-op documents gen/<M>/goops/<component>.json; I67)
   python -m holon replay-go --milestone M3 [--root DIR]  (the Go-op laws' witnesses on the real code,
-                                                         replay/<M>/goops/report.json; I67)
+                                                         replay/<M>/goops/report.json; I67; and the OWN laws',
+                                                         replay/<M>/own/report.json; I35)
+  python -m holon own --milestone M3 [--root DIR] [--out DIR] [--check]
+                                                        (rule OWN's carrier documents gen/<M>/own/<pkg>_<T>.json; I35)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
                                                         (the back-test across documents, results/M3/backtest.json; I24)
   python -m holon report --milestone M3 [--root DIR] [--check] [--results SET=DIR ..]
@@ -72,6 +76,8 @@
   python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
                                                         (the theory core and basis sufficiency by application:
                                                         gen/<M>/theory/; I42)
+  python -m holon nat analyze|replay [--check]          (rule NAT over the versioned machine: the basis, the
+                                                        claims module, the witnesses on the real code; I29)
   python -m holon versions extract|model|analyze|inhabit|replay [--check]   (versioned machines over the deployment
                                                         history, PAR-init and the in-flight inhabitants; I28)
   python -m holon types|termsize|model|run|replay --milestone M3 ...   (typed milestones, M3+ and T30+: I30's
@@ -82,7 +88,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+from pathlib import Path
 
 
 def _typed_milestone(argv: list) -> bool:
@@ -130,6 +138,26 @@ def _untyped_laws(argv: list) -> bool:
                and entries[i].get("rule") not in ("UNDO", "FACT") for i in ids)
 
 
+def _product_laws(argv: list) -> bool:
+    """`holon run --milestone M --laws ID,..` naming only laws of the plan-stated product law set (I88: the law set
+    of holon.derivation.laws's sidecar, for its milestone): `holon derivation decide` re-makes their records."""
+    from pathlib import Path
+    m, laws = _arg(argv, "--milestone"), _arg(argv, "--laws")
+    ids = [x.strip() for x in (laws or "").split(",") if x.strip()]
+    if argv[:1] != ["run"] or not m or not ids:
+        return False
+    from .derivation import laws as LW
+    root = Path(_arg(argv, "--root") or Path(__file__).resolve().parents[1]).resolve()
+    try:
+        side = json.loads((root / LW.LAWS_SIDECAR).read_text())
+        d = root / side["law_set"]["laws"]
+        if side["law_set"]["milestone"] != m:
+            return False
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+    return all((d / f"{i}.json").is_file() for i in ids)
+
+
 def _disch_milestone(argv: list) -> bool:
     """Does the milestone derive DISCH laws (I31: a DISCH entry in laws/<M>/DERIVATION.json)?"""
     from pathlib import Path
@@ -166,11 +194,45 @@ def _typed_run(argv: list) -> int | None:
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
-    rc = _main(argv)
-    if rc == 0 and argv[:1] == ["run"]:   # K5 (I64): the run's last step applies the milestone's intent contracts
-        from . import contracts
-        rc = contracts.after_run(argv)
-    return rc
+    if argv[:1] == ["run"]:
+        # pipeline v2 (B): with HOLON_TRACE=1 a run records what it read for each law it decides (holon.trace); with
+        # --reuse it first drops the laws whose record and trace still hold
+        from . import trace
+        if "--reuse" in argv:
+            argv = _reuse(argv)
+            if argv is None:
+                return 0
+        if os.environ.get("HOLON_TRACE") == "1":
+            trace.install(Path(__file__).resolve().parents[1], argv)
+        try:
+            rc = _main(argv)
+            if rc == 0:   # K5 (I64): the run's last step applies the milestone's intent contracts
+                from . import contracts
+                rc = contracts.after_run(argv)
+        finally:
+            n = trace.finish()
+            if n:
+                print(f"holon run: {n} decision traces written")
+        return rc
+    return _main(argv)
+
+
+def _reuse(argv: list) -> list | None:
+    """argv without --reuse and with --laws narrowed to the laws holon.trace cannot reuse; None when none is left."""
+    from . import trace
+    argv = [x for x in argv if x != "--reuse"]
+    if "--laws" not in argv or "--milestone" not in argv:
+        raise SystemExit("holon run --reuse needs --milestone and --laws (a run without --laws does more than decide "
+                         "laws)")
+    i, j = argv.index("--laws"), argv.index("--milestone")
+    laws = [x for x in argv[i + 1].split(",") if x]
+    left = trace.reusable(Path(__file__).resolve().parents[1], argv[j + 1], laws)
+    for lid in laws:
+        if lid not in left:
+            print(f"holon run: {lid} reused (its record and trace still hold)")
+    if not left:
+        return None
+    return argv[:i + 1] + [",".join(lid for lid in laws if lid in left)] + argv[i + 2:]
 
 
 def _main(argv: list) -> int:
@@ -222,6 +284,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["historical"]:  # likewise for holon.historical (fetch | replay, I59)
         from . import historical
         return historical.main(argv[1:])
+    if argv[:1] == ["nat"]:  # likewise for rule NAT over the versioned machine (I29: rules N1-N10)
+        from .rules import nat_run
+        return nat_run.main(argv[1:])
     if argv[:1] == ["versions"]:  # likewise for holon.versions (versioned machines, I28: rules V1-V9, PI1-PI6)
         from . import versions
         return versions.main(argv[1:])
@@ -237,6 +302,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["theory2"]:  # likewise for holon.gen.theory2 (theory core II, I43)
         from .gen import theory2
         return theory2.main(argv[1:])
+    if argv[:1] == ["aggregate"]:  # likewise for holon.aggregate (PV2A: per-key prereg sources, generated aggregates)
+        from . import aggregate
+        return aggregate.main(argv[1:])
     if argv[:1] == ["differential"]:  # likewise for holon.differential (I20)
         from . import differential
         return differential.main(argv[1:])
@@ -252,12 +320,21 @@ def _main(argv: list) -> int:
     if argv[:1] == ["codecs"]:  # likewise for holon.diagram.linked (the linked codec layer, I24)
         from .diagram import linked
         return linked.main(argv[1:])
+    if argv[:1] == ["own"]:  # likewise for holon.own (rule OWN's carrier documents, I35)
+        from . import own
+        return own.main(argv[1:])
     if argv[:1] == ["replay-go"]:  # likewise for holon.goreplay (the Go-op laws' replay on the real code, I67)
         from . import goreplay
         return goreplay.main(argv[1:])
     if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
         from . import profile
         return profile.main(argv[1:])
+    if argv[:1] == ["trace"]:  # likewise for holon.trace (pipeline v2: decision traces, checked against the tree)
+        from . import trace
+        return trace.main(argv[1:])
+    if argv[:1] == ["land"]:  # likewise for holon.land (pipeline v2: land a branch on the lead, resumable)
+        from . import land
+        return land.main(argv[1:])
     if argv[:1] == ["rank"]:  # likewise for holon.rank (Def 6.13's measures and §10.10's ranking, I81)
         from . import rank
         return rank.main(argv[1:])
@@ -291,9 +368,41 @@ def _main(argv: list) -> int:
     if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
         from .sorts import termsize
         return termsize.main(argv[1:])
+    if argv[:1] == ["keys"]:  # likewise for holon.sorts.keys3 (I68: the keys check of the structural store)
+        from .sorts import keys3
+        return keys3.main(argv[1:])
+    if argv[:1] == ["run"] and _product_laws(argv):
+        # I88: the plan-stated product laws (laws/<M>/derivation/) are decided by holon derivation decide, which
+        # re-makes every record of the set; a run naming any other law, and a whole-milestone run, are unchanged
+        from . import derivation
+        return derivation.main(["decide"] + (["--root", _arg(argv, "--root")] if _arg(argv, "--root") else []))
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
+    if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I84: the bundle laws (PAR link_domain, FACT public_input, DISCH self_controlled) a --laws list names are
+        # decided on the typed model at the laws' deployment (holon.bundle2.laws_decide); the list's other laws go on
+        # as before. A whole-milestone run decides them after every other law.
+        import os
+        from pathlib import Path
+        from .bundle2 import laws_decide as bundle_laws
+        from .versions.run import strip_args as _strip
+        split = bundle_laws.ids_of(argv, Path(__file__).resolve().parents[1])
+        if split is not None:
+            bids, others = split
+            rc = 0
+            if others:
+                rc = _main(_strip(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, bundle_laws.main(_strip(argv, ("--laws",)) + ["--laws", ",".join(bids)]))
+        if (_arg(argv, "--laws") is None and os.environ.get("HOLON_BUNDLE_LAWS") != "after"
+                and bundle_laws.bundle_entries(str(_arg(argv, "--milestone")),
+                                               Path(_arg(argv, "--root") or Path(__file__).resolve().parents[1]))):
+            os.environ["HOLON_BUNDLE_LAWS"] = "after"
+            try:
+                rc = _main(argv)
+            finally:
+                os.environ.pop("HOLON_BUNDLE_LAWS", None)
+            return max(rc, bundle_laws.main(argv))
     if argv[:1] == ["run"] and _typed_milestone(argv):
         # I86: the bundle laws a --laws list names (holon.rules.bundle's six sub-forms) are decided over their law
         # models and claims modules (holon.bundle.lawrun); the list's other laws go on as before
@@ -316,6 +425,17 @@ def _main(argv: list) -> int:
             if others:
                 rc = _main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
             return max(rc, versions_run.main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(vids)]))
+    if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I29: the NAT laws a --laws list names are decided over the versioned machine (holon.rules.nat_run); the
+        # list's other laws go on as before
+        from .rules import nat_run
+        split = nat_run.ids_of(argv)
+        if split is not None:
+            nids, others = split
+            rc = 0
+            if others:
+                rc = _main(nat_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, nat_run.run_main(nat_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(nids)]))
     if argv[:1] in (["run"], ["replay"]) and _typed_milestone(argv):
         from .fact import run as fact_run
         if fact_run.has_fact_laws(argv):
@@ -358,9 +478,14 @@ def _main(argv: list) -> int:
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
     bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
                                    "(or stays unbound)")
+    bd.add_argument("--remodel", metavar="LICENSE",
+                    help="(I68) first append the remodel entries the license covers (holon.statement_diff.remodel_entries, "
+                         "each checked by check_entry), then rebind through them")
     orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
-                                        "(the oracle sidecar's hypotheses, I12); both write results/M2/hypotheses.json")
-    orc.add_argument("which", choices=["zero-blob", "check"])
+                                        "(the oracle sidecar's hypotheses, I12), both writing results/M2/hypotheses.json; "
+                                        "`oracle compression --milestone M3` (HypZ and HypZ_len on the real codec, I91), "
+                                        "writing results/M3/compression_oracle.json")
+    orc.add_argument("which", choices=["zero-blob", "check", "compression"])
     orc.add_argument("rest", nargs=argparse.REMAINDER)
     cu = sub.add_parser("checker-upgrade", help="re-run gates and runs under a candidate checker; report every diff")
     cu.add_argument("rest", nargs=argparse.REMAINDER)
@@ -432,6 +557,9 @@ def _main(argv: list) -> int:
         if a.which == "check":
             from . import oracle_check
             return oracle_check.main(a.rest)
+        if a.which == "compression":   # I91 (rules Z1-Z9 of tests_m3/test_compress.py)
+            from .oracles import compression
+            return compression.main(a.rest)
         from .oracles import zero_blob
         return zero_blob.main(a.rest)
     if a.cmd == "checker-upgrade":

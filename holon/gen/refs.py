@@ -28,7 +28,8 @@ refs is the transitive closure of what the statement names, over the facts def g
   consumer:NAME      facts.consumers[NAME] (doc removed), with `acts`
   hyp:H              the oracle sidecar entry whose hypothesis is H, restricted to {parameter, hypothesis} (I12;
                      holon.gen.oracles.Oracles.hyp_ref). Without a sidecar, the hash of null.
-  eq_nat, ..         an IR builtin (holon.gen.mlaws.BUILTINS) under the rule catalog version
+  eq_nat, ..         an IR builtin (holon.gen.mlaws.BUILTINS) under the rule catalog version; under hash scheme 2
+                     (PV2A, holon.ir) its Bend name alone, so a catalog bump moves no scheme-2 statement hash
   tmpl:NAME, dsl:NAME  a generator-synthesized helper (step, run, obs, runs_ok, last_ok, no_code, perm, cost,
                      elapsed, is_act, consumer, observer, migration, s0, reach) or a DSL builtin the generator
                      renders itself (len, take, ..): {template_id, template_version}, never its text (TEMPLATES).
@@ -39,10 +40,6 @@ refs is the transitive closure of what the statement names, over the facts def g
   coerce:ID          a SORT coercion term {"coerce": ID, "on": A, "from": S} (I30): sha256 of canonical {"template":
                      "holon.rules.sort/coerce_ok", "template_version": 1, "subform", "basis", "hits"}, recomputed from
                      the document, the frozen assignment and the sidecars (holon.rules.sort.coerce_ref)
-  bundle:ID          a bundle-law term {"bundle": ID, ...} (I86): sha256 (hex) of canonical {"template":
-                     "holon.rules.bundle/<subform>", "template_version": 1, "subform", "member", "site"}, the site
-                     recomputed from the milestone's bundle-laws sidecar, declaration and documents
-                     (holon.rules.bundle.bundle_ref)
   disch:ID           a DISCH term {"disch": ID, "on": A, "from": S, "at": T, "env": E} (I31): sha256 (hex) of canonical
                      {"template": "holon.rules.disch/<subform>", "template_version": 1, "subform", "model", "blocked",
                      "check", "check_expr", "class", "closure", "excluded"}, recomputed from the document and the
@@ -51,6 +48,18 @@ refs is the transitive closure of what the statement names, over the facts def g
                      {"template": "holon.rules.par_init/init_chain", "template_version": 1, "basis", "documents"},
                      recomputed from the law's versioned document and the per-version documents it lists
                      (holon.rules.par_init.init_ref)
+  square:ID          a NAT square term {"square": ID, "on": [A, U, S, E]} (I29): sha256 (hex) of canonical
+                     {"template": "holon.rules.nat/<subform>", "template_version": 1, "basis", "documents"}, recomputed
+                     from the law's versioned document and the documents of the square's two versions
+                     (holon.rules.nat.square_ref)
+  bundle:ID          a bundle term {"bundle": ID, ...}, resolved by the module that owns the id's sub-form (its second
+                     field; holon.rules.bundle_terms): holon-rules/1.10's {"bundle": ID, "on": [...]} (I84): sha256
+                     (hex) of canonical {"template": "holon.rules.bundle2/<subform>", "template_version": 1, "basis"},
+                     recomputed from the milestone's bundle-laws sidecar, its declaration and documents
+                     (holon.rules.bundle2.bundle_ref); holon-rules/1.11's {"bundle": ID, ...} (I86): sha256 (hex) of
+                     canonical {"template": "holon.rules.bundle/<subform>", "template_version": 1, "subform", "member",
+                     "site"}, the site recomputed from the milestone's bundle-laws sidecar, declaration and documents
+                     (holon.rules.bundle.bundle_ref)
   site:ID            a SORT-site term {"site": ID, "on": A, "from": S} (I15): the site's spec as holon.sorts.sites
                      computes it from the facts and the SORT-site sidecar of the law's milestone (template id and
                      version, the basis element and the hit points), so G2 needs no derive output; the term also
@@ -391,12 +400,6 @@ class _Closure:
             self.term(t["on"])
             self.term(t["from"])
             return
-        if isinstance(t.get("bundle"), str):   # a bundle-law term (I86): its site, and the terms it applies to
-            self.bundle(t["bundle"])
-            for k in ("on", "from", "at", "env"):
-                if k in t:
-                    self.term(t[k])
-            return
         if isinstance(t.get("disch"), str) and "on" in t and "from" in t:   # a DISCH term (I31)
             self.disch(t["disch"])
             for k in ("on", "from", "at", "env"):
@@ -412,8 +415,23 @@ class _Closure:
                 if k in t:
                     self.term(t[k])
             return
+        if isinstance(t.get("square"), str) and isinstance(t.get("on"), list):   # a NAT square term (I29)
+            self.square(t["square"])
+            for a in t["on"]:
+                self.term(a)
+            return
+        if isinstance(t.get("bundle"), str):   # a bundle term (I84, I86): its ref, and the terms it applies to
+            self.bundle(t["bundle"])
+            for k in ("on", "from", "at", "env"):
+                if k in t:
+                    self.term(t[k])
+            return
         if isinstance(t.get("undo"), str) and isinstance(t.get("on"), list):   # an UNDO term (I27)
             self.undo(t["undo"])
+            self.term(t["on"])
+            return
+        if isinstance(t.get("own"), str) and isinstance(t.get("on"), list):   # an OWN term (I35)
+            self.own(t["own"])
             self.term(t["on"])
             return
         for v in t.values():
@@ -444,14 +462,6 @@ class _Closure:
         for h in spec.get("hits") or []:
             n = h.get("action")
             self.put("A_" + n, strip_meta(acts.get(n)) if n in acts else None)
-
-    def bundle(self, bid: str) -> None:
-        """bundle:<ID>: the bundle law's site document (holon.rules.bundle.bundle_ref), recomputed from the law's
-        milestone's bundle-laws sidecar, declaration and documents."""
-        if "bundle:" + bid in self.out:
-            return
-        from ..rules.bundle import bundle_ref
-        self.out["bundle:" + bid] = bundle_ref(bid, self.law, self.root)
 
     def disch(self, did: str) -> None:
         """disch:<ID>: the DISCH law's ref document (holon.analysis.closure.disch_ref), recomputed from the document
@@ -484,6 +494,28 @@ class _Closure:
         from ..rules.par_init import init_ref
         self.out["init:" + iid] = init_ref(iid, self.law, self.root)
 
+    def square(self, sid: str) -> None:
+        """square:<ID>: the sha256 of the canonical {template, template_version, basis, documents} of the NAT basis
+        element whose square id is ID and the documents of its two versions (holon.rules.nat.square_ref), recomputed
+        from the law's versioned document."""
+        if "square:" + sid in self.out:
+            return
+        from ..rules.nat import square_ref
+        self.out["square:" + sid] = square_ref(sid, self.law, self.root)
+
+    def bundle(self, bid: str) -> None:
+        """bundle:<ID>: the ref of the bundle term ID, from the module that owns its sub-form (holon.rules.bundle_terms):
+        holon-rules/1.10's (I84) the sha256 of the canonical {template, template_version, basis} of the bundle basis
+        element whose id is ID (holon.rules.bundle2.bundle_ref), holon-rules/1.11's (I86) the bundle law's site document
+        (holon.rules.bundle.bundle_ref), each recomputed from the milestone's bundle-laws sidecar, its declaration and
+        documents. An id of neither catalog's sub-forms is holon.rules.bundle2's (its absent ref)."""
+        if "bundle:" + bid in self.out:
+            return
+        from ..rules import bundle_terms
+        from ..rules.bundle2 import bundle_ref
+        own = bundle_terms.owner(bid)
+        self.out["bundle:" + bid] = (own.bundle_ref if own is not None else bundle_ref)(bid, self.law, self.root)
+
     def undo(self, uid: str) -> None:
         """undo:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the pair or residue
         basis ID (holon.rules.undo.undo_ref), recomputed from the law's document; and every action of the document
@@ -496,6 +528,18 @@ class _Closure:
         self.tmpl("step")
         for n in sorted(self.acts):
             self.action(n)
+
+    def own(self, oid: str) -> None:
+        """own:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the alias or lost-write
+        basis ID (holon.rules.own.own_ref), recomputed from the law's carrier document; and the entries of the
+        document's methods the basis names (method:<name>, without source and span)."""
+        if "own:" + oid in self.out:
+            return
+        from ..rules.own import own_ref
+        self.out["own:" + oid] = own_ref(oid, self.law, self.root)
+        for m, e in sorted((self.f.get("methods") or {}).items()):
+            if isinstance(e, dict):
+                self.put("method:" + m, {k: v for k, v in e.items() if k not in ("source", "span")})
 
     def site(self, sid: str) -> None:
         """site:<ID>: the site's spec (holon.sorts.sites.site_ref), from the facts, their library and the sidecar."""
@@ -513,8 +557,10 @@ class _Closure:
     def fn(self, n: str, args: list) -> None:
         from .mlaws import BUILTINS
         if n in BUILTINS:
-            self.out[n] = _h({"builtin": n, "bend": BUILTINS[n][0],
-                              "rule_catalog_version": self.law.get("rule_catalog_version")})
+            spec = {"builtin": n, "bend": BUILTINS[n][0]}
+            if ir.hash_scheme(self.law) == 1:
+                spec["rule_catalog_version"] = self.law.get("rule_catalog_version")
+            self.out[n] = _h(spec)
         elif n == "runs_ok":
             self.tmpl("runs_ok")
             self.sig()
@@ -550,6 +596,7 @@ class _Closure:
 CODEC01_TEXT = ("meaning", "notes", "source", "preconditions")
 LINKED_PROVENANCE = ("document", "source")
 GOOPS_PROVENANCE = ("source", "span")
+GOCOUNT_PROVENANCE = ("source", "site")
 
 
 def _strip01(x):
@@ -577,6 +624,7 @@ class _CodecClosure:
         self.f, self.out = facts or {}, {}
         self.linked = self.f.get("linked_version") == "holon-linked/0.1"
         self.goops = self.f.get("goops_version") == "holon-goops/0.1"
+        self.gocount = self.f.get("gocount_version") == "holon-gocount/0.1"
 
     def put(self, key: str, obj) -> bool:
         if key in self.out:
@@ -585,7 +633,7 @@ class _CodecClosure:
         return True
 
     def record(self, name: str) -> None:
-        if self.goops:   # I67: the interface carrier, by its Go type (its reach is text)
+        if self.goops or self.gocount:   # I67: the interface carrier, by its Go type (its reach is text); I90 likewise
             c = self.f.get("carrier") or {}
             if c.get("id") == name:
                 self.put("carrier:" + name, {"id": c["id"], "type": c.get("type")})
@@ -600,6 +648,10 @@ class _CodecClosure:
             self.put("type:" + name, _strip01(t))
 
     def fn(self, name: str) -> None:
+        if self.gocount:   # I90 (rule C6e): a channel by its entry without source and site
+            e = (self.f.get("channels") or {}).get(name)
+            self.put("fn:" + name, None if e is None else {k: v for k, v in e.items() if k not in GOCOUNT_PROVENANCE})
+            return
         if self.goops:   # I67: an op (its domain predicate ok_<op>: the op) by its entry without source and span
             ops = self.f.get("ops") or {}
             key = name[3:] if name not in ops and name.startswith("ok_") and name[3:] in ops else name
@@ -641,11 +693,12 @@ class _CodecClosure:
 
 
 def codec_document(facts: dict) -> bool:
-    """A holon-facts/0.1 document, a linked codec document or (I67) a Go-op document: its laws use the codec terms
-    (I24)."""
+    """A holon-facts/0.1 document, a linked codec document, (I67) a Go-op document or (I90) a count document: its laws
+    use the codec terms (I24)."""
     return isinstance(facts, dict) and (facts.get("facts_version") == "holon-facts/0.1"
                                         or facts.get("linked_version") == "holon-linked/0.1"
-                                        or facts.get("goops_version") == "holon-goops/0.1")
+                                        or facts.get("goops_version") == "holon-goops/0.1"
+                                        or facts.get("gocount_version") == "holon-gocount/0.1")
 
 
 def refs(law: dict, facts: dict, oracles=None, lib=None, root: Path | str | None = None) -> dict:
@@ -691,10 +744,25 @@ def _oracles(oracles):
     return Oracles(oracles)
 
 
+def tree_refs(law: dict, root: Path | str | None = None) -> dict:
+    """The refs `holon run` and G2 hash a 0.3 law with on the tree at root (holon.mpipeline.check_registry_multi's
+    inputs): its facts as holon.facts loads them, the target library under root and the oracle sidecar of its
+    milestone's model (Oracles.for_milestone)."""
+    from .. import facts as F
+    from .oracles import Oracles
+    root = Path(root or ROOT)
+    rel = law["facts"]
+    return refs(law, F.load(root / rel), Oracles.for_milestone(law["milestone"], root / rel, root), None, root)
+
+
+def tree_law_hash(law: dict, root: Path | str | None = None) -> str:
+    """holon.ir.statement_hash of a law with tree_refs (resolved only for a 0.3 law)."""
+    return ir.statement_hash(law, lambda l: tree_refs(l, root))
+
+
 def law_hash(law: dict, facts: dict | None, oracles=None, lib=None, root: Path | str | None = None) -> str:
-    """The law's statement hash: 0.1/0.2 over the hashed keys; 0.3 with its refs into `facts`, the target library
-    `lib` (default: the law's facts' libraries under root) and, for hyp premises and oracle parameters, the oracle
-    sidecar `oracles` (I12; default: the one its milestone's model takes, milestone_oracles)."""
-    if law.get("ir_version") == "holon-ir/0.3":
-        return ir.statement_hash(law, refs=refs(law, facts or {}, oracles, lib, root))
-    return ir.statement_hash(law)
+    """The law's statement hash (holon.ir.statement_hash, the one implementation, under the law's hash scheme): 0.1/0.2
+    over the hashed keys; 0.3 with its refs into `facts`, the target library `lib` (default: the law's facts' libraries
+    under root) and, for hyp premises and oracle parameters, the oracle sidecar `oracles` (I12; default: the one its
+    milestone's model takes, milestone_oracles), resolved only for a 0.3 law."""
+    return ir.statement_hash(law, lambda l: refs(l, facts or {}, oracles, lib, root))

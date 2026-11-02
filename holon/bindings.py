@@ -47,8 +47,10 @@ bindings of new laws and drops those of laws no longer in laws/<m>, but it chang
 only through the statement lifecycle (I10; audit F-M2-09): every changed law needs an accepted entry of
 laws/STATEMENT_DIFF.jsonl (holon.statement_diff.scan) for exactly that law and its current statement, either a
 statement change (strengthening, weakening, reextraction) when its statement hash changed, a catalog_rederivation
-(F30) when the statement hash is all that changed in the binding, or a binding_change naming every definition whose
-kernel form changed under the fixed statement. --accept-change "<reason>" is the
+(F30) when the statement hash is all that changed in the binding, a binding_change naming every definition whose
+kernel form changed under the fixed statement, or (I68) a remodel of the law's model, which its own check
+(holon.statement_diff._remodel) accepts only when nothing but the cone changed; --remodel LICENSE appends those entries
+first (holon.statement_diff.remodel_entries, each checked before it is appended). --accept-change "<reason>" is the
 human-readable reason, logged with the covering entry line numbers; it is no longer sufficient on its own. Gate G2
 re-derives the bindings from the committed models and checks that every change line logged after the log was
 introduced (holon.statement_diff.cutoff_commit) maps to such accepted entries (check_change_log). Off git that
@@ -314,6 +316,66 @@ def _pinit(law: dict) -> bool:
     return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == RULE and law.get("subform") == SUBFORM
 
 
+def _nat(law: dict) -> bool:
+    """A NAT law (I29): a holon-ir/0.3 law of rule NAT over a versioned document. holon.rules.nat_run decides it over
+    the versioned layer and its claims module, and emits its law file (holon.rules.nat_run.law_file)."""
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == "NAT"
+
+
+def _nat_run():
+    """holon.rules.nat_run, imported by name (as holon.versions is) so that NAT's decider stays out of the M1-M3
+    records' closure."""
+    import importlib
+    return importlib.import_module("holon.rules.nat_run")
+
+
+_N_QUAL = re.compile(r"(?<![\w.])N\.")
+
+
+def nat_layer_entries(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict[str, str]:
+    """BendTT entry name -> its full text for a NAT law: the versioned layer with the claims module's definitions
+    appended unqualified (its imports dropped, `M.` removed), translated together with the version modules the layer
+    imports (an imported module's entries are named by its file's stem): one module, as the UNDO and FACT sections."""
+    nr = _nat_run()
+    nctx = nr.NatCtx(Path(root), m)
+    layer = nctx.layer_path().resolve()
+    files, todo = {}, [layer.name]
+    while todo:
+        name = todo.pop()
+        if name in files:
+            continue
+        text = (layer.parent / name).read_text()
+        files[name] = text
+        todo.extend(_LOCAL_IMPORT.findall(text))
+    claims = nctx.module_path().read_text()
+    body = "\n".join(ln for ln in claims.splitlines() if not ln.startswith("import "))
+    files[layer.name] = files[layer.name].rstrip("\n") + "\n\n" + re.sub(r"(?<![\w.])M\.", "", body) + "\n"
+    try:
+        shown = nctx.module_path().relative_to(Path(root)).as_posix()
+    except ValueError:
+        shown = nctx.module_path().name
+    return dict(_layer_entries_cached(tuple(sorted(files.items())), layer.name,
+                                      json.dumps(cfg, sort_keys=True) if cfg else "", shown))
+
+
+def _bundle(law: dict) -> bool:
+    """A bundle law of holon-rules/1.10 (I84, holon.rules.bundle2: PAR link_domain, FACT public_input, DISCH
+    self_controlled): a holon-ir/0.3 law whose claim is a bundle term of those sub-forms (the term's id names them:
+    holon.rules.bundle_terms; holon-rules/1.11's are _bundle_law's). holon.bundle2.laws_decide decides it over the typed
+    model at the laws' deployment and the claims module (which holds the callee's model's copy), and writes its law
+    file."""
+    from .rules import bundle2, bundle_terms
+    return bundle_terms.law_owner(law) is bundle2
+
+
+def _bundle_files(law: dict, m: str, root: Path) -> tuple[Path, Path]:
+    """(the typed model at the laws' deployment, the claims module) of a bundle law: the bundle-laws sidecar's
+    outputs.claims_dir (spec/<m>/lib/bundle2_laws.json)."""
+    side = json.loads((Path(root) / "spec" / m / "lib" / "bundle2_laws.json").read_text())
+    d = Path(root) / side["outputs"]["claims_dir"]
+    return d / "rollup.bend", d / "claims.bend"
+
+
 def _versions(name: str):
     """A holon.versions module, imported by name (as holon.fact.proofs is) so that the versioned layer's generator
     stays out of the M1-M3 records' closure."""
@@ -321,12 +383,13 @@ def _versions(name: str):
     return importlib.import_module(f"holon.versions.{name}")
 
 
-def _bundle(law: dict) -> bool:
-    """A bundle law (I86, holon.rules.bundle): a holon-ir/0.3 law whose claim is a bundle term. holon.bundle.lawrun
-    decides it over its member's law model and claims module, and emits its law file (holon.bundle.lawrun.law_file)."""
-    c = (law.get("statement") or {}).get("claim") or {}
-    return law.get("ir_version") == "holon-ir/0.3" and any(isinstance(x, dict) and isinstance(x.get("bundle"), str)
-                                                          for x in c.get("eq") or [])
+def _bundle_law(law: dict) -> bool:
+    """A bundle law of holon-rules/1.11 (I86, holon.rules.bundle): a holon-ir/0.3 law whose claim is a bundle term of
+    its sub-forms (the term's id names them: holon.rules.bundle_terms; holon-rules/1.10's are _bundle's).
+    holon.bundle.lawrun decides it over its member's law model and claims module, and emits its law file
+    (holon.bundle.lawrun.law_file)."""
+    from .rules import bundle, bundle_terms
+    return bundle_terms.law_owner(law) is bundle
 
 
 def _lawrun():
@@ -339,8 +402,8 @@ def _lawrun():
 _C_QUAL = re.compile(r"(?<![\w.])C\.")
 
 
-def _bundle_kernel_text(law: dict, m: str, root: Path) -> str:
-    """The kernel form's source of a bundle law: its law model followed by its claims module unqualified (the claims'
+def _bundle_law_kernel_text(law: dict, m: str, root: Path) -> str:
+    """The kernel form's source of an I86 bundle law: its law model followed by its claims module unqualified (the claims'
     imports dropped, `M.` removed), one module BendTT translates whole; a claims definition named like a model
     definition is an error, never a silent shadow."""
     lr = _lawrun()
@@ -422,14 +485,37 @@ def _undo_kernel_text(law: dict, m: str, root: Path) -> str:
     return model.rstrip("\n") + "\n\n" + "\n".join(keep) + "\n"
 
 
+def _bundle_kernel_text(law: dict, m: str, root: Path) -> str:
+    """The kernel form's source of a bundle law: the typed model at the laws' deployment followed by the claims module
+    unqualified (its imports dropped, `M.` removed), one module BendTT translates whole, as a FACT law's."""
+    mp, cp = _bundle_files(law, m, root)
+    model = mp.read_text()
+    section = _M_QUAL.sub("", _IMPORT_LINE.sub("", cp.read_text()))
+    own = set(records.model_defs(model))
+    keep, drop = [], False
+    for line in section.splitlines():
+        top = _TOP.match(line)
+        if top:
+            drop = top.group(1) in own
+        elif line and not line[0].isspace() and not line.startswith("#"):
+            drop = False
+        if not drop:
+            keep.append(line)
+    return model.rstrip("\n") + "\n\n" + "\n".join(keep) + "\n"
+
+
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
-    if _bundle(law):   # I86: the member's law model (holon.bundle.laws: I69's model, or the adopted member's)
+    if _bundle(law):   # I84: the claims module gen/<m>/bundle2/claims/claims.bend (its record's artifacts.model)
+        return _bundle_files(law, m, root)[1]
+    if _bundle_law(law):   # I86: the member's law model (holon.bundle.laws: I69's model, or the adopted member's)
         lr = _lawrun()
         lctx = lr.LawCtx(Path(root), m)
         return lctx.model_path(lr.site_of(lctx, law["law_id"])[1])
     if _pinit(law):   # I28: the versioned model gen/<m>/versions/models/<model>.bend (a link to the layer)
         return _versions("proofs").model_paths(m, root)[0]
+    if _nat(law):   # I29: the claims module gen/<m>/nat/models/<stem>_nat.bend (over the versioned layer)
+        return _nat_run().NatCtx(Path(root), m).module_path()
     if _undo(law):   # I27: the trace section gen/<m>/undo/models/<model>.bend
         return _trace_model(law, m, root)
     if _fact(law):   # I26: the FACT section gen/<m>/fact/models/<model>.fact.bend
@@ -445,6 +531,10 @@ def model_path(law: dict, m: str, root: Path) -> Path:
         return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['role']}.bend"
     if kind == "goops":   # I67 (rule Y8d): the Go-op component's model gen/<m>/model/<component>.bend
         return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['component']}.bend"
+    if kind == "gocount":   # I90 (rule C6d): the count component's model gen/<m>/model/<component>.bend
+        return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['component']}.bend"
+    if kind == "own":   # I35 (rule W11): the carrier's model gen/<m>/model/own_<stem>.bend
+        return root / "gen" / m / "model" / f"own_{F.load(root / law['facts'])['stem']}.bend"
     return root / "gen" / m / "model" / f"{model_name(law_facts(law, m, root))}.bend"
 
 
@@ -455,11 +545,22 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
-    if _bundle(law):   # I86: as holon.bundle.lawrun writes it (None: an existential law's counter-law, or a claim
+    if _bundle_law(law):   # I86: as holon.bundle.lawrun writes it (None: an existential law's counter-law, or a claim
         # the M3 model cannot express, CS3's outflow class)
         return _lawrun().law_file(law, m, root, statement_hash(law, m, root), counter)
+    if _bundle(law):   # I84: as holon.bundle2.laws_decide writes it; imported by name, as FACT's emitter is
+        import importlib
+        from .sorts.proofs3 import rel_import
+        LD = importlib.import_module("holon.bundle2.laws_decide")
+        laws_dir = Path(root) / "gen" / m / "laws" / law["law_id"]
+        mp, cp = _bundle_files(law, m, root)
+        hashes = [b["name"] for b in law["statement"].get("binders", []) if str(b.get("type", "")).startswith("Fn<")]
+        return LD.law_text(law, statement_hash(law, m, root), rel_import(laws_dir, mp), rel_import(laws_dir, cp),
+                           hashes, counter)
     if _pinit(law):   # I28: emitted as holon.versions.run writes it (holon.versions.proofs.law_file)
         return _versions("proofs").law_file(law, m, root, statement_hash(law, m, root), counter)
+    if _nat(law):   # I29: emitted as holon.rules.nat_run writes it (holon.rules.nat_run.law_file)
+        return _nat_run().law_file(law, m, root, statement_hash(law, m, root), counter)
     if _disch(law):   # I31: as holon.disch.run writes it (holon.disch.proofs.laws_text); an external law (an
         from .disch import proofs as DP   # existential law, never REFUTED) has no counter-law
         from .disch.section import tables
@@ -504,6 +605,7 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     kind = codec_kind(law, root)
     if kind is not None:   # I24: a codec law, emitted as holon.codecrun emits it
         from .gen import codec01 as C1
+        from .gen import gocount as GN
         from .gen import goloop as GG
         from .gen import linked as GL
         imp = f"{layout(m, root, law['law_id'])[2]}model/{model_path(law, m, root).name}"
@@ -513,8 +615,16 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
                 return GL.emit(law, F.load(fp), imp, counter=counter, note=note).text
             if kind == "goops":   # I67: as holon.codecrun writes a Go-op law's file (holon.gen.goloop.emit)
                 return GG.emit(law, F.load(fp), imp, counter=counter, note=note).text
+            if kind == "gocount":   # I90: as holon.codecrun writes a count law's file (holon.gen.gocount.emit)
+                return GN.emit(law, F.load(fp), imp, counter=counter, note=note).text
+            if kind == "own":   # I35: as holon.own_run writes an OWN law's file (holon.gen.ownheap.emit)
+                from .gen import ownheap as OH
+                try:
+                    return OH.emit(law, F.load(fp), imp, counter=counter, note=note).text
+                except OH.Unsupported:
+                    return None
             return C1.emit(C1.to01(law), F.load(fp), imp, counter=counter, header_note=note).text
-        except (GL.Unsupported, GG.Unsupported, C1.Unsupported):
+        except (GL.Unsupported, GG.Unsupported, GN.Unsupported, C1.Unsupported):
             return None
     imp = f"{layout(m, root, law['law_id'])[2]}model/{model_name(fp)}.bend"   # as the pipelines import it (I10)
     if law["ir_version"] == "holon-ir/0.1":
@@ -585,34 +695,39 @@ def model_definitions(m: str, rec: dict, root: Path = ROOT) -> set[str]:
 
 # ---------------------------------------------------------------- derive, compare, write
 def statement_hash(law: dict, m: str, root: Path) -> str:
-    """The registry's hash of a law: 0.1/0.2 over the IR; 0.3 with its refs (holon.gen.refs.law_hash), the oracle
-    sidecar of an M2+ milestone included, as `holon run` and G2 compute it."""
-    if law.get("ir_version") != "holon-ir/0.3":
-        return ir.statement_hash(law)
-    from .gen import refs as R
-    from .gen.oracles import Oracles
-    from .mpipeline import m2plus
-    fp = Path(root) / law_facts(law, m, root)
-    return R.law_hash(law, F.load(fp), oracles=Oracles.for_facts(fp) if m2plus(m) else None, root=root)
+    """The registry's hash of a law (holon.ir.statement_hash under its hash scheme): 0.1/0.2 over the IR; 0.3 with its
+    refs (holon.gen.refs), the oracle sidecar of an M2+ milestone included, as `holon run` and G2 compute it."""
+    def refs(law):
+        from .gen import refs as R
+        from .gen.oracles import Oracles
+        from .mpipeline import m2plus
+        fp = Path(root) / law_facts(law, m, root)
+        return R.refs(law, F.load(fp), Oracles.for_facts(fp) if m2plus(m) else None, None, root)
+    return ir.statement_hash(law, refs)
 
 
 def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
-    if _bundle(law):   # I86: the law model and the claims module as one module; C. roots are the claims module's
+    if _bundle_law(law):   # I86: the law model and the claims module as one module; C. roots are the claims module's
         st = _emit(law, m, root, counter=False)
         if st is None:   # CS3's outflow class: no claim over the M3 model, so the binding is its statement hash alone
             return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
                     "statement_sha256": None, "counter_sha256": None, "cone": {}}
         cfg = cfg or bend.config(root)
-        entries = dict(_entries_cached(_bundle_kernel_text(law, m, root), json.dumps(cfg, sort_keys=True) if cfg else "",
-                                       mp.relative_to(root).as_posix()))
+        entries = dict(_entries_cached(_bundle_law_kernel_text(law, m, root),
+                                       json.dumps(cfg, sort_keys=True) if cfg else "", mp.relative_to(root).as_posix()))
         c = kernel_cone(_C_QUAL.sub("M.", st), entries)
         return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
                 "statement_sha256": text_sha256(st), "counter_sha256": counter_binding(law, m, root),
                 "cone": {d: hashlib.sha256(entries[d].encode()).hexdigest() for d in c}}
-    if _undo(law) or _fact(law):   # I27, I26: the typed model and the section as one module; U./F. roots are its own
+    if _bundle(law):   # I84: the typed model at the laws' deployment and the claims module as one module
+        cfg = cfg or bend.config(root)
+        entries = dict(_entries_cached(_bundle_kernel_text(law, m, root),
+                                       json.dumps(cfg, sort_keys=True) if cfg else "", mp.relative_to(root).as_posix()))
+        c = kernel_cone(_F_QUAL.sub("M.", statement_text(law, m, root)), entries)
+    elif _undo(law) or _fact(law):   # I27, I26: the typed model and the section as one module; U./F. roots are its own
         cfg = cfg or bend.config(root)
         entries = dict(_entries_cached(_undo_kernel_text(law, m, root), json.dumps(cfg, sort_keys=True) if cfg else "",
                                        mp.relative_to(root).as_posix()))
@@ -620,6 +735,9 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     elif _pinit(law):   # I28: the layer translated with the version modules it imports
         entries = layer_entries(mp, cfg or bend.config(root))
         c = kernel_cone(statement_text(law, m, root), entries)
+    elif _nat(law):   # I29: the layer and the claims module as one module (N. roots are the claims module's)
+        entries = nat_layer_entries(law, m, root, cfg or bend.config(root))
+        c = kernel_cone(_N_QUAL.sub("M.", statement_text(law, m, root)), entries)
     else:
         entries = kernel_entries(mp, cfg or bend.config(root))
         c = kernel_cone(statement_text(law, m, root), entries)
@@ -702,6 +820,21 @@ def main_bind(args) -> int:
         print(f"wrote {p.relative_to(root)}: {len(new['laws'])} laws bound (logged in {CHANGES})")
         return 0
     old = json.loads(p.read_text())
+    if getattr(args, "remodel", None):   # I68: the remodel entries first, each checked by holon.statement_diff.append
+        from .statement_diff import append as sd_append, remodel_entries
+        es, notes = remodel_entries(m, root, args.remodel)
+        for n in notes:
+            print(f"no remodel entry: {n}", file=sys.stderr)
+        rejected = []
+        for e in es:
+            r = sd_append(e, root)
+            print(f"{e['law_id']}: remodel {'appended' if r['ok'] else 'REJECTED'}: {r['reason']}")
+            if not r["ok"]:
+                rejected.append(e["law_id"])
+        if rejected or notes:
+            print(f"refusing to rebind: {len(rejected)} remodel entries rejected, {len(notes)} laws need another kind",
+                  file=sys.stderr)
+            return 1
     only = [x.strip() for x in (getattr(args, "laws", None) or "").split(",") if x.strip()]
     if only:   # rebind only these laws: every other law keeps its current binding, or stays unbound
         unknown = sorted(set(only) - set(new["laws"]))
@@ -767,14 +900,16 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
     definition, emitted statement, counter-law or model changed; anything more needs its own entry). F33: a
     binding_change whose statement hash moved with an accepted catalog_rederivation (its "statement_hash" bridge, which
     its own acceptance verified) covers a rebinding that changes the hash and the cone together; hashes: (bound,
-    current) statement hashes, which must then be the bridge's (None: not compared)."""
+    current) statement hashes, which must then be the bridge's (None: not compared). PV2A: a hash_migration (the law
+    moved to hash scheme 2) covers a rebinding exactly as a catalog_rederivation does. I68: an accepted remodel covers
+    a rebinding that changes the cone alone (its check compared the two bindings, _remodel (a))."""
     from .statement_diff import core
     if not isinstance(e, dict) or (e.get("law_id") or (e.get("new") or {}).get("law_id")) != lid:
         return False
     if not isinstance(e.get("new"), dict) or (law is not None and core(e["new"]) != core(law)):
         return False
     if stmt_changed:
-        if e.get("kind") == "catalog_rederivation":
+        if e.get("kind") in ("catalog_rederivation", "hash_migration"):   # F30; PV2A: a scheme move changes no claim
             return hash_only and not defs
         br = e.get("statement_hash")
         if e.get("kind") == "binding_change" and isinstance(br, dict):
@@ -782,8 +917,11 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
                     and set(defs) <= set(e.get("defs") or [])
                     and (hashes is None or (br.get("old"), br.get("new")) == tuple(hashes)))
         return e.get("kind") in ("strengthening", "weakening", "reextraction")
-    return (e.get("kind") == "binding_change" and isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"])
-            and set(defs) <= set(e.get("defs") or []))
+    if e.get("kind") == "remodel":   # I68: its check accepted a change of the cone alone (holon.statement_diff._remodel)
+        return isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"]) and bool(defs)
+    # a fixed statement: a binding_change, or (I83) a model_extension, naming every changed definition
+    return (e.get("kind") in ("binding_change", "model_extension") and isinstance(e.get("old"), dict)
+            and core(e["old"]) == core(e["new"]) and set(defs) <= set(e.get("defs") or []))
 
 
 def hash_only_change(x: dict, y: dict) -> bool:
@@ -792,7 +930,7 @@ def hash_only_change(x: dict, y: dict) -> bool:
 
 
 def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_defs: dict):
-    """({law: STATEMENT_DIFF line}, [(law, why)]) for the changed laws. With none (laws only added or removed) there is
+    """({law: STATEMENT_DIFF line id, or line number for a line without one}, [(law, why)]) for the changed laws. With none (laws only added or removed) there is
     nothing to cover, so the accepted entries' proofs are not re-checked (I67: that re-check takes most of an hour)."""
     if not changed:
         return {}, []
@@ -805,22 +943,77 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
         hs = (a[lid].get("statement_hash"), b[lid].get("statement_hash"))
         n = next((n for n, e in sorted(entries.items())
                   if entry_covers(e, lid, current.get(lid), sc, law_defs[lid], ho, hs)), None)
-        if n is None:
+        if n is not None and isinstance(entries[n].get("id"), str):
+            n = entries[n]["id"]   # PV2A: a line with an id is named by it, not by its line number
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
                                  + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
                                     "catalog_rederivation when nothing else in its binding changed" if sc else
-                                    f"its statement is fixed: a binding_change naming {law_defs[lid]}") + ")"))
+                                    f"its statement is fixed: a binding_change or a model_extension naming "
+                                    f"{law_defs[lid]}, or a licensed remodel") + ")"))
         else:
             covered[lid] = n
     return covered, missing
+
+
+def _json_line(b: bytes):
+    try:
+        return json.loads(b) if b.strip() else None
+    except ValueError:
+        return None
+
+
+def resolve_covered(n, commit, log_at, where: dict, by_id: dict | None = None) -> tuple[list[int], str | None]:
+    """(I83; the coordinator's decision, revocable) The lines of the current laws/STATEMENT_DIFF.jsonl that a change line's
+    covered_by number n names. For a change line appended by `commit`, n is a line of the log as it was at that commit:
+    its exact text there (log_at(commit): that version's lines, or None when it cannot be read: a problem, never a fall
+    back to the position), found by that text in the current file (where: {line text: [current line numbers]}). A lead
+    merge appends other lines before a branch's own, so only the content is a stable address. For a change line not yet
+    committed (commit None), n is a current line number, as before. PV2A: n may instead be a line id ("sha256:..",
+    holon.statement_diff.line_id), which names the current lines carrying it (by_id), whichever commit appended either
+    line. Returns (current line numbers, problem or None)."""
+    if isinstance(n, str) and n.startswith("sha256:"):
+        hits = list((by_id or {}).get(n, []))
+        return (hits, None) if hits else ([], f"laws/STATEMENT_DIFF.jsonl has no line with id {n}")
+    if not isinstance(n, int) or isinstance(n, bool):
+        return [], "its covered_by entry is not a line number"
+    if commit is None:
+        return [n], None
+    old = log_at(commit)
+    if old is None:
+        return [], (f"laws/STATEMENT_DIFF.jsonl cannot be read at {commit[:12]}, the commit that appended the change line "
+                    "(a shallow clone?)")
+    if not 0 < n <= len(old):
+        return [], f"laws/STATEMENT_DIFF.jsonl has no line {n} at {commit[:12]}, the commit that appended the change line"
+    return list(where.get(old[n - 1], [])), None
+
+
+def change_line_problems(ln: dict, i: int, commit, entries: dict, log_at, where: dict,
+                         by_id: dict | None = None) -> list[str]:
+    """What keeps change line i (ln; appended by `commit`, None while not committed) from naming, for each law it
+    rebinds, an accepted laws/STATEMENT_DIFF.jsonl entry that covers it (entries: {current line number: accepted
+    entry}; resolve_covered maps its covered_by numbers to current lines)."""
+    probs = []
+    cov = ln.get("covered_by") if isinstance(ln.get("covered_by"), dict) else {}
+    defs = ln.get("law_defs") if isinstance(ln.get("law_defs"), dict) else {}
+    for lid in ln.get("laws") or []:
+        ld = defs.get(lid, ln.get("defs") or [])   # a catalog_rederivation covers a line only when it logs no def
+        cands, why = resolve_covered(cov.get(lid), commit, log_at, where, by_id)
+        ok = why is None and any(e is not None and (entry_covers(e, lid, None, True, ld) or
+                                                    entry_covers(e, lid, None, False, ld))
+                                 for e in (entries.get(k) for k in cands))
+        if not ok:
+            probs.append(f"{CHANGES}: post-I10 line {i} rebinds {lid} without an accepted laws/STATEMENT_DIFF.jsonl entry "
+                         "covering it" + (f": {why}" if why else ""))
+    return probs
 
 
 def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     """G2 (audit F-M2-09): every change line of spec/bindings/changes.jsonl for milestone m logged after
     laws/STATEMENT_DIFF.jsonl was introduced maps each changed law to an accepted entry that covers it; the log
     extends its version at that commit and every committed version (append-only). Lines before the I10 commit
-    are grandfathered. Returns (problems, note); off git the check cannot run, and the note says so."""
-    from .statement_diff import blob_at, cutoff_commit, in_git, merged_lines
+    are grandfathered. A committed change line's covered_by numbers are read at the commit that appended it (I83:
+    resolve_covered). Returns (problems, note); off git the check cannot run, and the note says so."""
+    from .statement_diff import LOG, _line_origins, blob_at, cutoff_commit, in_git, line_id, merged_lines
     root = Path(root)
     if not in_git(root):
         return [], "binding change log not checked: no git history (a copied tree)"
@@ -831,12 +1024,32 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     data = p.read_bytes() if p.exists() else b""
     base = blob_at(root, cut, CHANGES.as_posix()) or b""
     problems = []
-    if not data.startswith(base) or merged_lines(data, p, root)[2]:   # append-only, merges included
+    spans, side, mprobs = merged_lines(data, p, root)
+    if not data.startswith(base) or mprobs:   # append-only, merges included
         problems.append(f"{CHANGES} does not extend its committed versions (append-only)")
         return problems, ""
     entries = _accepted_entries(root, m)
-    n_lines = 0
-    for i, raw in enumerate(data[len(base):].decode("utf-8", errors="replace").splitlines(), start=1):
+    where: dict = {}
+    by_id: dict = {}   # PV2A: a line id -> the current lines that carry it (a covered_by entry may name a line by its id)
+    for k, x in enumerate((root / LOG).read_bytes().splitlines() if (root / LOG).exists() else [], start=1):
+        where.setdefault(x, []).append(k)
+        e = _json_line(x)
+        if isinstance(e, dict) and isinstance(e.get("id"), str) and e["id"] == line_id(e):
+            by_id.setdefault(e["id"], []).append(k)
+    logs: dict = {}
+
+    def log_at(commit: str):
+        if commit not in logs:
+            b = blob_at(root, commit, LOG.as_posix())
+            logs[commit] = None if b is None else b.splitlines()
+        return logs[commit]
+
+    committed_len = spans[-1][0] if spans else 0
+    origins = None
+    n_lines, offset = 0, len(base)
+    for i, rawb in enumerate(data[len(base):].splitlines(keepends=True), start=1):
+        start, offset = offset, offset + len(rawb)
+        raw = rawb.decode("utf-8", errors="replace")
         if not raw.strip():
             continue
         try:
@@ -847,13 +1060,14 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
         if not isinstance(ln, dict) or ln.get("milestone") != m or ln.get("created"):
             continue
         n_lines += 1
-        cov = ln.get("covered_by") if isinstance(ln.get("covered_by"), dict) else {}
-        defs = ln.get("law_defs") if isinstance(ln.get("law_defs"), dict) else {}
-        for lid in ln.get("laws") or []:
-            e = entries.get(cov.get(lid)) if isinstance(cov.get(lid), int) else None
-            ld = defs.get(lid, ln.get("defs") or [])   # a catalog_rederivation covers a line only when it logs no def
-            ok = e is not None and (entry_covers(e, lid, None, True, ld) or entry_covers(e, lid, None, False, ld))
-            if not ok:
-                problems.append(f"{CHANGES}: post-I10 line {i} rebinds {lid} without an accepted "
-                                "laws/STATEMENT_DIFF.jsonl entry covering it")
+        # the commit that appended it: along HEAD's first-parent chain, or the oldest side version holding it (a line a
+        # merge brought in); None only for a line beyond every committed version (not yet committed)
+        commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(rawb)
+        # a line a merge on HEAD's first-parent chain brought in from another line of history was appended by the oldest
+        # commit whose version holds it, and its covered_by numbers are lines of the log at THAT commit: a lead-first
+        # merge numbers the log differently at the merge commit (as statement_diff does for model_extension lines)
+        if commit is not None:
+            origins = origins if origins is not None else _line_origins(p, root)
+            commit = origins.get(rawb, commit)
+        problems += change_line_problems(ln, i, commit, entries, log_at, where, by_id)
     return problems, f"{n_lines} post-I10 binding change lines of {m}, each covered by an accepted statement-diff entry"

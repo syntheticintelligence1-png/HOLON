@@ -5,7 +5,10 @@
 // answer per line, {"out": value, "keys": {"kh": [hex..], "sh": [hex..]}, "calls": [[to hex | null, data hex]..]} or
 // {"error": msg}. "keys" are the byte strings the run looked up in its hash tables (the parameters keccak256 and
 // sha256), "calls" the external calls it looked up in its environment (the receiver when the call names one): the
-// caller adds their answers and asks again (a fixpoint), as a refuter or the refinement harness supplies them.
+// caller adds their answers and asks again (a fixpoint), as a refuter or the refinement harness supplies them. A
+// structural model's answers also carry "sk": the storage keys its sload and sstore took (I68: "b/o" then "/k:o" per
+// hashed step, each word as 0x-hex), so the caller can add their real words to the pre-state (the R5 fixpoint) and
+// map them to real slots; the model never computes a real slot.
 //
 // A request may carry "native": <caller id> (look the hash tables up in the evaluator's maps of that caller, which
 // "tsync" keeps equal to the caller's tables; the model's table arguments are then unused) and "tsync": {table:
@@ -22,7 +25,7 @@ import { pathToFileURL } from "node:url";
 
 const path = process.argv[2];
 let text = readFileSync(path, "utf8");
-const HOOK = { kh: new Set(), sh: new Set(), calls: new Map() };
+const HOOK = { kh: new Set(), sh: new Set(), calls: new Map(), sk: new Set() };
 globalThis.__holonHook = HOOK;
 // observe the hash-table and call lookups (the functions keep their compiled bodies)
 function hook(name, body) {
@@ -47,6 +50,13 @@ hook("hs_get", "function $hs_get$(xs, k) { const h = globalThis.__holonHook; h.s
   "try { return $hs_get$__holon(xs, k); } finally { h.cur = h.kh; } }");
 hook("c_find", "function $c_find$(xs, to, bt, d) { const k = (bt ? __holonWord(to) : '-') + ' ' + __holonHex(d); " +
   "globalThis.__holonHook.calls.set(k, 1); return $c_find$__holon(xs, to, bt, d); }");
+// (I68) the structural keys a run reads and writes: SK{b, o, p} as "b/o/k1:o1/..", words as 0x-hex
+text += "\nfunction __holonSK(k) { if (!k || k.$ !== 'SK') return null; let s = __holonWord(k.b) + '/' + __holonWord(k.o); " +
+  "for (let c = k.p; c.$ === 'Con'; c = c.tail) s += '/' + __holonWord(c.head.k) + ':' + __holonWord(c.head.o); return s; }\n";
+hook("sload", "function $sload$(s, k) { const x = __holonSK(k); if (x !== null) globalThis.__holonHook.sk.add(x); " +
+  "return $sload$__holon(s, k); }");
+hook("sstore", "function $sstore$(s, k, v) { const x = __holonSK(k); if (x !== null) globalThis.__holonHook.sk.add(x); " +
+  "return $sstore$__holon(s, k, v); }");
 // the hooked module is named by the sha256 of its own text (A30 review): the compiled module's directory is shared by
 // every version of this driver (the cache is keyed by the model text only), so a fixed name could import another
 // driver's hooks (one without the native lookup, whose every native h_get would answer zero). It is written to a
@@ -174,6 +184,7 @@ for await (const line of rl) {
     HOOK.kh = new Set();
     HOOK.sh = new Set();
     HOOK.calls = new Map();
+    HOOK.sk = new Set();
     HOOK.cur = HOOK.kh;
     HOOK.native = !!req.native;
     if (HOOK.native) {
@@ -191,6 +202,7 @@ for await (const line of rl) {
       if (req.save) STORE.set(req.save, out);
     }
     ans = { out: req.quiet ? null : dec(out), keys: { kh: [...HOOK.kh].sort(), sh: [...HOOK.sh].sort() },
+            sk: [...HOOK.sk].sort(),
             calls: [...HOOK.calls.keys()].sort().map((k) => {
               const [to, d] = k.split(" ");
               return [to === "-" ? null : to, d];

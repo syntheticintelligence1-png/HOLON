@@ -37,8 +37,11 @@ def dumps(obj) -> str:
 
 
 def _goops(doc: dict) -> bool:
+    """A Go-level component's document: a Go-op document (I67) or a count document (I90, rule C8 of
+    tests_m3/test_go_counts.py), as I81's instrument reads every law over gen/<M>/goops/."""
+    from .diagram.gocount import is_gocount
     from .diagram.goops import is_goops
-    return is_goops(doc)
+    return is_goops(doc) or is_gocount(doc)
 
 
 def _panic_outcome() -> str:
@@ -70,7 +73,8 @@ def channel(ctx: Ctx, lid: str, law: dict, rec: dict) -> tuple[str, str]:
         a = step.get("action")
         if (ctx.actions(law).get(a) or {}).get("mutability") in VIEWS:
             return "view", f"K3: the first divergent step, t[{i}], is a call of the view {a}"
-        ow, oo = e["with"]["model"][e["t_at"] + i], e["without"]["model"][e["t_at"] - 2 + i]
+        # the run without the pair has t at t_at - 2; a cancel law's keeps y, at t_at_without (I71)
+        ow, oo = e["with"]["model"][e["t_at"] + i], e["without"]["model"][e.get("t_at_without", e["t_at"] - 2) + i]
         if ow.get("status") != oo.get("status"):
             return "revert", (f"K3: the first divergent step, t[{i}], a call of {a}, is {ow.get('status')} in one run and "
                               f"{oo.get('status')} in the other")

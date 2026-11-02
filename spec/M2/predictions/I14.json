@@ -1,0 +1,142 @@
+{
+  "title": "Evidence calculus (E1-E6) and frozen evidence set",
+  "plan": "docs/BUILD_PLAN.md#i14",
+  "prompt": "prompts/I14_evidence.md",
+  "predictions": [
+    {
+      "id": "I14-P1",
+      "claim": "(enc_sol, dec_go) and (enc_go_v1, dec_go) have E1 on all v0/v1 fields, operationalized per version and field by getter recovery over the layout algebra (rule E1 of the tests_m2/test_evidence.py contract): the evidence set holds one E1 inverse atom (CODEC.enc_sol, CODEC.dec_go) at each of versions 0, 1 and 2, recovering every active getter except sequencerSetVerifyHash (v0: the 10 other v0 fields; v1 and v2: those plus lastBlockNumber), because enc_sol stores 32 zero bytes at 185; one at version 1 for (CODEC.enc_go_v1, CODEC.dec_go) recovering every v1 field except version, and one at version 0 for (CODEC.enc_go_v0, CODEC.dec_go) recovering every v0 field except version, because the Go encoders write a constant version byte. So 'all v0/v1 fields' holds except exactly those two fields, each already a known obstruction (L_par_hdr_ssvh; the constant Go version byte of whitepaper 5.1).",
+      "check": "tests_m2/test_evidence.py::TestPredictions::test_e1_on_the_codec_pairs_field_by_field"
+    },
+    {
+      "id": "I14-P2",
+      "claim": "Exactly 7 E1 atoms, all in morph_header: the 5 inverse atoms of I14-P1 and two common-decoder atoms, (CODEC.enc_go_v0, CODEC.enc_sol) at version 0 on the 9 fields both recover and (CODEC.enc_go_v1, CODEC.enc_sol) at version 1 on 10 (batchIndex .. withdrawRootHash, parentBatchHash, lastBlockNumber); no E1 atom relates enc_sol and enc_go_v1 at version 2, since enc_go_v1's version label (I11: the constant it writes at the version slot) is 1.",
+      "check": "tests_m2/test_evidence.py::TestPredictions::test_e1_common_decoder_atoms_and_none_at_version_2"
+    },
+    {
+      "id": "I14-P3",
+      "claim": "(commit*, revertBatch) have E2 on the BVH residue: for each of commitBatch, commitState and commitBatchWithProof there is an E2 atom p = TRANS.revertBatch, q = TRANS.<commit>, via {carrier: s_bvh, writes: [\"*\"], reads: [\"parent+1\"]} (revertBatch writes the residue with s_bvh := concat(es_bvh(moved), s_bvh), a precise whole write through a generic builtin; each commit reads it through bvh_at at parent + 1); none of the three pairs is unresolved, and no E2 atom runs from a commit to revertBatch through s_bvh (revertBatch does not read it).",
+      "check": "tests_m2/test_evidence.py::TestPredictions::test_e2_on_the_bvh_residue"
+    },
+    {
+      "id": "I14-P4",
+      "claim": "The previous-state-root guard gives E3: one E3 atom at each reason-14 guard: commitBatch guards[19], commitState guards[18] and commitBatchWithProof guards[23], all at Rollup.sol:314, comparing get(w(lfi, win, parent), csr) with prev; and finalizeBatch guards[9] at Rollup.sol:635-638, comparing nth(fsr, idx - 1) with get(w(lfi, win, idx), prev).",
+      "check": "tests_m2/test_evidence.py::TestPredictions::test_previous_state_root_guards_give_e3"
+    },
+    {
+      "id": "I14-P5",
+      "claim": "Exactly 9 E3 atoms, all in morph_rollup: the 4 of I14-P4, parent == lci at Rollup.sol:312 in the three commits (guards[18], [17], [22]), lfi + 1 == idx at Rollup.sol:643 (finalizeBatch guards[11]) and qpend == btot - bn at L1MessageQueueWithGasPriceOracle.sol:325 (finalizeBatch guards[14]); comparisons with a literal or a parameter (rri == 0, who == OWNER, proof == 1, ...) give none, and morph_header and morph_batchdata give none.",
+      "check": "tests_m2/test_evidence.py::TestPredictions::test_the_e3_inventory"
+    },
+    {
+      "id": "I14-P6",
+      "claim": "Exactly 2 E4 atoms: (TRANS.commitBatch -> TRANS.commitBatchWithProof) and (TRANS.commitBatchWithProof -> TRANS.commitBatch), both for blob_hash(ver, blobs), stored by each in effects.win and recomputed by the other; no other stored call takes only action inputs.",
+      "check": "tests_m2/test_evidence.py::TestPredictions::test_the_e4_inventory"
+    },
+    {
+      "id": "I14-P7",
+      "claim": "Against I13's frozen assignment (t: Time, W: Dur, <commit>.cstart: Time): in each of the three commits, an E5 atom at the reason-16 guard (commitBatch guards[23], commitState guards[22], commitBatchWithProof guards[27]; op <=, operands t and W + cstart, sort Time, Rollup.sol:363) and one at the let prt (guards[24], [23], [28]; op -, operands W + cstart and t, sort Time, Rollup.sol:360-364); no E5 atom is located at LOAD.obs.tags_ok.",
+      "check": "tests_m2/test_evidence.py::TestPredictions::test_e5_at_the_signed_duration_site_and_not_at_the_ghost_tag_observer"
+    },
+    {
+      "id": "I14-P8",
+      "claim": "Exactly 3 E6 atoms in morph_header, between the three encoders (parallel Header -> Bytes CODEC edges whose cited code names share tokens under spec/M2/lib/evidence_lexical.json): (enc_go_v0, enc_go_v1) on batch, bytes, header; (enc_go_v0, enc_sol) and (enc_go_v1, enc_sol) on batch, header.",
+      "check": "tests_m2/test_evidence.py::TestPredictions::test_e6_between_the_header_encoders"
+    },
+    {
+      "id": "I14-P9",
+      "claim": "GEVID's verdict on the E5 claims, against I13's frozen assignment: L_sort_remaining's E5 is computed (no mismatch on E5): its statement names reason 16, hence the three commits, whose :363 guard and :360-364 let compare or subtract t and W + cstart, both Time. L_tag_BVH's E5 is not computed and GEVID lists it as missing: its statement names only the observer tags_ok, whose body tags_exact(win) holds no comparison, and the registers it is about (Entry.bvh, s_bvh) carry the union Dig[Agg] + Dig[VH], which is no identical refined sort (section 7.4).",
+      "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_gevid_verdicts_on_the_e5_claims"
+    },
+    {
+      "id": "I14-P10",
+      "claim": "GEVID on M0 is report-only and passes, and exactly two laws carry metadata evidence the frozen set does not compute: L_dom_hdr missing [E2] (its predicates name only dec_go, and no atom relates dec_go to itself) and L_par_hdr_v2 missing [E1] (the encoders' common-decoder E1 is at version 1; the law fixes version 2). Computed levels: L_dom_hdr []; L_par_hdr_ssvh, L_par_hdr_v0, L_par_hdr_v1 [E1, E6]; L_par_hdr_v2 [E6]; L_rt_go_v0, v1, v2 [E1, E2].",
+      "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_m0_report_shape"
+    },
+    {
+      "id": "I14-P11",
+      "claim": "GEVID on M1 is report-only and passes, and exactly two laws carry metadata evidence the frozen set does not compute: L_nat_eta2 missing [E2] (every write-then-read through eta2, legacy or csr_last passes win through a builtin that declares no access kind, so it is unresolved, not evidence) and L_tag_BVH missing [E2, E5] (E2 likewise through tags_exact; E5 as in I14-P9); L_fact_Z's E4 is computed; every other M1 law's metadata evidence is computed. No E2 atom ends at tags_ok, csr_last or new_hdr, and (commitBatch, tags_ok, win) is unresolved with imprecise [read].",
+      "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_m1_report_shape and tests_m2/test_evidence.py::TestPredictions::test_observer_reads_through_kindless_builtins_are_unresolved"
+    },
+    {
+      "id": "I14-P12",
+      "claim": "L_par_hdr_ssvh's evidence_triage is finding (its strongest computed level is E1, at version 1), against its v1 triage intent_question, and GEVID lists it as a divergence; its record carries evidence_triage finding next to the unchanged v1 triage.",
+      "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_ssvh_evidence_triage_is_finding_and_a_divergence"
+    },
+    {
+      "id": "I14-P13",
+      "claim": "The divergence list (laws whose evidence_triage differs from their v1 triage) is exactly L_par_hdr_ssvh (finding vs intent_question) and L_par_hdr_v2 (intent_question vs finding: at version 2 only E6 relates enc_sol and enc_go_v1); M1 has none (every REFUTED M1 law has strong evidence or none, and evidence_triage defaults to finding).",
+      "check": "tests_m2/test_evidence_gate.py::TestGevidPredictions::test_the_divergence_list"
+    },
+    {
+      "id": "I14-P14",
+      "kind": "construction",
+      "claim": "Construction check, not counted toward prediction accuracy: `python -m holon evidence --milestone M2` writes gen/M2/evidence.json in the contract's format (header, hashed inputs drawn only from the frozen set, the lexical sidecar as the only vocabulary, schema-valid, sorted unique ids derived from the via, endpoints that are edges and never STORE/LOAD aggregates, anchors that follow the diagrams), evidence_sha256 is the hash of its body and sorts_sha256 the frozen assignment's, two runs are byte-identical and equal the committed file, the build API renders the same bytes, and holon/diagram/evidence.py holds no target name derived from the fact documents and libraries, neither as a compound identifier anywhere nor, short names included, as a string literal; anchors.sites follows the frozen assignment's sites.",
+      "check": "tests_m2/test_evidence.py::TestEvidenceFile::test_cli_writes_the_document_with_its_header and tests_m2/test_evidence.py::TestEvidenceFile::test_inputs_are_hashed_and_the_only_vocabulary_is_the_lexical_sidecar and tests_m2/test_evidence.py::TestEvidenceFile::test_evidence_and_sorts_hashes and tests_m2/test_evidence.py::TestEvidenceFile::test_document_validates_against_the_evidence_schema and tests_m2/test_evidence.py::TestEvidenceFile::test_atom_ids_endpoints_and_order and tests_m2/test_evidence.py::TestEvidenceFile::test_anchors_follow_the_diagrams and tests_m2/test_evidence.py::TestEvidenceFile::test_two_runs_are_byte_identical_and_match_the_committed_file and tests_m2/test_evidence.py::TestEvidenceFile::test_build_api_equals_the_cli and tests_m2/test_evidence.py::TestEvidenceFile::test_the_pass_holds_no_target_name and tests_m2/test_evidence.py::TestEvidenceFile::test_the_pass_quotes_no_target_name"
+    },
+    {
+      "id": "I14-P15",
+      "kind": "construction",
+      "claim": "Construction check, not counted: the definitions are pinned on planted fixtures before the pass runs on Morph (tests_m2/fixtures/evidence/expected.json): the toy codec and toy machine give exactly the planted atoms of every level and the planted unresolved pairs (each planted-absent case absent), law_evidence gives the exact named/context/version/levels/max of 14 fixture laws, evidence_triage follows the table, the build is independent of document order, and holon.layout.recovers/evidence follow rule E1. On the Morph documents every atom is re-derived by an independent instrument (E1 from holon.layout.layout, E2 terms from the diagram, E3/E5 nodes from the facts, E6 from the documented tokenizer).",
+      "check": "tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_every_planted_atom_and_nothing_else and tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_unresolved_pairs_through_a_kindless_builtin and tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_levels_planted_absent_by_kind and tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_document_shape_on_the_fixture and tests_m2/test_evidence_fixture.py::TestFixtureAtoms::test_build_does_not_depend_on_the_order_of_the_documents and tests_m2/test_evidence_fixture.py::TestFixtureLaws::test_law_evidence_on_every_fixture_law and tests_m2/test_evidence_fixture.py::TestFixtureLaws::test_triage_table and tests_m2/test_evidence_fixture.py::TestLayoutAPI::test_recovers_and_evidence and tests_m2/test_evidence.py::TestSoundness::test_e1_atoms_equal_the_layout_algebra and tests_m2/test_evidence.py::TestSoundness::test_e2_atoms_use_terms_of_the_diagram and tests_m2/test_evidence.py::TestSoundness::test_e3_and_e5_atoms_point_at_their_nodes and tests_m2/test_evidence.py::TestSoundness::test_e6_atoms_equal_the_frozen_tokenizer"
+    },
+    {
+      "id": "I14-P16",
+      "kind": "construction",
+      "claim": "Construction check, not counted: GEVID is a gate check right after GREF; `holon gate --checks GEVID` passes report-only on copies of M0 and M1 with the same report as the API; it fails, naming what failed, on a tampered evidence file, a drifted input, a stale record field, a malformed override, an override on a law that is not REFUTED or names no law, and a registry whose evidence_sha256 differs; from M2 on it is enforcing (a planted law whose metadata evidence is not computed fails it, the same law with empty metadata passes); a planted holon-ir/0.3 SORT-site law with no evidence key (I15's form) passes enforcing mode, named through anchors.sites with every TRANS edge as context; a valid override is listed and moves the effective triage and the divergence list.",
+      "check": "tests_m2/test_evidence_gate.py::TestGateWiring::test_gevid_follows_gref_in_the_check_order and tests_m2/test_evidence_gate.py::TestGateWiring::test_the_gate_runs_gevid_report_only_on_m0_and_m1 and tests_m2/test_evidence_gate.py::TestGevidFailures::test_a_tampered_evidence_file_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_a_drifted_input_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_a_stale_record_field_fails_naming_the_law and tests_m2/test_evidence_gate.py::TestGevidFailures::test_a_malformed_override_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_an_override_on_a_law_that_is_not_refuted_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_an_override_naming_no_law_fails and tests_m2/test_evidence_gate.py::TestGevidFailures::test_enforcing_from_m2_fails_on_a_metadata_mismatch and tests_m2/test_evidence_gate.py::TestGevidFailures::test_from_m2_the_registry_must_carry_the_evidence_sha and tests_m2/test_evidence_gate.py::TestOverrides::test_a_valid_override_is_listed_and_moves_the_divergence and tests_m2/test_evidence_gate.py::TestGevidFailures::test_an_ir_0_3_site_law_without_metadata_passes_enforcing"
+    },
+    {
+      "id": "I14-P17",
+      "kind": "construction",
+      "claim": "Construction check, not counted: every M0/M1 record carries evidence_levels, evidence_triage and evidence_override equal to the recomputation from the committed evidence set (no override committed), and the v2 schema requires the three fields and rejects malformed values. Whenever laws/M2/REGISTRY.json exists (I15), its evidence_sha256 equals gen/M2/evidence.json's, GEVID passes on M2, and every SORT-site law there carries no evidence key and names exactly its site's actions.",
+      "check": "tests_m2/test_evidence_gate.py::TestRecords::test_records_carry_the_recomputed_evidence_fields and tests_m2/test_evidence_gate.py::TestRecords::test_the_v2_schema_requires_the_fields and tests_m2/test_evidence_gate.py::TestRecords::test_no_override_is_committed and tests_m2/test_evidence_gate.py::TestRegistry::test_the_m2_registry_carries_the_evidence_sha_whenever_it_exists and tests_m2/test_evidence_gate.py::TestRegistry::test_m2_site_laws_name_their_actions_whenever_they_exist"
+    },
+    {
+      "id": "I14-P18",
+      "kind": "construction",
+      "claim": "Construction check, not counted (honesty): the evidence set is computed from the diagram and the frozen assignment only. On a copy mutated with I13's honesty mutations (tests_m2/test_sorts_honesty.py), the diagram and sorts regenerated each time: stripping every site annotation, note and sort-stating doc leaves the atoms, unresolved entries and anchors byte-equal (ids included); renaming the rollup facts' hand-chosen identifiers renames them and changes nothing else (ids and site hashes aside).",
+      "check": "tests_m2/test_evidence_honesty.py::TestEvidenceHonesty::test_stripping_hand_hints_changes_no_atom and tests_m2/test_evidence_honesty.py::TestEvidenceHonesty::test_renaming_fact_identifiers_renames_the_evidence_and_nothing_else"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I14-R1",
+      "claim": "The 24 M0/M1 statuses and statement hashes are unchanged.",
+      "check": "tests_m2/test_records_v2.py::TestRecordsV2::test_statuses_unchanged and tests_m2/test_records_v2.py::TestRecordsV2::test_statement_hashes_unchanged"
+    },
+    {
+      "id": "I14-R2",
+      "claim": "The v1 triage of every M0/M1 record is unchanged (frozen tests pin it to the predictions; evidence-derived values go only to v2 fields, BUILD_PLAN invariant 10).",
+      "check": "tests_m2/test_evidence_gate.py::TestRecords::test_v1_triage_is_unchanged"
+    },
+    {
+      "id": "I14-R3",
+      "claim": "gen/M0 and gen/M1 are byte-identical (GEN_PIN).",
+      "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged"
+    },
+    {
+      "id": "I14-R4",
+      "claim": "gen/M2/diagram and gen/M2/sorts are unchanged and regenerate byte for byte (the evidence set reads them; it never writes them).",
+      "check": "tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files"
+    },
+    {
+      "id": "I14-R5",
+      "claim": "Gates M0 and M1 pass, with GEVID (report-only) among their checks.",
+      "check": "gate"
+    }
+  ],
+  "outcome_paths": [
+    "gen/M2/evidence.json",
+    "results/M0/",
+    "results/M1/",
+    "config/evidence_overrides.json"
+  ],
+  "tests": [
+    "tests_m2/test_evidence.py",
+    "tests_m2/test_evidence_fixture.py",
+    "tests_m2/test_evidence_gate.py",
+    "tests_m2/test_evidence_honesty.py"
+  ],
+  "thresholds": {}
+}

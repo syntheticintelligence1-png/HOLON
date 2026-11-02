@@ -1,0 +1,1046 @@
+{
+  "capacity": {
+    "C": 126976,
+    "K": 126975
+  },
+  "codec": {
+    "capacity": "morph-l2/common/blob.MaxBlobBytesSize",
+    "dec": "morph-l2/common/codec/zstd.DecompressBatchBytes",
+    "enc": "morph-l2/common/blob.CompressBatchBytes",
+    "library": "github.com/morph-l2/morph-da-codec/bindings/codec",
+    "retrieve": "morph-l2/common/batch.RetrieveBlobBytes",
+    "split": "morph-l2/common/blob.MakeBlobTxSidecar",
+    "split_blobs": "Blobs"
+  },
+  "command": "(cd common && go test ./blob -run ^TestHolonCompressionOracle$ -count=1 -v)",
+  "compression_oracle_version": "holon-compression-oracle/0.1",
+  "document": {
+    "path": "spec/M3/facts/morph_blob.go.extracted.json",
+    "sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e"
+  },
+  "empty": {
+    "dec_empty": "error: empty input",
+    "enc_len": 0,
+    "enc_nil": true,
+    "pipeline": {
+      "blobs": 1,
+      "dec": "error: morph da zstd decode: invalid frame",
+      "padded_len": 126976,
+      "zero": true
+    }
+  },
+  "expansion": {
+    "enc_len_at_limit": 126984,
+    "exceeding": {
+      "count": 8,
+      "interval": true,
+      "min": 126969
+    },
+    "kind": "stream",
+    "limit": 126976,
+    "overhead": 8,
+    "window": [
+      125953,
+      126976
+    ]
+  },
+  "hypotheses": {
+    "HypZ": {
+      "K": 126975,
+      "decodes": 330,
+      "detail": "checked on the sample (a test, not a proof): at 33 points the pipeline and every padding up to K = 126975 gave x back (330 decodes)",
+      "failures": [],
+      "points": 33,
+      "statement": "forall x with |x| >= 1, forall k <= K: Dec(Enc(x) ++ 0^k) = x",
+      "status": "checked"
+    },
+    "HypZ_len": {
+      "detail": "checked on the sample (a test, not a proof): |Enc x| <= CB(|x|) at 33 points; the largest |Enc x| - |x| is 11",
+      "failures": [],
+      "max_excess": 11,
+      "points": 33,
+      "statement": "forall x: |Enc(x)| <= CB(|x|), with CB(n) = n + (n >> 8) + (n < 131072 ? (131072 - n) >> 11 : 0), zstd's ZSTD_COMPRESSBOUND",
+      "status": "checked"
+    }
+  },
+  "library": {
+    "module": "github.com/morph-l2/morph-da-codec/bindings/codec",
+    "version": "v0.0.0-20260727095527-681727561e38"
+  },
+  "points": [
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 6,
+      "enc_sha256": "422119fea8cfd2c3a7c97f68154cdbe1d277b9c7c9230960092c2099a1b7ead6",
+      "kind": "zero",
+      "n": 1,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126970,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 7,
+      "enc_sha256": "1a00199e9c1b7442963567c7aeb21ffe99e5d6661148fb4c1c6e73eebbd028d2",
+      "kind": "zero",
+      "n": 2,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126969,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 13,
+      "enc_sha256": "cf9524d10f350fe5e54617466db5c52d040a68585537363c23292e1254675e5b",
+      "kind": "zero",
+      "n": 31,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126963,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "fd08be957bda07dc529ad8100df732f9ce12ae3e42bcda6acabe12c02dfd6989"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 13,
+      "enc_sha256": "257e4945a17c85d64b5519536615c14e9d0bf18dd333b82238fbbbcbea9f8b98",
+      "kind": "zero",
+      "n": 32,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126963,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 13,
+      "enc_sha256": "08e76097b298c9ed645a8cd26c0c6b3fd755cd77d1abc38d9f4a391ae3f3371f",
+      "kind": "zero",
+      "n": 60,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126963,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "5dcc1b5872dd9ff1c234501f1fefda01f664164e1583c3e1bb3dbea47588ab31"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 15,
+      "enc_sha256": "72f5c8970ee0077007eceac92aa79972a73c87e87775ef8b65351885442375c2",
+      "kind": "zero",
+      "n": 1000,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126961,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 15,
+      "enc_sha256": "1e559cd09035cc1588578cc271a48ee2f0be277193ad3c6f191b9334b44a490b",
+      "kind": "zero",
+      "n": 4096,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126961,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 18,
+      "enc_sha256": "152b511d3c7b7b7abfc3e8f52d11686dbf89db06f2eec547ec34c6358b19aee2",
+      "kind": "zero",
+      "n": 126975,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126958,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "642d9f097e48f7b52e970cbea2dc3d62ba57e0970a567f1cde9d845455d0df01"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 18,
+      "enc_sha256": "1290cab5cb1407e453bb810fe740b0ddce883c62cab6c7532d214b78a05411aa",
+      "kind": "zero",
+      "n": 126976,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126958,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "21e836296e5d5f708fb790c964659b1e8256be494310bb7cdb43617eb99751ed"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 18,
+      "enc_sha256": "f8fe10dfe0ff3b3e763a7b85e2b29377b4603ab962bcd7fb8ecc524aa7f36784",
+      "kind": "zero",
+      "n": 126977,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126958,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "c6f76770a094a54f6b35a5c8470899cae1fa478c636c9aee4812d335bfa540dd"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 22,
+      "enc_sha256": "88af7a6fbc6e16438ff6aff4cf04c568a82684a1c61598b772185908b2280a55",
+      "kind": "zero",
+      "n": 253952,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126954,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "5132a24b01320fb085912c4da9e4c7cebe6c0f2a5dd43f277b4138e8d6d4e9b3"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 6,
+      "enc_sha256": "422119fea8cfd2c3a7c97f68154cdbe1d277b9c7c9230960092c2099a1b7ead6",
+      "kind": "ramp",
+      "n": 1,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126970,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 7,
+      "enc_sha256": "ce9ce8bfe86bf71ca8c805eb99d6c870ccabdd9546c371147b960583424670a4",
+      "kind": "ramp",
+      "n": 2,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126969,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "b413f47d13ee2fe6c845b2ee141af81de858df4ec549a58b7970bb96645bc8d2"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 36,
+      "enc_sha256": "46536a266d55b69e8713038c47fccfa426d686c34b7e34a4d0fd3c933e2e92ed",
+      "kind": "ramp",
+      "n": 31,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126940,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "4f23c2ca8c5c962e50cd31e221bfb6d0adca19111dca8e0c62598ff146dd19c4"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 37,
+      "enc_sha256": "014445bfca47a7c94e435a131a1052257859ca2dd03b65510630c93a803cda41",
+      "kind": "ramp",
+      "n": 32,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126939,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "630dcd2966c4336691125448bbb25b4ff412a49c732db2c8abc1b8581bd710dd"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 65,
+      "enc_sha256": "d9eb6d32f8444bb359476346f4dcd803341e8d74b24a6037dbf91fa452f2217a",
+      "kind": "ramp",
+      "n": 60,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126911,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "0ddde28e40838ef6f9853e887f597d6adb5f40eb35d5763c52e1e64d8ba3bfff"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 272,
+      "enc_sha256": "15513b2991d204307bd421408fcd8324abd18eeada6c0d40adfdfac61cc24114",
+      "kind": "ramp",
+      "n": 1000,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126704,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "a8af099bf2e878609558dbf69d8f88f4a31040a8cf84b549a0cfa912f12ffc3f"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 272,
+      "enc_sha256": "07a8953a132b4f845e6cbb1a20523eaf004d16c205e9e0c0a3d367bc63c87bfb",
+      "kind": "ramp",
+      "n": 4096,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126704,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "c8f5d0341d54d951a71b136e6e2afcb14d11ed8489a7ae126a8fee0df6ecf193"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 275,
+      "enc_sha256": "182a0b0ae59a6415feadc7ae69fd1f41f0ebbada36b74254b265c18d51310fd0",
+      "kind": "ramp",
+      "n": 126975,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126701,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "ec8d57f9d506ef529ecb5156721bd6589bfaf660b1949728af569f3b17a04df3"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 275,
+      "enc_sha256": "57e83dd66281c6d3479df39b6504bf6084dee753a80cf5c0f6621291693cda9a",
+      "kind": "ramp",
+      "n": 126976,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126701,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "19cfc30acb36f28f8380e39be4a83bf367ca3308c97a2b3a59a9772d6dfbe4f0"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 275,
+      "enc_sha256": "797d1a5b168c03180d62da48817417ea134548c983cf704b1ffa20b7fd3c33d9",
+      "kind": "ramp",
+      "n": 126977,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126701,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "1ba584057cbdb23ad1ec78c91f1389f377b33282f9d81b9886dd1efef175a687"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 287,
+      "enc_sha256": "4844cc337da2afee51382225531f3a33bed0a6601d46bc880d927e00a5002c35",
+      "kind": "ramp",
+      "n": 253952,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126689,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "ee27c51770c0117f678729460be82b4dc2a0c03986788451b77a0cd05724ec05"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 6,
+      "enc_sha256": "c13f2e1bb4f782b308017458b018a3e5792d138dcd8ff97d75be34e937535b2f",
+      "kind": "stream",
+      "n": 1,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126970,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "d1bbd73bb09190bfb883056771e22e997541ed20079793bf33975fe1654581c3"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 7,
+      "enc_sha256": "8ac8effdc4ecb443c170d8c7540cbce8300d2d7ad590d6110583f349d4f69c0a",
+      "kind": "stream",
+      "n": 2,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126969,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "64967acafc8fb9e80c7439cc68b32880f5b3586fcb445711f77b7e0299e20e14"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 36,
+      "enc_sha256": "52eb98aaa2f34a3cc88da0a328589658a7a7ed18ede08b3dbc83afbb06860f0f",
+      "kind": "stream",
+      "n": 31,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126940,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "d8a9acd95690020e2a5d245a7a669cb0beba59367980e6e9c166ebb6c2a0befe"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 37,
+      "enc_sha256": "66bbc8dcee5a5e99dffb0229ca468e6c10fff262f600e306e9cabbe53ee36c71",
+      "kind": "stream",
+      "n": 32,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126939,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "7514793d3af3a561be6986719e55a0fc64a4f308eaf35013690cacf4b9ed3c86"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 65,
+      "enc_sha256": "7c7156d898bee36f550ca33696a4b919059aaf2d5ec1c6b1a4a10d202a234307",
+      "kind": "stream",
+      "n": 60,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 126911,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "1912cbe00e6fd4210ab2fbe903c56a5043fec3039b47028a2ea01c94a4001f9b"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 1006,
+      "enc_sha256": "9d24682e9bda3d5905f9d6868a819d666c01186227f824ccc6f6b7b556829689",
+      "kind": "stream",
+      "n": 1000,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 125970,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "0772ec72d6bd9ce3cc3a0cc1337043289658f8ec34883620cbd6372e3d9de83f"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 1,
+      "enc_error": null,
+      "enc_len": 4102,
+      "enc_sha256": "60afae4263eb7ef7e1b0588b62aa17059e6801df05011d99a2b8b0329be9877d",
+      "kind": "stream",
+      "n": 4096,
+      "padded_len": 126976,
+      "padded_ok": true,
+      "padding": 122874,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "63b4f8639002f4208ad35efe3c0816e8b3a39702798a0cf1400559530595a524"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 2,
+      "enc_error": null,
+      "enc_len": 126983,
+      "enc_sha256": "8fe18bb3629db382370b3084e6e7df9044442ccab7a52b2bcb37ef98baf4f3c9",
+      "kind": "stream",
+      "n": 126975,
+      "padded_len": 253952,
+      "padded_ok": true,
+      "padding": 126969,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "c9963155648d88f9ce183514a05b029438805a8ede5f62b422dd64b9dda2b7f5"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 2,
+      "enc_error": null,
+      "enc_len": 126984,
+      "enc_sha256": "b47f907e9606d2f67eafe6af27dd563a92d6746454a0c6edece175a860e4401c",
+      "kind": "stream",
+      "n": 126976,
+      "padded_len": 253952,
+      "padded_ok": true,
+      "padding": 126968,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "3a8ed804e697e9cd996fedabd0be6760e11885ce5a3169358c36f68b12bfc2a3"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 2,
+      "enc_error": null,
+      "enc_len": 126985,
+      "enc_sha256": "611be59b0456e929abc50907fe750e979f583fb1c9127be66f5c92e9650ecc12",
+      "kind": "stream",
+      "n": 126977,
+      "padded_len": 253952,
+      "padded_ok": true,
+      "padding": 126967,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "a702910ef565609e766ce23e20b1a48fd94b94da451952a78bfe7aba5d33c942"
+    },
+    {
+      "beyond": {
+        "126976": "ok",
+        "253952": "ok"
+      },
+      "blobs": 3,
+      "enc_error": null,
+      "enc_len": 253963,
+      "enc_sha256": "1d8a1bfb0a1c58d46e9a554836417943e1b5fecfaf3fe4670baf9fb1a0e48f2f",
+      "kind": "stream",
+      "n": 253952,
+      "padded_len": 380928,
+      "padded_ok": true,
+      "padding": 126965,
+      "paddings": {
+        "0": "ok",
+        "1": "ok",
+        "126974": "ok",
+        "126975": "ok",
+        "2": "ok",
+        "31": "ok",
+        "32": "ok",
+        "4096": "ok",
+        "65536": "ok"
+      },
+      "pipeline": "ok",
+      "x_sha256": "01b2ddd4e344d8ff72374ab0cdf188552231d1981267ef78f266845794832fa4"
+    }
+  ],
+  "sample": {
+    "beyond": [
+      126976,
+      253952
+    ],
+    "expansion": {
+      "kind": "stream",
+      "limit": 126976,
+      "window": 1024
+    },
+    "kinds": [
+      "zero",
+      "ramp",
+      "stream"
+    ],
+    "lengths": [
+      1,
+      2,
+      31,
+      32,
+      60,
+      1000,
+      4096,
+      126975,
+      126976,
+      126977,
+      253952
+    ],
+    "paddings": [
+      0,
+      1,
+      2,
+      31,
+      32,
+      4096,
+      65536,
+      126974,
+      126975
+    ],
+    "seed": "holon-i91-compression-oracle"
+  },
+  "sidecar": {
+    "path": "spec/M3/lib/compression.json",
+    "sha256": "7033f80b7cbc8f046ed87411aa2a4b267335ee7932c51963fbbc2eaaa705b175"
+  },
+  "target": {
+    "commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "repo": "morph-l2/morph"
+  },
+  "toolchain": "go1.24.7"
+}
