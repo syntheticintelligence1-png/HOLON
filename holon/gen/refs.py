@@ -52,9 +52,14 @@ refs is the transitive closure of what the statement names, over the facts def g
                      {"template": "holon.rules.nat/<subform>", "template_version": 1, "basis", "documents"}, recomputed
                      from the law's versioned document and the documents of the square's two versions
                      (holon.rules.nat.square_ref)
-  bundle:ID          a bundle term {"bundle": ID, "on": [...]} (I84): sha256 (hex) of canonical
-                     {"template": "holon.rules.bundle2/<subform>", "template_version": 1, "basis"}, recomputed from the
-                     milestone's bundle-laws sidecar, its declaration and documents (holon.rules.bundle2.bundle_ref)
+  bundle:ID          a bundle term {"bundle": ID, ...}, resolved by the module that owns the id's sub-form (its second
+                     field; holon.rules.bundle_terms): holon-rules/1.10's {"bundle": ID, "on": [...]} (I84): sha256
+                     (hex) of canonical {"template": "holon.rules.bundle2/<subform>", "template_version": 1, "basis"},
+                     recomputed from the milestone's bundle-laws sidecar, its declaration and documents
+                     (holon.rules.bundle2.bundle_ref); holon-rules/1.11's {"bundle": ID, ...} (I86): sha256 (hex) of
+                     canonical {"template": "holon.rules.bundle/<subform>", "template_version": 1, "subform", "member",
+                     "site"}, the site recomputed from the milestone's bundle-laws sidecar, declaration and documents
+                     (holon.rules.bundle.bundle_ref)
   site:ID            a SORT-site term {"site": ID, "on": A, "from": S} (I15): the site's spec as holon.sorts.sites
                      computes it from the facts and the SORT-site sidecar of the law's milestone (template id and
                      version, the basis element and the hit points), so G2 needs no derive output; the term also
@@ -415,10 +420,11 @@ class _Closure:
             for a in t["on"]:
                 self.term(a)
             return
-        if isinstance(t.get("bundle"), str) and isinstance(t.get("on"), list):   # a bundle term (I84)
+        if isinstance(t.get("bundle"), str):   # a bundle term (I84, I86): its ref, and the terms it applies to
             self.bundle(t["bundle"])
-            for a in t["on"]:
-                self.term(a)
+            for k in ("on", "from", "at", "env"):
+                if k in t:
+                    self.term(t[k])
             return
         if isinstance(t.get("undo"), str) and isinstance(t.get("on"), list):   # an UNDO term (I27)
             self.undo(t["undo"])
@@ -498,13 +504,17 @@ class _Closure:
         self.out["square:" + sid] = square_ref(sid, self.law, self.root)
 
     def bundle(self, bid: str) -> None:
-        """bundle:<ID>: the sha256 of the canonical {template, template_version, basis} of the bundle basis element whose
-        id is ID (holon.rules.bundle2.bundle_ref), recomputed from the milestone's bundle-laws sidecar, its declaration
-        and documents."""
+        """bundle:<ID>: the ref of the bundle term ID, from the module that owns its sub-form (holon.rules.bundle_terms):
+        holon-rules/1.10's (I84) the sha256 of the canonical {template, template_version, basis} of the bundle basis
+        element whose id is ID (holon.rules.bundle2.bundle_ref), holon-rules/1.11's (I86) the bundle law's site document
+        (holon.rules.bundle.bundle_ref), each recomputed from the milestone's bundle-laws sidecar, its declaration and
+        documents. An id of neither catalog's sub-forms is holon.rules.bundle2's (its absent ref)."""
         if "bundle:" + bid in self.out:
             return
+        from ..rules import bundle_terms
         from ..rules.bundle2 import bundle_ref
-        self.out["bundle:" + bid] = bundle_ref(bid, self.law, self.root)
+        own = bundle_terms.owner(bid)
+        self.out["bundle:" + bid] = (own.bundle_ref if own is not None else bundle_ref)(bid, self.law, self.root)
 
     def undo(self, uid: str) -> None:
         """undo:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the pair or residue
