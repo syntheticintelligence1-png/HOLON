@@ -6,6 +6,14 @@ the real pre-state, by I69's comparison (holon.bundle.refine.compare): status, r
 two oks, every member's storage at every slot a write of the step touches on either side, the members' logs, balances,
 outgoing calls and frames. Environment steps (waits, rolls) are run and tracked, not compared. Per-step rows in
 results/<M>/cutover/steps.json, totals in results/<M>/cutover/refinement.json (their recount is the instrument's).
+
+Rule M2 (RegistryModel): every corpus step whose top frame is the legacy registry also runs on the registry's model3
+model (holon.cutover.model, compiled to JavaScript: holon.sorts.evaluate3), from the registry's real pre-state with the
+answers its own calls received (the linked machine's, which agreed with the harness on the step), as I69's M4 runs a
+head member's steps: status, revert key, return data, the registry's storage at every slot either side writes, and its
+logs. A step in an action of the model's debt counts as unsupported. A frame of the registry under another member's
+call (the Rollup's calls at its sites) is counted, not compared: its calldata and answers are the linked machine's
+inner frame's, which M4's comparison does not take. Results in outputs.model_refinement.
 """
 from __future__ import annotations
 
@@ -128,6 +136,7 @@ def run(ctx: Ctx, log=print) -> dict:
     vname = versioned_member(ctx)
     rows, dis = [], []
     machine = Linked(ctx, drec, order)
+    regm = RegistryModel(ctx, drec, machine, log)
     for t, rec in zip(corpus["traces"], trs):
         machine.set_version(machine.a)
         st = {n: {} for n in order}
@@ -159,6 +168,7 @@ def run(ctx: Ctx, log=print) -> dict:
                     row["agree"] = False
                     dis.append({"trace": t["id"], "index": k, "label": step["label"], "observables": diff,
                                 "reason": mach.get("reason")})
+                regm.compare(t["id"], k, step["label"], r, real, frames, machine)
             rows.append(row)
             st = post
     by_version: dict = {}
@@ -178,6 +188,114 @@ def run(ctx: Ctx, log=print) -> dict:
         "unsupported": sum(1 for r in rows if r["unsupported"]), "by_version": dict(sorted(by_version.items())),
         "links": dict(sorted(links.items())), "details": dis,
         "toolchain": {k: tc[k] for k in ("forge_sha256", "solc_sha256", "sol_deps_sha256")}})
+    files[ctx.out("model_refinement")] = render(regm.record())
+    regm.close()
     log(f"{len(rows)} steps, {sum(1 for r in rows if not r['agree'])} disagreements, "
         f"{sum(1 for r in rows if r['unsupported'])} unsupported")
     return files
+
+
+class RegistryModel:
+    """Rule M2 (module docstring)."""
+
+    VERSION = "holon-cutover-refinement-models/0.1"
+
+    def __init__(self, ctx: Ctx, drec: dict, machine, log=print):
+        import hashlib
+        import json
+        from ..machine import ExtractedModel
+        from ..sorts.evaluate3 import Evaluator
+        from . import model as MD
+        self.ctx, self.name = ctx, MD.registry(ctx)
+        self.td = tempfile.TemporaryDirectory(prefix="holon-cutover-m2-")
+        init = {"binding": ctx.out("deployment"), "storage": drec["members"][self.name]["storage"]}
+        text, debt = MD.compile_registry(ctx, self.name, init)
+        self.debt = {a for a, _e in debt}
+        self.rec = {"model": f"{ctx.out('models')}/{self.name}.bend", "steps": 0, "disagreements": 0,
+                    "unexplained": 0, "unsupported": 0, "nested_frames": 0, "debt": sorted(self.debt),
+                    "model_sha256": hashlib.sha256((text or "").encode("utf-8")).hexdigest()}
+        self.details: list = []
+        self.ev = None
+        if text is not None:
+            p = Path(self.td.name) / f"{self.name}.bend"
+            p.write_text(text, encoding="utf-8")
+            rel = MD.document_rel(ctx, self.name)
+            data = ctx.path(rel).read_bytes()
+            doc = ExtractedModel(json.loads(data), MD.info_of(ctx, self.name), None, hashlib.sha256(data).hexdigest())
+            self.ev = Evaluator.build(p, doc)
+            log(f"M2: {self.name}'s model built ({len(self.debt)} actions in debt)")
+
+    def compare(self, trace: str, k: int, label: str, r, real: dict, frames: list, machine) -> None:
+        from ..replay_fragments import revert_key
+        n = self.name
+        if not frames:
+            return
+        if frames[0][2] != n:
+            self.rec["nested_frames"] += sum(1 for f in frames if f[2] == n)
+            return
+        self.rec["steps"] += 1
+        model = machine.models[n]
+        action = machine.by_sel[n].get(frames[0][3]) if frames[0][3] != "0x" else (
+            "receive" if "receive" in model.actions else None)
+        diff, reason, slots_bad = [], None, []
+        if action is None:
+            reason = "no action at the step's selector"
+        elif action in self.debt or self.ev is None:
+            reason = f"model debt: {action}"
+        else:
+            data = bytes.fromhex(r.data[2:])
+            try:
+                args = machine.decode(model, action, data)
+            except Exception as e:  # noqa: BLE001
+                args, reason = None, f"calldata: {e}"
+            if args is not None:
+                env = machine.env(n, r.caller, r.value, data, 0, [n])
+                env.pop("call_hook", None)
+                env.pop("return_data", None)
+                env["calls"] = machine.answers.get(0, [])
+                pre = {"0x%064x" % s_: "0x%064x" % v for s_, v in real["pre"][n].items()}
+                try:
+                    out = self.ev.step(pre, action, args, env)
+                except Exception as e:  # noqa: BLE001
+                    out = {"status": "unsupported", "reason": f"{type(e).__name__}: {e}"[:300]}
+                if out["status"] == "unsupported":
+                    reason = out.get("reason") or "unsupported"
+                elif out["status"] != real["status"]:
+                    diff.append("status")
+                elif out["status"] == "revert":
+                    if revert_key(out["revert"]) != revert_key(real["revert"]):
+                        diff.append("revert")
+                else:
+                    slots = set(real["touched"][n]) | {int(x, 16) for x in out["writes"]}
+                    post = dict(real["pre"][n])
+                    post.update({int(a, 16): int(b, 16) for a, b in out["writes"].items()})
+                    slots_bad = [{"slot": "0x%064x" % s_, "real": "0x%064x" % real["post"][n].get(s_, 0),
+                                  "model": "0x%064x" % post.get(s_, 0)}
+                                 for s_ in sorted(slots) if post.get(s_, 0) != real["post"][n].get(s_, 0)]
+                    if slots_bad:
+                        diff.append("storage")
+                    mine = [(t_, d) for m_, t_, d in real["logs"] if m_ == n]
+                    if mine != [([x.lower() for x in e["topics"]], e["data"].lower()) for e in out["events"]]:
+                        diff.append("events")
+                    outs = ((model.info.get("functions") or {}).get(model.actions[action].get("selector") or action)
+                            or {}).get("outputs")
+                    if outs and not diff:
+                        reason = "the model gives no return data (holon.sorts.model3 has no return value)"
+        if reason is not None:
+            self.rec["unsupported"] += 1
+        elif diff:
+            self.rec["disagreements"] += 1
+            self.rec["unexplained"] += 1
+        if reason is not None or diff:
+            self.details.append({"trace": trace, "step": k, "label": label, "action": action,
+                                 "observables": diff or ["unsupported"], "reason": reason, "slots": slots_bad[:16]})
+
+    def record(self) -> dict:
+        return {"refinement_models_version": self.VERSION, "corpus": self.ctx.ref(self.ctx.out("corpus")),
+                "observables": ["status", "revert", "return", "storage", "events"],
+                "members": {self.name: dict(self.rec)}, "details": {self.name: self.details}}
+
+    def close(self) -> None:
+        if self.ev is not None:
+            self.ev.close()
+        self.td.cleanup()
