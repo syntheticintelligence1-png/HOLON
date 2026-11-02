@@ -543,7 +543,8 @@ def nat_entries(milestone: str, root: Path) -> dict:
         dv = json.loads((Path(root) / "laws" / milestone / "DERIVATION.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
-    return {e["law_id"]: e for e in dv.get("laws") or [] if isinstance(e, dict) and e.get("rule") == N.RULE}
+    return {e["law_id"]: e for e in dv.get("laws") or []
+            if isinstance(e, dict) and e.get("rule") == N.RULE and e.get("subform") in N.SUBFORMS}
 
 
 def model_debt(nctx: NatCtx, vid: str) -> list:

@@ -1,0 +1,529 @@
+{
+ "corpus_version": "holon-cutover-corpus/0.1",
+ "deployment": {
+  "init": [
+   10,
+   53077,
+   40,
+   10,
+   20,
+   100,
+   1000000000000000000,
+   1,
+   3,
+   20,
+   1000000,
+   1000000,
+   1000000000000000000,
+   1,
+   20
+  ],
+  "keys": [
+   "t",
+   "chain_id",
+   "F",
+   "W",
+   "D",
+   "genesis_post",
+   "a.bond",
+   "a.deposit",
+   "a.lock_blocks",
+   "a.reward",
+   "a.gas_add",
+   "a.gas_remove",
+   "b.bond",
+   "b.deposit",
+   "b.reward"
+  ]
+ },
+ "roles": {
+  "admin": "@admin",
+  "c": "@w4",
+  "owner": "@harness",
+  "p": "@w5",
+  "s1": "@w2",
+  "s2": "@w3"
+ },
+ "sidecar": {
+  "path": "spec/M3/lib/cutover_slash.json",
+  "sha256": "84ee8684897e7c5b3d2aa570b551f06774bafe7827218be5315b4a2f0c82b850"
+ },
+ "traces": [
+  {
+   "id": "T1_legacy_slash",
+   "steps": [
+    {
+     "call": {
+      "args": [
+       [
+        "@w2",
+        "@w3"
+       ],
+       []
+      ],
+      "caller": "@harness",
+      "fn": "updateWhitelist(address[],address[])",
+      "to": "l1staking",
+      "value": 0
+     },
+     "label": "l1staking.updateWhitelist(s1,s2) by owner"
+    },
+    {
+     "call": {
+      "args": [
+       "0x0ebf3543169055a469704c1f58ceef7751857deeb0de848da64bc50dd13d9635",
+       "0xd78285523efcdbf12dac210d58acc31400da3e54f6b2d459837d85146eb1ed5ae9fffb8efa1555d7d3032a435cc563b25514855955d1d484c49e7e940cd6e570eeb3dbd7c5ae17ed44496bdd440d8e9665c0e9791ac0f4ef1f02c4d2be4716a66553cab0aef49a02fa2f5a06bb2d24f62d79cb6475d4f0b8205bdca66176663df9cd44f196dde1a8fb8834c8602750e24e21aa45c62f3d9901186b3e4d17c1d5d68ccf390d65caaeafbbd69e9eb3989bac490e3b08bac57829c3ccb3d9980c96988998513ab36ea069c3d00788f47a7cd841faa2c3569100009a476ea4242488dd974300129b4977135ab8694cfaabd7ec5e31c0c84dc9e2a1d28625ae12854c"
+      ],
+      "caller": "@w2",
+      "fn": "register(bytes32,bytes)",
+      "to": "l1staking",
+      "value": 1000000000000000000
+     },
+     "label": "l1staking.register by s1"
+    },
+    {
+     "call": {
+      "args": [
+       "0x38fc96bf4649e61a6c1a3e9553912d2d45375a26edfc210834b467a376ca4ef1",
+       "0xb667e1643d2de86cb8fe2d06c05e1661710b2c72677b26fe0e6a7bdbfca7ffa6b084b0863c20129083d5077fe0a230a0f50abd170e82b9b6859386d664590bc5bc0110b897d0eeba3b7cec2bb91d04d3298992f64eedd2a5eb57136ab2c2916d989327227509d7e14c4a914cc5668d736db6684b9ea1bd8960e28a4b49b76753fbae42dc69ca9f580186caf4fbe4ac10a1bfb040de8f933310809cc9af17d15401add422f1cdc7cd188cef8ef2462de2bc915e57c35ecfffffaf146e1cb3acb5d761d073353eec592c582ed9884c6f4f01c39a219d3728ce8650e0794deb4c93c765e257cd773e3b1b5634a6ce60c2ddc022802e8290a76488babf08b368f389"
+      ],
+      "caller": "@w3",
+      "fn": "register(bytes32,bytes)",
+      "to": "l1staking",
+      "value": 1000000000000000000
+     },
+     "label": "l1staking.register by s2"
+    },
+    {
+     "label": "rollup@V10.commitBatch by s1",
+     "row": [
+      1,
+      2,
+      0,
+      0,
+      0,
+      1,
+      100,
+      101,
+      0,
+      0,
+      0,
+      0
+     ],
+     "version": "V10"
+    },
+    {
+     "label": "rollup@V10.challengeState by c",
+     "row": [
+      5,
+      4,
+      1,
+      1
+     ],
+     "version": "V10"
+    },
+    {
+     "label": "warp proofWindow",
+     "row": [
+      10,
+      10
+     ]
+    },
+    {
+     "label": "rollup@V10.proveState by s2",
+     "row": [
+      6,
+      3,
+      1,
+      0
+     ],
+     "version": "V10"
+    },
+    {
+     "label": "rollup@V10.claimReward by c",
+     "row": [
+      22,
+      4
+     ],
+     "version": "V10"
+    }
+   ]
+  },
+  {
+   "id": "T2_cutover_slash",
+   "steps": [
+    {
+     "call": {
+      "args": [
+       [
+        "@w2",
+        "@w3"
+       ],
+       []
+      ],
+      "caller": "@harness",
+      "fn": "updateWhitelist(address[],address[])",
+      "to": "l1staking",
+      "value": 0
+     },
+     "label": "l1staking.updateWhitelist(s1,s2) by owner"
+    },
+    {
+     "call": {
+      "args": [
+       "0xab14c26572bc0051da9ef0b1d5a6a7f56b8577850457e52dad414a212a870edc",
+       "0x159b6bf95287d933dd1a9d87daf2d505ec670f976ca4d27adb4fb197197456c4684469265cc99e83f713f4ea7a45a7cbd529b49956566a5041ab84ae9bc09a92909c60b20e726b831d216db270c9ffe4fbd2c4d2d351563a897685ce6d386bf0f327760cabd99ec1b15e25cc35967259887b2708bb876ab499d515167ffcecd35048c5292092f175434764d9ce258a7f04f9a45b031511d81a4a18b55dbbe6f80fdc23affa2755cf5702944e61b6ff0e8250e6455ddb0b09622f0bc33f1aef588c559d17daa1b8629b20ffdac29ac6944bd8a8a29eff810bde6c46388169188734f4eca81d2e135502775e05ce65f5036db27126c404efb20a30f8d2e892b2cc"
+      ],
+      "caller": "@w2",
+      "fn": "register(bytes32,bytes)",
+      "to": "l1staking",
+      "value": 1000000000000000000
+     },
+     "label": "l1staking.register by s1"
+    },
+    {
+     "call": {
+      "args": [
+       "0xa9745ffe97191d3cc171d672075e16d1191286eb160f6766930d1275a896c80f",
+       "0x1fa305249914505631097b03107e71d97cf8086c577bf0cf13396d90b0971f02b2ad40cf553ef927dbfa95a96489b2316d740df47f0dced1cb52c99e5ec837749628dc5a05fb382e56e37c5061c296872b394ca954f13ce95d24780964bcc3a9b520fbd31ee7883a2840869c5575df1e982bdbd4870c03b56e1eeee8f09d251c40d69ea0ca24722e981ec6f44813446e692092456b49b2a71137377356050a2a0a2b8fb5025218b4b109c29d21bca61d9b24d4b911ca85447e64c0ba6f3c61b01460e1aec5287b0670ae3669e8316f21057e870cd6716c39761382176eb85a806a712d76cb460e822d2934df8b0169b799556bafa987bcb98275190dcc35655b"
+      ],
+      "caller": "@w3",
+      "fn": "register(bytes32,bytes)",
+      "to": "l1staking",
+      "value": 1000000000000000000
+     },
+     "label": "l1staking.register by s2"
+    },
+    {
+     "label": "rollup@V10.commitBatch by s1",
+     "row": [
+      1,
+      2,
+      0,
+      0,
+      0,
+      1,
+      100,
+      101,
+      0,
+      0,
+      0,
+      0
+     ],
+     "version": "V10"
+    },
+    {
+     "call": {
+      "args": [
+       "@v11",
+       {
+        "args": [
+         "@submitter",
+         1
+        ],
+        "fn": "initialize4(address,uint256)"
+       }
+      ],
+      "caller": "@admin",
+      "fn": "upgradeToAndCall(address,bytes)",
+      "to": "rollup",
+      "value": 0
+     },
+     "label": "cutover by admin: upgradeToAndCall(V11, initialize4(submitter, lastCommittedBatchIndex))",
+     "version": "V10->V11"
+    },
+    {
+     "call": {
+      "args": [
+       "@w5"
+      ],
+      "caller": "@harness",
+      "fn": "addSubmitter(address)",
+      "to": "submitter",
+      "value": 0
+     },
+     "label": "submitter.addSubmitter(p) by owner"
+    },
+    {
+     "call": {
+      "args": [
+       "@w5"
+      ],
+      "caller": "@w5",
+      "fn": "stake(address)",
+      "to": "submitter",
+      "value": 1000000000000000000
+     },
+     "label": "submitter.stake(p) by p"
+    },
+    {
+     "label": "rollup@V11.challengeState by c",
+     "row": [
+      5,
+      4,
+      1,
+      1
+     ],
+     "version": "V11"
+    },
+    {
+     "label": "warp proofWindow",
+     "row": [
+      10,
+      10
+     ]
+    },
+    {
+     "label": "rollup@V11.proveState by p",
+     "row": [
+      6,
+      5,
+      1,
+      0
+     ],
+     "version": "V11"
+    },
+    {
+     "label": "rollup@V11.claimReward by c",
+     "row": [
+      22,
+      4
+     ],
+     "version": "V11"
+    }
+   ]
+  },
+  {
+   "id": "T3_native_slash",
+   "steps": [
+    {
+     "call": {
+      "args": [
+       [
+        "@w2",
+        "@w3"
+       ],
+       []
+      ],
+      "caller": "@harness",
+      "fn": "updateWhitelist(address[],address[])",
+      "to": "l1staking",
+      "value": 0
+     },
+     "label": "l1staking.updateWhitelist(s1,s2) by owner"
+    },
+    {
+     "call": {
+      "args": [
+       "0xc30104fca76285ddf63270a039c9b18dfbde548de08ce6328b188877d116acb0",
+       "0x6fd53085690a57d5e89886e8012f37813a2b2fdda635bb8d5be51049de4439bf41a4c0bbb28fb5035d0959eceb529c5b536646afbc72a872380dc95d28ec064660e733a90e6a2e719b04db8f95cdeb816001fdbabab890e2bc2c2d5f480b36dcc62aa13ce00be9e5ac55bec6a9e8a36a4ff4fa3abf746c623d431c34a44a5f42d8a5dee7bd85f18a1980b5b6917d1b91ad440f06d743b9291a3a96f4c3367f043cb255883cc2098e9f2684a447ac99019ce73e1f6ab80e9b68ab2286e2ba3a495d01a55bf9686edba688cd016ffef186073180c36ac9266048d989e10644ec39d8c74fd64758203ea84da1e91e667080ad2e2d7992c4a389440f49d8c45618d3"
+      ],
+      "caller": "@w2",
+      "fn": "register(bytes32,bytes)",
+      "to": "l1staking",
+      "value": 1000000000000000000
+     },
+     "label": "l1staking.register by s1"
+    },
+    {
+     "call": {
+      "args": [
+       "@v11",
+       {
+        "args": [
+         "@submitter",
+         0
+        ],
+        "fn": "initialize4(address,uint256)"
+       }
+      ],
+      "caller": "@admin",
+      "fn": "upgradeToAndCall(address,bytes)",
+      "to": "rollup",
+      "value": 0
+     },
+     "label": "cutover by admin",
+     "version": "V10->V11"
+    },
+    {
+     "call": {
+      "args": [
+       "@w5"
+      ],
+      "caller": "@harness",
+      "fn": "addSubmitter(address)",
+      "to": "submitter",
+      "value": 0
+     },
+     "label": "submitter.addSubmitter(p) by owner"
+    },
+    {
+     "call": {
+      "args": [
+       "@w5"
+      ],
+      "caller": "@w5",
+      "fn": "stake(address)",
+      "to": "submitter",
+      "value": 1000000000000000000
+     },
+     "label": "submitter.stake(p) by p"
+    },
+    {
+     "label": "rollup@V11.commitBatch by p",
+     "row": [
+      1,
+      5,
+      0,
+      0,
+      0,
+      1,
+      100,
+      101,
+      0,
+      0,
+      0,
+      0
+     ],
+     "version": "V11"
+    },
+    {
+     "label": "rollup@V11.challengeState by c",
+     "row": [
+      5,
+      4,
+      1,
+      1
+     ],
+     "version": "V11"
+    },
+    {
+     "label": "warp proofWindow",
+     "row": [
+      10,
+      10
+     ]
+    },
+    {
+     "label": "rollup@V11.proveState by p",
+     "row": [
+      6,
+      5,
+      1,
+      0
+     ],
+     "version": "V11"
+    },
+    {
+     "label": "rollup@V11.claimReward by c",
+     "row": [
+      22,
+      4
+     ],
+     "version": "V11"
+    }
+   ]
+  },
+  {
+   "id": "T4_legacy_exit",
+   "steps": [
+    {
+     "call": {
+      "args": [
+       [
+        "@w2",
+        "@w3"
+       ],
+       []
+      ],
+      "caller": "@harness",
+      "fn": "updateWhitelist(address[],address[])",
+      "to": "l1staking",
+      "value": 0
+     },
+     "label": "l1staking.updateWhitelist(s1,s2) by owner"
+    },
+    {
+     "call": {
+      "args": [
+       "0x4aaa663ab2f3ac0a758ef76acc744ddb0618f151b6c9e4a56e10fcb8d7005a50",
+       "0x74d9fe4893b6e5609ae0526d83c173ec947f8739a446143baedcae6de5b7a54e15ced13fcc344614cd33fb5051a2938b311ba2a9fe059cfb669f47dcfd4bd9802f356138643cfd7158bceaea123b180223e381572f6d7cb62c71222e28437988da606173766d5e7e0d30adced896ffd60f821c73d0fc39ff3df383a2c479f19c536d21cff617050f6a61f1f9cb0b1a8e224d593ab53961e44090b7108c4ebe3de07a6728175639526caa5af36a292deed297f07bdf29105a45ca05831e1ada62146f94b0667ef92af60fc5fa4be00b06b5cf3dedbdc823ac3464c94677e374b70cb818d63bcce4119f8b1c0af362442ba69f77cc6ff7fd4cd5ee63b35df2b559"
+      ],
+      "caller": "@w2",
+      "fn": "register(bytes32,bytes)",
+      "to": "l1staking",
+      "value": 1000000000000000000
+     },
+     "label": "l1staking.register by s1"
+    },
+    {
+     "label": "rollup@V10.commitBatch by s1",
+     "row": [
+      1,
+      2,
+      0,
+      0,
+      0,
+      1,
+      100,
+      101,
+      0,
+      0,
+      0,
+      0
+     ],
+     "version": "V10"
+    },
+    {
+     "call": {
+      "args": [
+       "@v11",
+       {
+        "args": [
+         "@submitter",
+         1
+        ],
+        "fn": "initialize4(address,uint256)"
+       }
+      ],
+      "caller": "@admin",
+      "fn": "upgradeToAndCall(address,bytes)",
+      "to": "rollup",
+      "value": 0
+     },
+     "label": "cutover by admin",
+     "version": "V10->V11"
+    },
+    {
+     "call": {
+      "args": [],
+      "caller": "@w2",
+      "fn": "withdraw()",
+      "to": "l1staking",
+      "value": 0
+     },
+     "label": "l1staking.withdraw by s1"
+    },
+    {
+     "label": "warp withdrawalLockBlocks blocks",
+     "row": [
+      11,
+      3
+     ]
+    },
+    {
+     "call": {
+      "args": [
+       "@w2"
+      ],
+      "caller": "@w2",
+      "fn": "claimWithdrawal(address)",
+      "to": "l1staking",
+      "value": 0
+     },
+     "label": "l1staking.claimWithdrawal(s1) by s1"
+    }
+   ]
+  }
+ ]
+}

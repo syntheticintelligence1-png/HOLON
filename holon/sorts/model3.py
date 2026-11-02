@@ -187,6 +187,8 @@ class Loc:
 
 # ------------------------------------------------------------------------------------------------ the generator
 class Gen:
+    EXT1 = False   # the language extension EXT1 (I70; Model3X below): off in every model compiled before it
+
     def __init__(self, m: ExtractedModel, *, typed: bool, sorts: dict | None = None, seeds: dict | None = None,
                  init_storage: dict | None = None, hashes: list | None = None, basis=None, site: dict | None = None,
                  binding: str | None = None, storage: str = "raw"):
@@ -663,11 +665,15 @@ class Gen:
                 off, tid = int(mm["offset"]), mm["type"]
             elif kind == "index":
                 bt = self.m.type_of(t["base"]) if "base" in t else None
-                if bt is None or enc == "dynamic_array" or int(bt["numberOfBytes"]) != 32:
+                el1 = self.EXT1 and bt is not None and _i70_slot_element(bt)   # EXT1: a slot's own element
+                if bt is None or (enc == "dynamic_array" and not el1) or (int(bt["numberOfBytes"]) != 32 and not el1):
                     raise GenError(f"{sc.action}: {p.family}: an index into {t.get('label')} (only static arrays of "
                                    "words are compiled)")
                 iv = self.to_w(x, xk)
-                code = f"w_add({code}, {iv})"
+                if enc == "dynamic_array":   # EXT1: element i of a dynamic array at keccak256(slot) + i
+                    code = f"w_add(h_get({self.gx(sc, 'kh')}, b_of_w({code})), {iv})"
+                else:
+                    code = f"w_add({code}, {iv})"
                 lit = None
                 off, tid = 0, t["base"]
         return code, off, tid, lit is not None
@@ -1231,7 +1237,7 @@ class Gen:
 
     # external calls
     def calldata(self, fn: str, args: list, sc: Scope) -> str:
-        sig = self.m.call_signature(fn)
+        sig = self.m.call_signature(fn) or (_i70_overload_signature(self.m, fn) if self.EXT1 else None)
         if sig is None or not sig.get("selector"):
             raise GenError(f"{sc.action}: external function {fn} has no single ABI signature")
         ins = sig.get("inputs") or []
@@ -1282,7 +1288,7 @@ class Gen:
         if fn.startswith("address."):
             return self.answer(fn, None, args, sc), "a"
         ans = self.answer(fn, None, args, sc)
-        sig = self.m.call_signature(fn) or {}
+        sig = self.m.call_signature(fn) or (_i70_overload_signature(self.m, fn) if self.EXT1 else None) or {}
         outs = sig.get("outputs") or []
         if len(outs) == 1 and not EV._is_dynamic(outs[0]):
             return self.leaf(f"b_word(a_ret({ans}), 0n)", f"call:{fn}", t)
@@ -1622,7 +1628,7 @@ class Machine(Gen):
                 li.exits_extra.append((n, _lab(n), self.store_kind(k)))
                 names.append(canonical(n))
             for m, (_cnd, v) in enumerate(s.returns):
-                c, k = self.value(v, sc)
+                c, k = self.value(v if v is not None or not self.EXT1 else 0, sc)   # EXT1: a valueless return
                 li.exits_extra.append((["return", m], f"return{m}", self.store_kind(k)))
             for i, (n, lab, k) in enumerate(li.exits_extra):
                 self.ctx(a, f"x{j}_{i}", self.field_type(k))
@@ -1950,7 +1956,7 @@ class Machine(Gen):
         for m in range(len(lp.returns) - 1, -1, -1):
             cnd, val = lp.returns[m]
             xi = next(q for q, (n, _l, _k) in enumerate(li.exits_extra) if n == ["return", m])
-            c, kk = self.value(val, sc)
+            c, kk = self.value(val if val is not None or not self.EXT1 else 0, sc)   # EXT1: a valueless return
             sets = [(f"x{j}_{xi}", "r"), (f"rt{j}", f"w_u({m + 1})"), (f"cn{j}", self.gx(sc, f"it{j}")),
                     (f"ld{j}", "3n")]
             self.add(f"def lrr_{p}_{m}(+x: {X}) -> {X}:\n  +r = {{{self.store_value(c, kk, li.exits_extra[xi][2])} : {self.field_type(li.exits_extra[xi][2])}}}\n"
@@ -2428,6 +2434,7 @@ def _arg_records(mm: Machine, acts: list) -> list[str]:
     for a in acts:
         ba = bname(a)
         fs = [(bname(p["name"]), mm.arg_type(p)) for p in mm.m.params(a) or []]
+        fs = _i70_unique_fields(fs) if mm.EXT1 else fs
         out.append(_record(f"AR_{ba}", fs) if fs else f"type AR_{ba} is Data:\n  AR_{ba}{{}}\n")
         out += _getters(f"ga_{ba}_", f"AR_{ba}", fs)
     return out
@@ -2439,11 +2446,12 @@ def s0_text(init: dict) -> str:
 
 
 def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init: dict, hashes: list, basis,
-               site_rows: list, header: list[str], storage: str = "raw", s0_entries: list | None = None
-               ) -> tuple[str, Model3]:
+               site_rows: list, header: list[str], storage: str = "raw", s0_entries: list | None = None,
+               ext1: bool = False) -> tuple[str, Model3]:
     """The model text and its generator. storage: raw (the default; I28's versioned modules) or structural (I68: the
     store PRELUDE_SK, s0 from s0_entries, holon.sorts.skeys.s0_entries of the deployment)."""
-    mm = Model3(m, typed=typed, sorts=sorts, seeds=seeds, init_storage=init, hashes=hashes, storage=storage)
+    mm = (Model3X if ext1 else Model3)(m, typed=typed, sorts=sorts, seeds=seeds, init_storage=init, hashes=hashes,
+                                      storage=storage)
     acts = sorted(a for a in m.actions if m.params(a) is not None)
     for a in acts:
         mm.compile_action(a)
@@ -3261,3 +3269,208 @@ Gen.t_abi_encodeWithSignature = _i86_t_abi_encodeWithSignature
 Gen.t_update = _i86_t_update
 Gen.t_member = _i86_t_member
 Gen.term_type = _i86_term_type
+
+
+def _i70_overload_signature(m, fn: str) -> dict | None:
+    """I70: the interface function of a call named by an overload's suffix ("<Contract>.<function>_<selector>",
+    holon.frontends' rule E2): the one overload of <Contract>.<function> whose selector is the suffix."""
+    mt = re.fullmatch(r"(.+)_([0-9a-f]{8})", fn or "")
+    if not mt:
+        return None
+    hits = [h for h in ((m.info.get("members") or {}).get(mt.group(1)) or [])
+            if (h.get("selector") or "").lower() == "0x" + mt.group(2)]
+    return hits[0] if len(hits) == 1 else None
+
+
+def _i70_slot_element(bt: dict) -> bool:
+    """I70: an array element that is a value in a slot of its own (wider than 16 bytes: never packed two to a slot),
+    read and written at its slot's low bytes as every value is."""
+    return bt.get("encoding") == "inplace" and "members" not in bt and "base" not in bt and \
+        16 < int(bt.get("numberOfBytes", 0)) <= 32
+
+
+# ------------------------------------------------------------------------------------------------ I70 (memory arrays)
+#   ["alloc", "<T>[] memory", n]        a memory array of n zero elements of a value type T, as a word list (l:W)
+#   ["update", X, ["index", X, i], v]   the word list X with element i set to v (Solidity's write of a memory array
+#                                       element; an index past the length is the document's panic, never reached here)
+# Each helper is emitted only into a model that uses it, so every model compiled before compiles byte for byte.
+_I70_VALUE_TYPE = re.compile(r"(u?int\d*|address( payable)?|bool|bytes([1-9]|[12]\d|3[0-2]))")
+
+
+def _i70_t_alloc(self, t, sc):
+    ty = str(t[1])
+    base = ty[:-len("[] memory")].strip() if ty.endswith("[] memory") else None
+    if base is None or not _I70_VALUE_TYPE.fullmatch(base):
+        raise GenError(f"{sc.action}: an allocation of {ty}")
+    n = self.nat(t[2], sc)
+    _ext_helper(self, "w_rep", "def w_rep(n: Nat) -> List<&2, W>:\n  match n:\n    case 0n:\n      Nil{}\n"
+                               "    case 1n+p:\n      Con{w0(), w_rep(p)}\n")
+    return f"w_rep({n})", "l:W"
+
+
+_i70_t_update_before = Model3.t_update
+
+
+def _i70_t_update(self, t, sc):
+    tgt = t[2]
+    if isinstance(tgt, list) and len(tgt) == 3 and tgt[0] == "index":
+        c, k = self.value(t[1], sc)
+        if k == "l:W":
+            i = self.nat(tgt[2], sc)
+            vc, vk = self.value(t[3], sc)
+            _ext_helper(self, "w_set", "def w_set(xs: List<&2, W>, n: Nat, v: W) -> List<&2, W>:\n  match xs n:\n"
+                                       "    case Nil{} _:\n      Nil{}\n    case Con{h, t} 0n:\n      Con{v, t}\n"
+                                       "    case Con{h, t} 1n+p:\n      Con{h, w_set(t, p, v)}\n")
+            return f"w_set({c}, {i}, {self.to_w(vc, vk)})", "l:W"
+    return _i70_t_update_before(self, t, sc)
+
+
+
+
+#   ["abi.encodeCall", ["decl", id], args..]   the called function's selector, then its arguments ABI-encoded by its
+#                                             parameters as a call's are (calldata): the function by its declaration id
+#                                             in the compiler information (holon.machine.compiler_info "decls")
+def _i70_t_abi_encodeCall(self, t, sc):
+    ref = t[1]
+    d = ((self.m.info.get("decls") or {}).get(str(ref[1]))
+         if isinstance(ref, list) and len(ref) == 2 and ref[0] == "decl" else None)
+    if not d or not d.get("selector"):
+        raise GenError(f"{sc.action}: abi.encodeCall of a function with no declaration entry: {canonical(ref)[:80]}")
+    ins, args = d.get("inputs") or [], list(t[2:])
+    if len(ins) != len(args):
+        raise GenError(f"{sc.action}: abi.encodeCall with {len(args)} arguments for {len(ins)} parameters")
+    if any(str(p.get("type", "")).startswith("tuple") for p in ins):
+        raise GenError(f"{sc.action}: abi.encodeCall: a tuple argument")
+    heads, tails = [], []
+    for x, p in zip(args, ins):
+        c, k = self.value(x, sc)
+        if EV._is_dynamic(p):
+            if p.get("type") not in ("bytes", "string"):
+                heads.append(None)
+                tails.append(self.word_list_arg("abi.encodeCall", p, c, k, sc))
+                continue
+            heads.append(None)
+            tails.append(self.to_bytes(c, k))
+        else:
+            if p.get("type") == "tuple":
+                raise GenError(f"{sc.action}: abi.encodeCall: a tuple argument")
+            heads.append(f"b_of_w({self.to_w(c, k)})")
+    sel = bytes.fromhex(d["selector"][2:])
+    if any(isinstance(x, tuple) for x in tails):
+        return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat_lists(heads, tails)})", "b"
+    return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat(heads, tails)})", "b"
+
+
+
+
+#   ["push", A, v] / ["pop", A]   the storage array A (a storage path, a view of the state as a store term's) with v
+#                                 appended at keccak256(slot) + length, or its last element zeroed, and its length one
+#                                 more or one less; the raw mode only (an element in a slot of its own)
+def _i70_array_parts(self, t, sc):
+    base = self.path_of(t[1], sc)
+    if base is None or self.sk:
+        raise GenError(f"{sc.action}: {t[0]} on a value that is not a storage array of the raw mode")
+    slot, _off, tid, _lit = self.locate(base, sc)
+    tt = self.m.type_of(tid)
+    bt = self.m.type_of(tt["base"]) if "base" in tt else None
+    if tt.get("encoding") != "dynamic_array" or bt is None or not (_i70_slot_element(bt) or
+                                                                  int(bt.get("numberOfBytes", 0)) == 32):
+        raise GenError(f"{sc.action}: {t[0]} on a {tt.get('label')}")
+    return base, slot, tt["base"]
+
+
+def _i70_t_push(self, t, sc):
+    base, slot, etid = _i70_array_parts(self, t, sc)
+    vc, vk = self.value(t[2], sc)
+    n = f"sload({base.view}, {slot})"
+    el = f"w_add(h_get({self.gx(sc, 'kh')}, b_of_w({slot})), {n})"
+    v1 = self.write_word(base.view, el, 0, etid, self.to_w(vc, vk))
+    return f"sstore({v1}, {slot}, w_add({n}, {wlit(1)}))", "v:" + base.family
+
+
+def _i70_t_pop(self, t, sc):
+    base, slot, etid = _i70_array_parts(self, t, sc)
+    n1 = f"w_sub(sload({base.view}, {slot}), {wlit(1)})"
+    el = f"w_add(h_get({self.gx(sc, 'kh')}, b_of_w({slot})), {n1})"
+    v1 = self.write_word(base.view, el, 0, etid, "w0()")
+    return f"sstore({v1}, {slot}, {n1})", "v:" + base.family
+
+
+
+
+#   a write of a whole storage array whose value is ["push", A, v] or ["pop", A] (A that array, as a loop carries it):
+#   the overlay gets the element's word and the length's word, both touched; the raw mode only
+_i70_write_body = Model3.write_body
+
+
+def _i70_write_body2(self, w, sc):
+    v = w.value
+    if (w.path or self.sk or not isinstance(v, list) or not v or v[0] not in ("push", "pop")
+            or len(v) != (3 if v[0] == "push" else 2)):
+        return _i70_write_body(self, w, sc)
+    fam = w.family
+    slot0, _o, tid, _l = self.locate(StoragePath("o0", fam, [], fam), sc)
+    tt = self.m.type_of(tid)
+    base = self.path_of(v[1], sc)
+    if (base is None or base.accessors or base.family != fam or tt.get("encoding") != "dynamic_array"
+            or "base" not in tt):
+        raise GenError(f"{sc.action}: a write of a whole {tt.get('label')} ({fam}) by {v[0]}")
+    bt = self.m.type_of(tt["base"])
+    if not (_i70_slot_element(bt) or int(bt.get("numberOfBytes", 0)) == 32):
+        raise GenError(f"{sc.action}: {v[0]} on a {tt.get('label')}")
+    lines = [f"  +o0 = {self.gx(sc, 'ov')}", f"  +k = {{{slot0} : W}}"]
+    if v[0] == "push":
+        vc, vk = self.value(v[2], sc)
+        lines.append(f"  +v = {{{self.to_w(vc, vk)} : W}}")
+        lines.append(f"  +n = {{sload({base.view}, k) : W}}")
+        lines.append(f"  +e = {{w_add(h_get({self.gx(sc, 'kh')}, b_of_w(k)), n) : W}}")
+        lines.append(f"  +o1 = {{{self.write_word('o0', 'e', 0, tt['base'], 'v')} : HSt}}")
+        lines.append(f"  +o2 = {{sstore(o1, k, w_add(n, {wlit(1)})) : HSt}}")
+    else:
+        lines.append(f"  +n = {{w_sub(sload({base.view}, k), {wlit(1)}) : W}}")
+        lines.append(f"  +e = {{w_add(h_get({self.gx(sc, 'kh')}, b_of_w(k)), n) : W}}")
+        lines.append(f"  +o1 = {{{self.write_word('o0', 'e', 0, tt['base'], 'w0()')} : HSt}}")
+        lines.append(f"  +o2 = {{sstore(o1, k, n) : HSt}}")
+    tw = f"Con{{k, Con{{e, {self.gx(sc, 'tw')}}}}}"
+    lines.append(f"  {self.sx(sc, 'tw', self.sx(sc, 'ov', 'x', 'o2'), tw)}")
+    return lines
+
+
+def _i70_t_len(self, t, sc):
+    c, k = self.tx(t[1], sc)
+    if k.startswith("v:") and not self.sk:
+        fam = k[2:]
+        slot0, _o, tid, _l = self.locate(StoragePath(c, fam, [], fam), sc)
+        if self.m.type_of(tid).get("encoding") == "dynamic_array":
+            return f"sload({c}, {slot0})", "w"
+    return _i70_t_len0(self, t, sc)
+
+
+_i70_t_len0 = Model3.t_len
+
+
+def _i70_unique_fields(fs: list) -> list:
+    """An argument record's fields with a repeated name (unnamed parameters) made unique by its position; a record
+    with no repeated name is unchanged."""
+    seen, out = set(), []
+    for i, (f, ty) in enumerate(fs):
+        out.append((f if f not in seen else f"{f}_{i}", ty))
+        seen.add(out[-1][0])
+    return out
+
+
+class Model3X(Model3):
+    """model3 with the language extension EXT1 (I70): storage arrays' push, pop and length (a whole-array write by push
+    or pop), an element of a dynamic array or one in a slot of its own, a call named by an overload's suffix, a loop's
+    valueless return, memory arrays of value types (alloc, element update), abi.encodeCall, and argument records whose
+    unnamed parameters repeat a name. Only build_text(ext1=True) compiles with it: a model compiled without it is the
+    model compiled before EXT1 existed, byte for byte."""
+
+    EXT1 = True
+    t_alloc = _i70_t_alloc
+    t_update = _i70_t_update
+    t_abi_encodeCall = _i70_t_abi_encodeCall
+    t_push = _i70_t_push
+    t_pop = _i70_t_pop
+    t_len = _i70_t_len
+    write_body = _i70_write_body2

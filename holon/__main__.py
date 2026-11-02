@@ -294,6 +294,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["bundle2"]:  # likewise for holon.bundle2 (Bundle II's extraction and linked machine, I80)
         from . import bundle2
         return bundle2.main(argv[1:])
+    if argv[:1] == ["cutover"]:  # likewise for holon.cutover (a migration's slash sites, linked; outside every closure)
+        from . import cutover
+        return cutover.main(argv[1:])
     if argv[:1] == ["derivation"]:  # likewise for holon.derivation (the Go consumer and the product machine, I85)
         from . import derivation
         return derivation.main(argv[1:])
@@ -443,6 +446,17 @@ def _main(argv: list) -> int:
             if others:
                 rc = _main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
             return max(rc, versions_run.main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(vids)]))
+    if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I70: the slash laws a --laws list names (rules NAT and SORT, sub-form slash) are decided by
+        # holon.cutover.lawrun over the linked layer; the list's other laws go on as before
+        from .cutover import lawrun as slash_run
+        split = slash_run.ids_of(argv)
+        if split is not None:
+            sids, others = split
+            rc = 0
+            if others:
+                rc = _main(slash_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, slash_run.run_main(slash_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(sids)]))
     if argv[:1] == ["run"] and _typed_milestone(argv):
         # I29: the NAT laws a --laws list names are decided over the versioned machine (holon.rules.nat_run); the
         # list's other laws go on as before
