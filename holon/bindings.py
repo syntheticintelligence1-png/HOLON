@@ -299,6 +299,20 @@ def _trace_model(law: dict, m: str, root: Path, importable: bool = False) -> Pat
     return Path(root) / "gen" / m / "undo" / "models" / (plain(name) if importable else f"{name}.bend")
 
 
+def _sym(law: dict) -> bool:
+    """A SYM law (I34): a holon-ir/0.3 law of holon.rules.sym (its claim a sym term). holon.symd.run decides it over the
+    typed model of its document and the sym section, and holon.symd.proofs emits its law file."""
+    from .rules.sym import RULE
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == RULE
+
+
+def _sym_section(law: dict, m: str, root: Path) -> Path:
+    """The sym section of a SYM law's document, gen/<m>/sym/models/<model>.bend under the importable name holon.symd.run
+    writes it at (its law files import it as U)."""
+    from .sorts.model3 import importable as plain, model_name as typed_name
+    return Path(root) / "gen" / m / "sym" / "models" / plain(typed_name(law["facts"]))
+
+
 def _fact(law: dict) -> bool:
     """A FACT law (I26): a holon-ir/0.3 law of holon.rules.fact whose claim is a fact term. holon.fact.run decides it
     over the typed model of its document and the FACT section, and holon.fact.proofs.law_file emits its law file."""
@@ -328,9 +342,31 @@ def _pinit(law: dict) -> bool:
 
 
 def _nat(law: dict) -> bool:
-    """A NAT law (I29): a holon-ir/0.3 law of rule NAT over a versioned document. holon.rules.nat_run decides it over
-    the versioned layer and its claims module, and emits its law file (holon.rules.nat_run.law_file)."""
-    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == "NAT"
+    """A NAT law (I29): a holon-ir/0.3 law of rule NAT, of one of I29's sub-forms (holon.rules.nat.SUBFORMS), over a
+    versioned document. holon.rules.nat_run decides it over the versioned layer and its claims module, and emits its
+    law file (holon.rules.nat_run.law_file)."""
+    from .rules.nat import SUBFORMS
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == "NAT" and law.get("subform") in SUBFORMS
+
+
+def _slash(law: dict) -> bool:
+    """A slash law (I70, holon.rules.slash: rules NAT and SORT, sub-form slash): a holon-ir/0.3 law whose claim is a
+    slash term. holon.cutover.lawrun decides it over the linked layer and its claims module; while those are not built
+    no emitter states it, so its binding is its statement hash alone, over the registry model the cutover's model step
+    writes (the sidecar's outputs.models)."""
+    from .rules import slash as S
+    if law.get("ir_version") != "holon-ir/0.3" or law.get("subform") != S.SUBFORM or law.get("rule") not in S.RULES:
+        return False
+    c = (law.get("statement") or {}).get("claim") or {}
+    return any(isinstance(x, dict) and "slash" in x for x in c.get("eq") or [])
+
+
+def _slash_model(m: str, root: Path) -> Path:
+    side = json.loads((Path(root) / S_SIDECAR.format(m)).read_text())
+    return Path(root) / side["outputs"]["models"] / f"{side['link']['a']['registry']}.bend"
+
+
+S_SIDECAR = "spec/{}/lib/cutover_slash.json"
 
 
 def _nat_run():
@@ -481,7 +517,8 @@ def _undo_kernel_text(law: dict, m: str, root: Path) -> str:
     dropped, `M.` removed, and its re-exports of the model's own definitions, such as run, dropped: unqualified they
     would redeclare them), one module BendTT translates whole. A FACT law's is the same with its FACT section."""
     model = _typed_model(law, m, root, importable=True).read_text()
-    section = _fact_section(law, m, root, importable=True) if _fact(law) else _trace_model(law, m, root, importable=True)
+    section = (_fact_section(law, m, root, importable=True) if _fact(law) else
+               _sym_section(law, m, root) if _sym(law) else _trace_model(law, m, root, importable=True))
     trace = _M_QUAL.sub("", _IMPORT_LINE.sub("", section.read_text()))
     own = set(records.model_defs(model))
     keep, drop = [], False
@@ -517,6 +554,8 @@ def _bundle_kernel_text(law: dict, m: str, root: Path) -> str:
 
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
+    if _slash(law):   # I70: the registry model gen/<m>/cutover/models/<registry>.bend (the cutover's model step)
+        return _slash_model(m, root)
     if _bundle(law):   # I84: the claims module gen/<m>/bundle2/claims/claims.bend (its record's artifacts.model)
         return _bundle_files(law, m, root)[1]
     if _bundle_law(law):   # I86: the member's law model (holon.bundle.laws: I69's model, or the adopted member's)
@@ -529,6 +568,8 @@ def model_path(law: dict, m: str, root: Path) -> Path:
         return _nat_run().NatCtx(Path(root), m).module_path()
     if _undo(law):   # I27: the trace section gen/<m>/undo/models/<model>.bend
         return _trace_model(law, m, root)
+    if _sym(law):   # I34: the sym section gen/<m>/sym/models/<model>.bend
+        return _sym_section(law, m, root)
     if _fact(law):   # I26: the FACT section gen/<m>/fact/models/<model>.fact.bend
         return _fact_section(law, m, root)
     if _width(law):   # the extracted model (holon model's gen/<m>/extracted/model.bend)
@@ -555,6 +596,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .model_eval import model_name
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
+        return None
+    if _slash(law):   # I70: no emitter states a slash law until the linked layer is built (holon.cutover.lawrun)
         return None
     if _bundle_law(law):   # I86: as holon.bundle.lawrun writes it (None: an existential law's counter-law, or a claim
         # the M3 model cannot express, CS3's outflow class)
@@ -586,6 +629,25 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
                             rel_import(laws_dir, _typed_model(law, m, root, importable=True)),
                             rel_import(laws_dir, _disch_section(law, m, root)), tables(hashes),
                             law_name(law["law_id"], counter), kind)
+    if _sym(law):   # I34: emitted as holon.symd.run writes it (holon.symd.proofs.law_file); imported by name, as FACT's
+        import importlib   # generator is, so SYM's decider stays out of the M1-M3 records' closure
+        from .rules import sym as RS
+        from .sorts.evaluate3 import hashes_of
+        from .sorts.model3 import model_name as typed_name
+        from .sorts.proofs3 import rel_import
+        SP = importlib.import_module("holon.symd.proofs")
+        laws_dir = layout(m, Path(root) / "gen" / m, law["law_id"])[0]
+        doc_rel = law["facts"]
+        doc = json.loads((Path(root) / doc_rel).read_text())
+        sorts = json.loads((Path(root) / "gen" / m / "sorts" / "assignment.json").read_text())
+        els = RS.elements(doc, sorts["models"][typed_name(doc_rel)]["assignment"], doc_rel)
+        n = next((i for i, e in enumerate(els) if e["law_id"] == law["law_id"]), None)
+        if n is None:   # the document's analysis no longer gives the law (derive again)
+            return None
+        return SP.law_file(law, n, statement_hash(law, m, root),
+                           rel_import(laws_dir, _typed_model(law, m, root, importable=True)),
+                           rel_import(laws_dir, _sym_section(law, m, root)),
+                           hashes_of(_typed_model(law, m, root, importable=True).read_text()), counter=counter)
     if _undo(law):   # I27: emitted as holon.undo.run writes it (holon.undo.proofs.law_file)
         import os
         from .undo import proofs as UP
@@ -731,6 +793,9 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
+    if _slash(law):   # I70: no statement over the linked layer yet, so the binding is its statement hash alone
+        return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
+                "statement_sha256": None, "counter_sha256": None, "cone": {}}
     if _bundle_law(law):   # I86: the law model and the claims module as one module; C. roots are the claims module's
         st = _emit(law, m, root, counter=False)
         if st is None:   # CS3's outflow class: no claim over the M3 model, so the binding is its statement hash alone
@@ -748,7 +813,8 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
         entries = dict(_entries_cached(_bundle_kernel_text(law, m, root),
                                        json.dumps(cfg, sort_keys=True) if cfg else "", mp.relative_to(root).as_posix()))
         c = kernel_cone(_F_QUAL.sub("M.", statement_text(law, m, root)), entries)
-    elif _undo(law) or _fact(law):   # I27, I26: the typed model and the section as one module; U./F. roots are its own
+    elif _undo(law) or _fact(law) or _sym(law):   # I27, I26, I34: the typed model and the section as one module; U./F.
+        # roots are its own (a SYM law file imports its sym section as U, as an UNDO law file its trace section)
         cfg = cfg or bend.config(root)
         entries = dict(_entries_cached(_undo_kernel_text(law, m, root), json.dumps(cfg, sort_keys=True) if cfg else "",
                                        mp.relative_to(root).as_posix()))

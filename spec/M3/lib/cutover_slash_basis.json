@@ -1,0 +1,112 @@
+{
+ "basis_version": "holon-cutover-slash-basis/0.1",
+ "contract": "Rollup",
+ "documents": {
+  "V10": {
+   "path": "gen/M3/versions/documents/V10.json",
+   "sha256": "b3329d0f5ae7cde0f8128f7624cfe1ee1f9ccec201c3d655263ec99692b8860f"
+  },
+  "V11": {
+   "path": "gen/M3/versions/documents/V11.json",
+   "sha256": "a4a61f6269a8b243695c1d861bb25dc1a37e97f20ee9eb61251e4826ae13c5cd"
+  },
+  "V3": {
+   "path": "gen/M3/versions/documents/V3.json",
+   "sha256": "cc051bc099b464e082f024c806515650d0a3b03d34a5491a0c5bbafdb173f288"
+  },
+  "V4": {
+   "path": "gen/M3/versions/documents/V4.json",
+   "sha256": "df9e2044a7031d844efe0f0967c8750806e43765486de1f6cbd4eddcc39f5e52"
+  },
+  "V5": {
+   "path": "gen/M3/versions/documents/V5.json",
+   "sha256": "b0dce3975dcc8aa3b8a76e81d75c5ed0ff9c1a50104b816d6436cf73c867955a"
+  },
+  "V6": {
+   "path": "gen/M3/versions/documents/V6.json",
+   "sha256": "8a93bf01c3955e9a38df8bf9f022de524dbc9207782cbfeac4db4a0d1efaa0bd"
+  },
+  "V7": {
+   "path": "gen/M3/versions/documents/V7.json",
+   "sha256": "15aa9ed25174bf8e74b1468ecac6621c3a123bf6ca3d0d6b76dec0ba6f7d1b1f"
+  },
+  "V8": {
+   "path": "gen/M3/versions/documents/V8.json",
+   "sha256": "8ec6d3cb1d820cee48453ff407125c536dc1c4f50bb31c4997c1f04408aa0297"
+  },
+  "V9": {
+   "path": "gen/M3/versions/documents/V9.json",
+   "sha256": "02fcf8c6fe7831bbc9635460620fd48e4756ee6951de0a4560c3ec0caa63d289"
+  }
+ },
+ "edge_types": {
+  "V10->V11": {
+   "reinterpreted": [
+    {
+     "entry": "submitterContract",
+     "reads": [
+      "l1StakingContract"
+     ]
+    }
+   ],
+   "retyped": [
+    "batchDataStore"
+   ]
+  }
+ },
+ "law_ids": [
+  "L_nat_slash_Rollup_V10_V11_proveState",
+  "L_sort_slash_Rollup_V10_V11_proveState"
+ ],
+ "pairs": [
+  {
+   "a": [
+    {
+     "credits": [
+      {
+       "family": "batchChallengeReward",
+       "seq": 23,
+       "src": "contracts/contracts/l1/rollup/Rollup.sol:838"
+      }
+     ],
+     "fn": "IL1Staking.slash",
+     "reads": [
+      "batchDataStore.signedSequencersBitmap"
+     ],
+     "receiver": "l1StakingContract",
+     "seq": 20,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:837"
+    }
+   ],
+   "b": [
+    {
+     "credits": [
+      {
+       "family": "batchChallengeReward",
+       "seq": 23,
+       "src": "contracts/contracts/l1/rollup/Rollup.sol:807"
+      }
+     ],
+     "fn": "ISubmitter.slash",
+     "reads": [
+      "batchDataStore.submitter"
+     ],
+     "receiver": "submitterContract",
+     "seq": 20,
+     "src": "contracts/contracts/l1/rollup/Rollup.sol:806"
+    }
+   ],
+   "edge": "V10->V11",
+   "laws": {
+    "NAT": "L_nat_slash_Rollup_V10_V11_proveState",
+    "SORT": "L_sort_slash_Rollup_V10_V11_proveState"
+   },
+   "op": "proveState",
+   "selector": "0xb3484425"
+  }
+ ],
+ "versioned": {
+  "path": "gen/M3/versions/morph_rollup.versions.json",
+  "sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78"
+ }
+}

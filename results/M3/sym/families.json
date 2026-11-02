@@ -1,0 +1,270 @@
+{
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "families": [
+    {
+      "family": "iota",
+      "reason": "no word of the assignment has the sort Idx (the sorts are Bool, Dig[Agg] + Dig[VH], Dur, Nat (unrefined), Time)",
+      "status": "vacuous"
+    },
+    {
+      "family": "mu",
+      "reason": "no word of the assignment has the sort Amt (the sorts are Bool, Dig[Agg] + Dig[VH], Dur, Nat (unrefined), Time)",
+      "status": "vacuous"
+    },
+    {
+      "family": "omega",
+      "pairs": [
+        [
+          "addChallenger",
+          "challengeState"
+        ],
+        [
+          "challengeState",
+          "commitBatch"
+        ],
+        [
+          "challengeState",
+          "commitBatchWithProof"
+        ],
+        [
+          "challengeState",
+          "commitState"
+        ],
+        [
+          "challengeState",
+          "finalizeBatch"
+        ],
+        [
+          "challengeState",
+          "importGenesisBatch"
+        ],
+        [
+          "challengeState",
+          "proveState"
+        ],
+        [
+          "challengeState",
+          "removeChallenger"
+        ],
+        [
+          "challengeState",
+          "revertBatch"
+        ],
+        [
+          "challengeState",
+          "setPause"
+        ],
+        [
+          "challengeState",
+          "updateProofWindow"
+        ],
+        [
+          "claimProveRemaining",
+          "proveState"
+        ],
+        [
+          "claimReward",
+          "proveState"
+        ],
+        [
+          "claimReward",
+          "revertBatch"
+        ],
+        [
+          "claimReward",
+          "setPause"
+        ],
+        [
+          "commitBatch",
+          "commitBatchWithProof"
+        ],
+        [
+          "commitBatch",
+          "finalizeBatch"
+        ],
+        [
+          "commitBatch",
+          "importGenesisBatch"
+        ],
+        [
+          "commitBatch",
+          "revertBatch"
+        ],
+        [
+          "commitBatch",
+          "setPause"
+        ],
+        [
+          "commitBatch",
+          "updateFinalizePeriodSeconds"
+        ],
+        [
+          "commitBatch",
+          "updateProofWindow"
+        ],
+        [
+          "commitBatch",
+          "updateRollupDelayPeriod"
+        ],
+        [
+          "commitBatchWithProof",
+          "commitState"
+        ],
+        [
+          "commitBatchWithProof",
+          "importGenesisBatch"
+        ],
+        [
+          "commitBatchWithProof",
+          "proveState"
+        ],
+        [
+          "commitBatchWithProof",
+          "revertBatch"
+        ],
+        [
+          "commitBatchWithProof",
+          "setPause"
+        ],
+        [
+          "commitBatchWithProof",
+          "updateFinalizePeriodSeconds"
+        ],
+        [
+          "commitBatchWithProof",
+          "updateProofWindow"
+        ],
+        [
+          "commitBatchWithProof",
+          "updateRollupDelayPeriod"
+        ],
+        [
+          "commitBatchWithProof",
+          "updateVerifier"
+        ],
+        [
+          "commitState",
+          "finalizeBatch"
+        ],
+        [
+          "commitState",
+          "importGenesisBatch"
+        ],
+        [
+          "commitState",
+          "revertBatch"
+        ],
+        [
+          "commitState",
+          "setPause"
+        ],
+        [
+          "commitState",
+          "updateFinalizePeriodSeconds"
+        ],
+        [
+          "commitState",
+          "updateProofWindow"
+        ],
+        [
+          "commitState",
+          "updateRollupDelayPeriod"
+        ],
+        [
+          "finalizeBatch",
+          "importGenesisBatch"
+        ],
+        [
+          "finalizeBatch",
+          "proveState"
+        ],
+        [
+          "finalizeBatch",
+          "revertBatch"
+        ],
+        [
+          "finalizeBatch",
+          "setPause"
+        ],
+        [
+          "importGenesisBatch",
+          "proveState"
+        ],
+        [
+          "proveState",
+          "revertBatch"
+        ],
+        [
+          "proveState",
+          "setPause"
+        ],
+        [
+          "proveState",
+          "updateProofWindow"
+        ],
+        [
+          "proveState",
+          "updateRewardPercentage"
+        ],
+        [
+          "proveState",
+          "updateVerifier"
+        ]
+      ],
+      "status": "admitted"
+    },
+    {
+      "family": "pi",
+      "roles": [
+        "challenger",
+        "submitter"
+      ],
+      "singleton_roles": [
+        "owner"
+      ],
+      "status": "admitted"
+    },
+    {
+      "family": "tau",
+      "status": "admitted",
+      "time_words": [
+        "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+        "env:block.timestamp",
+        "storage:batchDataStore.finalizeTimestamp",
+        "storage:batchDataStore.originTimestamp",
+        "storage:challenges.startTime"
+      ]
+    }
+  ],
+  "milestone": "M3",
+  "sentinels": [
+    {
+      "compares": [
+        "batchExist:returns",
+        "challengeState:contracts/contracts/l1/rollup/Rollup.sol:478",
+        "finalizeBatch:contracts/contracts/l1/rollup/Rollup.sol:630"
+      ],
+      "constant": 0,
+      "register": "batchDataStore.originTimestamp",
+      "sites": [
+        {
+          "action": "commitBatch",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+        },
+        {
+          "action": "commitBatchWithProof",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+        },
+        {
+          "action": "commitState",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
+        },
+        {
+          "action": "importGenesisBatch",
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:242"
+        }
+      ]
+    }
+  ],
+  "sym_version": "holon-sym/0.1"
+}

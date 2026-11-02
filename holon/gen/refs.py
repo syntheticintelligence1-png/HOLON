@@ -51,6 +51,10 @@ refs is the transitive closure of what the statement names, over the facts def g
                      {"template": "holon.rules.par_init/init_chain", "template_version": 1, "basis", "documents"},
                      recomputed from the law's versioned document and the per-version documents it lists
                      (holon.rules.par_init.init_ref)
+  slash:ID           a slash term {"slash": ID, "on": [S, K, U, EA, EB]} (I70): sha256 (hex) of canonical {"template":
+                     "holon.rules.slash/slash", "template_version": 1, "subform", "rule", "edge", "op", "sites"},
+                     recomputed from the law's versioned document and its per-version documents
+                     (holon.rules.slash.slash_ref)
   square:ID          a NAT square term {"square": ID, "on": [A, U, S, E]} (I29): sha256 (hex) of canonical
                      {"template": "holon.rules.nat/<subform>", "template_version": 1, "basis", "documents"}, recomputed
                      from the law's versioned document and the documents of the square's two versions
@@ -439,6 +443,15 @@ class _Closure:
                 if k in t:
                     self.term(t[k])
             return
+        if isinstance(t.get("sym"), str) and isinstance(t.get("on"), list):   # a SYM term (I34)
+            self.sym(t["sym"])
+            self.term(t["on"])
+            return
+        if isinstance(t.get("slash"), str) and isinstance(t.get("on"), list):   # a slash term (I70)
+            self.slash(t["slash"])
+            for a in t["on"]:
+                self.term(a)
+            return
         if isinstance(t.get("square"), str) and isinstance(t.get("on"), list):   # a NAT square term (I29)
             self.square(t["square"])
             for a in t["on"]:
@@ -517,6 +530,27 @@ class _Closure:
             return
         from ..rules.par_init import init_ref
         self.out["init:" + iid] = init_ref(iid, self.law, self.root)
+
+    def sym(self, sid: str) -> None:
+        """sym:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the SYM basis ID
+        (holon.rules.sym.sym_ref), recomputed from the law's facts and the milestone's sort assignment; and every action
+        of the document as it states it (A_<name>), with the step template: a generator acts on the whole state."""
+        if "sym:" + sid in self.out:
+            return
+        from ..rules.sym import sym_ref
+        self.out["sym:" + sid] = sym_ref(sid, self.law, self.root)
+        self.acts_sig()
+        self.tmpl("step")
+        for n in sorted(self.acts):
+            self.action(n)
+    def slash(self, sid: str) -> None:
+        """slash:<ID>: the sha256 of the canonical {template, template_version, subform, rule, edge, op, sites} of the
+        slash site pair whose id is ID (holon.rules.slash.slash_ref), recomputed from the law's versioned document and
+        its per-version documents."""
+        if "slash:" + sid in self.out:
+            return
+        from ..rules.slash import slash_ref
+        self.out["slash:" + sid] = slash_ref(sid, self.law, self.root)
 
     def square(self, sid: str) -> None:
         """square:<ID>: the sha256 of the canonical {template, template_version, basis, documents} of the NAT basis

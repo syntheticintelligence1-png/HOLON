@@ -434,6 +434,12 @@
     },
     {
      "$ref": "#/$defs/t_env"
+    },
+    {
+     "$ref": "#/$defs/t_sym"
+    },
+    {
+     "$ref": "#/$defs/t_slash"
     }
    ]
   },
@@ -1316,6 +1322,50 @@
     },
     "of": {
      "$ref": "#/$defs/term"
+    }
+   }
+  },
+  "t_sym": {
+   "type": "object",
+   "required": [
+    "sym",
+    "on"
+   ],
+   "additionalProperties": false,
+   "description": "a SYM term (I34, holon.rules.sym): the sym id <model>:<tau|pi|omega|sentinel>:<basis words> applied to the law's binders, in order: the Bool 'the action is equivariant under the family's generator' (tau: s, x, d; pi: s, x, a, b), 'the two orders agree on every sink-reaching key' (omega: s, x, y) or 'the site writes no sentinel' (sentinel: s, x), each with its premises as the antecedent; rendered sym_ok[ID](args); its statement ref sym:ID hashes the template, version, subform and basis recomputed from the facts and the sort assignment (holon.gen.refs)",
+   "properties": {
+    "sym": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:(tau|pi|omega|sentinel)(:[A-Za-z0-9_.]+)+$"
+    },
+    "on": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_slash": {
+   "type": "object",
+   "required": [
+    "slash",
+    "on"
+   ],
+   "additionalProperties": false,
+   "description": "a slash term (I70, holon.rules.slash): the slash id <model>:slash_<nat|sort>:<a>:<b>:<op> of a migration's site pair (rule NAT or SORT, sub-form slash) applied to a linked state with its reachability, a batch index, the edge's migration choice and the two registries' environments: the Bool 'the answer of the op's slash site at b after the migration equals its answer at a' (NAT) or 'a nonzero return at a's site gives a nonzero return at b's' (SORT); rendered slash_ok[ID](S, K, U, EA, EB); its statement ref slash:ID hashes the site pair recomputed from the versioned document (holon.gen.refs)",
+   "properties": {
+    "slash": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:slash_(nat|sort):[A-Za-z0-9_]+:[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+    },
+    "on": {
+     "type": "array",
+     "minItems": 5,
+     "maxItems": 5,
+     "items": {
+      "$ref": "#/$defs/term"
+     }
     }
    }
   }

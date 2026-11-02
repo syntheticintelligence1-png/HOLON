@@ -133,9 +133,10 @@ def _untyped_laws(argv: list) -> bool:
         return False
     entries = {e.get("law_id"): e for e in dv.get("laws") or [] if isinstance(e, dict)}
     typed_subforms = ("as_member", "realize", "reinterpret")
-    # rules UNDO (I27) and FACT (I26) are decided on the typed model too (holon.undo.run, holon.fact.run)
+    # rules UNDO (I27), FACT (I26) and SYM (I34) are decided on the typed model too (holon.undo.run, holon.fact.run,
+    # holon.symd.run)
     return all(i in entries and not (entries[i].get("rule") == "SORT" and entries[i].get("subform") in typed_subforms)
-               and entries[i].get("rule") not in ("UNDO", "FACT") for i in ids)
+               and entries[i].get("rule") not in ("UNDO", "FACT", "SYM") for i in ids)
 
 
 def _product_laws(argv: list) -> bool:
@@ -293,6 +294,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["bundle2"]:  # likewise for holon.bundle2 (Bundle II's extraction and linked machine, I80)
         from . import bundle2
         return bundle2.main(argv[1:])
+    if argv[:1] == ["cutover"]:  # likewise for holon.cutover (a migration's slash sites, linked; outside every closure)
+        from . import cutover
+        return cutover.main(argv[1:])
     if argv[:1] == ["derivation"]:  # likewise for holon.derivation (the Go consumer and the product machine, I85)
         from . import derivation
         return derivation.main(argv[1:])
@@ -362,6 +366,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["undo"]:  # likewise for holon.rules.undo (I27: undo pairs, residues, static deadness)
         from .rules import undo
         return undo.main(argv[1:])
+    if argv[:1] == ["sym"]:  # likewise for holon.sym (I34: rule SYM's families, roles, pairs and sentinel sites)
+        from . import sym
+        return sym.cli(argv[1:])
     if argv[:1] == ["types"]:  # likewise for holon.sorts.types3 (I30: nominal types and the ghost-taint check)
         from .sorts import types3
         return types3.main(argv[1:])
@@ -439,6 +446,17 @@ def _main(argv: list) -> int:
             if others:
                 rc = _main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
             return max(rc, versions_run.main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(vids)]))
+    if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I70: the slash laws a --laws list names (rules NAT and SORT, sub-form slash) are decided by
+        # holon.cutover.lawrun over the linked layer; the list's other laws go on as before
+        from .cutover import lawrun as slash_run
+        split = slash_run.ids_of(argv)
+        if split is not None:
+            sids, others = split
+            rc = 0
+            if others:
+                rc = _main(slash_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, slash_run.run_main(slash_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(sids)]))
     if argv[:1] == ["run"] and _typed_milestone(argv):
         # I29: the NAT laws a --laws list names are decided over the versioned machine (holon.rules.nat_run); the
         # list's other laws go on as before
