@@ -78,6 +78,7 @@ def debt_of(ctx, law: dict, entry: dict) -> list:
     ra, rb = side["link"]["a"]["registry"], side["link"]["b"]["registry"]
     linked, claims = side["outputs"]["linked"], f"{side['outputs']['claims']}/slash.bend"
     vdoc = ctx.versioned()
+    vname = next((m["name"] for m in ctx.bundle().members() if m.get("adopted")), "the versioned member")
     path = list(vdoc.get("path") or [])
     upto = path[:path.index(a) + 1] if a in path else [a]
     if not (root / linked).is_file():
@@ -86,12 +87,12 @@ def debt_of(ctx, law: dict, entry: dict) -> list:
                    f"layer's), for {ra} at {a} and {rb} at {b}")
         out.append(f"a reachability witness of the versioned layer through {upto[0]}..{upto[-1]} whose registry word "
                    f"names {ra} at its initial state's address and whose committer is a staker of {ra}'s state: the "
-                   f"cutover harness deploys the Rollup at {a} directly, which is not a state of the versioned "
+                   f"cutover harness deploys {vname} at {a} directly, which is not a state of the versioned "
                    f"layer's reachability (it starts at the deployed path's entry), so the search over the corpus "
                    f"states (the sidecar's search) cannot run as stated")
     if not (root / claims).is_file():
         out.append(f"the claims module {claims} (each site's answer: the registry model's step on the site's call, "
-                   f"its arguments read from the Rollup's storage at the key k)")
+                   f"its arguments read from {vname}'s storage at the key k)")
     out.append("the witness search over the compiled linked layer (.mjs): not run")
     out.append(f"the counter-law gen/{ctx.milestone}/proofs/{law['law_id']}/PROOF.bend: none")
     out.append(f"the replay of a witness on the real code (RP1, {side['outputs']['replay']}): not run")

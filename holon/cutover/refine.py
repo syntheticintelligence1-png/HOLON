@@ -12,7 +12,7 @@ model (holon.cutover.model, compiled to JavaScript: holon.sorts.evaluate3), from
 answers its own calls received (the linked machine's, which agreed with the harness on the step), as I69's M4 runs a
 head member's steps: status, revert key, return data, the registry's storage at every slot either side writes, and its
 logs. A step in an action of the model's debt counts as unsupported. A frame of the registry under another member's
-call (the Rollup's calls at its sites) is counted, not compared: its calldata and answers are the linked machine's
+call (the versioned member's calls at its sites) is counted, not compared: its calldata and answers are the linked machine's
 inner frame's, which M4's comparison does not take. Results in outputs.model_refinement.
 """
 from __future__ import annotations
