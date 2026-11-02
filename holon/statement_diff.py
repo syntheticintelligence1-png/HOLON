@@ -1707,7 +1707,12 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
         out["note"] += (f"; {len(out['unchecked'])} binding_change line(s) of another milestone not checked here (no git "
                         f"history; lines {', '.join(map(str, out['unchecked']))})")
     if out.get("stored"):
-        out["note"] += (f"; {len(out['stored'])} model_extension line(s) checked from the files they name in "
+        kind_of = {it["line"]: it["entry"].get("kind") for it in out["entries"]}   # I68: remodel lines too, off git
+        tally: dict = {}
+        for n in out["stored"]:
+            tally[kind_of.get(n)] = tally.get(kind_of.get(n), 0) + 1
+        out["note"] += (f"; {', '.join(f'{c} {k}' for k, c in sorted(tally.items(), key=lambda kc: str(kc[0])))} "
+                        "line(s) checked from the files they name in "
                         f"{STORE.as_posix()}/ (lines {', '.join(map(str, out['stored'][:8]))}"
                         f"{' ...' if len(out['stored']) > 8 else ''})"
                         + (": every rule but the kernels' runs, which the check that appended them made" if hist is None
