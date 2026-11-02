@@ -7,9 +7,26 @@
  },
  "attempts": [
   {
+   "class": "hyp_apply",
    "engine": "bend",
-   "reason": "no Bend model of the consumer: the consumer runs only on the evaluator-level interpreter of its SSA (holon.derivation.interp), so no counter-law or proof can be checked over it, and AGENTS rules 5 and 6 leave the law UNKNOWN until a Bend model of the consumer decides it",
-   "result": "not_run"
+   "kernels": {
+    "bend": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    },
+    "bendtt": {
+     "exit_code": 0,
+     "marker": "ALL PROOFS CHECK"
+    }
+   },
+   "law_name": "l_prod_trailing_hypc_binds_trailing",
+   "laws_file": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_binds_trailing/LAWS.bend",
+   "proof_file": "gen/M3/derivation/bend/laws/L_prod_trailing_HypC_binds_trailing/PROOF.bend",
+   "result": "unknown",
+   "tried": [
+    "kernels: bend 'ALL PROOFS CHECK' (exit 0), bendtt 'ALL PROOFS CHECK' (exit 0)",
+    "a proof checks, but non-vacuity of its premises is not established (G11V)"
+   ]
   },
   {
    "candidates": 200,
@@ -47,7 +64,7 @@
  "evidence_triage": "none",
  "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
  "filter_bin": null,
- "generator_sha256": "cb615061270dadfd921e842e1979e96ee56d4030735765274999d935a365c059",
+ "generator_sha256": "d8428c3eb1e07162e2eec10bc1435caf08f571b75f46d73ebd386fdbf86493fc",
  "independence_class": "none",
  "kernel": {
   "name": "bend",

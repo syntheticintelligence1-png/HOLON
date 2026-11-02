@@ -1,0 +1,155 @@
+{
+ "boundary": {
+  "blob_layer": {
+   "answers": [
+    "PlOk",
+    "PlDErr",
+    "PlRet",
+    "PlPanic"
+   ],
+   "blobs_field": [
+    "Sidecar",
+    "Blobs"
+   ],
+   "decompress": "morph-l2/common/codec/zstd.DecompressBatchBytes",
+   "hypothesis": "HypB",
+   "parameter": "pl",
+   "retrieve": "morph-l2/common/batch.RetrieveBlobBytes"
+  },
+  "decoder": {
+   "answers": [
+    "DtOk",
+    "DtErr",
+    "DtPanic"
+   ],
+   "function": "morph-l2/common/batch.DecodeTxsFromBytes",
+   "hypothesis": "HypT",
+   "parameter": "dt"
+  }
+ },
+ "derivation_bend_version": "holon-derivation-bend/0.1",
+ "doc": "I89 (= I39c) sidecar, fixed at the I89 prereg (contract: the docstring of tests_m3/test_derivation_bend.py; written by tests_m3/_i89.py --write). The boundary of the consumer's Bend model (the blob layer under HypB, the transaction decoder under HypT), the kinds of the environment's native callees, the cone observables of I88's product terms, the fuel and the outputs. It is the only place the target's names live for holon/derivation/bendgen.py and its siblings. It states no outcome.",
+ "fuel": 1000000,
+ "go": {
+  "env": "HOLON_DERIV_BLOBLAYER",
+  "test": "TestHolonBlobLayer"
+ },
+ "inputs": {
+  "corpus": "gen/M3/derivation/corpus.json",
+  "document": "spec/M3/facts/morph_derivation.extracted.json",
+  "environment": "results/M3/derivation/environment.json",
+  "laws_sidecar": "spec/M3/lib/derivation_laws.json",
+  "product_sidecar": "spec/M3/lib/derivation.json",
+  "replay": "replay/M3/derivation/report.json"
+ },
+ "io_errors": {
+  "eof": "EOF",
+  "unexpected_eof": "unexpected EOF"
+ },
+ "laws": {
+  "L_prod_calldata_BlockContexts": [
+   "derive_ok",
+   "txs_data",
+   "derived_blocks"
+  ],
+  "L_prod_count_l1MsgNum": [
+   "derive_ok",
+   "txs_data",
+   "derived_sum:l1MsgNum"
+  ],
+  "L_prod_cycle_lastBlockNumber": [
+   "derive_ok",
+   "txs_data",
+   "derived:lastBlockNumber"
+  ],
+  "L_prod_trailing_HypC_binds_trailing": [
+   "derive_ok",
+   "txs_data",
+   "trailing"
+  ],
+  "L_prod_trailing_HypC_ignores_trailing": [
+   "derive_ok",
+   "txs_data",
+   "trailing",
+   "derived_batch"
+  ]
+ },
+ "native_globals": {
+  "encoding/binary.BigEndian": "byte_order"
+ },
+ "natives": {
+  "(*github.com/morph-l2/go-ethereum/core/types.Transaction).MarshalBinary": "encoding",
+  "(*math/big.Int).Cmp": "big_cmp",
+  "(*math/big.Int).SetBytes": "big_setbytes",
+  "(encoding/binary.bigEndian).Uint16": "be_uint",
+  "(encoding/binary.bigEndian).Uint64": "be_uint",
+  "(github.com/morph-l2/go-ethereum/core/types.Transactions).Len": "slice_len",
+  "bytes.NewReader": "bytes_reader",
+  "encoding/binary.Read": "binary_read",
+  "errors.New": "errors_new",
+  "fmt.Errorf": "errorf",
+  "math/big.NewInt": "big_newint"
+ },
+ "observables": {
+  "derive_ok": {
+   "status": true
+  },
+  "derived:lastBlockNumber": {
+   "field": "lastBlockNumber"
+  },
+  "derived_batch": {
+   "receiver": true
+  },
+  "derived_blocks": {
+   "blocks": "blockContexts",
+   "members": [
+    "Number"
+   ]
+  },
+  "derived_sum:l1MsgNum": {
+   "blocks": "blockContexts",
+   "members": [
+    "l1MsgNum"
+   ]
+  },
+  "trailing": {
+   "blocks": "blockContexts",
+   "decoder": true,
+   "members": [
+    "txsNum",
+    "l1MsgNum"
+   ]
+  },
+  "txs_data": {
+   "decoder": true
+  }
+ },
+ "outputs": {
+  "blob_layer": "replay/M3/derivation/bend/blob_layer.json",
+  "decisions": "results/M3/derivation/bend/decisions.json",
+  "hypb": "results/M3/derivation/bend/hypb.json",
+  "laws": "gen/M3/derivation/bend/laws",
+  "model": "gen/M3/derivation/bend/consumer.bend",
+  "model_info": "gen/M3/derivation/bend/model.json",
+  "refinement": "results/M3/derivation/bend/refinement.json",
+  "witnesses": "replay/M3/derivation/bend/witnesses.json"
+ },
+ "refinement": {
+  "blocks": {
+   "field": "blockContexts",
+   "members": [
+    "Number",
+    "txsNum",
+    "l1MsgNum"
+   ]
+  },
+  "compare": [
+   "status",
+   "error",
+   "panic"
+  ],
+  "fields": [
+   "lastBlockNumber"
+  ]
+ }
+}

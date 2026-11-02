@@ -526,6 +526,11 @@ class Gate3:
                     fact_gate.join(self, only)
                 except Exception as e:  # noqa: BLE001  (a crash is a failed check)
                     self.join_crashed("FACT", fact_gate.CHECKS, only, e)
+                from ..derivation import bendgate          # I89: I88's derivation law set as decided, joined by name
+                try:
+                    bendgate.join(self, only)
+                except Exception as e:  # noqa: BLE001  (a crash is a failed check)
+                    self.join_crashed("derivation", bendgate.CHECKS, only, e)
             if self.setup_error is None:
                 self.whole_milestone(g, ok, only, ("G2", "G8"))
                 self.other_laws(g, ok, only)
