@@ -355,9 +355,21 @@ def step_commit(a) -> int:
         body.append(f"- laws decided on both sides, now dirty: {', '.join(sorted(st['dirty_both']))}")
     body.append("- regenerated over the merged tree: " + ", ".join(c.split()[0] for c, _n in REGEN))
     msg = head + "\n\n" + "\n".join(body) + "\n" + ("\n" + "\n".join(a.trailer) + "\n" if a.trailer else "")
-    r = subprocess.run(["git", "commit", "-q", "-F", "-"], input=msg, text=True, capture_output=True)
-    if r.returncode != 0:
-        raise Stop(f"git commit: {(r.stderr or r.stdout).strip()[:400]}")
+    if merging():
+        # the lead is the merge commit's FIRST parent, as on a pull request's merge ref: an append-only log merged
+        # lead-first then extends every version on HEAD's first-parent chain, which is what G2 and `holon bind`
+        # check (statement_diff.merged_lines), so they hold on this branch's head and not only on the lead's commit
+        tree, lead_sha, own = git("write-tree"), git("rev-parse", "MERGE_HEAD"), git("rev-parse", "HEAD")
+        r = subprocess.run(["git", "commit-tree", tree, "-p", lead_sha, "-p", own, "-F", "-"], input=msg, text=True,
+                           capture_output=True)
+        if r.returncode != 0:
+            raise Stop(f"git commit-tree: {(r.stderr or r.stdout).strip()[:400]}")
+        git("merge", "--quit")   # the index and the worktree stay; MERGE_HEAD goes
+        git("update-ref", "-m", "holon land: merge commit, the lead first", "HEAD", r.stdout.strip(), own)
+    else:
+        r = subprocess.run(["git", "commit", "-q", "-F", "-"], input=msg, text=True, capture_output=True)
+        if r.returncode != 0:
+            raise Stop(f"git commit: {(r.stderr or r.stdout).strip()[:400]}")
     print(f"holon land: committed {git('rev-parse', '--short', 'HEAD')}")
     return 0
 
@@ -592,6 +604,36 @@ def selftest() -> int:
     except Conflict:
         pass
     assert json_format(json.dumps({"a": [1]}, indent=1) + "\n") == (1, False, True)
+    import tempfile
+    cwd = os.getcwd()
+    with tempfile.TemporaryDirectory(prefix="holon-land-selftest-") as t:
+        try:   # the merge commit puts the lead first, so a log merged lead-first extends HEAD's first-parent chain
+            os.chdir(t)
+            for c in (("init", "-q", "-b", "lead"), ("config", "user.email", "selftest@holon"),
+                      ("config", "user.name", "selftest"), ("config", "commit.gpgsign", "false")):
+                git(*c)
+            Path("log.jsonl").write_text("a\n")
+            git("add", "-A")
+            git("commit", "-q", "-m", "base")
+            git("checkout", "-q", "-b", "br")
+            Path("log.jsonl").write_text("a\nb\n")
+            git("commit", "-q", "-am", "branch line")
+            git("checkout", "-q", "lead")
+            Path("log.jsonl").write_text("a\nc\n")
+            git("commit", "-q", "-am", "lead line")
+            lead, _ = git("rev-parse", "HEAD"), git("checkout", "-q", "br")
+            own = git("rev-parse", "HEAD")
+            subprocess.run(["git", "merge", "--no-commit", "--no-ff", lead], capture_output=True)
+            Path("log.jsonl").write_text(union_lines("a\n", "a\nb\n", "a\nc\n")[0])
+            git("add", "log.jsonl")
+            save_state({"lead": "lead", "lead_sha": lead, "head": own, "resolved": {"log.jsonl": "union"},
+                        "dirty_both": []})
+            step_commit(argparse.Namespace(trailer=[]))
+            assert (git("rev-parse", "HEAD^1"), git("rev-parse", "HEAD^2")) == (lead, own), "the lead is not first"
+            assert git("rev-parse", "br") == git("rev-parse", "HEAD") and not merging() and not git("status", "--porcelain")
+            assert git("show", "HEAD:log.jsonl").startswith(git("show", f"{lead}:log.jsonl"))
+        finally:
+            os.chdir(cwd)
     print("holon land selftest: ok")
     return 0
 
