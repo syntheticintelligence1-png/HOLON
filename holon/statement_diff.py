@@ -764,17 +764,28 @@ def hash_migration_entries(milestone: str, root: Path) -> tuple[list[dict], list
     return out, notes
 
 
-def _law_sets(milestone: str, root: Path) -> list[tuple[str, dict, object]]:
-    """The milestone's law sets, each with its registry and the generator that writes it: (laws dir, registry,
-    regenerate) for laws/<M> (holon derive) and, when the plan-stated product laws are the milestone's, their own
-    directory (holon derivation laws)."""
+# the CLI commands that regenerate a law set (run as subprocesses: no generator-closure module imports holon.derivation
+# or holon.contracts, which I85's and I88's R4 and I64's K5 keep out of every closure)
+REGENERATE = {"derive": ["derive", "--milestone", "{m}", "--root", "{root}"],
+              "derivation": ["derivation", "laws", "--root", "{root}"]}
+
+
+def _law_sets(milestone: str, root: Path) -> list[tuple[str, dict | None, str]]:
+    """The milestone's law sets: (laws dir, the plan-stated set's law_set section or None, the REGENERATE command) for
+    laws/<M> (holon derive, its contract laws included) and, when the plan-stated product laws are the milestone's,
+    their own directory (holon derivation laws; its location read from the sidecar as data: holon.ir.plan_law_set)."""
     out = [(f"laws/{milestone}", None, "derive")]
-    from .derivation import laws as DL
-    if (root / DL.LAWS_SIDECAR).is_file():
-        side = DL.side_of(root, DL.LAWS_SIDECAR)
-        if side["law_set"]["milestone"] == milestone:
-            out.append((side["law_set"]["laws"], side, "derivation"))
+    ls = ir.plan_law_set(root)
+    if ls is not None and ls.get("milestone") == milestone and isinstance(ls.get("laws"), str):
+        out.append((ls["laws"], ls, "derivation"))
     return out
+
+
+def _regenerate(gen: str, milestone: str, root: Path) -> tuple[int, str]:
+    """Run a law set's generator through the holon CLI in a subprocess: (exit status, the tail of its output)."""
+    argv = [x.format(m=milestone, root=str(root)) for x in REGENERATE[gen]]
+    p = subprocess.run([sys.executable, "-m", "holon", *argv], cwd=str(root), capture_output=True, text=True)
+    return p.returncode, (p.stdout + p.stderr)[-600:]
 
 
 def _target(milestone: str, root: Path) -> list[str]:
@@ -831,8 +842,9 @@ def migrate_hash(milestone: str, root: Path, apply: bool = False, log=print) -> 
     (laws/<M> and, when they are M's, the plan-stated product laws) to hash scheme 2; every other milestone keeps its
     scheme. A dry run (the default) prints the plan and writes nothing. --apply, when M has a scheme-1 law:
       1. writes spec/<M>/hash_scheme.json (scheme 2), which the generators read;
-      2. regenerates laws/<M> with holon derive (and the plan-stated product laws with holon derivation laws), and
-         refuses unless every law file is the committed one plus "hash_scheme": 2 and each hash is the recomputed one;
+      2. regenerates laws/<M> with holon derive (and the plan-stated product laws with holon derivation laws), each
+         through the CLI in a subprocess, and refuses, putting every file back, unless every law file is the committed
+         one plus "hash_scheme": 2 and each registry hash is the recomputed scheme-2 one;
       3. appends one hash_migration line per law (append: checked, with its acceptance record and id), and one for
          every uncovered registry change that is a scheme migration (hash_migration_entries: a merge's);
       4. rebinds spec/bindings/<M>.json (each statement hash, nothing else) and logs it in spec/bindings/changes.jsonl,
@@ -842,7 +854,6 @@ def migrate_hash(milestone: str, root: Path, apply: bool = False, log=print) -> 
     Idempotent: a milestone already under scheme 2 has nothing to migrate. Exit 0 when done (or nothing to do), 1 when
     refused."""
     from . import bindings as B
-    from . import contracts, rules
     from .gen import refs as R
     root = Path(root).resolve()
     ms = _target(milestone, root)
@@ -882,45 +893,46 @@ def migrate_hash(milestone: str, root: Path, apply: bool = False, log=print) -> 
                                                " scheme 2 drops rule_catalog_version from the hash). Written by python -m"
                                                " holon.statement_diff migrate-hash; holon derive stamps every law with "
                                                "it."}, indent=2, ensure_ascii=False) + "\n")
-            want = {(d, law["law_id"]): (rules.dumps(ir.with_hash_scheme(law, 2)), h2) for d, _g, _s, law, _h1, h2 in items}
-            # 2. the generators, checked before anything is written (holon derive's own computation, as G1 runs it)
-            res = contracts.with_contracts(m, root, rules.compute(m, root))
-            outs = {f"laws/{m}/{lid}.json": rules.dumps(law) for lid, law in res["laws"].items()}
-            hashes = {f"laws/{m}/{lid}": h for lid, h in res["registry"]["statements"].items()}
-            sides = [s for d, s, g in _law_sets(m, root) if g == "derivation"]
-            from .derivation import laws as DL
-            for side in sides:
-                for rel, text in DL.outputs(root, side).items():
-                    outs[rel] = text
-                    if rel.endswith("/REGISTRY.json"):
-                        hashes.update({f"{side['law_set']['laws']}/{k}": v
-                                       for k, v in json.loads(text)["statements"].items()})
+            dumps = lambda obj: json.dumps(obj, indent=2, sort_keys=True) + "\n"   # noqa: E731 (holon.rules.dumps)
+            want = {(d, law["law_id"]): (dumps(ir.with_hash_scheme(law, 2)), h2) for d, _g, _s, law, _h1, h2 in items}
+            sets = _law_sets(m, root)
+            # 2. the generators write their sets (holon derive also its obstructions document); every file they may
+            # touch is kept first, and put back on a refusal
+            keep = {}
+            for d, _s, _g in sets:
+                keep.update({f: f.read_bytes() for f in sorted((root / d).iterdir()) if f.is_file()})
+            ob = root / "gen" / m / "sorts" / "obstructions.json"
+            if ob.is_file():
+                keep[ob] = ob.read_bytes()
             bad = []
+            for gen in dict.fromkeys(g for _d, _s, g in sets):
+                rc, out = _regenerate(gen, m, root)
+                if rc:
+                    bad.append(f"holon {' '.join(REGENERATE[gen][:2])} failed ({rc}): {out}")
+            hashes = {}
+            for d, _s, _g in sets:
+                regp = root / d / "REGISTRY.json"
+                stm = (json.loads(regp.read_text()).get("statements") or {}) if regp.is_file() else {}
+                hashes.update({f"{d}/{k}": v for k, v in stm.items()})
+                have = {f.stem for f in (root / d).glob(ir.LAW_GLOB)}
+                if have != set(stm) or have != {f.stem for f in keep if f.parent == root / d and f.match(ir.LAW_GLOB)}:
+                    bad.append(f"{d}: the generators give other laws than the committed ones")
             for (d, lid), (text, h2) in sorted(want.items()):
-                if outs.get(f"{d}/{lid}.json") != text:
+                f = root / d / f"{lid}.json"
+                if not f.is_file() or f.read_text() != text:
                     bad.append(f"{d}/{lid}.json is not the committed law plus hash_scheme 2")
                 if hashes.get(f"{d}/{lid}") != h2:
                     bad.append(f"{d}/{lid}: the generated hash {hashes.get(f'{d}/{lid}')} is not {h2}")
-            for d, _s, _g in _law_sets(m, root):
-                have = {f.stem for f in (root / d).glob(ir.LAW_GLOB)}
-                gen_ids = {k.rpartition("/")[2] for k in hashes if k.rpartition("/")[0] == d}
-                if have != gen_ids:
-                    bad.append(f"{d}: the generators give other laws ({sorted(have ^ gen_ids)[:4]})")
             if bad:
+                for d, _s, _g in sets:   # put every file back as it was (and remove one a generator added)
+                    for f in sorted((root / d).iterdir()):
+                        if f.is_file() and f not in keep:
+                            f.unlink()
+                for f, b in keep.items():
+                    f.write_bytes(b)
                 decl.unlink()
-                log("migrate-hash: refused, nothing written: " + "; ".join(bad[:8]))
+                log("migrate-hash: refused, every file put back: " + "; ".join(bad[:8]))
                 return 1
-            # holon derive writes laws/<M> (and its obstructions document), holon derivation laws its own set
-            argv = ["derive", "--milestone", m, "--root", str(root)]
-            rc = contracts.before_derive(argv)
-            rc = rc or rules.main(argv[1:])
-            rc = rc or contracts.after_derive(argv)
-            if rc:
-                log(f"migrate-hash: holon derive --milestone {m} failed ({rc})")
-                return 1
-            for side in sides:
-                for rel, text in DL.outputs(root, side).items():
-                    (root / rel).write_text(text)
             for d, _g, _s, law, h1, h2 in items:
                 pairs[h1] = h2
         # 3. the lines: one per migrated law, and one per uncovered scheme migration of the registry history
@@ -2634,10 +2646,10 @@ def _verify_extension_record(e, ext, commit: str, root: Path) -> str | None:
     These are the git cross-checks of the files laws/STATEMENT_DIFF.store/ holds for the line (_verify_extension_store)."""
     if not isinstance(ext, dict) or not isinstance(ext.get("models"), dict) or not isinstance(ext.get("record"), dict):
         return "its acceptance record names no model_extension check"
-    bc = ext.get("bound_commit")
-    if not isinstance(e, dict) or bc != e.get("bound_commit") or not isinstance(bc, str):
+    bound = ext.get("bound_commit")
+    if not isinstance(e, dict) or bound != e.get("bound_commit") or not isinstance(bound, str):
         return "its acceptance record names another bound_commit than the entry"
-    for at, side in ((commit, "new"), (bc, "old")):
+    for at, side in ((commit, "new"), (bound, "old")):
         for r, sha in sorted((ext["models"].get(side) or {}).items()):
             b = blob_at(root, at, r)
             if b is None or _sha(b) != sha:
@@ -2646,13 +2658,13 @@ def _verify_extension_record(e, ext, commit: str, root: Path) -> str | None:
     b = blob_at(root, commit, rec.get("path") or "")
     if b is None or _sha(b) != rec.get("sha256"):
         return f"its acceptance record's {rec.get('path')} is not the file at {commit[:7]}"
-    b = blob_at(root, bc, rec.get("path") or "")
+    b = blob_at(root, bound, rec.get("path") or "")
     old = _json_or_none(b)
     old_status = old.get("status") if isinstance(old, dict) else None
     if old_status is None or old_status != rec.get("old_status"):
-        return f"its acceptance record's old status is not the status of {rec.get('path')} at {bc[:7]}"
+        return f"its acceptance record's old status is not the status of {rec.get('path')} at {bound[:7]}"
     if "old_sha256" in rec and rec["old_sha256"] != _sha(b):
-        return f"its acceptance record's old record is not {rec.get('path')} at {bc[:7]}"
+        return f"its acceptance record's old record is not {rec.get('path')} at {bound[:7]}"
     for k in ("proof", "laws"):
         pf = ext.get(k)
         if pf is not None:
@@ -2661,9 +2673,9 @@ def _verify_extension_record(e, ext, commit: str, root: Path) -> str | None:
                 return f"its acceptance record's {k} file {(pf or {}).get('path')} is not the file at {commit[:7]}"
     bo = (ext.get("bindings") or {}).get("old") if isinstance(ext.get("bindings"), dict) else None
     if "bindings" in ext:
-        ob = _binding_at(root, bc, str(e.get("milestone")), str(e.get("law_id")))
+        ob = _binding_at(root, bound, str(e.get("milestone")), str(e.get("law_id")))
         if bo is None or ob is None or _sha(ir.canonical_json(ob)) != bo:
-            return f"its acceptance record's old binding is not the binding at {bc[:7]}"
+            return f"its acceptance record's old binding is not the binding at {bound[:7]}"
     rc = ext.get("recheck")
     if rec.get("new_status") in ("PROVED", "REFUTED"):
         if not isinstance(rc, dict) or (rc.get("bend") or {}).get("exit_code") != 0:
@@ -2861,7 +2873,7 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
         if not isinstance(ext, dict) or not isinstance(ext.get("bound_commit"), str):
             probs.append(f"line {n}: no model_extension acceptance record")
             continue
-        bc, rec = ext["bound_commit"], ext.get("record") or {}
+        bound, rec = ext["bound_commit"], ext.get("record") or {}
 
         def at(c, rel):
             return blob_at(root, c, rel) if c is not None else ((root / rel).read_bytes() if (root / rel).is_file()
@@ -2869,18 +2881,18 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
         source = {}
         if git:
             for r, sha in (ext.get("models") or {}).get("old", {}).items():
-                source[sha] = lambda r=r: at(bc, r)
+                source[sha] = lambda r=r: at(bound, r)
             for r, sha in (ext.get("models") or {}).get("new", {}).items():
                 source.setdefault(sha, lambda r=r: at(commit, r))
             source.setdefault(rec.get("sha256"), lambda: at(commit, rec.get("path") or ""))
             if "old_sha256" in rec:
-                source.setdefault(rec["old_sha256"], lambda: at(bc, rec.get("path") or ""))
+                source.setdefault(rec["old_sha256"], lambda: at(bound, rec.get("path") or ""))
             for k in ("proof", "laws"):
                 if isinstance(ext.get(k), dict):
                     source.setdefault(ext[k].get("sha256"), lambda k=k: at(commit, ext[k].get("path") or ""))
             if isinstance(ext.get("bindings"), dict):
                 source.setdefault(ext["bindings"].get("old"),
-                                  lambda: ir.canonical_json(_binding_at(root, bc, str(e.get("milestone")),
+                                  lambda: ir.canonical_json(_binding_at(root, bound, str(e.get("milestone")),
                                                                         str(e.get("law_id")))))
         for sha, what in extension_named(ext):
             if sha in named:
