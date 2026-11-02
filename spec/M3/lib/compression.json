@@ -1,0 +1,49 @@
+{
+  "compression_version": "holon-compression/0.1",
+  "doc": "The compression oracle of M3 (I91 = I38c; fixed at the I91 prereg; contract: rules Z1-Z9 of the docstring of tests_m3/test_compress.py). It names, in the pinned Go code, the compressor the batch submitter applies to a blob payload (enc), the decompressor the derivation node applies to the blob bodies (dec), the blob pipeline between them (split: the submitter's sidecar builder, split_blobs the field of its result that holds the blobs; retrieve: the derivation's reader of one blob's body; capacity: the bytes one blob carries), the module whose version identifies the real zstd (library), the two hypotheses of whitepaper section 8.5 that models over an uninterpreted Enc and Dec take as premises, and the fixed sample `holon oracle compression --milestone M3` tests them on. A sample length, padding or limit is an expression over C, the capacity constant as the compiled code holds it: an integer, C, C-d, C+d or m*C. This file is the only target vocabulary of holon.oracles.compression.",
+  "document": "spec/M3/facts/morph_blob.go.extracted.json",
+  "probe_package": "morph-l2/common/blob",
+  "codec": {
+    "enc": "morph-l2/common/blob.CompressBatchBytes",
+    "dec": "morph-l2/common/codec/zstd.DecompressBatchBytes",
+    "split": "morph-l2/common/blob.MakeBlobTxSidecar",
+    "split_blobs": "Blobs",
+    "retrieve": "morph-l2/common/batch.RetrieveBlobBytes",
+    "capacity": "morph-l2/common/blob.MaxBlobBytesSize",
+    "library": "github.com/morph-l2/morph-da-codec/bindings/codec"
+  },
+  "roles": {
+    "enc": "common/batch/batch_cache.go handleBatchSealing compresses the batch payload with it (TxsPayloadV2, or TxsPayload on the legacy path), and the estimators of common/batch/batch_data.go call it on their slow path; it returns nil for an empty payload",
+    "dec": "node/derivation/batch_info.go ParseBatch decompresses the concatenated blob bodies with it, once per batch",
+    "split": "common/batch/batch_cache.go:1433 builds the blob sidecar of the compressed payload with it: ceil(|c| / C) blobs, the last one zero-filled after the payload's last byte, and one empty blob for an empty payload",
+    "retrieve": "node/derivation/batch_info.go ParseBatch reads each blob's C bytes with it and appends them, in order, before decompressing",
+    "capacity": "common/blob/payload.go:13 MaxBlobBytesSize = 4096 * 31 (31 data bytes per 32-byte field element); common/batch/blob.go:17 holds the same constant",
+    "library": "the cgo binding of the real zstd (a prebuilt static library per platform) that enc and dec call through common/codec/zstd"
+  },
+  "hypotheses": {
+    "HypZ": {
+      "statement": "forall x with |x| >= 1, forall k <= K: Dec(Enc(x) ++ 0^k) = x",
+      "K": "C-1",
+      "why_K": "the split uses the fewest blobs, ceil(|c| / C) for a compressed payload c with |c| >= 1, and the derivation concatenates their C-byte bodies, so Dec reads c followed by k = ceil(|c| / C) * C - |c| <= C - 1 zero bytes; the maximal blob count the submitter is configured with bounds |c|, not k",
+      "domain": "non-empty x: Enc maps the empty payload to the empty string, which the split turns into one all-zero blob; that boundary is recorded apart (rule Z7)"
+    },
+    "HypZ_len": {
+      "statement": "forall x: |Enc(x)| <= CB(|x|), with CB(n) = n + (n >> 8) + (n < 131072 ? (131072 - n) >> 11 : 0), zstd's ZSTD_COMPRESSBOUND",
+      "bound": {"shift": 8, "small": 131072, "small_shift": 11},
+      "why": "an upper bound on the expansion, which a model needs to reason about blob capacity; it says nothing about how much a payload shrinks, and it allows the non-expansion the estimators' fast path assumes to fail"
+    }
+  },
+  "sample": {
+    "seed": "holon-i91-compression-oracle",
+    "kinds": ["zero", "ramp", "stream"],
+    "kinds_doc": {
+      "zero": "n zero bytes",
+      "ramp": "byte i is i mod 256",
+      "stream": "the first n bytes of SHA-256(seed || be32(0)) || SHA-256(seed || be32(1)) || ..., seed as UTF-8: incompressible"
+    },
+    "lengths": ["1", "2", "31", "32", "60", "1000", "4096", "C-1", "C", "C+1", "2*C"],
+    "paddings": ["0", "1", "2", "31", "32", "4096", "65536", "C-2", "C-1"],
+    "beyond": ["C", "2*C"],
+    "expansion": {"kind": "stream", "limit": "C", "window": 1024}
+  }
+}
