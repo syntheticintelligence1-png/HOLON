@@ -1,0 +1,186 @@
+{
+  "contract_version": "holon-contract/0.1",
+  "evidence": [
+    "E2"
+  ],
+  "facts": "spec/M2/facts/morph_rollup.extracted.json",
+  "id": "C_o12_m3_open",
+  "kind": "intended",
+  "l_weak": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "act": {
+              "var": "x"
+            },
+            "is": "challengeState"
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "from": {
+              "var": "s"
+            },
+            "ok": {
+              "var": "x"
+            }
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "act": {
+              "var": "y"
+            },
+            "is": "setPause"
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "from": {
+              "from": {
+                "var": "s"
+              },
+              "step": {
+                "var": "x"
+              }
+            },
+            "ok": {
+              "var": "y"
+            }
+          },
+          {
+            "bool": true
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "y",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "k",
+        "q": "forall",
+        "type": "Word"
+      }
+    ],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "wnat": {
+                "from": {
+                  "from": {
+                    "from": {
+                      "var": "s"
+                    },
+                    "step": {
+                      "var": "x"
+                    }
+                  },
+                  "step": {
+                    "var": "y"
+                  }
+                },
+                "keys": [],
+                "sread": "inChallenge"
+              }
+            },
+            {
+              "wnat": {
+                "from": {
+                  "var": "s"
+                },
+                "keys": [],
+                "sread": "inChallenge"
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "wnat": {
+                "from": {
+                  "from": {
+                    "from": {
+                      "var": "s"
+                    },
+                    "step": {
+                      "var": "x"
+                    }
+                  },
+                  "step": {
+                    "var": "y"
+                  }
+                },
+                "keys": [
+                  {
+                    "var": "k"
+                  }
+                ],
+                "member": "originTimestamp",
+                "sread": "batchDataStore"
+              }
+            },
+            {
+              "wnat": {
+                "from": {
+                  "var": "s"
+                },
+                "keys": [
+                  {
+                    "var": "k"
+                  }
+                ],
+                "member": "originTimestamp",
+                "sread": "batchDataStore"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "maps_to": "O12 (N2)",
+  "milestone": "M3",
+  "rationale": "A second true claim for the class (never registered): the cancellation restores inChallenge (challengeState's guard needs it false in s; the cancel branch clears it), and leaves every commit time where it was.",
+  "rule": "UNDO",
+  "scope": {
+    "laws": [
+      "L_undo_cancel_Rollup_challengeState_setPause"
+    ]
+  }
+}

@@ -30,6 +30,10 @@
    "sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78"
   },
   {
+   "path": "laws/M3/L_contract_C_o12_m3.json",
+   "sha256": "52437ecc159c865f7f0a0fa30acd48254db0426c9bc3eb8eccf5828220da7074"
+  },
+  {
    "path": "laws/M3/L_disch_blk_initializable_120_b8d46c45_anyone.json",
    "sha256": "fd802473c923c46f467937bdfeba4729d4617d39efe83fd3951fc7949fcd24e9"
   },
@@ -750,6 +754,10 @@
    "sha256": "694db9408c8f87112b2da5f72153140713b2d94434213298d70d425e0564713f"
   },
   {
+   "path": "results/M3/L_contract_C_o12_m3.json",
+   "sha256": "f4a30e9ea00cb7517c51ab7fcb720d3e956d231be1c0b35b42c93bee4a963f7c"
+  },
+  {
    "path": "results/M3/L_disch_blk_initializable_120_b8d46c45_anyone.json",
    "sha256": "c5f751a2855fb64ee0da6766b8d9e9d15a119856745981fd372077d0b5ffdb00"
   },
@@ -1427,7 +1435,7 @@
   },
   {
    "path": "results/M3/L_undo_cancel_Rollup_challengeState_setPause.json",
-   "sha256": "521af87bba2ad601e1d0086b3e0c35bd20bcb03aba6d52a79527f69db77aa357"
+   "sha256": "8c6bd0043af554a4417321e6439d85f8b2265d1bd8c1336dd0099f2f50d5c4e1"
   },
   {
    "path": "results/M3/L_undo_pair_Rollup_addChallenger_removeChallenger.json",
@@ -1479,6 +1487,20 @@
   }
  ],
  "measures": {
+  "L_contract_C_o12_m3": {
+   "certified": true,
+   "detail": {},
+   "kind": "value",
+   "lower": "infinite",
+   "measure": "residue_liveness_distance",
+   "pending": null,
+   "rule": "UNDO",
+   "scope": null,
+   "unit": "steps",
+   "upper": "infinite",
+   "value": "infinite",
+   "why": "the kernel proved the residue unobservable: no continuation tells the states apart"
+  },
   "L_disch_blk_initializable_120_b8d46c45_anyone": {
    "certified": false,
    "detail": {
@@ -5196,7 +5218,7 @@
    "triage": "finding"
   },
   {
-   "filter_bin": "finding",
+   "filter_bin": "intended_bounded",
    "impact": {
     "cost": {
      "calls": 4,
@@ -6838,7 +6860,7 @@
    "status": "not_applicable"
   },
   "UNDO": {
-   "laws": 9,
+   "laws": 10,
    "measure": "residue_liveness_distance",
    "pending": null,
    "status": "computed"
@@ -6853,9 +6875,9 @@
    "bound": 10,
    "not_applicable": 26,
    "pending": 50,
-   "value": 92
+   "value": 93
   },
-  "laws": 178,
+  "laws": 179,
   "persistence": {
    "code": 8,
    "dischargeable": 1,
