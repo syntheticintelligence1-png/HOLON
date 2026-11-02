@@ -120,6 +120,7 @@ class Inputs:
         self.join = join_rows(self.section, self.s85, load(root / self.rollup_rel))
         self.action, self.param = self.pr["commit_action"], self.pr["commit_param"]
         self.laws = self._laws()
+        self._typed = None
 
     def _laws(self) -> list:
         d = self.root / self.s88["law_set"]["laws"]
@@ -131,32 +132,50 @@ class Inputs:
             out.append(load(p))
         return out
 
-    # ---------------------------------------------------------------- the typed model (holon.sorts.run3)
+    # ---------------------------------------------------------------- the typed model (holon.sorts.model3)
     def typed(self):
         """(the typed model's importable path, its text, the header family's key and register slot as Bend terms over
-        the step's context x and the table kh)."""
-        from ..sorts import run3
+        the step's context x and the table kh).
+
+        The generator is holon.sorts.model3's, for the rollup document from its deployment state as holon.sorts.run3
+        makes it (the deployment's code table and its preimages, which key the initial state's mapping slots
+        structurally; I68). Its text must be the committed model the generated files import: a model that differs is
+        refused here, never rewritten. The register's slot is the structural key the model's own write to it takes
+        (holon.undo.trace.Trace.reg_slot)."""
+        if self._typed is None:
+            self._typed = self._typed_model()
+        return self._typed
+
+    def _typed_model(self):
+        from ..sorts import model3 as TM
+        from ..sorts.envcode3 import with_code
+        from ..sorts.evaluate3 import hashes_of
         from ..undo.trace import Trace
         from ..machine import load_extracted
-        ctx = run3.Ctx("M3", self.root, None, None, None, log=lambda *a: None)
-        try:
-            ev, _init, _f, mm, _doc = ctx.model(self.rollup_rel)
-            ip = ctx.import_path(self.rollup_rel)
-            text = ip.read_text(encoding="utf-8")
-            tr = Trace(mm, text, load(self.root / self.rollup_rel), ev.hashes(), [])
-            prog = load_extracted(self.rollup_rel, self.root).program(self.action)
-            fam = self.pr["header_family"]
-            w = next((s for s in prog.steps if getattr(s, "family", None) == fam), None)
-            if w is None or not (isinstance(w.value, list) and len(w.value) == 2 and w.value[0] == "keccak256"):
-                raise Unsupported(f"{self.action} writes no keccak256 to the header family {fam}")
-            if len(w.path) != 1 or not (isinstance(w.path[0], list) and w.path[0][0] == "map"):
-                raise Unsupported(f"the header family {fam}'s write is not one mapping key")
-            key = tr.compile_word(self.action, w.path[0][1])
-            slot = tr.reg_slot(fam, "KEY", 0)   # the register's slot as the typed model keys it (I68: SK on a structural model)
-            if "keccak256" not in ev.hashes():
-                raise Unsupported("the typed model has no keccak256 table")
-        finally:
-            ctx.close()
+        rel, m = self.rollup_rel, "M3"
+        init = with_code(TM.init_of(m, self.root, None, rel), self.root, rel)
+        if init.get("binding") and init.get("preimages") is None:
+            raise Unsupported(f"the deployment of {init['binding']} carries no preimages (the initial state's mapping "
+                              "slots would stay raw)")
+        text, mm = TM.generate(m, self.root, rel, typed=True, init=init)
+        ip = self.root / "gen" / m / "sorts" / "models" / TM.importable(TM.model_name(rel))
+        if not ip.is_file() or ip.read_text(encoding="utf-8") != text:
+            raise Refused(f"{ip.relative_to(self.root).as_posix()} is not holon.sorts.model3's text of {rel} from its "
+                          f"deployment (run `holon model --milestone {m}`)")
+        if not getattr(mm, "sk", False):
+            raise Unsupported("the typed model's store is not structural (holon.sorts.model3, I68)")
+        if "keccak256" not in hashes_of(text):
+            raise Unsupported("the typed model has no keccak256 table")
+        tr = Trace(mm, text, load(self.root / rel), hashes_of(text), [])
+        prog = load_extracted(rel, self.root).program(self.action)
+        fam = self.pr["header_family"]
+        w = next((s for s in prog.steps if getattr(s, "family", None) == fam), None)
+        if w is None or not (isinstance(w.value, list) and len(w.value) == 2 and w.value[0] == "keccak256"):
+            raise Unsupported(f"{self.action} writes no keccak256 to the header family {fam}")
+        if len(w.path) != 1 or not (isinstance(w.path[0], list) and w.path[0][0] == "map"):
+            raise Unsupported(f"the header family {fam}'s write is not one mapping key")
+        key = tr.compile_word(self.action, w.path[0][1])
+        slot = tr.reg_slot(fam, "KEY", 0)   # SK{slot, 0, [SP_m{key, 0}]}: the key the model's write to the register takes
         return ip, text, key, slot
 
     # ---------------------------------------------------------------- the header component (I24, holon.gen.linked)

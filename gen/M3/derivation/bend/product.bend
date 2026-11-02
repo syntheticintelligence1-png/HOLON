@@ -205,7 +205,7 @@ def kh_pre(xs: List<&2, M.HKB>, +w: M.W) -> List<&2, U32>:
 def ch_commitBatch(+st: M.HSt, +ar: M.AR_commitBatch, +en: M.HEnv, +kh: List<&2, M.HKB>) -> List<&2, U32>:
   +x0 = {M.x0_commitBatch(st, ar, en, kh) : M.X_commitBatch}
   +key = {M.w_add(M.w_shr_192(M.b_word(M.g_S_IRollup_BatchDataInput_parentBatchHeader(M.ga_commitBatch_batchDataInput(M.gx_commitBatch_ar(x0))), 1n)), M.W{1, 0, 0, 0, 0, 0, 0, 0}) : M.W}
-  kh_pre(kh, M.sload(M.post_commitBatch(st, ar, en, kh), M.h_get(kh, List.append(&2, U32, M.b_of_w(key), M.b_of_w(M.W{161, 0, 0, 0, 0, 0, 0, 0})))))
+  kh_pre(kh, M.sload(M.post_commitBatch(st, ar, en, kh), M.SK{M.W{161, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{key, M.w0()}]}))
 
 def committed_header(+s: M.GSt, x: M.HAct, +kh: List<&2, M.HKB>) -> List<&2, U32>:
   match x:
