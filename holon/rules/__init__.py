@@ -156,16 +156,25 @@ CATALOGS[BUNDLE_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_BUNDL
 for _sub, _rule in _bundle.RULE_SUBFORMS.items():
     CATALOGS[BUNDLE_CATALOG_VERSION].setdefault(_rule, {})[_sub] = _bundle.PRODUCERS[_sub]
 
+#   holon-rules/1.12 I34's: the rules of holon-rules/1.11 (I86's, its predecessor in the chain) unchanged (the same
+#                    producer objects), plus rule SYM's sub-forms tau, pi, omega and sentinel (holon.rules.sym: the
+#                    symmetry splits, reorderings and sentinels of a typed milestone's facts and sort assignment); M3 and
+#                    later. The next free version at I34's landing (rule J4 of tests_m3/test_sym.py).
+from . import sym as _sym  # noqa: E402
+SYM_CATALOG_VERSION = "holon-rules/1.12"
+CATALOGS[SYM_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_newest_catalog(SYM_CATALOG_VERSION)].items()}
+CATALOGS[SYM_CATALOG_VERSION][_sym.RULE] = dict(_sym.PRODUCERS)
+
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.11 for the typed target milestones (M3 and
+    """The rule-catalog version a milestone derives with: holon-rules/1.12 for the typed target milestones (M3 and
     later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel, I29's NAT, I35's OWN, I84's
-    and I86's bundle sub-forms); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
+    and I86's bundle sub-forms, I34's SYM); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
     holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's
     catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return BUNDLE_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return SYM_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -378,7 +387,7 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
                 if getattr(catalog[rule][sub], "bundle", False):   # derive's bundle part runs these (I86)
                     continue
                 pairs += catalog[rule][sub].produce(ctx)
-    except (_sort.SortRuleError, _undo.UndoError, _fact.FactError) as e:
+    except (_sort.SortRuleError, _undo.UndoError, _fact.FactError, _sym.SymRuleError) as e:
         raise DeriveError(str(e)) from e
     ids = [law["law_id"] for law, _ in pairs]
     dup = sorted({i for i in ids if ids.count(i) > 1})
