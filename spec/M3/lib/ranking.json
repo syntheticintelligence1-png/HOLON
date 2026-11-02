@@ -1,18 +1,17 @@
 {
   "ranking_version": "holon-ranking/0.1",
   "iteration": "I81",
-  "doc": "I81 prereg instrument (BUILD_PLAN row I81 = I44a; whitepaper Def 6.13, Thm 6.8, Thm 6.9, Def 6.20, §10.10, §11.3 Impact column; the contract is the docstring of tests_m3/test_ranking.py). Frozen at the I81 prereg; the build reads it and never edits it. It fixes the policy the ranking applies, never a value: which measure each rule has (Def 6.13), the key a measure waits on when its rule or input does not exist yet, the sink class of each divergence channel, and the order of each ranking dimension (most severe first; the names inside one inner list share a rank). How a channel, a persistence class, a reach kind and a cost are computed from the records, witnesses, replay reports and model documents is the contract's rules K1-K8, PE1-PE3, RE1-RE3 and CO1; nothing here names a law, an action or a target.",
+  "doc": "I81 prereg instrument (BUILD_PLAN row I81 = I44a; whitepaper Def 6.13, Thm 6.8, Thm 6.9, Def 6.20, §10.10, §11.3 Impact column; the contract is the docstring of tests_m3/test_ranking.py). Frozen at the I81 prereg; the build reads it and never edits it. It fixes the policy the ranking applies, never a value: which measure each rule has (Def 6.13), the key a measure waits on when its rule or input does not exist yet, the sink class of each divergence channel, and the order of each ranking dimension (most severe first; the names inside one inner list share a rank). How a channel, a persistence class, a reach kind and a cost are computed from the records, witnesses, replay reports and model documents is the contract's rules K1-K8, PE1-PE3, RE1-RE3 and CO1; nothing here names a law, an action or a target. Amended at the I44 prereg (I44 = I44b, spec/M3/predictions/I44.json; the contract of the amendment is the docstring of tests_m3/test_measures_i44.py): NAT's measure is computed (its entry names a unit, the replay sub-directory whose runs hold the model's observations, and the observation, and no pending key), and the NAT entry of pending_measures is removed, since I29 (918b9a4e) brought rule NAT. Every other field is I81's, unchanged.",
   "measures": {
     "PAR": {"name": "holonomy_defect_size", "unit": "positions"},
-    "NAT": {"name": "naturality_defect_mass", "pending": "I29", "why": "no NAT producer exists in the M3 rule catalog until I29"},
+    "NAT": {"name": "naturality_defect_mass", "unit": "components", "replay": "nat", "observation": "the square's observation (I29's claim): the end version, the success of each step the two sides share (the migration and the op), and each storage word either end state holds, an absent word being the zero word"},
     "FACT": {"name": "adversarial_freedom", "unit": "bits", "subforms": ["kernel"], "why_not": "an attribution law relates the principal whose bond a call puts at risk to the chooser of the content; it states no kernel pair (m, c), so Thm 6.8's F(m, c) has no instance"},
     "UNDO": {"name": "residue_liveness_distance", "unit": "steps"},
     "DISCH": {"name": "discharge_profile", "pending": "I37", "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"}
   },
   "pending_measures": [
     {"rule": "FACT", "pair": "F(PI, parent lbn)", "key": "I37", "why": "the public input is extracted by I37"},
-    {"rule": "FACT", "pair": "F(Z, derivation)", "key": "I39", "why": "the Go derivation is extracted by I39"},
-    {"rule": "NAT", "pair": "naturality defect mass", "key": "I29", "why": "the NAT rule is I29's"}
+    {"rule": "FACT", "pair": "F(Z, derivation)", "key": "I39", "why": "the Go derivation is extracted by I39"}
   ],
   "channels": {
     "abort": "process",
