@@ -223,13 +223,16 @@ def law_id(cid: str) -> str:
 
 
 def derived_law(c: dict, root: Path = ROOT) -> dict:
-    """K3: an intended contract's L_weak as a law of its milestone, over its facts file as it is now."""
+    """K3: an intended contract's L_weak as a law of its milestone, over its facts file as it is now, under the
+    milestone's hash scheme (PV2A: holon.ir.milestone_hash_scheme)."""
     facts = c["facts"]
-    return {"ir_version": "holon-ir/0.3", "law_id": law_id(c["id"]), "milestone": c["milestone"],
-            "rule": c["rule"], "subform": "intended_weak", "rule_catalog_version": "holon-rules/0.1",
-            "facts": facts, "facts_sha256": _sha256((Path(root) / facts).read_bytes()),
-            "statement": c["l_weak"], "maps_to": c["maps_to"], "evidence": c["evidence"],
-            "notes": f"L_weak of intent contract {c['id']} (laws/CONTRACTS/{c['id']}.json), derived by holon contracts"}
+    law = {"ir_version": "holon-ir/0.3", "law_id": law_id(c["id"]), "milestone": c["milestone"],
+           "rule": c["rule"], "subform": "intended_weak", "rule_catalog_version": "holon-rules/0.1",
+           "facts": facts, "facts_sha256": _sha256((Path(root) / facts).read_bytes()),
+           "statement": c["l_weak"], "maps_to": c["maps_to"], "evidence": c["evidence"],
+           "notes": f"L_weak of intent contract {c['id']} (laws/CONTRACTS/{c['id']}.json), derived by holon contracts"}
+    from . import ir
+    return ir.with_hash_scheme(law, ir.milestone_hash_scheme(c["milestone"], root))
 
 
 def contract_laws(milestone: str, root: Path = ROOT) -> list:
@@ -366,13 +369,10 @@ def after_derive(argv: list, root: Path = ROOT) -> int:
 
 # ---------------------------------------------------------------------------------------------------- K5
 def statement_hash(law: dict, root: Path) -> str:
-    """The statement hash `holon run` gives the law's record (holon.mpipeline.check_registry_multi's form)."""
-    from . import facts as F
-    from .gen import oracles as O
+    """The statement hash `holon run` gives the law's record (holon.mpipeline.check_registry_multi's form):
+    holon.gen.refs.tree_law_hash."""
     from .gen import refs as R
-    rel = law["facts"]
-    orc = O.Oracles.for_milestone(law["milestone"], root / rel, root)
-    return R.law_hash(law, F.load(root / rel), oracles=orc, root=root)
+    return R.tree_law_hash(law, Path(root))
 
 
 def states(milestone: str, root: Path = ROOT, results: Path | None = None) -> list:

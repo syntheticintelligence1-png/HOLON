@@ -1,0 +1,50 @@
+{
+  "title": "IR 0.3",
+  "plan": "docs/BUILD_PLAN.md#i7",
+  "prompt": "prompts/I7_ir03.md",
+  "predictions": [
+    {
+      "id": "I7-P1",
+      "claim": "The Fn+cf probe checks under both bend and --verdict.",
+      "check": "tests_m2/test_ir03.py::TestFnProbe::test_fn_and_cf_probe_checks_under_both_kernels"
+    },
+    {
+      "id": "I7-P2",
+      "claim": "A false ∧ fixture is REFUTED with its failing conjunct named (index 0); a true one is never REFUTED.",
+      "check": "tests_m2/test_ir03.py::TestFixtures::test_false_conjunction_is_refuted_naming_the_failing_conjunct and tests_m2/test_ir03.py::TestFixtures::test_true_conjunction_is_never_refuted"
+    },
+    {
+      "id": "I7-P3",
+      "claim": "A false ∃ fixture gives UNKNOWN with bounded_negative, and its generated ∀¬ law is PROVED.",
+      "check": "tests_m2/test_ir03.py::TestFixtures::test_false_existential_is_unknown_with_its_negation_proved"
+    },
+    {
+      "id": "I7-P4",
+      "claim": "The global-injectivity premise is rejected.",
+      "check": "tests_m2/test_ir03.py::TestGlobalInjectivity::test_global_injectivity_premise_is_rejected"
+    },
+    {
+      "id": "I7-P5",
+      "claim": "A CF fixture is PROVED and its premise's inhabitant (the identity) checks.",
+      "check": "tests_m2/test_ir03.py::TestFixtures::test_cf_law_proved_and_its_premise_inhabited"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I7-R1",
+      "claim": "All 24 existing statement hashes recompute equal.",
+      "check": "tests_m2/test_ir03.py::TestSchemaAndHash::test_existing_hashes_recompute_equal"
+    }
+  ],
+  "outcome_paths": [
+    "gen/M0/",
+    "gen/M1/",
+    "results/M0/",
+    "results/M1/",
+    "bend/notes/p_ir03_fn_verdict/"
+  ],
+  "tests": [
+    "tests_m2/test_ir03.py"
+  ],
+  "thresholds": {}
+}
