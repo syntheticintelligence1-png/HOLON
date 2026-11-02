@@ -1671,8 +1671,10 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
             if not own:
                 out.setdefault("elsewhere", []).append(n)
             at = commit
-            if ext_line:   # I83: its files are tied to the commit that appended it, the oldest commit whose version
-                # holds the line; a merge on HEAD's chain that brought the line in (a PR's merge ref) is not that commit
+            if ext_line or e.get("kind") == "remodel":   # I83: its files are tied to the commit that appended it, the
+                # oldest commit whose version holds the line; a merge on HEAD's chain that brought the line in (a PR's
+                # merge ref, or a lead-first landing merge) is not that commit. I68: a remodel's acceptance names files
+                # as they were where its check ran (_verify_remodel), as a model_extension's does
                 origins = _line_origins(path, root) if origins is None else origins
                 at = origins.get(raw, commit)
             why = _verify_committed(e, acc, at, root, recheck=own) or \
