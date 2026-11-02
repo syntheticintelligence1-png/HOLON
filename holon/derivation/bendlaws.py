@@ -152,7 +152,7 @@ class Inputs:
             if len(w.path) != 1 or not (isinstance(w.path[0], list) and w.path[0][0] == "map"):
                 raise Unsupported(f"the header family {fam}'s write is not one mapping key")
             key = tr.compile_word(self.action, w.path[0][1])
-            slot = tr.base_slot(fam, "KEY")
+            slot = tr.reg_slot(fam, "KEY", 0)   # the register's slot as the typed model keys it (I68: SK on a structural model)
             if "keccak256" not in ev.hashes():
                 raise Unsupported("the typed model has no keccak256 table")
         finally:
