@@ -1,0 +1,219 @@
+{
+  "composition": [
+    {
+      "early": {
+        "edge": "V3->V4",
+        "function": "initialize2",
+        "version": 2
+      },
+      "edge": "V6->V7",
+      "late": {
+        "edge": "V6->V7",
+        "function": "initialize3",
+        "version": 3
+      },
+      "law_id": "L_nat_comp_Rollup_initialize2_initialize3",
+      "op": "initialize2",
+      "subform": "composition"
+    },
+    {
+      "early": {
+        "edge": "V3->V4",
+        "function": "initialize2",
+        "version": 2
+      },
+      "edge": "V10->V11",
+      "late": {
+        "edge": "V10->V11",
+        "function": "initialize4",
+        "version": 4
+      },
+      "law_id": "L_nat_comp_Rollup_initialize2_initialize4",
+      "op": "initialize2",
+      "subform": "composition"
+    },
+    {
+      "early": {
+        "edge": "V6->V7",
+        "function": "initialize3",
+        "version": 3
+      },
+      "edge": "V10->V11",
+      "late": {
+        "edge": "V10->V11",
+        "function": "initialize4",
+        "version": 4
+      },
+      "law_id": "L_nat_comp_Rollup_initialize3_initialize4",
+      "op": "initialize3",
+      "subform": "composition"
+    },
+    {
+      "early": {
+        "edge": "placeholder->V3",
+        "function": "initialize",
+        "version": 1
+      },
+      "edge": "V3->V4",
+      "late": {
+        "edge": "V3->V4",
+        "function": "initialize2",
+        "version": 2
+      },
+      "law_id": "L_nat_comp_Rollup_initialize_initialize2",
+      "op": "initialize",
+      "subform": "composition"
+    },
+    {
+      "early": {
+        "edge": "placeholder->V3",
+        "function": "initialize",
+        "version": 1
+      },
+      "edge": "V6->V7",
+      "late": {
+        "edge": "V6->V7",
+        "function": "initialize3",
+        "version": 3
+      },
+      "law_id": "L_nat_comp_Rollup_initialize_initialize3",
+      "op": "initialize",
+      "subform": "composition"
+    },
+    {
+      "early": {
+        "edge": "placeholder->V3",
+        "function": "initialize",
+        "version": 1
+      },
+      "edge": "V10->V11",
+      "late": {
+        "edge": "V10->V11",
+        "function": "initialize4",
+        "version": 4
+      },
+      "law_id": "L_nat_comp_Rollup_initialize_initialize4",
+      "op": "initialize",
+      "subform": "composition"
+    }
+  ],
+  "model": "morph_rollup.versions",
+  "nat_version": "holon-nat/0.1",
+  "native_gaps": [
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.batchDataStore",
+      "id": "gap:M3:native:V10->V11:Rollup.batchDataStore:proveState",
+      "in_flight_kind": "retyped",
+      "kind": "native",
+      "obligation": "whitepaper §5.3 (a), native equivalence op^(k+1)(eta(s)) = op^(k+1)(s^nat) over the in-flight type for this reader: no statement over the versioned machine (rule N4), so no law; whether the reader's behaviour on migrated in-flight objects matches native ones is open (O13, O14 for the cutover's readers)",
+      "question": "I29-Q1 (prompts/I29_nat.md): how should s^nat, the native state of an in-flight object whose writers' ABI changed, be defined",
+      "reader": "proveState",
+      "square": "L_nat_sq_Rollup_V10_V11_batchDataStore_proveState",
+      "status": "open",
+      "touched": [
+        "submitter"
+      ]
+    },
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.submitterContract",
+      "id": "gap:M3:native:V10->V11:Rollup.submitterContract:challengeState",
+      "in_flight_kind": "reinterpreted",
+      "kind": "native",
+      "obligation": "whitepaper §5.3 (a), native equivalence op^(k+1)(eta(s)) = op^(k+1)(s^nat) over the in-flight type for this reader: no statement over the versioned machine (rule N4), so no law; whether the reader's behaviour on migrated in-flight objects matches native ones is open (O13, O14 for the cutover's readers)",
+      "question": "I29-Q1 (prompts/I29_nat.md): how should s^nat, the native state of an in-flight object whose writers' ABI changed, be defined",
+      "reader": "challengeState",
+      "square": "L_nat_sq_Rollup_V10_V11_submitterContract_challengeState",
+      "status": "open",
+      "touched": "*"
+    },
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.submitterContract",
+      "id": "gap:M3:native:V10->V11:Rollup.submitterContract:commitBatch",
+      "in_flight_kind": "reinterpreted",
+      "kind": "native",
+      "obligation": "whitepaper §5.3 (a), native equivalence op^(k+1)(eta(s)) = op^(k+1)(s^nat) over the in-flight type for this reader: no statement over the versioned machine (rule N4), so no law; whether the reader's behaviour on migrated in-flight objects matches native ones is open (O13, O14 for the cutover's readers)",
+      "question": "I29-Q1 (prompts/I29_nat.md): how should s^nat, the native state of an in-flight object whose writers' ABI changed, be defined",
+      "reader": "commitBatch",
+      "square": null,
+      "status": "open",
+      "touched": "*"
+    },
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.submitterContract",
+      "id": "gap:M3:native:V10->V11:Rollup.submitterContract:commitState",
+      "in_flight_kind": "reinterpreted",
+      "kind": "native",
+      "obligation": "whitepaper §5.3 (a), native equivalence op^(k+1)(eta(s)) = op^(k+1)(s^nat) over the in-flight type for this reader: no statement over the versioned machine (rule N4), so no law; whether the reader's behaviour on migrated in-flight objects matches native ones is open (O13, O14 for the cutover's readers)",
+      "question": "I29-Q1 (prompts/I29_nat.md): how should s^nat, the native state of an in-flight object whose writers' ABI changed, be defined",
+      "reader": "commitState",
+      "square": null,
+      "status": "open",
+      "touched": "*"
+    },
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.submitterContract",
+      "id": "gap:M3:native:V10->V11:Rollup.submitterContract:initialize4",
+      "in_flight_kind": "reinterpreted",
+      "kind": "native",
+      "obligation": "whitepaper §5.3 (a), native equivalence op^(k+1)(eta(s)) = op^(k+1)(s^nat) over the in-flight type for this reader: no statement over the versioned machine (rule N4), so no law; whether the reader's behaviour on migrated in-flight objects matches native ones is open (O13, O14 for the cutover's readers)",
+      "question": "I29-Q1 (prompts/I29_nat.md): how should s^nat, the native state of an in-flight object whose writers' ABI changed, be defined",
+      "reader": "initialize4",
+      "square": null,
+      "status": "open",
+      "touched": "*"
+    },
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.submitterContract",
+      "id": "gap:M3:native:V10->V11:Rollup.submitterContract:proveState",
+      "in_flight_kind": "reinterpreted",
+      "kind": "native",
+      "obligation": "whitepaper §5.3 (a), native equivalence op^(k+1)(eta(s)) = op^(k+1)(s^nat) over the in-flight type for this reader: no statement over the versioned machine (rule N4), so no law; whether the reader's behaviour on migrated in-flight objects matches native ones is open (O13, O14 for the cutover's readers)",
+      "question": "I29-Q1 (prompts/I29_nat.md): how should s^nat, the native state of an in-flight object whose writers' ABI changed, be defined",
+      "reader": "proveState",
+      "square": "L_nat_sq_Rollup_V10_V11_submitterContract_proveState",
+      "status": "open",
+      "touched": "*"
+    }
+  ],
+  "naturality": [
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.batchDataStore",
+      "kind": "retyped",
+      "law_id": "L_nat_sq_Rollup_V10_V11_batchDataStore_proveState",
+      "op": "proveState",
+      "subform": "naturality",
+      "touched": [
+        "submitter"
+      ]
+    },
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.submitterContract",
+      "kind": "reinterpreted",
+      "law_id": "L_nat_sq_Rollup_V10_V11_submitterContract_challengeState",
+      "op": "challengeState",
+      "subform": "naturality",
+      "touched": "*"
+    },
+    {
+      "edge": "V10->V11",
+      "entry": "Rollup.submitterContract",
+      "kind": "reinterpreted",
+      "law_id": "L_nat_sq_Rollup_V10_V11_submitterContract_proveState",
+      "op": "proveState",
+      "subform": "naturality",
+      "touched": "*"
+    }
+  ],
+  "versioned": {
+    "path": "gen/M3/versions/morph_rollup.versions.json",
+    "sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78"
+  }
+}

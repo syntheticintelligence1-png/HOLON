@@ -314,6 +314,48 @@ def _pinit(law: dict) -> bool:
     return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == RULE and law.get("subform") == SUBFORM
 
 
+def _nat(law: dict) -> bool:
+    """A NAT law (I29): a holon-ir/0.3 law of rule NAT over a versioned document. holon.rules.nat_run decides it over
+    the versioned layer and its claims module, and emits its law file (holon.rules.nat_run.law_file)."""
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == "NAT"
+
+
+def _nat_run():
+    """holon.rules.nat_run, imported by name (as holon.versions is) so that NAT's decider stays out of the M1-M3
+    records' closure."""
+    import importlib
+    return importlib.import_module("holon.rules.nat_run")
+
+
+_N_QUAL = re.compile(r"(?<![\w.])N\.")
+
+
+def nat_layer_entries(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict[str, str]:
+    """BendTT entry name -> its full text for a NAT law: the versioned layer with the claims module's definitions
+    appended unqualified (its imports dropped, `M.` removed), translated together with the version modules the layer
+    imports (an imported module's entries are named by its file's stem): one module, as the UNDO and FACT sections."""
+    nr = _nat_run()
+    nctx = nr.NatCtx(Path(root), m)
+    layer = nctx.layer_path().resolve()
+    files, todo = {}, [layer.name]
+    while todo:
+        name = todo.pop()
+        if name in files:
+            continue
+        text = (layer.parent / name).read_text()
+        files[name] = text
+        todo.extend(_LOCAL_IMPORT.findall(text))
+    claims = nctx.module_path().read_text()
+    body = "\n".join(ln for ln in claims.splitlines() if not ln.startswith("import "))
+    files[layer.name] = files[layer.name].rstrip("\n") + "\n\n" + re.sub(r"(?<![\w.])M\.", "", body) + "\n"
+    try:
+        shown = nctx.module_path().relative_to(Path(root)).as_posix()
+    except ValueError:
+        shown = nctx.module_path().name
+    return dict(_layer_entries_cached(tuple(sorted(files.items())), layer.name,
+                                      json.dumps(cfg, sort_keys=True) if cfg else "", shown))
+
+
 def _versions(name: str):
     """A holon.versions module, imported by name (as holon.fact.proofs is) so that the versioned layer's generator
     stays out of the M1-M3 records' closure."""
@@ -393,6 +435,8 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
     if _pinit(law):   # I28: the versioned model gen/<m>/versions/models/<model>.bend (a link to the layer)
         return _versions("proofs").model_paths(m, root)[0]
+    if _nat(law):   # I29: the claims module gen/<m>/nat/models/<stem>_nat.bend (over the versioned layer)
+        return _nat_run().NatCtx(Path(root), m).module_path()
     if _undo(law):   # I27: the trace section gen/<m>/undo/models/<model>.bend
         return _trace_model(law, m, root)
     if _fact(law):   # I26: the FACT section gen/<m>/fact/models/<model>.fact.bend
@@ -420,6 +464,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
         return None
     if _pinit(law):   # I28: emitted as holon.versions.run writes it (holon.versions.proofs.law_file)
         return _versions("proofs").law_file(law, m, root, statement_hash(law, m, root), counter)
+    if _nat(law):   # I29: emitted as holon.rules.nat_run writes it (holon.rules.nat_run.law_file)
+        return _nat_run().law_file(law, m, root, statement_hash(law, m, root), counter)
     if _disch(law):   # I31: as holon.disch.run writes it (holon.disch.proofs.laws_text); an external law (an
         from .disch import proofs as DP   # existential law, never REFUTED) has no counter-law
         from .disch.section import tables
@@ -568,6 +614,9 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     elif _pinit(law):   # I28: the layer translated with the version modules it imports
         entries = layer_entries(mp, cfg or bend.config(root))
         c = kernel_cone(statement_text(law, m, root), entries)
+    elif _nat(law):   # I29: the layer and the claims module as one module (N. roots are the claims module's)
+        entries = nat_layer_entries(law, m, root, cfg or bend.config(root))
+        c = kernel_cone(_N_QUAL.sub("M.", statement_text(law, m, root)), entries)
     else:
         entries = kernel_entries(mp, cfg or bend.config(root))
         c = kernel_cone(statement_text(law, m, root), entries)
@@ -731,8 +780,9 @@ def entry_covers(e: dict, lid: str, law: dict | None, stmt_changed: bool, defs: 
                     and set(defs) <= set(e.get("defs") or [])
                     and (hashes is None or (br.get("old"), br.get("new")) == tuple(hashes)))
         return e.get("kind") in ("strengthening", "weakening", "reextraction")
-    return (e.get("kind") == "binding_change" and isinstance(e.get("old"), dict) and core(e["old"]) == core(e["new"])
-            and set(defs) <= set(e.get("defs") or []))
+    # a fixed statement: a binding_change, or (I83) a model_extension, naming every changed definition
+    return (e.get("kind") in ("binding_change", "model_extension") and isinstance(e.get("old"), dict)
+            and core(e["old"]) == core(e["new"]) and set(defs) <= set(e.get("defs") or []))
 
 
 def hash_only_change(x: dict, y: dict) -> bool:
@@ -759,18 +809,72 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
                                  + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
                                     "catalog_rederivation when nothing else in its binding changed" if sc else
-                                    f"its statement is fixed: a binding_change naming {law_defs[lid]}") + ")"))
+                                    f"its statement is fixed: a binding_change or a model_extension naming "
+                                    f"{law_defs[lid]}") + ")"))
         else:
             covered[lid] = n
     return covered, missing
+
+
+def _json_line(b: bytes):
+    try:
+        return json.loads(b) if b.strip() else None
+    except ValueError:
+        return None
+
+
+def resolve_covered(n, commit, log_at, where: dict, by_id: dict | None = None) -> tuple[list[int], str | None]:
+    """(I83; the coordinator's decision, revocable) The lines of the current laws/STATEMENT_DIFF.jsonl that a change line's
+    covered_by number n names. For a change line appended by `commit`, n is a line of the log as it was at that commit:
+    its exact text there (log_at(commit): that version's lines, or None when it cannot be read: a problem, never a fall
+    back to the position), found by that text in the current file (where: {line text: [current line numbers]}). A lead
+    merge appends other lines before a branch's own, so only the content is a stable address. For a change line not yet
+    committed (commit None), n is a current line number, as before. PV2A: n may instead be a line id ("sha256:..",
+    holon.statement_diff.line_id), which names the current lines carrying it (by_id), whichever commit appended either
+    line. Returns (current line numbers, problem or None)."""
+    if isinstance(n, str) and n.startswith("sha256:"):
+        hits = list((by_id or {}).get(n, []))
+        return (hits, None) if hits else ([], f"laws/STATEMENT_DIFF.jsonl has no line with id {n}")
+    if not isinstance(n, int) or isinstance(n, bool):
+        return [], "its covered_by entry is not a line number"
+    if commit is None:
+        return [n], None
+    old = log_at(commit)
+    if old is None:
+        return [], (f"laws/STATEMENT_DIFF.jsonl cannot be read at {commit[:12]}, the commit that appended the change line "
+                    "(a shallow clone?)")
+    if not 0 < n <= len(old):
+        return [], f"laws/STATEMENT_DIFF.jsonl has no line {n} at {commit[:12]}, the commit that appended the change line"
+    return list(where.get(old[n - 1], [])), None
+
+
+def change_line_problems(ln: dict, i: int, commit, entries: dict, log_at, where: dict,
+                         by_id: dict | None = None) -> list[str]:
+    """What keeps change line i (ln; appended by `commit`, None while not committed) from naming, for each law it
+    rebinds, an accepted laws/STATEMENT_DIFF.jsonl entry that covers it (entries: {current line number: accepted
+    entry}; resolve_covered maps its covered_by numbers to current lines)."""
+    probs = []
+    cov = ln.get("covered_by") if isinstance(ln.get("covered_by"), dict) else {}
+    defs = ln.get("law_defs") if isinstance(ln.get("law_defs"), dict) else {}
+    for lid in ln.get("laws") or []:
+        ld = defs.get(lid, ln.get("defs") or [])   # a catalog_rederivation covers a line only when it logs no def
+        cands, why = resolve_covered(cov.get(lid), commit, log_at, where, by_id)
+        ok = why is None and any(e is not None and (entry_covers(e, lid, None, True, ld) or
+                                                    entry_covers(e, lid, None, False, ld))
+                                 for e in (entries.get(k) for k in cands))
+        if not ok:
+            probs.append(f"{CHANGES}: post-I10 line {i} rebinds {lid} without an accepted laws/STATEMENT_DIFF.jsonl entry "
+                         "covering it" + (f": {why}" if why else ""))
+    return probs
 
 
 def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     """G2 (audit F-M2-09): every change line of spec/bindings/changes.jsonl for milestone m logged after
     laws/STATEMENT_DIFF.jsonl was introduced maps each changed law to an accepted entry that covers it; the log
     extends its version at that commit and every committed version (append-only). Lines before the I10 commit
-    are grandfathered. Returns (problems, note); off git the check cannot run, and the note says so."""
-    from .statement_diff import blob_at, cutoff_commit, in_git, merged_lines
+    are grandfathered. A committed change line's covered_by numbers are read at the commit that appended it (I83:
+    resolve_covered). Returns (problems, note); off git the check cannot run, and the note says so."""
+    from .statement_diff import LOG, _line_origins, blob_at, cutoff_commit, in_git, line_id, merged_lines
     root = Path(root)
     if not in_git(root):
         return [], "binding change log not checked: no git history (a copied tree)"
@@ -781,13 +885,32 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     data = p.read_bytes() if p.exists() else b""
     base = blob_at(root, cut, CHANGES.as_posix()) or b""
     problems = []
-    if not data.startswith(base) or merged_lines(data, p, root)[2]:   # append-only, merges included
+    spans, side, mprobs = merged_lines(data, p, root)
+    if not data.startswith(base) or mprobs:   # append-only, merges included
         problems.append(f"{CHANGES} does not extend its committed versions (append-only)")
         return problems, ""
     entries = _accepted_entries(root, m)
-    by_id = {e["id"]: e for e in entries.values() if isinstance(e.get("id"), str)}   # PV2A: a reference by id
-    n_lines = 0
-    for i, raw in enumerate(data[len(base):].decode("utf-8", errors="replace").splitlines(), start=1):
+    where: dict = {}
+    by_id: dict = {}   # PV2A: a line id -> the current lines that carry it (a covered_by entry may name a line by its id)
+    for k, x in enumerate((root / LOG).read_bytes().splitlines() if (root / LOG).exists() else [], start=1):
+        where.setdefault(x, []).append(k)
+        e = _json_line(x)
+        if isinstance(e, dict) and isinstance(e.get("id"), str) and e["id"] == line_id(e):
+            by_id.setdefault(e["id"], []).append(k)
+    logs: dict = {}
+
+    def log_at(commit: str):
+        if commit not in logs:
+            b = blob_at(root, commit, LOG.as_posix())
+            logs[commit] = None if b is None else b.splitlines()
+        return logs[commit]
+
+    committed_len = spans[-1][0] if spans else 0
+    origins = None
+    n_lines, offset = 0, len(base)
+    for i, rawb in enumerate(data[len(base):].splitlines(keepends=True), start=1):
+        start, offset = offset, offset + len(rawb)
+        raw = rawb.decode("utf-8", errors="replace")
         if not raw.strip():
             continue
         try:
@@ -798,14 +921,14 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
         if not isinstance(ln, dict) or ln.get("milestone") != m or ln.get("created"):
             continue
         n_lines += 1
-        cov = ln.get("covered_by") if isinstance(ln.get("covered_by"), dict) else {}
-        defs = ln.get("law_defs") if isinstance(ln.get("law_defs"), dict) else {}
-        for lid in ln.get("laws") or []:
-            ref = cov.get(lid)
-            e = entries.get(ref) if isinstance(ref, int) else by_id.get(ref) if isinstance(ref, str) else None
-            ld = defs.get(lid, ln.get("defs") or [])   # a catalog_rederivation covers a line only when it logs no def
-            ok = e is not None and (entry_covers(e, lid, None, True, ld) or entry_covers(e, lid, None, False, ld))
-            if not ok:
-                problems.append(f"{CHANGES}: post-I10 line {i} rebinds {lid} without an accepted "
-                                "laws/STATEMENT_DIFF.jsonl entry covering it")
+        # the commit that appended it: along HEAD's first-parent chain, or the oldest side version holding it (a line a
+        # merge brought in); None only for a line beyond every committed version (not yet committed)
+        commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(rawb)
+        # a line a merge on HEAD's first-parent chain brought in from another line of history was appended by the oldest
+        # commit whose version holds it, and its covered_by numbers are lines of the log at THAT commit: a lead-first
+        # merge numbers the log differently at the merge commit (as statement_diff does for model_extension lines)
+        if commit is not None:
+            origins = origins if origins is not None else _line_origins(p, root)
+            commit = origins.get(rawb, commit)
+        problems += change_line_problems(ln, i, commit, entries, log_at, where, by_id)
     return problems, f"{n_lines} post-I10 binding change lines of {m}, each covered by an accepted statement-diff entry"

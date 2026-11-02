@@ -1,0 +1,18 @@
+{
+  "inflight_search_version": "holon-inflight-search/0.1",
+  "doc": "I83's sidecar: the candidate generator of the versioned machine's in-flight inhabitants (rules IS1 and IS2 of the docstring of tests_m3/test_versions_debt.py, the contract). Fixed at the prereg; it holds no outcome and names no version, action, family or law of the target: every name comes from I28's sidecar (spec/M3/lib/versions.json), the deployment record and the per-version documents.",
+  "prefix": "rule IS1: the upgrade path of I28's sidecar (upgrade_path) up to the edge's source version: the entry edge by upgradeTo, the deployment record's calls at upgrade_path.first_calls (each by its recorded caller with its recorded calldata), then every MIG edge before the source version with the reinitializer it introduces and upgrade_path.arguments (else upgradeTo)",
+  "migration": "rule IS1: the edge's migration by upgradeToAndCall with the reinitializer the edge introduces, called with I28's inflight_arguments (initialize4's expected index from the state the step runs at), else by upgradeTo",
+  "actions": "the successor-site actions of the edge's source version (rule PI1: holon.rules.par_init's chains over its document), in name order; the first whose synthesis succeeds is the commit",
+  "callers": "the deployment record's recorded callers, distinct, in record order, the proxy admin left out",
+  "start": "every word leaf 0, every bytes or string leaf empty, every array empty; a bytes leaf that an abi.decode term of the action decodes starts as the canonical ABI encoding of the decoded types (every word 0, every array empty)",
+  "moves": [
+    "for the first failing check of the run (holon.machine's order), each comparison [op, L, R] of its expression with op one of == != < <= > >=, in term order, left side first: when a side S reads exactly one leaf X of the call in one of the forms below and the other side evaluates to v at the state and the call (holon.extracted_eval's evaluator over the version's document, extended by the contract's L1-L4 terms: candidates, never evidence), the candidates of X are",
+    "S = X, a word leaf: v, v + 1, v - 1 (mod 2^256)",
+    "S = len(X): X cut or extended with zero bytes to length v, v + 1, v - 1 (lengths below 2^16)",
+    "S = a 32-byte read of X at a literal offset o (['word', X, o], L3's read of X's memory copy at o, L4's calldataload of X at o), or that read shifted right by a literal s: the (256 - s)/8 bytes of X at o set to the big-endian bytes of v, v + 1, v - 1 (X extended with zero bytes as needed)",
+    "S = keccak256(X): every byte string the trace has hashed (the machine's keccak256 table) whose keccak256 is v",
+    "a candidate is taken when its run fails at a later check or succeeds; when no candidate of the failing check is taken, the synthesis of that caller fails"
+  ],
+  "max_evals": 400
+}
