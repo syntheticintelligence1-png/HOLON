@@ -697,7 +697,7 @@ class Run:
         try:
             b, match = R.resolve_bundle(rec["facts_sha256"], law_ir["facts"], ctx.root, mp.read_text(encoding="utf-8"),
                                         set(cone), ctx.m)
-            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, law_ir["facts"])
+            assumptions = R.model_assumptions(b["facts_sha256"], set(cone), ctx.root, law_ir["facts"], ctx.m)
         except R.LedgerError:
             match, assumptions = "none", []
         rec.update({"record_version": R.RECORD_VERSION, "prover": "generator", "model_sha256": R3.sha256_file(mp),
