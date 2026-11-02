@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 30 | 186 | 153 | 30 |
+| M3 | 31 | 192 | 157 | 31 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -78,6 +78,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I87 | M3 | I87 (= I45a): the audit-loop machinery (round records with the auditor's family, Q9's labels and the convergence rule, … | `prompts/I87_audit_loop.md` | 4 | 13 | 1 | `docs/iterations/I87.md` |
 | I88 | M3 | = I39b: I39's laws over I85's product machine (O7 PAR-cycle, the O8 law pair under HypC with a hypothesis split, O24, t… | `prompts/I88_derivation_laws.md` | 6 | 4 | 1 | `docs/iterations/I88.md` |
 | I90 | M3 | I90 (= I38b): O28 at 65,536 L1 messages, through the count channels of a Go component: a Go count component over the ca… | `prompts/I90_go_counts.md` | 4 | 5 | 1 | `docs/iterations/I90.md` |
+| I91 | M3 | I91 (= I38c): the compression oracle, HypZ and HypZ_len (§8.5; distinct from Hyp-Z0-kzg), tested on the real codec at t… | `prompts/I91_compression_oracle.md` | 6 | 4 | 1 | `docs/iterations/I91.md` |
 
 ## Reports without a predictions key
 
