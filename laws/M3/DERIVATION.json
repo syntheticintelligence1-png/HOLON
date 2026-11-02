@@ -368,6 +368,10 @@
       "sha256": "a17b8b246e3f7e243acba169d078fc96ad589e9f53655e72b2b8468bc7ee6525"
     },
     {
+      "path": "spec/M3/lib/cutover_slash.json",
+      "sha256": "84ee8684897e7c5b3d2aa570b551f06774bafe7827218be5315b4a2f0c82b850"
+    },
+    {
       "path": "spec/M3/lib/derive_extracted.json",
       "sha256": "87749c82c2e790561357e5d99b22ff1aa895774e3064a39e8e80f98e30466a6f"
     },
@@ -4026,6 +4030,54 @@
     },
     {
       "basis": {
+        "a": [
+          {
+            "credits": [
+              {
+                "family": "batchChallengeReward",
+                "seq": 23,
+                "src": "contracts/contracts/l1/rollup/Rollup.sol:838"
+              }
+            ],
+            "fn": "IL1Staking.slash",
+            "reads": [
+              "batchDataStore.signedSequencersBitmap"
+            ],
+            "receiver": "l1StakingContract",
+            "seq": 20,
+            "src": "contracts/contracts/l1/rollup/Rollup.sol:837"
+          }
+        ],
+        "b": [
+          {
+            "credits": [
+              {
+                "family": "batchChallengeReward",
+                "seq": 23,
+                "src": "contracts/contracts/l1/rollup/Rollup.sol:807"
+              }
+            ],
+            "fn": "ISubmitter.slash",
+            "reads": [
+              "batchDataStore.submitter"
+            ],
+            "receiver": "submitterContract",
+            "seq": 20,
+            "src": "contracts/contracts/l1/rollup/Rollup.sol:806"
+          }
+        ],
+        "edge": "V10->V11",
+        "op": "proveState",
+        "selector": "0xb3484425"
+      },
+      "facts": "gen/M3/versions/morph_rollup.versions.json",
+      "law_id": "L_nat_slash_Rollup_V10_V11_proveState",
+      "rule": "NAT",
+      "statement_hash": "sha256:9ad84b0d1cadf7799bb32befd981462eb5ccd61d843984a5504b423f50c98e33",
+      "subform": "slash"
+    },
+    {
+      "basis": {
         "edge": "V10->V11",
         "entry": "Rollup.batchDataStore",
         "kind": "retyped",
@@ -6159,6 +6211,54 @@
       "rule": "SORT",
       "statement_hash": "sha256:71e35c6192f7fddc082e94b8e3d0016c0de08ed5dfa5342cb7fa4758549fe2d1",
       "subform": "realize"
+    },
+    {
+      "basis": {
+        "a": [
+          {
+            "credits": [
+              {
+                "family": "batchChallengeReward",
+                "seq": 23,
+                "src": "contracts/contracts/l1/rollup/Rollup.sol:838"
+              }
+            ],
+            "fn": "IL1Staking.slash",
+            "reads": [
+              "batchDataStore.signedSequencersBitmap"
+            ],
+            "receiver": "l1StakingContract",
+            "seq": 20,
+            "src": "contracts/contracts/l1/rollup/Rollup.sol:837"
+          }
+        ],
+        "b": [
+          {
+            "credits": [
+              {
+                "family": "batchChallengeReward",
+                "seq": 23,
+                "src": "contracts/contracts/l1/rollup/Rollup.sol:807"
+              }
+            ],
+            "fn": "ISubmitter.slash",
+            "reads": [
+              "batchDataStore.submitter"
+            ],
+            "receiver": "submitterContract",
+            "seq": 20,
+            "src": "contracts/contracts/l1/rollup/Rollup.sol:806"
+          }
+        ],
+        "edge": "V10->V11",
+        "op": "proveState",
+        "selector": "0xb3484425"
+      },
+      "facts": "gen/M3/versions/morph_rollup.versions.json",
+      "law_id": "L_sort_slash_Rollup_V10_V11_proveState",
+      "rule": "SORT",
+      "statement_hash": "sha256:a09f041d1eb00179fac32ed5935349130ae4e69cb24ed3278f9c0e95b78e1c14",
+      "subform": "slash"
     },
     {
       "basis": {
@@ -9427,7 +9527,7 @@
       "version": null
     }
   ],
-  "rule_catalog_version": "holon-rules/1.12",
+  "rule_catalog_version": "holon-rules/1.13",
   "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",
   "uncovered": [
     {

@@ -1,0 +1,118 @@
+{
+ "acquisition_version": "holon-cutover-acquisition/0.1",
+ "compile_match": true,
+ "era_implementations": {
+  "messenger": {
+   "implementation": "0x0cc37d5239f9027a1269f53d83c73084d538f3a9",
+   "matches": [
+    [
+     "messenger",
+     "hardhat"
+    ]
+   ],
+   "proxy": "0xdc71366effa760804dcfc3edf87fa2a6f1623304",
+   "set_block": 21614282,
+   "upgrades_inside_era": []
+  },
+  "queue": {
+   "implementation": "0xf3b7724334cb0adbc49cac90e166af99c07be6aa",
+   "matches": [
+    [
+     "queue",
+     "hardhat"
+    ]
+   ],
+   "proxy": "0x3931ade842f5bb8763164bdd81e5361dce6cc1ef",
+   "set_block": 24575015,
+   "upgrades_inside_era": []
+  },
+  "registry": {
+   "implementation": "0xdb0734109051daab5c32e45e9a5ad0548b2df714",
+   "matches": [
+    [
+     "V3",
+     "hardhat"
+    ]
+   ],
+   "proxy": "0x0dc417f8af88388737c5053ff73f345f080543f7",
+   "set_block": 20999722,
+   "upgrades_inside_era": []
+  },
+  "submitter": {
+   "implementation": null,
+   "matches": [],
+   "proxy": "0xf2d50000c994565a4742059802fdbb0bee1cbef6",
+   "set_block": null,
+   "upgrades_inside_era": [
+    "0x3c5c88f69b190a1c497996afedb1a6591b0df576"
+   ]
+  }
+ },
+ "eras": {
+  "V10": {
+   "from_block": 25236554,
+   "source": "gen/M3/versions/morph_rollup.versions.json deployments: V10 at 0xac3c379d772f3520b34690d32ba14510ab36c3fb",
+   "to_block": 26031669
+  },
+  "V11": {
+   "from_block": 26031669,
+   "source": "the same: V11 (the cutover) at 0x213ce22b487b71ac68a1b5b12d2b93d1af30ea1d"
+  }
+ },
+ "explorer": {
+  "compiler": "v0.8.24+commit.e11b9ed9",
+  "contract": "L1Staking",
+  "record": "results/M3/cutover/explorer/0xdb0734109051daab5c32e45e9a5ad0548b2df714.json",
+  "settings": {
+   "evmVersion": "cancun",
+   "libraries": {},
+   "metadata": {
+    "bytecodeHash": "none"
+   },
+   "optimizer": {
+    "enabled": true,
+    "runs": 10000
+   },
+   "outputSelection": {
+    "*": {
+     "*": [
+      "evm.bytecode",
+      "evm.deployedBytecode",
+      "devdoc",
+      "userdoc",
+      "metadata",
+      "abi"
+     ]
+    }
+   }
+  },
+  "sha256": "af8ad6951b36b326c031a2a24088c9cfac49b24049feb06c107554c8b6986288",
+  "verified": true
+ },
+ "label": "real code, tag build matched (I69, metadata stripped); the explorer's source absent or not compile-matched",
+ "registry": {
+  "contract": "L1Staking",
+  "implementation": "0xdb0734109051daab5c32e45e9a5ad0548b2df714",
+  "proxy": "0x0dc417f8af88388737c5053ff73f345f080543f7",
+  "set_block": 20999722
+ },
+ "sidecar": {
+  "path": "spec/M3/lib/cutover_slash.json",
+  "sha256": "84ee8684897e7c5b3d2aa570b551f06774bafe7827218be5315b4a2f0c82b850"
+ },
+ "unit_equal": false,
+ "units": {
+  "contracts/l1/staking/IL1Staking.sol": "equal",
+  "contracts/l1/staking/L1Staking.sol": "equal_modulo_import_prefix",
+  "contracts/l2/staking/IL2Staking.sol": "equal",
+  "contracts/libraries/ICrossDomainMessenger.sol": "differs",
+  "contracts/libraries/common/Types.sol": "equal",
+  "contracts/libraries/constants/Predeploys.sol": "equal",
+  "contracts/libraries/staking/Staking.sol": "equal",
+  "node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": "not_in_tag",
+  "node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": "not_in_tag",
+  "node_modules/@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol": "not_in_tag",
+  "node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": "not_in_tag",
+  "node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": "not_in_tag"
+ }
+}
