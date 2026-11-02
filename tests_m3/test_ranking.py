@@ -247,7 +247,10 @@ class TestMeasures(unittest.TestCase):
 
     def test_p5_measure_kinds(self):
         """P5: over the base's 136 laws (no NAT law among them): value 87, bound 9, pending 35, not_applicable 5;
-        rules.NAT is pending I29; every law of laws/M3 has a measure."""
+        rules.NAT is pending I29; every law of laws/M3 has a measure.
+        Amended at I44's prereg (spec/M3/amendments.jsonl, foundation_conflict): rules.NAT is pending I29 while
+        laws/M3 holds no NAT law, as at I81's prereg; once I29's NAT laws exist, I44's M-NAT (the docstring of
+        tests_m3/test_measures_i44.py) computes the measure, and rules.NAT is computed with no pending key."""
         d = doc()
         ids = base_law_ids()
         self.assertEqual(len(ids), 136)
@@ -257,7 +260,9 @@ class TestMeasures(unittest.TestCase):
             k = d["measures"][lid]["kind"]
             kinds[k] = kinds.get(k, 0) + 1
         self.assertEqual(kinds, I.KINDS)
-        self.assertEqual((d["rules"]["NAT"]["status"], d["rules"]["NAT"]["pending"]), ("pending", "I29"))
+        nat = any(law.get("rule") == "NAT" for law in laws(M).values())
+        self.assertEqual((d["rules"]["NAT"]["status"], d["rules"]["NAT"]["pending"]),
+                         ("computed", None) if nat else ("pending", "I29"))
 
 
 # ====================================================================== the ranking
@@ -322,14 +327,17 @@ class TestRanking(unittest.TestCase):
 # ====================================================================== regressions and construction
 class TestRegressions(unittest.TestCase):
     def test_r1_fact_bits(self):
-        """R1: each FACT kernel law's measure is its record's (I26's F(m, c)): 1.0, 1.0 and 0.0 bits."""
+        """R1: each FACT kernel law's measure is its record's (I26's F(m, c)): 1.0, 1.0 and 0.0 bits.
+        Amended at I44's stage 2 (spec/M3/amendments.jsonl, foundation_conflict): the not_applicable clause leaves out
+        I84's public_input laws, which I81's prereg never saw and I44's M-FACT measures (tests_m3/test_measures_i44.py,
+        P5); every other non-kernel FACT law is checked as before."""
         ms, rc = doc()["measures"], records(M)
         n = 0
         for lid, r in rc.items():
             if r["rule"] == "FACT" and r.get("subform") == "kernel":
                 n += 1
                 self.assertEqual(ms[lid]["value"], r["fact"]["measure"]["bits"], lid)
-            elif r["rule"] == "FACT":
+            elif r["rule"] == "FACT" and r.get("subform") != "public_input":
                 self.assertEqual(ms[lid]["kind"], "not_applicable", lid)
         self.assertEqual(n, 3)
 

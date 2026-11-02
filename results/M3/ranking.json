@@ -746,6 +746,30 @@
    "sha256": "f6cac588754a7b4aff220c6d83c1ef8f85e9fe527b1ab5c50878253926a5789a"
   },
   {
+   "path": "laws/M3/derivation/L_prod_calldata_BlockContexts.json",
+   "sha256": "efa0735a8f85c8d928c13e6cfbe28fb0d525caf8e2a51c496152630dec759d7f"
+  },
+  {
+   "path": "laws/M3/derivation/L_prod_count_l1MsgNum.json",
+   "sha256": "6923f3e226e0c88087a4993bb13af83f9267e1ede0d6e3c489d7122c1d31ade1"
+  },
+  {
+   "path": "laws/M3/derivation/L_prod_cycle_lastBlockNumber.json",
+   "sha256": "a36b0d88be20f1ef4a598dc7c1e498f39949fc67bb4935e5a6975bf9230332e9"
+  },
+  {
+   "path": "laws/M3/derivation/L_prod_trailing_HypC_binds_trailing.json",
+   "sha256": "0fe4a18cd6facfec0b883a5183635d54004f6f758aae96102404e7a794c02906"
+  },
+  {
+   "path": "laws/M3/derivation/L_prod_trailing_HypC_ignores_trailing.json",
+   "sha256": "68aba7191122c113f8e1b0ccb20b9b9446d50406546bd154c65ac6b3b4d1886e"
+  },
+  {
+   "path": "replay/M3/nat/report.json",
+   "sha256": "7dd349d288762603848281ba82f1fe7c4a43045ef8acc27c75e0a412c1c4ca2f"
+  },
+  {
    "path": "replay/M3/sorts/report.json",
    "sha256": "d170b5c322d2551da6af39e068cd74e55e30454b69a7a55ff84c30653df3bb11"
   },
@@ -1470,6 +1494,10 @@
    "sha256": "f3662490434c675861cc75fd93085441cc88d4a5a99f7a89e83dcd9a850734f8"
   },
   {
+   "path": "results/M3/derivation/laws/L_prod_calldata_BlockContexts.json",
+   "sha256": "27760d9d00db98f59af3f0e0f6fd72fe9772823512adf2145ebee4c3cda7fd39"
+  },
+  {
    "path": "results/M3/refute/concretization.json",
    "sha256": "3aca5f17002203780821332d08a2590c302fb6f8bedecf3ec5a73d6d28c9ca93"
   },
@@ -1483,7 +1511,7 @@
   },
   {
    "path": "spec/M3/lib/ranking.json",
-   "sha256": "4063d2dbdef536bc19223a346594a26f8b03b63f93ddff24064f0b6f48398385"
+   "sha256": "0c29493d16f215b45c3feeef16014f669d245d65b93df06c2e6a42d27fc22018"
   }
  ],
  "measures": {
@@ -1521,7 +1549,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_initializable_120_b95c70f1_anyone": {
    "certified": false,
@@ -1543,7 +1571,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210": {
    "certified": false,
@@ -1565,7 +1593,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone": {
    "certified": false,
@@ -1587,7 +1615,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter": {
    "certified": false,
@@ -1609,7 +1637,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger": {
    "certified": false,
@@ -1631,7 +1659,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_132_d953872f_anyone": {
    "certified": false,
@@ -1653,7 +1681,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_132_d953872f_caller_rollup_210": {
    "certified": false,
@@ -1675,7 +1703,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter": {
    "certified": false,
@@ -1697,7 +1725,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_132_d953872f_onlyChallenger": {
    "certified": false,
@@ -1719,7 +1747,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210": {
    "certified": false,
@@ -1741,7 +1769,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger": {
    "certified": false,
@@ -1763,7 +1791,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_228_79cc3e9a_onlyOwner": {
    "certified": false,
@@ -1785,7 +1813,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_363_e11d8bb2_anyone": {
    "certified": false,
@@ -1807,7 +1835,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": {
    "certified": false,
@@ -1829,7 +1857,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner": {
    "certified": false,
@@ -1859,7 +1887,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_ext_rollup_132_d953872f_onlyOwner": {
    "certified": false,
@@ -1893,7 +1921,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
    "certified": false,
@@ -1919,7 +1947,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_ext_rollup_213_f2e7faf8_onlyOwner": {
    "certified": false,
@@ -1945,7 +1973,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
    "certified": false,
@@ -1971,7 +1999,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_ext_rollup_363_e11d8bb2_onlyOwner": {
    "certified": false,
@@ -1997,7 +2025,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone": {
    "certified": false,
@@ -2014,7 +2042,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_onlyOwner": {
    "certified": false,
@@ -2031,7 +2059,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone": {
    "certified": false,
@@ -2048,7 +2076,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner": {
    "certified": false,
@@ -2065,7 +2093,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner": {
    "certified": false,
@@ -2082,7 +2110,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": {
    "certified": false,
@@ -2112,7 +2140,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_noext_rollup_132_d953872f_onlyOwner": {
    "certified": false,
@@ -2146,7 +2174,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
    "certified": false,
@@ -2172,7 +2200,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_noext_rollup_213_f2e7faf8_onlyOwner": {
    "certified": false,
@@ -2198,7 +2226,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
    "certified": false,
@@ -2224,7 +2252,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_noext_rollup_363_e11d8bb2_onlyOwner": {
    "certified": false,
@@ -2250,7 +2278,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_rev_initializable_120_b8d46c45": {
    "certified": false,
@@ -2272,7 +2300,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_rev_initializable_120_b95c70f1": {
    "certified": false,
@@ -2294,7 +2322,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_rev_initializable_120_d9a34b48": {
    "certified": false,
@@ -2316,7 +2344,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_rev_pausableupgradeable_77_ed0ce816": {
    "certified": false,
@@ -2346,7 +2374,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_rev_rollup_132_d953872f": {
    "certified": false,
@@ -2380,7 +2408,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_rev_rollup_213_f2e7faf8": {
    "certified": false,
@@ -2406,7 +2434,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_rev_rollup_228_79cc3e9a": {
    "certified": false,
@@ -2428,7 +2456,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_rev_rollup_363_e11d8bb2": {
    "certified": false,
@@ -2454,7 +2482,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_disch_self_Rollup_challengeState_489_493": {
    "certified": false,
@@ -2471,7 +2499,7 @@
    "unit": null,
    "upper": null,
    "value": null,
-   "why": "a profile is a Pareto set over (cost, delay) (Def 6.20); M3 has no cost model until I37's calibrated cost, so only I32's class exists"
+   "why": "a profile is a Pareto set over (cost, delay) of the strategies that discharge a guard (Def 6.20). I37's calibrated cost landed with I84 (= I37b): App. D's c0 + c1 * k gas for one action's backlog loop; it prices no discharging strategy of any other guard, and I84's self_controlled law is UNKNOWN (its k* lies beyond the kernel budget). No M3 law states a strategy's (cost, delay) point (I32's profile laws run on T32), so only I32's class exists. Which key brings M3 profiles is open (BUILD_PLAN I32 as built: the delay guard's M3 profile follows I36)"
   },
   "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter": {
    "certified": false,
@@ -2567,192 +2595,295 @@
   "L_fact_pi_Rollup_commitBatchWithProof_BatchIndex": {
    "certified": false,
    "detail": {
+    "class": "computed",
+    "recorded": {
+     "class": "computed",
+     "kind": "bound",
+     "lower": 1.0,
+     "upper": 64.0,
+     "value": null
+    },
     "subform": "public_input"
    },
-   "kind": "not_applicable",
-   "lower": null,
-   "measure": null,
+   "kind": "bound",
+   "lower": 1.0,
+   "measure": "adversarial_freedom",
    "pending": null,
    "rule": "FACT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
+   "scope": "the decider's own measure of the field the public input leaves free, recorded with its kernel-checked witness (I84's rules)",
+   "unit": "bits",
+   "upper": 64.0,
    "value": null,
-   "why": "an attribution law relates the principal whose bond a call puts at risk to the chooser of the content; it states no kernel pair (m, c), so Thm 6.8's F(m, c) has no instance"
+   "why": "the decider's measure, recorded with the kernel-checked witness (class computed)"
   },
   "L_fact_pi_Rollup_commitBatchWithProof_LastBlockNumber": {
-   "certified": false,
+   "certified": true,
    "detail": {
+    "class": "free",
+    "recorded": {
+     "class": "free",
+     "kind": "value",
+     "lower": 64.0,
+     "upper": 64.0,
+     "value": 64.0
+    },
     "subform": "public_input"
    },
-   "kind": "not_applicable",
-   "lower": null,
-   "measure": null,
+   "kind": "value",
+   "lower": 64.0,
+   "measure": "adversarial_freedom",
    "pending": null,
    "rule": "FACT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
-   "value": null,
-   "why": "an attribution law relates the principal whose bond a call puts at risk to the chooser of the content; it states no kernel pair (m, c), so Thm 6.8's F(m, c) has no instance"
+   "scope": "the decider's own measure of the field the public input leaves free, recorded with its kernel-checked witness (I84's rules)",
+   "unit": "bits",
+   "upper": 64.0,
+   "value": 64.0,
+   "why": "the decider's measure, recorded with the kernel-checked witness (class free)"
   },
   "L_fact_pi_Rollup_commitBatchWithProof_TotalL1MessagePopped": {
    "certified": false,
    "detail": {
+    "class": "computed",
+    "recorded": {
+     "class": "computed",
+     "kind": "bound",
+     "lower": 1.0,
+     "upper": 64.0,
+     "value": null
+    },
     "subform": "public_input"
    },
-   "kind": "not_applicable",
-   "lower": null,
-   "measure": null,
+   "kind": "bound",
+   "lower": 0,
+   "measure": "adversarial_freedom",
    "pending": null,
    "rule": "FACT",
    "scope": null,
-   "unit": null,
-   "upper": null,
+   "unit": "bits",
+   "upper": 64.0,
    "value": null,
-   "why": "an attribution law relates the principal whose bond a call puts at risk to the chooser of the content; it states no kernel pair (m, c), so Thm 6.8's F(m, c) has no instance"
+   "why": "UNKNOWN: no kernel-checked witness, so no lower bound beyond 0; the upper bound is the decider's recorded one"
   },
   "L_fact_pi_Rollup_commitBatchWithProof_Version": {
    "certified": false,
    "detail": {
+    "class": "checked_joint",
+    "recorded": {
+     "class": "checked_joint",
+     "kind": "bound",
+     "lower": 1.0,
+     "upper": 1.584963,
+     "value": null
+    },
     "subform": "public_input"
    },
-   "kind": "not_applicable",
-   "lower": null,
-   "measure": null,
+   "kind": "bound",
+   "lower": 1.0,
+   "measure": "adversarial_freedom",
    "pending": null,
    "rule": "FACT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
+   "scope": "the decider's own measure of the field the public input leaves free, recorded with its kernel-checked witness (I84's rules)",
+   "unit": "bits",
+   "upper": 1.584963,
    "value": null,
-   "why": "an attribution law relates the principal whose bond a call puts at risk to the chooser of the content; it states no kernel pair (m, c), so Thm 6.8's F(m, c) has no instance"
+   "why": "the decider's measure, recorded with the kernel-checked witness (class checked_joint)"
   },
   "L_nat_comp_Rollup_initialize2_initialize3": {
-   "certified": false,
-   "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "certified": true,
+   "detail": {
+    "outcomes": [
+     "initialize2"
+    ],
+    "replay": "replay/M3/nat/report.json",
+    "version": false,
+    "words": [
+     "0xc5d43c4a2513442e32494a8634f103d73dcf3a2851465bd0d02221eac0820c02"
+    ]
+   },
+   "kind": "value",
+   "lower": 2,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
-   "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "scope": "the witness's state and arguments (Bend checked the counter-law there), observed on the model's two runs that replay it",
+   "unit": "components",
+   "upper": 2,
+   "value": 2,
+   "why": "at the witness the square's two paths end differently in 2 components: 1 storage words, 1 step outcomes (the model's two runs in replay/M3/nat/report.json)"
   },
   "L_nat_comp_Rollup_initialize2_initialize4": {
-   "certified": false,
-   "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "certified": true,
+   "detail": {
+    "outcomes": [
+     "initialize2"
+    ],
+    "replay": "replay/M3/nat/report.json",
+    "version": false,
+    "words": [
+     "0xc5d43c4a2513442e32494a8634f103d73dcf3a2851465bd0d02221eac0820c02"
+    ]
+   },
+   "kind": "value",
+   "lower": 2,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
-   "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "scope": "the witness's state and arguments (Bend checked the counter-law there), observed on the model's two runs that replay it",
+   "unit": "components",
+   "upper": 2,
+   "value": 2,
+   "why": "at the witness the square's two paths end differently in 2 components: 1 storage words, 1 step outcomes (the model's two runs in replay/M3/nat/report.json)"
   },
   "L_nat_comp_Rollup_initialize3_initialize4": {
-   "certified": false,
-   "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "certified": true,
+   "detail": {
+    "outcomes": [
+     "initialize3"
+    ],
+    "replay": "replay/M3/nat/report.json",
+    "version": false,
+    "words": [
+     "0x00000000000000000000000000000000000000000000000000000000000000ac"
+    ]
+   },
+   "kind": "value",
+   "lower": 2,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
-   "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "scope": "the witness's state and arguments (Bend checked the counter-law there), observed on the model's two runs that replay it",
+   "unit": "components",
+   "upper": 2,
+   "value": 2,
+   "why": "at the witness the square's two paths end differently in 2 components: 1 storage words, 1 step outcomes (the model's two runs in replay/M3/nat/report.json)"
   },
   "L_nat_comp_Rollup_initialize_initialize2": {
-   "certified": false,
-   "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "certified": true,
+   "detail": {
+    "outcomes": [
+     "initialize"
+    ],
+    "replay": "replay/M3/nat/report.json",
+    "version": false,
+    "words": [
+     "0x0000000000000000000000000000000000000000000000000000000000000033",
+     "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "0x0000000000000000000000000000000000000000000000000000000000000098",
+     "0x0000000000000000000000000000000000000000000000000000000000000099",
+     "0x000000000000000000000000000000000000000000000000000000000000009b",
+     "0x000000000000000000000000000000000000000000000000000000000000009c",
+     "0x00000000000000000000000000000000000000000000000000000000000000a9"
+    ]
+   },
+   "kind": "value",
+   "lower": 8,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
-   "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "scope": "the witness's state and arguments (Bend checked the counter-law there), observed on the model's two runs that replay it",
+   "unit": "components",
+   "upper": 8,
+   "value": 8,
+   "why": "at the witness the square's two paths end differently in 8 components: 7 storage words, 1 step outcomes (the model's two runs in replay/M3/nat/report.json)"
   },
   "L_nat_comp_Rollup_initialize_initialize3": {
-   "certified": false,
-   "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "certified": true,
+   "detail": {
+    "outcomes": [
+     "initialize"
+    ],
+    "replay": "replay/M3/nat/report.json",
+    "version": false,
+    "words": [
+     "0x0000000000000000000000000000000000000000000000000000000000000033",
+     "0x0000000000000000000000000000000000000000000000000000000000000097",
+     "0x0000000000000000000000000000000000000000000000000000000000000098",
+     "0x0000000000000000000000000000000000000000000000000000000000000099",
+     "0x000000000000000000000000000000000000000000000000000000000000009b",
+     "0x000000000000000000000000000000000000000000000000000000000000009c",
+     "0x00000000000000000000000000000000000000000000000000000000000000a9"
+    ]
+   },
+   "kind": "value",
+   "lower": 8,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
-   "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "scope": "the witness's state and arguments (Bend checked the counter-law there), observed on the model's two runs that replay it",
+   "unit": "components",
+   "upper": 8,
+   "value": 8,
+   "why": "at the witness the square's two paths end differently in 8 components: 7 storage words, 1 step outcomes (the model's two runs in replay/M3/nat/report.json)"
   },
   "L_nat_comp_Rollup_initialize_initialize4": {
-   "certified": false,
-   "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "certified": true,
+   "detail": {
+    "outcomes": [
+     "initialize"
+    ],
+    "replay": "replay/M3/nat/report.json",
+    "version": false,
+    "words": [
+     "0x0000000000000000000000000000000000000000000000000000000000000033",
+     "0x0000000000000000000000000000000000000000000000000000000000000098",
+     "0x0000000000000000000000000000000000000000000000000000000000000099",
+     "0x000000000000000000000000000000000000000000000000000000000000009b",
+     "0x000000000000000000000000000000000000000000000000000000000000009c",
+     "0x00000000000000000000000000000000000000000000000000000000000000a9"
+    ]
+   },
+   "kind": "value",
+   "lower": 7,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
-   "scope": null,
-   "unit": null,
-   "upper": null,
-   "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "scope": "the witness's state and arguments (Bend checked the counter-law there), observed on the model's two runs that replay it",
+   "unit": "components",
+   "upper": 7,
+   "value": 7,
+   "why": "at the witness the square's two paths end differently in 7 components: 6 storage words, 1 step outcomes (the model's two runs in replay/M3/nat/report.json)"
   },
   "L_nat_sq_Rollup_V10_V11_batchDataStore_proveState": {
    "certified": false,
    "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "kind": "bound",
+   "lower": 0,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
    "scope": null,
-   "unit": null,
+   "unit": "components",
    "upper": null,
    "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "why": "UNKNOWN: no witness (104 squares at 26 states of version V10 among 212 states reached by traces of at most 10 steps (rule N7); the successor-site actions of V10 that are model debt: none); no footprint bound is computed"
   },
   "L_nat_sq_Rollup_V10_V11_submitterContract_challengeState": {
    "certified": false,
    "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "kind": "bound",
+   "lower": 0,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
    "scope": null,
-   "unit": null,
+   "unit": "components",
    "upper": null,
    "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "why": "UNKNOWN: no witness (52 squares at 26 states of version V10 among 212 states reached by traces of at most 10 steps (rule N7); the successor-site actions of V10 that are model debt: none); no footprint bound is computed"
   },
   "L_nat_sq_Rollup_V10_V11_submitterContract_proveState": {
    "certified": false,
    "detail": {},
-   "kind": "pending",
-   "lower": null,
+   "kind": "bound",
+   "lower": 0,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
+   "pending": null,
    "rule": "NAT",
    "scope": null,
-   "unit": null,
+   "unit": "components",
    "upper": null,
    "value": null,
-   "why": "no NAT producer exists in the M3 rule catalog until I29"
+   "why": "UNKNOWN: no witness (104 squares at 26 states of version V10 among 212 states reached by traces of at most 10 steps (rule N7); the successor-site actions of V10 that are model debt: none); no footprint bound is computed"
   },
   "L_own_alias_batch_BatchData_TxsPayloadV2_Append": {
    "certified": false,
@@ -4836,26 +4967,29 @@
   }
  },
  "milestone": "M3",
- "pending_measures": [
+ "pairs": [
   {
-   "key": "I37",
-   "pair": "F(PI, parent lbn)",
-   "rule": "FACT",
-   "why": "the public input is extracted by I37"
-  },
-  {
-   "key": "I39",
+   "certified": false,
+   "kind": "bound",
+   "laws": {
+    "L_prod_calldata_BlockContexts": {
+     "certified": false,
+     "kind": "bound",
+     "lower": 1.0,
+     "status": "REFUTED",
+     "subform": "product_calldata",
+     "upper": null
+    }
+   },
+   "lower": 1.0,
    "pair": "F(Z, derivation)",
    "rule": "FACT",
-   "why": "the Go derivation is extracted by I39"
-  },
-  {
-   "key": "I29",
-   "pair": "naturality defect mass",
-   "rule": "NAT",
-   "why": "the NAT rule is I29's"
+   "upper": null,
+   "value": null,
+   "why": "the plan-stated product laws over the Solidity commit and the Go derivation (I88, decided by I89); a FACT law there states the kernel pair (what the commitment binds, what the derivation derives). I26 took F(Z, derivation) as the maximum over its kernel laws, with the delivered blob list standing for the derivation; this is the maximum over the product's FACT laws, with the Go derivation itself"
   }
  ],
+ "pending_measures": [],
  "ranking": [
   {
    "filter_bin": "pending",
@@ -5830,8 +5964,8 @@
    ],
    "law_id": "L_fact_pi_Rollup_commitBatchWithProof_LastBlockNumber",
    "measure": {
-    "kind": "not_applicable",
-    "value": null
+    "kind": "value",
+    "value": 64.0
    },
    "rank": 22,
    "rule": "FACT",
@@ -5875,7 +6009,7 @@
    ],
    "law_id": "L_fact_pi_Rollup_commitBatchWithProof_Version",
    "measure": {
-    "kind": "not_applicable",
+    "kind": "bound",
     "value": null
    },
    "rank": 23,
@@ -5920,7 +6054,7 @@
    ],
    "law_id": "L_fact_pi_Rollup_commitBatchWithProof_BatchIndex",
    "measure": {
-    "kind": "not_applicable",
+    "kind": "bound",
     "value": null
    },
    "rank": 24,
@@ -6179,8 +6313,8 @@
    ],
    "law_id": "L_nat_comp_Rollup_initialize2_initialize3",
    "measure": {
-    "kind": "pending",
-    "value": null
+    "kind": "value",
+    "value": 2
    },
    "rank": 30,
    "rule": "NAT",
@@ -6221,8 +6355,8 @@
    ],
    "law_id": "L_nat_comp_Rollup_initialize2_initialize4",
    "measure": {
-    "kind": "pending",
-    "value": null
+    "kind": "value",
+    "value": 2
    },
    "rank": 31,
    "rule": "NAT",
@@ -6263,8 +6397,8 @@
    ],
    "law_id": "L_nat_comp_Rollup_initialize3_initialize4",
    "measure": {
-    "kind": "pending",
-    "value": null
+    "kind": "value",
+    "value": 2
    },
    "rank": 32,
    "rule": "NAT",
@@ -6305,8 +6439,8 @@
    ],
    "law_id": "L_nat_comp_Rollup_initialize_initialize2",
    "measure": {
-    "kind": "pending",
-    "value": null
+    "kind": "value",
+    "value": 8
    },
    "rank": 33,
    "rule": "NAT",
@@ -6347,8 +6481,8 @@
    ],
    "law_id": "L_nat_comp_Rollup_initialize_initialize3",
    "measure": {
-    "kind": "pending",
-    "value": null
+    "kind": "value",
+    "value": 8
    },
    "rank": 34,
    "rule": "NAT",
@@ -6389,8 +6523,8 @@
    ],
    "law_id": "L_nat_comp_Rollup_initialize_initialize4",
    "measure": {
-    "kind": "pending",
-    "value": null
+    "kind": "value",
+    "value": 7
    },
    "rank": 35,
    "rule": "NAT",
@@ -6838,8 +6972,8 @@
   "NAT": {
    "laws": 9,
    "measure": "naturality_defect_mass",
-   "pending": "I29",
-   "status": "pending"
+   "pending": null,
+   "status": "computed"
   },
   "OWN": {
    "laws": 6,
@@ -6868,14 +7002,14 @@
  },
  "sidecar": {
   "path": "spec/M3/lib/ranking.json",
-  "sha256": "4063d2dbdef536bc19223a346594a26f8b03b63f93ddff24064f0b6f48398385"
+  "sha256": "0c29493d16f215b45c3feeef16014f669d245d65b93df06c2e6a42d27fc22018"
  },
  "summary": {
   "kinds": {
-   "bound": 10,
-   "not_applicable": 26,
-   "pending": 50,
-   "value": 93
+   "bound": 16,
+   "not_applicable": 22,
+   "pending": 41,
+   "value": 100
   },
   "laws": 179,
   "persistence": {
