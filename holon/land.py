@@ -54,7 +54,12 @@ GENERATED = ("laws/M*/*.json", "docs/M*_COMPARISON.md", "spec/M*/appendixA_map.j
              "gen/M*/evidence.json", "gen/M*/coverage.json", "gen/M*/diagram/**", "gen/M*/own/**",
              "gen/M*/par_lossy/**", "spec/M*/evidence_review.jsonl", "replay/M*/**", "results/M*/refute/**")
 AGGREGATE = re.compile(r"spec/(M\d+)/(?:predictions\.json|amendments\.jsonl)")   # generated from per-key sources (A)
-LAW_OUTPUTS = (re.compile(r"results/M\d+/(L_[^/]+)\.json"), re.compile(r"gen/M\d+/(?:laws|proofs)/(L_[^/]+)/.+"))
+LAW_OUTPUTS = (re.compile(r"results/[MT]\d+/(L_[^/]+)\.json"), re.compile(r"gen/M\d+/(?:laws|proofs)/(L_[^/]+)/.+"))
+# what a run, derive or bind writes: with `merge --key K`, a branch's change to one of these outside K's outcome paths is
+# replaced by the lead's version (an iteration's results are its outcome paths; the rest is re-derived or re-made on
+# the merged tree). Append-only logs are not outputs: every committed line stays (statement_diff.merged_lines).
+OUTPUTS = ("results/**", "replay/**", "gen/M*/**", "laws/M*/*.json", "laws/M*/derivation/**", "spec/bindings/M*.json",
+           "spec/M*/appendixA_map.json", "docs/M*_COMPARISON.md", "docs/STATUS.md", "traces/**")
 
 # the generators `regen` runs over the merged tree, in dependency order: (command, module that must exist)
 REGEN = (("own --milestone {m}", "holon/own.py"), ("diagram --milestone {m}", None),
@@ -90,6 +95,45 @@ def landing_module(name: str, root: Path):
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+def outcome_paths(key: str, root: Path) -> list[str]:
+    """The iteration key's outcome_paths, as the branch (HEAD) holds the key: its per-key source, else its milestone's
+    aggregate. Each is a path or a path prefix (a directory, or a file-name prefix such as laws/M3/L_own_)."""
+    for rel in [f"spec/{m}/predictions/{key}.json" for m in ("M2", "M3", "M4", "M5")] + \
+               [f"spec/{m}/predictions.json" for m in ("M2", "M3", "M4", "M5")]:
+        r = subprocess.run(["git", "show", f"HEAD:{rel}"], capture_output=True, text=True)
+        if r.returncode != 0:
+            continue
+        v = json.loads(r.stdout)
+        k = v if rel.endswith(f"/{key}.json") else (v.get("iterations") or {}).get(key)
+        if isinstance(k, dict) and isinstance(k.get("outcome_paths"), list):
+            return [str(x) for x in k["outcome_paths"]]
+    raise Stop(f"no outcome_paths for key {key} on this branch")
+
+
+def revert_outputs(base: str, head: str, lead: str, own: list[str]) -> list[str]:
+    """Every output (OUTPUTS) the branch changed since the merge base, outside its outcome paths, set to the lead's
+    version (removed when the lead has none). Returns those paths."""
+    out = []
+    for path in git("diff", "--name-only", "--no-renames", base, head).splitlines():
+        if not path or not any(matches(p, path) for p in OUTPUTS) or any(path.startswith(o) for o in own):
+            continue
+        if subprocess.run(["git", "cat-file", "-e", f"{lead}:{path}"], capture_output=True).returncode == 0:
+            git("checkout", lead, "--", path)
+        else:
+            git("rm", "-q", "-f", "--ignore-unmatch", "--", path)
+        out.append(path)
+    return out
+
+
+def record_status(text: str | None) -> str | None:
+    """A record's status (PROVED, REFUTED, UNKNOWN), or None for a missing or unreadable one."""
+    try:
+        v = json.loads(text) if text else None
+    except ValueError:
+        return None
+    return v.get("status") if isinstance(v, dict) else None
 
 
 def blob(stage: int, path: str) -> str | None:
@@ -243,9 +287,16 @@ def step_merge(a) -> int:
             save_state(st)
             return 0
         st = {"lead": a.lead, "lead_sha": lead_sha, "head": git("rev-parse", "HEAD"), "resolved": {}, "dirty_both": []}
+        own = outcome_paths(a.key, root) if a.key else None
+        base = git("merge-base", "HEAD", lead_sha)
         r = subprocess.run(["git", "merge", "--no-commit", "--no-ff", lead_sha], capture_output=True, text=True)
         if r.returncode not in (0, 1):
             raise Stop(f"git merge: {(r.stderr or r.stdout).strip()[:400]}")
+        if own is not None:
+            st["key"], st["own"] = a.key, own
+            st["reverted"] = revert_outputs(base, st["head"], lead_sha, own)
+            print(f"holon land: {len(st['reverted'])} outputs the branch changed outside {a.key}'s outcome paths take "
+                  "the lead's version")
         save_state(st)
     left = []
     for path in [p for p in git("diff", "--name-only", "--diff-filter=U").splitlines() if p]:
@@ -305,13 +356,21 @@ def resolve(path: str, kind: str, lid: str | None, root: Path, st: dict) -> str 
         return "regenerated from the per-key sources (the branch's and the lead's absorbed first)"
     if kind in ("generated", "law"):
         if theirs is None:
-            git("rm", "-q", "--", path)
+            git("rm", "-q", "-f", "--", path)
         else:
             git("checkout", "--theirs", "--", path)
             git("add", "--", path)
-        if kind == "law" and lid not in st["dirty_both"]:
+        if kind == "generated":
+            return "the lead's version, regenerated by regen"
+        # a record decided on both sides: the lead's stands when both reached the same status (the branch re-made it
+        # under its own, older tree; `dirty` still re-makes it if the merged statement differs from the record's), and
+        # the law is re-made on the merged tree when the sides disagree (the branch's change may be what decided it)
+        so, sl = record_status(ours), record_status(theirs)
+        if so == sl and so is not None:
+            return f"the lead's version (both sides {so})"
+        if lid not in st["dirty_both"]:
             st["dirty_both"].append(lid)
-        return "the lead's version" + (", regenerated by regen" if kind == "generated" else f"; {lid} is dirty")
+        return f"the lead's version; {lid} is dirty (the branch {so or 'deleted it'}, the lead {sl or 'deleted it'})"
     if ours is None or theirs is None:
         return None          # a side deleted it: not mechanical
     if kind == "log":
@@ -494,7 +553,7 @@ def step_plan(a) -> int:
     matrix = "".join(f"          - name: {j['name']}\n            laws: {j['laws']}\n            extra: '{j['extra']}'\n"
                      f"            lean: '{j['lean']}'\n            cmd: '{j['cmd']}'\n" for j in jobs)
     filt = []
-    if "OWN" in rules and (root / "holon" / "goreplay.py").is_file():
+    if (root / "holon" / "goreplay.py").is_file():   # every Go replay (I67's go-op, I90's count, I35's OWN laws)
         filt.append('python -u -m holon replay-go --milestone {m} 2>&1 | tee -a "$RUNNER_TEMP/run.log"')
     filt.append('python -u -m holon refute --milestone {m} --only filter 2>&1 | tee -a "$RUNNER_TEMP/run.log"')
     if "SYM" in rules and (root / "holon" / "sym.py").is_file():
@@ -634,6 +693,8 @@ def selftest() -> int:
     except Conflict:
         pass
     assert json_format(json.dumps({"a": [1]}, indent=1) + "\n") == (1, False, True)
+    assert record_status('{"status": "REFUTED"}') == "REFUTED" and record_status(None) is None
+    assert record_status("<<<<<<< not json") is None
     import tempfile
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory(prefix="holon-land-selftest-") as t:
@@ -673,6 +734,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("step", choices=("merge", "regen", "commit", "dirty", "plan", "apply", "bind", "check", "lead",
                                      "all", "selftest"))
     ap.add_argument("--lead", default=LEAD)
+    ap.add_argument("--key", help="merge: the branch's iteration key; its outputs outside the key's outcome_paths take "
+                                  "the lead's version")
     ap.add_argument("--milestone", default="M3")
     ap.add_argument("--tag", help="plan: the re-make's name (workflow holon-<tag>, branch claude/ci-<tag>)")
     ap.add_argument("--push", action="store_true", help="plan: push the CI-only branch")

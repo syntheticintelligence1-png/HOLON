@@ -41,7 +41,9 @@ from pathlib import Path
 
 VERSION = 2
 RECORD = re.compile(r"results/(M\d+|T\d+)/(L_[^/]+)\.json")
-SKIP = re.compile(r"(^|/)(__pycache__|\.git)(/|$)|\.pyc$|^traces/")
+# never inputs: caches, and build/ (gitignored; a compiled model under build/<kind>/<sha256 of its sources>/ is derived
+# from gen/<M>/model/*.bend, which a trace records itself, and a fresh checkout has none until it builds one)
+SKIP = re.compile(r"(^|/)(__pycache__|\.git)(/|$)|\.pyc$|^traces/|^build/")
 
 _T: "Tracer | None" = None
 
@@ -361,16 +363,24 @@ def check(root: Path, trace: dict, records: bool = True) -> str | None:
         return "the run read the network"
     for part in ("reads", "records", "code") if records else ("reads", "code"):
         for r, v in (trace.get(part) or {}).items():
+            if SKIP.search(r):     # an entry an older trace recorded before SKIP excluded it (build/)
+                continue
             if h(root / r) != v:
                 return f"{part[:-1] if part != 'code' else 'code'} {r} changed"
     for r, v in (trace.get("listings") or {}).items():
+        if SKIP.search(r):
+            continue
         if listing(root / r) != v:
             return f"listing of {r or '.'} changed"
     for r, v in (trace.get("stats") or {}).items():
+        if SKIP.search(r):
+            continue
         if kind(root / r) != v:
             return f"{r} is now {kind(root / r)}, was {v}"
     for sp in trace.get("subprocs") or []:
         for r, v in (sp.get("files") or {}).items():
+            if SKIP.search(r):
+                continue
             if h(root / r) != v:
                 return f"subprocess input {r} changed"
     env = trace.get("env") or {}
