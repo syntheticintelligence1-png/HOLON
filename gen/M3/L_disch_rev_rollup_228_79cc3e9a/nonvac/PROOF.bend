@@ -6,7 +6,7 @@ import LAWS.bend as Laws
 
 # the inhabitant: every premise by computation
 def t_kh() -> List<&2, M.HKB>:
-  [M.HKB{[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 160], M.w_of_limbs([2766670058, 80910744, 2547091174, 40869691, 2852211380, 996148959, 1861538024, 3091887340])}]
+  Nil{}
 
 def w_a0() -> M.HAct:
   M.A_importGenesisBatch{M.AR_importGenesisBatch{Nil{}}, M.HEnv{Nil{}, M.w_of_limbs([1700000010, 0, 0, 0, 0, 0, 0, 0]), M.w_of_limbs([4098, 0, 0, 0, 0, 0, 0, 0]), Nil{}, Nil{}, M.w_of_limbs([53077, 0, 0, 0, 0, 0, 0, 0]), M.w_of_limbs([68, 0, 0, 0, 0, 0, 0, 0]), M.w0(), M.w_of_limbs([1068857001, 3918681293, 1456729169, 363394722, 1502716639, 0, 0, 0])}}

@@ -171,35 +171,310 @@ def w_refl(a: M.W, b: M.W, +e: {M.w_eq(a, b) == True{} : Bool}) -> {a == b : M.W
       (%u_refl(a7, b7, and_r(U32.is_eq(a6, b6), U32.is_eq(a7, b7), e6)) : {M.W{a0, a1, a2, a3, a4, a5, a6, a7} == M.W{a0, a1, a2, a3, a4, a5, a6, _} : M.W}
       {==}))))))))
 
+
+def sp_refl(a: M.SP, b: M.SP, +e: {M.sp_eq(a, b) == True{} : Bool}) -> {a == b : M.SP}:
+  match a b:
+    case M.SP_m{+ak, +ao} M.SP_m{+bk, +bo}:
+      (%w_refl(ao, bo, and_l(M.w_eq(ao, bo), M.w_eq(ak, bk), e)) : {M.SP_m{ak, ao} == M.SP_m{bk, _} : M.SP}
+      (%w_refl(ak, bk, and_r(M.w_eq(ao, bo), M.w_eq(ak, bk), e)) : {M.SP_m{ak, ao} == M.SP_m{_, ao} : M.SP}
+      {==}))
+
+def sps_refl(a: List<&2, M.SP>, b: List<&2, M.SP>, +e: {M.sps_eq(a, b) == True{} : Bool}) -> {a == b : List<&2, M.SP>}:
+  match a b:
+    case Nil{} Nil{}:
+      {==}
+    case Nil{} Con{y, ys}:
+      efq({Nil{} == Con{y, ys} : List<&2, M.SP>}, false_ne_true(e))
+    case Con{x, xs} Nil{}:
+      efq({Con{x, xs} == Nil{} : List<&2, M.SP>}, false_ne_true(e))
+    case Con{+x, +xs} Con{+y, +ys}:
+      (%sp_refl(x, y, and_l(M.sp_eq(x, y), M.sps_eq(xs, ys), e)) : {Con{x, xs} == Con{_, ys} : List<&2, M.SP>}
+      (%sps_refl(xs, ys, and_r(M.sp_eq(x, y), M.sps_eq(xs, ys), e)) : {Con{x, xs} == Con{x, _} : List<&2, M.SP>}
+      {==}))
+
+def sk_refl(a: M.SK, b: M.SK, +e: {M.sk_eq(a, b) == True{} : Bool}) -> {a == b : M.SK}:
+  match a b:
+    case M.SK{+ab, +ao, +ap} M.SK{+bb, +bo, +bp}:
+      +r = and_r(M.w_eq(ab, bb), Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp)), e)
+      (%w_refl(ab, bb, and_l(M.w_eq(ab, bb), Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp)), e)) : {M.SK{ab, ao, ap} == M.SK{_, bo, bp} : M.SK}
+      (%w_refl(ao, bo, and_l(M.w_eq(ao, bo), M.sps_eq(ap, bp), r)) : {M.SK{ab, ao, ap} == M.SK{ab, _, bp} : M.SK}
+      (%sps_refl(ap, bp, and_r(M.w_eq(ao, bo), M.sps_eq(ap, bp), r)) : {M.SK{ab, ao, ap} == M.SK{ab, ao, _} : M.SK}
+      {==})))
+
 # the frame of one entry: when its key is k it is the entry read, and the store's key kw is not k
-def kw_fr_c(c: Bool, +hk: M.W, +hv: M.W, +kw: M.W, +v: M.W, +d: Bool, +k: M.W, +y1: M.W, +y2: M.W, ec: {M.w_eq(hk, k) == c : Bool}, ne: {M.w_eq(k, kw) == False{} : Bool}, ih: {y1 == y2 : M.W}) -> {M.ite(M.W, c, M.ite(M.W, Bool.and(M.w_eq(hk, kw), Bool.not(d)), v, hv), y1) == M.ite(M.W, c, hv, y2) : M.W}:
+def kv_fr_c(c: Bool, +hk: M.SK, +hv: M.W, +kw: M.SK, +v: M.W, +d: Bool, +k: M.SK, +y1: M.W, +y2: M.W, ec: {M.sk_eq(hk, k) == c : Bool}, ne: {M.sk_eq(k, kw) == False{} : Bool}, ih: {y1 == y2 : M.W}) -> {M.ite(M.W, c, M.ite(M.W, Bool.and(M.sk_eq(hk, kw), Bool.not(d)), v, hv), y1) == M.ite(M.W, c, hv, y2) : M.W}:
   match c:
     case True{}:
-      (%Equal.sym(M.W, hk, k, w_refl(hk, k, ec)) : {M.ite(M.W, Bool.and(M.w_eq(_, kw), Bool.not(d)), v, hv) == hv : M.W}
-      (%Equal.sym(Bool, M.w_eq(k, kw), False{}, ne) : {M.ite(M.W, Bool.and(_, Bool.not(d)), v, hv) == hv : M.W}
+      (%Equal.sym(M.SK, hk, k, sk_refl(hk, k, ec)) : {M.ite(M.W, Bool.and(M.sk_eq(_, kw), Bool.not(d)), v, hv) == hv : M.W}
+      (%Equal.sym(Bool, M.sk_eq(k, kw), False{}, ne) : {M.ite(M.W, Bool.and(_, Bool.not(d)), v, hv) == hv : M.W}
       {==}))
     case False{}:
       ih
 
-def kw_frame(xs: List<&2, M.KW>, +kw: M.W, +v: M.W, +d: Bool, +k: M.W, +ne1: {M.w_eq(kw, k) == False{} : Bool}, +ne2: {M.w_eq(k, kw) == False{} : Bool}) -> {M.kw_get(M.kw_put(xs, kw, v, d), k) == M.kw_get(xs, k) : M.W}:
+def kv_frame(xs: List<&2, M.KV>, +kw: M.SK, +v: M.W, +d: Bool, +k: M.SK, +ne1: {M.sk_eq(kw, k) == False{} : Bool}, +ne2: {M.sk_eq(k, kw) == False{} : Bool}) -> {M.kv_get(M.kv_put(xs, kw, v, d), k) == M.kv_get(xs, k) : M.W}:
   match xs:
     case Nil{}:
       match d:
         case True{}:
           {==}
         case False{}:
-          (%Equal.sym(Bool, M.w_eq(kw, k), False{}, ne1) : {M.ite(M.W, _, v, M.w0()) == M.w0() : M.W}
+          (%Equal.sym(Bool, M.sk_eq(kw, k), False{}, ne1) : {M.ite(M.W, _, v, M.w0()) == M.w0() : M.W}
           {==})
     case Con{h, +t}:
       match h:
-        case M.KW{+hk, +hv}:
-          kw_fr_c(M.w_eq(hk, k), hk, hv, kw, v, d, k, M.kw_get(M.kw_put(t, kw, v, Bool.or(d, M.w_eq(hk, kw))), k), M.kw_get(t, k), {==}, ne2, kw_frame(t, kw, v, Bool.or(d, M.w_eq(hk, kw)), k, ne1, ne2))
+        case M.KV{+hk, +hv}:
+          kv_fr_c(M.sk_eq(hk, k), hk, hv, kw, v, d, k, M.kv_get(M.kv_put(t, kw, v, Bool.or(d, M.sk_eq(hk, kw))), k), M.kv_get(t, k), {==}, ne2, kv_frame(t, kw, v, Bool.or(d, M.sk_eq(hk, kw)), k, ne1, ne2))
 
-# a store at kw leaves the word at k unchanged (kw and k are different keys)
-def st_frame(s: M.HSt, +kw: M.W, +v: M.W, +k: M.W, ne1: {M.w_eq(kw, k) == False{} : Bool}, ne2: {M.w_eq(k, kw) == False{} : Bool}) -> {M.sload(M.sstore(s, kw, v), k) == M.sload(s, k) : M.W}:
+# a store at key kw leaves the word at key k unchanged (sk_eq tells the two keys apart both ways)
+def st_frame(s: M.HSt, +kw: M.SK, +v: M.W, +k: M.SK, ne1: {M.sk_eq(kw, k) == False{} : Bool}, ne2: {M.sk_eq(k, kw) == False{} : Bool}) -> {M.sload(M.sstore(s, kw, v), k) == M.sload(s, k) : M.W}:
   match s:
     case M.HSt{sl}:
-      kw_frame(sl, kw, v, False{}, k, ne1, ne2)
+      kv_frame(sl, kw, v, False{}, k, ne1, ne2)
+
+# a boolean and its negation (the key split's facts)
+def not_t(+x: Bool, e: {Bool.not(x) == True{} : Bool}) -> {x == False{} : Bool}:
+  match x:
+    case True{}:
+      efq({True{} == False{} : Bool}, false_ne_true(e))
+    case False{}:
+      {==}
+
+def f_not(+x: Bool, e: {x == False{} : Bool}) -> {Bool.not(x) == True{} : Bool}:
+  match x:
+    case True{}:
+      efq({Bool.not(True{}) == True{} : Bool}, true_ne_false(e))
+    case False{}:
+      {==}
+
+# the key split: two keys differ when the first of their words compared differently does (the comparisons before it
+# evaluate to True); the symmetry of a word disequality, w_ne_sym, follows w_eq_self (holon.disch.order)
+def sp_ne_o(+ak: M.W, +ao: M.W, +bk: M.W, +bo: M.W, e: {M.w_eq(ao, bo) == False{} : Bool}) -> {M.sp_eq(M.SP_m{ak, ao}, M.SP_m{bk, bo}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ao, bo), False{}, e) : {Bool.and(_, M.w_eq(ak, bk)) == False{} : Bool}
+  {==})
+
+def sp_ne_k(+ak: M.W, +ao: M.W, +bk: M.W, +bo: M.W, eo: {M.w_eq(ao, bo) == True{} : Bool}, e: {M.w_eq(ak, bk) == False{} : Bool}) -> {M.sp_eq(M.SP_m{ak, ao}, M.SP_m{bk, bo}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ao, bo), True{}, eo) : {Bool.and(_, M.w_eq(ak, bk)) == False{} : Bool}
+  (%Equal.sym(Bool, M.w_eq(ak, bk), False{}, e) : {Bool.and(True{}, _) == False{} : Bool}
+  {==}))
+
+def sps_ne_h(+x: M.SP, +xs: List<&2, M.SP>, +y: M.SP, +ys: List<&2, M.SP>, e: {M.sp_eq(x, y) == False{} : Bool}) -> {M.sps_eq(Con{x, xs}, Con{y, ys}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.sp_eq(x, y), False{}, e) : {Bool.and(_, M.sps_eq(xs, ys)) == False{} : Bool}
+  {==})
+
+def sps_ne_t(+x: M.SP, +xs: List<&2, M.SP>, +y: M.SP, +ys: List<&2, M.SP>, eh: {M.sp_eq(x, y) == True{} : Bool}, e: {M.sps_eq(xs, ys) == False{} : Bool}) -> {M.sps_eq(Con{x, xs}, Con{y, ys}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.sp_eq(x, y), True{}, eh) : {Bool.and(_, M.sps_eq(xs, ys)) == False{} : Bool}
+  (%Equal.sym(Bool, M.sps_eq(xs, ys), False{}, e) : {Bool.and(True{}, _) == False{} : Bool}
+  {==}))
+
+def sk_ne_b(+ab: M.W, +ao: M.W, +ap: List<&2, M.SP>, +bb: M.W, +bo: M.W, +bp: List<&2, M.SP>, e: {M.w_eq(ab, bb) == False{} : Bool}) -> {M.sk_eq(M.SK{ab, ao, ap}, M.SK{bb, bo, bp}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ab, bb), False{}, e) : {Bool.and(_, Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp))) == False{} : Bool}
+  {==})
+
+def sk_ne_o(+ab: M.W, +ao: M.W, +ap: List<&2, M.SP>, +bb: M.W, +bo: M.W, +bp: List<&2, M.SP>, eb: {M.w_eq(ab, bb) == True{} : Bool}, e: {M.w_eq(ao, bo) == False{} : Bool}) -> {M.sk_eq(M.SK{ab, ao, ap}, M.SK{bb, bo, bp}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ab, bb), True{}, eb) : {Bool.and(_, Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp))) == False{} : Bool}
+  (%Equal.sym(Bool, M.w_eq(ao, bo), False{}, e) : {Bool.and(True{}, Bool.and(_, M.sps_eq(ap, bp))) == False{} : Bool}
+  {==}))
+
+def sk_ne_p(+ab: M.W, +ao: M.W, +ap: List<&2, M.SP>, +bb: M.W, +bo: M.W, +bp: List<&2, M.SP>, eb: {M.w_eq(ab, bb) == True{} : Bool}, eo: {M.w_eq(ao, bo) == True{} : Bool}, e: {M.sps_eq(ap, bp) == False{} : Bool}) -> {M.sk_eq(M.SK{ab, ao, ap}, M.SK{bb, bo, bp}) == False{} : Bool}:
+  (%Equal.sym(Bool, M.w_eq(ab, bb), True{}, eb) : {Bool.and(_, Bool.and(M.w_eq(ao, bo), M.sps_eq(ap, bp))) == False{} : Bool}
+  (%Equal.sym(Bool, M.w_eq(ao, bo), True{}, eo) : {Bool.and(True{}, Bool.and(_, M.sps_eq(ap, bp))) == False{} : Bool}
+  (%Equal.sym(Bool, M.sps_eq(ap, bp), False{}, e) : {Bool.and(True{}, Bool.and(True{}, _)) == False{} : Bool}
+  {==})))
+
+# (I68: the bit-field lemmas) a masked write of a packed slot reads back its field and keeps the others:
+# (x & m | v) & k == v & k when m & k == 0, and == x & k when m & k == k and v & k == 0; bit by bit, then by induction
+# on the word's length, then per limb of a 256-bit word
+def wz(n: Nat) -> Word(n):
+  match n:
+    case 0n:
+      WNil{}
+    case 1n+p:
+      WCon{False{}, wz(p)}
+
+def whd(+p: Nat, w: Word(1n+p)) -> Bool:
+  match w:
+    case WCon{b, t}:
+      b
+
+def wtl(+p: Nat, w: Word(1n+p)) -> Word(p):
+  match w:
+    case WCon{b, t}:
+      t
+
+def udata(u: U32) -> Word(32n):
+  match u:
+    case U32{d}:
+      d
+
+def bit_read(x: Bool, m: Bool, v: Bool, k: Bool, h: {Bool.and(m, k) == False{} : Bool}) -> {Bool.and(Bool.or(Bool.and(x, m), v), k) == Bool.and(v, k) : Bool}:
+  match x m v k:
+    case True{} True{} True{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(True{}, True{}), True{}), True{}) == Bool.and(True{}, True{}) : Bool}, true_ne_false(h))
+    case True{} True{} True{} False{}:
+      {==}
+    case True{} True{} False{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(True{}, True{}), False{}), True{}) == Bool.and(False{}, True{}) : Bool}, true_ne_false(h))
+    case True{} True{} False{} False{}:
+      {==}
+    case True{} False{} True{} True{}:
+      {==}
+    case True{} False{} True{} False{}:
+      {==}
+    case True{} False{} False{} True{}:
+      {==}
+    case True{} False{} False{} False{}:
+      {==}
+    case False{} True{} True{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(False{}, True{}), True{}), True{}) == Bool.and(True{}, True{}) : Bool}, true_ne_false(h))
+    case False{} True{} True{} False{}:
+      {==}
+    case False{} True{} False{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(False{}, True{}), False{}), True{}) == Bool.and(False{}, True{}) : Bool}, true_ne_false(h))
+    case False{} True{} False{} False{}:
+      {==}
+    case False{} False{} True{} True{}:
+      {==}
+    case False{} False{} True{} False{}:
+      {==}
+    case False{} False{} False{} True{}:
+      {==}
+    case False{} False{} False{} False{}:
+      {==}
+
+def bit_keep(x: Bool, m: Bool, v: Bool, k: Bool, h1: {Bool.and(m, k) == k : Bool}, h2: {Bool.and(v, k) == False{} : Bool}) -> {Bool.and(Bool.or(Bool.and(x, m), v), k) == Bool.and(x, k) : Bool}:
+  match x m v k:
+    case True{} True{} True{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(True{}, True{}), True{}), True{}) == Bool.and(True{}, True{}) : Bool}, true_ne_false(h2))
+    case True{} True{} True{} False{}:
+      {==}
+    case True{} True{} False{} True{}:
+      {==}
+    case True{} True{} False{} False{}:
+      {==}
+    case True{} False{} True{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(True{}, False{}), True{}), True{}) == Bool.and(True{}, True{}) : Bool}, false_ne_true(h1))
+    case True{} False{} True{} False{}:
+      {==}
+    case True{} False{} False{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(True{}, False{}), False{}), True{}) == Bool.and(True{}, True{}) : Bool}, false_ne_true(h1))
+    case True{} False{} False{} False{}:
+      {==}
+    case False{} True{} True{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(False{}, True{}), True{}), True{}) == Bool.and(False{}, True{}) : Bool}, true_ne_false(h2))
+    case False{} True{} True{} False{}:
+      {==}
+    case False{} True{} False{} True{}:
+      {==}
+    case False{} True{} False{} False{}:
+      {==}
+    case False{} False{} True{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(False{}, False{}), True{}), True{}) == Bool.and(False{}, True{}) : Bool}, false_ne_true(h1))
+    case False{} False{} True{} False{}:
+      {==}
+    case False{} False{} False{} True{}:
+      efq({Bool.and(Bool.or(Bool.and(False{}, False{}), False{}), True{}) == Bool.and(False{}, True{}) : Bool}, false_ne_true(h1))
+    case False{} False{} False{} False{}:
+      {==}
+
+def wb_read(n: Nat, x: Word(n), m: Word(n), v: Word(n), k: Word(n), +h: {Word.and(n, m, k) == wz(n) : Word(n)}) -> {Word.and(n, Word.or(n, Word.and(n, x, m), v), k) == Word.and(n, v, k) : Word(n)}:
+  match n:
+    case 0n:
+      {==}
+    case 1n+p:
+      match x m v k:
+        case WCon{+xb, +xt} WCon{+mb, +mt} WCon{+vb, +vt} WCon{+kb, +kt}:
+          (%Equal.sym(Bool, Bool.and(Bool.or(Bool.and(xb, mb), vb), kb), Bool.and(vb, kb), bit_read(xb, mb, vb, kb, Equal.cong(Word(1n+p), Bool, w => whd(p, w), WCon{Bool.and(mb, kb), Word.and(p, mt, kt)}, WCon{False{}, wz(p)}, h))) : {WCon{_, Word.and(p, Word.or(p, Word.and(p, xt, mt), vt), kt)} == WCon{Bool.and(vb, kb), Word.and(p, vt, kt)} : Word(1n+p)}
+          (%Equal.sym(Word(p), Word.and(p, Word.or(p, Word.and(p, xt, mt), vt), kt), Word.and(p, vt, kt), wb_read(p, xt, mt, vt, kt, Equal.cong(Word(1n+p), Word(p), w => wtl(p, w), WCon{Bool.and(mb, kb), Word.and(p, mt, kt)}, WCon{False{}, wz(p)}, h))) : {WCon{Bool.and(vb, kb), _} == WCon{Bool.and(vb, kb), Word.and(p, vt, kt)} : Word(1n+p)}
+          {==}))
+
+def wb_keep(n: Nat, x: Word(n), m: Word(n), v: Word(n), k: Word(n), +h1: {Word.and(n, m, k) == k : Word(n)}, +h2: {Word.and(n, v, k) == wz(n) : Word(n)}) -> {Word.and(n, Word.or(n, Word.and(n, x, m), v), k) == Word.and(n, x, k) : Word(n)}:
+  match n:
+    case 0n:
+      {==}
+    case 1n+p:
+      match x m v k:
+        case WCon{+xb, +xt} WCon{+mb, +mt} WCon{+vb, +vt} WCon{+kb, +kt}:
+          (%Equal.sym(Bool, Bool.and(Bool.or(Bool.and(xb, mb), vb), kb), Bool.and(xb, kb), bit_keep(xb, mb, vb, kb, Equal.cong(Word(1n+p), Bool, w => whd(p, w), WCon{Bool.and(mb, kb), Word.and(p, mt, kt)}, WCon{kb, kt}, h1), Equal.cong(Word(1n+p), Bool, w => whd(p, w), WCon{Bool.and(vb, kb), Word.and(p, vt, kt)}, WCon{False{}, wz(p)}, h2))) : {WCon{_, Word.and(p, Word.or(p, Word.and(p, xt, mt), vt), kt)} == WCon{Bool.and(xb, kb), Word.and(p, xt, kt)} : Word(1n+p)}
+          (%Equal.sym(Word(p), Word.and(p, Word.or(p, Word.and(p, xt, mt), vt), kt), Word.and(p, xt, kt), wb_keep(p, xt, mt, vt, kt, Equal.cong(Word(1n+p), Word(p), w => wtl(p, w), WCon{Bool.and(mb, kb), Word.and(p, mt, kt)}, WCon{kb, kt}, h1), Equal.cong(Word(1n+p), Word(p), w => wtl(p, w), WCon{Bool.and(vb, kb), Word.and(p, vt, kt)}, WCon{False{}, wz(p)}, h2))) : {WCon{Bool.and(xb, kb), _} == WCon{Bool.and(xb, kb), Word.and(p, xt, kt)} : Word(1n+p)}
+          {==}))
+
+def ub_read(x: U32, m: U32, v: U32, k: U32, h: {U32.and(m, k) == 0 : U32}) -> {U32.and(U32.or(U32.and(x, m), v), k) == U32.and(v, k) : U32}:
+  match x m v k:
+    case U32{+xw} U32{+mw} U32{+vw} U32{+kw}:
+      (%Equal.sym(Word(32n), Word.and(32n, Word.or(32n, Word.and(32n, xw, mw), vw), kw), Word.and(32n, vw, kw), wb_read(32n, xw, mw, vw, kw, Equal.cong(U32, Word(32n), u => udata(u), U32{Word.and(32n, mw, kw)}, 0, h))) : {U32{_} == U32{Word.and(32n, vw, kw)} : U32}
+      {==})
+
+def ub_keep(x: U32, m: U32, v: U32, k: U32, h1: {U32.and(m, k) == k : U32}, h2: {U32.and(v, k) == 0 : U32}) -> {U32.and(U32.or(U32.and(x, m), v), k) == U32.and(x, k) : U32}:
+  match x m v k:
+    case U32{+xw} U32{+mw} U32{+vw} U32{+kw}:
+      (%Equal.sym(Word(32n), Word.and(32n, Word.or(32n, Word.and(32n, xw, mw), vw), kw), Word.and(32n, xw, kw), wb_keep(32n, xw, mw, vw, kw, Equal.cong(U32, Word(32n), u => udata(u), U32{Word.and(32n, mw, kw)}, U32{kw}, h1), Equal.cong(U32, Word(32n), u => udata(u), U32{Word.and(32n, vw, kw)}, 0, h2))) : {U32{_} == U32{Word.and(32n, xw, kw)} : U32}
+      {==})
+
+def wl0(w: M.W) -> U32:
+  match w:
+    case M.W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a0
+
+def wl1(w: M.W) -> U32:
+  match w:
+    case M.W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a1
+
+def wl2(w: M.W) -> U32:
+  match w:
+    case M.W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a2
+
+def wl3(w: M.W) -> U32:
+  match w:
+    case M.W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a3
+
+def wl4(w: M.W) -> U32:
+  match w:
+    case M.W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a4
+
+def wl5(w: M.W) -> U32:
+  match w:
+    case M.W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a5
+
+def wl6(w: M.W) -> U32:
+  match w:
+    case M.W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a6
+
+def wl7(w: M.W) -> U32:
+  match w:
+    case M.W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a7
+
+def w_bf_read(x: M.W, m: M.W, v: M.W, k: M.W, +h: {M.w_and(m, k) == M.w0() : M.W}) -> {M.w_and(M.w_or(M.w_and(x, m), v), k) == M.w_and(v, k) : M.W}:
+  match x m v k:
+    case M.W{+x0, +x1, +x2, +x3, +x4, +x5, +x6, +x7} M.W{+m0, +m1, +m2, +m3, +m4, +m5, +m6, +m7} M.W{+v0, +v1, +v2, +v3, +v4, +v5, +v6, +v7} M.W{+k0, +k1, +k2, +k3, +k4, +k5, +k6, +k7}:
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x0, m0), v0), k0), U32.and(v0, k0), ub_read(x0, m0, v0, k0, Equal.cong(M.W, U32, w => wl0(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.w0(), h))) : {M.W{_, U32.and(U32.or(U32.and(x1, m1), v1), k1), U32.and(U32.or(U32.and(x2, m2), v2), k2), U32.and(U32.or(U32.and(x3, m3), v3), k3), U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x1, m1), v1), k1), U32.and(v1, k1), ub_read(x1, m1, v1, k1, Equal.cong(M.W, U32, w => wl1(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.w0(), h))) : {M.W{U32.and(v0, k0), _, U32.and(U32.or(U32.and(x2, m2), v2), k2), U32.and(U32.or(U32.and(x3, m3), v3), k3), U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x2, m2), v2), k2), U32.and(v2, k2), ub_read(x2, m2, v2, k2, Equal.cong(M.W, U32, w => wl2(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.w0(), h))) : {M.W{U32.and(v0, k0), U32.and(v1, k1), _, U32.and(U32.or(U32.and(x3, m3), v3), k3), U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x3, m3), v3), k3), U32.and(v3, k3), ub_read(x3, m3, v3, k3, Equal.cong(M.W, U32, w => wl3(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.w0(), h))) : {M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), _, U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(v4, k4), ub_read(x4, m4, v4, k4, Equal.cong(M.W, U32, w => wl4(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.w0(), h))) : {M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), _, U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(v5, k5), ub_read(x5, m5, v5, k5, Equal.cong(M.W, U32, w => wl5(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.w0(), h))) : {M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), _, U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(v6, k6), ub_read(x6, m6, v6, k6, Equal.cong(M.W, U32, w => wl6(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.w0(), h))) : {M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), _, U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x7, m7), v7), k7), U32.and(v7, k7), ub_read(x7, m7, v7, k7, Equal.cong(M.W, U32, w => wl7(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.w0(), h))) : {M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), _} == M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)} : M.W}
+      {==}))))))))
+
+def w_bf_keep(x: M.W, m: M.W, v: M.W, k: M.W, +h1: {M.w_and(m, k) == k : M.W}, +h2: {M.w_and(v, k) == M.w0() : M.W}) -> {M.w_and(M.w_or(M.w_and(x, m), v), k) == M.w_and(x, k) : M.W}:
+  match x m v k:
+    case M.W{+x0, +x1, +x2, +x3, +x4, +x5, +x6, +x7} M.W{+m0, +m1, +m2, +m3, +m4, +m5, +m6, +m7} M.W{+v0, +v1, +v2, +v3, +v4, +v5, +v6, +v7} M.W{+k0, +k1, +k2, +k3, +k4, +k5, +k6, +k7}:
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x0, m0), v0), k0), U32.and(x0, k0), ub_keep(x0, m0, v0, k0, Equal.cong(M.W, U32, w => wl0(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.W{k0, k1, k2, k3, k4, k5, k6, k7}, h1), Equal.cong(M.W, U32, w => wl0(w), M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)}, M.w0(), h2))) : {M.W{_, U32.and(U32.or(U32.and(x1, m1), v1), k1), U32.and(U32.or(U32.and(x2, m2), v2), k2), U32.and(U32.or(U32.and(x3, m3), v3), k3), U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), U32.and(x7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x1, m1), v1), k1), U32.and(x1, k1), ub_keep(x1, m1, v1, k1, Equal.cong(M.W, U32, w => wl1(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.W{k0, k1, k2, k3, k4, k5, k6, k7}, h1), Equal.cong(M.W, U32, w => wl1(w), M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)}, M.w0(), h2))) : {M.W{U32.and(x0, k0), _, U32.and(U32.or(U32.and(x2, m2), v2), k2), U32.and(U32.or(U32.and(x3, m3), v3), k3), U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), U32.and(x7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x2, m2), v2), k2), U32.and(x2, k2), ub_keep(x2, m2, v2, k2, Equal.cong(M.W, U32, w => wl2(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.W{k0, k1, k2, k3, k4, k5, k6, k7}, h1), Equal.cong(M.W, U32, w => wl2(w), M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)}, M.w0(), h2))) : {M.W{U32.and(x0, k0), U32.and(x1, k1), _, U32.and(U32.or(U32.and(x3, m3), v3), k3), U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), U32.and(x7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x3, m3), v3), k3), U32.and(x3, k3), ub_keep(x3, m3, v3, k3, Equal.cong(M.W, U32, w => wl3(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.W{k0, k1, k2, k3, k4, k5, k6, k7}, h1), Equal.cong(M.W, U32, w => wl3(w), M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)}, M.w0(), h2))) : {M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), _, U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), U32.and(x7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x4, m4), v4), k4), U32.and(x4, k4), ub_keep(x4, m4, v4, k4, Equal.cong(M.W, U32, w => wl4(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.W{k0, k1, k2, k3, k4, k5, k6, k7}, h1), Equal.cong(M.W, U32, w => wl4(w), M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)}, M.w0(), h2))) : {M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), _, U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), U32.and(x7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x5, m5), v5), k5), U32.and(x5, k5), ub_keep(x5, m5, v5, k5, Equal.cong(M.W, U32, w => wl5(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.W{k0, k1, k2, k3, k4, k5, k6, k7}, h1), Equal.cong(M.W, U32, w => wl5(w), M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)}, M.w0(), h2))) : {M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), _, U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), U32.and(x7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x6, m6), v6), k6), U32.and(x6, k6), ub_keep(x6, m6, v6, k6, Equal.cong(M.W, U32, w => wl6(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.W{k0, k1, k2, k3, k4, k5, k6, k7}, h1), Equal.cong(M.W, U32, w => wl6(w), M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)}, M.w0(), h2))) : {M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), _, U32.and(U32.or(U32.and(x7, m7), v7), k7)} == M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), U32.and(x7, k7)} : M.W}
+      (%Equal.sym(U32, U32.and(U32.or(U32.and(x7, m7), v7), k7), U32.and(x7, k7), ub_keep(x7, m7, v7, k7, Equal.cong(M.W, U32, w => wl7(w), M.W{U32.and(m0, k0), U32.and(m1, k1), U32.and(m2, k2), U32.and(m3, k3), U32.and(m4, k4), U32.and(m5, k5), U32.and(m6, k6), U32.and(m7, k7)}, M.W{k0, k1, k2, k3, k4, k5, k6, k7}, h1), Equal.cong(M.W, U32, w => wl7(w), M.W{U32.and(v0, k0), U32.and(v1, k1), U32.and(v2, k2), U32.and(v3, k3), U32.and(v4, k4), U32.and(v5, k5), U32.and(v6, k6), U32.and(v7, k7)}, M.w0(), h2))) : {M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), _} == M.W{U32.and(x0, k0), U32.and(x1, k1), U32.and(x2, k2), U32.and(x3, k3), U32.and(x4, k4), U32.and(x5, k5), U32.and(x6, k6), U32.and(x7, k7)} : M.W}
+      {==}))))))))
 
 # ---- word order (holon.disch.order: generic, proved here, never assumed)
 def cflip(a: Cmp) -> Cmp:
@@ -2693,27 +2968,59 @@ def w_eq_self(+a: M.W) -> {M.w_eq(a, a) == True{} : Bool}:
     case M.W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       and_intro(U32.is_eq(a0, a0), Bool.and(U32.is_eq(a1, a1), Bool.and(U32.is_eq(a2, a2), Bool.and(U32.is_eq(a3, a3), Bool.and(U32.is_eq(a4, a4), Bool.and(U32.is_eq(a5, a5), Bool.and(U32.is_eq(a6, a6), U32.is_eq(a7, a7))))))), u_eq_self(a0), and_intro(U32.is_eq(a1, a1), Bool.and(U32.is_eq(a2, a2), Bool.and(U32.is_eq(a3, a3), Bool.and(U32.is_eq(a4, a4), Bool.and(U32.is_eq(a5, a5), Bool.and(U32.is_eq(a6, a6), U32.is_eq(a7, a7)))))), u_eq_self(a1), and_intro(U32.is_eq(a2, a2), Bool.and(U32.is_eq(a3, a3), Bool.and(U32.is_eq(a4, a4), Bool.and(U32.is_eq(a5, a5), Bool.and(U32.is_eq(a6, a6), U32.is_eq(a7, a7))))), u_eq_self(a2), and_intro(U32.is_eq(a3, a3), Bool.and(U32.is_eq(a4, a4), Bool.and(U32.is_eq(a5, a5), Bool.and(U32.is_eq(a6, a6), U32.is_eq(a7, a7)))), u_eq_self(a3), and_intro(U32.is_eq(a4, a4), Bool.and(U32.is_eq(a5, a5), Bool.and(U32.is_eq(a6, a6), U32.is_eq(a7, a7))), u_eq_self(a4), and_intro(U32.is_eq(a5, a5), Bool.and(U32.is_eq(a6, a6), U32.is_eq(a7, a7)), u_eq_self(a5), and_intro(U32.is_eq(a6, a6), U32.is_eq(a7, a7), u_eq_self(a6), u_eq_self(a7))))))))
 
-def kw_same_c(c: Bool, +hv: M.W, +k: M.W, +v: M.W, +t: List<&2, M.KW>, ih: {M.kw_get(M.kw_put(t, k, v, False{}), k) == v : M.W}) -> {M.ite(M.W, c, M.ite(M.W, Bool.and(c, Bool.not(False{})), v, hv), M.kw_get(M.kw_put(t, k, v, Bool.or(False{}, c)), k)) == v : M.W}:
+def sp_self(+a: M.SP) -> {M.sp_eq(a, a) == True{} : Bool}:
+  match a:
+    case M.SP_m{+k, +o}:
+      and_intro(M.w_eq(o, o), M.w_eq(k, k), w_eq_self(o), w_eq_self(k))
+
+def sps_self(+p: List<&2, M.SP>) -> {M.sps_eq(p, p) == True{} : Bool}:
+  match p:
+    case Nil{}:
+      {==}
+    case Con{+h, +t}:
+      and_intro(M.sp_eq(h, h), M.sps_eq(t, t), sp_self(h), sps_self(t))
+
+def sk_self(+a: M.SK) -> {M.sk_eq(a, a) == True{} : Bool}:
+  match a:
+    case M.SK{+b, +o, +p}:
+      and_intro(M.w_eq(b, b), Bool.and(M.w_eq(o, o), M.sps_eq(p, p)), w_eq_self(b), and_intro(M.w_eq(o, o), M.sps_eq(p, p), w_eq_self(o), sps_self(p)))
+
+def kv_same_c(c: Bool, +hv: M.W, +k: M.SK, +v: M.W, +t: List<&2, M.KV>, ih: {M.kv_get(M.kv_put(t, k, v, False{}), k) == v : M.W}) -> {M.ite(M.W, c, M.ite(M.W, Bool.and(c, Bool.not(False{})), v, hv), M.kv_get(M.kv_put(t, k, v, Bool.or(False{}, c)), k)) == v : M.W}:
   match c:
     case True{}:
       {==}
     case False{}:
       ih
 
-def kw_same(xs: List<&2, M.KW>, +k: M.W, +v: M.W) -> {M.kw_get(M.kw_put(xs, k, v, False{}), k) == v : M.W}:
+def kv_same(xs: List<&2, M.KV>, +k: M.SK, +v: M.W) -> {M.kv_get(M.kv_put(xs, k, v, False{}), k) == v : M.W}:
   match xs:
     case Nil{}:
-      (%Equal.sym(Bool, M.w_eq(k, k), True{}, w_eq_self(k)) : {M.ite(M.W, _, v, M.w0()) == v : M.W}
+      (%Equal.sym(Bool, M.sk_eq(k, k), True{}, sk_self(k)) : {M.ite(M.W, _, v, M.w0()) == v : M.W}
       {==})
     case Con{h, +t}:
       match h:
-        case M.KW{+hk, +hv}:
-          kw_same_c(M.w_eq(hk, k), hv, k, v, t, kw_same(t, k, v))
+        case M.KV{+hk, +hv}:
+          kv_same_c(M.sk_eq(hk, k), hv, k, v, t, kv_same(t, k, v))
 
-def st_same(s: M.HSt, +k: M.W, +v: M.W) -> {M.sload(M.sstore(s, k, v), k) == v : M.W}:
+def st_same(s: M.HSt, +k: M.SK, +v: M.W) -> {M.sload(M.sstore(s, k, v), k) == v : M.W}:
   match s:
     case M.HSt{sl}:
-      kw_same(sl, k, v)
+      kv_same(sl, k, v)
+
+def w_ne_sym_c(c: Bool, +a: M.W, +b: M.W, e: {M.w_eq(a, b) == False{} : Bool}, ec: {M.w_eq(b, a) == c : Bool}) -> {c == False{} : Bool}:
+  match c:
+    case True{}:
+      efq({True{} == False{} : Bool}, true_ne_false(Equal.trans(Bool, True{}, M.w_eq(b, b), False{}, Equal.sym(Bool, M.w_eq(b, b), True{}, w_eq_self(b)), (%Equal.sym(M.W, b, a, w_refl(b, a, ec)) : {M.w_eq(_, b) == False{} : Bool}
+      e))))
+    case False{}:
+      {==}
+
+def w_ne_sym(+a: M.W, +b: M.W, e: {M.w_eq(a, b) == False{} : Bool}) -> {M.w_eq(b, a) == False{} : Bool}:
+  w_ne_sym_c(M.w_eq(b, a), a, b, e, {==})
+
+def st_same_k(s: M.HSt, +kw: M.SK, +v: M.W, +k: M.SK, e: {M.sk_eq(kw, k) == True{} : Bool}) -> {M.sload(M.sstore(s, kw, v), k) == v : M.W}:
+  (%sk_refl(kw, k, e) : {M.sload(M.sstore(s, kw, v), _) == v : M.W}
+  st_same(s, kw, v))
 
 def r0r_nb1(v0: Bool, v1: Bool, hB: {Bool.not(Bool.and(Bool.not(v0), v1)) == True{} : Bool}, hc: {Bool.and(Bool.not(v0), v1) == True{} : Bool}) -> Empty:
   match v0 v1:
@@ -2726,44 +3033,44 @@ def r0r_nb1(v0: Bool, v1: Bool, hB: {Bool.not(Bool.and(Bool.not(v0), v1)) == Tru
     case False{} False{}:
       false_ne_true(hc)
 
-def r0r_b4(c: Bool, +st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.W>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}, ec: {Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0})) == c : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.k_initialize4_13(c, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
+def r0r_b4(c: Bool, +st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.SK>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}, ec: {Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0})) == c : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.k_initialize4_13(c, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
   match c:
     case True{}:
-      efq({M.u_nz(M.gx_initialize4_cd(M.k_initialize4_13(True{}, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}, r0r_nb1(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0})), M.W{255, 0, 0, 0, 0, 0, 0, 0})), M.w_lt(M.w_and(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0}), hb, ec))
+      efq({M.u_nz(M.gx_initialize4_cd(M.k_initialize4_13(True{}, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}, r0r_nb1(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})), M.W{255, 0, 0, 0, 0, 0, 0, 0})), M.w_lt(M.w_and(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0}), hb, ec))
     case False{}:
       {==}
 
-def r0r_s13(+st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.W>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.s_initialize4_13(M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
-  r0r_b4(Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.W{0, 0, 0, 0, 0, 0, 0, 0}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0})), st, ar, e, kh, t, v_ov, v_cd, v_rv, v_lg, v_tw, hb, {==})
+def r0r_s13(+st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.SK>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.s_initialize4_13(M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
+  r0r_b4(Bool.and(Bool.not(M.w_nz(M.w_and(M.w_shr_8(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})), M.W{255, 0, 0, 0, 0, 0, 0, 0}))), M.w_lt(M.w_and(M.sload(st, M.SK{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{255, 0, 0, 0, 0, 0, 0, 0}), M.W{4, 0, 0, 0, 0, 0, 0, 0})), st, ar, e, kh, t, v_ov, v_cd, v_rv, v_lg, v_tw, hb, {==})
 
-def r0r_b3(c: Bool, +st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.W>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}, ec: {Bool.not(M.w_nz(M.w_shr_160(M.ga_initialize4__newSubmitter(ar)))) == c : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.k_initialize4_14(c, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
+def r0r_b3(c: Bool, +st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.SK>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}, ec: {Bool.not(M.w_nz(M.w_shr_160(M.ga_initialize4__newSubmitter(ar)))) == c : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.k_initialize4_14(c, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
   match c:
     case True{}:
       r0r_s13(st, ar, e, kh, t, v_ov, v_cd, v_rv, v_lg, v_tw, hb)
     case False{}:
       {==}
 
-def r0r_s14(+st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.W>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.s_initialize4_14(M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
+def r0r_s14(+st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.SK>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.s_initialize4_14(M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
   r0r_b3(Bool.not(M.w_nz(M.w_shr_160(M.ga_initialize4__newSubmitter(ar)))), st, ar, e, kh, t, v_ov, v_cd, v_rv, v_lg, v_tw, hb, {==})
 
-def r0r_b2(c: Bool, +st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.W>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}, ec: {M.w_ge(M.ge_e_msg_data_length(e), M.W{68, 0, 0, 0, 0, 0, 0, 0}) == c : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.k_initialize4_15(c, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
+def r0r_b2(c: Bool, +st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.SK>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}, ec: {M.w_ge(M.ge_e_msg_data_length(e), M.W{68, 0, 0, 0, 0, 0, 0, 0}) == c : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.k_initialize4_15(c, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
   match c:
     case True{}:
       r0r_s14(st, ar, e, kh, t, v_ov, v_cd, v_rv, v_lg, v_tw, hb)
     case False{}:
       {==}
 
-def r0r_s15(+st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.W>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.s_initialize4_15(M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
+def r0r_s15(+st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.SK>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.s_initialize4_15(M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
   r0r_b2(M.w_ge(M.ge_e_msg_data_length(e), M.W{68, 0, 0, 0, 0, 0, 0, 0}), st, ar, e, kh, t, v_ov, v_cd, v_rv, v_lg, v_tw, hb, {==})
 
-def r0r_b1(c: Bool, +st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.W>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}, ec: {M.w_eq(M.ge_e_msg_value(e), M.W{0, 0, 0, 0, 0, 0, 0, 0}) == c : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.k_initialize4_16(c, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
+def r0r_b1(c: Bool, +st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.SK>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}, ec: {M.w_eq(M.ge_e_msg_value(e), M.W{0, 0, 0, 0, 0, 0, 0, 0}) == c : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.k_initialize4_16(c, M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
   match c:
     case True{}:
       r0r_s15(st, ar, e, kh, t, v_ov, v_cd, v_rv, v_lg, v_tw, hb)
     case False{}:
       {==}
 
-def r0r_s16(+st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.W>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.s_initialize4_16(M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
+def r0r_s16(+st: M.HSt, +ar: M.AR_initialize4, +e: M.HEnv, +kh: List<&2, M.HKB>, +t: M.W, +v_ov: M.HSt, +v_cd: U32, +v_rv: List<&2, U32>, +v_lg: List<&2, M.HLog>, +v_tw: List<&2, M.SK>, +hb: {D.blk_initializable_120_d9a34b48(st, t, kh) == True{} : Bool}) -> {M.u_nz(M.gx_initialize4_cd(M.s_initialize4_16(M.X_initialize4{st, v_ov, ar, e, kh, v_cd, v_rv, v_lg, v_tw}))) == True{} : Bool}:
   r0r_b1(M.w_eq(M.ge_e_msg_value(e), M.W{0, 0, 0, 0, 0, 0, 0, 0}), st, ar, e, kh, t, v_ov, v_cd, v_rv, v_lg, v_tw, hb, {==})
 
 def r0_w(+st: M.HSt, +g_gc_batchBlobVersionedHashes: List<&2, M.GKT>, +ar: M.AR_initialize4, +en: M.HEnv, +t: M.W, +e: M.HEnv, +kh: List<&2, M.HKB>, +h: {D.prem_rev_initializable_120_d9a34b48(M.A_initialize4{ar, en}, M.GSt{st, g_gc_batchBlobVersionedHashes}, t, e, kh) == True{} : Bool}) -> {D.concl_rev_initializable_120_d9a34b48(M.A_initialize4{ar, en}, M.GSt{st, g_gc_batchBlobVersionedHashes}, e, kh) == True{} : Bool}:
