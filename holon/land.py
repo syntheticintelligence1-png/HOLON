@@ -541,6 +541,12 @@ def step_dirty(a) -> int:
     return 0
 
 
+# I84's bundle sub-forms (holon.rules.bundle2.SUBFORMS, named here so that planning imports no rule module): their laws
+# are decided over the claims modules `holon bundle2 laws` writes from a forge run, so one job regenerates those, decides
+# the laws and replays their witnesses (the re-make template's cmd bundle2).
+BUNDLE2_SUBFORMS = ("link_domain", "public_input", "self_controlled")
+
+
 def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
     """The re-make matrix: one job per slow law (typed SORT, FACT attribution, UNDO pair and residue), DISCH and SYM in
     shards, every other rule (and sub-form) in one job; PAR's run, lean, run; the M1/M2 and T32 re-stamps on request.
@@ -551,7 +557,9 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
     for lid in laws:
         law = json.loads((root / "laws" / m / f"{lid}.json").read_text())
         r, s = law["rule"], law.get("subform")
-        if r == "SORT" and s in ("realize", "as_member", "reinterpret", "tag"):
+        if s in BUNDLE2_SUBFORMS:   # I84's bundle laws: their claims modules first, then the deciders, then the replay
+            g = "bundle2"
+        elif r == "SORT" and s in ("realize", "as_member", "reinterpret", "tag"):
             g = f"typed-{lid}"
         elif r == "FACT" and "_attr_" in lid:
             g = f"fact-attr-{lid}"
@@ -581,7 +589,7 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
             extra = "--law-timebox 540 --deadline @DEADLINE@" if g == "disch" else \
                 ("--deadline @DEADLINE@" if g.startswith("fact-attr-") or g == "undo-cancel" else "")
             jobs.append({"name": name, "laws": ",".join(part), "extra": extra, "lean": "yes" if g == "par" else "",
-                         "cmd": ""})
+                         "cmd": "bundle2" if g == "bundle2" else ""})
     if restamp:
         jobs += [{"name": "m12", "laws": "", "extra": "", "lean": "", "cmd": "m12"},
                  {"name": "t32", "laws": "", "extra": "", "lean": "", "cmd": "t32"}]
