@@ -1,0 +1,31 @@
+{
+  "doc": "E6 vocabulary of the evidence pass (format: the docstring and the Lexicon class of holon.diagram.evidence). Authored in the blind rerun from the tooling code and docstrings and the target code only: identifiers are split at underscores and camel-case boundaries, lower-cased, and tokens shorter than three characters or in the stopword list are dropped. The stopwords are English function words, generic accessor verbs and the path segments every Go function id of the target carries (github, com, morph, common, node, contracts), which name no protocol concept.",
+  "names": [
+    "CODEC",
+    "TRANS"
+  ],
+  "tokenize": {
+    "identifier": "[A-Za-z_][A-Za-z0-9_]*",
+    "min_length": 3,
+    "case": "lower"
+  },
+  "stopwords": [
+    "and",
+    "com",
+    "common",
+    "contracts",
+    "for",
+    "from",
+    "get",
+    "github",
+    "has",
+    "into",
+    "morph",
+    "new",
+    "node",
+    "set",
+    "the",
+    "with"
+  ],
+  "rule": "E6: two distinct parallel edges whose name tokens share at least one token"
+}

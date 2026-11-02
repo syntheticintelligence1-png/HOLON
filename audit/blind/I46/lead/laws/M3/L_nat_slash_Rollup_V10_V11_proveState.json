@@ -1,0 +1,77 @@
+{
+  "facts": "gen/M3/versions/morph_rollup.versions.json",
+  "facts_sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_nat_slash_Rollup_V10_V11_proveState",
+  "milestone": "M3",
+  "notes": "slash naturality (whitepaper \u00a75.3 (b), observed at the slash site): from a linked state s at V10 in which the batch k is in flight, the answer of proveState's slash site at V11 (ISubmitter.slash on submitterContract reading batchDataStore.submitter) after the migration u equals the answer of its slash site at V10 (IL1Staking.slash on l1StakingContract reading batchDataStore.signedSequencersBitmap) at s; the registries' own calls answer ok (ea, eb); slash morph_rollup.versions:slash_nat:V10:V11:proveState",
+  "rule": "NAT",
+  "rule_catalog_version": "holon-rules/1.13",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "k",
+        "q": "forall",
+        "type": "Word"
+      },
+      {
+        "name": "u",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "ea",
+        "q": "forall",
+        "type": "Env"
+      },
+      {
+        "name": "eb",
+        "q": "forall",
+        "type": "Env"
+      },
+      {
+        "name": "keccak256",
+        "q": "forall",
+        "type": "Fn<Bytes,Word>"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "k"
+            },
+            {
+              "var": "u"
+            },
+            {
+              "var": "ea"
+            },
+            {
+              "var": "eb"
+            }
+          ],
+          "slash": "morph_rollup.versions:slash_nat:V10:V11:proveState"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "slash"
+}

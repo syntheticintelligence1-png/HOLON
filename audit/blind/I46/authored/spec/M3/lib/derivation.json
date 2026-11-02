@@ -1,0 +1,18 @@
+{
+  "derivation_version": "holon-derivation/0.1",
+  "doc": "Derivation sidecar of M3 (format: the docstrings and code of holon.derivation, holon.derivation.extract, holon.derivation.corpus and holon.derivation.product). Authored in the blind rerun from the target code only. extract: the Go frontend config spec/M2/lib/go_frontend.json and its document morph_derivation; the consumer is the node derivation function that turns a committed batch (geth.RPCRollupBatch) into blocks, (*BatchInfo).ParseBatch; the join is the function that builds that batch from the ABI-decoded BatchDataInput of the current Rollup commitBatch call, unpackModernRollupCall; no environment function is declared. The product and corpus sections are left empty: the deployment state, the compressor runs and the cases are not fixed by the target code.",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "extract": {
+    "frontend_config": "spec/M2/lib/go_frontend.json",
+    "document": "morph_derivation",
+    "consumer": "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+    "join": "morph-l2/node/derivation.unpackModernRollupCall",
+    "environment": {},
+    "output": "gen/M3/derivation/morph_derivation.json"
+  },
+  "product": {},
+  "corpus": {}
+}

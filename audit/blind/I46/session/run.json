@@ -26,12 +26,15 @@
     "/root/.holon/cache",
     "/root/.holon/eval"
   ],
+  "launch": "a subagent in this same container, launched by the coordinator with the one-paragraph launch prompt of stage 2a; its shell may start in /home/user/HOLON and its context may hold AGENTS.md's rules text (no outcomes); the launch prompt forbade any read outside W and overrode AGENTS.md's read-first list",
   "manifest_sha256": "a6c9fb41cc7358760dde25775ea8ba65bb62658c5b7cd721ef2bda120cb1230a",
   "note": "Written at stage 2a, before the blind session. The reads check is tests_m3/_i46.py's calls_problems. W is also the pack's root, so PACK, SCOPE and the README lie under W. Any absolute path outside W and the toolchain prefixes is flagged, so are the forbidden prefixes, and so is every HOLON worktree (/home/user/HOLON-*). transcript_sha256 and tool_calls are filled in from the transcript after the session.",
   "pack": "/home/user/blind-i46/bundle.tar",
   "pack_commit": "c3eda1976c6811ff181fd71ae6ad1166f7e86a49",
   "readme": "/home/user/blind-i46/README.md (a byte copy of spec/M3/lib/blind_session.md)",
+  "reply": "done: 22 steps failed, 9 files authored",
   "scope": "/home/user/blind-i46/scope",
-  "tool_calls": null,
-  "transcript_sha256": null
+  "tool_calls": 201,
+  "transcript": "the coordinator's subagent transcript agent-a310e0a6d15116d66.jsonl (553 JSON lines), not committed; tool_calls.jsonl is its projection by python -m tests_m3._i46 calls",
+  "transcript_sha256": "ec4a5699532bb6944e1eae755ab49b5bf20e87b7a47345249b097353db9b9639"
 }
