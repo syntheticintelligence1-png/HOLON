@@ -2,6 +2,7 @@
 // stdin:  {"module": path, "calls": [Expr, ..]}
 //   Expr = {"fn": name, "args": [Expr, ..]} | {"val": Value} | {"some": Expr}
 //   Value (JSON) = number (a U32 byte) | [Value, ..] (a list) | {"$": Ctor, field: Value, ..} (a record)
+//                | {"nat": "<decimal>"} (a Nat, as a BigInt; I90's count models)
 // stdout: {"results": [Value | {"error": msg}, ..]}: lists as arrays, Some as {"$some": v}, None as null, Bool as
 // true/false, records as {"$": Ctor, field: v, ..}. Untrusted: it only proposes; Bend decides every status.
 import { readFileSync } from "node:fs";
@@ -14,6 +15,7 @@ function encode(v) {
   if (typeof v === "number") return v;
   if (typeof v === "boolean") return v;
   if (Array.isArray(v)) return v.reduceRight((t, h) => ({ $: "Con", head: encode(h), tail: t }), { $: "Nil" });
+  if (v && typeof v === "object" && "nat" in v && typeof v.nat === "string" && /^[0-9]+$/.test(v.nat)) return BigInt(v.nat);
   if (v && typeof v === "object" && "$" in v) {
     const o = { $: v.$ };
     for (const [k, x] of Object.entries(v)) if (k !== "$") o[k] = encode(x);

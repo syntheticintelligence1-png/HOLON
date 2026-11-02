@@ -1,0 +1,139 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_par_br_batch_batchdata_append_l1txhashes_batch_batchdata_append_l1txnum",
+    "laws": "gen/M3/laws/L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum/LAWS.bend",
+    "model": "gen/M3/model/l1_counts.bend",
+    "proof": "gen/M3/proofs/L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "candidate": 65536,
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.048
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 3.279
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 1.048
+  },
+  "compiled_sha256": "e6ed150a16f82a2e424eb4bd1d4787e3a07f38c22ac66925f8141ab696647fdf",
+  "concretization": {
+    "bound": null,
+    "kind": "go_only",
+    "length": null,
+    "reason": "node-level public path needs I39",
+    "result": null,
+    "sides": {
+      "go": {
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      }
+    },
+    "target": null,
+    "tests": []
+  },
+  "cone": [
+    "batch_BatchData_Append_l1TxHashes",
+    "batch_BatchData_Append_l1TxNum"
+  ],
+  "coverage": null,
+  "difference": {
+    "lhs": 65536,
+    "rhs": 0
+  },
+  "evidence_levels": [],
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "c12089fda0fabe8c8eaecbca0fde4ce0e26996b44afcfd2f93bc32ff55d1151f",
+  "filter_bin": "pending",
+  "generator_sha256": "605c5b013b35c8c7fbf430260aa7538c2f46bf872f856cf62807d72daae61cba",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum",
+  "ledger_assumptions": [
+    "A-gocount-length",
+    "A-gocount-receiver",
+    "A-gocount-store",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "c654f3fb6613e456d20871c166b0b42885ba4ae79188c6489784c993b4c3f2a6",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:28ea7b2fadf2bd0f248e3043796a038a077784cad7b731c742c66692402fa52c",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "go: passed @ morph 3e44e795586a",
+    "status": "passed"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 x: SliceHash. batch_BatchData_Append_l1TxHashes(x) == batch_BatchData_Append_l1TxNum(x)",
+  "statement_hash": "sha256:28ea7b2fadf2bd0f248e3043796a038a077784cad7b731c742c66692402fa52c",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "REFUTED",
+  "subform": "branch",
+  "triage": "finding",
+  "witness": {
+    "x": 65536
+  },
+  "witness_provenance": {
+    "go": "library_api"
+  }
+}
