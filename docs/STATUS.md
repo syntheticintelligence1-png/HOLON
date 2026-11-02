@@ -14,7 +14,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 
 | Milestone | Converged | Streak | k | Counted rounds | Rounds | Open high findings | Why |
 |---|---|---|---|---|---|---|---|
-| M3 | no | 0 | 3 | 0 | 1 | none | not converged: the streak is 0 counted clean round(s), k is 3; no round counts: none is a qualifying round from another model family (Q9: same-family and dry-run rounds are labelled and never counted) |
+| M3 | no | 0 | 3 | 0 | 2 | none | not converged: the streak is 0 counted clean round(s), k is 3; no round counts: none is a qualifying round from another model family (Q9: same-family and dry-run rounds are labelled and never counted) |
 
 ## Iterations
 
