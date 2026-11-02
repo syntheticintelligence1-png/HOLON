@@ -317,9 +317,31 @@ def _pinit(law: dict) -> bool:
 
 
 def _nat(law: dict) -> bool:
-    """A NAT law (I29): a holon-ir/0.3 law of rule NAT over a versioned document. holon.rules.nat_run decides it over
-    the versioned layer and its claims module, and emits its law file (holon.rules.nat_run.law_file)."""
-    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == "NAT"
+    """A NAT law (I29): a holon-ir/0.3 law of rule NAT, of one of I29's sub-forms (holon.rules.nat.SUBFORMS), over a
+    versioned document. holon.rules.nat_run decides it over the versioned layer and its claims module, and emits its
+    law file (holon.rules.nat_run.law_file)."""
+    from .rules.nat import SUBFORMS
+    return law.get("ir_version") == "holon-ir/0.3" and law.get("rule") == "NAT" and law.get("subform") in SUBFORMS
+
+
+def _slash(law: dict) -> bool:
+    """A slash law (I70, holon.rules.slash: rules NAT and SORT, sub-form slash): a holon-ir/0.3 law whose claim is a
+    slash term. holon.cutover.lawrun decides it over the linked layer and its claims module; while those are not built
+    no emitter states it, so its binding is its statement hash alone, over the registry model the cutover's model step
+    writes (the sidecar's outputs.models)."""
+    from .rules import slash as S
+    if law.get("ir_version") != "holon-ir/0.3" or law.get("subform") != S.SUBFORM or law.get("rule") not in S.RULES:
+        return False
+    c = (law.get("statement") or {}).get("claim") or {}
+    return any(isinstance(x, dict) and "slash" in x for x in c.get("eq") or [])
+
+
+def _slash_model(m: str, root: Path) -> Path:
+    side = json.loads((Path(root) / S_SIDECAR.format(m)).read_text())
+    return Path(root) / side["outputs"]["models"] / f"{side['link']['a']['registry']}.bend"
+
+
+S_SIDECAR = "spec/{}/lib/cutover_slash.json"
 
 
 def _nat_run():
@@ -506,6 +528,8 @@ def _bundle_kernel_text(law: dict, m: str, root: Path) -> str:
 
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
+    if _slash(law):   # I70: the registry model gen/<m>/cutover/models/<registry>.bend (the cutover's model step)
+        return _slash_model(m, root)
     if _bundle(law):   # I84: the claims module gen/<m>/bundle2/claims/claims.bend (its record's artifacts.model)
         return _bundle_files(law, m, root)[1]
     if _bundle_law(law):   # I86: the member's law model (holon.bundle.laws: I69's model, or the adopted member's)
@@ -544,6 +568,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .model_eval import model_name
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
+        return None
+    if _slash(law):   # I70: no emitter states a slash law until the linked layer is built (holon.cutover.lawrun)
         return None
     if _bundle_law(law):   # I86: as holon.bundle.lawrun writes it (None: an existential law's counter-law, or a claim
         # the M3 model cannot express, CS3's outflow class)
@@ -710,6 +736,9 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
+    if _slash(law):   # I70: no statement over the linked layer yet, so the binding is its statement hash alone
+        return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
+                "statement_sha256": None, "counter_sha256": None, "cone": {}}
     if _bundle_law(law):   # I86: the law model and the claims module as one module; C. roots are the claims module's
         st = _emit(law, m, root, counter=False)
         if st is None:   # CS3's outflow class: no claim over the M3 model, so the binding is its statement hash alone
