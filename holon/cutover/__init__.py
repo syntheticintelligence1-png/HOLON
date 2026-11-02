@@ -1,7 +1,7 @@
 """A migration's slash sites linked with the registries each version names (the contract: the docstring of
 tests_m3/test_cutover_slash.py).
 
-  python -m holon cutover acquire|corpus|refine|analyze [--milestone M3] [--root DIR] [--check]
+  python -m holon cutover acquire|model|corpus|refine|analyze [--milestone M3] [--root DIR] [--check]
 
 A milestone's sidecar (spec/<M>/lib/cutover_slash.json) names the versioned document, the bundle it extends (I69's
 sidecar and outputs), the registry linked at each end of the migration, the acquisition (the explorer record, the
@@ -11,8 +11,8 @@ no generator closure.
 
 Modules: acquire (A1-A3), build (creation codes from the members' commits), harness (L2: the forge harness and its
 deployment), machine (L1: the linked versioned machine), evaluate (its evaluator), corpus (L3), refine
-(L4), analyze (S1-S3: the slash sites). The legacy registry's model3 model (M1, M2) is built after the model3
-extensions it needs (I83's, I86's) have landed.
+(L4), analyze (S1-S3: the slash sites), model (M1: the legacy registry's model3 model, with model3's language
+extension EXT1), lawrun (S6: the slash laws' decider).
 
 Exit codes: 0 written (or --check reproduced); 1 --check differs; 2 refused (a missing or stale input); 3 a build,
 model or harness error. Outputs are canonical JSON (sorted keys, indent 1, a final newline), byte-identical across runs.
@@ -85,7 +85,7 @@ def context(root: Path, milestone: str) -> Ctx:
     return Ctx(root=root, milestone=milestone, side_rel=rel, side=side, cfg=cfg)
 
 
-STEPS = ("acquire", "corpus", "refine", "analyze")
+STEPS = ("acquire", "model", "corpus", "refine", "analyze")
 
 
 def main(argv=None) -> int:
@@ -111,6 +111,9 @@ def main(argv=None) -> int:
         if a.step == "analyze":
             from . import analyze
             return write_or_check(ctx, analyze.build(ctx, log), a.check, log=log)
+        if a.step == "model":
+            from . import model
+            return write_or_check(ctx, model.build(ctx, log), a.check, log=log)
         from . import refine
         return write_or_check(ctx, refine.run(ctx, log), a.check, log=log)
     except (Refused, FRefused) as e:
