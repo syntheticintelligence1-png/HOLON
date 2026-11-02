@@ -43,8 +43,9 @@ def _load(p: Path) -> dict | None:
 
 
 def codec_kind(law: dict, root: Path) -> str | None:
-    """"linked" (a law over a linked codec document), "goops" (over a Go-op document, I67), "facts01" (a holon-ir/0.3
-    law over a holon-facts/0.1 document), or None (any other law: holon.mpipeline decides it)."""
+    """"linked" (a law over a linked codec document), "goops" (over a Go-op document, I67), "own" (over an OWN carrier
+    document, I35: holon.own_run decides it), "facts01" (a holon-ir/0.3 law over a holon-facts/0.1 document), or None
+    (any other law: holon.mpipeline decides it)."""
     if law.get("ir_version") != "holon-ir/0.3" or not isinstance(law.get("facts"), str):
         return None
     doc = _load(Path(root) / law["facts"])
@@ -54,6 +55,9 @@ def codec_kind(law: dict, root: Path) -> str | None:
         return "linked"
     if GO.is_goops(doc):
         return "goops"
+    from .own import is_own
+    if is_own(doc):
+        return "own"
     if C1.is_facts01(doc):
         return "facts01"
     return None
@@ -67,6 +71,7 @@ class Models:
         self.linked: dict = {}
         self.goops: dict = {}
         self.facts01: dict = {}
+        self.own = None   # I35: holon.own_run.Models, made on the first OWN law
 
     def of_linked(self, rel: str):
         if rel not in self.linked:
@@ -182,6 +187,12 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     """(record, kernel-bound entry {"model", "cone"}) of one codec law, its files written under gen."""
     from . import bindings
     from .replay import replay_status
+    if kind == "own":   # I35 (rules W10, W11 of tests_m3/test_own.py)
+        from . import own_run
+        if models.own is None:
+            models.own = own_run.Models(models.root, models.gen, models.cfg, milestone)
+        return own_run.decide(law, models.own, milestone, root, gen, cfg, kver, verdict, triage, layout, write_pair,
+                              accepted, relpath, scope_fields, test, log)
     lid = law["law_id"]
     rel = law["facts"]
     if kind == "linked":
