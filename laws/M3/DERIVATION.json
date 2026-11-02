@@ -57,11 +57,31 @@
   },
   "derive_version": "holon-derive/0.1",
   "document": "derivation",
-  "evidence_sha256": "2ad0d68acbc4deb1a1323fa16da0176c147d9002d29c557ba7bcf7f202acfa30",
+  "evidence_sha256": "abe5796b3dc54eb214f47ef7f0dfd4bae79c9f60c4ef58f84eb10500e39e5eb8",
   "inputs": [
     {
       "path": "audit/rounds/M2/round2/a4.json",
       "sha256": "6c0dad33925dd592ed05842ee59ba93b13c67b1fa4174caf4c4778961dd18c13"
+    },
+    {
+      "path": "gen/M3/bundle/bundle.json",
+      "sha256": "e857b0e853b31945ceb8306c1451e43941bdf05aa1a3fb8491ced6423ff0e800"
+    },
+    {
+      "path": "gen/M3/bundle/documents/messenger.json",
+      "sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519"
+    },
+    {
+      "path": "gen/M3/bundle/documents/queue.json",
+      "sha256": "32786cbfecfc119492d4b12e1d29c02201c3b34d3adebeb6bd0553b118112d8c"
+    },
+    {
+      "path": "gen/M3/bundle/documents/submitter.json",
+      "sha256": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2"
+    },
+    {
+      "path": "gen/M3/bundle/documents/whitelist.json",
+      "sha256": "b122193f3b70420b928d127f39e99c0fbe402e598532ef8776da083696e66533"
     },
     {
       "path": "gen/M3/bundle2/bundle2.json",
@@ -93,7 +113,7 @@
     },
     {
       "path": "gen/M3/evidence.json",
-      "sha256": "4506103e10759bda677a63701d085559fb06941b1eceb5f3a70057bdc9038413"
+      "sha256": "003d24abbf444f2fdeb95c4f0f41f12e214104e57295425fb95bdf4e6c8aac49"
     },
     {
       "path": "gen/M3/goops/blob_ops.json",
@@ -344,6 +364,10 @@
       "sha256": "d1af3a21a39f15cf1a0ebdb1b9c887af74f144a16912e54b0398d2c155b2db67"
     },
     {
+      "path": "spec/M3/lib/bundle_laws.json",
+      "sha256": "a17b8b246e3f7e243acba169d078fc96ad589e9f53655e72b2b8468bc7ee6525"
+    },
+    {
       "path": "spec/M3/lib/derive_extracted.json",
       "sha256": "87749c82c2e790561357e5d99b22ff1aa895774e3064a39e8e80f98e30466a6f"
     },
@@ -374,6 +398,10 @@
     {
       "path": "spec/M3/lib/own.json",
       "sha256": "ec0d42b9aecf0d751546ac355d253a500dd07320e87033ef1fbfc84afa8ddbfd"
+    },
+    {
+      "path": "spec/M3/lib/par_lossy.json",
+      "sha256": "461c61568690ae818c8f284dd68647e6c073e66e7db1253dd1d16f6220885155"
     },
     {
       "path": "spec/M3/lib/refute.json",
@@ -1680,6 +1708,692 @@
         "setPause",
         "updateProofWindow"
       ]
+    },
+    {
+      "basis": {
+        "action": "proveAndRelayMessage",
+        "blocked": [
+          "map",
+          [
+            "storage",
+            "finalizedWithdrawals"
+          ],
+          [
+            "var",
+            "k"
+          ]
+        ],
+        "check": "proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:141#0",
+        "classes": {
+          "anyone": [
+            "proveAndRelayMessage",
+            "replayMessage",
+            "sendMessage_5f7b1577",
+            "sendMessage_b2267a7b"
+          ],
+          "onlyOwner": [
+            "receive",
+            "renounceOwnership",
+            "setPause",
+            "transferOwnership",
+            "updateFeeVault",
+            "updateMaxReplayTimes",
+            "updateRollup"
+          ]
+        },
+        "conjunct": [
+          "!",
+          [
+            "map",
+            [
+              "storage",
+              "finalizedWithdrawals"
+            ],
+            [
+              "keccak256",
+              [
+                "abi.encodeWithSignature",
+                [
+                  "str",
+                  "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+                ],
+                [
+                  "param",
+                  "_from"
+                ],
+                [
+                  "param",
+                  "_to"
+                ],
+                [
+                  "param",
+                  "_value"
+                ],
+                [
+                  "param",
+                  "_nonce"
+                ],
+                [
+                  "param",
+                  "_message"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "families": [
+          "finalizedWithdrawals"
+        ],
+        "key": [
+          "keccak256",
+          [
+            "abi.encodeWithSignature",
+            [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+              "param",
+              "_from"
+            ],
+            [
+              "param",
+              "_to"
+            ],
+            [
+              "param",
+              "_value"
+            ],
+            [
+              "param",
+              "_nonce"
+            ],
+            [
+              "param",
+              "_message"
+            ]
+          ]
+        ],
+        "obligation": "D9",
+        "status": {
+          "anyone": "blocked",
+          "onlyOwner": "blocked"
+        },
+        "tag": "l1crossdomainmessenger_141_f6e3bd5c",
+        "writers": {}
+      },
+      "class": "anyone",
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone",
+      "member": "messenger",
+      "rule": "DISCH",
+      "statement_hash": "sha256:8754c5f267278071cf5f8b3e59735a2ecfd48e7a47efee07f97ab774b461cd3d",
+      "subform": "keyed_blocking"
+    },
+    {
+      "basis": {
+        "action": "proveAndRelayMessage",
+        "blocked": [
+          "map",
+          [
+            "storage",
+            "finalizedWithdrawals"
+          ],
+          [
+            "var",
+            "k"
+          ]
+        ],
+        "check": "proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:141#0",
+        "classes": {
+          "anyone": [
+            "proveAndRelayMessage",
+            "replayMessage",
+            "sendMessage_5f7b1577",
+            "sendMessage_b2267a7b"
+          ],
+          "onlyOwner": [
+            "receive",
+            "renounceOwnership",
+            "setPause",
+            "transferOwnership",
+            "updateFeeVault",
+            "updateMaxReplayTimes",
+            "updateRollup"
+          ]
+        },
+        "conjunct": [
+          "!",
+          [
+            "map",
+            [
+              "storage",
+              "finalizedWithdrawals"
+            ],
+            [
+              "keccak256",
+              [
+                "abi.encodeWithSignature",
+                [
+                  "str",
+                  "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+                ],
+                [
+                  "param",
+                  "_from"
+                ],
+                [
+                  "param",
+                  "_to"
+                ],
+                [
+                  "param",
+                  "_value"
+                ],
+                [
+                  "param",
+                  "_nonce"
+                ],
+                [
+                  "param",
+                  "_message"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "families": [
+          "finalizedWithdrawals"
+        ],
+        "key": [
+          "keccak256",
+          [
+            "abi.encodeWithSignature",
+            [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+              "param",
+              "_from"
+            ],
+            [
+              "param",
+              "_to"
+            ],
+            [
+              "param",
+              "_value"
+            ],
+            [
+              "param",
+              "_nonce"
+            ],
+            [
+              "param",
+              "_message"
+            ]
+          ]
+        ],
+        "obligation": "D9",
+        "status": {
+          "anyone": "blocked",
+          "onlyOwner": "blocked"
+        },
+        "tag": "l1crossdomainmessenger_141_f6e3bd5c",
+        "writers": {}
+      },
+      "class": "onlyOwner",
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_onlyOwner",
+      "member": "messenger",
+      "rule": "DISCH",
+      "statement_hash": "sha256:3588d8519cb334cfa6dd93d7bf18a8add8c1a3ba8a808f0ffadd5b8d22f97b54",
+      "subform": "keyed_blocking"
+    },
+    {
+      "basis": {
+        "action": "replayMessage",
+        "blocked": [
+          "!",
+          [
+            "<",
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "replayStates"
+                ],
+                [
+                  "var",
+                  "k"
+                ]
+              ],
+              "times"
+            ],
+            [
+              "storage",
+              "maxReplayTimes"
+            ]
+          ]
+        ],
+        "check": "replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:226#0",
+        "classes": {
+          "anyone": [
+            "proveAndRelayMessage",
+            "replayMessage",
+            "sendMessage_5f7b1577",
+            "sendMessage_b2267a7b"
+          ],
+          "onlyOwner": [
+            "receive",
+            "renounceOwnership",
+            "setPause",
+            "transferOwnership",
+            "updateFeeVault",
+            "updateMaxReplayTimes",
+            "updateRollup"
+          ]
+        },
+        "conjunct": [
+          "<",
+          [
+            "member",
+            [
+              "map",
+              [
+                "storage",
+                "replayStates"
+              ],
+              [
+                "keccak256",
+                [
+                  "abi.encodeWithSignature",
+                  [
+                    "str",
+                    "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+                  ],
+                  [
+                    "param",
+                    "_from"
+                  ],
+                  [
+                    "param",
+                    "_to"
+                  ],
+                  [
+                    "param",
+                    "_value"
+                  ],
+                  [
+                    "param",
+                    "_messageNonce"
+                  ],
+                  [
+                    "param",
+                    "_message"
+                  ]
+                ]
+              ]
+            ],
+            "times"
+          ],
+          [
+            "storage",
+            "maxReplayTimes"
+          ]
+        ],
+        "families": [
+          "maxReplayTimes",
+          "replayStates"
+        ],
+        "key": [
+          "keccak256",
+          [
+            "abi.encodeWithSignature",
+            [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+              "param",
+              "_from"
+            ],
+            [
+              "param",
+              "_to"
+            ],
+            [
+              "param",
+              "_value"
+            ],
+            [
+              "param",
+              "_messageNonce"
+            ],
+            [
+              "param",
+              "_message"
+            ]
+          ]
+        ],
+        "obligation": "O34",
+        "status": {
+          "anyone": "blocked",
+          "onlyOwner": "discharges"
+        },
+        "tag": "l1crossdomainmessenger_226_18a62741",
+        "writers": {
+          "onlyOwner": [
+            "updateMaxReplayTimes"
+          ]
+        }
+      },
+      "class": "anyone",
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone",
+      "member": "messenger",
+      "rule": "DISCH",
+      "statement_hash": "sha256:d0ca6193de91cc4ae0074bd93dadb1af276e57a2b1985558148d0d5ef022dd6c",
+      "subform": "keyed_blocking"
+    },
+    {
+      "basis": {
+        "action": "replayMessage",
+        "blocked": [
+          "!",
+          [
+            "<",
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "replayStates"
+                ],
+                [
+                  "var",
+                  "k"
+                ]
+              ],
+              "times"
+            ],
+            [
+              "storage",
+              "maxReplayTimes"
+            ]
+          ]
+        ],
+        "check": "replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:226#0",
+        "classes": {
+          "anyone": [
+            "proveAndRelayMessage",
+            "replayMessage",
+            "sendMessage_5f7b1577",
+            "sendMessage_b2267a7b"
+          ],
+          "onlyOwner": [
+            "receive",
+            "renounceOwnership",
+            "setPause",
+            "transferOwnership",
+            "updateFeeVault",
+            "updateMaxReplayTimes",
+            "updateRollup"
+          ]
+        },
+        "conjunct": [
+          "<",
+          [
+            "member",
+            [
+              "map",
+              [
+                "storage",
+                "replayStates"
+              ],
+              [
+                "keccak256",
+                [
+                  "abi.encodeWithSignature",
+                  [
+                    "str",
+                    "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+                  ],
+                  [
+                    "param",
+                    "_from"
+                  ],
+                  [
+                    "param",
+                    "_to"
+                  ],
+                  [
+                    "param",
+                    "_value"
+                  ],
+                  [
+                    "param",
+                    "_messageNonce"
+                  ],
+                  [
+                    "param",
+                    "_message"
+                  ]
+                ]
+              ]
+            ],
+            "times"
+          ],
+          [
+            "storage",
+            "maxReplayTimes"
+          ]
+        ],
+        "families": [
+          "maxReplayTimes",
+          "replayStates"
+        ],
+        "key": [
+          "keccak256",
+          [
+            "abi.encodeWithSignature",
+            [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+              "param",
+              "_from"
+            ],
+            [
+              "param",
+              "_to"
+            ],
+            [
+              "param",
+              "_value"
+            ],
+            [
+              "param",
+              "_messageNonce"
+            ],
+            [
+              "param",
+              "_message"
+            ]
+          ]
+        ],
+        "obligation": "O34",
+        "status": {
+          "anyone": "blocked",
+          "onlyOwner": "discharges"
+        },
+        "tag": "l1crossdomainmessenger_226_18a62741",
+        "writers": {
+          "onlyOwner": [
+            "updateMaxReplayTimes"
+          ]
+        }
+      },
+      "class": "onlyOwner",
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner",
+      "member": "messenger",
+      "rule": "DISCH",
+      "statement_hash": "sha256:9bd2f63f4b24870e75b656540bb10aab3cea6a34a53b7041b0eba672e81d4458",
+      "subform": "keyed_external"
+    },
+    {
+      "basis": {
+        "action": "replayMessage",
+        "blocked": [
+          "!",
+          [
+            "<",
+            [
+              "member",
+              [
+                "map",
+                [
+                  "storage",
+                  "replayStates"
+                ],
+                [
+                  "var",
+                  "k"
+                ]
+              ],
+              "times"
+            ],
+            [
+              "storage",
+              "maxReplayTimes"
+            ]
+          ]
+        ],
+        "check": "replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:226#0",
+        "classes": {
+          "anyone": [
+            "proveAndRelayMessage",
+            "replayMessage",
+            "sendMessage_5f7b1577",
+            "sendMessage_b2267a7b"
+          ],
+          "onlyOwner": [
+            "receive",
+            "renounceOwnership",
+            "setPause",
+            "transferOwnership",
+            "updateFeeVault",
+            "updateMaxReplayTimes",
+            "updateRollup"
+          ]
+        },
+        "conjunct": [
+          "<",
+          [
+            "member",
+            [
+              "map",
+              [
+                "storage",
+                "replayStates"
+              ],
+              [
+                "keccak256",
+                [
+                  "abi.encodeWithSignature",
+                  [
+                    "str",
+                    "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+                  ],
+                  [
+                    "param",
+                    "_from"
+                  ],
+                  [
+                    "param",
+                    "_to"
+                  ],
+                  [
+                    "param",
+                    "_value"
+                  ],
+                  [
+                    "param",
+                    "_messageNonce"
+                  ],
+                  [
+                    "param",
+                    "_message"
+                  ]
+                ]
+              ]
+            ],
+            "times"
+          ],
+          [
+            "storage",
+            "maxReplayTimes"
+          ]
+        ],
+        "families": [
+          "maxReplayTimes",
+          "replayStates"
+        ],
+        "key": [
+          "keccak256",
+          [
+            "abi.encodeWithSignature",
+            [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+              "param",
+              "_from"
+            ],
+            [
+              "param",
+              "_to"
+            ],
+            [
+              "param",
+              "_value"
+            ],
+            [
+              "param",
+              "_messageNonce"
+            ],
+            [
+              "param",
+              "_message"
+            ]
+          ]
+        ],
+        "obligation": "O34",
+        "status": {
+          "anyone": "blocked",
+          "onlyOwner": "discharges"
+        },
+        "tag": "l1crossdomainmessenger_226_18a62741",
+        "writers": {
+          "onlyOwner": [
+            "updateMaxReplayTimes"
+          ]
+        }
+      },
+      "class": "onlyOwner",
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner",
+      "member": "messenger",
+      "rule": "DISCH",
+      "statement_hash": "sha256:f5d5a47d3389650722aaececd67e90dbd4df548b5c37b951c2f907b9daddfaf5",
+      "subform": "keyed_external_none"
     },
     {
       "basis": {
@@ -3809,6 +4523,82 @@
     },
     {
       "basis": {
+        "action": "proveAndRelayMessage",
+        "arguments": [
+          [
+            "_from",
+            "address"
+          ],
+          [
+            "_to",
+            "address"
+          ],
+          [
+            "_value",
+            "uint256"
+          ],
+          [
+            "_nonce",
+            "uint256"
+          ],
+          [
+            "_message",
+            "bytes"
+          ]
+        ],
+        "bound": 32,
+        "contract": "L1CrossDomainMessenger",
+        "index": [
+          "param",
+          "_nonce"
+        ],
+        "index_offset": 100,
+        "index_position": 3,
+        "law_id": "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154",
+        "leaf": [
+          "keccak256",
+          [
+            "abi.encodeWithSignature",
+            [
+              "str",
+              "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+            ],
+            [
+              "param",
+              "_from"
+            ],
+            [
+              "param",
+              "_to"
+            ],
+            [
+              "param",
+              "_value"
+            ],
+            [
+              "param",
+              "_nonce"
+            ],
+            [
+              "param",
+              "_message"
+            ]
+          ]
+        ],
+        "loop": "contracts/contracts/libraries/common/Verify.sol:14-17",
+        "member": "messenger",
+        "merkle_check": "contracts/contracts/l1/L1CrossDomainMessenger.sol:154-157",
+        "signature": "relayMessage(address,address,uint256,uint256,bytes)"
+      },
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154",
+      "member": "messenger",
+      "rule": "PAR",
+      "statement_hash": "sha256:d8f38fcf9dd02406400d7c22b38709d70a5909fe3abcd3d86d9d49d98231459f",
+      "subform": "push"
+    },
+    {
+      "basis": {
         "key": {
           "atom": "header_length:E1:CODEC.BatchCache_createBatchHeaderWithSequencerSetHash:CODEC.BatchHeaderBytes_BatchIndex:b02939d5"
         },
@@ -5049,6 +5839,258 @@
       "rule": "PAR",
       "statement_hash": "sha256:062a7f014c6eb696bb1017e64b03b1ddd9153472f4592c697bedf71a77f2d251",
       "subform": "init_chain"
+    },
+    {
+      "basis": {
+        "action": "receive",
+        "class": "unaccounted",
+        "contract": "L1CrossDomainMessenger",
+        "credited": [],
+        "dependencies": [],
+        "forwarded": [],
+        "law_id": "L_sort_cons_L1CrossDomainMessenger_receive",
+        "mapping_ledgers": [],
+        "member": "messenger"
+      },
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_sort_cons_L1CrossDomainMessenger_receive",
+      "member": "messenger",
+      "rule": "SORT",
+      "statement_hash": "sha256:6ecb84944806acb383f8757cf267d86680e22eb772734b019dab18ade4ee80b4",
+      "subform": "conservation"
+    },
+    {
+      "basis": {
+        "action": "replayMessage",
+        "class": "outflow",
+        "contract": "L1CrossDomainMessenger",
+        "credited": [],
+        "dependencies": [
+          "outflow"
+        ],
+        "forwarded": [
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol:240"
+        ],
+        "law_id": "L_sort_cons_L1CrossDomainMessenger_replayMessage",
+        "mapping_ledgers": [],
+        "member": "messenger"
+      },
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_sort_cons_L1CrossDomainMessenger_replayMessage",
+      "member": "messenger",
+      "rule": "SORT",
+      "statement_hash": "sha256:b3af3519369136c13532115504414836164a43130a73b452ca1a341adfef1bf2",
+      "subform": "conservation"
+    },
+    {
+      "basis": {
+        "action": "sendMessage_5f7b1577",
+        "class": "outflow",
+        "contract": "L1CrossDomainMessenger",
+        "credited": [],
+        "dependencies": [
+          "outflow"
+        ],
+        "forwarded": [
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+        ],
+        "law_id": "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577",
+        "mapping_ledgers": [],
+        "member": "messenger"
+      },
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577",
+      "member": "messenger",
+      "rule": "SORT",
+      "statement_hash": "sha256:c9c726a1d2cc743ef121360913bb86d3c2ae91ae9e7cbca81a0dc5e5a8d82dcd",
+      "subform": "conservation"
+    },
+    {
+      "basis": {
+        "action": "sendMessage_b2267a7b",
+        "class": "outflow",
+        "contract": "L1CrossDomainMessenger",
+        "credited": [],
+        "dependencies": [
+          "outflow"
+        ],
+        "forwarded": [
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+        ],
+        "law_id": "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b",
+        "mapping_ledgers": [],
+        "member": "messenger"
+      },
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b",
+      "member": "messenger",
+      "rule": "SORT",
+      "statement_hash": "sha256:588fb15c7fc4cec2e85803ab3b0d85755dc38e31b0cb29f3f63a3ac87f376f7d",
+      "subform": "conservation"
+    },
+    {
+      "basis": {
+        "action": "challengeState",
+        "class": "ledger",
+        "contract": "Rollup",
+        "credited": [
+          "challenges"
+        ],
+        "dependencies": [
+          "I68"
+        ],
+        "forwarded": [],
+        "law_id": "L_sort_cons_Rollup_challengeState",
+        "mapping_ledgers": [
+          "challenges"
+        ],
+        "member": "rollup"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_sort_cons_Rollup_challengeState",
+      "member": "rollup",
+      "rule": "SORT",
+      "statement_hash": "sha256:c68b60c1aefd9ef6ab89b547959cc703d7d3e986d2a3dcac9deda494fc5b5cd9",
+      "subform": "conservation"
+    },
+    {
+      "basis": {
+        "action": "commitBatch",
+        "class": "unaccounted",
+        "contract": "Rollup",
+        "credited": [],
+        "dependencies": [],
+        "forwarded": [],
+        "law_id": "L_sort_cons_Rollup_commitBatch",
+        "mapping_ledgers": [],
+        "member": "rollup"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_sort_cons_Rollup_commitBatch",
+      "member": "rollup",
+      "rule": "SORT",
+      "statement_hash": "sha256:e9bda327bf0748127d2785b1d73977d28d4f2a09a9229af44692b8cdf0e92daf",
+      "subform": "conservation"
+    },
+    {
+      "basis": {
+        "action": "receive",
+        "class": "unaccounted",
+        "contract": "Rollup",
+        "credited": [],
+        "dependencies": [],
+        "forwarded": [],
+        "law_id": "L_sort_cons_Rollup_receive",
+        "mapping_ledgers": [],
+        "member": "rollup"
+      },
+      "facts": "spec/M2/facts/morph_rollup.extracted.json",
+      "law_id": "L_sort_cons_Rollup_receive",
+      "member": "rollup",
+      "rule": "SORT",
+      "statement_hash": "sha256:0107701196e083587cb2974a16c4c10d6f393b600503e162af890329cec2070a",
+      "subform": "conservation"
+    },
+    {
+      "basis": {
+        "action": "stake",
+        "class": "ledger",
+        "contract": "Submitter",
+        "credited": [
+          "stakeOf"
+        ],
+        "dependencies": [
+          "I68"
+        ],
+        "forwarded": [],
+        "law_id": "L_sort_cons_Submitter_stake",
+        "mapping_ledgers": [
+          "stakeOf"
+        ],
+        "member": "submitter"
+      },
+      "facts": "gen/M3/bundle/documents/submitter.json",
+      "law_id": "L_sort_cons_Submitter_stake",
+      "member": "submitter",
+      "rule": "SORT",
+      "statement_hash": "sha256:a9caed0a976714fe7ad79c876921830f59730c8d02361a435b964f7c87d32391",
+      "subform": "conservation"
+    },
+    {
+      "basis": {
+        "action": "replayMessage",
+        "check_src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:201",
+        "contract": "L1CrossDomainMessenger",
+        "keyed_on_payer": false,
+        "keys": [
+          [
+            "param",
+            "_from"
+          ]
+        ],
+        "law_id": "L_sort_payer_L1CrossDomainMessenger_replayMessage_201",
+        "member": "messenger",
+        "payer": [
+          "caller"
+        ],
+        "price_call": "IL1MessageQueue.estimateCrossDomainMessageFee"
+      },
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_sort_payer_L1CrossDomainMessenger_replayMessage_201",
+      "member": "messenger",
+      "rule": "SORT",
+      "statement_hash": "sha256:2cbc55cea049e83958a6b05e62513165c58f294000b75fb66c36660df4a4b3dc",
+      "subform": "payer"
+    },
+    {
+      "basis": {
+        "action": "sendMessage_5f7b1577",
+        "check_src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:291",
+        "contract": "L1CrossDomainMessenger",
+        "keyed_on_payer": true,
+        "keys": [
+          [
+            "caller"
+          ]
+        ],
+        "law_id": "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291",
+        "member": "messenger",
+        "payer": [
+          "caller"
+        ],
+        "price_call": "IL1MessageQueue.estimateCrossDomainMessageFee"
+      },
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291",
+      "member": "messenger",
+      "rule": "SORT",
+      "statement_hash": "sha256:0b08b5b252d0a7e331ef9d03de880815739bf680dcd5ee51191fca3b2e85f776",
+      "subform": "payer"
+    },
+    {
+      "basis": {
+        "action": "sendMessage_b2267a7b",
+        "check_src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:291",
+        "contract": "L1CrossDomainMessenger",
+        "keyed_on_payer": true,
+        "keys": [
+          [
+            "caller"
+          ]
+        ],
+        "law_id": "L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291",
+        "member": "messenger",
+        "payer": [
+          "caller"
+        ],
+        "price_call": "IL1MessageQueue.estimateCrossDomainMessageFee"
+      },
+      "facts": "gen/M3/bundle/documents/messenger.json",
+      "law_id": "L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291",
+      "member": "messenger",
+      "rule": "SORT",
+      "statement_hash": "sha256:1a3707fa07235b9ee8dc865114617498e1b3454e86a321a342e19681defc08d8",
+      "subform": "payer"
     },
     {
       "basis": {
@@ -7201,7 +8243,7 @@
       "version": null
     }
   ],
-  "rule_catalog_version": "holon-rules/1.10",
+  "rule_catalog_version": "holon-rules/1.11",
   "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",
   "uncovered": [
     {

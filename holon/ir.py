@@ -40,7 +40,8 @@ PLAN_LAWS_SIDECAR = "spec/M3/lib/derivation_laws.json"
 # (the 0.3 schema's law_id pattern ^L[0-9]?_). Every glob over laws/<m>/ or results/<m>/ uses this one.
 LAW_GLOB = "L*.json"
 # binder types every IR version may use; 0.3 adds Fn<A,B>, Bytes(n), List<Nat> and record refs (a facts type)
-BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>", "Word", "Env")
+# (I86: Args, the input of an action, its arguments as the law model's AR_<action> record holds them)
+BASE_TYPES = ("State", "Trace", "Act", "Nat", "Bool", "Reach", "List<Nat>", "Word", "Env", "Args")
 
 
 class IRError(ValueError):
@@ -332,9 +333,13 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I29): a NAT square term, square_ok[ID](A, U, S, E) over the versioned machine (holon.rules.nat)
     if isinstance(t.get("square"), str) and isinstance(t.get("on"), list):
         return f"square_ok[{t['square']}]({', '.join(render_term(a) for a in t['on'])})"
-    # holon-ir/0.3 (I84): a bundle term, bundle_ok[ID](args) over the law's binders (holon.rules.bundle2)
-    if isinstance(t.get("bundle"), str) and isinstance(t.get("on"), list):
-        return f"bundle_ok[{t['bundle']}]({', '.join(render_term(a) for a in t['on'])})"
+    # holon-ir/0.3: a bundle term, bundle_ok[ID](args) over the law's binders (I84, holon.rules.bundle2: args its
+    # "on" list) or over its member's law model (I86, holon.rules.bundle: args its on, from, at and env, a premise of
+    # it bundle_<premise>[ID](..)); the id's sub-form names the module (holon.rules.bundle_terms)
+    if isinstance(t.get("bundle"), str):
+        args = [t[k] for k in ("on", "from", "at", "env") if k in t]
+        flat = [x for a in args for x in (a if isinstance(a, list) else [a])]
+        return f"bundle_{t.get('premise') or 'ok'}[{t['bundle']}]({', '.join(render_term(a) for a in flat)})"
     # holon-ir/0.3 (I27): an UNDO term, the undo law of the pair or residue ID over the law's binders (holon.rules.undo)
     if "undo" in t and isinstance(t.get("on"), list):
         return f"undo_ok[{t['undo']}]({', '.join(render_term(a) for a in t['on'])})"

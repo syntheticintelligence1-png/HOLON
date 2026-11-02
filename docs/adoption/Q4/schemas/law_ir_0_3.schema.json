@@ -1109,26 +1109,74 @@
    }
   },
   "t_bundle": {
-   "type": "object",
-   "required": [
-    "bundle",
-    "on"
-   ],
-   "additionalProperties": false,
-   "description": "a bundle term (I84, holon.rules.bundle2): the bundle id <model>:<link_domain|public_input|self_controlled>:<action>:<...> of a basis element over a bundle of linked members applied to the law's binders, in order: the Bool 'a call x of the action that succeeds from the reachable state s has its (version, index) resolved to a non-zero verifier by the callee in the state the trace vt reaches from the callee's deployment' (link_domain: s, x, vt), 'two calls x1, x2 of the action that succeed from reachable states s1, s2 with equal public inputs take parent headers holding equal values of the consumer field' (public_input: s1, x1, s2, x2) or 'a call x of the action that succeeds from the reachable state s costs, by the calibrated model, at most the gas ceiling' (self_controlled: s, x), then the hash binders; rendered bundle_ok[ID](args); its statement ref bundle:ID hashes the template, version, subform and basis recomputed from the milestone's bundle-laws sidecar, its declaration and documents (holon.gen.refs)",
-   "properties": {
-    "bundle": {
-     "type": "string",
-     "pattern": "^[A-Za-z0-9_.]+:(link_domain|public_input|self_controlled):[A-Za-z0-9_]+(:[A-Za-z0-9_]+)*$"
+   "description": "a bundle term {bundle: ID, ...} of one of two rule catalogs, told apart by the id's sub-form (its second field; the two sub-form sets are disjoint, holon.rules.bundle_terms): holon-rules/1.10's (I84, holon.rules.bundle2) or holon-rules/1.11's (I86, holon.rules.bundle); a PAR push term has the shape of holon-rules/1.10's, so the id's pattern decides",
+   "oneOf": [
+    {
+     "type": "object",
+     "required": [
+      "bundle",
+      "on"
+     ],
+     "additionalProperties": false,
+     "description": "a bundle term (I84, holon.rules.bundle2): the bundle id <model>:<link_domain|public_input|self_controlled>:<action>:<...> of a basis element over a bundle of linked members applied to the law's binders, in order: the Bool 'a call x of the action that succeeds from the reachable state s has its (version, index) resolved to a non-zero verifier by the callee in the state the trace vt reaches from the callee's deployment' (link_domain: s, x, vt), 'two calls x1, x2 of the action that succeed from reachable states s1, s2 with equal public inputs take parent headers holding equal values of the consumer field' (public_input: s1, x1, s2, x2) or 'a call x of the action that succeeds from the reachable state s costs, by the calibrated model, at most the gas ceiling' (self_controlled: s, x), then the hash binders; rendered bundle_ok[ID](args); its statement ref bundle:ID hashes the template, version, subform and basis recomputed from the milestone's bundle-laws sidecar, its declaration and documents (holon.gen.refs)",
+     "properties": {
+      "bundle": {
+       "type": "string",
+       "pattern": "^[A-Za-z0-9_.]+:(link_domain|public_input|self_controlled):[A-Za-z0-9_]+(:[A-Za-z0-9_]+)*$"
+      },
+      "on": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "$ref": "#/$defs/term"
+       }
+      }
+     }
     },
-    "on": {
-     "type": "array",
-     "minItems": 1,
-     "items": {
-      "$ref": "#/$defs/term"
+    {
+     "type": "object",
+     "required": [
+      "bundle"
+     ],
+     "additionalProperties": false,
+     "description": "a bundle-law term (I86, holon.rules.bundle): the id <member>:<sub-form>:<site>[:<class>] of a site of the bundle's laws (SORT payer and conservation, DISCH keyed_blocking, keyed_external and keyed_external_none, PAR push) applied to the law's binders: the Bool claim of the sub-form over its member's law model and claims module, rendered bundle_ok[ID](..); with premise, one of the law's premises (ok: the step's checks hold; enc: a push law's leaf preimage; leaf: its leaf), rendered bundle_<premise>[ID](..); its statement ref bundle:ID hashes the site recomputed from the milestone's bundle-laws sidecar, declaration and documents (holon.gen.refs)",
+     "properties": {
+      "bundle": {
+       "type": "string",
+       "pattern": "^[A-Za-z0-9_]+:(payer|conservation|keyed_blocking|keyed_external|keyed_external_none|push):[A-Za-z0-9_]+(:[A-Za-z0-9_]+)?$"
+      },
+      "premise": {
+       "enum": [
+        "ok",
+        "enc",
+        "leaf"
+       ]
+      },
+      "on": {
+       "oneOf": [
+        {
+         "$ref": "#/$defs/term"
+        },
+        {
+         "type": "array",
+         "items": {
+          "$ref": "#/$defs/term"
+         }
+        }
+       ]
+      },
+      "from": {
+       "$ref": "#/$defs/term"
+      },
+      "at": {
+       "$ref": "#/$defs/term"
+      },
+      "env": {
+       "$ref": "#/$defs/term"
+      }
      }
     }
-   }
+   ]
   }
  }
 }
