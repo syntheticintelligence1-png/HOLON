@@ -20,7 +20,6 @@ no generator closure imports it.
 """
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
@@ -33,7 +32,9 @@ def canonical(obj) -> bytes:
 
 
 def statement_hash(statement: dict) -> str:
-    return "sha256:" + hashlib.sha256(canonical(statement)).hexdigest()
+    """holon.ir.statement_hash of a law of this IR: the sha256 of its statement's canonical JSON."""
+    from .. import ir
+    return ir.statement_hash({"ir_version": LAW_IR, "statement": statement})
 
 
 def pareto(points) -> list[list[int]]:
