@@ -15,7 +15,7 @@ the milestone's findings file (audit/<M>_findings.jsonl; M0 and M1: audit/findin
   CV2  a round is clean iff every finding it lists is in the findings file with a severity that is not high-priority
   CV3  walking the rounds in order, a round that is not clean resets the streak to 0, whatever its family; a counted
        clean round adds 1; any other round leaves it unchanged
-  CV4  converged iff the rounds are valid (RD1-RD3, holon.audit.rounds.check), the streak is at least k, and no
+  CV4  converged iff the rounds are valid (RD1-RD4, holon.audit.rounds.check), the streak is at least k, and no
        high-priority finding of M is open
 A same-family round never counts, so with no round from another family the loop cannot converge. Nothing here names a
 law or a target.
@@ -47,8 +47,7 @@ def compute(root: Path, milestone: str) -> dict:
         rounds = load_rounds(root, milestone)
     except RoundError as e:
         rounds, problems = [], problems + [str(e)]
-    findings, fbad = load_findings(root, milestone, policy)
-    problems += fbad
+    findings, _bad = load_findings(root, milestone, policy)    # its bad lines are check()'s RD4 problems already
     sev = {f["id"]: f.get("severity") for f in findings}
     seen: set = set()
     streak = counted = 0

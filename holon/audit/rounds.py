@@ -11,6 +11,10 @@ run), so every earlier round stays valid. A round's auditor types are the audito
        have counts_toward_convergence false (HUMAN_ANSWERS Q9)
   RD2  counts_toward_convergence is true only for a round that qualifies (CV1, holon.audit.converge)
   RD3  the rounds of M are numbered 1..n without a gap; each round's findings are exactly the union of its attacks'
+  RD4  every line of the milestone's findings file is a JSON object with a string id that no earlier line has, a
+       severity in high, medium, low and a status in open, fixed, wontfix, duplicate (I5's line rule,
+       holon.audit.status); CV2 and CV4 read severities and statuses, so a round whose author spells them otherwise
+       (an auditor of another family, say "critical" or "Open") is refused here instead of counting as clean
 
 Schemas are read from this repository; rounds and the policy from the root. The policy is spec/<M>/lib/audit_loop.json
 of the root, or I87's spec/M3/lib/audit_loop.json (the root's, else this repository's) for a milestone without one.
@@ -24,6 +28,8 @@ import json
 import re
 import sys
 from pathlib import Path
+
+from .status import SEVERITIES, STATUSES
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "spec" / "schemas" / "audit_round.schema.json"
@@ -71,21 +77,31 @@ def findings_rel(milestone: str, policy: dict) -> str:
 
 
 def load_findings(root: Path, milestone: str, policy: dict) -> tuple[list[dict], list[str]]:
-    """(findings, problems): one JSON object per line of the milestone's findings file (none when it is missing)."""
+    """(findings, problems): one JSON object per line of the milestone's findings file (none when it is missing). A
+    line that breaks RD4 is a problem and is left out of the findings."""
     p = Path(root) / findings_rel(milestone, policy)
     if not p.is_file():
         return [], []
-    out, bad = [], []
+    out, bad, ids = [], [], set()
     for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
+        where = f"{findings_rel(milestone, policy)} line {n}"
         try:
             f = json.loads(line)
         except ValueError as e:
-            bad.append(f"{findings_rel(milestone, policy)} line {n}: not JSON ({e})")
+            bad.append(f"{where}: not JSON ({e})")
             continue
         if not isinstance(f, dict) or not isinstance(f.get("id"), str):
-            bad.append(f"{findings_rel(milestone, policy)} line {n}: not a finding with an id")
+            bad.append(f"{where}: not a finding with an id")
+            continue
+        if f["id"] in ids:
+            bad.append(f"{where}: {f['id']} is an earlier line's id")
+            continue
+        ids.add(f["id"])
+        if f.get("severity") not in SEVERITIES or f.get("status") not in STATUSES:
+            bad.append(f"{where}: {f['id']} has severity {f.get('severity')!r} and status {f.get('status')!r}; it "
+                       f"needs a severity in {', '.join(SEVERITIES)} and a status in {', '.join(STATUSES)}")
             continue
         out.append(f)
     return out, bad
@@ -137,14 +153,14 @@ def schema_errors(r: dict) -> list[str]:
 
 
 def check(root: Path, milestone: str) -> dict:
-    """{"milestone", "rounds": n, "problems": [..], "policy": rel}: RD1-RD3 and the schema over every round of M."""
+    """{"milestone", "rounds": n, "problems": [..], "policy": rel}: RD1-RD4 and the schema over every round of M."""
     root = Path(root)
     policy, pp = load_policy(root, milestone)
-    problems: list[str] = []
+    problems: list[str] = [f"RD4: {b}" for b in load_findings(root, milestone, policy)[1]]
     try:
         rounds = load_rounds(root, milestone)
     except RoundError as e:
-        return {"milestone": milestone, "rounds": 0, "problems": [str(e)], "policy": rel_or_abs(pp, root)}
+        return {"milestone": milestone, "rounds": 0, "problems": problems + [str(e)], "policy": rel_or_abs(pp, root)}
     if [n for n, _p, _r in rounds] != list(range(1, len(rounds) + 1)):
         problems.append(f"RD3: rounds numbered {[n for n, _p, _r in rounds]}, not 1..{len(rounds)}")
     seen: set = set()
