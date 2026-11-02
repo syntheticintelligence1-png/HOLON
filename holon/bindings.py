@@ -452,6 +452,8 @@ def model_path(law: dict, m: str, root: Path) -> Path:
         return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['role']}.bend"
     if kind == "goops":   # I67 (rule Y8d): the Go-op component's model gen/<m>/model/<component>.bend
         return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['component']}.bend"
+    if kind == "gocount":   # I90 (rule C6d): the count component's model gen/<m>/model/<component>.bend
+        return root / "gen" / m / "model" / f"{F.load(root / law['facts'])['component']}.bend"
     if kind == "own":   # I35 (rule W11): the carrier's model gen/<m>/model/own_<stem>.bend
         return root / "gen" / m / "model" / f"own_{F.load(root / law['facts'])['stem']}.bend"
     return root / "gen" / m / "model" / f"{model_name(law_facts(law, m, root))}.bend"
@@ -512,6 +514,7 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     kind = codec_kind(law, root)
     if kind is not None:   # I24: a codec law, emitted as holon.codecrun emits it
         from .gen import codec01 as C1
+        from .gen import gocount as GN
         from .gen import goloop as GG
         from .gen import linked as GL
         imp = f"{layout(m, root, law['law_id'])[2]}model/{model_path(law, m, root).name}"
@@ -521,6 +524,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
                 return GL.emit(law, F.load(fp), imp, counter=counter, note=note).text
             if kind == "goops":   # I67: as holon.codecrun writes a Go-op law's file (holon.gen.goloop.emit)
                 return GG.emit(law, F.load(fp), imp, counter=counter, note=note).text
+            if kind == "gocount":   # I90: as holon.codecrun writes a count law's file (holon.gen.gocount.emit)
+                return GN.emit(law, F.load(fp), imp, counter=counter, note=note).text
             if kind == "own":   # I35: as holon.own_run writes an OWN law's file (holon.gen.ownheap.emit)
                 from .gen import ownheap as OH
                 try:
@@ -528,7 +533,7 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
                 except OH.Unsupported:
                     return None
             return C1.emit(C1.to01(law), F.load(fp), imp, counter=counter, header_note=note).text
-        except (GL.Unsupported, GG.Unsupported, C1.Unsupported):
+        except (GL.Unsupported, GG.Unsupported, GN.Unsupported, C1.Unsupported):
             return None
     imp = f"{layout(m, root, law['law_id'])[2]}model/{model_name(fp)}.bend"   # as the pipelines import it (I10)
     if law["ir_version"] == "holon-ir/0.1":

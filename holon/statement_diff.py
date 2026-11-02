@@ -167,10 +167,14 @@ def _is_law(x) -> bool:
 
 def core(law: dict) -> bytes:
     """What identifies a statement, as canonical JSON: the hashed keys of every IR version and the facts file, and the
-    hash scheme when it is not 1 (PV2A; a scheme-1 law's core is what it was before hash schemes existed)."""
+    hash scheme when it is not 1 (PV2A; a scheme-1 law's core is what it was before hash schemes existed). Under scheme
+    2 the catalog version is not part of it, as its hash drops rule_catalog_version: a law born on a branch under scheme
+    1 and an older catalog lands under scheme 2 and the current one, and its hash_migration line (old and new identical
+    but for hash_scheme) then covers that registry change, its two hashes being the change's."""
     c = {k: law.get(k) for k in _CORE}
     if law.get(HASH_KEY, 1) != 1:
         c[HASH_KEY] = law.get(HASH_KEY)
+        c.pop(CATALOG_KEY, None)
     return ir.canonical_json(c)
 
 

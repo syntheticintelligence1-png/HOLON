@@ -304,9 +304,10 @@ def i4_sides(root: Path) -> dict:
             continue
         for lid, entry in (load(p).get("laws") or {}).items():
             out[f"{m}/{lid}"] = {k: v for k, v in sides_of(entry).items() if isinstance(v, dict)}
-    # I67 (rule Y10 of tests_m3/test_go_loop.py): the Go-op laws' replay, and I35 (rule W13 of tests_m3/test_own.py)
-    # the OWN laws' replay: a side only at the record's own witness
-    for part in ("goops", "own"):
+    # I67 (rule Y10 of tests_m3/test_go_loop.py): the Go-op laws' replay; I90 (rule C8 of tests_m3/test_go_counts.py)
+    # the count laws' replay; and I35 (rule W13 of tests_m3/test_own.py) the OWN laws' replay: a side only at the
+    # record's own witness
+    for part in ("goops", "gocount", "own"):
         p = root / "replay" / "M3" / part / "report.json"
         if not p.is_file():
             continue
