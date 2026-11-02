@@ -3,7 +3,7 @@
     "law_name": "l_sym_sentinel_rollup_batchdatastore_origintimestamp_importgenesisbatch_242",
     "laws": "gen/M3/laws/L_sym_sentinel_Rollup_batchDataStore_originTimestamp_importGenesisBatch_242/LAWS.bend",
     "model": "gen/M3/sym/models/morph_rollup.extracted.bend",
-    "proof": "gen/M3/proofs/L_sym_sentinel_Rollup_batchDataStore_originTimestamp_importGenesisBatch_242/PROOF.bend",
+    "proof": null,
     "typed_model": "gen/M3/sorts/models/morph_rollup.extracted.bend"
   },
   "attempts": [
@@ -11,19 +11,24 @@
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 0.929
+        "seconds": 0.806
       },
       "class": "clock_site",
       "generator": "holon.symd.proofs.sentinel",
       "kind": "proof",
       "verdict": "checked"
+    },
+    {
+      "bound": "no inhabitant: 400 prefix states of at most 2 successful steps (max 400), 477 candidates (max 60000), continuations of at most 2 steps: no witness",
+      "consequence": "a checked proof without an inhabitant is not PROVED (G11V)",
+      "found": false,
+      "kind": "non_vacuity"
     }
   ],
-  "bound": null,
+  "bound": "vacuous on the model: the proof checks, but no inhabitant: 400 prefix states of at most 2 successful steps (max 400), 477 candidates (max 60000), continuations of at most 2 steps: no witness",
   "checker": {
-    "exit_code": 0,
-    "marker": "ALL PROOFS CHECK",
-    "seconds": 0.929
+    "exit_code": null,
+    "marker": "not_run"
   },
   "compiled_sha256": "b71de3b7710e457ed1fd72dcb651fe10b57a974ed9f720d5c1d2d3cec5fe4194",
   "cone": [
@@ -1814,26 +1819,18 @@
   "evidence_triage": "none",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": null,
-  "generator_sha256": "f3dab3fcc66ec9da1a020bb976a2808119ac90e1d6565e4b20f041632cd2ea87",
-  "independence_class": "I1-shared",
+  "generator_sha256": "176808248482a2c7f3f093c9bda138400a178dfb07346f0274b93bd01174c326",
+  "independence_class": "none",
   "kernel": {
     "name": "bend",
-    "verdict": "checked",
+    "verdict": "not_run",
     "version": "2.0.36"
   },
   "kernels": [
     {
       "name": "bend2",
-      "result": "checked",
+      "result": "not_run",
       "role": "primary",
-      "version": "2.0.36"
-    },
-    {
-      "name": "bendtt",
-      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
-      "result": "checked",
-      "role": "second",
-      "shares_frontend_with": "bend2",
       "version": "2.0.36"
     }
   ],
@@ -1862,19 +1859,19 @@
   "record_version": "holon-record/0.2",
   "refinement_refs": [],
   "replay": {
-    "detail": "PROVED: no witness to replay",
+    "detail": "UNKNOWN: no witness to replay",
     "status": "not_applicable"
   },
   "rule": "SYM",
   "scope": "unbounded",
   "scope_v2": {
     "at_state": null,
-    "horizon": null,
-    "kind": "unbounded"
+    "horizon": "vacuous on the model: the proof checks, but no inhabitant: 400 prefix states of at most 2 successful steps (max 400), 477 candidates (max 60000), continuations of at most 2 steps: no witness",
+    "kind": "bounded"
   },
   "statement": "sentinel batchDataStore.originTimestamp vs 0: from a reachable s, a successful act x of importGenesisBatch (with block.timestamp >= 1 where the site reads it) writes a value other than 0 at contracts/contracts/l1/rollup/Rollup.sol:242; sym morph_rollup.extracted:sentinel:batchDataStore.originTimestamp:importGenesisBatch:242",
   "statement_hash": "sha256:b6ce15d10733527f2b1bd2c95af96a98ca0f038a8ef294b55adedea2416056e7",
-  "status": "PROVED",
+  "status": "UNKNOWN",
   "subform": "sentinel",
   "sym": {
     "basis": {
