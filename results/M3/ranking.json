@@ -30,6 +30,10 @@
    "sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78"
   },
   {
+   "path": "laws/M3/L_contract_C_o12_m3.json",
+   "sha256": "52437ecc159c865f7f0a0fa30acd48254db0426c9bc3eb8eccf5828220da7074"
+  },
+  {
    "path": "laws/M3/L_disch_blk_initializable_120_b8d46c45_anyone.json",
    "sha256": "fd802473c923c46f467937bdfeba4729d4617d39efe83fd3951fc7949fcd24e9"
   },
@@ -748,6 +752,10 @@
   {
    "path": "replay/M3/undo/report.json",
    "sha256": "694db9408c8f87112b2da5f72153140713b2d94434213298d70d425e0564713f"
+  },
+  {
+   "path": "results/M3/L_contract_C_o12_m3.json",
+   "sha256": "502ef3a64d5a9f1f80a1a90b709860ff9dc3f5a7513f4a0dd7e683cefdf23bfa"
   },
   {
    "path": "results/M3/L_disch_blk_initializable_120_b8d46c45_anyone.json",
@@ -1479,6 +1487,20 @@
   }
  ],
  "measures": {
+  "L_contract_C_o12_m3": {
+   "certified": true,
+   "detail": {},
+   "kind": "value",
+   "lower": "infinite",
+   "measure": "residue_liveness_distance",
+   "pending": null,
+   "rule": "UNDO",
+   "scope": null,
+   "unit": "steps",
+   "upper": "infinite",
+   "value": "infinite",
+   "why": "the kernel proved the residue unobservable: no continuation tells the states apart"
+  },
   "L_disch_blk_initializable_120_b8d46c45_anyone": {
    "certified": false,
    "detail": {
@@ -6838,7 +6860,7 @@
    "status": "not_applicable"
   },
   "UNDO": {
-   "laws": 9,
+   "laws": 10,
    "measure": "residue_liveness_distance",
    "pending": null,
    "status": "computed"
@@ -6853,9 +6875,9 @@
    "bound": 10,
    "not_applicable": 26,
    "pending": 50,
-   "value": 92
+   "value": 93
   },
-  "laws": 178,
+  "laws": 179,
   "persistence": {
    "code": 8,
    "dischargeable": 1,
