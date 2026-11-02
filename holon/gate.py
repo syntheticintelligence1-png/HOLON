@@ -540,6 +540,20 @@ def _resolve(root: Path, p: str | None) -> Path | None:
     return q if q.is_absolute() else root / q
 
 
+class _Narrowed:
+    """A Gate seen with fewer laws: holon.inhabit.g11v reads gate.laws(), records(), root, m and cfg (I34: the SYM laws
+    are routed to holon.symd.gate)."""
+
+    def __init__(self, gate, laws: list):
+        self._gate, self._laws = gate, list(laws)
+
+    def __getattr__(self, k):
+        return getattr(self._gate, k)
+
+    def laws(self) -> list:
+        return list(self._laws)
+
+
 class Gate:
     checker: dict | None = None          # bend.fingerprint() of the checker GENV accepted
     timings: dict | None = None          # {"G5": {law_id: seconds}} once G5 has run
@@ -1615,7 +1629,17 @@ class Gate:
 
     def g11v(self) -> None:
         from . import inhabit
-        ok, detail = inhabit.g11v(self)
+        from .bindings import _sym
+        laws = self.laws()
+        sym = [law for law in laws if _sym(law)]
+        if sym:   # I34: a SYM law's inhabitant is stated over the typed model and its sym section (holon.symd.gate,
+            import importlib   # imported by name: it stays outside every generator closure)
+            SG = importlib.import_module("holon.symd.gate")
+            ok_s, det_s = SG.g11v(self, sym)
+            ok, detail = inhabit.g11v(_Narrowed(self, [law for law in laws if not _sym(law)]))
+            ok, detail = ok and ok_s, f"{detail}; SYM laws: {det_s}"
+        else:
+            ok, detail = inhabit.g11v(self)
         try:      # I28 (V8): a milestone with a versions sidecar has in-flight inhabitants of its path's MIG edges
             from .versions.inhabit import clause
             inflight = clause(self.m, self.root, self.cfg)
