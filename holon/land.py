@@ -545,6 +545,9 @@ def step_dirty(a) -> int:
 # are decided over the claims modules `holon bundle2 laws` writes from a forge run, so one job regenerates those, decides
 # the laws and replays their witnesses (the re-make template's cmd bundle2).
 BUNDLE2_SUBFORMS = ("link_domain", "public_input", "self_controlled")
+# I86's bundle-law sub-forms (holon.rules.bundle.RULE_SUBFORMS): decided by `holon run`, then their witnesses replayed
+# on the real bundle (`holon bundle replay-laws`, a forge run), in one job (the re-make template's cmd bundle).
+BUNDLE_SUBFORMS = ("payer", "conservation", "keyed_blocking", "keyed_external", "keyed_external_none", "push")
 
 
 def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
@@ -559,6 +562,8 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
         r, s = law["rule"], law.get("subform")
         if s in BUNDLE2_SUBFORMS:   # I84's bundle laws: their claims modules first, then the deciders, then the replay
             g = "bundle2"
+        elif s in BUNDLE_SUBFORMS:  # I86's bundle laws: the deciders, then the replay
+            g = "bundle"
         elif r == "SORT" and s in ("realize", "as_member", "reinterpret", "tag"):
             g = f"typed-{lid}"
         elif r == "FACT" and "_attr_" in lid:
@@ -589,7 +594,7 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
             extra = "--law-timebox 540 --deadline @DEADLINE@" if g == "disch" else \
                 ("--deadline @DEADLINE@" if g.startswith("fact-attr-") or g == "undo-cancel" else "")
             jobs.append({"name": name, "laws": ",".join(part), "extra": extra, "lean": "yes" if g == "par" else "",
-                         "cmd": "bundle2" if g == "bundle2" else ""})
+                         "cmd": g if g in ("bundle2", "bundle") else ""})
     if restamp:
         jobs += [{"name": "m12", "laws": "", "extra": "", "lean": "", "cmd": "m12"},
                  {"name": "t32", "laws": "", "extra": "", "lean": "", "cmd": "t32"}]
