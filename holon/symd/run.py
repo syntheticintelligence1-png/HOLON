@@ -634,14 +634,20 @@ class Decider:
             rec["replay"] = {"status": "not_applicable", "detail": f"{status}: no witness to replay"}
         return rec, rep, rs
 
-    def site_of(self, el: dict, sc: SymCtx, witness: dict) -> str | None:
-        """The comparison of a Time word against a constant a REFUTED tau witness crosses (J7, P5), as "<action>:<where>"
-        (a guard's src, or "returns" for a view's): the guard whose check fails in one run alone when the two runs' check
-        codes differ, else the action's only such comparison, else its view's return."""
+    def site_of(self, el: dict, sc: SymCtx, witness: dict) -> tuple[str | None, str]:
+        """Where a REFUTED tau witness breaks translation (J7, P5), as ("<action>:<where>", kind):
+          - kind "compare": the comparison of a Time word against a constant whose outcome differs between the two runs:
+            the guard whose check fails in one run alone when their check codes differ, or a view's return;
+          - kind "reset": when both runs pass every check alike and the action is not a view, no comparison decided
+            differently; τ_d then breaks where the action stores a constant in a Time word (a delete resetting it to the
+            sentinel 0, holon.sym.time_resets), one write site, or the one that resets a sentinel register (a Time
+            register some guard or view compares against a constant) when several do;
+          - (None, "unlocalized") otherwise, the candidates in the record's notes."""
         a = el["basis"]["action"]
         tw = set(R.S.time_words(sc.assignment, sc.doc))
-        sites = sorted({f"{act}:{where}" for act, where, _op, path, _c in R.S.constant_compares(sc.doc)
-                        if act == a and f"storage:{path}" in tw})
+        cmps = [(act, where, path) for act, where, _op, path, _c in R.S.constant_compares(sc.doc)
+                if f"storage:{path}" in tw]
+        sites = sorted({f"{act}:{where}" for act, where, _path in cmps if act == a})
         codes = (witness or {}).get("codes") or []
         act = next((x for x in sc.doc.get("actions") or [] if x["name"] == a), {})
         if len(codes) == 2 and codes[0] != codes[1]:
@@ -650,10 +656,20 @@ class Decider:
             if 0 < failing <= len(guards):
                 cand = f"{a}:{guards[failing - 1].get('src') or 'guard'}"
                 if cand in sites:
-                    return cand
-        if len(sites) == 1:
-            return sites[0]
-        return f"{a}:returns" if f"{a}:returns" in sites else None
+                    return cand, "compare"
+            return None, "unlocalized"
+        if f"{a}:returns" in sites:
+            return f"{a}:returns", "compare"
+        regs = sorted(w[len("storage:"):] for w in tw if w.startswith("storage:"))
+        resets = R.S.time_resets(sc.doc, a, regs)
+        srcs = sorted({src for src, _reg, _c in resets})
+        if len(srcs) == 1:
+            return f"{a}:{srcs[0]}", "reset"
+        sentinel = {path for _act, _where, path in cmps}
+        hot = sorted({src for src, reg, _c in resets if reg in sentinel})
+        if len(hot) == 1:
+            return f"{a}:{hot[0]}", "reset"
+        return None, "unlocalized"
 
     def record(self, law: dict, e: dict, el: dict, sc: SymCtx, status: str, witness: dict | None, attempts: list,
                lp: Path, prim: dict | None, bound: str | None, diag: str | None, nv: dict | None) -> dict:
@@ -688,7 +704,8 @@ class Decider:
                "replay": {"status": "not_run", "detail": ""}, "attempts": attempts, "rule": R.RULE,
                "subform": sub, "sym": {"subform": sub, "sym_id": el["sym_id"], "basis": el["basis"],
                                        "section": SS.SECTION_VERSION, "notes": list(sc.notes),
-                                       **({"site": self.site_of(el, sc, witness)} if sub == "tau" and witness else {})},
+                                       **(dict(zip(("site", "site_kind"), self.site_of(el, sc, witness)))
+                                          if sub == "tau" and witness else {})},
                "witness": witness, "bound": bound}
         if status == "REFUTED":
             rec["difference"] = {"lhs": False, "rhs": True}
@@ -744,7 +761,8 @@ def families_doc(m: str, root: Path) -> dict:
         elif r["status"] == "REFUTED":
             row["break"].append(a)
             row["witnesses"][a] = {"law": r["law_id"], "witness": r.get("witness"),
-                                   "localizes": sy.get("site") if sub == "tau" else f"principal {role}"}
+                                   "localizes": sy.get("site") if sub == "tau" else f"principal {role}",
+                                   **({"site_kind": sy.get("site_kind")} if sub == "tau" else {})}
         else:
             row["unknown"].append(a)
     return {sub: [dict(v, eq=sorted(v["eq"]), unknown=sorted(v["unknown"]), **{"break": sorted(v["break"])})

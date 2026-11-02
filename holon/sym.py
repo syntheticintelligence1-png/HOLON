@@ -197,6 +197,31 @@ def constant_compares(facts: dict):
                                 yield a["name"], where, x[0], path, c
 
 
+def time_resets(facts: dict, action: str, registers) -> list:
+    """(src, register, constant) for each write of `action` that stores an integer constant in one of `registers`
+    ("<family>" or "<family>.<member>"): a whole entry set to a constant (a delete stores 0 in every member) or a
+    struct write giving that member a constant. τ_d translates the word such a write stores in one run and not the
+    word the translated run stores, so a reset of a Time word breaks translation where it is written (J7's sentinel
+    conflation, at a write instead of a comparison)."""
+    out = set()
+    for a in facts.get("actions") or []:
+        if a["name"] != action:
+            continue
+        for w in a.get("writes") or []:
+            fam, v = w.get("family"), w.get("value")
+            for reg in registers:
+                rf, _, mem = reg.partition(".")
+                if rf != fam:
+                    continue
+                if isinstance(v, int) and not isinstance(v, bool):
+                    out.add((w.get("src") or "write", reg, v))
+                elif mem and isinstance(v, list) and v[:1] == ["struct"]:
+                    for name, val in v[2]:
+                        if name == mem and isinstance(val, int) and not isinstance(val, bool):
+                            out.add((w.get("src") or "write", reg, val))
+    return sorted(out)
+
+
 def write_values(facts: dict, path: str):
     fam, _, mem = path.partition(".")
     for a in facts.get("actions") or []:
