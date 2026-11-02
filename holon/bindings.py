@@ -837,15 +837,16 @@ def covering_entries(m: str, root: Path, a: dict, b: dict, changed: list, law_de
         hs = (a[lid].get("statement_hash"), b[lid].get("statement_hash"))
         n = next((n for n, e in sorted(entries.items())
                   if entry_covers(e, lid, current.get(lid), sc, law_defs[lid], ho, hs)), None)
-        if n is not None and isinstance(entries[n].get("id"), str):
-            n = entries[n]["id"]   # PV2A: a line with an id is named by it, not by its line number
+        if n is not None:
+            if isinstance(entries[n].get("id"), str):
+                n = entries[n]["id"]   # PV2A: a line with an id is named by it, not by its line number
+            covered[lid] = n
+        else:
             missing.append((lid, "no accepted laws/STATEMENT_DIFF.jsonl entry covers it ("
                                  + ("its statement hash changed: a strengthening, weakening or reextraction, or a "
                                     "catalog_rederivation when nothing else in its binding changed" if sc else
                                     f"its statement is fixed: a binding_change or a model_extension naming "
                                     f"{law_defs[lid]}, or a licensed remodel") + ")"))
-        else:
-            covered[lid] = n
     return covered, missing
 
 
