@@ -327,14 +327,17 @@ class TestRanking(unittest.TestCase):
 # ====================================================================== regressions and construction
 class TestRegressions(unittest.TestCase):
     def test_r1_fact_bits(self):
-        """R1: each FACT kernel law's measure is its record's (I26's F(m, c)): 1.0, 1.0 and 0.0 bits."""
+        """R1: each FACT kernel law's measure is its record's (I26's F(m, c)): 1.0, 1.0 and 0.0 bits.
+        Amended at I44's stage 2 (spec/M3/amendments.jsonl, foundation_conflict): the not_applicable clause leaves out
+        I84's public_input laws, which I81's prereg never saw and I44's M-FACT measures (tests_m3/test_measures_i44.py,
+        P5); every other non-kernel FACT law is checked as before."""
         ms, rc = doc()["measures"], records(M)
         n = 0
         for lid, r in rc.items():
             if r["rule"] == "FACT" and r.get("subform") == "kernel":
                 n += 1
                 self.assertEqual(ms[lid]["value"], r["fact"]["measure"]["bits"], lid)
-            elif r["rule"] == "FACT":
+            elif r["rule"] == "FACT" and r.get("subform") != "public_input":
                 self.assertEqual(ms[lid]["kind"], "not_applicable", lid)
         self.assertEqual(n, 3)
 
