@@ -1389,9 +1389,14 @@ def _remodel(entry: dict, old: dict, new: dict, root: Path) -> dict:
         return _res(False, f"{qp.relative_to(root)} does not list {want} in {where}")
     checked = {"bound_commit": commit_b, "model": trel, "old_sha256": _sha(old_t), "new_sha256": _sha(new_t),
                "files": {q.relative_to(root).as_posix(): _sha(q.read_bytes()) for q in (rp, kp, qp, mf)}}
-    return _res(True, f"remodel {lic[0]}: {lid}'s binding changes only in its cone ({len(B.changed_defs(ob, nb))} "
-                      f"definitions), {trel} goes from {lic[1]} to {lic[2]} and regenerates, R5 agrees on I20's corpus, "
-                      f"no key collides, and its record is remade with {want}", remodel=checked)
+    out = _res(True, f"remodel {lic[0]}: {lid}'s binding changes only in its cone ({len(B.changed_defs(ob, nb))} "
+                     f"definitions), {trel} goes from {lic[1]} to {lic[2]} and regenerates, R5 agrees on I20's corpus, "
+                     f"no key collides, and its record is remade with {want}", remodel=checked)
+    # every file the check read, for laws/STATEMENT_DIFF.store/ (append writes them): off git the line is checked from
+    # them (_verify_remodel_store), as a model_extension line is
+    out["_store"] = [t if isinstance(t, bytes) else t.encode("utf-8") for t in (old_t, new_t)] \
+        + [q.read_bytes() for q in (rp, kp, qp, mf)]
+    return out
 
 
 def remodel_entries(milestone: str, root: Path, license: str = "Q21") -> tuple[list[dict], list[str]]:
@@ -1657,8 +1662,9 @@ def scan(path: Path, root: Path, kinds=None, milestone: str | None = None) -> di
         # I83: a model_extension line is checked from the working tree alone (its files in laws/STATEMENT_DIFF.store/,
         # _verify_extension_store); on git it is also tied to the history (committed) or checked in full (new)
         ext_line = isinstance(e, dict) and e.get("kind") == "model_extension"
-        if hist is None and ext_line:
-            why = _verify_extension_store(e, acc, root)
+        rem_line = isinstance(e, dict) and e.get("kind") == "remodel"   # I68: the same off git (_verify_remodel_store)
+        if hist is None and (ext_line or rem_line):
+            why = _verify_extension_store(e, acc, root) if ext_line else _verify_remodel_store(e, acc, root)
             if why:
                 out["problems"].append(f"line {n}: {_line_tag(e)}: {why}")
             else:
@@ -3056,6 +3062,42 @@ def _memo(step: str, key, f):
     return _STORE_MEMO[k]
 
 
+def remodel_named(rm) -> list[tuple]:
+    """[(sha256, what)] of every file a remodel acceptance record names (I68, _remodel): the typed model at bound_commit
+    and at the commit that appended the line, the R5 record, the keys check, the law's record and its model."""
+    if not isinstance(rm, dict):
+        return []
+    out = [(rm.get("old_sha256"), f"{rm.get('model')} at bound_commit"), (rm.get("new_sha256"), str(rm.get("model")))]
+    out += [(sha, rel) for rel, sha in sorted((rm.get("files") or {}).items())]
+    return [(sha, what) for sha, what in out if isinstance(sha, str)]
+
+
+def _verify_remodel_store(e, acc, root: Path) -> str | None:
+    """(I68) A remodel line checked from the working tree alone, as a committed one is from git (_verify_remodel): the
+    remodel is still one a human answer licenses, the line keeps the statement fixed, every file its acceptance record
+    names is read from laws/STATEMENT_DIFF.store/ (a missing file, or one whose bytes do not hash to its name, fails
+    closed), and the two stored typed models are the two model versions the license names. Its checks (R5, the keys,
+    the remade record) ran when the line was appended, on these files."""
+    lic = (e.get("license"), e.get("old_model_version"), e.get("new_model_version")) if isinstance(e, dict) else None
+    if lic not in REMODELS or e.get("assumption") != REMODELS[lic]:
+        return f"no human answer licenses the remodel {lic} adding {(e or {}).get('assumption')!r}"
+    if not _is_law(e.get("old")) or not _is_law(e.get("new")) or core(e["old"]) != core(e["new"]):
+        return "a remodel line carries the old and the new statement as law IR, and keeps the statement fixed"
+    rm = acc.get("remodel") if isinstance(acc, dict) and acc.get("kind") == "remodel" else None
+    if not isinstance(rm, dict) or rm.get("bound_commit") != e.get("bound_commit") or not isinstance(rm.get("files"), dict):
+        return "its acceptance record names no checked remodel"
+    files = {}
+    for sha, what in remodel_named(rm):
+        b, why = store_read(root, sha)
+        if b is None:
+            return f"{what} cannot be read from the working tree: {why}"
+        files[sha] = b
+    for sha, version in ((rm.get("old_sha256"), lic[1]), (rm.get("new_sha256"), lic[2])):
+        if f"model_version: {version}".encode() not in (files.get(sha) or b"")[:4000]:
+            return f"the stored typed model {str(sha)[:12]}.. is not {version}, as the license names it"
+    return None
+
+
 def _verify_extension_store(e, acc, root: Path) -> str | None:
     """A model_extension line checked from the working tree alone (I83; the coordinator's decision, revocable): every
     file its acceptance record names is read from laws/STATEMENT_DIFF.store/ (a missing file, or one whose bytes do not
@@ -3164,10 +3206,50 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
     for n, raw in enumerate(data.splitlines(keepends=True), start=1):
         start, offset = offset, offset + len(raw)
         e = _json_or_none(raw)
-        if not isinstance(e, dict) or e.get("kind") != "model_extension":
+        if not isinstance(e, dict) or e.get("kind") not in ("model_extension", "remodel"):
             continue
         commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(raw)
         commit = origins.get(raw, commit)   # the commit that appended the line (scan's rule for model_extension)
+        if e.get("kind") == "remodel":   # I68: the typed model at bound_commit, then every other file at that commit
+            rm = (e.get("accepted") or {}).get("remodel") if isinstance(e.get("accepted"), dict) else None
+            if not isinstance(rm, dict) or not isinstance(rm.get("bound_commit"), str):
+                probs.append(f"line {n}: no remodel acceptance record")
+                continue
+
+            def mat(c, rel):
+                if c is None:
+                    return (root / rel).read_bytes() if (root / rel).is_file() else None
+                return model_at(root, c, rel)
+            rsrc = {}
+            if git:
+                rsrc[rm.get("old_sha256")] = lambda: mat(rm["bound_commit"], str(rm.get("model")))
+                rsrc.setdefault(rm.get("new_sha256"), lambda: mat(commit, str(rm.get("model"))))
+                for r_, sha_ in sorted((rm.get("files") or {}).items()):
+                    rsrc.setdefault(sha_, lambda r_=r_: mat(commit, r_))
+            for sha, what in remodel_named(rm):
+                if sha in named:
+                    continue
+                named.add(sha)
+                if sha in rsrc:
+                    content = rsrc[sha]()
+                    if content is None or _sha(content) != sha:
+                        probs.append(f"line {n}: {what} ({str(sha)[:12]}..) cannot be read from git as the line names it")
+                        continue
+                else:
+                    content, why = store_read(root, sha)
+                    if content is None:
+                        probs.append(f"line {n}: {what}: {why}")
+                        continue
+                p_ = root / STORE / f"{sha}.gz"
+                if p_.is_file() and p_.read_bytes() == store_bytes(content):
+                    continue
+                if check:
+                    probs.append(f"line {n}: {what}: {STORE.as_posix()}/{sha}.gz is "
+                                 + ("missing" if not p_.is_file() else "not store_bytes of its content"))
+                else:
+                    store_write(root, content)
+                done.append(sha)
+            continue
         ext = (e.get("accepted") or {}).get("extension") if isinstance(e.get("accepted"), dict) else None
         if not isinstance(ext, dict) or not isinstance(ext.get("bound_commit"), str):
             probs.append(f"line {n}: no model_extension acceptance record")
@@ -3231,7 +3313,7 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
     d = root / STORE
     for q in sorted(d.iterdir()) if d.is_dir() else []:
         if not (q.name.endswith(".gz") and q.name[:-3] in named):
-            probs.append(f"{STORE.as_posix()}/{q.name} is named by no model_extension line")
+            probs.append(f"{STORE.as_posix()}/{q.name} is named by no model_extension or remodel line")
     return sorted(set(done)), probs
 
 
