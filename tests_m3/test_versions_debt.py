@@ -937,7 +937,9 @@ class TestStore(unittest.TestCase):
         self.root = Path(tempfile.mkdtemp(prefix="i83-store-"))
         self.addCleanup(shutil.rmtree, self.root, True)
         shutil.copytree(ROOT / "config", self.root / "config")
-        shutil.copytree(ROOT / self.S.STORE, self.root / self.S.STORE)
+        (self.root / self.S.STORE).mkdir(parents=True)
+        for sha, _what in self.S.extension_named(self.ext):   # the files this line names (the log holds only it)
+            shutil.copy2(ROOT / self.S.STORE / f"{sha}.gz", self.root / self.S.STORE / f"{sha}.gz")
 
     def put(self, data: bytes) -> str:
         return self.S.store_write(self.root, data)
@@ -1076,10 +1078,11 @@ class TestStore(unittest.TestCase):
         self.assertEqual(self.line["law_id"], PINIT)
         rec = json.loads(self.S.store_read(ROOT, self.ext["record"]["sha256"])[0])
         ob = self.S._binding_at(ROOT, bc, m, PINIT)
-        rel = B.path(m, ROOT).relative_to(ROOT).as_posix()   # the re-bind: the first later binding that differs
-        nb = next(x for x in (self.S._binding_at(ROOT, c, m, PINIT)
+        rel = B.path(m, ROOT).relative_to(ROOT).as_posix()   # the re-bind: the first later binding that differs in
+        nb = next(x for x in (self.S._binding_at(ROOT, c, m, PINIT)   # its cone alone, by the line's defs
                               for c in git("log", "--format=%H", "--reverse", f"{bc}..HEAD", "--", rel).split())
-                  if x != ob)
+                  if isinstance(x, dict) and all(x.get(k) == ob.get(k) for k in self.S.BINDING_KEYS)
+                  and B.changed_defs(ob, x) == sorted(self.line["defs"]))
         self.assertEqual(B.changed_defs(ob, nb), sorted(self.line["defs"]))
         named = {"record": dict(self.ext["record"],
                                 old_sha256=self.put(git("show", f"{bc}:{self.ext['record']['path']}").encode())),
