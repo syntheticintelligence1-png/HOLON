@@ -859,7 +859,7 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
     extends its version at that commit and every committed version (append-only). Lines before the I10 commit
     are grandfathered. A committed change line's covered_by numbers are read at the commit that appended it (I83:
     resolve_covered). Returns (problems, note); off git the check cannot run, and the note says so."""
-    from .statement_diff import LOG, blob_at, cutoff_commit, in_git, merged_lines
+    from .statement_diff import LOG, _line_origins, blob_at, cutoff_commit, in_git, merged_lines
     root = Path(root)
     if not in_git(root):
         return [], "binding change log not checked: no git history (a copied tree)"
@@ -887,6 +887,7 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
         return logs[commit]
 
     committed_len = spans[-1][0] if spans else 0
+    origins = None
     n_lines, offset = 0, len(base)
     for i, rawb in enumerate(data[len(base):].splitlines(keepends=True), start=1):
         start, offset = offset, offset + len(rawb)
@@ -904,5 +905,11 @@ def check_change_log(m: str, root: Path) -> tuple[list[str], str]:
         # the commit that appended it: along HEAD's first-parent chain, or the oldest side version holding it (a line a
         # merge brought in); None only for a line beyond every committed version (not yet committed)
         commit = next((c for end, c in spans if start < end), None) if start < committed_len else side.get(rawb)
+        # a line a merge on HEAD's first-parent chain brought in from another line of history was appended by the oldest
+        # commit whose version holds it, and its covered_by numbers are lines of the log at THAT commit: a lead-first
+        # merge numbers the log differently at the merge commit (as statement_diff does for model_extension lines)
+        if commit is not None:
+            origins = origins if origins is not None else _line_origins(p, root)
+            commit = origins.get(rawb, commit)
         problems += change_line_problems(ln, i, commit, entries, log_at, where)
     return problems, f"{n_lines} post-I10 binding change lines of {m}, each covered by an accepted statement-diff entry"
