@@ -78,11 +78,13 @@ def _field(w: dict, suffix: str) -> bytes:
 def par_records() -> dict:
     """The records of the PAR laws but those of sub-form init_chain (amended at the I28 prereg, spec/M3/amendments.jsonl:
     I28 adds a PAR law of the sub-form init_chain over the versioned document, which I24's outcome checks never
-    covered), those over a Go-op document (amended at the I67 prereg: I67's laws over gen/M3/goops/) and those of
-    sub-form link_domain (amended at I84's build: I84's laws over I80's bundle declaration)."""
+    covered), those over a Go-op document (amended at the I67 prereg: I67's laws over gen/M3/goops/), those of
+    sub-form link_domain (amended at I84's build: I84's laws over I80's bundle declaration) and those of the sub-form
+    push (amended at I86's build: I86's PAR law over a bundle member's document)."""
     ls = laws("M3")
     return {k: v for k, v in records("M3").items()
-            if ls.get(k, {}).get("rule") == "PAR" and ls.get(k, {}).get("subform") not in ("init_chain", "link_domain")
+            if ls.get(k, {}).get("rule") == "PAR"
+            and ls.get(k, {}).get("subform") not in ("init_chain", "link_domain", "push")
             and not str(ls.get(k, {}).get("facts") or "").startswith("gen/M3/goops/")}
 
 
@@ -378,10 +380,11 @@ class TestBacktest(unittest.TestCase):
 class TestM3Construction(unittest.TestCase):
     def test_every_m3_law_has_a_valid_record(self):
         # the PAR laws but those of sub-form init_chain (amended at the I28 prereg, spec/M3/amendments.jsonl, as par_records)
-        # and those over a Go-op document (amended at the I67 prereg, as par_records) and those of sub-form link_domain
-        # (amended at I84's build, as par_records)
+        # and those over a Go-op document (amended at the I67 prereg, as par_records), those of sub-form link_domain
+        # (amended at I84's build, as par_records) and those of the sub-form push (amended at I86's build, as
+        # par_records)
         ls = {k: v for k, v in laws("M3").items() if v.get("rule") == "PAR"
-              and v.get("subform") not in ("init_chain", "link_domain")
+              and v.get("subform") not in ("init_chain", "link_domain", "push")
               and not str(v.get("facts") or "").startswith("gen/M3/goops/")}
         recs = par_records()
         reg = load_json(LAWS3 / "REGISTRY.json")

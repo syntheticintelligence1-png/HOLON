@@ -414,14 +414,19 @@ class TestCatalog(unittest.TestCase):
     def test_c1_the_catalog_version(self):
         """C1 (construction): holon-rules/1.10 holds every rule of the version it chains to with the same producer
         objects, plus the three sub-forms; M3 derives with it."""
+        # amended (I84 instrument_inconsistency, at I86's bump to 1.11): M3 derives with 1.10 or a later version of
+        # the chain that keeps 1.10's three producers; 1.10's base is the newest version below it
         R = holon_module("holon.rules")
-        self.assertEqual(R.catalog_version("M3"), "holon-rules/1.10")
+        minor = lambda v: int(v.rsplit(".", 1)[1])
+        cur = R.catalog_version("M3")
+        self.assertTrue(cur.startswith("holon-rules/1.") and minor(cur) >= 10, cur)
         cat = R.CATALOGS["holon-rules/1.10"]
         for sub, rule in SUBFORMS.items():
             with self.subTest(subform=sub):
                 self.assertIn(sub, cat.get(rule) or {})
-        prev = [v for v in R.CATALOGS if v != "holon-rules/1.10" and v.startswith("holon-rules/1.")]
-        base = max(prev, key=lambda v: int(v.rsplit(".", 1)[1]))
+                self.assertIs((R.CATALOGS[cur].get(rule) or {}).get(sub), cat[rule][sub])
+        prev = [v for v in R.CATALOGS if v.startswith("holon-rules/1.") and minor(v) < 10]
+        base = max(prev, key=minor)
         for rule, subs in R.CATALOGS[base].items():
             for sub, prod in subs.items():
                 with self.subTest(rule=rule, subform=sub):
@@ -430,6 +435,8 @@ class TestCatalog(unittest.TestCase):
     def test_c2_the_laws_are_the_basis_ids(self):
         """C2/N1 (construction): laws/M3 holds exactly the basis's ids for the three sub-forms, each with its rule,
         subform and rule_catalog_version holon-rules/1.10."""
+        # amended (I84 instrument_inconsistency, at I86's bump to 1.11): the laws carry M3's current catalog version
+        cur = holon_module("holon.rules").catalog_version("M3")
         have = {}
         for p in sorted((ROOT / "laws" / "M3").glob("L*.json")):
             d = load_json(p)
@@ -439,7 +446,7 @@ class TestCatalog(unittest.TestCase):
             with self.subTest(subform=sub):
                 self.assertEqual(sorted(have.get(sub, [])), sorted(ids(sub)))
                 for lid in ids(sub):
-                    self.assertEqual(law(lid).get("rule_catalog_version"), "holon-rules/1.10")
+                    self.assertEqual(law(lid).get("rule_catalog_version"), cur)
 
 
 # ---------------------------------------------------------------------------------------------- calibration

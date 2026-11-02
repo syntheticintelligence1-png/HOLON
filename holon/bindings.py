@@ -359,14 +359,13 @@ def nat_layer_entries(law: dict, m: str, root: Path, cfg: dict | None = None) ->
 
 
 def _bundle(law: dict) -> bool:
-    """A bundle law (I84, holon.rules.bundle2: PAR link_domain, FACT public_input, DISCH self_controlled): a holon-ir/0.3
-    law whose claim is a bundle term. holon.bundle2.laws_decide decides it over the typed model at the laws' deployment
-    and the claims module (which holds the callee's model's copy), and writes its law file."""
-    def term(t) -> bool:
-        if isinstance(t, dict):
-            return "bundle" in t or any(term(v) for v in t.values())
-        return isinstance(t, list) and any(term(v) for v in t)
-    return law.get("ir_version") == "holon-ir/0.3" and term((law.get("statement") or {}).get("claim"))
+    """A bundle law of holon-rules/1.10 (I84, holon.rules.bundle2: PAR link_domain, FACT public_input, DISCH
+    self_controlled): a holon-ir/0.3 law whose claim is a bundle term of those sub-forms (the term's id names them:
+    holon.rules.bundle_terms; holon-rules/1.11's are _bundle_law's). holon.bundle2.laws_decide decides it over the typed
+    model at the laws' deployment and the claims module (which holds the callee's model's copy), and writes its law
+    file."""
+    from .rules import bundle2, bundle_terms
+    return bundle_terms.law_owner(law) is bundle2
 
 
 def _bundle_files(law: dict, m: str, root: Path) -> tuple[Path, Path]:
@@ -382,6 +381,40 @@ def _versions(name: str):
     stays out of the M1-M3 records' closure."""
     import importlib
     return importlib.import_module(f"holon.versions.{name}")
+
+
+def _bundle_law(law: dict) -> bool:
+    """A bundle law of holon-rules/1.11 (I86, holon.rules.bundle): a holon-ir/0.3 law whose claim is a bundle term of
+    its sub-forms (the term's id names them: holon.rules.bundle_terms; holon-rules/1.10's are _bundle's).
+    holon.bundle.lawrun decides it over its member's law model and claims module, and emits its law file
+    (holon.bundle.lawrun.law_file)."""
+    from .rules import bundle, bundle_terms
+    return bundle_terms.law_owner(law) is bundle
+
+
+def _lawrun():
+    """holon.bundle.lawrun, imported by name (as holon.versions is) so that the bundle laws' decider stays out of the
+    M1-M3 records' closure."""
+    import importlib
+    return importlib.import_module("holon.bundle.lawrun")
+
+
+_C_QUAL = re.compile(r"(?<![\w.])C\.")
+
+
+def _bundle_law_kernel_text(law: dict, m: str, root: Path) -> str:
+    """The kernel form's source of an I86 bundle law: its law model followed by its claims module unqualified (the claims'
+    imports dropped, `M.` removed), one module BendTT translates whole; a claims definition named like a model
+    definition is an error, never a silent shadow."""
+    lr = _lawrun()
+    lctx = lr.LawCtx(Path(root), m)
+    _sub, mname, _site, _cls = lr.site_of(lctx, law["law_id"])
+    model = lctx.model_path(mname).read_text()
+    claims = _M_QUAL.sub("", _IMPORT_LINE.sub("", lctx.claims_path(mname).read_text()))
+    clash = sorted(set(records.model_defs(claims)) & set(records.model_defs(model)))
+    if clash:
+        raise BindingError(f"{law['law_id']}: claims definitions named like model definitions: {clash[:5]}")
+    return model.rstrip("\n") + "\n\n" + claims.rstrip("\n") + "\n"
 
 
 _LOCAL_IMPORT = re.compile(r"(?m)^import\s+\./([A-Za-z0-9_]+\.bend)\s+as\s+[A-Za-z0-9_]+\s*$")
@@ -475,6 +508,10 @@ def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
     if _bundle(law):   # I84: the claims module gen/<m>/bundle2/claims/claims.bend (its record's artifacts.model)
         return _bundle_files(law, m, root)[1]
+    if _bundle_law(law):   # I86: the member's law model (holon.bundle.laws: I69's model, or the adopted member's)
+        lr = _lawrun()
+        lctx = lr.LawCtx(Path(root), m)
+        return lctx.model_path(lr.site_of(lctx, law["law_id"])[1])
     if _pinit(law):   # I28: the versioned model gen/<m>/versions/models/<model>.bend (a link to the layer)
         return _versions("proofs").model_paths(m, root)[0]
     if _nat(law):   # I29: the claims module gen/<m>/nat/models/<stem>_nat.bend (over the versioned layer)
@@ -508,6 +545,9 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
+    if _bundle_law(law):   # I86: as holon.bundle.lawrun writes it (None: an existential law's counter-law, or a claim
+        # the M3 model cannot express, CS3's outflow class)
+        return _lawrun().law_file(law, m, root, statement_hash(law, m, root), counter)
     if _bundle(law):   # I84: as holon.bundle2.laws_decide writes it; imported by name, as FACT's emitter is
         import importlib
         from .sorts.proofs3 import rel_import
@@ -670,6 +710,18 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
+    if _bundle_law(law):   # I86: the law model and the claims module as one module; C. roots are the claims module's
+        st = _emit(law, m, root, counter=False)
+        if st is None:   # CS3's outflow class: no claim over the M3 model, so the binding is its statement hash alone
+            return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
+                    "statement_sha256": None, "counter_sha256": None, "cone": {}}
+        cfg = cfg or bend.config(root)
+        entries = dict(_entries_cached(_bundle_law_kernel_text(law, m, root),
+                                       json.dumps(cfg, sort_keys=True) if cfg else "", mp.relative_to(root).as_posix()))
+        c = kernel_cone(_C_QUAL.sub("M.", st), entries)
+        return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
+                "statement_sha256": text_sha256(st), "counter_sha256": counter_binding(law, m, root),
+                "cone": {d: hashlib.sha256(entries[d].encode()).hexdigest() for d in c}}
     if _bundle(law):   # I84: the typed model at the laws' deployment and the claims module as one module
         cfg = cfg or bend.config(root)
         entries = dict(_entries_cached(_bundle_kernel_text(law, m, root),
