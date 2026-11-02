@@ -120,6 +120,9 @@ jobs:
           set -o pipefail
           date -u +"%FT%TZ start" | tee "$RUNNER_TEMP/run.log"
           EXTRA="${EXTRA//@DEADLINE@/$(date -u -d '+300 min' +%FT%TZ)}"
+          if [ "$CMD" = "m12" ] || [ "$CMD" = "t32" ]; then
+            export HOLON_TRACE=0   # a re-stamp's traces have no consumer, and each re-stamp would rewrite them
+          fi
           if [ "$CMD" = "m12" ]; then
             for c in "run --milestone M2" "bind --milestone M2" "lean --milestone M2" "run --milestone M2" "run --milestone M1" "metrics --milestone M1" "metrics --milestone M2"; do
               date -u +"%FT%TZ holon $c" | tee -a "$RUNNER_TEMP/run.log"
