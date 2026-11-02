@@ -119,6 +119,39 @@ class TestSyntheticHistories(unittest.TestCase):
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
         self.assertIn("amended", p.stdout)
 
+    def parallel(self, files: dict) -> None:
+        """A side branch forked before the prereg commit writes `files`; it is merged after the prereg."""
+        self.write("README", "base\n")
+        self.commit("base")
+        base = git(self.repo, "rev-parse", "HEAD").strip()
+        self.prereg()
+        git(self.repo, "checkout", "-q", "-b", "side", base)
+        for rel, text in files.items():
+            self.write(rel, text)
+        self.commit("side")
+        git(self.repo, "checkout", "-q", "-")
+        git(self.repo, "merge", "-q", "--no-edit", "side")
+
+    def test_parallel_outcome_fails(self):
+        self.parallel({"results/M2/a.json": "{}"})
+        p = audit(self.repo)
+        self.assertNotEqual(p.returncode, 0, p.stdout)
+        self.assertIn("does not descend", p.stdout)
+
+    def test_parallel_derived_summary_passes(self):
+        # rule 4's parallel clause skips the derived summaries every landing regenerates (DERIVED)
+        self.parallel({"results/M2/ranking.json": "{}", "results/M2/metrics.json": "{}", "docs/STATUS.md": "s\n"})
+        p = audit(self.repo)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+
+    def test_derived_summary_in_prereg_commit_fails(self):
+        # the prereg clause still covers them
+        self.write("results/M2/ranking.json", "{}")
+        self.prereg()
+        p = audit(self.repo)
+        self.assertNotEqual(p.returncode, 0, p.stdout)
+        self.assertIn("results/M2/", p.stdout)
+
     def test_missing_history_fails(self):
         shutil.rmtree(self.repo / ".git")
         self.write("spec/M2/predictions.json", json.dumps({"milestone": "M2", "doc": "d", "iterations": {"I1": KEY}}))
