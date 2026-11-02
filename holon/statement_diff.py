@@ -1279,8 +1279,13 @@ def _remodel(entry: dict, old: dict, new: dict, root: Path) -> dict:
     law = _json_or_none(cur.read_bytes()) if cur.is_file() else None
     if not _is_law(law) or core(law) != core(new):
         return _res(False, f"the entry's statement is not {lid}'s statement on the tree")
-    if blob_at(root, commit_b, rel) != cur.read_bytes():
-        return _res(False, f"{rel} changed since bound_commit {commit_b[:12]}: a remodel keeps the law file")
+    old_b = blob_at(root, commit_b, rel)
+    if old_b != cur.read_bytes():
+        # the law's statement is what a remodel keeps: under hash scheme 2 core() leaves out rule_catalog_version, so a
+        # catalog bump since bound_commit (a file change no statement hash sees) keeps it; any other change does not
+        old_law = _json_or_none(old_b) if old_b else None
+        if not _is_law(old_law) or core(old_law) != core(law):
+            return _res(False, f"{rel} changed since bound_commit {commit_b[:12]}: a remodel keeps the law's statement")
     if not (B._typed(law) or B._disch(law) or B._undo(law) or B._fact(law)):
         return _res(False, f"{lid} is not a law over the typed model (typed-SORT, DISCH, UNDO or FACT)")
     ob = _binding_at(root, commit_b, m, lid)
