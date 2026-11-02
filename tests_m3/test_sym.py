@@ -151,8 +151,13 @@ def record(lid: str) -> dict:
 
 
 def decided_by(rec: dict) -> list:
-    return [a for a in rec.get("attempts") or [] if a.get("kind") in ("proof", "counter-law") and "error" not in a
-            and a.get("exit_code") == 0]
+    """The record's attempts a kernel accepted: a proof or counter-law whose checker exited 0, its exit code at the top
+    of the attempt (the codec pipelines' shape, kind counter-law) or under its checker (the typed deciders' shape,
+    holon.undo.run's and holon.symd.run's: kind counter, {"checker": {"exit_code", "marker"}})."""
+    def code(a: dict):
+        return a["exit_code"] if "exit_code" in a else (a.get("checker") or {}).get("exit_code")
+    return [a for a in rec.get("attempts") or [] if a.get("kind") in ("proof", "counter-law", "counter")
+            and "error" not in a and code(a) == 0]
 
 
 class TestInstrument(unittest.TestCase):
