@@ -38,9 +38,10 @@ import json
 import re
 from pathlib import Path
 
+from ..ir import PLAN_LAWS_SIDECAR
 from . import ROOT, DerivationError, Refused, load, sha256_file
 
-LAWS_SIDECAR = "spec/M3/lib/derivation_laws.json"
+LAWS_SIDECAR = PLAN_LAWS_SIDECAR   # its home is holon.ir, which a generator closure may import (this package may not)
 LAWS_VERSION = "holon-derivation-laws/0.1"
 REGISTRY_VERSION = "holon-derivation-laws-registry/0.1"
 PRODUCT_TEMPLATE = "holon.derivation.laws/product"
