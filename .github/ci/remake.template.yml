@@ -128,8 +128,23 @@ jobs:
               date -u +"%FT%TZ holon $c" | tee -a "$RUNNER_TEMP/run.log"
               python -u -m holon $c 2>&1 | tee -a "$RUNNER_TEMP/run.log"
             done
+          elif [ "$CMD" = "derivation" ]; then
+            # I89: I88's derivation law set re-decided with the Bend engine (the product, the equivalence pair, the decisions)
+            python -u -m holon derivation bend-decide 2>&1 | tee -a "$RUNNER_TEMP/run.log"
           elif [ "$CMD" = "t32" ]; then
             python -u -m holon profile --milestone T32 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+          elif [ "$CMD" = "bundle" ]; then
+            # I86's bundle laws: the deciders, then the witnesses on the real bundle (holon bundle replay-laws)
+            for c in "run --milestone M3 --laws $LAWS $EXTRA" "bundle replay-laws"; do
+              date -u +"%FT%TZ holon $c" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon $c 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            done
+          elif [ "$CMD" = "bundle2" ]; then
+            # I84's bundle laws: the claims modules from the laws' deployment (a forge run), the deciders, the replay
+            for c in "bundle2 laws" "run --milestone M3 --laws $LAWS $EXTRA" "bundle2 replay-laws"; do
+              date -u +"%FT%TZ holon $c" | tee -a "$RUNNER_TEMP/run.log"
+              python -u -m holon $c 2>&1 | tee -a "$RUNNER_TEMP/run.log"
+            done
           else
             python -u -m holon run --milestone M3 --laws "$LAWS" $EXTRA 2>&1 | tee -a "$RUNNER_TEMP/run.log"
             if [ -n "$LEAN" ]; then

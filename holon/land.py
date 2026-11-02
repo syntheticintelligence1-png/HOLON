@@ -541,17 +541,35 @@ def step_dirty(a) -> int:
     return 0
 
 
+# I84's bundle sub-forms (holon.rules.bundle2.SUBFORMS, named here so that planning imports no rule module): their laws
+# are decided over the claims modules `holon bundle2 laws` writes from a forge run, so one job regenerates those, decides
+# the laws and replays their witnesses (the re-make template's cmd bundle2).
+BUNDLE2_SUBFORMS = ("link_domain", "public_input", "self_controlled")
+# I86's bundle-law sub-forms (holon.rules.bundle.RULE_SUBFORMS): decided by `holon run`, then their witnesses replayed
+# on the real bundle (`holon bundle replay-laws`, a forge run), in one job (the re-make template's cmd bundle).
+BUNDLE_SUBFORMS = ("payer", "conservation", "keyed_blocking", "keyed_external", "keyed_external_none", "push")
+
+
 def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
-    """The re-make matrix: one job per slow law (typed SORT, FACT attribution), DISCH and SYM in shards, every other
-    rule (and sub-form) in one job; PAR's run, lean, run; the M1/M2 and T32 re-stamps on request."""
+    """The re-make matrix: one job per slow law (typed SORT, FACT attribution, UNDO pair and residue), DISCH and SYM in
+    shards, every other rule (and sub-form) in one job; PAR's run, lean, run; the M1/M2 and T32 re-stamps on request.
+
+    An UNDO pair or residue law's kernel time ranges from 2 to about 100 minutes on CI (I68's re-makes), so one job
+    holding several of them runs for their sum; one job per law runs for the slowest."""
     groups: dict[str, list[str]] = {}
     for lid in laws:
         law = json.loads((root / "laws" / m / f"{lid}.json").read_text())
         r, s = law["rule"], law.get("subform")
-        if r == "SORT" and s in ("realize", "as_member", "reinterpret", "tag"):
+        if s in BUNDLE2_SUBFORMS:   # I84's bundle laws: their claims modules first, then the deciders, then the replay
+            g = "bundle2"
+        elif s in BUNDLE_SUBFORMS:  # I86's bundle laws: the deciders, then the replay
+            g = "bundle"
+        elif r == "SORT" and s in ("realize", "as_member", "reinterpret", "tag"):
             g = f"typed-{lid}"
         elif r == "FACT" and "_attr_" in lid:
             g = f"fact-attr-{lid}"
+        elif r == "UNDO" and s in ("pair", "residue"):
+            g = f"undo-{s}-{lid}"
         elif r == "PAR":
             g = "pinit" if s == "init_chain" else "par"
         elif r in ("DISCH", "SYM"):
@@ -562,7 +580,7 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
     jobs, n = [], 0
     for g in sorted(groups):
         ls = sorted(groups[g])
-        if g.startswith(("typed-", "fact-attr-")):
+        if g.startswith(("typed-", "fact-attr-", "undo-pair-", "undo-residue-")):
             name = f"{g.split('-L_')[0]}-{n}"
             n += 1
             shards = [(name, ls)]
@@ -576,7 +594,7 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
             extra = "--law-timebox 540 --deadline @DEADLINE@" if g == "disch" else \
                 ("--deadline @DEADLINE@" if g.startswith("fact-attr-") or g == "undo-cancel" else "")
             jobs.append({"name": name, "laws": ",".join(part), "extra": extra, "lean": "yes" if g == "par" else "",
-                         "cmd": ""})
+                         "cmd": g if g in ("bundle2", "bundle") else ""})
     if restamp:
         jobs += [{"name": "m12", "laws": "", "extra": "", "lean": "", "cmd": "m12"},
                  {"name": "t32", "laws": "", "extra": "", "lean": "", "cmd": "t32"}]
@@ -588,11 +606,13 @@ def step_plan(a) -> int:
     d = (st.get("dirty") or {}).get(a.milestone)
     if d is None:
         d = dirty_laws(root, a.milestone, st)
-    if not d and not a.restamp:
+    if not d and not a.restamp and not a.derivation:
         print("holon land: no dirty law; nothing to re-make")
         return 0
     rules = {json.loads((root / "laws" / a.milestone / f"{lid}.json").read_text())["rule"] for lid in d}
     jobs = jobs_for(root, a.milestone, sorted(d), a.restamp)
+    if a.derivation:   # I89's stage 2 (product, equivalence pair, the five decisions, splits) on a runner's pinned kernels
+        jobs.append({"name": "derivation", "laws": "", "extra": "", "lean": "", "cmd": "derivation"})
     tpl = (root / ".github" / "ci" / "remake.template.yml").read_text()
     matrix = "".join(f"          - name: {j['name']}\n            laws: {j['laws']}\n            extra: '{j['extra']}'\n"
                      f"            lean: '{j['lean']}'\n            cmd: '{j['cmd']}'\n" for j in jobs)
@@ -784,6 +804,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--tag", help="plan: the re-make's name (workflow holon-<tag>, branch claude/ci-<tag>)")
     ap.add_argument("--push", action="store_true", help="plan: push the CI-only branch")
     ap.add_argument("--restamp", action="store_true", help="plan: add the M1/M2 and T32 re-stamp jobs")
+    ap.add_argument("--derivation", action="store_true",
+                    help="plan: add a job that re-decides I88's derivation law set with I89's Bend engine "
+                         "(holon derivation bend-decide), when the landing moves a model its equivalence pair imports")
     ap.add_argument("--from", dest="source", help="apply: the outputs ref (claude/ci-<tag>-out-<run id>)")
     ap.add_argument("--message", help="lead: the landing commit's title")
     ap.add_argument("--trailer", action="append", default=[], help="a trailer line for the commits this makes")

@@ -6906,6 +6906,628 @@
         "disclosure": "Only I44-P1 counts toward prediction accuracy: its outcome rests on the end-state comparison of each composition witness's two model runs, which nobody computed before this commit; the author derived the masses by hand from the per-version documents and the witnesses' arguments. The others are recorded, not counted: they follow from the preregistered policy applied to records the author read (P2, P3), or rest on I84's and I89's outputs read on their branches (P4-P6), or on the author's own stage-2 choices (P7). A miss in any of them is still reported as a miss."
       }
     },
+    "I68": {
+      "title": "Structural storage keys in the M3 model (the Q21 fix): mapping storage keyed as (base slot, key path) instead of a lookup in the law's keccak256 table, the deployment converted, the evaluator mapping keys to real slots only against real traces and in replay, a generated keys check, A-keccak-structural in the ledger, and the proof routes the store opens (SK frames, key split, convoy, loop frames, bit-field lemmas, tag_exact)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I68)",
+      "prompt": "prompts/I68_structural_keys.md",
+      "predictions": [
+        {
+          "id": "I68-P1",
+          "claim": "R5 on the structural typed model: holon fragments with it as the step evaluator compares I20's corpus (460 traces, 3013 steps, 8894 storage comparisons) with 0 disagreements and 0 unexplained, I20's statuses per action and I20's panics (0x11 at Rollup.sol:363 on 27 steps, :368 on 2, :439 on 2, :636 on 6), its evaluator_sha256 the committed model's. It fails if the canonical form has a hole: two compiler-generated accesses to one real slot compiled to different keys, or a key cleaned differently from solc's hashing.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p1_r5_agrees"
+        },
+        {
+          "id": "I68-P2",
+          "claim": "The keys check is clean: gen/M3/sorts/keys.json lists the two raw slots (EIP-1967 implementation and admin), the 9 literal and 7 structural s0 entries and every structural key the R5 corpus and the committed witnesses and inhabitants of the M3 typed records (rule S11) touch, each real slot as the instrument computes it, and no collision.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p2_the_keys_check_is_clean"
+        },
+        {
+          "id": "I68-P3",
+          "claim": "The toy T30: L_sort_tag_toytypes_83_33f98e53 is PROVED by tag_exact (a Reach induction of the kept-register invariant over the structural store) with a checked, reachable inhabitant, and the other four toy laws and the keepg-guard mutation are decided as I30 designed (REFUTED at recommit, commitT and commitQ; PROVED by coercion_guard at elapsed; the mutation REFUTED through keepg): I30's TestToy.test_toy_statuses and test_toy_kept_register_without_its_version_guard_is_refuted pass.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p3_the_toys_tag_exact_law"
+        },
+        {
+          "id": "I68-P4",
+          "claim": "DISCH: the 14 laws of thresholds.flips are PROVED, each accepted attempt a proof checked by bend2 and BendTT: blk_pausableupgradeable_77 x3 and blk_rollup_132 x4 (frames by evaluation and key splits over SK), blk_initializable_120 TI3 and TI4 and blk_rollup_213 x2 (with loop frames), blk_rollup_228 (a key split with the convoy: finalizeBatch's store at finalizedStateRoots[_batchIndex] contradicts B at _batchIndex == 0 by the passed check), rev_rollup_363 (loop frames), and TI2 (bit-field lemmas over slot 0's packed _initialized update). L_disch_blk_rollup_363_e11d8bb2_anyone stays UNKNOWN, its record naming a monotone transport (finalizeBatch's delete of challenges[_batchIndex - 1] at B's family needs startTime := 0 to keep B); L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter stays REFUTED. DISCH totals: 27 PROVED, 7 REFUTED, 1 UNKNOWN (13, 7 and 15 at the prereg).",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p4_disch_statuses"
+        },
+        {
+          "id": "I68-P5",
+          "claim": "Non-vacuity: every law of thresholds.flips has a checked, reachable inhabitant, TI4's (L_disch_blk_initializable_120_d9a34b48_caller_rollup_210) included: since F40, initialize4 succeeds in one step from s0 and leaves _initialized == 4, as its rev twin's inhabitant at the prereg shows (the Q21 design note's 'TI4 unknown' predates F40).",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p5_non_vacuity"
+        },
+        {
+          "id": "I68-P6",
+          "claim": "G4: the M3 gate's DISCH G4 holds a disch_writer canary per PROVED DISCH blocking law with a named class (adding one non-X writer of its class), and every canary is rejected: I31's exit criterion met for the first time.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p6_g4_writer_canaries"
+        },
+        {
+          "id": "I68-P7",
+          "claim": "Every proof and counter-law of the 51 remade typed records checks in bend2 and BendTT within the per-file budget: no attempt stops on fuel or times out.",
+          "check": "tests_m3/test_structural_keys.py::TestPredictions::test_p7_kernels_within_budget"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I68-R1",
+          "claim": "No own commit changes a law file, REGISTRY.json or DERIVATION.json under laws/, a file under gen/M3/laws/, a LAWS.bend or the rule catalog: the typed laws' statements are byte-identical; laws/STATEMENT_DIFF.jsonl only gains remodel lines (R7), and no catalog_rederivation line is needed.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r1_statements_unchanged"
+        },
+        {
+          "id": "I68-R2",
+          "claim": "Every typed M3 law outside thresholds.flips keeps its status at the prereg (SORT 279 and 363 REFUTED, 406 UNKNOWN; DISCH ext x6 PROVED, noext x6 REFUTED, rev x7 PROVED, blk_363_onlyActiveSubmitter REFUTED, blk_363_anyone UNKNOWN; UNDO 3 REFUTED, 5 UNKNOWN; FACT 4 REFUTED, 1 PROVED), every REFUTED one with a replay that passed; a typed law another key adds before the run (rule S11) keeps the status its record had before I68 remade it.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r2_every_other_status_unchanged"
+        },
+        {
+          "id": "I68-R3",
+          "claim": "Each own commit that changes a record of results/M0-M2, results/T32 or a PAR record of results/M3 leaves it equal to its parent's version but for generator_sha256 and keys named seconds; no own commit changes gen/M0, gen/M1, gen/M2 or gen/M3/model/.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r3_other_records_stamps_only"
+        },
+        {
+          "id": "I68-R4",
+          "claim": "F32's eight helpers (w_eq, w_add, w_add_ok, w_sub, u_b4, u_be4, h_get, kw_set) have, in every structural model and section, exactly their text in the prelude at the prereg (holon.sorts.prelude3's PRELUDE), and spec/M2/ledger.json is unchanged.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r4_helpers_and_ledger"
+        },
+        {
+          "id": "I68-R5",
+          "claim": "A-keccak-structural is listed by every record over the typed model or a section (the 51 typed laws, and any typed law of rule S11 another key adds: SORT and DISCH in model_assumptions, UNDO and FACT in ledger_assumptions) and by no other record of results/M0-M3 or T32 (PAR laws, I28's records over its raw versioned machine); spec/M3/ledger.json introduces it by SK, sk_eq, sload and sstore.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r5_the_assumption_where_it_belongs"
+        },
+        {
+          "id": "I68-R6",
+          "claim": "Construction: the key pins the instrument and the contract docstring; the instrument classifies the Rollup's captured deployment as thresholds.s0 pins (9 literal, 7 structural, 2 raw), each structural slot the real slot of its key, with a clean keys check.",
+          "check": "tests_m3/test_structural_keys.py::TestPrereg::test_r6_the_instrument_on_the_capture"
+        },
+        {
+          "id": "I68-R7",
+          "claim": "Rule S11: laws/STATEMENT_DIFF.jsonl gains one remodel entry per typed law of rule S11 (the 51, and any typed law another key adds before the run), each accepted by holon.statement_diff.check_entry and naming Q21, the model versions and A-keccak-structural; spec/bindings/M3.json binds them to the structural models, and CI's gate-M3-G2 accepts them.",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r7_the_remodel_lines"
+        },
+        {
+          "id": "I68-R8",
+          "claim": "I30-P8 keeps passing on the structural models: tests_m3/test_sort_types.py's TestTermSize.test_nominal_types_cost_at_most_the_frozen_ratio, run as it stands (the typed cone of the :363 realize law at most 1.5 times the untyped one; both models change their storage alike).",
+          "check": "tests_m3/test_structural_keys.py::TestRegressions::test_r8_i30s_term_ratio_holds"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/sorts/keys.json",
+        "docs/iterations/I68.md"
+      ],
+      "tests": [
+        "tests_m3/test_structural_keys.py"
+      ],
+      "thresholds": {
+        "base": "2ef07b6d86658b44015f9a7d18a9ceecf7b50874 (the lead after the I25 commit-test fix; its CI run 40116936084 passed every job)",
+        "instrument": "tests_m3/_i68.py",
+        "instrument_sha256": "e0923a557d881dbf1eee0c62e8ec44bbb95c081ef63f6808c0df5efac0e98520",
+        "contract_docstring_sha256": "d0aa99e8be1211ffd1dfa1d34596557bfae953c45fde012db15e7fc37a2bff8d",
+        "design": "The Q21 design note (read-only; made by the other session's design pass on fde1f819, with scratch Bend probes: the SK store, the frame library, a Reach induction of a kept-register invariant, each checked in bend2 and BendTT, and planted errors failing), and the I33 design note's section on what a law over mapping state may rely on.",
+        "s0": {
+          "literal": [
+            "0x0",
+            "0x33",
+            "0x97",
+            "0x98",
+            "0x99",
+            "0x9b",
+            "0x9c",
+            "0xa9",
+            "0xac"
+          ],
+          "raw": [
+            "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+            "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+          ],
+          "structural": {
+            "0x32ae1b88a7d4f92d7e214b63c8ea04cd13e2faaa60c50f499f2254336d98f882": [
+              "committedBatches",
+              "0x0",
+              0
+            ],
+            "0x4349cffe87970a0651906fe7ec1bc02f3b34df90df0775d75683dcdbf56c2585": [
+              "batchBlobVersionedHashes",
+              "0x0",
+              0
+            ],
+            "0x8fa6f0ecb9543d3381552e96aa43533c7f086066e38816919ea0cfae371b342a": [
+              "batchDataStore",
+              "0x0",
+              0
+            ],
+            "0x8fa6f0ecb9543d3381552e96aa43533c7f086066e38816919ea0cfae371b342b": [
+              "batchDataStore",
+              "0x0",
+              1
+            ],
+            "0xb84a74ec6ef4d0e83b6006dfaa014ab4026f9f3b97d186e604d29998a4e808ea": [
+              "finalizedStateRoots",
+              "0x0",
+              0
+            ],
+            "0xc1647f4ea6f20cdfcb68a5eb1fed20b17c4e8580b1f072b3399ec8b9d82ec564": [
+              "isChallenger",
+              "0x1004",
+              0
+            ],
+            "0xc5d43c4a2513442e32494a8634f103d73dcf3a2851465bd0d02221eac0820c02": [
+              "committedStateRoots",
+              "0x0",
+              0
+            ]
+          }
+        },
+        "r5": {
+          "traces": 460,
+          "steps": 3013,
+          "storage_slots": 8894,
+          "by_action": {
+            "addChallenger": {
+              "ok": 0,
+              "revert": 10
+            },
+            "batchChallengedSuccess": {
+              "ok": 0,
+              "revert": 4
+            },
+            "batchExist": {
+              "ok": 0,
+              "revert": 4
+            },
+            "batchInChallenge": {
+              "ok": 0,
+              "revert": 4
+            },
+            "batchInsideChallengeWindow": {
+              "ok": 0,
+              "revert": 4
+            },
+            "challengeState": {
+              "ok": 140,
+              "revert": 67
+            },
+            "claimProveRemaining": {
+              "ok": 0,
+              "revert": 8
+            },
+            "claimReward": {
+              "ok": 0,
+              "revert": 8
+            },
+            "commitBatch": {
+              "ok": 796,
+              "revert": 407
+            },
+            "commitBatchWithProof": {
+              "ok": 18,
+              "revert": 256
+            },
+            "commitState": {
+              "ok": 36,
+              "revert": 360
+            },
+            "finalizeBatch": {
+              "ok": 12,
+              "revert": 263
+            },
+            "importGenesisBatch": {
+              "ok": 0,
+              "revert": 8
+            },
+            "initialize": {
+              "ok": 0,
+              "revert": 12
+            },
+            "initialize2": {
+              "ok": 0,
+              "revert": 6
+            },
+            "initialize3": {
+              "ok": 0,
+              "revert": 6
+            },
+            "initialize4": {
+              "ok": 0,
+              "revert": 8
+            },
+            "isBatchFinalized": {
+              "ok": 0,
+              "revert": 4
+            },
+            "owner": {
+              "ok": 0,
+              "revert": 2
+            },
+            "paused": {
+              "ok": 0,
+              "revert": 2
+            },
+            "proveCommittedBatchState": {
+              "ok": 0,
+              "revert": 14
+            },
+            "proveState": {
+              "ok": 10,
+              "revert": 142
+            },
+            "removeChallenger": {
+              "ok": 0,
+              "revert": 10
+            },
+            "renounceOwnership": {
+              "ok": 0,
+              "revert": 4
+            },
+            "revertBatch": {
+              "ok": 73,
+              "revert": 40
+            },
+            "setPause": {
+              "ok": 199,
+              "revert": 24
+            },
+            "transferOwnership": {
+              "ok": 0,
+              "revert": 10
+            },
+            "updateFinalizePeriodSeconds": {
+              "ok": 0,
+              "revert": 8
+            },
+            "updateProofWindow": {
+              "ok": 0,
+              "revert": 8
+            },
+            "updateRewardPercentage": {
+              "ok": 0,
+              "revert": 8
+            },
+            "updateRollupDelayPeriod": {
+              "ok": 0,
+              "revert": 8
+            },
+            "updateVerifier": {
+              "ok": 0,
+              "revert": 10
+            }
+          },
+          "panics": [
+            {
+              "code": "0x11",
+              "model_src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+              "real_site": "contracts/contracts/l1/rollup/Rollup.sol:363",
+              "site_agrees": true,
+              "src": "contracts/contracts/l1/rollup/Rollup.sol:363",
+              "steps": 27
+            },
+            {
+              "code": "0x11",
+              "model_src": "contracts/contracts/l1/rollup/Rollup.sol:368",
+              "real_site": "contracts/contracts/l1/rollup/Rollup.sol:368",
+              "site_agrees": true,
+              "src": "contracts/contracts/l1/rollup/Rollup.sol:368",
+              "steps": 2
+            },
+            {
+              "code": "0x11",
+              "model_src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+              "real_site": "contracts/contracts/l1/rollup/Rollup.sol:439",
+              "site_agrees": true,
+              "src": "contracts/contracts/l1/rollup/Rollup.sol:439",
+              "steps": 2
+            },
+            {
+              "code": "0x11",
+              "model_src": "contracts/contracts/l1/rollup/Rollup.sol:636",
+              "real_site": "contracts/contracts/l1/rollup/Rollup.sol:636",
+              "site_agrees": true,
+              "src": "contracts/contracts/l1/rollup/Rollup.sol:636",
+              "steps": 6
+            }
+          ]
+        },
+        "flips": [
+          "L_disch_blk_initializable_120_b8d46c45_anyone",
+          "L_disch_blk_initializable_120_b95c70f1_anyone",
+          "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter",
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger",
+          "L_disch_blk_rollup_132_d953872f_anyone",
+          "L_disch_blk_rollup_132_d953872f_caller_rollup_210",
+          "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter",
+          "L_disch_blk_rollup_132_d953872f_onlyChallenger",
+          "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210",
+          "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger",
+          "L_disch_blk_rollup_228_79cc3e9a_onlyOwner",
+          "L_disch_rev_rollup_363_e11d8bb2"
+        ],
+        "statuses_at_prereg": {
+          "L_disch_blk_initializable_120_b8d46c45_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_initializable_120_b95c70f1_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_132_d953872f_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_132_d953872f_caller_rollup_210": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_132_d953872f_onlyChallenger": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_228_79cc3e9a_onlyOwner": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_363_e11d8bb2_anyone": [
+            "DISCH",
+            "blocking",
+            "UNKNOWN"
+          ],
+          "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": [
+            "DISCH",
+            "blocking",
+            "REFUTED"
+          ],
+          "L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_132_d953872f_onlyOwner": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_213_f2e7faf8_onlyOwner": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_ext_rollup_363_e11d8bb2_onlyOwner": [
+            "DISCH",
+            "external",
+            "PROVED"
+          ],
+          "L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_132_d953872f_onlyOwner": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_213_f2e7faf8_onlyOwner": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_noext_rollup_363_e11d8bb2_onlyOwner": [
+            "DISCH",
+            "external_none",
+            "REFUTED"
+          ],
+          "L_disch_rev_initializable_120_b8d46c45": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_initializable_120_b95c70f1": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_initializable_120_d9a34b48": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_pausableupgradeable_77_ed0ce816": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_rollup_132_d953872f": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_rollup_213_f2e7faf8": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_rollup_228_79cc3e9a": [
+            "DISCH",
+            "revert",
+            "PROVED"
+          ],
+          "L_disch_rev_rollup_363_e11d8bb2": [
+            "DISCH",
+            "revert",
+            "UNKNOWN"
+          ],
+          "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter": [
+            "FACT",
+            "attribution",
+            "REFUTED"
+          ],
+          "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter": [
+            "FACT",
+            "attribution",
+            "REFUTED"
+          ],
+          "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash": [
+            "FACT",
+            "kernel",
+            "REFUTED"
+          ],
+          "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash": [
+            "FACT",
+            "kernel",
+            "REFUTED"
+          ],
+          "L_fact_kernel_Rollup_commitState_committedBatches_blobhash": [
+            "FACT",
+            "kernel",
+            "PROVED"
+          ],
+          "L_sort_realize_rollup_363_4a64383b": [
+            "SORT",
+            "realize",
+            "REFUTED"
+          ],
+          "L_sort_tag_rollup_279_e01ea84a": [
+            "SORT",
+            "as_member",
+            "REFUTED"
+          ],
+          "L_sort_tag_rollup_406_e01ea84a": [
+            "SORT",
+            "as_member",
+            "UNKNOWN"
+          ],
+          "L_undo_pair_Rollup_addChallenger_removeChallenger": [
+            "UNDO",
+            "pair",
+            "UNKNOWN"
+          ],
+          "L_undo_pair_Rollup_commitBatchWithProof_revertBatch": [
+            "UNDO",
+            "pair",
+            "UNKNOWN"
+          ],
+          "L_undo_pair_Rollup_commitBatch_revertBatch": [
+            "UNDO",
+            "pair",
+            "REFUTED"
+          ],
+          "L_undo_pair_Rollup_commitState_revertBatch": [
+            "UNDO",
+            "pair",
+            "UNKNOWN"
+          ],
+          "L_undo_pair_Rollup_removeChallenger_addChallenger": [
+            "UNDO",
+            "pair",
+            "UNKNOWN"
+          ],
+          "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": [
+            "UNDO",
+            "residue",
+            "REFUTED"
+          ],
+          "L_undo_res_Rollup_revertBatch_batchDataStore": [
+            "UNDO",
+            "residue",
+            "REFUTED"
+          ],
+          "L_undo_res_Rollup_revertBatch_committedStateRoots": [
+            "UNDO",
+            "residue",
+            "UNKNOWN"
+          ]
+        },
+        "disch_totals_at_prereg": {
+          "PROVED": 13,
+          "REFUTED": 7,
+          "UNKNOWN": 15
+        },
+        "disch_totals_predicted": {
+          "PROVED": 27,
+          "REFUTED": 7,
+          "UNKNOWN": 1
+        },
+        "counted_predictions": [
+          "I68-P1",
+          "I68-P2",
+          "I68-P3",
+          "I68-P4",
+          "I68-P5",
+          "I68-P6",
+          "I68-P7"
+        ],
+        "scope": "Core (the store, canonical keys, raw slots, storage modes, the deployment, the evaluator, the keys check, the ledger entry, the SK frame library, key split, convoy, loop frames, tag_exact) plus F, the bit-field lemmas (TI2; groundwork for I33's W2 and I36's O34). Not K-mono, the monotone transport (blk_rollup_363_anyone stays UNKNOWN, named), and not I36's arrays and bytes keys (SP_d and SP_b stay GenErrors).",
+        "order": "The prereg commit is pushed on claude/ci-i68 before any build code; the build's code is written and validated while I28's build is in flight; the outcome run (the typed records of rule S11, R5, the keys check, the remodel lines) is made after I28's build is on the lead and merged into I68's branch, so the typed records are remade once over holon-rules/1.6's statement hashes. I71 (UNDO's cancel sub-form) may merge before the run: its typed law is then remade and remodelled with the 51 (rule S11), and reported.",
+        "disclosure": "What was known before this commit. (1) The Q21 design note's outcomes are readings of the code and the committed records, not runs: its Bend probes were self-contained scratch files over the real prelude (the SK store, the frame library, five frame facts, and a Reach induction of a kept-register invariant on a two-action machine, each checked in bend2 and BendTT, planted errors failing), and no generator, refuter, gate or forge ran on the subject. (2) In this session, before this commit: the instrument classified the committed capture (9 literal, 7 structural, 2 raw; keys check clean); the 51 typed records' statuses and fields were read; the model's store, compiler, evaluator, search, DISCH routes, UNDO trace section and I28's versioned generator (PR #50's head, abb834b) were read; I30's TestTermSize.test_nominal_types_cost_at_most_the_frozen_ratio was run at the base (passed, 8 s), and I30's committed term_size.json was read (I30-P7's :363 law_terms 1107, red). (3) The independent prereg review was started and then stopped by the human's pause after about fifteen minutes, before it reported; the author's adversarial self-check replaced it (docs/iterations/I68_prereg_review.json, committed after this commit, with its fold). No build code for I68 exists at this commit, and no M3 model with structural keys was built or run.",
+        "known_red_at_base": "Red at the base and not caused or hidden by I68: tests_m3/test_e2_transitions.py's tests that need I72's build (I72's prereg is on the lead; its build lands after I28's), I30's TestToy.test_toy_statuses (I30-R6's toy clause, which I68 predicts green) and test_gate_m3_passes, I30's TestTermSize.test_every_i30_law_is_within_the_term_budget (I30-P7: :363's law_terms 1107 > 1000; it stays red and grows on the structural model: S13), I31's blocking predictions (scored MISS by I31; I68 scores its own), I43's sidecar and baseline checks (I26's Question 5), and I26's commit-rule test. Locally, without the pinned checker, every gate check is skipped (GENV).",
+        "questions": [
+          "H1: accept the unsigned lifecycle kind remodel with rule S11's criteria (a)-(e), licensed by Q21, or name another channel; without one G2 stays red on the typed laws, labelled pending.",
+          "H2: I28's versioned machine stays on the raw store (option A1, rule S4). I28's V6 says the versioned model follows the adopted document's storage representation, so after I68 that sentence does not hold; converting the versioned layer (its KW conversions and table reads; vread's layout coordinates make SK reads direct) is a later key's, I29's or a fix key's. Confirm, or name the key.",
+          "L5: I43's sidecar re-baseline after I68's remake (precedent 4bcf535d), with one amendment line for the DISCH status changes."
+        ]
+      }
+    },
     "I83": {
       "title": "I83 (= I28b): I28's model debt paid. holon.sorts.model3 compiles the pre-V11 commit actions (abi.decode of a tuple of value types and dynamic arrays, with the decoder's checks; a word list as a call argument; the memory copy of input bytes read in assembly; calldataload at an input's calldata offset), a generic candidate generator finds the in-flight inhabitants on the versioned machine (G11V, I28's rule V8 unchanged), every inhabitant replays on the real code (I28's rule V9), and the lifecycle kind model_extension re-binds the laws over the extended versioned layer (G2 stays green); I28's P5 and P6 re-attempted under a new key, as I62 re-ran I61; I28 keeps its number and its misses",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I83)",
@@ -7178,6 +7800,784 @@
         "amendments": {}
       }
     },
+    "I84": {
+      "title": "= I37b: Bundle II's laws over I80's extraction: rule catalog holon-rules/1.10 adds PAR link_domain (O3: a proof call the Rollup admits reaches a verifier the router resolves, the router constructed as the target's deploy script constructs it), FACT public_input (O23: ker(PI) within ker(c) for each parent-header field the extracted Go derivation reads, F(PI, parent lbn) in bits) and DISCH self_controlled (O35: challengeState in En_G, its cost calibrated against forge gas, G from spec/M3/lib/refute.json); tools/calibrate_gas.py fits c0 + c1 * iters over E5's backlog loop on fit backlogs disjoint from the evaluated ones; the frontend records a break-only local (the router's found) as carried with its pre-loop value, closing I80's Q-I80-e; every witness replays on the real Rollup and router",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I84)",
+      "prompt": "prompts/I84_bundle2_laws.md",
+      "predictions": [
+        {
+          "id": "I84-P1",
+          "claim": "The frontend's loop rule FR1 closes I80's gap on the router: after `holon bundle2 extract` re-extracts the router under FR1, every name of every loop record's at_break and exit is carried, `found` is carried once per loop record with entry 0, and the document differs from I80's committed one only in its loop records' carried and next lists (and its extraction section); `holon bundle2 model` then compiles all eight router actions with no model debt (gen/M3/bundle2/models/models.json debt []), the model defines run_getVerifier and run_verifyAggregateProof, holds no escape hatch, and the pinned Bend prints ALL PROOFS CHECK on it. Derivation: I80's report places model3's error ('exit found is not a name of loop :108-114') and the evaluator's refusal on the missing entry value; model3 already compiles carried names, loops with break, struct records and I80's dynamic-array extension, so an entry value is the one thing missing.",
+          "check": "tests_m3/test_bundle2_laws.py::TestFrontend::test_p1_the_router_carries_found_and_compiles"
+        },
+        {
+          "id": "I84-P2",
+          "claim": "I80's corpus re-run under FR1 (`holon bundle2 refine`): the linked machine has no disagreement and no unsupported step on all 365 traces (I80-P4's two unsupported S1_router steps, getVerifier(7, 3) and verifyAggregateProof(7, 3), now agree with the real router's ErrorVerifierNotFound revert), and the router's model has no unsupported step and exactly one disagreement, one of I80's committed model disagreement ids: the S5_rollup_word step-3 status disagreement of I80's Surprise 1 (callok without the ABI decoder, Q-I80-d), which FR1 does not touch. Derivation: the two unsupported linked steps end the search loop by its head with found's entry value 0; the model's 164 unsupported steps are exactly the two debt actions' steps, whose code paths are the loop, a custom-error revert and the stand-in's answered call, each of which model3 already handles on the adopted Rollup.",
+          "check": "tests_m3/test_bundle2_laws.py::TestRefinement::test_p2_the_refinement_rerun"
+        },
+        {
+          "id": "I84-P3",
+          "claim": "BUILD_PLAN I37's calibration prediction (K1-K5): the calibrated cost c0 + c1 * iters of the state-indexed cost site (challengeState's loop, Rollup.sol:489-493), fitted by ordinary least squares on the fit backlogs {3, 6, 12, 24, 48} only, is within 5% of forge gas (intrinsic plus the call frame's gas before refunds) at every evaluated backlog k in {1, 2, 4, 8, 16, 32, 64}; results/M3/bundle2/calibration.json says calibrated. Derivation: under Cancun every loop iteration does the same cold SLOAD and dirty SSTORE of a distinct batchDataStore slot plus fixed loop overhead, and the challenged batch's skip is a constant, so the measured cost is affine in k up to a few hundred gas; extrapolating from 48 to 64 is the test.",
+          "check": "tests_m3/test_bundle2_laws.py::TestCalibration::test_p3_the_cost_is_calibrated_within_tolerance"
+        },
+        {
+          "id": "I84-P4",
+          "claim": "BUILD_PLAN I37's O35 prediction, registered as written: some submitter strategy with backlog k <= 64 pushes challengeState out of En_G at G = 30,000,000 (spec/M3/lib/refute.json gas_limit): the DISCH self_controlled law L_disch_self_Rollup_challengeState_489_493 is REFUTED by a kernel-checked counter-law whose witness's backlog (k*_model) is at most 64. Disclosed before any measurement: the agent expects this to miss (see I84-P5 and thresholds.estimate); it is kept because the plan's predictions are preregistered claims and dropping one after reading the code would be hindsight.",
+          "check": "tests_m3/test_bundle2_laws.py::TestO35::test_p4_plan_a_strategy_within_64_leaves_en_g"
+        },
+        {
+          "id": "I84-P5",
+          "claim": "The agent's O35 prediction (D2-D5): the least backlog at which the calibrated cost exceeds G, k*_model (tests_m3/_i84.py::kstar over the record's points), and the least backlog at which challengeState with a transaction gas limit of G fails on the real code while it succeeds with 2G, k*_real (D5's bisection), both lie in [5000, 6000]; the law is UNKNOWN, its attempts naming the calibration, k*_model and the 64-step kernel budget; the strategy (commits by the active submitter class, then the challenge) replays: k*_real - 1 succeeds within G, k*_real fails within G and succeeds within 2G. Derivation: thresholds.estimate (the gas schedule's per-iteration cost of about 5,150-5,600 and fixed cost of about 0.1-0.25 M put (G - c0) / c1 between about 5,300 and 5,800; the proxy's 63/64 forwarding lowers k*_real by under 2%).",
+          "check": "tests_m3/test_bundle2_laws.py::TestO35::test_p5_the_backlog_out_of_en_g_and_its_replay"
+        },
+        {
+          "id": "I84-P6",
+          "claim": "BUILD_PLAN I37's O23 prediction (FC1-FC3, FP1-FP4, FM1-FM3): the FACT public_input law L_fact_pi_Rollup_commitBatchWithProof_LastBlockNumber is REFUTED by a kernel-checked counter-law (two runs of commitBatchWithProof from reachable states with equal PI and parents whose last block numbers differ), its record's measure is F(PI, parent lbn) = 64 bits (kind value, class free), and its witness replays on the real Rollup (both runs succeed; the PI words at the router call are equal; the parents' last block numbers differ). Counted: the REFUTED status and the replay (decided by Bend and forge after the prereg); the 64 is the basis's field class (the instrument computed it at the prereg from the adopted document), so its equality is a construction check.",
+          "check": "tests_m3/test_bundle2_laws.py::TestO23::test_p6_the_parent_lbn_is_outside_the_public_input"
+        },
+        {
+          "id": "I84-P7",
+          "claim": "The same sub-form's laws for the derivation's other parent-header reads, L_fact_pi_Rollup_commitBatchWithProof_Version, _BatchIndex and _TotalL1MessagePopped, are REFUTED by kernel-checked counter-laws whose witnesses replay, and their measures are the basis's classes (Version: checked_joint, bound [1, 1.584963]; BatchIndex and TotalL1MessagePopped: computed, bounds [1, 64]). Derivation: PI reads header bytes 25..217 of the committed batch and nothing of its parent; two parents at different versions, indices or message totals with equal post roots give children with equal PI (a child with no L1 message hashes no queue entry), each within FP3's two-step prefixes.",
+          "check": "tests_m3/test_bundle2_laws.py::TestO23::test_p7_the_other_parent_reads_are_outside_too"
+        },
+        {
+          "id": "I84-P8",
+          "claim": "BUILD_PLAN I37's O3 prediction (LD1-LD5): under the laws' deployment, where the router is constructed as the target's deploy script constructs it (contracts/deploy/016-RollupInit.ts:38-40, versions [1]), the three link_domain laws (commitBatchWithProof, proveCommittedBatchState and proveState into verifyAggregateProof) are REFUTED by kernel-checked counter-laws; each witness's (version, index) lies outside the router's domain by the instrument's rule (a version the deploy script does not configure, so getVerifier returns address(0) without entering the search loop), and each replays: the Rollup's proof call reverts on the real Rollup and router, and the real getVerifier returns address(0). Derivation: the Rollup's commit admits version <= 2 and checks nothing of the router; I80's harness configured versions 0-2 at start 0, under which the domain is total and stays so (updateVerifier only pushes legacy entries), which is why the laws' deployment is the deploy script's.",
+          "check": "tests_m3/test_bundle2_laws.py::TestO3::test_p8_commits_outside_the_router_domain"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I84-R1",
+          "claim": "FR2: the adopted Rollup document (sha256 thresholds.rollup_document_sha256) re-extracts byte for byte with its sidecar under FR1 (it holds no break-only local: every at_break and exit name of its eight loop records is carried, read at the prereg); holon coverage --milestone M2 and M3 --check pass; its typed and untyped M3 model texts regenerate byte for byte.",
+          "check": "tests_m3/test_bundle2_laws.py::TestFrontend::test_r1_the_rollup_document_and_models_do_not_move"
+        },
+        {
+          "id": "I84-R2",
+          "claim": "Judged one by one against its first parent, no own commit changes a frozen root, an earlier M3 law but in rule_catalog_version, or an earlier M3 record's status; at end every record directly under results/M1, results/M2 and results/T32 carries a generator_sha256 other than at the prereg (re-made: holon/frontends/ and holon/rules/ are in their closures).",
+          "check": "tests_m3/test_bundle2_laws.py::TestRegressions::test_r2_own_commits_move_no_earlier_outcome"
+        },
+        {
+          "id": "I84-R3",
+          "claim": "holon audit prereg passes for M2 and M3 (tested). On CI, on the build head: gate-M0, gate-M1 and gate-M2 pass; gate-M3-partial and gate-M3-G2 fail only on the base's items (G11V's in-flight clause since I28's build); the frozen suite, freeze-check and both audits pass.",
+          "check": "tests_m3/test_bundle2_laws.py::TestRegressions::test_r3_the_prereg_audits_pass"
+        },
+        {
+          "id": "I84-R4",
+          "claim": "The modules I84 adds (holon/bundle2/laws*.py, holon/rules/bundle2*.py, tools/calibrate_gas.py) name no contract, function, storage variable, address or host of the target outside docstrings and comments: every one comes from the documents, the declaration or the sidecars.",
+          "check": "tests_m3/test_bundle2_laws.py::TestRegressions::test_r4_the_new_code_names_no_target"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/bundle2/",
+        "results/M3/bundle2/",
+        "replay/M3/bundle2/",
+        "laws/M3/L_par_ldom_",
+        "laws/M3/L_fact_pi_",
+        "laws/M3/L_disch_self_",
+        "results/M3/L_par_ldom_",
+        "results/M3/L_fact_pi_",
+        "results/M3/L_disch_self_",
+        "gen/M3/laws/L_par_ldom_",
+        "gen/M3/laws/L_fact_pi_",
+        "gen/M3/laws/L_disch_self_",
+        "gen/M3/proofs/L_par_ldom_",
+        "gen/M3/proofs/L_fact_pi_",
+        "gen/M3/proofs/L_disch_self_",
+        "docs/iterations/I84.md"
+      ],
+      "tests": [
+        "tests_m3/test_bundle2_laws.py"
+      ],
+      "thresholds": {
+        "base": "92c98e40b17a8bdbe516c67e46190098a898f270 (the lead after I80, 873cb0d9, I81, 3da104c1, and I72's build), with BUILD_PLAN's row I84 committed before this commit",
+        "base_commit": "92c98e40b17a8bdbe516c67e46190098a898f270",
+        "catalog": "holon-rules/1.10 (holon-rules/1.7 is I71's, 1.8 I29's, 1.9 I35's; the next free version); C1 chains it to the newest version at the build's base",
+        "instrument": "tests_m3/_i84.py",
+        "instrument_sha256": "3482a0d9f374876f68181db3701adb4848a4c80be87896acbb13cfd184478fec",
+        "contract_docstring_sha256": "e3d827a47d3cee34af6330b5e30af6c08c611105fb8b561adf095be79b3f9107",
+        "sidecar": "spec/M3/lib/bundle2_laws.json",
+        "sidecar_sha256": "d1af3a21a39f15cf1a0ebdb1b9c887af74f144a16912e54b0398d2c155b2db67",
+        "basis": "spec/M3/lib/bundle2_laws_basis.json",
+        "basis_sha256": "1817530a9d2744079b8de38a63c7089fd0e1de86c7da26ae4c85bc2a181d3b76",
+        "rollup_document_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+        "gas_ceiling": 30000000,
+        "k_star_band": [
+          5000,
+          6000
+        ],
+        "kernel_budget_steps": 64,
+        "calibration": {
+          "fit_backlogs": [
+            3,
+            6,
+            12,
+            24,
+            48
+          ],
+          "eval_backlogs": [
+            1,
+            2,
+            4,
+            8,
+            16,
+            32,
+            64
+          ],
+          "tolerance": 0.05
+        },
+        "law_ids": {
+          "link_domain": [
+            "L_par_ldom_Rollup_commitBatchWithProof_MultipleVersionRollupVerifier_verifyAggregateProof",
+            "L_par_ldom_Rollup_proveCommittedBatchState_MultipleVersionRollupVerifier_verifyAggregateProof",
+            "L_par_ldom_Rollup_proveState_MultipleVersionRollupVerifier_verifyAggregateProof"
+          ],
+          "public_input": [
+            "L_fact_pi_Rollup_commitBatchWithProof_BatchIndex",
+            "L_fact_pi_Rollup_commitBatchWithProof_LastBlockNumber",
+            "L_fact_pi_Rollup_commitBatchWithProof_TotalL1MessagePopped",
+            "L_fact_pi_Rollup_commitBatchWithProof_Version"
+          ],
+          "self_controlled": [
+            "L_disch_self_Rollup_challengeState_489_493"
+          ]
+        },
+        "estimate": "Before any measurement, from the Cancun gas schedule (EIP-2929, EIP-2200, EIP-3529) over the source of challengeState (Rollup.sol:472-497): one backlog iteration reads batchDataStore[i].finalizeTimestamp, a distinct cold slot (2100), and writes it nonzero to nonzero for the first time in the transaction (2900), plus the warm reads of proofWindow and lastCommittedBatchIndex, the mapping-slot keccak, checked arithmetic and the loop's jumps: c1 about 5,150-5,600. The fixed part (intrinsic gas about 21,700, the proxy about 7,000, about a dozen cold reads, the submitter's challengeDeposit call, the challenge struct's three fresh slots and two fresh flags, the event) is about 0.1-0.25 M. Hence k* = (G - c0) / c1 is about 5,300-5,800 at G = 30 M, far above BUILD_PLAN's 64: I84-P4 is expected to miss and I84-P5's band is [5000, 6000].",
+        "counted_predictions": [
+          "I84-P1",
+          "I84-P2",
+          "I84-P3",
+          "I84-P4",
+          "I84-P5",
+          "I84-P6",
+          "I84-P7",
+          "I84-P8"
+        ],
+        "construction_checks": "the instruments' pins and the basis's recomputation (TestInstrument), the catalog and the law ids (test_c1, test_c2), the calibration's reproduction (test_c3), the REFUTED path of the DISCH decider under a planted ceiling (test_c4, D6), and inside P6 and P7 the equality of each record's measure with the basis's field class (computed by the instrument at the prereg)",
+        "build_plan_mapping": {
+          "O3": "I84-P8 (three link_domain laws under the deploy script's router configuration)",
+          "O23": "I84-P6 (F(PI, parent lbn) = 64 bits); I84-P7 for the derivation's three other parent reads",
+          "calibrated cost": "I84-P3",
+          "O35": "I84-P4 (as written: k <= 64) and I84-P5 (the agent's band and the replay)",
+          "HypC": "not a separate law: the router's verifyBatch call is answered by the stand-in (the circuit as an oracle) in LD3's environment and in every replay, as I80's harness answers it (Q-I80-a stays open)"
+        },
+        "known_red_at_base": [
+          "tests_m3.test_undo: 11 (UNDO records trail)",
+          "tests_m3.test_disch_profile: 3 (I32's misses)",
+          "tests_m2 group 2: 2 (solidity history.py honesty)",
+          "tests_m2 group 3: 14 failures and 6 errors",
+          "I43-R1 (tests_m3/test_lean_promoted.py), re-baselined by the lead",
+          "since I28's build: G11V's in-flight clause on M3; test_fact TestGate.test_partial_gate_on_a_copy; test_sort_types TestRecordsAndGate.test_gate_m3_passes; test_disch TestGateAndRegressions.test_gate_m3_passes_and_rejects_the_disch_canaries",
+          "since I80: tests_m3.test_bundle2_extraction P2, P4, P6 and test_the_generated_sidecars_and_the_action_sets (zkevm) (I80's misses; P4 and P6 are expected to turn green under FR1)",
+          "since I81: tests_m3.test_ranking test_p4, test_p6, test_p7",
+          "locally only: tests_m3.test_par_lossy.TestCore.test_inj_push_is_proved (the bun is not the pinned build)"
+        ],
+        "coordination": "holon-rules/1.7 (I71), 1.8 (I29) and 1.9 (I35) are pending in other lanes; C1 chains 1.10 to the newest at the build's base, and whoever merges second re-chains and regenerates. FR1 changes holon/frontends/solidity (a closure file): the build re-makes the M1, M2 and T32 records locally and the M3 records on CI runners, and regenerates I80's outputs. I69 (Bundle I, PR #52) also extends the frontend: if it lands first, the build re-extracts its documents under FR1 and reports any move.",
+        "deferred": [
+          "I81's ranking cells (F(PI, parent lbn), DISCH profiles and gas costs): I81's frozen sidecar measures FACT sub-form kernel only and names I37 for them (Q-I84-c)",
+          "a FACT public_input law for the proof actions (proveState, proveCommittedBatchState): they take no parent header, so FP1 states none; the same kernel pair reaches their batches only through the committed parentBatchHash",
+          "the deployed router's configuration (Q-I80-b, Q-I84-a): the laws use the deploy script's",
+          "calibrating the other cost sites (commit loops over L1 messages, finalizeBatch, revertBatch, the router's search): their counts read parameters or abstract counts, so they are not state-indexed (K1)",
+          "a counter-law over Reach longer than 64 steps (D4): its trace and keccak table grow with the backlog"
+        ],
+        "disclosure": "Read before this prereg: the router's, the Rollup's and the queue's sources at the head; contracts/deploy/016-RollupInit.ts; node/derivation/batch_info.go (ParseBatch) and verify_local.go (fetchBatchInfoOutline); common/batch/batch_header.go; I80's outputs, report and refinement records; the adopted Rollup document's loop and header-store records; the Go documents' decoders and call edges; I81's measures and ranking sidecar. Ran: the instrument's basis (tests_m3/_i84.py --write) and bend guide. Never ran before this prereg: forge, Bend, model3, the evaluator or the frontend on anything I84 measures or decides; no gas was measured (thresholds.estimate is arithmetic over the gas schedule)."
+      }
+    },
+    "I89": {
+      "title": "= I39c: the Go consumer compiled to Bend from I85's extracted SSA by a generator (holon/derivation/bendgen.py: Go's integer, slice, struct, pointer and interface semantics, panics and errors as outcome constructors, loops as a fuelled trampoline), the blob layer cut at the region the SSA gives and entering as the stated hypothesis HypB's parameter, the decoder as HypT's; HypB's instance (the real blob layer on I85's 169 cases) checked against I85's recorded oracle answers and HypB itself; the compiled model refined against the real ParseBatch on the 169 cases; then, after I88 merges, I88's five frozen derivation laws decided on it by the checker through I88's decider with a Bend engine (O7, the F11 L1 count, O8 under HypC_ignores_trailing and O24 REFUTED by counter-laws Bend and BendTT accept; O8 under HypC_binds_trailing PROVED; the HypC split true)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I89)",
+      "prompt": "prompts/I89_derivation_bend.md",
+      "predictions": [
+        {
+          "id": "I89-P1",
+          "claim": "The cut (B1, B6): the generator's record gen/M3/derivation/bend/model.json holds exactly tests_m3/_i89.py's cut of the consumer's entry (thresholds.cut: the partial block 6 from its instruction 19, the whole blocks 7, 8, 10 and 11, the decompress call t66 first in block 9, the one input t0 read as the blobs field, the exits PlRet at block 10's Return and D; 31 instructions), compiles exactly the 12 functions of thresholds.compiled_functions (the retrieve and decompress functions are reached only through the region), and records each law's cone: those functions and the union of its terms' sidecar observables. Derivation: the rule written twice; the region is the retrieval loop, its early return and the decompress call, as the SSA dump shows (blocks 6-11 of the entry).",
+          "check": "tests_m3/test_derivation_bend.py::TestModel::test_p1_the_cut_is_the_instruments"
+        },
+        {
+          "id": "I89-P2",
+          "claim": "The model is generated and checks (B2-B6): `holon derivation bend` writes gen/M3/derivation/bend/consumer.bend from the consumer section and the sidecar alone; `bend --check` reproduces it byte for byte; it states no law and holds no escape hatch; the local Bend checks it (exit 0, ALL PROOFS CHECK); model.json lists no unsupported construct. Derivation: the closure outside the region uses 18 op kinds, the builtins len and append, and 9 native callees plus the encoding and slice-length callees, each with a library def of its sidecar kind; the trampoline design (one recursive def per function over a fuelled transition, every branch on a computed value through a helper's parameter) passed a probe in both kernels with fuel 1000000 (bend 2.0.36). The least certain part: Bend's affinity and typing of the generated helpers at this size.",
+          "check": "tests_m3/test_derivation_bend.py::TestModel::test_p2_the_model_is_generated_and_checks"
+        },
+        {
+          "id": "I89-P3",
+          "claim": "HypB's instance on the 169 cases (H1-H2): the real blob layer, run by a generated Go test offline, answers all 169 cases; on every case whose decompressor ran, its argument is a key of I85's recorded decompressor answers and the recorded answer gives the same result (0 disagreements); and on all 132 canonical cases (tests_m3/_i89.py::canonical_cases) it answers PlOk with exactly the case's payload: HypB holds 132 times and fails 0 times (thresholds.predicted.hypb). Derivation: I85's interpreter called the same decompressor through the same retrieval code and recorded every answer; the canonical packing (C2) is what the retrieval inverts, and the compressor's frames decompress to their input.",
+          "check": "tests_m3/test_derivation_bend.py::TestHypB::test_p3_hypb_instance_on_the_169_cases"
+        },
+        {
+          "id": "I89-P4",
+          "claim": "The compiled Bend model refines the real ParseBatch (F1-F3): evaluated by node on the 169 cases with HypB's instance answers and I85's recorded decoder answers (HypT's instance), it agrees with replay/M3/derivation/report.json on every case: status, error text, panic text and the cone view (lastBlockNumber; the blocks' Number, txsNum, l1MsgNum): 169 agree, 0 disagree, 0 unsupported, 0 out of fuel, 0 unanswered (thresholds.predicted.refinement); `bend-refine --check` reproduces. Derivation: the model follows interp.py's semantics, which agreed on all 169 cases (I85-P5), and the region's outcomes reach the model as HypB's answers. A disagreement is a generator bug, fixed in the generator, never in a case; the prediction counts the first full run.",
+          "check": "tests_m3/test_derivation_bend.py::TestRefinement::test_p4_the_model_refines_the_real_consumer"
+        },
+        {
+          "id": "I89-P5",
+          "claim": "O7 REFUTED (S1, S2): L_prod_cycle_lastBlockNumber's counter-law, over the consumer model, the Rollup's typed model and I24's header component, is accepted by Bend and by BendTT (--verdict) at a witness found on the compiled models from I88's evaluator candidate: a version 1 commit on a version 0 parent with two contexts, the last numbered one past the commit's lastBlockNumber, the derived lastBlockNumber 3 against the committed 2; its consumer side replays on the real ParseBatch. Derivation: ParseBatch's v0-parent path checks only lastBlockNumber >= the first context's number and never compares the last context's number with it; the commit stores lastBlockNumber unchecked.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p5_o7_is_refuted"
+        },
+        {
+          "id": "I89-P6",
+          "claim": "F11's L1 count REFUTED (S1, S2): L_prod_count_l1MsgNum's counter-law is accepted by both kernels at a witness found on the compiled models (one context whose pair is (1, 1), derived sum 1 against the committed L1MessagePopped 0); it replays. Derivation: ParseBatch never reads NumL1Messages and checks only txsNum >= l1MsgNum per block.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p6_the_l1_count_is_refuted"
+        },
+        {
+          "id": "I89-P7",
+          "claim": "O8 under HypC_binds_trailing PROVED (S1, S3): a generated proof of L_prod_trailing_HypC_binds_trailing, of the obligation class 'the claim is the conclusion of a hypothesis premise whose own premises are among the law's', is accepted by Bend and BendTT. Derivation: the law's last premise is HypC_binds_trailing, whose statement concludes trailing == 0 from premises the law states; applying it is the proof, independent of the consumer's code.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p7_o8_under_binds_is_proved"
+        },
+        {
+          "id": "I89-P8",
+          "claim": "O8 under HypC_ignores_trailing REFUTED (S1, S2): the counter-law is accepted by both kernels at a witness found on the compiled models (one context dequeuing nothing, one transaction in the stream: trailing 1 against 0), its circuit instance accepting every step (HypC_ignores_trailing proven for it by computation); it replays. Derivation: ParseBatch never checks that the queue is empty when the blocks are done.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p8_o8_under_ignores_is_refuted"
+        },
+        {
+          "id": "I89-P9",
+          "claim": "O24 REFUTED (S1, S2): L_prod_calldata_BlockContexts's counter-law is accepted by both kernels at a witness found on the compiled models (a version 0 commit, two calldata context arguments differing in the last block's number: derived blocks [1] against [2]); it replays. Derivation: a version 0 batch with calldata contexts takes its block count and contexts from them, and neither the commit's input nor its header binds them.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p9_o24_is_refuted"
+        },
+        {
+          "id": "I89-P10",
+          "claim": "The HypC split (S5): results/M3/derivation/splits.json, re-made by I88's rule SP1, holds the one HypC pair with binds PROVED and ignores REFUTED, split true (thresholds.predicted.splits). Derivation: P7 and P8.",
+          "check": "tests_m3/test_derivation_bend.py::TestLaws::test_p10_the_hypc_split"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I89-R1",
+          "claim": "Nothing rule-derived moves: I85's `holon derivation product --check` and `refine --check` reproduce with I89's code present, and laws/M3's top level holds exactly the laws DERIVATION.json lists.",
+          "check": "tests_m3/test_derivation_bend.py::TestRegressions::test_r1_nothing_rule_derived_moves"
+        },
+        {
+          "id": "I89-R2",
+          "claim": "I89's own commits change only what the contract allows (its commit rules): no frozen root, laws/, spec/, holon/rules/, holon/frontends/, closure file, and only I89's and (in stage 2) I88's derivation outputs under gen/, results/ and replay/.",
+          "check": "tests_m3/test_derivation_bend.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I89-R3",
+          "claim": "holon audit prereg passes for M2 and M3 (tested). On CI, on the build head: gate-M0, gate-M1 and gate-M2 pass; gate-M3-partial and gate-M3-G2 fail only on the base's items; tests-m3-catalog, the frozen suite, freeze-check and both audits pass.",
+          "check": "tests_m3/test_derivation_bend.py::TestRegressions::test_r3_the_prereg_audits_pass"
+        },
+        {
+          "id": "I89-R4",
+          "claim": "The modules I89 adds under holon/derivation/ and holon/js/derivation_bend.mjs are generic (no token of thresholds.forbidden, no target identifier of tests_m2/test_target_agnostic_exhaustive in code, no address, no test import) and outside every generator closure.",
+          "check": "tests_m3/test_derivation_bend.py::TestRegressions::test_r4_new_code_is_generic_and_outside_every_closure"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/derivation/bend/",
+        "results/M3/derivation/bend/",
+        "replay/M3/derivation/bend/",
+        "docs/iterations/I89.md"
+      ],
+      "tests": [
+        "tests_m3/test_derivation_bend.py"
+      ],
+      "thresholds": {
+        "base": "f02ae3c3 (the lead f30e0dd5 with BUILD_PLAN's row I89 committed on its own before this commit)",
+        "instrument": "tests_m3/_i89.py",
+        "instrument_sha256": "2d9d2fa34348d83d36ab106ec25c3433bb38ef6da463ddccfaa537d893297bb2",
+        "sidecar": "spec/M3/lib/derivation_bend.json",
+        "sidecar_sha256": "227bd14b058626ecacd74141d4cf427cefd4bb36ccf9a3006d489025485d9d38",
+        "contract_docstring_sha256": "9c21fe4e80c9a2ebc2ed7f73521f0a8053ce60afec25ef3b5217644311985bd5",
+        "inputs_sha256": {
+          "gen/M3/derivation/corpus.json": "7e70550f91563860901a7eefaee7daa44aa40863438e9666716ea2981b81c374",
+          "replay/M3/derivation/report.json": "a5a6906f35c77e664e82f42d0ae52781846e7a7cbf4a03a41114244877bd67d6",
+          "results/M3/derivation/environment.json": "55d3717885902395ae2edc7621813004fc0a989a3dde1557dfdf4a3983c9e1b1",
+          "spec/M3/facts/morph_derivation.extracted.json": "bf549dc64bb425ab0cd8f8bcb67ad0d8aae1aedcc027b5d5368d37b8035eb392",
+          "spec/M3/lib/derivation.json": "175d292ff4b0afbb46e483bad38ceba7c78770c8efa91028cd8fc4b000a1e9ec"
+        },
+        "cut": {
+          "entry_block": 6,
+          "first": 19,
+          "blocks": [
+            7,
+            8,
+            10,
+            11
+          ],
+          "boundary": "t66",
+          "boundary_block": 9,
+          "inputs": [
+            "t0"
+          ],
+          "exits": [
+            {
+              "block": 10,
+              "kind": "PlRet",
+              "pos": "node/derivation/batch_info.go:118:4"
+            },
+            {
+              "block": 9,
+              "kind": "D",
+              "pos": "node/derivation/batch_info.go:122:46"
+            }
+          ],
+          "instructions": 31
+        },
+        "compiled_functions": [
+          "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+          "(*morph-l2/node/derivation.BlockContext).Decode",
+          "(*morph-l2/node/derivation.txQueue).dequeue",
+          "(*morph-l2/node/derivation.txQueue).enqueue",
+          "(*morph-l2/node/types.WrappedBlock).DecodeBlockContext",
+          "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+          "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+          "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+          "(morph-l2/common/batch.BatchHeaderBytes).Version",
+          "(morph-l2/common/batch.BatchHeaderBytes).validate",
+          "morph-l2/node/derivation.encodeTransactions",
+          "morph-l2/node/derivation.newTxQueue"
+        ],
+        "cases": 169,
+        "canonical_cases": [
+          "planted/bad_tx_type",
+          "planted/blob_contexts_short",
+          "planted/calldata_prefix_short",
+          "planted/calldata_short",
+          "planted/dequeue_short",
+          "planted/lbn_below_parent",
+          "planted/ok_basefee_zero",
+          "planted/ok_calldata_v0",
+          "planted/ok_calldata_v1",
+          "planted/ok_empty_blocks",
+          "planted/ok_l1_messages",
+          "planted/ok_padded_second_blob",
+          "planted/ok_transition",
+          "planted/ok_v1",
+          "planted/ok_v2_two_blobs",
+          "planted/parent_bad_length",
+          "planted/parent_bad_version",
+          "planted/parent_empty",
+          "planted/transition_lbn_below",
+          "planted/transition_short",
+          "planted/tx_size_overflow",
+          "planted/txsnum_below_l1",
+          "planted/zero_block_count_equal",
+          "planted/zero_block_count_v0",
+          "product/01/1",
+          "product/01/2",
+          "product/01/3",
+          "product/02/1",
+          "product/02/2",
+          "product/02/3",
+          "product/03/1",
+          "product/03/2",
+          "product/03/3",
+          "product/04/1",
+          "product/04/2",
+          "product/05/1",
+          "product/05/2",
+          "product/05/3",
+          "product/05/4",
+          "product/06/1",
+          "product/06/2",
+          "product/06/3",
+          "product/07/1",
+          "product/08/1",
+          "random/000",
+          "random/001",
+          "random/004",
+          "random/008",
+          "random/009",
+          "random/011",
+          "random/012",
+          "random/015",
+          "random/016",
+          "random/017",
+          "random/018",
+          "random/019",
+          "random/020",
+          "random/021",
+          "random/022",
+          "random/023",
+          "random/024",
+          "random/025",
+          "random/026",
+          "random/027",
+          "random/028",
+          "random/031",
+          "random/032",
+          "random/033",
+          "random/034",
+          "random/035",
+          "random/037",
+          "random/038",
+          "random/039",
+          "random/040",
+          "random/041",
+          "random/042",
+          "random/043",
+          "random/045",
+          "random/047",
+          "random/049",
+          "random/050",
+          "random/051",
+          "random/053",
+          "random/054",
+          "random/055",
+          "random/056",
+          "random/057",
+          "random/058",
+          "random/059",
+          "random/060",
+          "random/063",
+          "random/067",
+          "random/068",
+          "random/070",
+          "random/071",
+          "random/075",
+          "random/076",
+          "random/077",
+          "random/078",
+          "random/079",
+          "random/080",
+          "random/081",
+          "random/082",
+          "random/083",
+          "random/084",
+          "random/085",
+          "random/086",
+          "random/087",
+          "random/089",
+          "random/090",
+          "random/091",
+          "random/093",
+          "random/094",
+          "random/095",
+          "random/096",
+          "random/097",
+          "random/098",
+          "random/099",
+          "random/100",
+          "random/103",
+          "random/104",
+          "random/105",
+          "random/106",
+          "random/107",
+          "random/112",
+          "random/113",
+          "random/114",
+          "random/115",
+          "random/116",
+          "random/117",
+          "random/118",
+          "random/119"
+        ],
+        "i88": {
+          "branch": "claude/brave-wright-2c5d0o-i88",
+          "pr": 63,
+          "prereg": "905711b0",
+          "build_seen": "2883c137 (holon/derivation/laws.py, decide.py; decide.run(..., model=) and laws.verdict call model.decide(law, evidence))",
+          "sidecar_sha256": "4130c37ee2ad4d32ca18ffd89c7ca3c104d527ef0ce26936517876c0b808397c",
+          "law_ids": [
+            "L_prod_cycle_lastBlockNumber",
+            "L_prod_count_l1MsgNum",
+            "L_prod_trailing_HypC_binds_trailing",
+            "L_prod_trailing_HypC_ignores_trailing",
+            "L_prod_calldata_BlockContexts"
+          ],
+          "statement_hashes": {
+            "L_prod_cycle_lastBlockNumber": "sha256:1e59b09b64ce4b673d91cb1437adf513dc56f6f21eaeaf7b32bbe30e7aed120a",
+            "L_prod_count_l1MsgNum": "sha256:98fa520d7ff094bffea9203d24d8d8d2a0bf39907bd977bda4694bde8891f34e",
+            "L_prod_trailing_HypC_binds_trailing": "sha256:5e8835b9ccd1ce19064e5f2e3992c74dbae3794180540528ec79cfef77754042",
+            "L_prod_trailing_HypC_ignores_trailing": "sha256:ad5b8f37869ff4d40e4012c44f2fc211bcb870d9013e327c60f34bce85b6ef72",
+            "L_prod_calldata_BlockContexts": "sha256:1d1c6ec050a673adc76df9fdd8404cba54a3220e3ded219cafe3bb409b5a47d2"
+          },
+          "hash_source": "tests_m3/_i88.py::expected_law and holon.gen.refs.law_hash(law, holon.facts.load(facts), root=ROOT), run at I88's prereg head 905711b0 in a scratch worktree"
+        },
+        "predicted": {
+          "hypb": {
+            "recorded_disagree": 0,
+            "canonical": 132,
+            "hypb_holds": 132,
+            "hypb_fails": 0
+          },
+          "refinement": {
+            "cases": 169,
+            "agree": 169,
+            "disagree": 0,
+            "unsupported": 0,
+            "fuel": 0,
+            "unanswered": 0
+          },
+          "laws": {
+            "L_prod_cycle_lastBlockNumber": {
+              "status": "REFUTED",
+              "observation": [
+                3,
+                2
+              ]
+            },
+            "L_prod_count_l1MsgNum": {
+              "status": "REFUTED",
+              "observation": [
+                1,
+                0
+              ]
+            },
+            "L_prod_trailing_HypC_binds_trailing": {
+              "status": "PROVED",
+              "observation": null
+            },
+            "L_prod_trailing_HypC_ignores_trailing": {
+              "status": "REFUTED",
+              "observation": [
+                1,
+                0
+              ]
+            },
+            "L_prod_calldata_BlockContexts": {
+              "status": "REFUTED",
+              "observation": [
+                [
+                  1
+                ],
+                [
+                  2
+                ]
+              ]
+            }
+          },
+          "splits": {
+            "splits_version": "holon-splits/0.1",
+            "milestone": "M3",
+            "pairs": [
+              {
+                "family": "HypC",
+                "laws": {
+                  "L_prod_trailing_HypC_binds_trailing": {
+                    "hypothesis": "HypC_binds_trailing",
+                    "status": "PROVED"
+                  },
+                  "L_prod_trailing_HypC_ignores_trailing": {
+                    "hypothesis": "HypC_ignores_trailing",
+                    "status": "REFUTED"
+                  }
+                },
+                "split": true
+              }
+            ]
+          },
+          "counted": [
+            "I89-P2",
+            "I89-P3",
+            "I89-P4",
+            "I89-P5 (the verdict)",
+            "I89-P6 (the verdict)",
+            "I89-P7",
+            "I89-P8 (the verdict)",
+            "I89-P9 (the verdict)",
+            "I89-P10"
+          ],
+          "not_counted": "I89-P1 is a construction check (the generator against the instrument's rule). The stage 2 observations (O7 [3, 2], F11 [1, 0], O8-ignores [1, 0], O24 [[1], [2]]) were relayed by the coordinator from I88's evaluator before this prereg, so only the verdicts are counted."
+        },
+        "closures": [
+          "holon/__init__.py",
+          "holon/analysis/__init__.py",
+          "holon/analysis/abstraction.py",
+          "holon/analysis/closure.py",
+          "holon/analysis/deadness.py",
+          "holon/bend.py",
+          "holon/bindings.py",
+          "holon/codecrun.py",
+          "holon/consumers.py",
+          "holon/corpus.py",
+          "holon/diagram/__init__.py",
+          "holon/diagram/access.py",
+          "holon/diagram/build.py",
+          "holon/diagram/evidence.py",
+          "holon/diagram/goops.py",
+          "holon/diagram/linked.py",
+          "holon/diagram/model.py",
+          "holon/diagram/principals.py",
+          "holon/diagram/transitions.py",
+          "holon/disch/__init__.py",
+          "holon/disch/lemmas.py",
+          "holon/disch/mirror.py",
+          "holon/disch/order.py",
+          "holon/disch/proofs.py",
+          "holon/disch/run.py",
+          "holon/disch/search.py",
+          "holon/disch/section.py",
+          "holon/evidence.py",
+          "holon/evm_abi.py",
+          "holon/extracted_eval.py",
+          "holon/fact/__init__.py",
+          "holon/fact/product.py",
+          "holon/fact/proofs.py",
+          "holon/fact/run.py",
+          "holon/fact/search.py",
+          "holon/fact/section.py",
+          "holon/facts.py",
+          "holon/filter.py",
+          "holon/fragments_corpus.py",
+          "holon/fragments_doc.py",
+          "holon/frontends/__init__.py",
+          "holon/frontends/go/document.py",
+          "holon/frontends/solidity/__init__.py",
+          "holon/frontends/solidity/ast.py",
+          "holon/frontends/solidity/compile.py",
+          "holon/frontends/solidity/layout_extract.py",
+          "holon/frontends/solidity/storage.py",
+          "holon/frontends/solidity/transitions.py",
+          "holon/gen/__init__.py",
+          "holon/gen/cdriver.py",
+          "holon/gen/codec01.py",
+          "holon/gen/coercion.py",
+          "holon/gen/core.py",
+          "holon/gen/eqlib.py",
+          "holon/gen/eqprove.py",
+          "holon/gen/eqsearch.py",
+          "holon/gen/eqterms.py",
+          "holon/gen/equivalence.py",
+          "holon/gen/goloop.py",
+          "holon/gen/implication.py",
+          "holon/gen/laws.py",
+          "holon/gen/lean_common.py",
+          "holon/gen/lean_laws.py",
+          "holon/gen/lean_linked.py",
+          "holon/gen/lean_machine.py",
+          "holon/gen/lean_mlaws.py",
+          "holon/gen/lean_model.py",
+          "holon/gen/lean_mproofs.py",
+          "holon/gen/lean_proofs.py",
+          "holon/gen/lean_sites.py",
+          "holon/gen/linked.py",
+          "holon/gen/machine.py",
+          "holon/gen/mlaws.py",
+          "holon/gen/model.py",
+          "holon/gen/mproofs.py",
+          "holon/gen/oracles.py",
+          "holon/gen/profile.py",
+          "holon/gen/proofs.py",
+          "holon/gen/refs.py",
+          "holon/gen/targetlib.py",
+          "holon/gen/trace_bound.py",
+          "holon/inhabit.py",
+          "holon/intake.py",
+          "holon/ir.py",
+          "holon/js/eval3.mjs",
+          "holon/js/profile.mjs",
+          "holon/keccak.py",
+          "holon/layout.py",
+          "holon/lean.py",
+          "holon/machine.py",
+          "holon/machine_bend.py",
+          "holon/measures_fact.py",
+          "holon/model_eval.py",
+          "holon/model_native.py",
+          "holon/mpipeline.py",
+          "holon/mreplay.py",
+          "holon/oracles/zero_blob.py",
+          "holon/pipeline.py",
+          "holon/profile.py",
+          "holon/records.py",
+          "holon/refinement.py",
+          "holon/refute.py",
+          "holon/replay.py",
+          "holon/replay_fragments.py",
+          "holon/rules/__init__.py",
+          "holon/rules/disch.py",
+          "holon/rules/disch_profile.py",
+          "holon/rules/fact.py",
+          "holon/rules/par.py",
+          "holon/rules/par_init.py",
+          "holon/rules/sort.py",
+          "holon/rules/undo.py",
+          "holon/schema.py",
+          "holon/sorts/__init__.py",
+          "holon/sorts/affine3.py",
+          "holon/sorts/assign.py",
+          "holon/sorts/check.py",
+          "holon/sorts/constraints.py",
+          "holon/sorts/core.py",
+          "holon/sorts/deploy3.py",
+          "holon/sorts/envcode3.py",
+          "holon/sorts/evaluate3.py",
+          "holon/sorts/extracted.py",
+          "holon/sorts/flow.py",
+          "holon/sorts/grammar.py",
+          "holon/sorts/model3.py",
+          "holon/sorts/prelude3.py",
+          "holon/sorts/prelude3_lemmas.py",
+          "holon/sorts/proofs3.py",
+          "holon/sorts/reextract.py",
+          "holon/sorts/run3.py",
+          "holon/sorts/search3.py",
+          "holon/sorts/sites.py",
+          "holon/sorts/solve.py",
+          "holon/sorts/termsize.py",
+          "holon/sorts/typed_sidecar.py",
+          "holon/sorts/unions.py",
+          "holon/sorts/width.py",
+          "holon/statement_diff.py",
+          "holon/undo/__init__.py",
+          "holon/undo/proofs.py",
+          "holon/undo/run.py",
+          "holon/undo/search.py",
+          "holon/undo/trace.py",
+          "holon/window.py",
+          "spec/M1/lib/morph_rollup.lib.json",
+          "spec/M1/lib/morph_rollup.pointwise.json",
+          "spec/M1/policy_hints.mjs",
+          "spec/M2/lib/oracles.json",
+          "spec/M2/lib/window_rollup.json",
+          "spec/lib/go_slices.lib.json"
+        ],
+        "derivation_files_at_base": [
+          "holon/derivation/__init__.py",
+          "holon/derivation/corpus.py",
+          "holon/derivation/extract.py",
+          "holon/derivation/goside.py",
+          "holon/derivation/interp.py",
+          "holon/derivation/natives.py",
+          "holon/derivation/product.py",
+          "holon/derivation/refine.py",
+          "holon/derivation/values.py"
+        ],
+        "forbidden": [
+          "morph",
+          "Morph",
+          "ParseBatch",
+          "BatchInfo",
+          "RPCRollupBatch",
+          "commitBatch",
+          "committedBatches",
+          "Rollup",
+          "zstd",
+          "go-ethereum",
+          "DecodeTxsFromBytes",
+          "RetrieveBlobBytes",
+          "BlockContext",
+          "batchDataInput",
+          "unpackModernRollupCall",
+          "MarshalBinary",
+          "Sidecar",
+          "blobHashes"
+        ],
+        "base_gate_M3": "gate-M3-partial at the base fails G11V's in-flight clause alone (I28's P5 miss: \"in-flight: 0 of 8 edges inhabited\"); gate-M3-G2 passes. I89's outputs live under gen/M3/derivation/bend/ (scanned by G3 for escape hatches only), results/M3/derivation/bend/ and replay/M3/derivation/bend/; it moves no closure file, so its build may change neither.",
+        "known_red_at_base": [
+          "tests_m3.test_undo: 11 (UNDO records trail)",
+          "tests_m3.test_disch_profile: 3 (I32's misses)",
+          "tests_m2 group 2: 2 (solidity history.py honesty)",
+          "tests_m2 group 3: 14 failures and 6 errors",
+          "I43-R1 (tests_m3/test_lean_promoted.py), re-baselined by the lead",
+          "since I28's build: test_fact TestGate.test_partial_gate_on_a_copy, test_sort_types TestRecordsAndGate.test_gate_m3_passes, test_disch TestGateAndRegressions.test_gate_m3_passes_and_rejects_the_disch_canaries",
+          "I80's tests_m3/test_bundle2_extraction.py: P2, P4, P6 and the zkevm subtest",
+          "I81's tests_m3.test_ranking: test_p4_reach_against_impact, test_p6_persistence_and_cost, test_p7_order",
+          "I82's tests_m3/test_blind.py P4; I69's tests_m3/test_bundle_extraction.py P1/P2, P5, the A7 anchor, three R4 subtests",
+          "locally: tests_m3.test_par_lossy.TestCore.test_inj_push_is_proved (the bun is not the pinned build)",
+          "I85's tests_m3/test_derivation_extraction.py R4 (the morph token against the morph_commit key)",
+          "tests_m2.test_target_agnostic_exhaustive: holon/mutate/{common,replay,run,stage}.py; tests_m2.test_target_agnostic's two byte-identity pins"
+        ],
+        "coordination": "Stage 1 (the generator, the model, HypB's instance, the refinement) is built on the lead now. Stage 2 (the laws) waits for I88's merge; then I89's branch merges the lead (the predictions file keeps the lead's keys, I88's included, and adds I89's) and runs I88's decider with I89's Bend engine. I89 bumps no catalog and moves no closure file, so it does not wait on the catalog chain.",
+        "deferred": [
+          "a catalog rule that discovers product obligations (I88's Q-I88-a)",
+          "real KZG versioned hashes and the legacy commit ABIs (I85's Q-I85-b, I88's Q-I88-d)",
+          "extracting the transaction decoder and the decompressor themselves (they stay HypT's and HypB's)",
+          "moving the law set to laws/M3's top level (I88's Q-I88-e)"
+        ],
+        "disclosed": "Read before this prereg: I85's report, key, prompt, contract docstring, sidecar, holon/derivation/*.py (interp, values, natives, product, corpus, goside, refine), the consumer section's SSA (ParseBatch's blocks 0-13, the closure's instruction and callee inventory), and I85's outputs' shapes: steps.json's first record, environment.json's oracle names, the replay report's statuses (50 ok, 118 error, 1 panic: planted/blob_high_byte_late), one ok case's dump, corpus.json's case layout; the target's ParseBatch and txQueue source at the pin. I88's prompt, key, contract docstring, sidecar (laws, hypotheses, vocabulary, search), instrument (expected_law, refs) and, after the coordinator's notice, its build's decide.run and laws.verdict interface (no I88 output: none was written). The coordinator relayed I88's evaluator results: O7 candidate 6 [3, 2], F11 candidate 3 [1, 0], O8-ignores candidate 4 [1, 0], O24 candidate 39 [[1], [2]], all replayed; O8-binds no witness; I88's records spell the HypC hypotheses with dashes. The Rollup's typed model's Reach, HAct and commitBatch step structure; holon.fact, holon.undo, holon.sorts APIs; holon/gen/goloop.py; holon/js/linked.mjs; holon/bend.py. Ran: tests_m3/_i88.py's expected_law with holon.gen.refs.law_hash at I88's prereg head (the five statement hashes); tests_m3/_i89.py (the cut, the compiled functions, 169 cases and 132 canonical, --write); the generator-closure computation; Bend probes in my scratchpad (Nat arithmetic past 2^32 does not finish in the checker, so integers are U32 limbs; a match on a computed value or a destructuring let is refused; the trampoline with fuel 1000000 checks in both kernels in about 1 s); bend guide. Not run: any I89 generator (none is written), the model, the Go blob layer, the refinement, any law."
+      }
+    },
     "I90": {
       "title": "I90 (= I38b): O28 at 65,536 L1 messages, through the count channels of a Go component: a Go count component over the carrier []common.Hash whose two channels (BatchData.Append's l1TxHashes, one 32-byte item per element, and l1TxNum, the length realized in 16 bits) rule PAR's existing branch producer derives a law over, decided on a model whose carrier is a length (a Nat: parametric counts) at 65,536 in both kernels and replayed on the real Go code; D2 as the regression",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I90)",
@@ -7358,6 +8758,146 @@
           "Counting: a generic kernel probe (Base's Nat and U32 at 65,536, no law of I90's) ran before this commit and informed P1's kernel-verdict half. Does it make P1 recorded rather than counted?",
           "docs/M3_COMPARISON.md maps M3 laws to case-study rows through spec/M3/lib/appendixA.json; I90 adds no row there (the sidecar is I82's). Should O28's row cite I90's law?",
           "From the brief, for I91: the K bound of HypZ, and whether zstd's real frame format is in scope; whether O5's 'omits contexts' half (the estimator's input against TxsPayloadV2) is a PAR-branch or a PAR-recompute law."
+        ]
+      }
+    },
+    "I91": {
+      "title": "I91 (= I38c): the compression oracle, HypZ and HypZ_len (§8.5; distinct from Hyp-Z0-kzg), tested on the real codec at the bound the code implies: `holon oracle compression --milestone M3` runs the pinned submitter compressor and derivation decompressor, which link the real zstd, through the real blob pipeline (split, per-blob retrieval, concatenation) on a fixed sample and writes results/M3/compression_oracle.json: K, HypZ and HypZ_len each checked (a test on the sample, not a proof) or mismatch, the expansion of incompressible input at the smallest blob limit, and the empty payload's boundary. No law, rule catalog, frontend, Go document or model changes; O5, O6, D3 and the frontend 0.3 config move to I93 (= I38d).",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (rows I91 and I93)",
+      "prompt": "prompts/I91_compression_oracle.md",
+      "predictions": [
+        {
+          "id": "I91-P1",
+          "claim": "K = 126975, the bound the code implies: results/M3/compression_oracle.json's capacity is {C: 126976, K: 126975}, C the compiled MaxBlobBytesSize (4096 * 31) and K = C - 1 (HypZ's K); at every one of the 33 sample points the real pipeline splits the compressed payload c over max(1, ceil(|c| / C)) blobs, the concatenated blob bodies are c followed by zero bytes only, and the padding blobs * C - |c| is at most K (maxBlobCount does not enter: the split uses the fewest blobs).",
+          "check": "tests_m3/test_compress.py::TestOutcomes::test_p1_k_is_the_capacity_minus_one"
+        },
+        {
+          "id": "I91-P2",
+          "claim": "HypZ is checked on the real codec: over the 33 sample points (zero, ramp and stream bytes of lengths 1, 2, 31, 32, 60, 1000, 4096, C-1, C, C+1 and 2C) the real pipeline (split, retrieve, concatenate, decompress) gives x back, and so does Dec(Enc x ++ 0^k) for each of the 9 paddings 0, 1, 2, 31, 32, 4096, 65536, C-2 and C-1: status checked, 33 points, 330 decodes compared, no failure.",
+          "check": "tests_m3/test_compress.py::TestOutcomes::test_p2_hypz_checked"
+        },
+        {
+          "id": "I91-P3",
+          "claim": "HypZ_len is checked: |Enc x| <= CB(|x|), zstd's ZSTD_COMPRESSBOUND n + (n >> 8) + (n < 131072 ? (131072 - n) >> 11 : 0), at every one of the 33 points: status checked, no failure.",
+          "check": "tests_m3/test_compress.py::TestOutcomes::test_p3_hypz_len_checked"
+        },
+        {
+          "id": "I91-P4",
+          "claim": "The real codec expands incompressible input at the smallest blob limit, so the non-expansion the estimators' fast path assumes (O5) fails there: for the stream bytes of length L = C = 126976 the overhead |Enc x| - L is between 5 and 25 bytes (one raw block: a 3-byte block header, and a 2- to 18-byte frame header with the magic number and checksum at most); over the window [L - 1023, L] the lengths whose encoding exceeds L are exactly [L - overhead + 1, L] (the overhead is constant over the window), so their count is the overhead and the smallest is L - overhead + 1.",
+          "check": "tests_m3/test_compress.py::TestOutcomes::test_p4_expansion_at_the_smallest_limit"
+        },
+        {
+          "id": "I91-P5",
+          "claim": "The empty payload, outside HypZ's domain, does not decode: Enc maps it to a nil slice of length 0, Dec of the empty string returns the binding's error `empty input`, and the one all-zero blob the split builds for it (126976 zero bytes once retrieved) makes Dec return an error, not the empty payload.",
+          "check": "tests_m3/test_compress.py::TestOutcomes::test_p5_empty_payload_does_not_decode"
+        },
+        {
+          "id": "I91-P6",
+          "claim": "Zero bytes past K decode too: Dec(Enc x ++ 0^k) = x for k = C and k = 2C at every point, so the decompressor ignores a run of trailing zero bytes longer than the honest pipeline appends (K bounds the pipeline, not what Dec accepts).",
+          "check": "tests_m3/test_compress.py::TestOutcomes::test_p6_zeros_beyond_k_decode"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I91-R1",
+          "claim": "D2 (Hyp-Z0-kzg, checked since I3) is untouched: results/M2/hypotheses.json's entry stays checked and no I91 commit changes the file.",
+          "check": "tests_m3/test_compress.py::TestRegressions::test_r1_d2_unchanged"
+        },
+        {
+          "id": "I91-R2",
+          "claim": "I91's own commits after the prereg change only rule Z9's paths: no law, record, registry, generated model, replay report, Go document or rule catalog changes.",
+          "check": "tests_m3/test_compress.py::TestRegressions::test_r2_own_commits_touch_only_what_the_contract_allows"
+        },
+        {
+          "id": "I91-R3",
+          "claim": "Only holon/__main__.py imports holon.oracles.compression, so no generator closure gains it and no record is re-stamped; the module holds no target name (rule Z1).",
+          "check": "tests_m3/test_compress.py::TestRegressions::test_r3_only_the_cli_imports_the_module and tests_m3/test_compress.py::TestSidecar::test_z1_module_holds_no_target_name"
+        },
+        {
+          "id": "I91-R4",
+          "claim": "The committed document reproduces and agrees with the instrument: holon oracle compression --milestone M3 --check exits 0 (no timestamp), and every point, both hypothesis entries, the expansion and the empty payload equal what tests_m3/_i91.py computes on its own Go file.",
+          "check": "tests_m3/test_compress.py::TestOracle::test_z8_check_reproduces_the_committed_document and tests_m3/test_compress.py::TestOracle::test_z2_points_agree_with_the_instrument"
+        }
+      ],
+      "outcome_paths": [
+        "results/M3/compression_oracle.json",
+        "docs/iterations/I91.md"
+      ],
+      "tests": [
+        "tests_m3/test_compress.py"
+      ],
+      "thresholds": {
+        "base": "9105939 (I90's head, PR #66, not yet merged into the lead), with BUILD_PLAN's row I91 rewritten and row I93 added (0280fa6)",
+        "instrument": "tests_m3/_i91.py",
+        "instrument_sha256": "d6e7b8cf60c9e858cbeaf2b881c6c9f0e27f48629a20609d7179201c97fa6c6e",
+        "go_instrument": "tests_m3/fixtures/compression/holon_i91_instrument.go.txt",
+        "go_instrument_sha256": "bd6e80d990b2f2e32cff1e6efc63b49d258ac98d5526f17359ea44682e3a18de",
+        "contract_docstring_sha256": "44e9b5b6ae832c27f83ec9b4ff9c9ba29cc50e9ece20ec809a88180d8e95c02e",
+        "sidecar": {
+          "path": "spec/M3/lib/compression.json",
+          "sha256": "7033f80b7cbc8f046ed87411aa2a4b267335ee7932c51963fbbc2eaaa705b175"
+        },
+        "document": {
+          "path": "spec/M3/facts/morph_blob.go.extracted.json",
+          "sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e"
+        },
+        "capacity": {
+          "C": 126976,
+          "K": 126975,
+          "source": "common/blob/payload.go:13 and common/batch/blob.go:17 (MaxBlobBytesSize = 4096 * 31); common/blob MakeBlobTxSidecar splits over ceil(len / C) blobs; node/derivation/batch_info.go ParseBatch concatenates every blob's C-byte body (common/batch.RetrieveBlobBytes) and decompresses once (common/codec/zstd.DecompressBatchBytes)"
+        },
+        "sample": {
+          "points": 33,
+          "paddings": 9,
+          "beyond": 2,
+          "decodes": 330,
+          "expansion_window": [
+            125953,
+            126976
+          ]
+        },
+        "overhead_range": [
+          5,
+          25
+        ],
+        "counted_predictions": [
+          "I91-P2",
+          "I91-P3",
+          "I91-P4",
+          "I91-P5",
+          "I91-P6"
+        ],
+        "recorded_predictions": [
+          "I91-P1"
+        ],
+        "observed_before_prereg": {
+          "I91-P1": "C and K were read from the pinned source text before this commit (the two constant declarations, MakeBlobTxSidecar's blob count, the derivation's concatenation); no pipeline ran, so no padding was observed. Recorded, not counted.",
+          "I91-P2": "nothing: no codec call before this commit",
+          "I91-P3": "nothing: no codec call before this commit",
+          "I91-P4": "nothing: no codec call before this commit; the 5-25 range comes from zstd's frame format",
+          "I91-P5": "the binding's source text was read (DecompressMorphDABatch returns ErrEmptyInput, `empty input`, on an empty input; common/blob.CompressBatchBytes returns nil for an empty payload); what Dec does on the all-zero blob was not observed",
+          "I91-P6": "nothing: no codec call before this commit"
+        },
+        "disclosure": "What was observed before this commit: the pinned source text (the capacity constants, the split, the derivation's concatenation, the binding's empty-input check); one re-extraction of the M3 Go document with its 0.2 config into the scratch directory (byte-identical to the committed document, about 18 s), while sizing the frontend 0.3 work I93 inherits; and one compile of the instrument's Go file with `go test -run '^$'` (no test ran) to catch a syntax error before pinning it. No codec call, no pipeline, no probe of HypZ, HypZ_len, the expansion, the empty payload or the paddings past K.",
+        "split": "I91 was split at its prereg (code red): the laws its BUILD_PLAN row listed need derivation routes that I67's no-catalog-change pattern does not give, so they move to I93 with the frontend 0.3 config, and I91 lands the two hypotheses all three laws take as premises. (1) D3's height round trip, HeightFromBlockContextBytes(BuildBlockContext(h)) = h.Number, is already in the facts (go.codecs: BuildBlockContext's 60-byte encoder, whose Number cells are exact on both BaseFee paths, and the decoder's be_uint read of bytes 0-7), but rule PAR's round-trip producer P1 reads E1 inverse atoms, which holon.diagram.evidence computes per version only; P1's other branch needs a holon-facts/0.1 layout whose model (holon.gen.model) requires a 1-byte version field, and its linked branch (X8) reads only holon.diagram.linked's components, which need a Solidity loader and a Go tagged predicate. No M3 round-trip law is unversioned. (2) O6 compares the submitter's legacy Go DataHash (keccak of each block context's first 58 bytes and the L1 hashes) with Rollup.sol's _commitBatch (keccak of lastBlockNumber, numL1Messages and the L1 hashes): two languages and two preimages, while P9 reads a machine document whose E4 atom is one call stored by one action and recomputed by another, and P3 two paths of one function. (3) O5's PAR-branch law fits P3, but with Enc uninterpreted and only an upper length bound no counter-law can show |Enc w| > limit at a concrete w. Its in-model refutation needs a lower-side length hypothesis or zstd's frame format in the model.",
+        "rule_catalog_version": "unchanged by I91 (holon-rules/1.6 at the base; I71 holds 1.7 and later keys 1.8-1.13)",
+        "closures": "holon/oracles/compression.py is imported by holon/__main__.py alone, so it is in no generator closure: no record is re-stamped and nothing is re-made",
+        "known_red_at_base": "Documented on the lead: G11V's in-flight check (fixed by I83, merging) and I81's ranking misses (tests_m3/test_ranking.py TestRanking.test_p4_reach_against_impact, test_p6_persistence_and_cost, test_p7_order). I82's R1 and R3 (tests_m3/test_blind.py) fail on any unmerged builder branch (I90's Surprise 5). I91 changes none of them.",
+        "coordination": "I91's checks are judged at I91's own commits (rule Z9). I91 builds on I90's branch (PR #66, not merged) and merges the lead before its PR; holon report --milestone M3 is re-run when BUILD_PLAN's rows or a merge leave docs/M3_COMPARISON.md stale.",
+        "deferred": [
+          "I93 (= I38d): the frontend 0.3 config, and O5, O6 and D3 as laws, each with its derivation route",
+          "a Bend-checked non-vacuity instance of HypZ (a concrete Enc and Dec satisfying it for every x and k), for when a model first takes HypZ as a premise",
+          "batches posted with more blobs than their payload needs: Rollup.sol's V2 blob hash accepts any number of blobs from one, so the derivation may read more than K zero bytes after a payload (the beyond paddings C and 2C probe that region)"
+        ],
+        "questions": [
+          "The split: I91 holds the two hypotheses; O5, O6, D3 and the frontend 0.3 config are I93. Which route should each law take there: a catalog version (from the lead) for P1 over unversioned Go codecs (D3), a linked component, a cross-language recompute for O6, and for O5 a lower-side length hypothesis or zstd's frame format in the model?",
+          "The K bound: I91 takes K = C - 1 = 126975, what the honest pipeline appends (the fewest blobs), not maxBlobCount * C - 1. Is that the bound you mean? The beyond paddings C and 2C test past it.",
+          "HypZ_len's content: §8.5's text is not in the repository. I91 states HypZ_len as the upper bound, zstd's ZSTD_COMPRESSBOUND. Is that it, or is HypZ_len a lower or exact length on incompressible input, which O5's in-model refutation would need?",
+          "HypZ's domain excludes the empty payload: Enc maps it to nil, and the split builds one all-zero blob. If Dec rejects that blob (I91-P5), a legacy batch with an empty payload (blocks without L2 transactions, sealed on the legacy path) could not be derived. Is that path reachable, and should HypZ cover it?",
+          "zstd's real frame format: out of the model and in the oracle run, as the brief decided. Do you agree?",
+          "O5's 'omits contexts' half: on the pinned code CalculateCapWithProposalBlock calls EstimateCompressedSizeWithNewPayload only for a batch that is not upgraded, whose blob is TxsPayload (no contexts), and WillExceedCompressedSizeLimit, contexts included, for an upgraded one. The case study's mismatch then needs a batch whose blocks straddle the upgrade time (estimated without contexts, sealed as TxsPayloadV2) or handleBatchSealing's fallback to TxsPayload. Is that a PAR-branch or a PAR-recompute law? I lean to PAR-recompute (the estimator recomputes the blob content the sealing compresses).",
+          "D3's decode half (node/types DecodeBlockContext) and the equality helper lie outside the M3 document's packages: I93 covers BuildBlockContext and HeightFromBlockContextBytes unless you extend the document.",
+          "Counting: P1 is recorded (its constants were read before the prereg); P2-P6 are counted (no codec call before the prereg; P5's first half rests on the binding's source text, which was read). Count them as listed if you judge that enough."
         ]
       }
     }

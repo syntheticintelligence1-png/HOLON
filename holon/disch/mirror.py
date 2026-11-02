@@ -13,7 +13,14 @@ splitting at every boolean the evaluation gets stuck on (a condition over the re
 
 A Branch carries the definition fn whose first parameter is matched (fn(cond, args..) is the term Bend reduces the
 statement to), so a proof can split on cond with the equation {cond == c} and continue in each case with the same
-definition applied to True{} or False{}. Loops are refused (NoMirror): their bodies recurse on a fuel.
+definition applied to True{} or False{}.
+
+Loops (I68, the loop frames L1): a loop statement lg_<a>_<n>(x) runs lp_<a>_<L>(fuel, d, ls_<a>_<L>(x)), whose body
+recurses on the fuel, and continues with la_<a>_<n>(u_nz(code), y) on its result y. The stepper does not unfold it:
+it returns Loop(n, L, fuel, d, the record), and after_loop(n, record) steps la_<a>_<n> on a record standing for y. The
+loop's own definitions (li, lh, lb, lc, lk, ln, lbk, lx, lz, ls: one iteration, its head and its exits) are stepped
+like statements, so that a proof can follow one iteration (holon.disch.proofs.LoopProof); the body's statement chain
+inside lb_<a>_<L>(s_<a>_<i>(x)) is Next(i, fields, ctx=lb_<a>_<L>).
 
 Terms are Bend text: a model name is qualified M.<name>; the evaluation only substitutes, it never simplifies, so every
 term it returns is what Bend computes the same expression to (by delta and match reduction). Nothing here names a target.
@@ -152,6 +159,7 @@ def parse_defs(model_text: str, wanted) -> dict:
 class Next:
     j: int
     fields: list
+    ctx: str | None = None  # the loop exit the statement's result goes through (lb_<a>_<L>, a loop body's chain)
 
 
 @dataclass
@@ -174,6 +182,18 @@ class Record:
     fields: list
 
 
+@dataclass
+class Loop:
+    n: int                  # the loop statement lg_<a>_<n>
+    L: int                  # its loop lp_<a>_<L>
+    fuel: str               # the fuel and the initial direction lg passes (terms)
+    d: str
+    rec: Record             # the record the loop statement runs on
+
+
+LOOP_PARTS = ("li", "lh", "lb", "lc", "lk", "ln", "lbk", "lx", "lz", "ls")   # one iteration, its head, exits, start
+
+
 class Mirror:
     """The statement chain of one action of the model."""
 
@@ -181,9 +201,11 @@ class Mirror:
         self.a = action_b
         self.X = f"X_{action_b}"
         self.names = names
+        self.loop_pre = tuple(f"{q}_{action_b}_" for q in LOOP_PARTS)
         pre = (f"s_{action_b}_", f"k_{action_b}_", f"wc_{action_b}_", f"ec_{action_b}_", f"cq_{action_b}_",
                f"wr_{action_b}_", f"ev_{action_b}_", f"sx_{action_b}_", f"xf_{action_b}", f"sz_{action_b}",
-               f"gx_{action_b}_", f"x0_{action_b}", f"xr_{action_b}")
+               f"gx_{action_b}_", f"x0_{action_b}", f"xr_{action_b}", f"lq_{action_b}_", f"la_{action_b}_",
+               f"lg_{action_b}_") + self.loop_pre
         self.defs = parse_defs(model_text, lambda nm: nm.startswith(pre))
         m = re.search(rf"(?m)^type {re.escape(self.X)} is Data:\n  {re.escape(self.X)}\{{(.*)\}}$", model_text)
         if not m:
@@ -201,11 +223,14 @@ class Mirror:
         return ("M." + name) if name in self.names else name
 
     def qterm(self, t: str) -> str:
-        """A model term (unqualified, as the model text writes it) with the model's names qualified."""
+        """A model term (unqualified, as the model text writes it) with the model's names qualified: applications and
+        constructors, and a type the model declares passed bare (ite(W, ..), List<&2, KV>)."""
         def sub(m):
             n = m.group(1)
             return ("M." + n if n in self.names else n) + m.group(2)
-        return re.sub(r"(?<![\w.])([A-Za-z_]\w*)(\s*[({])", sub, t)
+        t = re.sub(r"(?<![\w.])([A-Za-z_]\w*)(\s*[({])", sub, t)
+        return re.sub(r"(?<![\w.])([A-Z]\w*)(?![\w({])", lambda m: "M." + m.group(1) if m.group(1) in self.names
+                      else m.group(1), t)
 
     # -------------------------------------------------------------------------------------- the evaluator
     def x0_fields(self, st: str, ar: str, en: str, tabs: list) -> list:
@@ -224,9 +249,35 @@ class Mirror:
         return self.apply(f"s_{self.a}_{i}", [Record(self.X, list(fields))], top=i)
 
     def chained(self, fn: str) -> bool:
-        """A definition whose result is the rest of the chain's (a statement, a check, a guard, a conditional effect)."""
-        return fn.startswith((f"s_{self.a}_", f"k_{self.a}_", f"wc_{self.a}_", f"ec_{self.a}_", f"cq_{self.a}_")) or \
-            fn == f"sz_{self.a}"
+        """A definition whose result is the rest of the chain's (a statement, a check, a guard, a conditional effect, a
+        loop statement's entry and exit)."""
+        return fn.startswith((f"s_{self.a}_", f"k_{self.a}_", f"wc_{self.a}_", f"ec_{self.a}_", f"cq_{self.a}_",
+                              f"lq_{self.a}_", f"la_{self.a}_")) or fn == f"sz_{self.a}"
+
+    def loop_part(self, fn: str) -> bool:
+        """One of a loop's own definitions (LOOP_PARTS), stepped like a statement."""
+        return fn.startswith(self.loop_pre)
+
+    def loop_node(self, fn: str, rec) -> Loop:
+        """The Loop node of a loop statement lg_<a>_<n>(rec): its body is `+y = lp_<a>_<L>(fuel, d, ls_<a>_<L>(x))`
+        then `la_<a>_<n>(u_nz(gx_<a>_cd(y)), y)`."""
+        d = self.defs[fn]
+        if not isinstance(rec, Record) or len(d.body) != 2 or len(d.params) != 1:
+            raise NoMirror(f"{fn}: a loop statement of an unknown shape")
+        m = re.fullmatch(r"\+y = (.*)", d.body[0][1])
+        c = as_call(m.group(1)) if m else None
+        n = int(fn.rsplit("_", 1)[1])
+        la = as_call(d.body[1][1])
+        if not c or not re.fullmatch(rf"lp_{re.escape(self.a)}_\d+", c[0]) or len(c[1]) != 3 or \
+                c[1][2].strip() != f"ls_{self.a}_{c[0].rsplit('_', 1)[1]}({d.params[0]})" or not la or \
+                la[0] != f"la_{self.a}_{n}" or [x.strip() for x in la[1]] != [f"u_nz(gx_{self.a}_cd(y))", "y"]:
+            raise NoMirror(f"{fn}: a loop statement of an unknown shape")
+        return Loop(n, int(c[0].rsplit("_", 1)[1]), self.qterm(c[1][0].strip()), self.qterm(c[1][1].strip()), rec)
+
+    def after_loop(self, n: int, rec: Record):
+        """la_<a>_<n> on rec, a record standing for the loop's result (its code field the condition)."""
+        cd = rec.fields[self.field_names.index("cd")]
+        return self.apply(f"la_{self.a}_{n}", [f"M.u_nz({cd})", rec])
 
     def apply(self, fn: str, args: list, top: int | None = None, depth: int = 0):
         if depth > 200:
@@ -310,8 +361,17 @@ class Mirror:
         if c and c[2] == "(":
             fn = c[0]
             stmt = fn.startswith((f"s_{self.a}_", f"k_{self.a}_", f"wc_{self.a}_", f"ec_{self.a}_", f"cq_{self.a}_",
-                                  f"wr_{self.a}_", f"ev_{self.a}_", f"sx_{self.a}_")) or fn in (f"xf_{self.a}",
-                                                                                                f"sz_{self.a}")
+                                  f"wr_{self.a}_", f"ev_{self.a}_", f"sx_{self.a}_", f"lq_{self.a}_",
+                                  f"la_{self.a}_")) or fn in (f"xf_{self.a}", f"sz_{self.a}")
+            if fn.startswith(f"lg_{self.a}_"):   # a loop statement: not unfolded (Loop)
+                return self.loop_node(fn, self.value(c[1][0], env, d, depth) if len(c[1]) == 1 else None)
+            if self.loop_part(fn):
+                args = [self.value(x, env, d, depth) for x in c[1]]
+                if args and isinstance(args[-1], Next) and args[-1].ctx is None and len(args) == 1:
+                    return Next(args[-1].j, args[-1].fields, ctx=self.q(fn))   # lb_<a>_<L>(s_<a>_<i>(x))
+                if any(isinstance(x, (Next, Final, Branch, Loop)) for x in args):
+                    raise NoMirror(f"{fn}: a loop part applied to the rest of a chain")
+                return self.apply(fn, args, depth=depth + 1)
             if stmt:
                 args = [self.value(x, env, d, depth) for x in c[1]]
                 if fn.startswith(f"sx_{self.a}_") or fn.startswith(f"wr_{self.a}_") or \

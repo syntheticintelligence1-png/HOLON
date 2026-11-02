@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 31 | 193 | 158 | 30 |
+| M3 | 35 | 224 | 178 | 34 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -68,6 +68,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I65 | M3 | = I33b: the O12 intent contract on M2's window view of the extracted Rollup: a ghost counter (IR 0.3 term), the proof c… | `prompts/I65_o12_view.md` | 4 | 4 | 1 | `docs/iterations/I65.md` |
 | I66 | M3 | holon differential's window view in M2's evidence set (Q62): its diagram by I11's adapters and its E2, E3, E4 and E6 at… | `prompts/I66_view_evidence.md` | 1 | 5 | 1 | `docs/iterations/I66.md` |
 | I67 | M3 | I67 (= I38a): Go codecs at loop granularity (holon-go-frontend/0.2 loop bodies), Go-op components over interface carrie… | `prompts/I67_go_loop.md` | 5 | 5 | 1 | `docs/iterations/I67.md` |
+| I68 | M3 | Structural storage keys in the M3 model (the Q21 fix): mapping storage keyed as (base slot, key path) instead of a look… | `prompts/I68_structural_keys.md` | 7 | 8 | 1 | `docs/iterations/I68.md` |
 | I69 | M3 | = I36a: Bundle I's extraction and acquisition, no laws: the message queue, the messenger, the whitelist and the Submitt… | `prompts/I69_bundle_extraction.md` | 7 | 5 | 1 | `docs/iterations/I69.md` |
 | I71 | M3 | UNDO's third sub-form cancel (I33's catalog key): the cancel restore U3' and criterion U4' over the extracted transitio… | `prompts/I71_undo_cancel.md` | 6 | 6 | 1 | `docs/iterations/I71.md` |
 | I72 | M3 | E2 over the adopted holon-facts/0.3 transitions documents (I33's evidence key): written-via-p, read-via-q atoms from th… | `prompts/I72_e2_transitions.md` | 1 | 5 | 1 | `docs/iterations/I72.md` |
@@ -75,10 +76,13 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I81 | M3 | I81 (= I44a): Def 6.13's measures (holon/measures.py, one interface over PAR's holonomy defect size, NAT's naturality d… | `prompts/I81_measures_ranking.md` | 7 | 7 | 1 | `docs/iterations/I81.md` |
 | I82 | M3 | I82 (= I46a): the blind pack, the comparison generator and the agreement metric (I46 keeps its number for the blind rer… | `prompts/I82_blind_tooling.md` | 9 | 4 | 1 | `docs/iterations/I82.md` |
 | I83 | M3 | I83 (= I28b): I28's model debt paid. | `prompts/I83_versions_debt.md` | 6 | 3 | 1 | `docs/iterations/I83.md` |
+| I84 | M3 | = I37b: Bundle II's laws over I80's extraction: rule catalog holon-rules/1.10 adds PAR link_domain (O3: a proof call th… | `prompts/I84_bundle2_laws.md` | 8 | 4 | 1 | `docs/iterations/I84.md` |
 | I85 | M3 | = I39a: the Go derivation extracted (ParseBatch as an extracted consumer: I18's skeleton document of node/derivation pl… | `prompts/I85_derivation_extraction.md` | 6 | 4 | 1 | `docs/iterations/I85.md` |
 | I87 | M3 | I87 (= I45a): the audit-loop machinery (round records with the auditor's family, Q9's labels and the convergence rule, … | `prompts/I87_audit_loop.md` | 4 | 13 | 1 | `docs/iterations/I87.md` |
 | I88 | M3 | = I39b: I39's laws over I85's product machine (O7 PAR-cycle, the O8 law pair under HypC with a hypothesis split, O24, t… | `prompts/I88_derivation_laws.md` | 6 | 4 | 1 | `docs/iterations/I88.md` |
+| I89 | M3 | = I39c: the Go consumer compiled to Bend from I85's extracted SSA by a generator (holon/derivation/bendgen.py: Go's int… | `prompts/I89_derivation_bend.md` | 10 | 4 | 1 | `docs/iterations/I89.md` |
 | I90 | M3 | I90 (= I38b): O28 at 65,536 L1 messages, through the count channels of a Go component: a Go count component over the ca… | `prompts/I90_go_counts.md` | 4 | 5 | 1 | `docs/iterations/I90.md` |
+| I91 | M3 | I91 (= I38c): the compression oracle, HypZ and HypZ_len (§8.5; distinct from Hyp-Z0-kzg), tested on the real codec at t… | `prompts/I91_compression_oracle.md` | 6 | 4 | 1 | `docs/iterations/I91.md` |
 
 ## Reports without a predictions key
 

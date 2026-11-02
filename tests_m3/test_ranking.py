@@ -205,6 +205,8 @@ class TestMeasures(unittest.TestCase):
     def test_p1_par_cc_defects(self):
         """P1: each REFUTED cross-component codec law's holonomy defect is exactly bytes 185..216, certified (its
         witness differs there and the layouts can differ nowhere else); no REFUTED PAR law's defect holds byte 0.
+        Amended at I84's build (spec/M3/amendments.jsonl): the PAR laws of sub-form link_domain (I84's, over I80's
+        bundle declaration) are left out of the count, as I81's prereg never saw them.
         Amended at the I90 prereg (spec/M3/amendments.jsonl): the count by kind is over the base's laws, so a REFUTED
         PAR law another key adds (I90's count law, a value defect) is checked like the others and left out of it."""
         ms, lw, rc = doc()["measures"], laws(M), records(M)
@@ -218,7 +220,7 @@ class TestMeasures(unittest.TestCase):
         over: dict[str, int] = {}
         base = base_law_ids()
         for lid, r in rc.items():
-            if r["rule"] != "PAR" or r["status"] != "REFUTED":
+            if r["rule"] != "PAR" or r["status"] != "REFUTED" or (lw.get(lid) or {}).get("subform") == "link_domain":
                 continue
             m = ms[lid]
             if lid in base:

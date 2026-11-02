@@ -187,7 +187,7 @@ def _lex_tables() -> str:
     return "\n".join(out)
 
 
-def text(prefix: str = "M.") -> str:
+def text(prefix: str = "M.", structural: bool = False) -> str:
     """The library, for a proof file that imports the typed model as `prefix` (M.)."""
     W = f"{prefix}W"
     parts = [
@@ -249,13 +249,13 @@ def text(prefix: str = "M.") -> str:
     # the whole's by _lex_ok (cok of the high parts follows from cok of the lex'd values or the high parts are EQ)
     parts.append(_w_trans(W))
     parts.append(_w_rel(prefix))
-    parts.append(_store(prefix))
+    parts.append(_store(prefix, structural))
     return "\n".join(parts)
 
 
-def _store(prefix: str) -> str:
+def _store(prefix: str, structural: bool = False) -> str:
     """The transport route's store fact: st_same(s, k, v): M.sload(M.sstore(s, k, v), k) == v (through w_eq's
-    reflexivity, from Word.cmp's)."""
+    reflexivity, from Word.cmp's; over a structural store, I68, through sk_eq's: sk_self, from w_eq_self)."""
     W = f"{prefix}W"
     lims = [f"+a{i}" for i in range(8)]
     eqs = [f"U32.is_eq(a{i}, a{i})" for i in range(8)]
@@ -276,6 +276,10 @@ def _store(prefix: str) -> str:
         "      (%Equal.sym(Cmp, Word.cmp(32n, x, x), EQ{}, cmp_refl(32n, x)) : {Cmp.is_eq(_) == True{} : Bool}\n      {==})\n",
         f"def w_eq_self(+a: {W}) -> {{{prefix}w_eq(a, a) == True{{}} : Bool}}:\n  match a:\n"
         f"    case {W}{{{', '.join(lims)}}}:\n      {pf(0)}\n",
+    ]
+    if structural:
+        return "\n".join(out + _store_sk(prefix))
+    out += [
         f"def kw_same_c(c: Bool, +hv: {W}, +k: {W}, +v: {W}, +t: List<&2, {prefix}KW>, ih: {{{prefix}kw_get({prefix}kw_put(t, k, "
         f"v, False{{}}), k) == v : {W}}}) -> {{{prefix}ite({W}, c, {prefix}ite({W}, Bool.and(c, Bool.not(False{{}})), v, hv), "
         f"{prefix}kw_get({prefix}kw_put(t, k, v, Bool.or(False{{}}, c)), k)) == v : {W}}}:\n  match c:\n"
@@ -289,6 +293,44 @@ def _store(prefix: str) -> str:
         f"  match s:\n    case {prefix}HSt{{sl}}:\n      kw_same(sl, k, v)\n",
     ]
     return "\n".join(out)
+
+
+def _store_sk(prefix: str) -> list[str]:
+    """st_same over a structural store (I68): sk_eq is reflexive (sp_self, sps_self, sk_self), so a store at key k is
+    read back at k whatever the store held before."""
+    W, P = f"{prefix}W", prefix
+    return [
+        f"def sp_self(+a: {P}SP) -> {{{P}sp_eq(a, a) == True{{}} : Bool}}:\n  match a:\n    case {P}SP_m{{+k, +o}}:\n"
+        f"      and_intro({P}w_eq(o, o), {P}w_eq(k, k), w_eq_self(o), w_eq_self(k))\n",
+        f"def sps_self(+p: List<&2, {P}SP>) -> {{{P}sps_eq(p, p) == True{{}} : Bool}}:\n  match p:\n    case Nil{{}}:\n"
+        f"      {{==}}\n    case Con{{+h, +t}}:\n      and_intro({P}sp_eq(h, h), {P}sps_eq(t, t), sp_self(h), sps_self(t))\n",
+        f"def sk_self(+a: {P}SK) -> {{{P}sk_eq(a, a) == True{{}} : Bool}}:\n  match a:\n    case {P}SK{{+b, +o, +p}}:\n"
+        f"      and_intro({P}w_eq(b, b), Bool.and({P}w_eq(o, o), {P}sps_eq(p, p)), w_eq_self(b), "
+        f"and_intro({P}w_eq(o, o), {P}sps_eq(p, p), w_eq_self(o), sps_self(p)))\n",
+        f"def kv_same_c(c: Bool, +hv: {W}, +k: {P}SK, +v: {W}, +t: List<&2, {P}KV>, ih: {{{P}kv_get({P}kv_put(t, k, "
+        f"v, False{{}}), k) == v : {W}}}) -> {{{P}ite({W}, c, {P}ite({W}, Bool.and(c, Bool.not(False{{}})), v, hv), "
+        f"{P}kv_get({P}kv_put(t, k, v, Bool.or(False{{}}, c)), k)) == v : {W}}}:\n  match c:\n"
+        f"    case True{{}}:\n      {{==}}\n    case False{{}}:\n      ih\n",
+        f"def kv_same(xs: List<&2, {P}KV>, +k: {P}SK, +v: {W}) -> {{{P}kv_get({P}kv_put(xs, k, v, False{{}}), k) "
+        f"== v : {W}}}:\n  match xs:\n    case Nil{{}}:\n"
+        f"      (%Equal.sym(Bool, {P}sk_eq(k, k), True{{}}, sk_self(k)) : {{{P}ite({W}, _, v, {P}w0()) == v : "
+        f"{W}}}\n      {{==}})\n    case Con{{h, +t}}:\n      match h:\n        case {P}KV{{+hk, +hv}}:\n"
+        f"          kv_same_c({P}sk_eq(hk, k), hv, k, v, t, kv_same(t, k, v))\n",
+        f"def st_same(s: {P}HSt, +k: {P}SK, +v: {W}) -> {{{P}sload({P}sstore(s, k, v), k) == v : {W}}}:\n"
+        f"  match s:\n    case {P}HSt{{sl}}:\n      kv_same(sl, k, v)\n",
+        # the key split's symmetry: w_eq(a, b) false gives w_eq(b, a) false (equal words would compare equal)
+        f"def w_ne_sym_c(c: Bool, +a: {W}, +b: {W}, e: {{{P}w_eq(a, b) == False{{}} : Bool}}, ec: {{{P}w_eq(b, a) == c : "
+        f"Bool}}) -> {{c == False{{}} : Bool}}:\n  match c:\n    case True{{}}:\n"
+        f"      efq({{True{{}} == False{{}} : Bool}}, true_ne_false(Equal.trans(Bool, True{{}}, {P}w_eq(b, b), False{{}}, "
+        f"Equal.sym(Bool, {P}w_eq(b, b), True{{}}, w_eq_self(b)), (%Equal.sym({W}, b, a, w_refl(b, a, ec)) : "
+        f"{{{P}w_eq(_, b) == False{{}} : Bool}}\n      e))))\n    case False{{}}:\n      {{==}}\n",
+        f"def w_ne_sym(+a: {W}, +b: {W}, e: {{{P}w_eq(a, b) == False{{}} : Bool}}) -> {{{P}w_eq(b, a) == False{{}} : "
+        f"Bool}}:\n  w_ne_sym_c({P}w_eq(b, a), a, b, e, {{==}})\n",
+        # a store at a key equal to k (sk_eq true) is read back at k
+        f"def st_same_k(s: {P}HSt, +kw: {P}SK, +v: {W}, +k: {P}SK, e: {{{P}sk_eq(kw, k) == True{{}} : Bool}}) -> "
+        f"{{{P}sload({P}sstore(s, kw, v), k) == v : {W}}}:\n  (%sk_refl(kw, k, e) : {{{P}sload({P}sstore(s, kw, v), _) == v "
+        f": {W}}}\n  st_same(s, kw, v))\n",
+    ]
 
 
 def _w_trans(W: str) -> str:

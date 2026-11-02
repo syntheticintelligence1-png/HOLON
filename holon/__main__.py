@@ -18,6 +18,7 @@
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
   python -m holon oracle check --milestone M2 [--root DIR]   (oracle sidecar hypotheses: A4, G11V; I12)
+  python -m holon oracle compression --milestone M3 [--root DIR] [--check]   (HypZ and HypZ_len on the real codec; I91)
   python -m holon checker-upgrade --to FINGERPRINT [--bend-cmd CMD] [--milestones M0,M1] [--out PATH]
   python -m holon replay [--milestone M] [--morph PATH] [--forge F] [--solc S] [--work DIR] [--write-pins]
   python -m holon lean --milestone M0 [--json] [--jobs N]   (Lean 4 second kernel, I9)
@@ -367,6 +368,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
         from .sorts import termsize
         return termsize.main(argv[1:])
+    if argv[:1] == ["keys"]:  # likewise for holon.sorts.keys3 (I68: the keys check of the structural store)
+        from .sorts import keys3
+        return keys3.main(argv[1:])
     if argv[:1] == ["run"] and _product_laws(argv):
         # I88: the plan-stated product laws (laws/<M>/derivation/) are decided by holon derivation decide, which
         # re-makes every record of the set; a run naming any other law, and a whole-milestone run, are unchanged
@@ -375,6 +379,30 @@ def _main(argv: list) -> int:
     if argv[:1] == ["model"] and "--facts" not in argv and _typed_milestone(argv):
         from .sorts import model3   # the M3 model of a typed milestone's documents (I30)
         return model3.main(argv[1:])
+    if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I84: the bundle laws (PAR link_domain, FACT public_input, DISCH self_controlled) a --laws list names are
+        # decided on the typed model at the laws' deployment (holon.bundle2.laws_decide); the list's other laws go on
+        # as before. A whole-milestone run decides them after every other law.
+        import os
+        from pathlib import Path
+        from .bundle2 import laws_decide as bundle_laws
+        from .versions.run import strip_args as _strip
+        split = bundle_laws.ids_of(argv, Path(__file__).resolve().parents[1])
+        if split is not None:
+            bids, others = split
+            rc = 0
+            if others:
+                rc = _main(_strip(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, bundle_laws.main(_strip(argv, ("--laws",)) + ["--laws", ",".join(bids)]))
+        if (_arg(argv, "--laws") is None and os.environ.get("HOLON_BUNDLE_LAWS") != "after"
+                and bundle_laws.bundle_entries(str(_arg(argv, "--milestone")),
+                                               Path(_arg(argv, "--root") or Path(__file__).resolve().parents[1]))):
+            os.environ["HOLON_BUNDLE_LAWS"] = "after"
+            try:
+                rc = _main(argv)
+            finally:
+                os.environ.pop("HOLON_BUNDLE_LAWS", None)
+            return max(rc, bundle_laws.main(argv))
     if argv[:1] == ["run"] and _typed_milestone(argv):
         # I28: the PAR-init laws (rule PAR, sub-form init_chain) a --laws list names are decided over the versioned
         # model (holon.versions.run); the list's other laws go on as before
@@ -439,9 +467,14 @@ def _main(argv: list) -> int:
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
     bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
                                    "(or stays unbound)")
+    bd.add_argument("--remodel", metavar="LICENSE",
+                    help="(I68) first append the remodel entries the license covers (holon.statement_diff.remodel_entries, "
+                         "each checked by check_entry), then rebind through them")
     orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
-                                        "(the oracle sidecar's hypotheses, I12); both write results/M2/hypotheses.json")
-    orc.add_argument("which", choices=["zero-blob", "check"])
+                                        "(the oracle sidecar's hypotheses, I12), both writing results/M2/hypotheses.json; "
+                                        "`oracle compression --milestone M3` (HypZ and HypZ_len on the real codec, I91), "
+                                        "writing results/M3/compression_oracle.json")
+    orc.add_argument("which", choices=["zero-blob", "check", "compression"])
     orc.add_argument("rest", nargs=argparse.REMAINDER)
     cu = sub.add_parser("checker-upgrade", help="re-run gates and runs under a candidate checker; report every diff")
     cu.add_argument("rest", nargs=argparse.REMAINDER)
@@ -513,6 +546,9 @@ def _main(argv: list) -> int:
         if a.which == "check":
             from . import oracle_check
             return oracle_check.main(a.rest)
+        if a.which == "compression":   # I91 (rules Z1-Z9 of tests_m3/test_compress.py)
+            from .oracles import compression
+            return compression.main(a.rest)
         from .oracles import zero_blob
         return zero_blob.main(a.rest)
     if a.cmd == "checker-upgrade":

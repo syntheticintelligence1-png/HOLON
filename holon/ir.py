@@ -32,6 +32,10 @@ DISCH_PROFILE_IR = "holon-disch-profile/0.1"
 # a milestone's hash scheme declaration (PV2A): spec/<M>/hash_scheme.json, written by `python -m holon.statement_diff
 # migrate-hash --apply`; the generators stamp hash_scheme on every 0.3 law of a milestone that declares scheme 2
 HASH_SCHEME_FILE = "hash_scheme.json"
+# the plan-stated product laws' sidecar (BUILD_PLAN I88): holon.derivation.laws reads its path from here, so that a
+# generator-closure module that needs the law set's location (holon.statement_diff's migrate-hash) never imports
+# holon.derivation, which no generator closure may hold (I85's and I88's R4)
+PLAN_LAWS_SIDECAR = "spec/M3/lib/derivation_laws.json"
 # law files, and the result records named after them: L_* (0.1, 0.2) and, from 0.3, L3_*, L8_* etc.
 # (the 0.3 schema's law_id pattern ^L[0-9]?_). Every glob over laws/<m>/ or results/<m>/ uses this one.
 LAW_GLOB = "L*.json"
@@ -89,6 +93,16 @@ def with_hash_scheme(law: dict, scheme: int) -> dict:
     out.setdefault("hash_scheme", scheme)
     hash_scheme(out)
     return out
+
+
+def plan_law_set(root: Path | str | None = None) -> dict | None:
+    """The "law_set" section ({milestone, laws, facts, ...}) of the plan-stated product laws' sidecar, read as data
+    (holon.derivation.laws validates and generates the set), or None without the sidecar."""
+    p = Path(root or ROOT) / PLAN_LAWS_SIDECAR
+    if not p.is_file():
+        return None
+    ls = json.loads(p.read_text(encoding="utf-8")).get("law_set")
+    return ls if isinstance(ls, dict) else None
 
 
 def milestone_hash_scheme(milestone: str, root: Path | str | None = None) -> int:
@@ -318,6 +332,9 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I29): a NAT square term, square_ok[ID](A, U, S, E) over the versioned machine (holon.rules.nat)
     if isinstance(t.get("square"), str) and isinstance(t.get("on"), list):
         return f"square_ok[{t['square']}]({', '.join(render_term(a) for a in t['on'])})"
+    # holon-ir/0.3 (I84): a bundle term, bundle_ok[ID](args) over the law's binders (holon.rules.bundle2)
+    if isinstance(t.get("bundle"), str) and isinstance(t.get("on"), list):
+        return f"bundle_ok[{t['bundle']}]({', '.join(render_term(a) for a in t['on'])})"
     # holon-ir/0.3 (I27): an UNDO term, the undo law of the pair or residue ID over the law's binders (holon.rules.undo)
     if "undo" in t and isinstance(t.get("on"), list):
         return f"undo_ok[{t['undo']}]({', '.join(render_term(a) for a in t['on'])})"
