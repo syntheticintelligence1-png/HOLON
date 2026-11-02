@@ -268,7 +268,8 @@ def ledger_problems(milestone: str, root: Path, laws: list[dict], records: dict)
         except R.LedgerError as e:
             bad.append(f"{law['law_id']}: {e}")
             continue
-        meets = sorted(e["id"] for e in b["entries"] if R._meets(e, set(rec.get("cone") or [])))
+        meets = sorted(e["id"] for e in R.bundle_entries(b, root, milestone)
+                       if R._meets(e, set(rec.get("cone") or [])))
         from ..codecrun import codec_kind
         if _transitions(fp) or codec_kind(law, root):   # an extracted model (I20), a codec model (I24): no oracle
             want = meets                                 # parameter replaces a ledger entry
