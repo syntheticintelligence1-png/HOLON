@@ -46,7 +46,7 @@ class FactGate:
         self.checks: dict = {}
         self.na: dict = {}
         dv = json.loads((self.root / "laws" / self.m / "DERIVATION.json").read_text())
-        self.entries = {e["law_id"]: e for e in dv["laws"] if e.get("rule") == RF.RULE}
+        self.entries = {e["law_id"]: e for e in dv["laws"] if e.get("rule") == RF.RULE and e.get("subform") in RF.SUBFORMS}
 
     def records(self) -> dict:
         out = {}
