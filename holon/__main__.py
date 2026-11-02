@@ -14,6 +14,9 @@
   python -m holon audit round|converge|oracles --milestone M [--root DIR] ...   (rounds, convergence, A4's oracle
                                                         half: results/<M>/audit_status.json; I87)
   python -m holon audit gaps [--root DIR] [--json]      (rule-gap records and the L7 admission rule; I87)
+  python -m holon audit mutation|hostile-input --milestone M3 --round N --spec FILE [--check] ...
+                                                        (an external auditor's A1 mutants and A2 hostile inputs,
+                                                        applied and judged: round<n>/a1.json, a2.json)
   python -m holon coordinator status|prompt|audit-prompt ...   (docs/STATUS.md and session prompts; I87)
   python -m holon bind --milestone M1 [--accept-change REASON]
   python -m holon oracle zero-blob [--morph PATH]
@@ -528,7 +531,7 @@ def _main(argv: list) -> int:
                                       "`audit hostile|vacuity --milestone M2 --round 2 [--check]` are auditors A2 "
                                       "and A4 of audit round M2/2 (I21)")
     au.add_argument("what", choices=["prereg", "status", "regress", "hostile", "vacuity", "round", "converge",
-                                     "oracles", "gaps"])
+                                     "oracles", "gaps", "mutation", "hostile-input"])
     au.add_argument("rest", nargs=argparse.REMAINDER)
     co = sub.add_parser("coordinator", help="the coordinator (I87): `coordinator status` renders docs/STATUS.md, "
                                             "`coordinator prompt --key I<n>` a session prompt from BUILD_PLAN, "
@@ -610,9 +613,10 @@ def _main(argv: list) -> int:
         if a.what == "vacuity":
             from .audit import vacuity
             return vacuity.main(a.rest)
-        if a.what in ("round", "converge", "oracles", "gaps"):   # I87
+        if a.what in ("round", "converge", "oracles", "gaps", "mutation", "hostile-input"):   # I87; A1 and A2 drivers
             import importlib
-            mod = {"round": "rounds", "converge": "converge", "oracles": "oracles", "gaps": "gaps"}[a.what]
+            mod = {"round": "rounds", "converge": "converge", "oracles": "oracles", "gaps": "gaps",
+                   "mutation": "mutation", "hostile-input": "hostile_input"}[a.what]
             return importlib.import_module(f".audit.{mod}", __package__).main(a.rest)
         from .audit import prereg
         return prereg.main(a.rest)

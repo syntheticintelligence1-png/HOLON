@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON A1 driver record (audit/rounds/<M>/round<n>/a1.json, holon-audit-a1/0.1; holon/audit/mutation.py): an external auditor's mutants of the target's real code, applied, re-extracted, re-derived and re-run",
+  "type": "object",
+  "required": [
+    "milestone",
+    "round",
+    "target_commit",
+    "spec",
+    "summary",
+    "attack",
+    "a1_version",
+    "checkout",
+    "budget",
+    "law_runs",
+    "scope",
+    "baseline",
+    "mutations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "milestone": {
+      "type": "string",
+      "pattern": "^M[0-9]+$"
+    },
+    "round": {
+      "type": "integer"
+    },
+    "target_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "spec": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256",
+        "body"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "body": {
+          "type": "object"
+        }
+      }
+    },
+    "attack": {
+      "type": "object",
+      "required": [
+        "id",
+        "category",
+        "tried",
+        "result",
+        "findings"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^A[0-9]+$"
+        },
+        "category": {
+          "enum": [
+            "statement_fidelity",
+            "gate_evasion",
+            "model_vs_code",
+            "vacuity",
+            "determinism",
+            "mutation_adequacy",
+            "bindings_ledger"
+          ]
+        },
+        "tried": {
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "finding",
+            "no_finding"
+          ]
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^F-M[0-9]+-[0-9]{2}$"
+          }
+        },
+        "auditor_type": {
+          "enum": [
+            "A1",
+            "A2",
+            "A3",
+            "A4"
+          ]
+        },
+        "run": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "a1_version": {
+      "const": "holon-audit-a1/0.1"
+    },
+    "checkout": {
+      "type": "object",
+      "required": [
+        "repo",
+        "commit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "required": [
+        "law_timeout_s",
+        "max_law_runs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "law_timeout_s": {
+          "type": "integer"
+        },
+        "max_law_runs": {
+          "type": "integer"
+        }
+      }
+    },
+    "law_runs": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "documents",
+        "reachable",
+        "out_of_reach"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reachable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "out_of_reach": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "required": [
+        "documents",
+        "runs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "documents": {
+          "type": "object"
+        },
+        "runs": {
+          "type": "object"
+        }
+      }
+    },
+    "mutations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "file",
+          "spec_sha256",
+          "diff",
+          "documents",
+          "derivation",
+          "runs",
+          "not_run",
+          "verdict",
+          "why",
+          "obstructions"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "spec_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "diff": {},
+          "documents": {
+            "type": "object"
+          },
+          "derivation": {},
+          "runs": {
+            "type": "object"
+          },
+          "not_run": {
+            "type": "object"
+          },
+          "expect": {
+            "type": "string"
+          },
+          "verdict": {
+            "enum": [
+              "detected",
+              "missed",
+              "incomplete",
+              "refused"
+            ]
+          },
+          "why": {},
+          "obstructions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "detected",
+        "missed",
+        "incomplete",
+        "refused"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "detected": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "incomplete": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "refused": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

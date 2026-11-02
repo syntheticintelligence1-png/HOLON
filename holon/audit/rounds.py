@@ -15,6 +15,10 @@ run), so every earlier round stays valid. A round's auditor types are the audito
        severity in high, medium, low and a status in open, fixed, wontfix, duplicate (I5's line rule,
        holon.audit.status); CV2 and CV4 read severities and statuses, so a round whose author spells them otherwise
        (an auditor of another family, say "critical" or "Open") is refused here instead of counting as clean
+  RD5  every driver record in a round's directory (a1.json of `holon audit mutation`, a2.json of `holon audit
+       hostile-input`) is valid against spec/schemas/audit_a1|a2.schema.json, names the round's milestone, number and
+       target commit, lists each of its mutants or cases once in its summary, and is cited by an attack of the
+       round's file that ran, of the record's auditor type and category; an attack citing one that is missing fails
 
 Schemas are read from this repository; rounds and the policy from the root. The policy is spec/<M>/lib/audit_loop.json
 of the root, or I87's spec/M3/lib/audit_loop.json (the root's, else this repository's) for a milestone without one.
@@ -152,6 +156,54 @@ def schema_errors(r: dict) -> list[str]:
     return errors(r, json.loads(SCHEMA.read_text(encoding="utf-8")))
 
 
+# the driver records RD5 checks: a1.json and a2.json holding a1_version and a2_version
+DRIVERS = {"a1.json": ("audit_a1.schema.json", "mutations", ("detected", "missed", "incomplete", "refused")),
+           "a2.json": ("audit_a2.schema.json", "cases", ("agree", "disagree", "unsupported"))}
+
+
+def driver_problems(root: Path, milestone: str, n: int, r: dict) -> list[str]:
+    """RD5 over the driver records of round n's directory, and the records its attacks cite."""
+    from ..schema import errors
+    d = Path(root) / "audit" / "rounds" / milestone / f"round{n}"
+    rel = f"audit/rounds/{milestone}/round{n}"
+    attacks = [a for a in r.get("attacks") or [] if isinstance(a, dict)]
+    out = []
+    for fname, (schema, items, verdicts) in DRIVERS.items():
+        path = f"{rel}/{fname}"
+        citing = [a for a in attacks if path in (a.get("evidence") or [])]
+        if not (d / fname).is_file():
+            out += [f"attack {a.get('id')} cites {path}, which does not exist" for a in citing]
+            continue
+        try:
+            rec = json.loads((d / fname).read_text(encoding="utf-8"))
+        except ValueError as e:
+            out.append(f"{fname}: not JSON ({e})")
+            continue
+        if not isinstance(rec, dict) or f"{fname[:2]}_version" not in rec:
+            continue    # another instrument's record under that name (I21's M2 a2.json): not a driver record
+        errs = errors(rec, json.loads((ROOT / "spec" / "schemas" / schema).read_text(encoding="utf-8")))
+        if errs:
+            out += [f"{fname}: schema: {e}" for e in errs[:10]]
+            continue
+        for k, want in (("milestone", milestone), ("round", n), ("target_commit", r.get("target_commit"))):
+            if rec.get(k) != want:
+                out.append(f"{fname}: its {k} is {rec.get(k)!r}, the round's {want!r}")
+        ids = [x.get("id") for x in rec.get(items) or []]
+        listed = sorted(i for v in verdicts for i in rec["summary"].get(v) or [])
+        if len(set(ids)) != len(ids) or listed != sorted(ids):
+            out.append(f"{fname}: its summary does not list each of its {items} once")
+        for x in rec.get(items) or []:
+            if x.get("id") not in (rec["summary"].get(x.get("verdict")) or []):
+                out.append(f"{fname}: {items} {x.get('id')} is {x.get('verdict')!r} but the summary says otherwise")
+        want = rec["attack"]
+        ok = [a for a in citing if a.get("run", True) is not False and a.get("auditor_type") == want["auditor_type"]
+              and a.get("category") == want["category"]]
+        if not ok:
+            out.append(f"{fname}: no attack that ran with auditor_type {want['auditor_type']} and category "
+                       f"{want['category']} cites it in its evidence")
+    return out
+
+
 def check(root: Path, milestone: str) -> dict:
     """{"milestone", "rounds": n, "problems": [..], "policy": rel}: RD1-RD4 and the schema over every round of M."""
     root = Path(root)
@@ -181,6 +233,7 @@ def check(root: Path, milestone: str) -> dict:
         ok, why = qualifies(r, seen, policy)
         if claims and not ok:
             problems.append(f"RD2: {name} claims to count toward convergence but does not qualify: {why}")
+        problems += [f"RD5: {name}: {x}" for x in driver_problems(root, milestone, n, r)]
         union = sorted({f for at in r.get("attacks") or [] if isinstance(at, dict) for f in at.get("findings") or []})
         if union != sorted(set(r.get("findings") or [])):
             problems.append(f"RD3: {name}: its findings are not the union of its attacks' findings")

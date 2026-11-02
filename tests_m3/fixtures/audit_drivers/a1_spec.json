@@ -1,0 +1,48 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "note": "Smoke-test fixture of holon audit mutation (tests_m3/test_audit_drivers.py); never a round's spec. Two law runs: the first mutant's named law, on the baseline and on the mutant; the second mutant exercises the patch form, the re-extraction, the regeneration and the re-derivation with no run left.",
+ "budget": {
+  "law_timeout_s": 1800,
+  "max_law_runs": 2
+ },
+ "mutations": [
+  {
+   "id": "go-missing-check",
+   "file": "common/batch/blob.go",
+   "edit": {
+    "line": 48,
+    "old": "blob[i*32] != 0",
+    "new": "false"
+   },
+   "laws": [
+    "L_par_tot_batch_RetrieveBlobBytes"
+   ],
+   "expect": "the error path is gone, so the totality law's outcome moves"
+  },
+  {
+   "id": "sol-guard-constant",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "patch": "--- a/contracts/contracts/l1/rollup/Rollup.sol\n+++ b/contracts/contracts/l1/rollup/Rollup.sol\n@@ -198,5 +198,5 @@\n     /// @param _rollupDelayPeriod The delay period for permissionless batch submission.\n     function initialize3(uint256 _rollupDelayPeriod) external reinitializer(3) {\n-        require(_rollupDelayPeriod != 0, \"invalid rollup delay period\");\n+        require(_rollupDelayPeriod != 1, \"invalid rollup delay period\");\n         rollupDelayPeriod = _rollupDelayPeriod;\n         emit UpdateRollupDelayPeriod(0, _rollupDelayPeriod);\n",
+   "expect": "the guard's constant moves in the extracted document"
+  },
+  {
+   "id": "outside",
+   "file": "../outside.txt",
+   "edit": {
+    "line": 1,
+    "old": "a",
+    "new": "b"
+   }
+  },
+  {
+   "id": "no-reader",
+   "file": "README.md",
+   "edit": {
+    "line": 1,
+    "old": "Morph",
+    "new": "Morf"
+   }
+  }
+ ]
+}

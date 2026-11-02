@@ -1,12 +1,12 @@
 # M3 audit rounds by an external auditor (round 3 onward)
 
-The human starts a round by pasting this one line into Codex, with the round number filled in:
+The human starts a round by pasting this one line into Codex or Devin, with the round number filled in:
 
 > Open syntheticintelligence1-png/holon at branch claude/holon-v2-bend2-c6z3cd and follow audit/rounds/M3/CODEX_AUDITOR.md as round 3.
 
 For each later round, the human pastes the same line with the next number.
 
-You are the auditor: GPT-6 Astra working through Codex. Your model family is different from the family of HOLON's builders. HOLON's builders want their laws, proofs, models and gates to look right. Your job is to find where they are wrong, and to record what you find in the form described below. You report; you never fix.
+You are the auditor: an external agent the human runs, GPT-6 Astra working through Codex or Devin (Cognition AI). The human ruled that such a round is a different-family round (`docs/HUMAN_ANSWERS.md` Q9a). Your model family is different from the family of HOLON's builders. HOLON's builders want their laws, proofs, models and gates to look right. Your job is to find where they are wrong, and to record what you find in the form described below. You report; you never fix.
 
 No outcome is expected of you. A round with no finding and a round with many are equally acceptable. Only reproducible evidence counts.
 
@@ -41,7 +41,7 @@ Work from the repository root. Use `python` (or `python3` if `python` is not on 
    - The packet tool needs round n-1, and the numbering must stay gapless.
 2. **The target commit.** Your target commit is `C = $(git rev-parse HEAD)` of the branch you were given, taken before you change anything. Everything you audit is the tree at C.
 3. **Full history.** If `git rev-parse --is-shallow-repository` prints `true`, run `git fetch --unshallow origin`. The packet and A3 read git history.
-4. **Your work branch.** Do your work on a branch of your own (Codex may name it).
+4. **Your work branch.** Do your work on a branch of your own (Codex or Devin may name it).
 
 ## 2. Setup
 
@@ -81,7 +81,7 @@ There are two ways to install the checker.
 - forge and solc (from the CI install) for the Solidity entry points.
 
 **Network.** Installing needs network access.
-- If your agent phase has none, the commands must go in the Codex environment's setup script. Say so in your PR body.
+- If your agent phase has none, the commands must go in your environment's setup script (Codex's or Devin's). Say so in your PR body.
 - If a tool cannot be installed, never fake its output. Record each attack that needs it as not run (`"run": false`), or record the part you could not do, with the exact error.
 
 **Never** create a `bunfig.toml` or a `.env` anywhere in the repository: bun reads them. Git LFS is not needed for M3.
@@ -157,52 +157,103 @@ A round counts only if A1, A2, A3 and A4 each ran. So plan your time for a real 
 
 **What the policy asks.** Plant realistic misimplementations in the real code the facts documents are extracted from: off-by-one offsets, missing clears, wrong masks, swapped cursors. Re-extract, and confirm that the corresponding obstruction appears. A miss is an extraction gap or a rule gap.
 
+**Choosing the mutants is your job.** This brief gives none, and HOLON's command chooses none. You write them; HOLON applies them and judges the result.
+
 **The targets.** `auditors.A1.targets` in the packet maps each document to the decided laws over it. The real code is the target's source checkout at its pinned commit:
-- `config/holon.json` `replay.morph`, installed by the CI script;
-- the pinned commit is that script's `MORPH_COMMIT`.
+- `config/holon.json` `extract.sources` (the repository the documents name), installed by the CI script;
+- the pinned commit is that script's `MORPH_COMMIT`, and every frontend document's `target.commit`.
 
-**HOLON's commands.** Run `--help` on each for its flags.
-- Facts documents: `python -m holon extract solidity ...` and `python -m holon extract go ...`.
-- The linked codec and Go-op documents (`gen/M3/codec/`, `gen/M3/goops/`): `python -m holon codecs --milestone M3`.
-- The versioned documents (`gen/M3/versions/`): `python -m holon versions extract|model|analyze|inhabit|replay`.
-- Laws and outcomes: `python -m holon derive --milestone M3`, then `python -m holon run --milestone M3 --laws <ids>`.
-  - A full M3 re-make takes hours (CI splits it across runners).
-  - Re-run the laws over the mutated document.
-- HOLON's M2 mutation machinery, `python -m holon mutate ...` (`holon/mutate/`), shows how its builders staged, replayed and gated mutants. It runs M2 only.
+**HOLON's command.**
 
-**Your judgement:**
-- which mutants to plant;
-- which mutants are equivalent (decide from the diff alone, before you run anything);
-- which laws to re-run;
-- how to spend the budget.
+```sh
+python -m holon audit mutation --milestone M3 --round <n> --spec audit/rounds/M3/round<n>/a1_spec.json \
+    [--law-timeout S] [--max-law-runs N] [--checkout DIR] [--work DIR]
+# writes audit/rounds/M3/round<n>/a1.json and a1.timings.json
+```
 
-**Evidence.** Record each mutant's diff and the commands, and say for each one whether some law's outcome moved.
+**The spec** (`holon-audit-a1-spec/0.1`). Per mutant: an `id`, the `file` (a path in the checkout), and either an `edit` (`line`, 1-based; `old`, text that occurs exactly once on that line; `new`) or a `patch` (a unified diff of that one file). Optional: `laws`, the law ids you want re-run first; `expect`, what you expect to move. A small example of the format (the edits are placeholders; choose your own):
+
+```json
+{"spec_version": "holon-audit-a1-spec/0.1", "milestone": "M3",
+ "budget": {"law_timeout_s": 900, "max_law_runs": 24},
+ "mutations": [
+  {"id": "m1", "file": "<path/to/File.sol>", "edit": {"line": 123, "old": "<= limit", "new": "< limit"},
+   "laws": ["<L_id>"], "expect": "the bound check moves"},
+  {"id": "m2", "file": "<path/to/file.go>",
+   "patch": "--- a/<path/to/file.go>\n+++ b/<path/to/file.go>\n@@ -10,1 +10,1 @@\n-\tx := b[i*32]\n+\tx := b[i*32+1]\n"}]}
+```
+
+**What HOLON does per mutant**, on scratch copies only (the checkout is never written):
+1. It refuses an edit outside the checkout: an absolute path, a `..`, a link out, an untracked file, a patch touching another file, or an `old` that is not exactly once on its line.
+2. It plants the mutant in a scratch clone at the documents' commit and re-extracts, with the existing frontends (`holon extract solidity|go`, each document's own sidecar or configuration), every document whose extraction inputs list the file. A baseline re-extraction from the unmutated checkout must reproduce the committed document; `a1.json` says whether it did.
+3. If the extracted content changed, it re-pins the changed documents in the scratch tree's sidecars, regenerates `holon sorts|codecs|own|diagram|evidence|disch`, and re-derives (`holon derive --milestone M3`).
+4. It re-runs (`holon run --milestone M3 --laws <id>`), on the mutant and on an unmutated baseline, the laws whose facts or closure moved while their statement did not: your `laws` first, then the laws that name a changed entry (an action, a function), then the rest. Each run has a budget (`--law-timeout`, default 900 s), and the round has a cap (`--max-law-runs`, default 24, baseline runs included).
+5. Verdict per mutant: `detected` (the extraction rejects, the derivation changes or refuses, a re-run law flips status, or `holon run` refuses the mutant's law while it decides the baseline's, for instance a statement that no longer binds to the mutant's model), `missed`, `incomplete` (nothing moved among what ran, but the caps left touched laws unrun or unfinished), or `refused`. The record keeps every run's error text: judge each detection yourself.
+
+**Costs.** Staging takes seconds. One mutant's re-extraction takes about 1 second per Solidity document and 15-20 seconds per Go document; regeneration and re-derivation take about 45 seconds. Most law runs take 1-3 minutes, but some DISCH laws take longer than 10 minutes. Each law runs twice, unless the baseline has already run it. A run needs about 1 GB of free disk for the scratch trees. Plan the caps from that.
+
+**Limits.**
+- A document built from the target's history (the versioned documents under `gen/M3/versions/`) is out of reach: `a1.json` lists it under `scope.out_of_reach`.
+- `holon run` captures a typed model's initial state from a deployment of the mutant's code, as for any law.
+- A law whose status comes from the refutation engines (`holon refute`) is re-run by `holon run` only. A law it decides UNKNOWN on both sides did not move.
+
+**Recording.** `a1.json` holds `attack`, the entry for your round file, with `run` true. Copy it into `attacks`, and fill `findings`:
+- a `missed` mutant is a finding (an extraction or rule gap), unless you judged it equivalent from its diff before running it;
+- say in `tried` what you did not cover.
+
+`holon audit round` checks `a1.json` (RD5).
 
 #### A2, hostile input (`model_vs_code`)
 
 **What the policy asks.** Attack R^ext at every interface carrier through public entry points. Look for totality and panic defects, and check whether the model's partiality matches the code's. The PAR subforms in scope are totality, domain coherence, weak commutation, round trip and cross-component codec.
 
-**The targets.** `auditors.A2.targets` in the packet lists the PAR laws in scope.
+**Choosing the inputs is your job.** This brief gives none, and HOLON's command chooses none. You write the cases; HOLON runs both sides and compares them.
 
-**The real side** is the public entry points only:
-- Solidity functions, through forge and solc 0.8.24 against the pinned checkout;
-- exported Go functions, through `go test` in the checkout's module.
+**The targets.** `auditors.A2.targets` in the packet lists the PAR laws in scope. The entry points are what the facts name:
+- a contract action of a facts document;
+- an op of a Go-op document (`gen/M3/goops/`).
 
-**The model side.** Each law's record `results/M3/<law>.json` names its compiled model (`artifacts.model`, with `model_sha256`) and its law file.
-- To evaluate the model on your input, add a `def main()` to a scratch copy of the model; `bend F.bend` then prints its normal form.
-- Or emit a module with `bend F.bend -o F.mjs` and call the definitions from node. `docs/BEND_PRIMER.md` gives both methods.
-- Never use `tests/reference/` as either side: it is the test oracle.
+**HOLON's command.**
 
-**HOLON's passes that replay model witnesses on the real code.** Run them in a scratch copy; they write under `replay/` and `results/`.
-- `python -m holon replay-go --milestone M3`;
-- `python -m holon replay --milestone M3` (flags in its `--help`);
-- `python -m holon oracle compression --milestone M3`;
-- `python -m holon versions replay`;
-- `python -m holon nat replay`.
+```sh
+python -m holon audit hostile-input --milestone M3 --round <n> --spec audit/rounds/M3/round<n>/a2_spec.json \
+    [--checkout DIR] [--work DIR]
+# writes audit/rounds/M3/round<n>/a2.json and a2.timings.json
+```
 
-**Your judgement:**
-- choose the hostile inputs: malformed lengths, values outside the modelled set, zero or empty values, nil receivers, and encodings the ABI accepts but the model may not expect;
-- decide for every mismatch whether the model or the code is wrong.
+**The spec** (`holon-audit-a2-spec/0.1`). Per case: an `id` and an `entry`.
+- **An action case** has `{"kind": "action", "document": <facts document>, "action": <its action>}`, a `call` and an optional `pre`.
+  - `call` holds `args` (encoded with the compiled ABI) or raw `calldata` (a hostile encoding), plus `caller`, `value`, `timestamp` and `blobs`.
+  - `pre` holds `calls`, run from the deployment first (each with its `action`), and `storage`, slots set on the target before the case's call.
+- **A Go case** has `{"kind": "go", "document": <Go-op document>, "function": <its op>}` and an `input` holding `set`, the carrier's non-zero bytes as `[index, byte]` pairs.
+
+A small example of the format (the values are placeholders; choose your own):
+
+```json
+{"spec_version": "holon-audit-a2-spec/0.1", "milestone": "M3", "cases": [
+  {"id": "c1", "entry": {"kind": "action", "document": "<facts document>", "action": "<action>"},
+   "call": {"args": {"<param>": 0}, "caller": "0x0000000000000000000000000000000000000001"},
+   "pre": {"calls": [{"action": "<action>", "args": {"<param>": 1}, "caller": "0x00000000000000000000000000000000000000aa"}],
+           "storage": {"0x5": "0x1"}}},
+  {"id": "c2", "entry": {"kind": "action", "document": "<facts document>", "action": "<action>"},
+   "call": {"calldata": "0x<selector>00"}},
+  {"id": "g1", "entry": {"kind": "go", "document": "gen/M3/goops/<component>.json", "function": "<op>"},
+   "input": {"set": [[0, 1], [33, 255]]}}]}
+```
+
+**What HOLON does per case:**
+- **The model side** is the compiled model: for an action, `gen/M3/sorts/models/<document stem>.bend` through `holon.sorts.evaluate3`, on the real pre-state of the step; for a Go op, the Go-op document's compiled model, on the cells the op reads.
+- **The real side** is the existing harness:
+  - for an action, the step harness of the binding under `replay/` whose `facts` is the document (forge and solc 0.8.24 against the pinned checkout);
+  - for a Go op, a generated `go test` in a scratch copy of the checkout (`holon.goreplay`).
+- **The comparison** covers status, the revert data's key, and, on two successes, every storage slot either side writes and the emitted logs. For a Go op, it is the outcome class (a nil error, an error or a panic).
+- **The verdict** is `agree`, `disagree` (with the observables that differ) or `unsupported` (with the reason). A document with no binding or no compiled model is unsupported, and so are a case naming an action the document lacks and a call that reaches no document action.
+
+**Costs.** The first action case of a document builds the harness and compiles the model: a few minutes. Each further case takes seconds. A Go document's cases share one `go test` run.
+
+**Recording.** `a2.json` holds `attack`, the entry for your round file, with `run` true. Copy it in, and decide every `disagree` yourself: is the model wrong or the code? File the real defects as findings and list their ids. `holon audit round` checks `a2.json` (RD5).
+
+**HOLON's other passes that replay model witnesses on the real code** are still yours to use, in a scratch copy (they write under `replay/` and `results/`): `python -m holon replay-go --milestone M3`, `python -m holon replay --milestone M3`, `python -m holon oracle compression --milestone M3`, `python -m holon versions replay`, `python -m holon nat replay`. Never use `tests/reference/` as either side: it is the test oracle.
 
 #### A3, regression (`statement_fidelity`)
 
@@ -287,7 +338,7 @@ Record this examination as an attack of its own: the next free id, the category 
 **Findings.** Append one line per finding to `audit/M3_findings.jsonl`, in its format:
 
 ```json
-{"id": "F-M3-<nn>", "round": "M3/round<n> (GPT-6 Astra via Codex, different family)", "iteration_audited": null, "severity": "<high|medium|low>", "category": "<one of the schema's seven categories>", "aspect": "<short label>", "title": "<one sentence>", "reproduction": "<commands someone else can run at C, and what they print>", "plan_or_paper_ref": "<whitepaper section or plan item, or null>", "suggested_fix": "<text only; you never apply it>", "confirmed_by_reproduction": true, "status": "open", "fix_iteration": null, "test": null}
+{"id": "F-M3-<nn>", "round": "M3/round<n> (<agent> (<underlying model, or unknown>), different family)", "iteration_audited": null, "severity": "<high|medium|low>", "category": "<one of the schema's seven categories>", "aspect": "<short label>", "title": "<one sentence>", "reproduction": "<commands someone else can run at C, and what they print>", "plan_or_paper_ref": "<whitepaper section or plan item, or null>", "suggested_fix": "<text only; you never apply it>", "confirmed_by_reproduction": true, "status": "open", "fix_iteration": null, "test": null}
 ```
 
 - Set `confirmed_by_reproduction` to false when you could not reproduce the finding, and say why.
@@ -313,7 +364,7 @@ Record this examination as an attack of its own: the next free id, the category 
   "dry_run": false,
   "packet": {"path": "audit/rounds/M3/round<n>/packet.json", "sha256": "<sha256sum of that file>"},
   "auditor": {
-    "session": "GPT-6 Astra via Codex, <YYYY-MM-DD>, Codex task <task id or URL>",
+    "session": "<agent: Codex or Devin>, model <underlying model, or unknown>, <YYYY-MM-DD>, task <task id or URL>",
     "family": "different",
     "counts_toward_convergence": <true|false>
   },
@@ -335,6 +386,8 @@ Record this examination as an attack of its own: the next free id, the category 
 
 (The `"...": "..."` entries stand for the same fields as A1. The schema allows no other field.)
 
+- **`auditor.family`.** Set it to `"different"`. The human ruled that a round an external agent runs at the human's request (Devin, or Codex with GPT-6 Astra) is a different-family round (`docs/HUMAN_ANSWERS.md` Q9a); cite Q9a in `notes`. HOLON's tools read only this field.
+- **`auditor.session`.** Name the agent, then your underlying model if you know it, else "unknown", then the date and the task. Every round runs in a fresh session: a session string that an earlier M3 round already used does not count (CV1, L19).
 - **`run`.** Set it to true when you ran the attack, even partly, and say in `tried` what was not covered. Set it to false when you did not run the attack at all, and give the reason in `tried`.
 - **`counts_toward_convergence`.** Set it to true only if A1, A2, A3 and A4 each have an attack with `run` true. Otherwise set it to false.
   - A round that claims to count without qualifying is invalid (RD2).
@@ -352,10 +405,13 @@ python -m holon audit status --findings audit/M3_findings.jsonl                 
 python -m holon audit gaps                                                      # must not say INVALID
 python -m holon audit hostile --milestone M3 --round <n> --check
 python -m holon audit vacuity --milestone M3 --round <n> --check               # if you ran it
+python -m holon audit mutation --milestone M3 --round <n> --spec <spec> --check        # optional: reruns A1 (as long as the run)
+python -m holon audit hostile-input --milestone M3 --round <n> --spec <spec> --check   # optional: reruns A2
 python tools/freeze.py check                                                    # must print FROZEN OK
 git status --short                                                              # only the paths section 8 allows
 ```
 
+- `holon audit round` also checks `a1.json` and `a2.json` (RD5): each must be valid, name your round and target commit, and be cited in the `evidence` of an attack that ran, of its auditor type.
 - Always pass `--out` to `holon audit converge`. Its default path is `results/M3/audit_status.json`, and `results/` is not yours.
 - When your round lands, `results/M3/audit_status.json` and `docs/STATUS.md` go stale. Whoever merges regenerates them; you do not.
 
@@ -363,7 +419,7 @@ git status --short                                                              
 
 Open a pull request against `claude/holon-v2-bend2-c6z3cd`, titled:
 
-> M3 audit round <n> (different family, GPT-6 Astra via Codex)
+> M3 audit round <n> (different family, <agent>)
 
 Its body holds:
 - the target commit and the session string;
