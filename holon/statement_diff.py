@@ -2642,10 +2642,10 @@ def _verify_extension_record(e, ext, commit: str, root: Path) -> str | None:
     These are the git cross-checks of the files laws/STATEMENT_DIFF.store/ holds for the line (_verify_extension_store)."""
     if not isinstance(ext, dict) or not isinstance(ext.get("models"), dict) or not isinstance(ext.get("record"), dict):
         return "its acceptance record names no model_extension check"
-    bc = ext.get("bound_commit")
-    if not isinstance(e, dict) or bc != e.get("bound_commit") or not isinstance(bc, str):
+    bound = ext.get("bound_commit")
+    if not isinstance(e, dict) or bound != e.get("bound_commit") or not isinstance(bound, str):
         return "its acceptance record names another bound_commit than the entry"
-    for at, side in ((commit, "new"), (bc, "old")):
+    for at, side in ((commit, "new"), (bound, "old")):
         for r, sha in sorted((ext["models"].get(side) or {}).items()):
             b = blob_at(root, at, r)
             if b is None or _sha(b) != sha:
@@ -2654,13 +2654,13 @@ def _verify_extension_record(e, ext, commit: str, root: Path) -> str | None:
     b = blob_at(root, commit, rec.get("path") or "")
     if b is None or _sha(b) != rec.get("sha256"):
         return f"its acceptance record's {rec.get('path')} is not the file at {commit[:7]}"
-    b = blob_at(root, bc, rec.get("path") or "")
+    b = blob_at(root, bound, rec.get("path") or "")
     old = _json_or_none(b)
     old_status = old.get("status") if isinstance(old, dict) else None
     if old_status is None or old_status != rec.get("old_status"):
-        return f"its acceptance record's old status is not the status of {rec.get('path')} at {bc[:7]}"
+        return f"its acceptance record's old status is not the status of {rec.get('path')} at {bound[:7]}"
     if "old_sha256" in rec and rec["old_sha256"] != _sha(b):
-        return f"its acceptance record's old record is not {rec.get('path')} at {bc[:7]}"
+        return f"its acceptance record's old record is not {rec.get('path')} at {bound[:7]}"
     for k in ("proof", "laws"):
         pf = ext.get(k)
         if pf is not None:
@@ -2669,9 +2669,9 @@ def _verify_extension_record(e, ext, commit: str, root: Path) -> str | None:
                 return f"its acceptance record's {k} file {(pf or {}).get('path')} is not the file at {commit[:7]}"
     bo = (ext.get("bindings") or {}).get("old") if isinstance(ext.get("bindings"), dict) else None
     if "bindings" in ext:
-        ob = _binding_at(root, bc, str(e.get("milestone")), str(e.get("law_id")))
+        ob = _binding_at(root, bound, str(e.get("milestone")), str(e.get("law_id")))
         if bo is None or ob is None or _sha(ir.canonical_json(ob)) != bo:
-            return f"its acceptance record's old binding is not the binding at {bc[:7]}"
+            return f"its acceptance record's old binding is not the binding at {bound[:7]}"
     rc = ext.get("recheck")
     if rec.get("new_status") in ("PROVED", "REFUTED"):
         if not isinstance(rc, dict) or (rc.get("bend") or {}).get("exit_code") != 0:
@@ -2869,7 +2869,7 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
         if not isinstance(ext, dict) or not isinstance(ext.get("bound_commit"), str):
             probs.append(f"line {n}: no model_extension acceptance record")
             continue
-        bc, rec = ext["bound_commit"], ext.get("record") or {}
+        bound, rec = ext["bound_commit"], ext.get("record") or {}
 
         def at(c, rel):
             return blob_at(root, c, rel) if c is not None else ((root / rel).read_bytes() if (root / rel).is_file()
@@ -2877,18 +2877,18 @@ def extension_store_fill(root: Path, check: bool = False) -> tuple[list, list]:
         source = {}
         if git:
             for r, sha in (ext.get("models") or {}).get("old", {}).items():
-                source[sha] = lambda r=r: at(bc, r)
+                source[sha] = lambda r=r: at(bound, r)
             for r, sha in (ext.get("models") or {}).get("new", {}).items():
                 source.setdefault(sha, lambda r=r: at(commit, r))
             source.setdefault(rec.get("sha256"), lambda: at(commit, rec.get("path") or ""))
             if "old_sha256" in rec:
-                source.setdefault(rec["old_sha256"], lambda: at(bc, rec.get("path") or ""))
+                source.setdefault(rec["old_sha256"], lambda: at(bound, rec.get("path") or ""))
             for k in ("proof", "laws"):
                 if isinstance(ext.get(k), dict):
                     source.setdefault(ext[k].get("sha256"), lambda k=k: at(commit, ext[k].get("path") or ""))
             if isinstance(ext.get("bindings"), dict):
                 source.setdefault(ext["bindings"].get("old"),
-                                  lambda: ir.canonical_json(_binding_at(root, bc, str(e.get("milestone")),
+                                  lambda: ir.canonical_json(_binding_at(root, bound, str(e.get("milestone")),
                                                                         str(e.get("law_id")))))
         for sha, what in extension_named(ext):
             if sha in named:
