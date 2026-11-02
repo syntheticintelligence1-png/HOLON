@@ -1,0 +1,94 @@
+{
+  "annotations": [
+    {
+      "law": "L_sort_cons_Rollup_receive",
+      "source": "whitepaper.md §11.6, D8: 'Conservation, except O30 and the annotated slash receive'",
+      "why": "The Rollup's receive is where the Submitter's slash sends the challenger's reward (Submitter.sol:146-158, _transfer(rollupContract, reward)); the calling frame, the Rollup's _challengerWin (Rollup.sol:803-807), credits batchChallengeReward with the deposit plus that reward. The receive alone records nothing, so its law is expected REFUTED; the annotation is the whitepaper's, recorded before any run, and changes no statement: it only marks the record's triage and keeps the law out of D8's unexplained exceptions."
+    }
+  ],
+  "bundle_laws_version": "holon-bundle-laws-sidecar/0.1",
+  "catalog": {
+    "doc": "The rule catalog of I86: the newest version at the build's base, its producers unchanged (the same objects), plus the six sub-forms below. 1.7 is I71's, 1.8 I29's, 1.9 I35's and 1.10 I84's; whichever of them has not landed at the build's base is chained when it merges, by whoever merges second.",
+    "subforms": {
+      "DISCH": [
+        "keyed_blocking",
+        "keyed_external",
+        "keyed_external_none"
+      ],
+      "PAR": [
+        "push"
+      ],
+      "SORT": [
+        "conservation",
+        "payer"
+      ]
+    },
+    "version": "holon-rules/1.11"
+  },
+  "dependencies": {
+    "I68": "Q21's structural storage keys (docs/HUMAN_ANSWERS.md Q21; BUILD_PLAN row I68; branch claude/ci-i68, contract tests_m3/test_structural_keys.py): the M3 model keys mapping storage structurally, with the SK frame, split, convoy and loop proof routes. Without it the raw model computes a mapping slot as h_get(kh, key ++ slot) in the law's quantified keccak table, so a law quantified over every reachable state and every table cannot frame a mapping cell (an adversarial table aliases it). Every law whose claim reads a mapping cell at a quantified key or a cell of a mapping ledger needs it: the keyed_blocking laws and the ledger-class conservation laws. The coordinator's ruling (2026-10-30): predict each such law UNKNOWN, naming I68.",
+    "outflow": "holon.sorts.model3 records no value outflow: an external call (address.call with a value included) is answered from the environment's call table (c_find), and its value is not part of the step's output (HOut holds the code, return data, post state, logs and touched slots). A conservation claim of the outflow or ledger class sums the step's outflows, so its Bend statement cannot be written over the M3 model; the law is UNKNOWN, naming this model debt (no key owns it yet)."
+  },
+  "doc": "I86's sidecar (= I36b: Bundle I's laws over the current deployment, over I69's extraction; the contract is the docstring of tests_m3/test_bundle_laws.py). Fixed at the prereg; the build reads it and never edits it. It names what I86 states and where witnesses are sought, never an outcome: the catalog and its sub-forms, the keyed obligations of BUILD_PLAN I36 (O34's replay budget and D9's relay-at-most-once, each a check id of the messenger's document), the push candidates (I25's deferred entries), the witness sources (I69's corpus in order, then the value variants), the law models, the annotation the whitepaper itself makes, the queue-linked BMC's settings, the replay and the named dependencies.",
+  "keyed": {
+    "doc": "The keyed DISCH obligations (rules K1-K8): each a guard reach of a member action whose state conjunct reads a mapping at a key computed from the action's inputs (holon.machine's check id). O34 is BUILD_PLAN I36's 'O34 blocking PROVED, and the owner strategy PROVED' (whitepaper §5.7: the replay budget, external: owner); D9 is 'D9 PROVED' (§11.6: relay at most once).",
+    "obligations": [
+      {
+        "check": "replayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:226#0",
+        "member": "messenger",
+        "obligation": "O34"
+      },
+      {
+        "check": "proveAndRelayMessage#contracts/contracts/l1/L1CrossDomainMessenger.sol:141#0",
+        "member": "messenger",
+        "obligation": "D9"
+      }
+    ]
+  },
+  "models": {
+    "adopted": "gen/M3/bundle_laws/models/rollup.bend",
+    "doc": "The law models (rule LM1): a head member's law model is I69's member model gen/M3/bundle/models/<member>.bend (holon.sorts.model3's untyped machine, the bundle deployment's storage as s0), re-made by `holon bundle model` with I86's model3 extensions (rule DB1); the adopted member's (the Rollup's) is compiled by the same rule into gen/M3/bundle_laws/models/rollup.bend, from the adopted document and the same deployment record. No other model is read or written."
+  },
+  "push": {
+    "deferred": [
+      "D7"
+    ],
+    "doc": "PP1-PP6: the pushing candidates I25 deferred to this key (spec/M3/lib/par_lossy.json \"deferred\", instance I36), and the sample inputs of PP6's construction check (the index field of the leaf preimage at the computed offset is the index parameter's 32-byte big-endian word).",
+    "samples": [
+      {
+        "_from": "0x0000000000000000000000000000000000001005",
+        "_message": "0x",
+        "_nonce": 0,
+        "_to": "0x0000000000000000000000000000000000001007",
+        "_value": 0
+      },
+      {
+        "_from": "0x0000000000000000000000000000000000001005",
+        "_message": "0xabcd",
+        "_nonce": 4294967297,
+        "_to": "0x0000000000000000000000000000000000001007",
+        "_value": 7
+      }
+    ]
+  },
+  "q28": {
+    "doc": "Q28's BMC rerun (rules Q1-Q5; docs/HUMAN_ANSWERS.md Q28: 'I36 reruns BMC over the linked queue'): I40's engine (holon.bmc) and budget (spec/M3/lib/refute.json bmc.H and solver.rlimit, read), from the bundle deployment's state of the Rollup and the queue, with the queue linked (its document's programs answer the Rollup's calls into it, on the queue's own storage) and the enqueue move (the queue's appendCrossDomainMessage by its MESSENGER, as the messenger's sendMessage calls it). A path counts once replayed on the real bundle (I69's harness): the enqueue move as the messenger's sendMessage by the replay actor with the value its fee needs.",
+    "enqueue": {
+      "data": "0x",
+      "gas_limit": 1000000,
+      "replay_actor": "@w5",
+      "target": "@w7"
+    }
+  },
+  "replay": {
+    "doc": "Every REFUTED law and every PROVED existential law is replayed on the real bundle (rules RP1-RP3): its witness trace, as the bundle corpus's rows, through I69's harness (replay/M3/bundle/, holon.bundle.harness), from a fresh deployment; the record's replay status is passed when the real steps succeed or revert as the model's do and the obstruction is observed.",
+    "harness": "replay/M3/bundle"
+  },
+  "witnesses": {
+    "corpus": "gen/M3/bundle/corpus.json",
+    "doc": "Witness search (rules W1-W4), deterministic: the bundle corpus (I69's: m1, seed, random, in its order), each trace run by the linked machine (holon.bundle.machine) from the deployment; a candidate is a top-level frame of the law's member (and, for a keyed law, the keys of the obligation's check seen so far in the trace); the claim is evaluated on the compiled law model (holon.sorts.evaluate3) from the model's own state chain. Then, for a conservation law with no corpus witness, the value variants: each corpus frame of the site's action that ran ok, with msg.value replaced by each value below (a payable action only).",
+    "value_variants": [
+      1
+    ]
+  }
+}

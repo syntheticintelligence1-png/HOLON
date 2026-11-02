@@ -216,8 +216,12 @@ jobs:
       - name: Apply every job's files, in a fixed order
         run: |
           set -o pipefail
-          for j in @ORDER@; do
+          set -- @ORDER@
+          for j in "$@"; do
             f="$RUNNER_TEMP/jobs/$j-out/changed.tgz"
+            if [ ! -f "$f" ] && [ $# -eq 1 ] && [ -f "$RUNNER_TEMP/jobs/changed.tgz" ]; then
+              f="$RUNNER_TEMP/jobs/changed.tgz"   # a plan of one job: its one artifact is extracted into jobs/ itself
+            fi
             if [ -f "$f" ]; then
               echo "applying $j"
               tar -xzf "$f"
