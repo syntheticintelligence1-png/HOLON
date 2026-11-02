@@ -230,6 +230,18 @@ def need(p: Path) -> dict:
     return load_json(p)
 
 
+def milestone_scheme(law: dict) -> dict:
+    """PV2A (statement-hash scheme 2): the law under its milestone's declared scheme, read from
+    spec/<M>/hash_scheme.json as data (1 without the file). Scheme 2 gives a holon-ir/0.3 law "hash_scheme": 2;
+    scheme 1 leaves it as it is. law_text sorts keys, so the key's place does not matter. The I88 amendment of
+    I88-P1 says why."""
+    p = ROOT / "spec" / str(law.get("milestone")) / "hash_scheme.json"
+    scheme = load_json(p).get("hash_scheme", 1) if p.is_file() else 1
+    if scheme == 1 or law.get("ir_version") != "holon-ir/0.3":
+        return law
+    return dict(law, hash_scheme=scheme)
+
+
 def instrument():
     import tests_m3._i88 as I
     return I
@@ -364,7 +376,7 @@ class TestLaws(unittest.TestCase):
         want_st = {}
         for e in s["laws"]:
             with self.subTest(law=e["id"]):
-                law = I.expected_law(e, ROOT, s)
+                law = milestone_scheme(I.expected_law(e, ROOT, s))
                 self.assertEqual((LAWSET / f"{e['id']}.json").read_text(encoding="utf-8"), I.law_text(law))
                 self.assertEqual(validate(law, LAW_SCHEMA), [])
                 want_st[e["id"]] = refs.law_hash(law, facts, root=ROOT)
