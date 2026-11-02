@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 29 | 182 | 148 | 29 |
+| M3 | 31 | 193 | 158 | 30 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -57,6 +57,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I41 | M3 | Untrusted prover intake | `prompts/I41_prover_intake.md` | 9 | 3 | 1 | `docs/iterations/I41.md` |
 | I42 | M3 | Theory core I: generic graphs, walks and holonomy with Lemma 6.2, Thm 6.3, Thm 6.4 and Cor 6.5 kernel-checked in Lean i… | `prompts/I42_theory_core.md` | 4 | 9 | 1 | `docs/iterations/I42.md` |
 | I43 | M3 | Theory core II and Lean for the promoted set: Thm 6.6 (symmetries: identity, composition, inverses, the submonoid of pa… | `prompts/I43_theory_core2_lean.md` | 3 | 12 | 2 | `docs/iterations/I43.md` |
+| I44 | M3 | I44 (= I44b): Def 6.13's measures that I81 (= I44a) left pending, and the ranking over them: NAT's naturality defect ma… | `prompts/I44_measures_pending.md` | 7 | 5 | 1 | none |
 | I48 | M4 | Evaluation corpus and unsolved controls: 20 public defects across six fixed systems (two rollups, four beyond), collect… | `prompts/I48_eval_corpus.md` | 4 | 6 | 1 | `docs/iterations/I48.md` |
 | I59 | M2 | I23a track: historical on-chain acquisition and the first per-edge replay on real inputs (human answer Q5) | `prompts/I59_historical.md` | 9 | 2 | 1 | `docs/iterations/I59.md` |
 | I60 | M2 | A1 mutation adequacy on real code, replacement catalog | `prompts/I60_mutation_replacement.md` | 20 | 10 | 1 | `docs/iterations/I60.md` |
@@ -77,6 +78,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I85 | M3 | = I39a: the Go derivation extracted (ParseBatch as an extracted consumer: I18's skeleton document of node/derivation pl… | `prompts/I85_derivation_extraction.md` | 6 | 4 | 1 | `docs/iterations/I85.md` |
 | I87 | M3 | I87 (= I45a): the audit-loop machinery (round records with the auditor's family, Q9's labels and the convergence rule, … | `prompts/I87_audit_loop.md` | 4 | 13 | 1 | `docs/iterations/I87.md` |
 | I88 | M3 | = I39b: I39's laws over I85's product machine (O7 PAR-cycle, the O8 law pair under HypC with a hypothesis split, O24, t… | `prompts/I88_derivation_laws.md` | 6 | 4 | 1 | `docs/iterations/I88.md` |
+| I90 | M3 | I90 (= I38b): O28 at 65,536 L1 messages, through the count channels of a Go component: a Go count component over the ca… | `prompts/I90_go_counts.md` | 4 | 5 | 1 | `docs/iterations/I90.md` |
 
 ## Reports without a predictions key
 

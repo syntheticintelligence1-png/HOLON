@@ -1,0 +1,11 @@
+{
+  "go_counts_version": "holon-go-counts/0.1",
+  "doc": "Go count components of M3 (I90 = I38b; fixed at the I90 prereg; contract: rules C1-C3 of the docstring of tests_m3/test_go_counts.py). A component is named here with one carrier, a Go type whose values the environment supplies, and holds every count channel of the Go document's methods for a parameter of that type: a store to a field of the method's receiver that records the parameter's length, either realized in a narrow unsigned width (a wrap channel) or as one fixed-width item appended per element by a range loop over the parameter (an item channel). PAR's producers derive over its diagram as they stand. This file is the only target vocabulary of holon.diagram.gocount.",
+  "document": "spec/M3/facts/morph_blob.go.extracted.json",
+  "components": {
+    "l1_counts": {
+      "carrier": "[]github.com/morph-l2/go-ethereum/common.Hash",
+      "reach": "external: the L1 transaction hashes of an L2 block are the hashes of L1 messages, which any L1 account enqueues through L1MessageQueue and the sequencer must include in order; BatchCache.PackCurrentBlock hands each block's hashes (ParsingTxs) to BatchData.Append, which accumulates them for the batch it seals (whitepaper §11.3 O28, Appendix A F12.7)."
+    }
+  }
+}

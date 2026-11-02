@@ -24,9 +24,11 @@ from pathlib import Path
 
 from . import bend, ir, records
 from . import lean as LN
+from .diagram import gocount as GC
 from .diagram import goops as GO
 from .diagram import linked as L
 from .gen import codec01 as C1
+from .gen import gocount as GN
 from .gen import goloop as GG
 from .gen import linked as GL
 from .gen import refs as R
@@ -43,9 +45,9 @@ def _load(p: Path) -> dict | None:
 
 
 def codec_kind(law: dict, root: Path) -> str | None:
-    """"linked" (a law over a linked codec document), "goops" (over a Go-op document, I67), "own" (over an OWN carrier
-    document, I35: holon.own_run decides it), "facts01" (a holon-ir/0.3 law over a holon-facts/0.1 document), or None
-    (any other law: holon.mpipeline decides it)."""
+    """"linked" (a law over a linked codec document), "goops" (over a Go-op document, I67), "gocount" (over a count
+    document, I90), "own" (over an OWN carrier document, I35: holon.own_run decides it), "facts01" (a holon-ir/0.3
+    law over a holon-facts/0.1 document), or None (any other law: holon.mpipeline decides it)."""
     if law.get("ir_version") != "holon-ir/0.3" or not isinstance(law.get("facts"), str):
         return None
     doc = _load(Path(root) / law["facts"])
@@ -55,6 +57,8 @@ def codec_kind(law: dict, root: Path) -> str | None:
         return "linked"
     if GO.is_goops(doc):
         return "goops"
+    if GC.is_gocount(doc):
+        return "gocount"
     from .own import is_own
     if is_own(doc):
         return "own"
@@ -70,6 +74,7 @@ class Models:
         self.root, self.gen, self.cfg = Path(root), Path(gen), cfg
         self.linked: dict = {}
         self.goops: dict = {}
+        self.gocount: dict = {}
         self.facts01: dict = {}
         self.own = None   # I35: holon.own_run.Models, made on the first OWN law
 
@@ -99,6 +104,20 @@ class Models:
             cm = GG.CompiledModel.build(doc, sha, stem, self.cfg)
             self.goops[rel] = (doc, sha, cm, src, stem)
         return self.goops[rel]
+
+    def of_gocount(self, rel: str):
+        """I90 (rules C4-C6 of tests_m3/test_go_counts.py): a count document's model gen/<M>/model/<component>.bend."""
+        if rel not in self.gocount:
+            raw = (self.root / rel).read_bytes()
+            doc = json.loads(raw)
+            sha = hashlib.sha256(raw).hexdigest()
+            stem = doc["component"]
+            src = self.gen / "model" / f"{stem}.bend"
+            src.parent.mkdir(parents=True, exist_ok=True)
+            src.write_text(GN.generate(doc, sha))
+            cm = GN.CompiledModel.build(doc, sha, stem, self.cfg)
+            self.gocount[rel] = (doc, sha, cm, src, stem)
+        return self.gocount[rel]
 
     def of_facts01(self, rel: str):
         if rel not in self.facts01:
@@ -201,6 +220,9 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     elif kind == "goops":
         doc, sha, cm, model_src, stem = models.of_goops(rel)
         compiled = cm.artifact
+    elif kind == "gocount":
+        doc, sha, cm, model_src, stem = models.of_gocount(rel)
+        compiled = cm.artifact
     else:
         doc, sha, cm, model_src, stem = models.of_facts01(rel)
         compiled = cm.artifact
@@ -224,6 +246,8 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
             res = _decide_linked(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
         elif kind == "goops":
             res = _decide_goops(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
+        elif kind == "gocount":
+            res = _decide_gocount(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
         else:
             res = _decide_facts01(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
     except ir.IRError as e:
@@ -258,7 +282,8 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
             rec["triage"] = t.get("triage", "finding")
             if t.get("why"):
                 rec["triage_why"] = t["why"]
-            rec["replay"] = replay_status(goops_report(root, milestone) if kind == "goops" else report, lid,
+            rec["replay"] = replay_status(goops_report(root, milestone) if kind == "goops" else
+                                          gocount_report(root, milestone) if kind == "gocount" else report, lid,
                                           res["witness"])
     rec.update(scope_fields(law, rec))
     rec["status"] = status
@@ -274,6 +299,11 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
         from .filter import record_fields
         from .replay import witness_sha256
         rec["witness_provenance"], rec["filter_bin"] = record_fields(goops_report(root, milestone), lid,
+                                                                     rec.get("witness"), witness_sha256)
+    if kind == "gocount" and status == "REFUTED":   # I90 (rule C6): its replay report is replay/<M>/gocount/report.json
+        from .filter import record_fields
+        from .replay import witness_sha256
+        rec["witness_provenance"], rec["filter_bin"] = record_fields(gocount_report(root, milestone), lid,
                                                                      rec.get("witness"), witness_sha256)
     rec["scope_v2"] = {**rec["scope_v2"], **scope_fields(law, rec)["scope_v2"]}
     rec.update(evidence_fields(law, status, root, milestone))
@@ -301,6 +331,20 @@ def _decide_goops(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted) -> dic
     if dd.status in ("PROVED", "REFUTED"):
         out.update({"check": dd.check, "law_name": dd.em.name, "witness": dd.witness, "difference": dd.difference})
     return out
+
+
+def _decide_gocount(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted) -> dict:
+    dd = GN.decide(law, cm, ld, pd, imp, imp, cfg, shash, write_pair, accepted)
+    out = {"status": dd.status, "attempts": dd.attempts, "bound": dd.bound,
+           "statement_text": dd.statement.text if dd.statement else None}
+    if dd.status in ("PROVED", "REFUTED"):
+        out.update({"check": dd.check, "law_name": dd.em.name, "witness": dd.witness, "difference": dd.difference})
+    return out
+
+
+def gocount_report(root: Path, milestone: str) -> dict | None:
+    """I90 (rule C7): replay/<M>/gocount/report.json, the replay of the count laws' witnesses on the real code."""
+    return _load(Path(root) / "replay" / milestone / "gocount" / "report.json")
 
 
 def goops_report(root: Path, milestone: str) -> dict | None:

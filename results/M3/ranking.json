@@ -18,6 +18,10 @@
    "sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06"
   },
   {
+   "path": "gen/M3/goops/l1_counts.json",
+   "sha256": "c12089fda0fabe8c8eaecbca0fde4ce0e26996b44afcfd2f93bc32ff55d1151f"
+  },
+  {
    "path": "gen/M3/versions/morph_rollup.versions.json",
    "sha256": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78"
   },
@@ -240,6 +244,10 @@
   {
    "path": "laws/M3/L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes.json",
    "sha256": "8b4cfbb376b21b5ac3eaaa872ceb4bbe9cd0974248f9f793b334752bcb999a48"
+  },
+  {
+   "path": "laws/M3/L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum.json",
+   "sha256": "261ac3378b43050c3a2f81350ef323d06f4239593768ba82487c962d9e877303"
   },
   {
    "path": "laws/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json",
@@ -862,6 +870,10 @@
    "sha256": "a12f16aaff2387a51d5c97f906e71fed08234ea235597d42591585909b9747c1"
   },
   {
+   "path": "results/M3/L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum.json",
+   "sha256": "90ee92eb3a33d3e83fe87201635c21842de60261b4901774665c816df30c2494"
+  },
+  {
    "path": "results/M3/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json",
    "sha256": "b2cc272793a55b8f702f49429fd8c9ed3798d72fb16da79d8913dd1fc37b40b4"
   },
@@ -1251,7 +1263,7 @@
   },
   {
    "path": "results/M3/refute/concretization.json",
-   "sha256": "ec28866db66cabf69679f45b927d0ca644ed19136a8917574b5d0f828bef0c95"
+   "sha256": "4e986cd57f07e8fe494d2b3e50741720eab9768bbe02510d6a952ade53d4e068"
   },
   {
    "path": "spec/M2/facts/morph_rollup.extracted.json",
@@ -2508,6 +2520,40 @@
    "upper": null,
    "value": null,
    "why": "Def 6.13 gives rule OWN no measure"
+  },
+  "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum": {
+   "certified": true,
+   "detail": {
+    "lower_positions": [
+     [
+      0,
+      0
+     ]
+    ],
+    "over": "value",
+    "positions": [
+     [
+      0,
+      0
+     ]
+    ],
+    "upper_positions": [
+     [
+      0,
+      0
+     ]
+    ]
+   },
+   "kind": "value",
+   "lower": 1,
+   "measure": "holonomy_defect_size",
+   "pending": null,
+   "rule": "PAR",
+   "scope": null,
+   "unit": "positions",
+   "upper": 1,
+   "value": 1,
+   "why": "the witness's two sides differ at exactly the positions where the two paths can differ (a single value)"
   },
   "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": {
    "certified": true,
@@ -4788,6 +4834,48 @@
     "reach": {
      "class": null,
      "classes": [],
+     "kind": "pending",
+     "pending": "I39",
+     "why": "RE1: no path: the concretization is go_only; pending I39"
+    },
+    "sink": {
+     "channel": "representation",
+     "class": "derivation",
+     "why": "K6: both ops complete on the witness with different outcomes"
+    }
+   },
+   "key": [
+    4,
+    0,
+    1,
+    1073741824,
+    "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum"
+   ],
+   "law_id": "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum",
+   "measure": {
+    "kind": "value",
+    "value": 1
+   },
+   "rank": 13,
+   "rule": "PAR",
+   "subform": "branch",
+   "triage": "finding"
+  },
+  {
+   "filter_bin": "pending",
+   "impact": {
+    "cost": {
+     "calls": null,
+     "gas": "I37",
+     "why": "CO1: no schedule"
+    },
+    "persistence": {
+     "class": "code",
+     "why": "PE1: its paths are pure functions, so the defect holds on its inputs until the code changes"
+    },
+    "reach": {
+     "class": null,
+     "classes": [],
      "kind": "undecided",
      "pending": null,
      "why": "RE1: no path: the concretization is commit_class (unknown)"
@@ -4810,7 +4898,7 @@
     "kind": "value",
     "value": 32
    },
-   "rank": 13,
+   "rank": 14,
    "rule": "PAR",
    "subform": "cross_component_codec",
    "triage": "finding"
@@ -4852,7 +4940,7 @@
     "kind": "value",
     "value": 1
    },
-   "rank": 14,
+   "rank": 15,
    "rule": "PAR",
    "subform": "domain_coherence",
    "triage": "finding"
@@ -4896,7 +4984,7 @@
     "kind": "value",
     "value": 32
    },
-   "rank": 15,
+   "rank": 16,
    "rule": "PAR",
    "subform": "cross_component_codec",
    "triage": "finding"
@@ -4940,7 +5028,7 @@
     "kind": "value",
     "value": 32
    },
-   "rank": 16,
+   "rank": 17,
    "rule": "PAR",
    "subform": "cross_component_codec",
    "triage": "finding"
@@ -4984,7 +5072,7 @@
     "kind": "value",
     "value": 1.0
    },
-   "rank": 17,
+   "rank": 18,
    "rule": "FACT",
    "subform": "kernel",
    "triage": "finding"
@@ -5029,7 +5117,7 @@
     "kind": "value",
     "value": 1.0
    },
-   "rank": 18,
+   "rank": 19,
    "rule": "FACT",
    "subform": "kernel",
    "triage": "finding"
@@ -5074,7 +5162,7 @@
     "kind": "value",
     "value": 1
    },
-   "rank": 19,
+   "rank": 20,
    "rule": "PAR",
    "subform": "init_chain",
    "triage": "finding"
@@ -5119,7 +5207,7 @@
     "kind": "not_applicable",
     "value": null
    },
-   "rank": 20,
+   "rank": 21,
    "rule": "SORT",
    "subform": "as_member",
    "triage": "finding"
@@ -5161,7 +5249,7 @@
     "kind": "value",
     "value": 1
    },
-   "rank": 21,
+   "rank": 22,
    "rule": "PAR",
    "subform": "domain_coherence",
    "triage": "finding"
@@ -5203,7 +5291,7 @@
     "kind": "value",
     "value": 1
    },
-   "rank": 22,
+   "rank": 23,
    "rule": "PAR",
    "subform": "totality",
    "triage": "finding"
@@ -5245,7 +5333,7 @@
     "kind": "value",
     "value": 1
    },
-   "rank": 23,
+   "rank": 24,
    "rule": "PAR",
    "subform": "weak",
    "triage": "finding"
@@ -5291,7 +5379,7 @@
     "kind": "value",
     "value": 1
    },
-   "rank": 24,
+   "rank": 25,
    "rule": "UNDO",
    "subform": "residue",
    "triage": "finding"
@@ -5333,7 +5421,7 @@
     "kind": "value",
     "value": 2
    },
-   "rank": 25,
+   "rank": 26,
    "rule": "NAT",
    "subform": "composition",
    "triage": "finding"
@@ -5375,7 +5463,7 @@
     "kind": "value",
     "value": 2
    },
-   "rank": 26,
+   "rank": 27,
    "rule": "NAT",
    "subform": "composition",
    "triage": "finding"
@@ -5417,7 +5505,7 @@
     "kind": "value",
     "value": 2
    },
-   "rank": 27,
+   "rank": 28,
    "rule": "NAT",
    "subform": "composition",
    "triage": "finding"
@@ -5459,7 +5547,7 @@
     "kind": "value",
     "value": 8
    },
-   "rank": 28,
+   "rank": 29,
    "rule": "NAT",
    "subform": "composition",
    "triage": "finding"
@@ -5501,7 +5589,7 @@
     "kind": "value",
     "value": 8
    },
-   "rank": 29,
+   "rank": 30,
    "rule": "NAT",
    "subform": "composition",
    "triage": "finding"
@@ -5543,7 +5631,7 @@
     "kind": "value",
     "value": 7
    },
-   "rank": 30,
+   "rank": 31,
    "rule": "NAT",
    "subform": "composition",
    "triage": "finding"
@@ -5585,7 +5673,7 @@
     "kind": "not_applicable",
     "value": null
    },
-   "rank": 31,
+   "rank": 32,
    "rule": "OWN",
    "subform": "alias",
    "triage": "finding"
@@ -5627,7 +5715,7 @@
     "kind": "not_applicable",
     "value": null
    },
-   "rank": 32,
+   "rank": 33,
    "rule": "OWN",
    "subform": "lost_write",
    "triage": "finding"
@@ -5669,7 +5757,7 @@
     "kind": "not_applicable",
     "value": null
    },
-   "rank": 33,
+   "rank": 34,
    "rule": "OWN",
    "subform": "lost_write",
    "triage": "finding"
@@ -5714,7 +5802,7 @@
     "kind": "not_applicable",
     "value": null
    },
-   "rank": 34,
+   "rank": 35,
    "rule": "SORT",
    "subform": "realize",
    "triage": "finding"
@@ -5747,7 +5835,7 @@
    "status": "not_applicable"
   },
   "PAR": {
-   "laws": 85,
+   "laws": 86,
    "measure": "holonomy_defect_size",
    "pending": null,
    "status": "computed"
@@ -5774,11 +5862,11 @@
    "bound": 12,
    "not_applicable": 11,
    "pending": 35,
-   "value": 94
+   "value": 95
   },
-  "laws": 152,
+  "laws": 153,
   "persistence": {
-   "code": 7,
+   "code": 8,
    "dischargeable": 1,
    "undecided": 26
   },
@@ -5786,12 +5874,12 @@
    "call": 4,
    "mapping": 4,
    "owner": 12,
-   "pending": 6,
+   "pending": 7,
    "undecided": 8
   },
-  "refuted": 34,
+  "refuted": 35,
   "sinks": {
-   "derivation": 6,
+   "derivation": 7,
    "economic": 2,
    "liveness": 10,
    "off-chain": 1,
