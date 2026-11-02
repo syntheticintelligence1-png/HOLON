@@ -368,6 +368,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
         from .sorts import termsize
         return termsize.main(argv[1:])
+    if argv[:1] == ["keys"]:  # likewise for holon.sorts.keys3 (I68: the keys check of the structural store)
+        from .sorts import keys3
+        return keys3.main(argv[1:])
     if argv[:1] == ["run"] and _product_laws(argv):
         # I88: the plan-stated product laws (laws/<M>/derivation/) are decided by holon derivation decide, which
         # re-makes every record of the set; a run naming any other law, and a whole-milestone run, are unchanged
@@ -440,6 +443,9 @@ def _main(argv: list) -> int:
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
     bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
                                    "(or stays unbound)")
+    bd.add_argument("--remodel", metavar="LICENSE",
+                    help="(I68) first append the remodel entries the license covers (holon.statement_diff.remodel_entries, "
+                         "each checked by check_entry), then rebind through them")
     orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
                                         "(the oracle sidecar's hypotheses, I12), both writing results/M2/hypotheses.json; "
                                         "`oracle compression --milestone M3` (HypZ and HypZ_len on the real codec, I91), "

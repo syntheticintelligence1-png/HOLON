@@ -542,8 +542,11 @@ def step_dirty(a) -> int:
 
 
 def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
-    """The re-make matrix: one job per slow law (typed SORT, FACT attribution), DISCH and SYM in shards, every other
-    rule (and sub-form) in one job; PAR's run, lean, run; the M1/M2 and T32 re-stamps on request."""
+    """The re-make matrix: one job per slow law (typed SORT, FACT attribution, UNDO pair and residue), DISCH and SYM in
+    shards, every other rule (and sub-form) in one job; PAR's run, lean, run; the M1/M2 and T32 re-stamps on request.
+
+    An UNDO pair or residue law's kernel time ranges from 2 to about 100 minutes on CI (I68's re-makes), so one job
+    holding several of them runs for their sum; one job per law runs for the slowest."""
     groups: dict[str, list[str]] = {}
     for lid in laws:
         law = json.loads((root / "laws" / m / f"{lid}.json").read_text())
@@ -552,6 +555,8 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
             g = f"typed-{lid}"
         elif r == "FACT" and "_attr_" in lid:
             g = f"fact-attr-{lid}"
+        elif r == "UNDO" and s in ("pair", "residue"):
+            g = f"undo-{s}-{lid}"
         elif r == "PAR":
             g = "pinit" if s == "init_chain" else "par"
         elif r in ("DISCH", "SYM"):
@@ -562,7 +567,7 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
     jobs, n = [], 0
     for g in sorted(groups):
         ls = sorted(groups[g])
-        if g.startswith(("typed-", "fact-attr-")):
+        if g.startswith(("typed-", "fact-attr-", "undo-pair-", "undo-residue-")):
             name = f"{g.split('-L_')[0]}-{n}"
             n += 1
             shards = [(name, ls)]
