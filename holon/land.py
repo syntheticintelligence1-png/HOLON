@@ -427,6 +427,50 @@ def step_regen(a) -> int:
     return 0
 
 
+def step_migrate(a) -> int:
+    """An iteration branch's laws born under hash scheme 1 land under the milestone's scheme 2 (PV2A): one
+    hash_migration line each, built by statement_diff.hash_migration_entry from the branch's own law file (its old hash
+    the branch's registry entry) and appended only when its check accepts it. A law the lead already carries, or one
+    born under scheme 2, needs none. Run after regen (derive wrote the merged laws), on the landing's merge."""
+    root, st = top(), load_state()
+    head = st.get("head")
+    if not head:
+        raise Stop("no merge state: run `holon land merge` first")
+    from importlib import import_module
+    SD = import_module(f"{__package__}.statement_diff")
+    m = a.milestone
+    reg = json.loads((root / "laws" / m / "REGISTRY.json").read_text())["statements"]
+    lines = [json.loads(x) for x in (root / SD.LOG).read_text().splitlines() if x.strip()]
+    have = {(e.get("law_id"), e.get("new_hash")) for e in lines if e.get("kind") == "hash_migration"}
+    r = subprocess.run(["git", "show", f"{head}:laws/{m}/REGISTRY.json"], capture_output=True, text=True)
+    branch_reg = json.loads(r.stdout)["statements"] if r.returncode == 0 else {}
+    lead_reg = {}
+    r = subprocess.run(["git", "show", f"{st['lead_sha']}:laws/{m}/REGISTRY.json"], capture_output=True, text=True)
+    if r.returncode == 0:
+        lead_reg = json.loads(r.stdout)["statements"]
+    n = bad = 0
+    for lid, h in sorted(reg.items()):
+        if lid in lead_reg or lid not in branch_reg or branch_reg[lid] == h or (lid, h) in have:
+            continue
+        law = json.loads((root / "laws" / m / f"{lid}.json").read_text())
+        old = json.loads(git("show", f"{head}:laws/{m}/{lid}.json"))
+        if law.get("hash_scheme", 1) != 2 or old.get("hash_scheme", 1) != 1:
+            continue
+        e = SD.hash_migration_entry(old, m, root, f"born on the {st.get('key') or 'branch'} branch under scheme 1 "
+                                                   f"({old.get('rule_catalog_version')}); scheme 2 on landing")
+        if e.get("new_hash") != h:
+            print(f"  {lid}: its migration gives {e.get('new_hash')}, the registry {h}: not appended")
+            bad += 1
+            continue
+        res = SD.append(e, root)
+        print(f"  {lid}: {'appended' if res.get('ok') else 'REFUSED'}: {str(res.get('reason'))[:160]}")
+        n += bool(res.get("ok"))
+        bad += not res.get("ok")
+    git("add", "--", SD.LOG.as_posix())
+    print(f"holon land: {n} hash_migration line(s) appended for the branch's scheme-1 laws, {bad} not")
+    return 1 if bad else 0
+
+
 def step_commit(a) -> int:
     st = load_state()
     staged = git("diff", "--cached", "--name-only")
@@ -731,7 +775,7 @@ def selftest() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="holon land", description=__doc__.split("\n\n")[0])
-    ap.add_argument("step", choices=("merge", "regen", "commit", "dirty", "plan", "apply", "bind", "check", "lead",
+    ap.add_argument("step", choices=("merge", "regen", "migrate", "commit", "dirty", "plan", "apply", "bind", "check", "lead",
                                      "all", "selftest"))
     ap.add_argument("--lead", default=LEAD)
     ap.add_argument("--key", help="merge: the branch's iteration key; its outputs outside the key's outcome_paths take "
@@ -752,7 +796,8 @@ def main(argv: list[str] | None = None) -> int:
     if a.step == "apply" and not a.source:
         ap.error("apply needs --from")
     try:
-        return {"merge": step_merge, "regen": step_regen, "commit": step_commit, "dirty": step_dirty, "plan": step_plan,
+        return {"merge": step_merge, "regen": step_regen, "migrate": step_migrate, "commit": step_commit,
+                "dirty": step_dirty, "plan": step_plan,
                 "apply": step_apply, "bind": step_bind, "check": step_check, "lead": step_lead,
                 "all": step_all}[a.step](a)
     except Stop as e:
