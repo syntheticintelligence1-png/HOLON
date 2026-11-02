@@ -682,9 +682,9 @@ class Gen:
                 cl = self.I.s88["hypotheses"][data]["statement"]["claim"]["eq"]
                 if not all(isinstance(x, dict) and x.get("product") == "circuit_accepts" for x in cl):
                     raise Unsupported(f"no instance of {data} in a counter-law")
-                w, wty = self.wrap(name, text)
-                defs += [w] if w else []
-                defs.append(f"def pf_{name}() -> {wty}:\n  {self.hyp_lambda(data)}\n")
+                # its own type, not a wrapper's: a hypothesis unfolds to a telescope over variables, which both
+                # kernels compare cheaply, while bend2 unfolding a wrapper into it overflowed its stack
+                defs.append(f"def pf_{name}() -> {subst_vars(text, self.sub)}:\n  {self.hyp_lambda(data)}\n")
                 prem_terms.append(f"pf_{name}()")
                 continue
             a, b = p["eq"]

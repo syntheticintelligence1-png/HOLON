@@ -116,6 +116,7 @@ class Engine:
         self.decisions: dict = {}
         self.replays: dict = {}
         self._commit = None
+        self._i88 = None
         ip, _t, _k, _s = self.I.typed()
         self.typed_path = Path(ip)
 
@@ -308,16 +309,18 @@ class Engine:
             if r is None:
                 raise Refused(f"--check: no recorded replay of {lid}'s witness")
             return r
-        s88 = self.I.s88
-        side88 = LW.side_of(self.root, LW.LAWS_SIDECAR)
-        Rn = DC.Run(self.root, side88, LW.LAWS_SIDECAR, True, None)
-        header = DC.Header(self.root, side88)
-        cands = Rn.candidates(header)
-        env = load(self.root / Rn.out["environment"])
+        if self._i88 is None:       # I88's evaluation of its search space, from its recorded environment (no Go)
+            side88 = LW.side_of(self.root, LW.LAWS_SIDECAR)
+            Rn = DC.Run(self.root, side88, LW.LAWS_SIDECAR, True, None)
+            header = DC.Header(self.root, side88)
+            cands = Rn.candidates(header)
+            env = load(self.root / Rn.out["environment"])
 
-        def no_go(queries):
-            raise DerivationError(f"no recorded answer for {queries[0][0]}")
-        commits, outs, batches = Rn.evaluate(cands, env["compressor"], copy.deepcopy(env["answers"]), no_go)
+            def no_go(queries):
+                raise DerivationError(f"no recorded answer for {queries[0][0]}")
+            self._i88 = (Rn, header) + tuple(Rn.evaluate(cands, env["compressor"], copy.deepcopy(env["answers"]),
+                                                         no_go))
+        Rn, header, commits, outs, batches = self._i88
         w = cand["id"]
         cases = [{"id": f"{lid}/{i}", "batch": batches[f"{w}/{i}"]} for i in range(len(cand["batches"]))]
         from .goside import Workspace
@@ -338,7 +341,6 @@ class Engine:
         realobs = Rn.real_observation(law, cand, c, rs, {})
         model = [obs["lhs"], obs["rhs"]]
         ok = all(x["status"] == "ok" for x in rs) and realobs == model
-        _ = s88
         return {"cases": {i: x for i, x in zip(ids, rs)}, "model": model, "real": realobs,
                 "status": "passed" if ok else "failed", "target_commit": Rn.pside["target"]["commit"],
                 "go_version": go_version, "command": command}
@@ -402,14 +404,15 @@ class Engine:
                         "bendtt": {"exit_code": ks["bendtt"]["exit_code"], "marker": ks["bendtt"]["marker"]}},
             "artifacts": {"laws": lf, "proof": pf, "law_name": name, "model": rel(self.root, self.model_path),
                           "product": rel(self.root, self.pp), "equivalence": self.equiv["proof_file"]},
-            "prover": "generator",
+            "prover": "generator", "independence_class": "I1-shared",
             "model_assumptions": self.assumptions(law)})
         if status == "REFUTED":
             out.update({
                 "witness": witness, "difference": {"lhs": observation["lhs"], "rhs": observation["rhs"]},
                 "replay": {"status": replay["status"], "report": self.side["outputs"]["witnesses"],
                            "model": replay["model"], "real": replay["real"]},
-                "witness_provenance": None,
+                "witness_provenance": {"go": "internal_harness", "solidity": "internal_harness"},
+                "filter_bin": "finding", "triage": "finding", "evidence_triage": "finding",
                 "non_vacuity": {"status": "counter_witness", "law": name,
                                 "witness": {"candidate": witness["candidate"]}, "reachable": True,
                                 "degenerate": False, "parent_statement_hash": self.reg["statements"][lid],
