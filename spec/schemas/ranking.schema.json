@@ -33,6 +33,16 @@
         "properties": {"rule": {"type": "string"}, "pair": {"type": "string"}, "key": {"type": "string", "pattern": "^I[0-9]+$"}, "why": {"type": "string"}}
       }
     },
+    "pairs": {
+      "description": "I44 (= I44b): Def 6.13 measures of the sidecar's named pairs over a law set outside laws/<M>'s top level (holon.measures.pairs).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule", "pair", "kind", "value", "lower", "upper", "certified", "laws", "why"],
+        "additionalProperties": false,
+        "properties": {"rule": {"type": "string"}, "pair": {"type": "string"}, "kind": {"enum": ["value", "bound", "pending"]}, "value": {"$ref": "#/$defs/bound"}, "lower": {"$ref": "#/$defs/bound"}, "upper": {"$ref": "#/$defs/bound"}, "certified": {"type": "boolean"}, "laws": {"type": "object"}, "why": {"type": "string"}}
+      }
+    },
     "measures": {"type": "object", "additionalProperties": {"$ref": "#/$defs/measure"}},
     "ranking": {"type": "array", "items": {"$ref": "#/$defs/entry"}},
     "summary": {
