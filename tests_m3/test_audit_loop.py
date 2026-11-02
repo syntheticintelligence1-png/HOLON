@@ -387,15 +387,24 @@ class TestConverge(unittest.TestCase):
         self.assertEqual(sum(not v["valid"] for v in verdicts), 5)
 
     def test_r2_status_document(self):
-        """R2: results/M3/audit_status.json: not converged, k 3, streak 0, no counted round; valid; `holon audit
-        converge --milestone M3 --check` passes; the instrument agrees."""
+        """R2: results/M3/audit_status.json: valid; k 3; its converged, streak and counted are the instrument's
+        reading (CV1-CV4, tests_m3/_i87.py, never holon's converge) of the committed rounds and findings, whatever
+        rounds exist; round 1, the same-family dry run, is never counted; `holon audit converge --milestone M3
+        --check` passes. (Amended, spec/M3/amendments/I87.jsonl: this pinned streak 0 and counted 0, which held only
+        while no different-family round existed.)"""
         st = load(STATUS)
         self.assertEqual(validate(st, SCHEMAS / "audit_status.schema.json"), [])
-        self.assertEqual((st["converged"], st["k"], st["streak"], st["counted"]), (False, 3, 0, 0))
         rounds = [load(p) for p in sorted((ROOT / "audit" / "rounds" / M).glob("round*.json"))]
         want = I.converge(rounds, jsonl(FINDINGS), I.policy())
-        self.assertEqual((st["converged"], st["streak"], st["counted"]), (want["converged"], want["streak"],
-                                                                           want["counted"]))
+        self.assertTrue(want["valid"], want["problems"])
+        self.assertEqual((st["converged"], st["k"], st["streak"], st["counted"]),
+                         (want["converged"], 3, want["streak"], want["counted"]))
+        self.assertEqual({r["round"]: (r["counted"], r["clean"]) for r in st["rounds"]}, want["rounds"])
+        r1 = load(ROUND)
+        self.assertEqual((r1["auditor"]["family"], r1["dry_run"]), ("same", True))
+        self.assertFalse(want["rounds"][1][0], "the same-family dry run is counted")
+        self.assertEqual([(r["counted"], r["family"], r["dry_run"]) for r in st["rounds"] if r["round"] == 1],
+                         [(False, "same", True)])
         p = run_holon(["audit", "converge", "--milestone", M, "--check"])
         self.assertEqual(p.returncode, 0, p.stdout[-1500:] + p.stderr[-1500:])
 
