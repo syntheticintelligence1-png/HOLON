@@ -1,0 +1,44 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "note": "Smoke-test fixture of holon audit mutation (tests_m3/test_audit_drivers.py); never a round's spec. With no law runs, it exercises the edit, the re-extraction, the regeneration and the re-derivation.",
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 0
+ },
+ "mutations": [
+  {
+   "id": "sol-guard-constant",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 200,
+    "old": "_rollupDelayPeriod != 0",
+    "new": "_rollupDelayPeriod != 1"
+   },
+   "expect": "the guard's constant moves in the extracted document"
+  },
+  {
+   "id": "go-blob-offset",
+   "file": "common/batch/blob.go",
+   "patch": "--- a/common/batch/blob.go\n+++ b/common/batch/blob.go\n@@ -47,3 +47,3 @@\n \tfor i := 0; i < 4096; i++ {\n-\t\tif blob[i*32] != 0 {\n+\t\tif blob[i*32+1] != 0 {\n \t\t\treturn nil, fmt.Errorf(\"invalid blob, found non-zero high order byte %x of field element %d\", data[i*32], i)\n"
+  },
+  {
+   "id": "outside",
+   "file": "../outside.txt",
+   "edit": {
+    "line": 1,
+    "old": "a",
+    "new": "b"
+   }
+  },
+  {
+   "id": "no-reader",
+   "file": "README.md",
+   "edit": {
+    "line": 1,
+    "old": "Morph",
+    "new": "Morf"
+   }
+  }
+ ]
+}

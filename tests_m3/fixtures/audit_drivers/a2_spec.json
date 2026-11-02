@@ -1,0 +1,17 @@
+{
+ "spec_version": "holon-audit-a2-spec/0.1",
+ "milestone": "M3",
+ "note": "Smoke-test fixture of holon audit hostile-input (tests_m3/test_audit_drivers.py); never a round's spec.",
+ "cases": [
+  {"id": "act-zero-period", "entry": {"kind": "action", "document": "spec/M2/facts/morph_rollup.extracted.json", "action": "updateRollupDelayPeriod"},
+   "call": {"args": {"_newPeriod": 0}, "caller": "0x0000000000000000000000000000000000000001"}},
+  {"id": "act-short-calldata", "entry": {"kind": "action", "document": "spec/M2/facts/morph_rollup.extracted.json", "action": "updateRollupDelayPeriod"},
+   "call": {"calldata": "0xc555389201", "caller": "0x0000000000000000000000000000000000000001"}},
+  {"id": "act-no-such-action", "entry": {"kind": "action", "document": "spec/M2/facts/morph_rollup.extracted.json", "action": "noSuchAction"},
+   "call": {"args": {}}},
+  {"id": "go-high-byte", "entry": {"kind": "go", "document": "gen/M3/goops/blob_ops.json", "function": "batch_RetrieveBlobBytes"},
+   "input": {"set": [[0, 1]]}},
+  {"id": "go-low-bytes", "entry": {"kind": "go", "document": "gen/M3/goops/blob_ops.json", "function": "batch_RetrieveBlobBytes"},
+   "input": {"set": [[1, 255], [31, 7]]}}
+ ]
+}
