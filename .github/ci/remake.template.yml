@@ -128,6 +128,9 @@ jobs:
               date -u +"%FT%TZ holon $c" | tee -a "$RUNNER_TEMP/run.log"
               python -u -m holon $c 2>&1 | tee -a "$RUNNER_TEMP/run.log"
             done
+          elif [ "$CMD" = "derivation" ]; then
+            # I89: I88's derivation law set re-decided with the Bend engine (the product, the equivalence pair, the decisions)
+            python -u -m holon derivation bend-decide 2>&1 | tee -a "$RUNNER_TEMP/run.log"
           elif [ "$CMD" = "t32" ]; then
             python -u -m holon profile --milestone T32 2>&1 | tee -a "$RUNNER_TEMP/run.log"
           elif [ "$CMD" = "bundle" ]; then
