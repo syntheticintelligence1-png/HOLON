@@ -275,6 +275,7 @@ def document(root: Path | str, milestone: str) -> dict:
     ctx = Ctx(root, milestone)
     ms = MS.measure_all(ctx)
     rk = ranking(ctx, ms)
+    prs = MS.pairs(ctx)
     summary = {"laws": len(ms), "refuted": len(rk), "kinds": _count(m["kind"] for m in ms.values()),
                "sinks": _count(e["impact"]["sink"]["class"] for e in rk),
                "persistence": _count(e["impact"]["persistence"]["class"] for e in rk),
@@ -288,6 +289,7 @@ def document(root: Path | str, milestone: str) -> dict:
             "sidecar": {"path": MS.sidecar_rel(milestone), "sha256": ctx.inputs[MS.sidecar_rel(milestone)]},
             "inputs": [{"path": p, "sha256": h} for p, h in sorted(ctx.inputs.items())],
             "rules": MS.rules_summary(ctx, ms), "pending_measures": ctx.sidecar.get("pending_measures") or [],
+            "pairs": prs,
             "measures": ms, "ranking": rk, "summary": summary}
 
 
