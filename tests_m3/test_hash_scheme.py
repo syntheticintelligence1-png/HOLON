@@ -88,20 +88,23 @@ class TestOneHash(unittest.TestCase):
             with self.subTest(milestone=m):
                 laws, reg = ir.load_laws_any(m, ROOT), ir.load_registry(m, ROOT)
                 MP.check_registry_multi(laws, reg, m, root=ROOT)
+                # a law migrated to scheme 2 keeps its line's new hash through every later catalog bump (its file's
+                # rule_catalog_version moves, its hash does not); a law born under scheme 2 has no line
+                cat = lambda x: SD.unschemed({k: v for k, v in x.items() if k != "rule_catalog_version"})  # noqa: E731
+                lined = 0
                 for law in laws:
-                    if law.get("hash_scheme", 1) == 2:
-                        e = mig.get((law["law_id"], reg["statements"][law["law_id"]]))
-                        if e is None:   # born under scheme 2 (I35's OWN laws, derived after A): no scheme-1 hash to
-                            continue    # migrate; a law that had one changed hash, and G2's tie demands its line
-                        # the line's old law hashes to its old hash; a law migrated on the lead (A's migrate-hash) was
-                        # under the current catalog, and a law born on an iteration branch under scheme 1 migrates on
-                        # landing from the catalog it was born under (scheme 2 does not hash the catalog version)
-                        self.assertEqual(e["old_hash"], R.tree_law_hash(e["old"], ROOT))
-                        if e["old"].get("rule_catalog_version") == law.get("rule_catalog_version"):
-                            self.assertEqual(e["old_hash"], R.tree_law_hash(scheme1(law), ROOT))
-                        def unc(x):
-                            return SD.unschemed({k: v for k, v in x.items() if k != "rule_catalog_version"})
-                        self.assertEqual(unc(e["new"]), unc(law))
+                    if law.get("hash_scheme", 1) != 2:
+                        continue
+                    e = mig.get((law["law_id"], reg["statements"][law["law_id"]]))
+                    if e is None:
+                        self.assertFalse([x for x in mig if x[0] == law["law_id"]],
+                                         f"{law['law_id']}: its hash moved after its hash_migration line")
+                        continue
+                    lined += 1
+                    self.assertEqual(e["old_hash"], R.tree_law_hash(e["old"], ROOT))
+                    self.assertEqual(e["new_hash"], R.tree_law_hash(e["new"], ROOT))
+                    self.assertEqual(cat(e["new"]), cat(law))
+                self.assertEqual(lined, len({x[0] for x in mig if x[0] in {l["law_id"] for l in laws}}))
         side = DL.side_of(ROOT, DL.LAWS_SIDECAR)
         reg = load_json(ROOT / side["law_set"]["laws"] / "REGISTRY.json")["statements"]
         for lid, h in reg.items():
@@ -359,6 +362,19 @@ class TestMigrateHash(unittest.TestCase):
             self.assertEqual(digest(), before, "a second run changes nothing")
         finally:
             shutil.rmtree(repo.parent, ignore_errors=True)
+
+
+class TestClosure(unittest.TestCase):
+    def test_statement_diff_imports_neither_derivation_nor_contracts(self):
+        """holon.statement_diff sits in the 0.2 and 0.3 generator closures (holon.records.generator_files, which reads
+        every import of a module, function-level ones included): migrate-hash runs the law sets' generators through the
+        CLI in a subprocess and reads the plan-stated set's location from holon.ir, so it imports neither
+        holon.derivation (I85's and I88's R4) nor holon.contracts (I64's K5)."""
+        R = holon_module("holon.records")
+        imps = R._holon_imports("holon/statement_diff.py", ROOT)
+        self.assertEqual(sorted(f for f in imps if f.startswith("holon/derivation/") or f == "holon/contracts.py"), [])
+        DL, ir = holon_module("holon.derivation.laws"), holon_module("holon.ir")
+        self.assertEqual(DL.LAWS_SIDECAR, ir.PLAN_LAWS_SIDECAR)
 
 
 class TestAggregates(unittest.TestCase):

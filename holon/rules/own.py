@@ -44,7 +44,7 @@ def volatile_views(root: Path, milestone: str, inputs=None) -> set[tuple[str, in
     file is listed in inputs (derive's input list) when given."""
     out = set()
     try:
-        from .. import contracts as C
+        from .. import contract_check as C
     except ImportError:
         return out
     cdir = Path(root) / "laws" / "CONTRACTS"
