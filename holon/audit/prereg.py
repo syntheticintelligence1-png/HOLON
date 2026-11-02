@@ -23,7 +23,11 @@ What is checked, for every iteration key K that appears in any committed version
    repo-relative path: ``results/M2/`` covers that directory, ``replay/M0/report.json`` that file. Outcome
    paths must be plain relative paths (no globs, ``.`` or ``..``). In addition, every commit reachable from
    HEAD but not from C_K that changes an outcome path must descend from C_K: an outcome written on a
-   parallel branch and merged later did not come after the prereg.
+   parallel branch and merged later did not come after the prereg. The parallel clause skips the derived
+   summaries (``DERIVED``: a milestone's ranking.json, metrics.json and metrics_timing.json,
+   docs/STATUS.md and docs/M<n>_COMPARISON.md). Every landing regenerates them from the records on the
+   merged tree (holon.land's regen step), so a parallel landing writes its own copy, computed without K's
+   code. HEAD's copy is checked by their own ``--check`` commands. The prereg clause still covers them.
 5. Tests. Each file in K's ``tests`` exists at C_K and holds at least one test function there. What existed at
    C_K must be unchanged at HEAD; new test functions, helpers and constants may be added. Fingerprinted at C_K:
    - every function, keyed ``func`` at module level and ``Class.func`` in a module-level class. Methods are
@@ -74,6 +78,8 @@ Residual risk, stated plainly:
   functions can still monkeypatch at import time. Modules outside the test package (``tests/``, ``holon/``)
   are not fingerprinted.
 - A merge commit on a parallel branch is not inspected for outcome changes of its own (an "evil merge").
+- A derived summary written on a parallel branch is not attributed (rule 4's parallel clause skips DERIVED). Like
+  a local run, a parallel branch that ran K's code before C_K and wrote only those files is not detected.
 """
 from __future__ import annotations
 
@@ -92,6 +98,9 @@ from pathlib import Path
 DEFAULT_ROOT = Path(__file__).resolve().parents[2]
 TOOL_PATH = "holon/audit/prereg.py"
 SHA = 12  # fixed abbreviation: `git rev-parse --short` grows with the object count
+# rule 4: the derived summaries every landing regenerates on the merged tree (holon.land.GENERATED's report and rank
+# outputs); a parallel commit's change to one of them is not an outcome of K
+DERIVED = re.compile(r"results/[MT]\d+/(?:ranking|metrics|metrics_timing)\.json|docs/STATUS\.md|docs/M\d+_COMPARISON\.md")
 CLASS_FIXTURES = frozenset({"setUp", "tearDown", "setUpClass", "tearDownClass", "asyncSetUp", "asyncTearDown"})
 MODULE_FIXTURES = frozenset({"setUpModule", "tearDownModule", "load_tests"})
 MODULE_CODE = "<module code>"
@@ -572,7 +581,7 @@ def audit_key(x: Ctx, k: str, intro: tuple[str, object, list[str]] | None) -> tu
         for y in git.commits("--topo-order", "--reverse", head, f"^{c}"):
             if y in after:
                 continue
-            ch = git.changed(y, merges=False)
+            ch = {f for f in git.changed(y, merges=False) if not DERIVED.fullmatch(f)}
             for p in good_ops:
                 hit = sorted(f for f in ch if f.startswith(p))
                 if hit:
