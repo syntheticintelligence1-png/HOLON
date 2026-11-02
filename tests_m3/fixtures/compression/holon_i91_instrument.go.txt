@@ -1,0 +1,190 @@
+package blob_test
+
+// I91's Go instrument (tests_m3/_i91.py copies it into a scratch copy of the pinned checkout as
+// common/blob/holon_i91_instrument_test.go). It runs the real codec and blob pipeline on the sample _i91.py resolves:
+// the submitter's compressor (common/blob.CompressBatchBytes), its blob splitter (common/blob.MakeBlobTxSidecar), the
+// derivation's blob reader (common/batch.RetrieveBlobBytes) and decompressor (common/codec/zstd.DecompressBatchBytes).
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/binary"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"os"
+	"testing"
+
+	"morph-l2/common/batch"
+	"morph-l2/common/blob"
+	"morph-l2/common/codec/zstd"
+)
+
+type i91Sample struct {
+	Seed     string   `json:"seed"`
+	Kinds    []string `json:"kinds"`
+	Lengths  []int    `json:"lengths"`
+	Paddings []int    `json:"paddings"`
+	Beyond   []int    `json:"beyond"`
+	ExpKind  string   `json:"exp_kind"`
+	ExpLo    int      `json:"exp_lo"`
+	ExpHi    int      `json:"exp_hi"`
+}
+
+func i91Bytes(kind, seed string, n int) []byte {
+	x := make([]byte, n)
+	switch kind {
+	case "zero":
+	case "ramp":
+		for i := range x {
+			x[i] = byte(i % 256)
+		}
+	case "stream":
+		var s []byte
+		for j := 0; len(s) < n; j++ {
+			var ctr [4]byte
+			binary.BigEndian.PutUint32(ctr[:], uint32(j))
+			h := sha256.Sum256(append([]byte(seed), ctr[:]...))
+			s = append(s, h[:]...)
+		}
+		copy(x, s[:n])
+	default:
+		panic("unknown kind " + kind)
+	}
+	return x
+}
+
+func i91Sha(b []byte) string {
+	h := sha256.Sum256(b)
+	return hex.EncodeToString(h[:])
+}
+
+func i91Msg(err error) string {
+	s := err.Error()
+	if len(s) > 200 {
+		s = s[:200]
+	}
+	return "error: " + s
+}
+
+func i91Dec(in, want []byte) string {
+	got, err := zstd.DecompressBatchBytes(in)
+	if err != nil {
+		return i91Msg(err)
+	}
+	if bytes.Equal(got, want) {
+		return "ok"
+	}
+	return fmt.Sprintf("differs:%d", len(got))
+}
+
+func i91Zero(b []byte) bool {
+	for _, v := range b {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+// i91Pipeline: the blob sidecar of c over nb blobs, each blob's body read back and appended in order.
+func i91Pipeline(c []byte, nb int) (int, []byte, error) {
+	sc, err := blob.MakeBlobTxSidecar(c, nb)
+	if err != nil {
+		return 0, nil, fmt.Errorf("split: %w", err)
+	}
+	var p []byte
+	for i := range sc.Blobs {
+		b := sc.Blobs[i]
+		d, err := batch.RetrieveBlobBytes(&b)
+		if err != nil {
+			return 0, nil, fmt.Errorf("retrieve: %w", err)
+		}
+		p = append(p, d...)
+	}
+	return len(sc.Blobs), p, nil
+}
+
+func TestHolonI91Instrument(t *testing.T) {
+	raw, err := os.ReadFile(os.Getenv("HOLON_I91_IN"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var in i91Sample
+	if err := json.Unmarshal(raw, &in); err != nil {
+		t.Fatal(err)
+	}
+	c := blob.MaxBlobBytesSize
+	points := []map[string]any{}
+	for _, kind := range in.Kinds {
+		for _, n := range in.Lengths {
+			x := i91Bytes(kind, in.Seed, n)
+			pt := map[string]any{"kind": kind, "n": n, "x_sha256": i91Sha(x)}
+			enc, err := blob.CompressBatchBytes(x)
+			if err != nil {
+				pt["enc_error"] = err.Error()
+				points = append(points, pt)
+				continue
+			}
+			pt["enc_len"] = len(enc)
+			pt["enc_sha256"] = i91Sha(enc)
+			nb := (len(enc) + c - 1) / c
+			if nb < 1 {
+				nb = 1
+			}
+			blobs, p, perr := i91Pipeline(enc, nb)
+			if perr != nil {
+				pt["pipeline"] = i91Msg(perr)
+			} else {
+				pt["blobs"] = blobs
+				pt["padded_len"] = len(p)
+				pt["padded_is_c_then_zeros"] = len(p) >= len(enc) && bytes.Equal(p[:len(enc)], enc) && i91Zero(p[len(enc):])
+				pt["pipeline"] = i91Dec(p, x)
+			}
+			pads := map[string]string{}
+			for _, k := range in.Paddings {
+				pads[fmt.Sprint(k)] = i91Dec(append(append([]byte{}, enc...), make([]byte, k)...), x)
+			}
+			pt["paddings"] = pads
+			beyond := map[string]string{}
+			for _, k := range in.Beyond {
+				beyond[fmt.Sprint(k)] = i91Dec(append(append([]byte{}, enc...), make([]byte, k)...), x)
+			}
+			pt["beyond"] = beyond
+			points = append(points, pt)
+		}
+	}
+	full := i91Bytes(in.ExpKind, in.Seed, in.ExpHi)
+	lens := [][2]int{}
+	for n := in.ExpLo; n <= in.ExpHi; n++ {
+		enc, err := blob.CompressBatchBytes(full[:n])
+		if err != nil {
+			t.Fatalf("expansion: compress %d bytes: %v", n, err)
+		}
+		lens = append(lens, [2]int{n, len(enc)})
+	}
+	empty := map[string]any{}
+	e, err := blob.CompressBatchBytes([]byte{})
+	if err != nil {
+		empty["enc_error"] = err.Error()
+	} else {
+		empty["enc_len"] = len(e)
+		empty["enc_nil"] = e == nil
+		empty["dec_empty"] = i91Dec(e, []byte{})
+		blobs, p, perr := i91Pipeline(e, 1)
+		if perr != nil {
+			empty["pipeline"] = map[string]any{"error": i91Msg(perr)}
+		} else {
+			empty["pipeline"] = map[string]any{"blobs": blobs, "padded_len": len(p), "zero": i91Zero(p),
+				"dec": i91Dec(p, []byte{})}
+		}
+	}
+	out := map[string]any{"capacity": c, "points": points, "expansion": map[string]any{"lens": lens}, "empty": empty}
+	b, err := json.Marshal(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(os.Getenv("HOLON_I91_OUT"), b, 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
