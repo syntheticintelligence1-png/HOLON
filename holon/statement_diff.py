@@ -198,6 +198,14 @@ def core(law: dict) -> bytes:
     return ir.canonical_json(c)
 
 
+def content(law: dict) -> bytes:
+    """A statement's content, as canonical JSON: core() without the hashing metadata, the hash scheme and the catalog
+    version. Two laws with one content state the same thing; a difference in core() alone is a registry change that a
+    hash_migration or catalog_rederivation line covers (G2), not a change of the statement. A remodel line written on a
+    branch before part A (scheme 1) names its law by its content after the law moved to scheme 2."""
+    return ir.canonical_json({k: law.get(k) for k in _CORE if k not in (CATALOG_KEY, HASH_KEY)})
+
+
 def line_id(entry: dict) -> str:
     """A line's id (PV2A): "sha256:" + the sha256 of the line's canonical JSON without its own "id"."""
     return "sha256:" + hashlib.sha256(ir.canonical_json({k: v for k, v in entry.items() if k != "id"})).hexdigest()
@@ -1233,6 +1241,32 @@ def _typed_regenerated(m: str, root: Path, doc_rel: str) -> tuple[bool, str]:
     return _REGEN[key]
 
 
+def _hash_bridged(root: Path, m: str, lid: str, h0, h1) -> bool:
+    """Does a chain of logged catalog_rederivation and hash_migration lines of law lid lead from statement hash h0 to
+    h1? Such a move is a registry change G2 covers line by line, not a change of the law's binding: a remodel line
+    written before a catalog bump or part A's scheme 2 (its bound_commit's binding under the older hash) still names
+    the binding's cone alone."""
+    if not (isinstance(h0, str) and isinstance(h1, str)):
+        return False
+    edges: dict = {}
+    for raw in (Path(root) / "laws" / "STATEMENT_DIFF.jsonl").read_text(encoding="utf-8").splitlines():
+        x = _json_or_none(raw.encode()) if raw.strip() else None
+        if not isinstance(x, dict) or x.get("kind") not in ("catalog_rederivation", "hash_migration"):
+            continue
+        if x.get("milestone", m) != m or (x.get("law_id") or (x.get("new") or {}).get("law_id")) != lid:
+            continue
+        edges.setdefault(x.get("old_hash"), set()).add(x.get("new_hash"))
+    seen, todo = set(), [h0]
+    while todo:
+        h = todo.pop()
+        if h == h1:
+            return True
+        if h not in seen:
+            seen.add(h)
+            todo.extend(sorted(edges.get(h, ())))
+    return False
+
+
 def _remodel(entry: dict, old: dict, new: dict, root: Path) -> dict:
     """(I68, rule S11 of tests_m3/test_structural_keys.py; Q21's H1) The model a law is bound to replaced by a licensed
     remodel. Accepted unsigned only when all of these hold mechanically:
@@ -1277,14 +1311,14 @@ def _remodel(entry: dict, old: dict, new: dict, root: Path) -> dict:
     rel = f"laws/{m}/{lid}.json"
     cur = root / rel
     law = _json_or_none(cur.read_bytes()) if cur.is_file() else None
-    if not _is_law(law) or core(law) != core(new):
+    if not _is_law(law) or (core(law) != core(new) and content(law) != content(new)):
         return _res(False, f"the entry's statement is not {lid}'s statement on the tree")
     old_b = blob_at(root, commit_b, rel)
     if old_b != cur.read_bytes():
         # the law's statement is what a remodel keeps: under hash scheme 2 core() leaves out rule_catalog_version, so a
         # catalog bump since bound_commit (a file change no statement hash sees) keeps it; any other change does not
         old_law = _json_or_none(old_b) if old_b else None
-        if not _is_law(old_law) or core(old_law) != core(law):
+        if not _is_law(old_law) or (core(old_law) != core(law) and content(old_law) != content(law)):
             return _res(False, f"{rel} changed since bound_commit {commit_b[:12]}: a remodel keeps the law's statement")
     if not (B._typed(law) or B._disch(law) or B._undo(law) or B._fact(law)):
         return _res(False, f"{lid} is not a law over the typed model (typed-SORT, DISCH, UNDO or FACT)")
@@ -1296,6 +1330,8 @@ def _remodel(entry: dict, old: dict, new: dict, root: Path) -> dict:
     except Exception as e:  # noqa: BLE001  (a law that cannot be bound now has no remodel to check)
         return _res(False, f"{lid} cannot be bound on the tree: {type(e).__name__}: {e}")
     diff = [k for k in BINDING_KEYS if ob.get(k) != nb.get(k)]
+    if diff == ["statement_hash"] and _hash_bridged(root, m, lid, ob.get("statement_hash"), nb.get("statement_hash")):
+        diff = []   # the hash moved by logged registry changes since bound_commit (a catalog bump, part A's scheme 2)
     if diff:
         return _res(False, f"the binding of {lid} changes {diff}, not only its cone: not a remodel")
     if not B.changed_defs(ob, nb):
