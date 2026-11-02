@@ -131,7 +131,7 @@
   "bound": "the counter-law's witness satisfies every premise (Bend and BendTT): the commit from the deployment state, the consumer model's runs",
   "degenerate": false,
   "law": "cl_l_prod_trailing_hypc_ignores_trailing",
-  "parent_statement_hash": "sha256:ad5b8f37869ff4d40e4012c44f2fc211bcb870d9013e327c60f34bce85b6ef72",
+  "parent_statement_hash": "sha256:b401cd60e1ca9822c256c2f5cb16bbb1a34da270e920d31446ebcfe9eed28f52",
   "reachable": true,
   "status": "counter_witness",
   "witness": {
@@ -172,7 +172,7 @@
   "kind": "unbounded"
  },
  "statement": "∀ s: Reach, ∀ x: Act, ∀ p: List<Nat>, ∀ ts: List<Nat>, ∀ cb: Fn<Bytes,Blobs>, ∀ pl: Fn<Blobs,Payload>, ∀ vh: Fn<Blob,Word>, ∀ et: Fn<Txs,Bytes>, ∀ dt: Fn<Bytes,Txs>, ∀ circ: Fn<Step,Bool>. is_commitBatch(x) == true ∧ last_ok(step(x, s)) == true ∧ blobs_match(x, p, cb, vh) == true ∧ HypB(cb, pl) ∧ HypT(et, dt) ∧ txs_data(x, p, cb, pl) == et(ts) ∧ derive_ok(x, p, cb, pl, dt) == true ∧ circuit_accepts(circ, s, x, p, cb, pl, dt) == true ∧ HypC_ignores_trailing(circ, cb, pl, vh, et, dt) ⇒ trailing(x, p, cb, pl, dt) == 0",
- "statement_hash": "sha256:ad5b8f37869ff4d40e4012c44f2fc211bcb870d9013e327c60f34bce85b6ef72",
+ "statement_hash": "sha256:b401cd60e1ca9822c256c2f5cb16bbb1a34da270e920d31446ebcfe9eed28f52",
  "statement_scope": {
   "kind": "unbounded"
  },

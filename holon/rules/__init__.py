@@ -19,6 +19,11 @@ them):
   obstructions.json          the coherence obstructions (holon.sorts.check)
   the derive diff            with --against DIR --diff PATH: this derivation against DIR/DERIVATION.json
 
+Hash scheme (PV2A): every holon-ir/0.3 law derive writes carries "hash_scheme": 2 when the milestone declares scheme 2
+(spec/<M>/hash_scheme.json, holon.ir.milestone_hash_scheme; DERIVATION then lists it as an input), and the statement
+hashes are scheme 2's; without the declaration every law is written as before. compute(hash_scheme=N) derives under
+scheme N instead, reading no declaration (holon.statement_diff re-checks a historical line under the line's scheme).
+
 Exit 0 on success; 2 when the assignment is stale (its inputs do not list every fact document with its current
 sha256, or its sites are not the sites the facts give: Thm 6.18's freezing condition), with nothing written; 3 when a
 site cannot be derived or instrumented (named); 1 when an input is unreadable.
@@ -31,6 +36,7 @@ import json
 import sys
 from pathlib import Path
 
+from .. import ir
 from ..sorts import check as _check
 from ..sorts import sites as _sites
 from ..sorts import width as _width
@@ -95,16 +101,26 @@ CANCEL_CATALOG_VERSION = "holon-rules/1.7"
 CATALOGS[CANCEL_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[INIT_CHAIN_CATALOG_VERSION].items()}}
 CATALOGS[CANCEL_CATALOG_VERSION]["UNDO"] = {**CATALOGS[INIT_CHAIN_CATALOG_VERSION]["UNDO"],
                                             _undo.CANCEL_SUBFORM: _undo.CANCEL}
+#   holon-rules/1.8  I29's: the rules of holon-rules/1.7 (I71's) unchanged (the same producer objects), plus rule NAT
+#                    (holon.rules.nat: composition and naturality squares across a contract's versioned machine,
+#                    whitepaper §5.3), which, like PAR/init_chain, takes the milestone's versions sidecar and its
+#                    versioned document instead of the typed context (_nat_part); M3 and later.
+from . import nat as _nat  # noqa: E402
+NAT_CATALOG_VERSION = "holon-rules/1.8"
+CATALOGS[NAT_CATALOG_VERSION] = {**{r: dict(subs) for r, subs in CATALOGS[CANCEL_CATALOG_VERSION].items()},
+                                 _nat.RULE: {sub: _nat.PRODUCERS[sub] for sub in _nat.SUBFORMS}}
+VERSIONED_RULES = (_nat.RULE,)   # rules whose producers read the versioned document (_nat_part), not the typed context
 
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.7 for the typed target milestones (M3 and
-    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain and I71's UNDO/cancel); holon-rules/1.2 for the
-    typed test milestones (T<n> with n >= 30; holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every
-    other test milestone. A test milestone's catalog may be replaced with `--catalog`."""
+    """The rule-catalog version a milestone derives with: holon-rules/1.8 for the typed target milestones (M3 and
+    later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel and I29's NAT);
+    holon-rules/1.2 for the typed test milestones (T<n> with n >= 30; holon.sorts.typed_sidecar.typed);
+    holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's catalog may be replaced with
+    `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return CANCEL_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return NAT_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -151,6 +167,19 @@ class Inputs:
 
     def listing(self) -> list[dict]:
         return [{"path": k, "sha256": v} for k, v in sorted(self.files.items())]
+
+
+def derive_scheme(milestone: str, root: Path, inputs: Inputs, hash_scheme: int | None = None) -> int:
+    """The hash scheme derive stamps on the milestone's 0.3 laws (holon.ir.with_hash_scheme): hash_scheme when given;
+    else the milestone's declaration (holon.ir.milestone_hash_scheme), which the derivation then lists as an input."""
+    if hash_scheme is not None:
+        if isinstance(hash_scheme, bool) or hash_scheme not in ir.HASH_SCHEMES:
+            raise ValueError(f"unknown hash scheme {hash_scheme!r} (known: {list(ir.HASH_SCHEMES)})")
+        return hash_scheme
+    p = Path(root) / "spec" / milestone / ir.HASH_SCHEME_FILE
+    if p.is_file():
+        inputs.read(p)
+    return ir.milestone_hash_scheme(milestone, root)
 
 
 class Document:
@@ -248,7 +277,7 @@ class TypedDocument:
 
 def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = None, assignment: str | None = None,
                 sidecar: str | None = None, disch: str | None = None, undo_sidecar: str | None = None,
-                fact_sidecar: str | None = None) -> dict:
+                fact_sidecar: str | None = None, scheme: int = 1) -> dict:
     """derive's typed part (I30), for a typed milestone (M3+, T30+): the sidecar's transitions documents (or --facts),
     the frozen assignment gen/<M>/sorts/assignment.json (read, never written: Thm 6.18) and every producer of catalog
     `cv` that takes the typed context (every rule but PAR, whose engine is _par_part). No hand-written fact document, no
@@ -314,6 +343,7 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
         if law["facts"] not in by_rel:   # a DISCH document the typed sidecar does not name
             by_rel[law["facts"]] = TypedDocument(root / law["facts"], inputs, A, seeds)
         d = by_rel[law["facts"]]
+        law = ir.with_hash_scheme(law, scheme)
         entry = dict(entry, statement_hash=R.law_hash(law, d.facts, root=root))
         laws[law["law_id"]] = law
         entries.append(entry)
@@ -330,8 +360,9 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
 
 def _typed_rules(catalog: dict) -> list[str]:
     """The rules of a catalog after holon-rules/1.0 whose producers take the typed context (produce(ctx), I30): every
-    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document)."""
-    return sorted(r for r in catalog if r != "PAR")
+    rule but PAR, whose sub-forms run per document in rule P11's order (holon.rules.par.derive_document), and the
+    rules over the versioned document (VERSIONED_RULES, I29: _nat_part)."""
+    return sorted(r for r in catalog if r != "PAR" and r not in VERSIONED_RULES)
 
 
 def _transitions(doc) -> bool:
@@ -361,18 +392,20 @@ def _is_transitions_file(f: str, root: Path) -> bool:
 def compute(milestone: str, root: Path, facts: list[str] | None = None, assignment: str | None = None,
             sidecar: str | None = None, catalog: str | None = None, codecs: list[str] | None = None,
             disch: str | None = None, undo_sidecar: str | None = None,
-                fact_sidecar: str | None = None) -> dict:
+                fact_sidecar: str | None = None, hash_scheme: int | None = None) -> dict:
     """Everything derive writes, as documents (nothing is written here), with the milestone's catalog or `catalog`:
     holon-rules/1.0 here (I15's SORT/site, I20's SORT/width); a later catalog in compute_catalog (I24's PAR, I30's
-    typed SORT, I31's DISCH)."""
+    typed SORT, I31's DISCH). hash_scheme: the scheme the 0.3 laws are stamped and hashed under (default: the
+    milestone's declaration, derive_scheme)."""
     cv = catalog or catalog_version(milestone)
     if cv not in CATALOGS:
         raise ValueError(f"unknown catalog {cv!r} (known: {sorted(CATALOGS)})")
     if CATALOGS[cv] is not CATALOG:
         return compute_catalog(milestone, root, cv, facts, codecs, assignment, sidecar, disch, undo_sidecar,
-                               fact_sidecar)
+                               fact_sidecar, hash_scheme=hash_scheme)
     from ..gen import refs as R
     inputs = Inputs(root)
+    scheme = derive_scheme(milestone, root, inputs, hash_scheme)
     paths = _documents(milestone, root, facts)
     stems = [p.stem for p in paths]
     if len(set(stems)) != len(stems):
@@ -416,6 +449,7 @@ def compute(milestone: str, root: Path, facts: list[str] | None = None, assignme
     laws, entries = {}, []
     for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
         d = by_rel[law["facts"]]
+        law = ir.with_hash_scheme(law, scheme)
         entry = dict(entry, statement_hash=R.law_hash(law, d.facts, oracles=d.orc, root=root))
         laws[law["law_id"]] = law
         entries.append(entry)
@@ -593,7 +627,7 @@ def _earlier_laws(milestone: str, root: Path, inputs: Inputs) -> list[tuple[str,
 
 
 def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[str] | None = None,
-              codecs: list[str] | None = None, assignment: str | None = None) -> dict:
+              codecs: list[str] | None = None, assignment: str | None = None, scheme: int = 1) -> dict:
     """derive's PAR part (I24: rules P0-P12, X8) over the --facts and --codec documents, or, with neither, a target
     milestone's committed linked codec layer. Returns the laws, their DERIVATION entries, the PAR keys of DERIVATION
     (links, evidence_sha256, cycle_rank, par_basis, uncovered), the --facts assignment and the documents' sha256."""
@@ -639,9 +673,10 @@ def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[s
         for lid, x in acc.laws.items():
             if lid in laws:
                 raise DeriveError(f"two basis elements map to one law id: {lid}")
-            law = {"ir_version": IR_VERSION, "law_id": lid, "milestone": milestone, "rule": "PAR",
-                   "subform": x["subform"], "rule_catalog_version": cv, "facts": d.rel, "facts_sha256": d.sha256,
-                   "notes": x["notes"], "statement": x["statement"]}
+            law = ir.with_hash_scheme({"ir_version": IR_VERSION, "law_id": lid, "milestone": milestone, "rule": "PAR",
+                                       "subform": x["subform"], "rule_catalog_version": cv, "facts": d.rel,
+                                       "facts_sha256": d.sha256, "notes": x["notes"], "statement": x["statement"]},
+                                      scheme)
             laws[lid] = law
             entries.append({"law_id": lid, "rule": "PAR", "subform": x["subform"], "facts": d.rel,
                             "basis": x["basis"], "entry_points": x["entry_points"],
@@ -667,7 +702,7 @@ def _par_part(milestone: str, root: Path, cv: str, inputs: Inputs, facts: list[s
                      "par_basis": basis, "uncovered": unc}}
 
 
-def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
+def _init_chain_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
     """derive's part for rule PAR's sub-form init_chain (I28, holon.rules.par_init), when the catalog holds it: its
     producer over the milestone's versioned document (none without a versions sidecar), read through its own input
     list (DERIVATION.json lists it; the obstructions document does not). Returns the laws, their DERIVATION entries, the
@@ -687,6 +722,36 @@ def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
     laws, entries, shas = {}, [], {}
     for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
         facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
+def _nat_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
+    """derive's part for rule NAT (I29, holon.rules.nat), when the catalog holds it: its producers over the milestone's
+    versioned document (none without a versions sidecar), read through their own input list (DERIVATION.json lists
+    it; the obstructions document does not). Returns the laws, their DERIVATION entries, the inputs read and the
+    documents' sha256, or None when the catalog has no rule NAT."""
+    from ..gen import refs as R
+    subs = CATALOGS[cv].get(_nat.RULE)
+    if not subs:
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for sub in sorted(subs):
+            pairs += subs[sub].produce(ctx)
+    except ValueError as e:
+        raise ValueError(f"{_nat.RULE}: {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
         entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
         laws[law["law_id"]] = law
         shas[law["facts"]] = law["facts_sha256"]
@@ -696,7 +761,7 @@ def _init_chain_part(milestone: str, root: Path, cv: str) -> dict | None:
 def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None = None,
                     codecs: list[str] | None = None, assignment: str | None = None, sidecar: str | None = None,
                     disch: str | None = None, undo_sidecar: str | None = None,
-                fact_sidecar: str | None = None) -> dict:
+                fact_sidecar: str | None = None, hash_scheme: int | None = None) -> dict:
     """Everything derive writes for a catalog after holon-rules/1.0, as documents (nothing is written): rule PAR (I24)
     and the rules that take the typed context (I30's SORT realize, as_member and reinterpret), each over its own
     documents, in one DERIVATION and one REGISTRY.
@@ -723,18 +788,23 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
         else:
             pfacts.append(f)
     inputs = Inputs(root)
+    scheme = derive_scheme(milestone, root, inputs, hash_scheme)
     par = typed = None
     if has_par and (pfacts or codecs or (not given and (target_milestone(milestone) or not typed_rules))):
-        par = _par_part(milestone, root, cv, inputs, pfacts, codecs, assignment)
+        par = _par_part(milestone, root, cv, inputs, pfacts, codecs, assignment, scheme)
     if typed_rules and (tfacts or not given):
-        typed = _typed_part(milestone, root, cv, tfacts, assignment, sidecar, disch, undo_sidecar, fact_sidecar)
+        typed = _typed_part(milestone, root, cv, tfacts, assignment, sidecar, disch, undo_sidecar, fact_sidecar,
+                            scheme)
         inputs.files.update(typed["inputs"].files)
         inputs.files.update(typed["disch_inputs"].files)
-    init = _init_chain_part(milestone, root, cv) if not given else None
+    init = _init_chain_part(milestone, root, cv, scheme) if not given else None
     if init is not None:
         inputs.files.update(init["inputs"].files)
+    nat = _nat_part(milestone, root, cv, scheme) if not given else None
+    if nat is not None:
+        inputs.files.update(nat["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed, init):
+    for part in (par, typed, init, nat):
         if part is None:
             continue
         for lid, law in part["laws"].items():

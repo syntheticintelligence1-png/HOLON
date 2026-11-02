@@ -21,6 +21,11 @@ in the log by their merge, not by the registry history the tool walks, so the to
 committed ones line for line by (law, old hash, new hash). A REFUTED typed law's checked LAWS.bend is its counter-law
 (G2 compares it with the bound counter-law). F35's binding_change lines are checked against the bound model at their
 bound commit, which needs the history, so gate3's G2 runs on a clone of the committed tree, not on a copy.
+
+PV2A (amended, spec/M3/amendments.jsonl): a law under statement-hash scheme 2 (holon.ir) has a hash without
+rule_catalog_version, so from the hash-scheme migration on a catalog bump adds no line for it (recatalog skips it and
+check_entry rejects one); the migration's own registry changes are tied to its hash_migration lines, and the catalog
+lines above are still checked under scheme 1.
 """
 from __future__ import annotations
 

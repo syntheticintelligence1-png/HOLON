@@ -15,8 +15,10 @@ What is checked, for every iteration key K that appears in any committed version
    whitespace do not matter, but ``true`` is not ``1`` and ``1`` is not ``1.0``. A key removed at HEAD fails.
 3. Prereg contents. C_K changes only prereg inputs: the predictions file; the prompts and tests of the keys
    introduced at C_K, and anything under those tests' package directories; ``spec/ledger/``, ``spec/lib/``,
-   ``spec/M*/lib/``, ``spec/schemas/predictions.schema.json`` and ``spec/M*/amendments.jsonl``. Anything
-   else (``holon/``, ``tools/``, ``results/``, ``gen/``, ``replay/``, ``laws/``, ...) fails.
+   ``spec/M*/lib/``, ``spec/schemas/predictions.schema.json`` and ``spec/M*/amendments.jsonl``, and (PV2A) the
+   per-key sources the two aggregates are generated from, ``spec/M*/predictions/`` and ``spec/M*/amendments/``
+   (holon.aggregate; the audit itself reads the aggregates). Anything else (``holon/``, ``tools/``, ``results/``,
+   ``gen/``, ``replay/``, ``laws/``, ...) fails.
 4. Order. C_K changes no file under K's ``outcome_paths``. An outcome path is a literal prefix of a
    repo-relative path: ``results/M2/`` covers that directory, ``replay/M0/report.json`` that file. Outcome
    paths must be plain relative paths (no globs, ``.`` or ``..``). In addition, every commit reachable from
@@ -99,6 +101,9 @@ _GLOB_CHARS = frozenset("*?[")
 _ALWAYS_ALLOWED = (re.compile(r"^spec/ledger/"), re.compile(r"^spec/lib/"), re.compile(r"^spec/M[0-9]+/lib/"),
                    re.compile(r"^spec/schemas/predictions\.schema\.json$"),
                    re.compile(r"^spec/M[0-9]+/amendments\.jsonl$"))
+# PV2A: the per-key sources of spec/<M>/predictions.json and spec/<M>/amendments.jsonl (holon.aggregate), prereg inputs
+# as the aggregates are, and never sidecar notes
+_AGGREGATE_SOURCES = (re.compile(r"^spec/M[0-9]+/predictions/[^/]+$"), re.compile(r"^spec/M[0-9]+/amendments/[^/]+$"))
 _KIND_RANK = {"code": 0, "helper": 1, "fixture": 2, "test": 3}
 _LABEL = {"code": "module code", "helper": "helper", "fixture": "fixture", "test": "test"}
 _FIELD_WHAT = {"what": "kind of definition", "source": "source", "classes": "class header, attributes or bases",
@@ -548,7 +553,7 @@ def audit_key(x: Ctx, k: str, intro: tuple[str, object, list[str]] | None) -> tu
 
     def allowed(f: str) -> bool:
         return (f == x.pred or f in prompts or f in ctests or any(f.startswith(pk + "/") for pk in pkgs)
-                or any(rx.match(f) for rx in _ALWAYS_ALLOWED))
+                or any(rx.match(f) for rx in _ALWAYS_ALLOWED + _AGGREGATE_SOURCES))
     outside = sorted(f for f in changed if not allowed(f))
     if outside:
         more = f" and {len(outside) - 5} more" if len(outside) > 5 else ""
@@ -648,7 +653,7 @@ def audit_key(x: Ctx, k: str, intro: tuple[str, object, list[str]] | None) -> tu
                                f"preregistered test")
     covered = {x.pred, *prompts, *ctests, *helpers, *inits}
     for f in sorted(changed):
-        if f in covered or f in outside or _ALWAYS_ALLOWED[-1].match(f):
+        if f in covered or f in outside or _ALWAYS_ALLOWED[-1].match(f) or any(rx.match(f) for rx in _AGGREGATE_SOURCES):
             continue
         b0 = git.blob(c, f)
         if b0 is not None and git.blob(head, f) != b0:

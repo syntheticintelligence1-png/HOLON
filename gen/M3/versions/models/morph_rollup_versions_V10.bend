@@ -2,7 +2,7 @@
 # facts_sha256: b3329d0f5ae7cde0f8128f7624cfe1ee1f9ccec201c3d655263ec99692b8860f
 # model_version: holon-model-m3/0.2 (untyped: the sort section off)
 # initial state: the zero storage (the versioned layer starts every trace at its vr0)
-# model debt: 3 actions the compiler refuses: commitBatch, commitBatchWithProof, commitState
+# model debt: 0 actions the compiler refuses
 # chk_<action>(st, ar, en, kh..): 0 when every check holds, k + 1 when check k is the first that fails;
 #   4294967294 when an external call term reverted, 4294967295 when a loop ran past its fuel;
 # post_<action>, logs_<action>: its post-state and logs; step_<action>: the post-state when chk is 0, else st.
@@ -975,6 +975,11 @@ def is_true(b: Bool) -> Type:
     case False{}:
       Empty
 
+def w_shl_5(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{U32.shln(a0, 5n), U32.or(U32.shln(a1, 5n), U32.shrn(a0, 27n)), U32.or(U32.shln(a2, 5n), U32.shrn(a1, 27n)), U32.or(U32.shln(a3, 5n), U32.shrn(a2, 27n)), U32.or(U32.shln(a4, 5n), U32.shrn(a3, 27n)), U32.or(U32.shln(a5, 5n), U32.shrn(a4, 27n)), U32.or(U32.shln(a6, 5n), U32.shrn(a5, 27n)), U32.or(U32.shln(a7, 5n), U32.shrn(a6, 27n))}
+
 def w_shl_8(a: W) -> W:
   match a:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
@@ -984,6 +989,16 @@ def w_shl_64(a: W) -> W:
   match a:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{0, 0, a0, a1, a2, a3, a4, a5}
+
+def w_shl_192(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{0, 0, 0, 0, 0, 0, a0, a1}
+
+def w_shl_240(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{0, 0, 0, 0, 0, 0, 0, U32.shln(a0, 16n)}
 
 def w_shr_8(a: W) -> W:
   match a:
@@ -1010,6 +1025,58 @@ def w_shr_248(a: W) -> W:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{U32.shrn(a7, 24n), 0, 0, 0, 0, 0, 0, 0}
 
+def abi_ws(n: Nat, +xs: List<&2, U32>) -> List<&2, W>:
+  match n xs:
+    case 0n _:
+      Nil{}
+    case 1n+p Nil{}:
+      Nil{}
+    case 1n+p Con{h, t}:
+      Con{b_word(Con{h, t}, 0n), abi_ws(p, b_drop(Con{h, t}, 32n))}
+
+def abi_warr(+d: List<&2, U32>, +off: W) -> List<&2, W>:
+  abi_ws(n_of_w(b_word(d, n_of_w(off))), b_drop(d, n_of_w(w_add(off, w_u(32)))))
+
+def abi_els_address(n: Nat, +xs: List<&2, U32>) -> Bool:
+  match n xs:
+    case 0n _:
+      True{}
+    case 1n+p Nil{}:
+      False{}
+    case 1n+p Con{h, t}:
+      Bool.and(w_lt(b_word(Con{h, t}, 0n), W{0, 0, 0, 0, 0, 1, 0, 0}), abi_els_address(p, b_drop(Con{h, t}, 32n)))
+
+def abi_dok_address_c(ok: Bool, +d: List<&2, U32>, +off: W, +n: W) -> Bool:
+  match ok:
+    case True{}:
+      abi_els_address(n_of_w(n), b_drop(d, n_of_w(w_add(off, w_u(32)))))
+    case False{}:
+      False{}
+
+def abi_dok_address_b(+d: List<&2, U32>, +off: W, +n: W) -> Bool:
+  abi_dok_address_c(Bool.and(w_le(n, W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}), w_le(w_add(w_add(off, w_u(32)), w_shl_5(n)), w_u(b_len(d)))), d, off, n)
+
+def abi_dok_address_a(ok: Bool, +d: List<&2, U32>, +off: W) -> Bool:
+  match ok:
+    case True{}:
+      abi_dok_address_b(d, off, b_word(d, n_of_w(off)))
+    case False{}:
+      False{}
+
+def abi_dok_address(+d: List<&2, U32>, +off: W) -> Bool:
+  abi_dok_address_a(Bool.and(w_le(off, W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}), w_le(w_add(off, w_u(32)), w_u(b_len(d)))), d, off)
+
+def abi_ok_1_h(ok: Bool, +d: List<&2, U32>) -> Bool:
+  match ok:
+    case True{}:
+      Bool.and(abi_dok_address(d, b_word(d, 32n)), Bool.and(abi_dok_address(d, b_word(d, 96n)), abi_dok_address(d, b_word(d, 160n))))
+    case False{}:
+      False{}
+
+def abi_ok_1(+d: List<&2, U32>) -> Bool:
+  abi_ok_1_h(w_le(w_u(192), w_u(b_len(d))), d)
+
+# HEnv.e_blobs: blobs
 # HEnv.e_block_timestamp: block.timestamp
 # HEnv.e_caller: caller
 # HEnv.e_calls: calls
@@ -1019,47 +1086,108 @@ def w_shr_248(a: W) -> W:
 # HEnv.e_msg_value: msg.value
 # HEnv.e_this: this
 type HEnv is Data:
-  HEnv{e_block_timestamp: W, e_caller: W, e_calls: List<&2, HCall>, e_code: List<&2, KB>, e_immutable_LAYER_2_CHAIN_ID: W, e_msg_data_length: W, e_msg_value: W, e_this: W}
+  HEnv{e_blobs: List<&2, W>, e_block_timestamp: W, e_caller: W, e_calls: List<&2, HCall>, e_code: List<&2, KB>, e_immutable_LAYER_2_CHAIN_ID: W, e_msg_data_length: W, e_msg_value: W, e_this: W}
+
+def ge_e_blobs(e: HEnv) -> List<&2, W>:
+  match e:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+      e_blobs
 
 def ge_e_block_timestamp(e: HEnv) -> W:
   match e:
-    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
       e_block_timestamp
 
 def ge_e_caller(e: HEnv) -> W:
   match e:
-    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
       e_caller
 
 def ge_e_calls(e: HEnv) -> List<&2, HCall>:
   match e:
-    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
       e_calls
 
 def ge_e_code(e: HEnv) -> List<&2, KB>:
   match e:
-    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
       e_code
 
 def ge_e_immutable_LAYER_2_CHAIN_ID(e: HEnv) -> W:
   match e:
-    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
       e_immutable_LAYER_2_CHAIN_ID
 
 def ge_e_msg_data_length(e: HEnv) -> W:
   match e:
-    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
       e_msg_data_length
 
 def ge_e_msg_value(e: HEnv) -> W:
   match e:
-    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
       e_msg_value
 
 def ge_e_this(e: HEnv) -> W:
   match e:
-    case HEnv{e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
+    case HEnv{e_blobs, e_block_timestamp, e_caller, e_calls, e_code, e_immutable_LAYER_2_CHAIN_ID, e_msg_data_length, e_msg_value, e_this}:
       e_this
+
+type S_IRollup_BatchDataInput is Data:
+  S_IRollup_BatchDataInput{version: W, parentBatchHeader: List<&2, U32>, lastBlockNumber: W, numL1Messages: W, prevStateRoot: W, postStateRoot: W, withdrawalRoot: W}
+
+def g_S_IRollup_BatchDataInput_version(e: S_IRollup_BatchDataInput) -> W:
+  match e:
+    case S_IRollup_BatchDataInput{version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot, postStateRoot, withdrawalRoot}:
+      version
+
+def g_S_IRollup_BatchDataInput_parentBatchHeader(e: S_IRollup_BatchDataInput) -> List<&2, U32>:
+  match e:
+    case S_IRollup_BatchDataInput{version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot, postStateRoot, withdrawalRoot}:
+      parentBatchHeader
+
+def g_S_IRollup_BatchDataInput_lastBlockNumber(e: S_IRollup_BatchDataInput) -> W:
+  match e:
+    case S_IRollup_BatchDataInput{version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot, postStateRoot, withdrawalRoot}:
+      lastBlockNumber
+
+def g_S_IRollup_BatchDataInput_numL1Messages(e: S_IRollup_BatchDataInput) -> W:
+  match e:
+    case S_IRollup_BatchDataInput{version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot, postStateRoot, withdrawalRoot}:
+      numL1Messages
+
+def g_S_IRollup_BatchDataInput_prevStateRoot(e: S_IRollup_BatchDataInput) -> W:
+  match e:
+    case S_IRollup_BatchDataInput{version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot, postStateRoot, withdrawalRoot}:
+      prevStateRoot
+
+def g_S_IRollup_BatchDataInput_postStateRoot(e: S_IRollup_BatchDataInput) -> W:
+  match e:
+    case S_IRollup_BatchDataInput{version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot, postStateRoot, withdrawalRoot}:
+      postStateRoot
+
+def g_S_IRollup_BatchDataInput_withdrawalRoot(e: S_IRollup_BatchDataInput) -> W:
+  match e:
+    case S_IRollup_BatchDataInput{version, parentBatchHeader, lastBlockNumber, numL1Messages, prevStateRoot, postStateRoot, withdrawalRoot}:
+      withdrawalRoot
+
+type S_IRollup_BatchSignatureInput is Data:
+  S_IRollup_BatchSignatureInput{signedSequencersBitmap: W, sequencerSets: List<&2, U32>, signature: List<&2, U32>}
+
+def g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(e: S_IRollup_BatchSignatureInput) -> W:
+  match e:
+    case S_IRollup_BatchSignatureInput{signedSequencersBitmap, sequencerSets, signature}:
+      signedSequencersBitmap
+
+def g_S_IRollup_BatchSignatureInput_sequencerSets(e: S_IRollup_BatchSignatureInput) -> List<&2, U32>:
+  match e:
+    case S_IRollup_BatchSignatureInput{signedSequencersBitmap, sequencerSets, signature}:
+      sequencerSets
+
+def g_S_IRollup_BatchSignatureInput_signature(e: S_IRollup_BatchSignatureInput) -> List<&2, U32>:
+  match e:
+    case S_IRollup_BatchSignatureInput{signedSequencersBitmap, sequencerSets, signature}:
+      signature
 
 type AR_addChallenger is Data:
   AR_addChallenger{_account: W}
@@ -1129,6 +1257,55 @@ def ga_claimReward_receiver(e: AR_claimReward) -> W:
   match e:
     case AR_claimReward{receiver}:
       receiver
+
+type AR_commitBatch is Data:
+  AR_commitBatch{batchDataInput: S_IRollup_BatchDataInput, batchSignatureInput: S_IRollup_BatchSignatureInput}
+
+def ga_commitBatch_batchDataInput(e: AR_commitBatch) -> S_IRollup_BatchDataInput:
+  match e:
+    case AR_commitBatch{batchDataInput, batchSignatureInput}:
+      batchDataInput
+
+def ga_commitBatch_batchSignatureInput(e: AR_commitBatch) -> S_IRollup_BatchSignatureInput:
+  match e:
+    case AR_commitBatch{batchDataInput, batchSignatureInput}:
+      batchSignatureInput
+
+type AR_commitBatchWithProof is Data:
+  AR_commitBatchWithProof{batchDataInput: S_IRollup_BatchDataInput, batchSignatureInput: S_IRollup_BatchSignatureInput, _batchHeader: List<&2, U32>, _batchProof: List<&2, U32>}
+
+def ga_commitBatchWithProof_batchDataInput(e: AR_commitBatchWithProof) -> S_IRollup_BatchDataInput:
+  match e:
+    case AR_commitBatchWithProof{batchDataInput, batchSignatureInput, _batchHeader, _batchProof}:
+      batchDataInput
+
+def ga_commitBatchWithProof_batchSignatureInput(e: AR_commitBatchWithProof) -> S_IRollup_BatchSignatureInput:
+  match e:
+    case AR_commitBatchWithProof{batchDataInput, batchSignatureInput, _batchHeader, _batchProof}:
+      batchSignatureInput
+
+def ga_commitBatchWithProof__batchHeader(e: AR_commitBatchWithProof) -> List<&2, U32>:
+  match e:
+    case AR_commitBatchWithProof{batchDataInput, batchSignatureInput, _batchHeader, _batchProof}:
+      _batchHeader
+
+def ga_commitBatchWithProof__batchProof(e: AR_commitBatchWithProof) -> List<&2, U32>:
+  match e:
+    case AR_commitBatchWithProof{batchDataInput, batchSignatureInput, _batchHeader, _batchProof}:
+      _batchProof
+
+type AR_commitState is Data:
+  AR_commitState{batchDataInput: S_IRollup_BatchDataInput, batchSignatureInput: S_IRollup_BatchSignatureInput}
+
+def ga_commitState_batchDataInput(e: AR_commitState) -> S_IRollup_BatchDataInput:
+  match e:
+    case AR_commitState{batchDataInput, batchSignatureInput}:
+      batchDataInput
+
+def ga_commitState_batchSignatureInput(e: AR_commitState) -> S_IRollup_BatchSignatureInput:
+  match e:
+    case AR_commitState{batchDataInput, batchSignatureInput}:
+      batchSignatureInput
 
 type AR_finalizeBatch is Data:
   AR_finalizeBatch{_batchHeader: List<&2, U32>}
@@ -3194,158 +3371,4116 @@ def logs_claimReward(+st: HSt, +ar: AR_claimReward, +en: HEnv, +kh: List<&2, HKB
 def step_claimReward(+st: HSt, +ar: AR_claimReward, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
   st_after(run_claimReward(st, ar, en, kh), st)
 
+type X_commitBatch is Data:
+  X_commitBatch{st: HSt, ov: HSt, ar: AR_commitBatch, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c2_0: W, it2: W, cn2: W, rt2: W, ld2: Nat, c3_0: W, c3_1: W, c3_2: W, it3: W, cn3: W, rt3: W, ld3: Nat}
+
+def gx_commitBatch_st(e: X_commitBatch) -> HSt:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      st
+
+def gx_commitBatch_ov(e: X_commitBatch) -> HSt:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      ov
+
+def gx_commitBatch_ar(e: X_commitBatch) -> AR_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      ar
+
+def gx_commitBatch_en(e: X_commitBatch) -> HEnv:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      en
+
+def gx_commitBatch_kh(e: X_commitBatch) -> List<&2, HKB>:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      kh
+
+def gx_commitBatch_cd(e: X_commitBatch) -> U32:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      cd
+
+def gx_commitBatch_rv(e: X_commitBatch) -> List<&2, U32>:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      rv
+
+def gx_commitBatch_lg(e: X_commitBatch) -> List<&2, HLog>:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      lg
+
+def gx_commitBatch_tw(e: X_commitBatch) -> List<&2, W>:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      tw
+
+def gx_commitBatch_c2_0(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      c2_0
+
+def gx_commitBatch_it2(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      it2
+
+def gx_commitBatch_cn2(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      cn2
+
+def gx_commitBatch_rt2(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      rt2
+
+def gx_commitBatch_ld2(e: X_commitBatch) -> Nat:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      ld2
+
+def gx_commitBatch_c3_0(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      c3_0
+
+def gx_commitBatch_c3_1(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      c3_1
+
+def gx_commitBatch_c3_2(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      c3_2
+
+def gx_commitBatch_it3(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      it3
+
+def gx_commitBatch_cn3(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      cn3
+
+def gx_commitBatch_rt3(e: X_commitBatch) -> W:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      rt3
+
+def gx_commitBatch_ld3(e: X_commitBatch) -> Nat:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      ld3
+
+def sx_commitBatch_st(e: X_commitBatch, +v: HSt) -> X_commitBatch:
+  match e:
+    case X_commitBatch{_, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{v, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_ov(e: X_commitBatch, +v: HSt) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, _, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, v, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_ar(e: X_commitBatch, +v: AR_commitBatch) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, _, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, v, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_en(e: X_commitBatch, +v: HEnv) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, _, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, v, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_kh(e: X_commitBatch, +v: List<&2, HKB>) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, _, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, v, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_cd(e: X_commitBatch, +v: U32) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, _, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, v, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_rv(e: X_commitBatch, +v: List<&2, U32>) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, _, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, v, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_lg(e: X_commitBatch, +v: List<&2, HLog>) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, _, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, v, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_tw(e: X_commitBatch, +v: List<&2, W>) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, _, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, v, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_c2_0(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, _, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, v, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_it2(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, _, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, v, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_cn2(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, _, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, v, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_rt2(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, _, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, v, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_ld2(e: X_commitBatch, +v: Nat) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, _, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, v, c3_0, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_c3_0(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, _, c3_1, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, v, c3_1, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_c3_1(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, _, c3_2, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, v, c3_2, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_c3_2(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, _, it3, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, v, it3, cn3, rt3, ld3}
+
+def sx_commitBatch_it3(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, _, cn3, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, v, cn3, rt3, ld3}
+
+def sx_commitBatch_cn3(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, _, rt3, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, v, rt3, ld3}
+
+def sx_commitBatch_rt3(e: X_commitBatch, +v: W) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, _, ld3}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, v, ld3}
+
+def sx_commitBatch_ld3(e: X_commitBatch, +v: Nat) -> X_commitBatch:
+  match e:
+    case X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, _}:
+      X_commitBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, it2, cn2, rt2, ld2, c3_0, c3_1, c3_2, it3, cn3, rt3, v}
+
+def xf_commitBatch(x: X_commitBatch, +c: U32, +r: List<&2, U32>) -> X_commitBatch:
+  sx_commitBatch_cd(sx_commitBatch_rv(x, r), c)
+
+def sz_commitBatch(x: X_commitBatch) -> X_commitBatch:
+  x
+
+def ml_commitBatch_1(n: Nat, +k: W, x: X_commitBatch, mem: List<&2, U32>) -> List<&2, U32>:
+  match n:
+    case 0n:
+      mem
+    case 1n+p:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          ml_commitBatch_1(p, w_add(k, w_u(1)), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, m_put(n_of_w(w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(k))), mem, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), k)), Nil{})))), 0n))))
+
+def ml_commitBatch_2(n: Nat, +k: W, x: X_commitBatch, mem: List<&2, U32>) -> List<&2, U32>:
+  match n:
+    case 0n:
+      mem
+    case 1n+p:
+      match x:
+        case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          ml_commitBatch_2(p, w_add(k, w_u(1)), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, m_put(n_of_w(w_shl_5(k)), mem, b_of_w(w_nth(ge_e_blobs(x_en), n_of_w(k)))))
+
+def ev_commitBatch_1(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c2_0, +x_it2, +x_cn2, +x_rt2, +x_ld2, +x_c3_0, +x_c3_1, +x_c3_2, +x_it3, +x_cn3, +x_rt3, +x_ld3}:
+      sx_commitBatch_lg(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, Con{HLog{[W{220734351, 2808025806, 2943481801, 3514749681, 2749929377, 3205207140, 353846480, 741528750}, w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ite(List<&2, U32>, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), m_put(249n, m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatch_1(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))))), b_of_w(ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatch_2(n_of_w(x_cn2), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn2))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatch_1(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))))), b_of_w(ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatch_2(n_of_w(x_cn2), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn2))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, ite(W, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), W{257, 0, 0, 0, 0, 0, 0, 0}, W{249, 0, 0, 0, 0, 0, 0, 0})))], Nil{}}, x_lg})
+
+# event contracts/contracts/l1/rollup/Rollup.sol:383
+def s_commitBatch_1(x: X_commitBatch) -> X_commitBatch:
+  sz_commitBatch(ev_commitBatch_1(x))
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:374-382#0
+def k_commitBatch_2(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_1(x)
+    case False{}:
+      xf_commitBatch(x, 43, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([116, 104, 101, 32, 115, 105, 103, 110, 97, 116, 117, 114, 101, 32, 118, 101, 114, 105, 102, 105, 99, 97, 116, 105, 111, 110, 32, 102, 97, 105, 108, 101, 100]))))
+
+def cq_commitBatch_2_5(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatch_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatch_batchSignatureInput(x_ar))), Nil{}))))))))))
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          k_commitBatch_2(w_nz(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatch_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatch_batchSignatureInput(x_ar))), Nil{}))))))))), 0n)), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_2_4(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          cq_commitBatch_2_5(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatch_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatch_batchSignatureInput(x_ar))), Nil{})))))))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_2_3(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          dq_commitBatch_2_4(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n))), Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_2_2(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          dq_commitBatch_2_3(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n))), Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_2_1(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          dq_commitBatch_2_2(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_2_0(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          dq_commitBatch_2_1(Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:374-382
+def s_commitBatch_2(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      dq_commitBatch_2_0(Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:375-380#0
+def k_commitBatch_3(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_2(x)
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 42, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatch_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatch_batchSignatureInput(x_ar))), Nil{}))))))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatch_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatch_batchSignatureInput(x_ar))), Nil{})))))))))))
+
+def dq_commitBatch_3_4(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          k_commitBatch_3(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatch_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatch_batchSignatureInput(x_ar))), Nil{}))))))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_3_3(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          dq_commitBatch_3_4(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n))), Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_3_2(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          dq_commitBatch_3_3(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n))), Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 64n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_3_1(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          dq_commitBatch_3_2(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def dq_commitBatch_3_0(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      xf_commitBatch(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          dq_commitBatch_3_1(Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)), 128n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:375-380
+def s_commitBatch_3(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      dq_commitBatch_3_0(Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar)))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def wr_commitBatch_4(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, +x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      +o0 = x_ov
+      +k = {W{158, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatch_tw(sx_commitBatch_ov(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:370
+def s_commitBatch_4(x: X_commitBatch) -> X_commitBatch:
+  s_commitBatch_3(wr_commitBatch_4(x))
+
+def wr_commitBatch_5(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162])) : W}
+      +o1 = {sstore(o0, k, ge_e_block_timestamp(x_en)) : HSt}
+      +o2 = {sstore(o1, w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), w_add(w_add(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), ite(W, w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), w_sub(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en)), W{0, 0, 0, 0, 0, 0, 0, 0}))) : HSt}
+      +o3 = {sstore(o2, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))) : HSt}
+      +o4 = {sstore(o3, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), 0n)) : HSt}
+      sx_commitBatch_tw(sx_commitBatch_ov(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, o4), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
+
+def cq_commitBatch_5_0(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))))
+    case False{}:
+      s_commitBatch_4(wr_commitBatch_5(x))
+
+# write contracts/contracts/l1/rollup/Rollup.sol:361-368
+def s_commitBatch_5(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      cq_commitBatch_5_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{}))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1
+def k_commitBatch_6(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_5(x)
+    case False{}:
+      xf_commitBatch(x, 41, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:363
+def s_commitBatch_6(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_6(w_add_ok(w_add(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), ite(W, w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), w_sub(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#0
+def k_commitBatch_7(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_6(x)
+    case False{}:
+      xf_commitBatch(x, 40, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:363
+def s_commitBatch_7(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_7(w_add_ok(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:358#1
+def k_commitBatch_8(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_7(x)
+    case False{}:
+      xf_commitBatch(x, 39, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:358
+def s_commitBatch_8(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_8(Bool.or(Bool.not(w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_sub_ok(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:358#0
+def k_commitBatch_9(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_8(x)
+    case False{}:
+      xf_commitBatch(x, 38, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:358
+def s_commitBatch_9(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_9(Bool.or(Bool.not(w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add_ok(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0})))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def wr_commitBatch_10(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c2_0, +x_it2, +x_cn2, +x_rt2, +x_ld2, +x_c3_0, +x_c3_1, +x_c3_2, +x_it3, +x_cn3, +x_rt3, +x_ld3}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173])) : W}
+      +v = {ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatch_2(n_of_w(x_cn2), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn2))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n))) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatch_tw(sx_commitBatch_ov(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:354
+def s_commitBatch_10(x: X_commitBatch) -> X_commitBatch:
+  s_commitBatch_9(wr_commitBatch_10(x))
+
+def wr_commitBatch_11(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 171])) : W}
+      +v = {g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatch_batchDataInput(x_ar)) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatch_tw(sx_commitBatch_ov(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:353
+def s_commitBatch_11(x: X_commitBatch) -> X_commitBatch:
+  s_commitBatch_10(wr_commitBatch_11(x))
+
+def wr_commitBatch_12(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c2_0, +x_it2, +x_cn2, +x_rt2, +x_ld2, +x_c3_0, +x_c3_1, +x_c3_2, +x_it3, +x_cn3, +x_rt3, +x_ld3}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])) : W}
+      +v = {h_get(x_kh, m_slice(ite(List<&2, U32>, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), m_put(249n, m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatch_1(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))))), b_of_w(ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatch_2(n_of_w(x_cn2), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn2))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatch_1(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)))))))), b_of_w(ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatch_2(n_of_w(x_cn2), w0(), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn2))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatch_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatch_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, ite(W, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), W{257, 0, 0, 0, 0, 0, 0, 0}, W{249, 0, 0, 0, 0, 0, 0, 0}))) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatch_tw(sx_commitBatch_ov(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:352
+def s_commitBatch_12(x: X_commitBatch) -> X_commitBatch:
+  s_commitBatch_11(wr_commitBatch_12(x))
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:349#0
+def k_commitBatch_13(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_12(x)
+    case False{}:
+      xf_commitBatch(x, 37, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:349
+def s_commitBatch_13(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_13(Bool.or(Bool.not(w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_shr_64(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar)))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def ln_commitBatch_3(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, +x_it3, x_cn3, x_rt3, x_ld3}:
+      +n0 = {w_add(w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_it3)), W{32, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n1 = {w_add(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), x_it3), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n2 = {w_add(x_it3, W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      sx_commitBatch_ld3(sx_commitBatch_it3(sx_commitBatch_c3_2(sx_commitBatch_c3_1(sx_commitBatch_c3_0(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, n0), n1), n2), w_add(x_it3, w_u(1))), 1n)
+
+def lbk_commitBatch_3(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, +x_it3, x_cn3, x_rt3, x_ld3}:
+      sx_commitBatch_ld3(sx_commitBatch_cn3(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, x_it3), 3n)
+
+def lk_commitBatch_3(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      lbk_commitBatch_3(x)
+    case False{}:
+      ln_commitBatch_3(x)
+
+def lc_commitBatch_3(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      sx_commitBatch_ld3(x, 2n)
+    case False{}:
+      ln_commitBatch_3(x)
+
+def lb_commitBatch_3(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      lc_commitBatch_3(u_nz(x_cd), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def lz_commitBatch_3(x: X_commitBatch) -> X_commitBatch:
+  x
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:968#0
+def k_commitBatch_15(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      lz_commitBatch_3(x)
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, +x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 36, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), x_it3)), Nil{})))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), x_it3)), Nil{}))))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:968
+def s_commitBatch_15(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, +x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_15(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_lt(x_it3, g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))))), a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)), x_it3)), Nil{}))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def lx_commitBatch_3(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, +x_it3, x_cn3, x_rt3, x_ld3}:
+      sx_commitBatch_ld3(sx_commitBatch_cn3(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, x_it3), 0n)
+
+def lh_commitBatch_3(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      lb_commitBatch_3(s_commitBatch_15(x))
+    case False{}:
+      lx_commitBatch_3(x)
+
+def li_commitBatch_3(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, +x_it3, x_cn3, x_rt3, x_ld3}:
+      lh_commitBatch_3(w_lt(x_it3, g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def lpz_commitBatch_3(d: Nat, x: X_commitBatch) -> X_commitBatch:
+  match d:
+    case 0n:
+      x
+    case 1n+q:
+      match q:
+        case 0n:
+          xf_commitBatch(x, 4294967295, Nil{})
+        case 1n+s:
+          x
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:967-974: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
+def lp_commitBatch_3(f: Nat, d: Nat, x: X_commitBatch) -> X_commitBatch:
+  match f:
+    case 0n:
+      lpz_commitBatch_3(d, x)
+    case 1n+r:
+      match d:
+        case 0n:
+          x
+        case 1n+q:
+          match q:
+            case 0n:
+              +y = li_commitBatch_3(x)
+              lp_commitBatch_3(r, gx_commitBatch_ld3(y), y)
+            case 1n+s:
+              x
+
+def ls_commitBatch_3(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      +v0 = {W{10, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v1 = {w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 17n)) : W}
+      +v2 = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
+      sx_commitBatch_ld3(sx_commitBatch_rt3(sx_commitBatch_cn3(sx_commitBatch_it3(sx_commitBatch_c3_2(sx_commitBatch_c3_1(sx_commitBatch_c3_0(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, v0), v1), v2), w0()), w0()), w0()), 1n)
+
+def la_commitBatch_14(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      x
+    case False{}:
+      s_commitBatch_13(x)
+
+def lg_commitBatch_14(x: X_commitBatch) -> X_commitBatch:
+  +y = lp_commitBatch_3(U32.to_nat(4097), 1n, ls_commitBatch_3(x))
+  la_commitBatch_14(u_nz(gx_commitBatch_cd(y)), y)
+
+def lq_commitBatch_14(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      lg_commitBatch_14(x)
+    case False{}:
+      s_commitBatch_13(x)
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:967-974
+def s_commitBatch_14(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      lq_commitBatch_14(Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:312#0
+def k_commitBatch_16(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_14(x)
+    case False{}:
+      xf_commitBatch(x, 35, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:312
+def s_commitBatch_16(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_16(w_lt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{65536, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:311#0
+def k_commitBatch_17(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_16(x)
+    case False{}:
+      xf_commitBatch(x, 34, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:311
+def s_commitBatch_17(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_17(Bool.not(w_nz(w_shr_64(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatch_batchDataInput(x_ar))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:306#0
+def k_commitBatch_18(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_17(x)
+    case False{}:
+      xf_commitBatch(x, 33, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 112, 114, 101, 118, 105, 111, 117, 115, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:306
+def s_commitBatch_18(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_18(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 171]))), g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatch_batchDataInput(x_ar))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:305#0
+def k_commitBatch_19(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_18(x)
+    case False{}:
+      xf_commitBatch(x, 32, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 112, 97, 114, 101, 110, 116, 32, 98, 97, 116, 99, 104, 32, 104, 97, 115, 104]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:305
+def s_commitBatch_19(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_19(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:304#0
+def k_commitBatch_20(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_19(x)
+    case False{}:
+      xf_commitBatch(x, 31, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 98, 97, 116, 99, 104, 32, 105, 110, 100, 101, 120]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:304
+def s_commitBatch_20(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_20(w_eq(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:303#1
+def k_commitBatch_21(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_20(x)
+    case False{}:
+      xf_commitBatch(x, 30, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 97, 108, 114, 101, 97, 100, 121, 32, 99, 111, 109, 109, 105, 116, 116, 101, 100]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:303
+def s_commitBatch_21(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_21(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:303#0
+def k_commitBatch_22(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_21(x)
+    case False{}:
+      xf_commitBatch(x, 29, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:303
+def s_commitBatch_22(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_22(w_add_ok(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:875#1
+def k_commitBatch_23(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_22(x)
+    case False{}:
+      xf_commitBatch(x, 28, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([85, 110, 115, 117, 112, 112, 111, 114, 116, 101, 100, 32, 98, 97, 116, 99, 104, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:875
+def s_commitBatch_23(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_23(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1
+def k_commitBatch_24(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_23(x)
+    case False{}:
+      xf_commitBatch(x, 27, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 105, 115, 32, 105, 110, 99, 111, 114, 114, 101, 99, 116]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
+def s_commitBatch_24(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_24(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1
+def k_commitBatch_25(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_24(x)
+    case False{}:
+      xf_commitBatch(x, 26, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 116, 111, 111, 32, 115, 109, 97, 108, 108]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
+def s_commitBatch_25(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_25(Bool.or(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:857#1
+def k_commitBatch_26(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_25(x)
+    case False{}:
+      xf_commitBatch(x, 25, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:857
+def s_commitBatch_26(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_26(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:856#1
+def k_commitBatch_27(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_26(x)
+    case False{}:
+      xf_commitBatch(x, 24, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([69, 109, 112, 116, 121, 32, 98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:856
+def s_commitBatch_27(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_27(w_gt(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:287#0
+def k_commitBatch_28(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_27(x)
+    case False{}:
+      xf_commitBatch(x, 23, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([110, 101, 119, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116, 32, 105, 115, 32, 122, 101, 114, 111]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:287
+def s_commitBatch_28(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_28(Bool.not(w_eq(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:286#0
+def k_commitBatch_29(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_28(x)
+    case False{}:
+      xf_commitBatch(x, 22, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([112, 114, 101, 118, 105, 111, 117, 115, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116, 32, 105, 115, 32, 122, 101, 114, 111]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:286
+def s_commitBatch_29(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_29(Bool.not(w_eq(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:285#0
+def k_commitBatch_30(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_29(x)
+    case False{}:
+      xf_commitBatch(x, 21, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 118, 97, 108, 105, 100, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:285
+def s_commitBatch_30(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_30(w_le(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:946#0
+def k_commitBatch_31(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_30(x)
+    case False{}:
+      xf_commitBatch(x, 20, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([108, 101, 103, 97, 99, 121, 32, 98, 97, 116, 99, 104, 101, 115, 32, 115, 117, 112, 112, 111, 114, 116, 32, 101, 120, 97, 99, 116, 108, 121, 32, 49, 32, 98, 108, 111, 98]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:946
+def s_commitBatch_31(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_31(Bool.or(w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_nth(ge_e_blobs(x_en), 1n), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:944#0
+def k_commitBatch_32(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_31(x)
+    case False{}:
+      xf_commitBatch(x, 19, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([86, 50, 32, 114, 101, 113, 117, 105, 114, 101, 115, 32, 97, 116, 32, 108, 101, 97, 115, 116, 32, 49, 32, 98, 108, 111, 98]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:944
+def s_commitBatch_32(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, +x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_32(Bool.or(Bool.not(w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0})), w_gt(x_cn2, W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def ln_commitBatch_2(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, +x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      +n0 = {w_add(x_it2, W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      sx_commitBatch_ld2(sx_commitBatch_it2(sx_commitBatch_c2_0(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, n0), w_add(x_it2, w_u(1))), 1n)
+
+def lbk_commitBatch_2(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, +x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      +b0 = {x_it2 : W}
+      sx_commitBatch_ld2(sx_commitBatch_cn2(sx_commitBatch_c2_0(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, b0), x_it2), 3n)
+
+def lk_commitBatch_2(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      lbk_commitBatch_2(x)
+    case False{}:
+      ln_commitBatch_2(x)
+
+def lc_commitBatch_2(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      sx_commitBatch_ld2(x, 2n)
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, +x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          lk_commitBatch_2(w_eq(w_nth(ge_e_blobs(x_en), n_of_w(x_it2)), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def lb_commitBatch_2(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      lc_commitBatch_2(u_nz(x_cd), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def lz_commitBatch_2(x: X_commitBatch) -> X_commitBatch:
+  x
+
+def lx_commitBatch_2(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, +x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      sx_commitBatch_ld2(sx_commitBatch_cn2(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, x_it2), 0n)
+
+def lh_commitBatch_2(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      lb_commitBatch_2(lz_commitBatch_2(x))
+    case False{}:
+      lx_commitBatch_2(x)
+
+def li_commitBatch_2(x: X_commitBatch) -> X_commitBatch:
+  lh_commitBatch_2(True{}, x)
+
+def lpz_commitBatch_2(d: Nat, x: X_commitBatch) -> X_commitBatch:
+  match d:
+    case 0n:
+      x
+    case 1n+q:
+      match q:
+        case 0n:
+          xf_commitBatch(x, 4294967295, Nil{})
+        case 1n+s:
+          x
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:932-939: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
+def lp_commitBatch_2(f: Nat, d: Nat, x: X_commitBatch) -> X_commitBatch:
+  match f:
+    case 0n:
+      lpz_commitBatch_2(d, x)
+    case 1n+r:
+      match d:
+        case 0n:
+          x
+        case 1n+q:
+          match q:
+            case 0n:
+              +y = li_commitBatch_2(x)
+              lp_commitBatch_2(r, gx_commitBatch_ld2(y), y)
+            case 1n+s:
+              x
+
+def ls_commitBatch_2(x: X_commitBatch) -> X_commitBatch:
+  +v0 = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
+  sx_commitBatch_ld2(sx_commitBatch_rt2(sx_commitBatch_cn2(sx_commitBatch_it2(sx_commitBatch_c2_0(x, v0), w0()), w0()), w0()), 1n)
+
+def la_commitBatch_33(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      x
+    case False{}:
+      s_commitBatch_32(x)
+
+def lg_commitBatch_33(x: X_commitBatch) -> X_commitBatch:
+  +y = lp_commitBatch_2(U32.to_nat(4097), 1n, ls_commitBatch_2(x))
+  la_commitBatch_33(u_nz(gx_commitBatch_cd(y)), y)
+
+def lq_commitBatch_33(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      lg_commitBatch_33(x)
+    case False{}:
+      s_commitBatch_32(x)
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:932-939
+def s_commitBatch_33(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      lq_commitBatch_33(w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:251#0
+def k_commitBatch_34(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_33(x)
+    case False{}:
+      xf_commitBatch(x, 18, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:251
+def s_commitBatch_34(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_34(w_lt(g_S_IRollup_BatchDataInput_version(ga_commitBatch_batchDataInput(x_ar)), W{256, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:250#0
+def k_commitBatch_35(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_34(x)
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 17, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{}))))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:250
+def s_commitBatch_35(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_35(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:248#1
+def k_commitBatch_36(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_35(x)
+    case False{}:
+      xf_commitBatch(x, 16, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([108, 49, 109, 115, 103, 32, 100, 101, 108, 97, 121]))))
+
+def cq_commitBatch_36_0(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          k_commitBatch_36(Bool.or(Bool.not(w_lt(w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), w_gt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:248
+def s_commitBatch_36(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      cq_commitBatch_36_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:248#0
+def k_commitBatch_37(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_36(x)
+    case False{}:
+      xf_commitBatch(x, 15, Nil{})
+
+def cq_commitBatch_37_0(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          k_commitBatch_37(Bool.or(Bool.not(w_lt(w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), w_lt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatch_batchDataInput(x_ar)), W{65536, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:248
+def s_commitBatch_37(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      cq_commitBatch_37_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:246#1
+def k_commitBatch_38(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_37(x)
+    case False{}:
+      xf_commitBatch(x, 14, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+def cq_commitBatch_38_0(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          k_commitBatch_38(w_add_ok(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:246
+def s_commitBatch_38(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      cq_commitBatch_38_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:246#0
+def k_commitBatch_39(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_38(x)
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 13, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:246
+def s_commitBatch_39(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_39(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:244#0
+def k_commitBatch_40(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_39(x)
+    case False{}:
+      xf_commitBatch(x, 12, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([99, 111, 109, 109, 105, 116, 66, 97, 116, 99, 104, 32, 114, 101, 113, 117, 105, 114, 101, 115, 32, 110, 111, 32, 115, 116, 111, 114, 101, 100, 32, 98, 108, 111, 98, 32, 104, 97, 115, 104]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:244
+def s_commitBatch_40(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_40(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:243#0
+def k_commitBatch_41(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_40(x)
+    case False{}:
+      xf_commitBatch(x, 11, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:243
+def s_commitBatch_41(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_41(w_add_ok(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:875#0
+def k_commitBatch_42(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_41(x)
+    case False{}:
+      xf_commitBatch(x, 10, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([85, 110, 115, 117, 112, 112, 111, 114, 116, 101, 100, 32, 98, 97, 116, 99, 104, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:875
+def s_commitBatch_42(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_42(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0
+def k_commitBatch_43(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_42(x)
+    case False{}:
+      xf_commitBatch(x, 9, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 105, 115, 32, 105, 110, 99, 111, 114, 114, 101, 99, 116]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
+def s_commitBatch_43(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_43(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0
+def k_commitBatch_44(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_43(x)
+    case False{}:
+      xf_commitBatch(x, 8, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 116, 111, 111, 32, 115, 109, 97, 108, 108]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
+def s_commitBatch_44(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_44(Bool.or(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:857#0
+def k_commitBatch_45(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_44(x)
+    case False{}:
+      xf_commitBatch(x, 7, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:857
+def s_commitBatch_45(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_45(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:856#0
+def k_commitBatch_46(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_45(x)
+    case False{}:
+      xf_commitBatch(x, 6, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([69, 109, 112, 116, 121, 32, 98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:856
+def s_commitBatch_46(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_46(w_gt(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatch_batchDataInput(x_ar)))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#_openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0
+def k_commitBatch_47(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_46(x)
+    case False{}:
+      xf_commitBatch(x, 5, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([80, 97, 117, 115, 97, 98, 108, 101, 58, 32, 112, 97, 117, 115, 101, 100]))))
+
+# check _openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def s_commitBatch_47(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_47(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:130#0
+def k_commitBatch_48(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_47(x)
+    case False{}:
+      xf_commitBatch(x, 4, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([112, 101, 110, 100, 105, 110, 103, 32, 114, 101, 118, 101, 114, 116, 32, 114, 101, 113, 117, 101, 115, 116]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:130
+def s_commitBatch_48(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_48(w_eq(sload(x_st, W{168, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:118#1
+def k_commitBatch_49(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_48(x)
+    case False{}:
+      xf_commitBatch(x, 3, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([111, 110, 108, 121, 32, 97, 99, 116, 105, 118, 101, 32, 115, 116, 97, 107, 101, 114, 32, 97, 108, 108, 111, 119, 101, 100]))))
+
+def cq_commitBatch_49_0(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))))
+    case False{}:
+      match x:
+        case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          k_commitBatch_49(w_nz(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), 0n)), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:118
+def s_commitBatch_49(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      cq_commitBatch_49_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{}))))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:118#0
+def k_commitBatch_50(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_49(x)
+    case False{}:
+      match x:
+        case X_commitBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+          xf_commitBatch(X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}, 2, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{}))))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:118
+def s_commitBatch_50(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_50(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+# commitBatch#contracts/contracts/l1/rollup/Rollup.sol:237-253#0
+def k_commitBatch_51(c: Bool, x: X_commitBatch) -> X_commitBatch:
+  match c:
+    case True{}:
+      s_commitBatch_50(x)
+    case False{}:
+      xf_commitBatch(x, 1, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:237-253
+def s_commitBatch_51(x: X_commitBatch) -> X_commitBatch:
+  match x:
+    case X_commitBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3}:
+      k_commitBatch_51(w_ge(ge_e_msg_data_length(x_en), W{68, 0, 0, 0, 0, 0, 0, 0}), X_commitBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_it2, x_cn2, x_rt2, x_ld2, x_c3_0, x_c3_1, x_c3_2, x_it3, x_cn3, x_rt3, x_ld3})
+
+def x0_commitBatch(+st: HSt, +ar: AR_commitBatch, +en: HEnv, +kh: List<&2, HKB>) -> X_commitBatch:
+  X_commitBatch{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}, w0(), w0(), w0(), w0(), 0n, w0(), w0(), w0(), w0(), w0(), w0(), 0n}
+
+# the context after the action's program ran (holon.extracted_eval's order)
+def xr_commitBatch(+st: HSt, +ar: AR_commitBatch, +en: HEnv, +kh: List<&2, HKB>) -> X_commitBatch:
+  s_commitBatch_51(x0_commitBatch(st, ar, en, kh))
+
+def xo_commitBatch(x: X_commitBatch) -> HOut:
+  match x:
+    case X_commitBatch{_, x_ov, _, _, _, x_cd, x_rv, x_lg, x_tw, _, _, _, _, _, _, _, _, _, _, _, _}:
+      HOut{x_cd, x_rv, x_ov, lg_rev(x_lg, Nil{}), x_tw}
+
+def run_commitBatch(+st: HSt, +ar: AR_commitBatch, +en: HEnv, +kh: List<&2, HKB>) -> HOut:
+  xo_commitBatch(xr_commitBatch(st, ar, en, kh))
+
+# 0 when every check of commitBatch holds, k + 1 when check k (holon.machine's order) is the first to fail
+def chk_commitBatch(+st: HSt, +ar: AR_commitBatch, +en: HEnv, +kh: List<&2, HKB>) -> U32:
+  o_code(run_commitBatch(st, ar, en, kh))
+
+def post_commitBatch(+st: HSt, +ar: AR_commitBatch, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  o_post(run_commitBatch(st, ar, en, kh))
+
+def logs_commitBatch(+st: HSt, +ar: AR_commitBatch, +en: HEnv, +kh: List<&2, HKB>) -> List<&2, HLog>:
+  o_logs(run_commitBatch(st, ar, en, kh))
+
+def step_commitBatch(+st: HSt, +ar: AR_commitBatch, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  st_after(run_commitBatch(st, ar, en, kh), st)
+
+type X_commitBatchWithProof is Data:
+  X_commitBatchWithProof{st: HSt, ov: HSt, ar: AR_commitBatchWithProof, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c4_0: W, it4: W, cn4: W, rt4: W, ld4: Nat, c5_0: W, c5_1: W, c5_2: W, it5: W, cn5: W, rt5: W, ld5: Nat}
+
+def gx_commitBatchWithProof_st(e: X_commitBatchWithProof) -> HSt:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      st
+
+def gx_commitBatchWithProof_ov(e: X_commitBatchWithProof) -> HSt:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      ov
+
+def gx_commitBatchWithProof_ar(e: X_commitBatchWithProof) -> AR_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      ar
+
+def gx_commitBatchWithProof_en(e: X_commitBatchWithProof) -> HEnv:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      en
+
+def gx_commitBatchWithProof_kh(e: X_commitBatchWithProof) -> List<&2, HKB>:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      kh
+
+def gx_commitBatchWithProof_cd(e: X_commitBatchWithProof) -> U32:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      cd
+
+def gx_commitBatchWithProof_rv(e: X_commitBatchWithProof) -> List<&2, U32>:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      rv
+
+def gx_commitBatchWithProof_lg(e: X_commitBatchWithProof) -> List<&2, HLog>:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      lg
+
+def gx_commitBatchWithProof_tw(e: X_commitBatchWithProof) -> List<&2, W>:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      tw
+
+def gx_commitBatchWithProof_c4_0(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      c4_0
+
+def gx_commitBatchWithProof_it4(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      it4
+
+def gx_commitBatchWithProof_cn4(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      cn4
+
+def gx_commitBatchWithProof_rt4(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      rt4
+
+def gx_commitBatchWithProof_ld4(e: X_commitBatchWithProof) -> Nat:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      ld4
+
+def gx_commitBatchWithProof_c5_0(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      c5_0
+
+def gx_commitBatchWithProof_c5_1(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      c5_1
+
+def gx_commitBatchWithProof_c5_2(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      c5_2
+
+def gx_commitBatchWithProof_it5(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      it5
+
+def gx_commitBatchWithProof_cn5(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      cn5
+
+def gx_commitBatchWithProof_rt5(e: X_commitBatchWithProof) -> W:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      rt5
+
+def gx_commitBatchWithProof_ld5(e: X_commitBatchWithProof) -> Nat:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      ld5
+
+def sx_commitBatchWithProof_st(e: X_commitBatchWithProof, +v: HSt) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{_, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{v, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_ov(e: X_commitBatchWithProof, +v: HSt) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, _, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, v, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_ar(e: X_commitBatchWithProof, +v: AR_commitBatchWithProof) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, _, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, v, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_en(e: X_commitBatchWithProof, +v: HEnv) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, _, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, v, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_kh(e: X_commitBatchWithProof, +v: List<&2, HKB>) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, _, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, v, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_cd(e: X_commitBatchWithProof, +v: U32) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, _, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, v, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_rv(e: X_commitBatchWithProof, +v: List<&2, U32>) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, _, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, v, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_lg(e: X_commitBatchWithProof, +v: List<&2, HLog>) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, _, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, v, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_tw(e: X_commitBatchWithProof, +v: List<&2, W>) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, _, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, v, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_c4_0(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, _, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, v, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_it4(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, _, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, v, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_cn4(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, _, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, v, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_rt4(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, _, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, v, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_ld4(e: X_commitBatchWithProof, +v: Nat) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, _, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, v, c5_0, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_c5_0(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, _, c5_1, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, v, c5_1, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_c5_1(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, _, c5_2, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, v, c5_2, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_c5_2(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, _, it5, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, v, it5, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_it5(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, _, cn5, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, v, cn5, rt5, ld5}
+
+def sx_commitBatchWithProof_cn5(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, _, rt5, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, v, rt5, ld5}
+
+def sx_commitBatchWithProof_rt5(e: X_commitBatchWithProof, +v: W) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, _, ld5}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, v, ld5}
+
+def sx_commitBatchWithProof_ld5(e: X_commitBatchWithProof, +v: Nat) -> X_commitBatchWithProof:
+  match e:
+    case X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, _}:
+      X_commitBatchWithProof{st, ov, ar, en, kh, cd, rv, lg, tw, c4_0, it4, cn4, rt4, ld4, c5_0, c5_1, c5_2, it5, cn5, rt5, v}
+
+def xf_commitBatchWithProof(x: X_commitBatchWithProof, +c: U32, +r: List<&2, U32>) -> X_commitBatchWithProof:
+  sx_commitBatchWithProof_cd(sx_commitBatchWithProof_rv(x, r), c)
+
+def sz_commitBatchWithProof(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  x
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:779-784#0
+def k_commitBatchWithProof_1(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      sz_commitBatchWithProof(x)
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 53, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{156, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [44, 9, 168, 72], List.append(&2, U32, b_of_w(w_shr_248(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 0n))), List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 1n))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, b_drop(b_of_w(ge_e_immutable_LAYER_2_CHAIN_ID(x_en)), 24n), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 89n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 121n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 153n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 185n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 25n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 57n)), 0), Nil{}))))))))), List.append(&2, U32, abi_dyn(ga_commitBatchWithProof__batchProof(x_ar)), Nil{})))))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{156, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [44, 9, 168, 72], List.append(&2, U32, b_of_w(w_shr_248(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 0n))), List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 1n))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, b_drop(b_of_w(ge_e_immutable_LAYER_2_CHAIN_ID(x_en)), 24n), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 89n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 121n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 153n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 185n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 25n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 57n)), 0), Nil{}))))))))), List.append(&2, U32, abi_dyn(ga_commitBatchWithProof__batchProof(x_ar)), Nil{}))))))))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:779-784
+def s_commitBatchWithProof_1(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_1(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{156, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [44, 9, 168, 72], List.append(&2, U32, b_of_w(w_shr_248(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 0n))), List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 1n))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, b_of_w(h_get(x_kh, List.append(&2, U32, b_drop(b_of_w(ge_e_immutable_LAYER_2_CHAIN_ID(x_en)), 24n), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 89n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 121n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 153n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 185n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 25n)), 0), List.append(&2, U32, b_take(32n, b_of_w(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 57n)), 0), Nil{}))))))))), List.append(&2, U32, abi_dyn(ga_commitBatchWithProof__batchProof(x_ar)), Nil{})))))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:758#0
+def k_commitBatchWithProof_2(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_1(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 52, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([73, 110, 118, 97, 108, 105, 100, 32, 98, 97, 116, 99, 104, 32, 112, 114, 111, 111, 102]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:758
+def s_commitBatchWithProof_2(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_2(w_gt(w_u(b_len(ga_commitBatchWithProof__batchProof(x_ar))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def wr_commitBatchWithProof_3(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      +o0 = x_ov
+      +k = {w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162])), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +v = {ge_e_block_timestamp(x_en) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatchWithProof_tw(sx_commitBatchWithProof_ov(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:429
+def s_commitBatchWithProof_3(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  s_commitBatchWithProof_2(wr_commitBatchWithProof_3(x))
+
+def ml_commitBatchWithProof_3(n: Nat, +k: W, x: X_commitBatchWithProof, mem: List<&2, U32>) -> List<&2, U32>:
+  match n:
+    case 0n:
+      mem
+    case 1n+p:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          ml_commitBatchWithProof_3(p, w_add(k, w_u(1)), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, m_put(n_of_w(w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(k))), mem, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), k)), Nil{})))), 0n))))
+
+def ml_commitBatchWithProof_4(n: Nat, +k: W, x: X_commitBatchWithProof, mem: List<&2, U32>) -> List<&2, U32>:
+  match n:
+    case 0n:
+      mem
+    case 1n+p:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          ml_commitBatchWithProof_4(p, w_add(k, w_u(1)), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, m_put(n_of_w(w_shl_5(k)), mem, b_of_w(w_nth(ge_e_blobs(x_en), n_of_w(k)))))
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:426#0
+def k_commitBatchWithProof_4(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_3(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 51, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 98, 97, 116, 99, 104, 32, 104, 97, 115, 104]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:426
+def s_commitBatchWithProof_4(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c4_0, +x_it4, +x_cn4, +x_rt4, +x_ld4, +x_c5_0, +x_c5_1, +x_c5_2, +x_it5, +x_cn5, +x_rt5, +x_ld5}:
+      k_commitBatchWithProof_4(w_eq(sload(sstore(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), h_get(x_kh, m_slice(ite(List<&2, U32>, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), m_put(249n, m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatchWithProof_3(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))))), b_of_w(ite(W, Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatchWithProof_4(n_of_w(x_cn4), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn4))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n)))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatchWithProof_3(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))))), b_of_w(ite(W, Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatchWithProof_4(n_of_w(x_cn4), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn4))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n)))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, ite(W, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), W{257, 0, 0, 0, 0, 0, 0, 0}, W{249, 0, 0, 0, 0, 0, 0, 0})))), h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), h_get(x_kh, ga_commitBatchWithProof__batchHeader(x_ar))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:425#0
+def k_commitBatchWithProof_5(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_4(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 50, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:425
+def s_commitBatchWithProof_5(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_5(w_eq(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_shr_192(b_word(ga_commitBatchWithProof__batchHeader(x_ar), 1n))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:875#2
+def k_commitBatchWithProof_6(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_5(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 49, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([85, 110, 115, 117, 112, 112, 111, 114, 116, 101, 100, 32, 98, 97, 116, 99, 104, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:875
+def s_commitBatchWithProof_6(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_6(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_commitBatchWithProof__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(ga_commitBatchWithProof__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_commitBatchWithProof__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#2
+def k_commitBatchWithProof_7(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_6(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 48, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 105, 115, 32, 105, 110, 99, 111, 114, 114, 101, 99, 116]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
+def s_commitBatchWithProof_7(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_7(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_commitBatchWithProof__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(ga_commitBatchWithProof__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_commitBatchWithProof__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(ga_commitBatchWithProof__batchHeader(x_ar))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#2
+def k_commitBatchWithProof_8(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_7(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 47, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 116, 111, 111, 32, 115, 109, 97, 108, 108]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
+def s_commitBatchWithProof_8(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_8(Bool.or(Bool.not(w_eq(w_u(b_at(ga_commitBatchWithProof__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(ga_commitBatchWithProof__batchHeader(x_ar))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:857#2
+def k_commitBatchWithProof_9(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_8(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 46, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:857
+def s_commitBatchWithProof_9(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_9(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(ga_commitBatchWithProof__batchHeader(x_ar)))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:856#2
+def k_commitBatchWithProof_10(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_9(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 45, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([69, 109, 112, 116, 121, 32, 98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:856
+def s_commitBatchWithProof_10(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_10(w_gt(w_u(b_len(ga_commitBatchWithProof__batchHeader(x_ar))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def ev_commitBatchWithProof_11(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c4_0, +x_it4, +x_cn4, +x_rt4, +x_ld4, +x_c5_0, +x_c5_1, +x_c5_2, +x_it5, +x_cn5, +x_rt5, +x_ld5}:
+      sx_commitBatchWithProof_lg(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, Con{HLog{[W{220734351, 2808025806, 2943481801, 3514749681, 2749929377, 3205207140, 353846480, 741528750}, w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ite(List<&2, U32>, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), m_put(249n, m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatchWithProof_3(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))))), b_of_w(ite(W, Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatchWithProof_4(n_of_w(x_cn4), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn4))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n)))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatchWithProof_3(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))))), b_of_w(ite(W, Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatchWithProof_4(n_of_w(x_cn4), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn4))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n)))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, ite(W, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), W{257, 0, 0, 0, 0, 0, 0, 0}, W{249, 0, 0, 0, 0, 0, 0, 0})))], Nil{}}, x_lg})
+
+# event contracts/contracts/l1/rollup/Rollup.sol:383
+def s_commitBatchWithProof_11(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  s_commitBatchWithProof_10(ev_commitBatchWithProof_11(x))
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:374-382#0
+def k_commitBatchWithProof_12(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_11(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 44, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([116, 104, 101, 32, 115, 105, 103, 110, 97, 116, 117, 114, 101, 32, 118, 101, 114, 105, 102, 105, 99, 97, 116, 105, 111, 110, 32, 102, 97, 105, 108, 101, 100]))))
+
+def cq_commitBatchWithProof_12_5(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatchWithProof_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatchWithProof_batchSignatureInput(x_ar))), Nil{}))))))))))
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          k_commitBatchWithProof_12(w_nz(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatchWithProof_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatchWithProof_batchSignatureInput(x_ar))), Nil{}))))))))), 0n)), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_12_4(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          cq_commitBatchWithProof_12_5(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatchWithProof_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatchWithProof_batchSignatureInput(x_ar))), Nil{})))))))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_12_3(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          dq_commitBatchWithProof_12_4(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n))), Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_12_2(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          dq_commitBatchWithProof_12_3(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n))), Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_12_1(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          dq_commitBatchWithProof_12_2(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_12_0(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          dq_commitBatchWithProof_12_1(Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:374-382
+def s_commitBatchWithProof_12(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      dq_commitBatchWithProof_12_0(Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:375-380#0
+def k_commitBatchWithProof_13(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_12(x)
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 43, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatchWithProof_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatchWithProof_batchSignatureInput(x_ar))), Nil{}))))))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatchWithProof_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatchWithProof_batchSignatureInput(x_ar))), Nil{})))))))))))
+
+def dq_commitBatchWithProof_13_4(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          k_commitBatchWithProof_13(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitBatchWithProof_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitBatchWithProof_batchSignatureInput(x_ar))), Nil{}))))))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_13_3(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          dq_commitBatchWithProof_13_4(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n))), Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_13_2(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          dq_commitBatchWithProof_13_3(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n))), Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 64n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_13_1(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          dq_commitBatchWithProof_13_2(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def dq_commitBatchWithProof_13_0(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      xf_commitBatchWithProof(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          dq_commitBatchWithProof_13_1(Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)), 128n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:375-380
+def s_commitBatchWithProof_13(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      dq_commitBatchWithProof_13_0(Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar)))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def wr_commitBatchWithProof_14(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, +x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      +o0 = x_ov
+      +k = {W{158, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatchWithProof_tw(sx_commitBatchWithProof_ov(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:370
+def s_commitBatchWithProof_14(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  s_commitBatchWithProof_13(wr_commitBatchWithProof_14(x))
+
+def wr_commitBatchWithProof_15(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162])) : W}
+      +o1 = {sstore(o0, k, ge_e_block_timestamp(x_en)) : HSt}
+      +o2 = {sstore(o1, w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), w_add(w_add(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), ite(W, w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), w_sub(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en)), W{0, 0, 0, 0, 0, 0, 0, 0}))) : HSt}
+      +o3 = {sstore(o2, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))) : HSt}
+      +o4 = {sstore(o3, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}) : HSt}
+      sx_commitBatchWithProof_tw(sx_commitBatchWithProof_ov(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, o4), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:361-368
+def s_commitBatchWithProof_15(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  s_commitBatchWithProof_14(wr_commitBatchWithProof_15(x))
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1
+def k_commitBatchWithProof_16(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_15(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 42, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:363
+def s_commitBatchWithProof_16(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_16(w_add_ok(w_add(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), ite(W, w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), w_sub(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#0
+def k_commitBatchWithProof_17(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_16(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 41, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:363
+def s_commitBatchWithProof_17(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_17(w_add_ok(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:358#1
+def k_commitBatchWithProof_18(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_17(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 40, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:358
+def s_commitBatchWithProof_18(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_18(Bool.or(Bool.not(w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_sub_ok(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:358#0
+def k_commitBatchWithProof_19(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_18(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 39, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:358
+def s_commitBatchWithProof_19(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_19(Bool.or(Bool.not(w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add_ok(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0})))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def wr_commitBatchWithProof_20(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c4_0, +x_it4, +x_cn4, +x_rt4, +x_ld4, +x_c5_0, +x_c5_1, +x_c5_2, +x_it5, +x_cn5, +x_rt5, +x_ld5}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173])) : W}
+      +v = {ite(W, Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatchWithProof_4(n_of_w(x_cn4), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn4))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n)))) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatchWithProof_tw(sx_commitBatchWithProof_ov(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:354
+def s_commitBatchWithProof_20(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  s_commitBatchWithProof_19(wr_commitBatchWithProof_20(x))
+
+def wr_commitBatchWithProof_21(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 171])) : W}
+      +v = {g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatchWithProof_tw(sx_commitBatchWithProof_ov(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:353
+def s_commitBatchWithProof_21(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  s_commitBatchWithProof_20(wr_commitBatchWithProof_21(x))
+
+def wr_commitBatchWithProof_22(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c4_0, +x_it4, +x_cn4, +x_rt4, +x_ld4, +x_c5_0, +x_c5_1, +x_c5_2, +x_it5, +x_cn5, +x_rt5, +x_ld5}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])) : W}
+      +v = {h_get(x_kh, m_slice(ite(List<&2, U32>, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), m_put(249n, m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatchWithProof_3(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))))), b_of_w(ite(W, Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatchWithProof_4(n_of_w(x_cn4), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn4))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n)))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitBatchWithProof_3(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)))))))), b_of_w(ite(W, Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), ite(W, w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ml_commitBatchWithProof_4(n_of_w(x_cn4), w0(), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, Nil{}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_cn4))), ite(W, w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), W{1011105812, 87658170, 1836807945, 3740773270, 2112761717, 1076503185, 1968490369, 17192947}, w_nth(ge_e_blobs(x_en), 0n)))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitBatchWithProof_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitBatchWithProof_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, ite(W, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), W{257, 0, 0, 0, 0, 0, 0, 0}, W{249, 0, 0, 0, 0, 0, 0, 0}))) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitBatchWithProof_tw(sx_commitBatchWithProof_ov(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:352
+def s_commitBatchWithProof_22(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  s_commitBatchWithProof_21(wr_commitBatchWithProof_22(x))
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:349#0
+def k_commitBatchWithProof_23(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_22(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 38, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:349
+def s_commitBatchWithProof_23(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_23(Bool.or(Bool.not(w_ge(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_shr_64(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar)))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def ln_commitBatchWithProof_5(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, +x_it5, x_cn5, x_rt5, x_ld5}:
+      +n0 = {w_add(w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_it5)), W{32, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n1 = {w_add(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), x_it5), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n2 = {w_add(x_it5, W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      sx_commitBatchWithProof_ld5(sx_commitBatchWithProof_it5(sx_commitBatchWithProof_c5_2(sx_commitBatchWithProof_c5_1(sx_commitBatchWithProof_c5_0(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, n0), n1), n2), w_add(x_it5, w_u(1))), 1n)
+
+def lbk_commitBatchWithProof_5(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, +x_it5, x_cn5, x_rt5, x_ld5}:
+      sx_commitBatchWithProof_ld5(sx_commitBatchWithProof_cn5(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, x_it5), 3n)
+
+def lk_commitBatchWithProof_5(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      lbk_commitBatchWithProof_5(x)
+    case False{}:
+      ln_commitBatchWithProof_5(x)
+
+def lc_commitBatchWithProof_5(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      sx_commitBatchWithProof_ld5(x, 2n)
+    case False{}:
+      ln_commitBatchWithProof_5(x)
+
+def lb_commitBatchWithProof_5(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      lc_commitBatchWithProof_5(u_nz(x_cd), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def lz_commitBatchWithProof_5(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  x
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:968#0
+def k_commitBatchWithProof_25(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      lz_commitBatchWithProof_5(x)
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, +x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 37, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), x_it5)), Nil{})))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), x_it5)), Nil{}))))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:968
+def s_commitBatchWithProof_25(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, +x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_25(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_lt(x_it5, g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))))), a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)), x_it5)), Nil{}))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def lx_commitBatchWithProof_5(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, +x_it5, x_cn5, x_rt5, x_ld5}:
+      sx_commitBatchWithProof_ld5(sx_commitBatchWithProof_cn5(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, x_it5), 0n)
+
+def lh_commitBatchWithProof_5(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      lb_commitBatchWithProof_5(s_commitBatchWithProof_25(x))
+    case False{}:
+      lx_commitBatchWithProof_5(x)
+
+def li_commitBatchWithProof_5(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, +x_it5, x_cn5, x_rt5, x_ld5}:
+      lh_commitBatchWithProof_5(w_lt(x_it5, g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def lpz_commitBatchWithProof_5(d: Nat, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match d:
+    case 0n:
+      x
+    case 1n+q:
+      match q:
+        case 0n:
+          xf_commitBatchWithProof(x, 4294967295, Nil{})
+        case 1n+s:
+          x
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:967-974: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
+def lp_commitBatchWithProof_5(f: Nat, d: Nat, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match f:
+    case 0n:
+      lpz_commitBatchWithProof_5(d, x)
+    case 1n+r:
+      match d:
+        case 0n:
+          x
+        case 1n+q:
+          match q:
+            case 0n:
+              +y = li_commitBatchWithProof_5(x)
+              lp_commitBatchWithProof_5(r, gx_commitBatchWithProof_ld5(y), y)
+            case 1n+s:
+              x
+
+def ls_commitBatchWithProof_5(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      +v0 = {W{10, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v1 = {w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 17n)) : W}
+      +v2 = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
+      sx_commitBatchWithProof_ld5(sx_commitBatchWithProof_rt5(sx_commitBatchWithProof_cn5(sx_commitBatchWithProof_it5(sx_commitBatchWithProof_c5_2(sx_commitBatchWithProof_c5_1(sx_commitBatchWithProof_c5_0(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, v0), v1), v2), w0()), w0()), w0()), 1n)
+
+def la_commitBatchWithProof_24(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      x
+    case False{}:
+      s_commitBatchWithProof_23(x)
+
+def lg_commitBatchWithProof_24(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  +y = lp_commitBatchWithProof_5(U32.to_nat(4097), 1n, ls_commitBatchWithProof_5(x))
+  la_commitBatchWithProof_24(u_nz(gx_commitBatchWithProof_cd(y)), y)
+
+def lq_commitBatchWithProof_24(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      lg_commitBatchWithProof_24(x)
+    case False{}:
+      s_commitBatchWithProof_23(x)
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:967-974
+def s_commitBatchWithProof_24(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      lq_commitBatchWithProof_24(Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:312#0
+def k_commitBatchWithProof_26(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_24(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 36, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:312
+def s_commitBatchWithProof_26(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_26(w_lt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{65536, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:311#0
+def k_commitBatchWithProof_27(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_26(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 35, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:311
+def s_commitBatchWithProof_27(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_27(Bool.not(w_nz(w_shr_64(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitBatchWithProof_batchDataInput(x_ar))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:306#0
+def k_commitBatchWithProof_28(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_27(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 34, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 112, 114, 101, 118, 105, 111, 117, 115, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:306
+def s_commitBatchWithProof_28(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_28(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 171]))), g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:305#0
+def k_commitBatchWithProof_29(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_28(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 33, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 112, 97, 114, 101, 110, 116, 32, 98, 97, 116, 99, 104, 32, 104, 97, 115, 104]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:305
+def s_commitBatchWithProof_29(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_29(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:304#0
+def k_commitBatchWithProof_30(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_29(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 32, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 98, 97, 116, 99, 104, 32, 105, 110, 100, 101, 120]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:304
+def s_commitBatchWithProof_30(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_30(w_eq(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:303#1
+def k_commitBatchWithProof_31(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_30(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 31, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 97, 108, 114, 101, 97, 100, 121, 32, 99, 111, 109, 109, 105, 116, 116, 101, 100]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:303
+def s_commitBatchWithProof_31(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_31(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:303#0
+def k_commitBatchWithProof_32(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_31(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 30, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:303
+def s_commitBatchWithProof_32(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_32(w_add_ok(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:875#1
+def k_commitBatchWithProof_33(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_32(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 29, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([85, 110, 115, 117, 112, 112, 111, 114, 116, 101, 100, 32, 98, 97, 116, 99, 104, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:875
+def s_commitBatchWithProof_33(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_33(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1
+def k_commitBatchWithProof_34(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_33(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 28, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 105, 115, 32, 105, 110, 99, 111, 114, 114, 101, 99, 116]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
+def s_commitBatchWithProof_34(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_34(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1
+def k_commitBatchWithProof_35(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_34(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 27, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 116, 111, 111, 32, 115, 109, 97, 108, 108]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
+def s_commitBatchWithProof_35(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_35(Bool.or(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:857#1
+def k_commitBatchWithProof_36(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_35(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 26, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:857
+def s_commitBatchWithProof_36(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_36(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:856#1
+def k_commitBatchWithProof_37(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_36(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 25, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([69, 109, 112, 116, 121, 32, 98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:856
+def s_commitBatchWithProof_37(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_37(w_gt(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:287#0
+def k_commitBatchWithProof_38(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_37(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 24, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([110, 101, 119, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116, 32, 105, 115, 32, 122, 101, 114, 111]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:287
+def s_commitBatchWithProof_38(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_38(Bool.not(w_eq(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:286#0
+def k_commitBatchWithProof_39(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_38(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 23, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([112, 114, 101, 118, 105, 111, 117, 115, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116, 32, 105, 115, 32, 122, 101, 114, 111]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:286
+def s_commitBatchWithProof_39(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_39(Bool.not(w_eq(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:285#1
+def k_commitBatchWithProof_40(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_39(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 22, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 118, 97, 108, 105, 100, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:285
+def s_commitBatchWithProof_40(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_40(w_le(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:285#0
+def k_commitBatchWithProof_41(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_40(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 21, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:285
+def s_commitBatchWithProof_41(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_41(w_lt(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{256, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:946#0
+def k_commitBatchWithProof_42(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_41(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 20, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([108, 101, 103, 97, 99, 121, 32, 98, 97, 116, 99, 104, 101, 115, 32, 115, 117, 112, 112, 111, 114, 116, 32, 101, 120, 97, 99, 116, 108, 121, 32, 49, 32, 98, 108, 111, 98]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:946
+def s_commitBatchWithProof_42(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_42(Bool.or(Bool.not(Bool.and(Bool.not(Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.not(w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_nth(ge_e_blobs(x_en), 1n), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:944#0
+def k_commitBatchWithProof_43(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_42(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 19, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([86, 50, 32, 114, 101, 113, 117, 105, 114, 101, 115, 32, 97, 116, 32, 108, 101, 97, 115, 116, 32, 49, 32, 98, 108, 111, 98]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:944
+def s_commitBatchWithProof_43(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, +x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_43(Bool.or(Bool.not(Bool.and(Bool.not(Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}))), w_gt(x_cn4, W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def ln_commitBatchWithProof_4(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, +x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      +n0 = {w_add(x_it4, W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      sx_commitBatchWithProof_ld4(sx_commitBatchWithProof_it4(sx_commitBatchWithProof_c4_0(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, n0), w_add(x_it4, w_u(1))), 1n)
+
+def lbk_commitBatchWithProof_4(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, +x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      +b0 = {x_it4 : W}
+      sx_commitBatchWithProof_ld4(sx_commitBatchWithProof_cn4(sx_commitBatchWithProof_c4_0(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, b0), x_it4), 3n)
+
+def lk_commitBatchWithProof_4(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      lbk_commitBatchWithProof_4(x)
+    case False{}:
+      ln_commitBatchWithProof_4(x)
+
+def lc_commitBatchWithProof_4(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      sx_commitBatchWithProof_ld4(x, 2n)
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, +x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          lk_commitBatchWithProof_4(w_eq(w_nth(ge_e_blobs(x_en), n_of_w(x_it4)), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def lb_commitBatchWithProof_4(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      lc_commitBatchWithProof_4(u_nz(x_cd), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def lz_commitBatchWithProof_4(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  x
+
+def lx_commitBatchWithProof_4(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, +x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      sx_commitBatchWithProof_ld4(sx_commitBatchWithProof_cn4(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, x_it4), 0n)
+
+def lh_commitBatchWithProof_4(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      lb_commitBatchWithProof_4(lz_commitBatchWithProof_4(x))
+    case False{}:
+      lx_commitBatchWithProof_4(x)
+
+def li_commitBatchWithProof_4(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  lh_commitBatchWithProof_4(True{}, x)
+
+def lpz_commitBatchWithProof_4(d: Nat, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match d:
+    case 0n:
+      x
+    case 1n+q:
+      match q:
+        case 0n:
+          xf_commitBatchWithProof(x, 4294967295, Nil{})
+        case 1n+s:
+          x
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:932-939: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
+def lp_commitBatchWithProof_4(f: Nat, d: Nat, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match f:
+    case 0n:
+      lpz_commitBatchWithProof_4(d, x)
+    case 1n+r:
+      match d:
+        case 0n:
+          x
+        case 1n+q:
+          match q:
+            case 0n:
+              +y = li_commitBatchWithProof_4(x)
+              lp_commitBatchWithProof_4(r, gx_commitBatchWithProof_ld4(y), y)
+            case 1n+s:
+              x
+
+def ls_commitBatchWithProof_4(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  +v0 = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
+  sx_commitBatchWithProof_ld4(sx_commitBatchWithProof_rt4(sx_commitBatchWithProof_cn4(sx_commitBatchWithProof_it4(sx_commitBatchWithProof_c4_0(x, v0), w0()), w0()), w0()), 1n)
+
+def la_commitBatchWithProof_44(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      x
+    case False{}:
+      s_commitBatchWithProof_43(x)
+
+def lg_commitBatchWithProof_44(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  +y = lp_commitBatchWithProof_4(U32.to_nat(4097), 1n, ls_commitBatchWithProof_4(x))
+  la_commitBatchWithProof_44(u_nz(gx_commitBatchWithProof_cd(y)), y)
+
+def lq_commitBatchWithProof_44(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      lg_commitBatchWithProof_44(x)
+    case False{}:
+      s_commitBatchWithProof_43(x)
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:932-939
+def s_commitBatchWithProof_44(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      lq_commitBatchWithProof_44(Bool.and(Bool.not(Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_eq(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:417#0
+def k_commitBatchWithProof_45(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_44(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 18, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:417
+def s_commitBatchWithProof_45(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_45(Bool.or(Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), w_lt(g_S_IRollup_BatchDataInput_version(ga_commitBatchWithProof_batchDataInput(x_ar)), W{256, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:414#0
+def k_commitBatchWithProof_46(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_45(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 17, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([109, 117, 115, 116, 32, 110, 111, 116, 32, 99, 97, 114, 114, 121, 32, 98, 108, 111, 98, 32, 119, 104, 101, 110, 32, 117, 115, 105, 110, 103, 32, 115, 116, 111, 114, 101, 100, 32, 98, 108, 111, 98, 32, 104, 97, 115, 104]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:414
+def s_commitBatchWithProof_46(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_46(Bool.or(Bool.not(Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:411#0
+def k_commitBatchWithProof_47(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_46(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 16, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:411
+def s_commitBatchWithProof_47(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_47(w_add_ok(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:875#0
+def k_commitBatchWithProof_48(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_47(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 15, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([85, 110, 115, 117, 112, 112, 111, 114, 116, 101, 100, 32, 98, 97, 116, 99, 104, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:875
+def s_commitBatchWithProof_48(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_48(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0
+def k_commitBatchWithProof_49(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_48(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 14, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 105, 115, 32, 105, 110, 99, 111, 114, 114, 101, 99, 116]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
+def s_commitBatchWithProof_49(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_49(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0
+def k_commitBatchWithProof_50(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_49(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 13, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 116, 111, 111, 32, 115, 109, 97, 108, 108]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
+def s_commitBatchWithProof_50(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_50(Bool.or(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:857#0
+def k_commitBatchWithProof_51(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_50(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 12, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:857
+def s_commitBatchWithProof_51(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_51(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:856#0
+def k_commitBatchWithProof_52(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_51(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 11, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([69, 109, 112, 116, 121, 32, 98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:856
+def s_commitBatchWithProof_52(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_52(w_gt(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitBatchWithProof_batchDataInput(x_ar)))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:408#0
+def k_commitBatchWithProof_53(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_52(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 10, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 118, 97, 108, 105, 100, 32, 116, 105, 109, 105, 110, 103]))))
+
+def cq_commitBatchWithProof_53_0(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          k_commitBatchWithProof_53(Bool.or(w_lt(w_add(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en)), w_lt(w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:408
+def s_commitBatchWithProof_53(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      cq_commitBatchWithProof_53_0(Bool.and(Bool.not(w_lt(w_add(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:406#1
+def k_commitBatchWithProof_54(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_53(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 9, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([108, 49, 109, 115, 103, 32, 100, 101, 108, 97, 121]))))
+
+def cq_commitBatchWithProof_54_0(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          k_commitBatchWithProof_54(Bool.or(Bool.not(Bool.and(Bool.not(w_lt(w_add(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), w_lt(w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en)))), w_gt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:406
+def s_commitBatchWithProof_54(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      cq_commitBatchWithProof_54_0(Bool.and(Bool.not(w_lt(w_add(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:406#0
+def k_commitBatchWithProof_55(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_54(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 8, Nil{})
+
+def cq_commitBatchWithProof_55_0(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          k_commitBatchWithProof_55(Bool.or(Bool.not(Bool.and(Bool.not(w_lt(w_add(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), w_lt(w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en)))), w_lt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitBatchWithProof_batchDataInput(x_ar)), W{65536, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:406
+def s_commitBatchWithProof_55(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      cq_commitBatchWithProof_55_0(Bool.and(Bool.not(w_lt(w_add(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:401-402#0
+def k_commitBatchWithProof_56(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_55(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 7, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+def cq_commitBatchWithProof_56_0(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      match x:
+        case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          k_commitBatchWithProof_56(w_add_ok(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:401-402
+def s_commitBatchWithProof_56(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      cq_commitBatchWithProof_56_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:401#0
+def k_commitBatchWithProof_57(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_56(x)
+    case False{}:
+      match x:
+        case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+          xf_commitBatchWithProof(X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}, 6, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:401
+def s_commitBatchWithProof_57(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_57(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:397#0
+def k_commitBatchWithProof_58(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_57(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 5, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:397
+def s_commitBatchWithProof_58(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_58(w_add_ok(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#_openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0
+def k_commitBatchWithProof_59(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_58(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 4, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([80, 97, 117, 115, 97, 98, 108, 101, 58, 32, 112, 97, 117, 115, 101, 100]))))
+
+# check _openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def s_commitBatchWithProof_59(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_59(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:130#0
+def k_commitBatchWithProof_60(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_59(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 3, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([112, 101, 110, 100, 105, 110, 103, 32, 114, 101, 118, 101, 114, 116, 32, 114, 101, 113, 117, 101, 115, 116]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:130
+def s_commitBatchWithProof_60(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_60(w_eq(sload(x_st, W{168, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:389-433#1
+def k_commitBatchWithProof_61(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_60(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 2, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:389-433
+def s_commitBatchWithProof_61(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_61(w_ge(ge_e_msg_data_length(x_en), W{132, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+# commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:389-433#0
+def k_commitBatchWithProof_62(c: Bool, x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match c:
+    case True{}:
+      s_commitBatchWithProof_61(x)
+    case False{}:
+      xf_commitBatchWithProof(x, 1, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:389-433
+def s_commitBatchWithProof_62(x: X_commitBatchWithProof) -> X_commitBatchWithProof:
+  match x:
+    case X_commitBatchWithProof{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5}:
+      k_commitBatchWithProof_62(w_eq(ge_e_msg_value(x_en), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitBatchWithProof{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c4_0, x_it4, x_cn4, x_rt4, x_ld4, x_c5_0, x_c5_1, x_c5_2, x_it5, x_cn5, x_rt5, x_ld5})
+
+def x0_commitBatchWithProof(+st: HSt, +ar: AR_commitBatchWithProof, +en: HEnv, +kh: List<&2, HKB>) -> X_commitBatchWithProof:
+  X_commitBatchWithProof{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}, w0(), w0(), w0(), w0(), 0n, w0(), w0(), w0(), w0(), w0(), w0(), 0n}
+
+# the context after the action's program ran (holon.extracted_eval's order)
+def xr_commitBatchWithProof(+st: HSt, +ar: AR_commitBatchWithProof, +en: HEnv, +kh: List<&2, HKB>) -> X_commitBatchWithProof:
+  s_commitBatchWithProof_62(x0_commitBatchWithProof(st, ar, en, kh))
+
+def xo_commitBatchWithProof(x: X_commitBatchWithProof) -> HOut:
+  match x:
+    case X_commitBatchWithProof{_, x_ov, _, _, _, x_cd, x_rv, x_lg, x_tw, _, _, _, _, _, _, _, _, _, _, _, _}:
+      HOut{x_cd, x_rv, x_ov, lg_rev(x_lg, Nil{}), x_tw}
+
+def run_commitBatchWithProof(+st: HSt, +ar: AR_commitBatchWithProof, +en: HEnv, +kh: List<&2, HKB>) -> HOut:
+  xo_commitBatchWithProof(xr_commitBatchWithProof(st, ar, en, kh))
+
+# 0 when every check of commitBatchWithProof holds, k + 1 when check k (holon.machine's order) is the first to fail
+def chk_commitBatchWithProof(+st: HSt, +ar: AR_commitBatchWithProof, +en: HEnv, +kh: List<&2, HKB>) -> U32:
+  o_code(run_commitBatchWithProof(st, ar, en, kh))
+
+def post_commitBatchWithProof(+st: HSt, +ar: AR_commitBatchWithProof, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  o_post(run_commitBatchWithProof(st, ar, en, kh))
+
+def logs_commitBatchWithProof(+st: HSt, +ar: AR_commitBatchWithProof, +en: HEnv, +kh: List<&2, HKB>) -> List<&2, HLog>:
+  o_logs(run_commitBatchWithProof(st, ar, en, kh))
+
+def step_commitBatchWithProof(+st: HSt, +ar: AR_commitBatchWithProof, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  st_after(run_commitBatchWithProof(st, ar, en, kh), st)
+
+type X_commitState is Data:
+  X_commitState{st: HSt, ov: HSt, ar: AR_commitState, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c6_0: W, c6_1: W, c6_2: W, it6: W, cn6: W, rt6: W, ld6: Nat}
+
+def gx_commitState_st(e: X_commitState) -> HSt:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      st
+
+def gx_commitState_ov(e: X_commitState) -> HSt:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      ov
+
+def gx_commitState_ar(e: X_commitState) -> AR_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      ar
+
+def gx_commitState_en(e: X_commitState) -> HEnv:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      en
+
+def gx_commitState_kh(e: X_commitState) -> List<&2, HKB>:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      kh
+
+def gx_commitState_cd(e: X_commitState) -> U32:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      cd
+
+def gx_commitState_rv(e: X_commitState) -> List<&2, U32>:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      rv
+
+def gx_commitState_lg(e: X_commitState) -> List<&2, HLog>:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      lg
+
+def gx_commitState_tw(e: X_commitState) -> List<&2, W>:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      tw
+
+def gx_commitState_c6_0(e: X_commitState) -> W:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      c6_0
+
+def gx_commitState_c6_1(e: X_commitState) -> W:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      c6_1
+
+def gx_commitState_c6_2(e: X_commitState) -> W:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      c6_2
+
+def gx_commitState_it6(e: X_commitState) -> W:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      it6
+
+def gx_commitState_cn6(e: X_commitState) -> W:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      cn6
+
+def gx_commitState_rt6(e: X_commitState) -> W:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      rt6
+
+def gx_commitState_ld6(e: X_commitState) -> Nat:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      ld6
+
+def sx_commitState_st(e: X_commitState, +v: HSt) -> X_commitState:
+  match e:
+    case X_commitState{_, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{v, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_ov(e: X_commitState, +v: HSt) -> X_commitState:
+  match e:
+    case X_commitState{st, _, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, v, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_ar(e: X_commitState, +v: AR_commitState) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, _, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, v, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_en(e: X_commitState, +v: HEnv) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, _, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, v, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_kh(e: X_commitState, +v: List<&2, HKB>) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, _, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, v, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_cd(e: X_commitState, +v: U32) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, _, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, v, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_rv(e: X_commitState, +v: List<&2, U32>) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, _, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, v, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_lg(e: X_commitState, +v: List<&2, HLog>) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, _, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, v, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_tw(e: X_commitState, +v: List<&2, W>) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, _, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, lg, v, c6_0, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_c6_0(e: X_commitState, +v: W) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, _, c6_1, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, v, c6_1, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_c6_1(e: X_commitState, +v: W) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, _, c6_2, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, v, c6_2, it6, cn6, rt6, ld6}
+
+def sx_commitState_c6_2(e: X_commitState, +v: W) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, _, it6, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, v, it6, cn6, rt6, ld6}
+
+def sx_commitState_it6(e: X_commitState, +v: W) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, _, cn6, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, v, cn6, rt6, ld6}
+
+def sx_commitState_cn6(e: X_commitState, +v: W) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, _, rt6, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, v, rt6, ld6}
+
+def sx_commitState_rt6(e: X_commitState, +v: W) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, _, ld6}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, v, ld6}
+
+def sx_commitState_ld6(e: X_commitState, +v: Nat) -> X_commitState:
+  match e:
+    case X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, _}:
+      X_commitState{st, ov, ar, en, kh, cd, rv, lg, tw, c6_0, c6_1, c6_2, it6, cn6, rt6, v}
+
+def xf_commitState(x: X_commitState, +c: U32, +r: List<&2, U32>) -> X_commitState:
+  sx_commitState_cd(sx_commitState_rv(x, r), c)
+
+def sz_commitState(x: X_commitState) -> X_commitState:
+  x
+
+def ml_commitState_5(n: Nat, +k: W, x: X_commitState, mem: List<&2, U32>) -> List<&2, U32>:
+  match n:
+    case 0n:
+      mem
+    case 1n+p:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          ml_commitState_5(p, w_add(k, w_u(1)), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, m_put(n_of_w(w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(k))), mem, b_of_w(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), k)), Nil{})))), 0n))))
+
+def ev_commitState_1(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c6_0, +x_c6_1, +x_c6_2, +x_it6, +x_cn6, +x_rt6, +x_ld6}:
+      sx_commitState_lg(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, Con{HLog{[W{220734351, 2808025806, 2943481801, 3514749681, 2749929377, 3205207140, 353846480, 741528750}, w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), h_get(x_kh, m_slice(ite(List<&2, U32>, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), m_put(249n, m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitState_5(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))), w0(), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))))), b_of_w(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitState_5(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))), w0(), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))))), b_of_w(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, ite(W, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), W{257, 0, 0, 0, 0, 0, 0, 0}, W{249, 0, 0, 0, 0, 0, 0, 0})))], Nil{}}, x_lg})
+
+# event contracts/contracts/l1/rollup/Rollup.sol:383
+def s_commitState_1(x: X_commitState) -> X_commitState:
+  sz_commitState(ev_commitState_1(x))
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:374-382#0
+def k_commitState_2(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_1(x)
+    case False{}:
+      xf_commitState(x, 43, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([116, 104, 101, 32, 115, 105, 103, 110, 97, 116, 117, 114, 101, 32, 118, 101, 114, 105, 102, 105, 99, 97, 116, 105, 111, 110, 32, 102, 97, 105, 108, 101, 100]))))
+
+def cq_commitState_2_5(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitState_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitState_batchSignatureInput(x_ar))), Nil{}))))))))))
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          k_commitState_2(w_nz(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitState_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitState_batchSignatureInput(x_ar))), Nil{}))))))))), 0n)), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_2_4(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          cq_commitState_2_5(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitState_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitState_batchSignatureInput(x_ar))), Nil{})))))))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_2_3(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          dq_commitState_2_4(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n))), Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_2_2(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          dq_commitState_2_3(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n))), Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_2_1(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          dq_commitState_2_2(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_2_0(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          dq_commitState_2_1(Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:374-382
+def s_commitState_2(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      dq_commitState_2_0(Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:375-380#0
+def k_commitState_3(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_2(x)
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 42, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitState_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitState_batchSignatureInput(x_ar))), Nil{}))))))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitState_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitState_batchSignatureInput(x_ar))), Nil{})))))))))))
+
+def dq_commitState_3_4(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          k_commitState_3(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [116, 254, 39, 183], List.append(&2, U32, b_of_w(g_S_IRollup_BatchSignatureInput_signedSequencersBitmap(ga_commitState_batchSignatureInput(x_ar))), List.append(&2, U32, b_of_u(128), List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], List.append(&2, U32, b_of_w(w_add(w_u(128), w_u(b_len(abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))))))), List.append(&2, U32, abi_wlist(ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 160n)), ite(List<&2, W>, w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 96n)), abi_warr(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 32n))))), List.append(&2, U32, abi_dyn(g_S_IRollup_BatchSignatureInput_signature(ga_commitState_batchSignatureInput(x_ar))), Nil{}))))))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_3_3(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          dq_commitState_3_4(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n))), Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_3_2(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          dq_commitState_3_3(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n))), Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 64n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_3_1(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          dq_commitState_3_2(Bool.and(Bool.not(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n))), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def dq_commitState_3_0(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      xf_commitState(x, 4294967293, Nil{})
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          dq_commitState_3_1(Bool.and(w_ge(W{0, 0, 0, 0, 0, 0, 0, 0}, b_word(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)), 128n)), Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:375-380
+def s_commitState_3(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      dq_commitState_3_0(Bool.not(abi_ok_1(g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar)))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def wr_commitState_4(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, +x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      +o0 = x_ov
+      +k = {W{158, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v = {w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitState_tw(sx_commitState_ov(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:370
+def s_commitState_4(x: X_commitState) -> X_commitState:
+  s_commitState_3(wr_commitState_4(x))
+
+def wr_commitState_5(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, +x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162])) : W}
+      +o1 = {sstore(o0, k, ge_e_block_timestamp(x_en)) : HSt}
+      +o2 = {sstore(o1, w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), w_add(w_add(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), ite(W, w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), w_sub(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en)), W{0, 0, 0, 0, 0, 0, 0, 0}))) : HSt}
+      +o3 = {sstore(o2, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))) : HSt}
+      +o4 = {sstore(o3, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), 0n)) : HSt}
+      sx_commitState_tw(sx_commitState_ov(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, o4), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
+
+def cq_commitState_5_0(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      match x:
+        case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))))
+    case False{}:
+      s_commitState_4(wr_commitState_5(x))
+
+# write contracts/contracts/l1/rollup/Rollup.sol:361-368
+def s_commitState_5(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      cq_commitState_5_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{}))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1
+def k_commitState_6(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_5(x)
+    case False{}:
+      xf_commitState(x, 41, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:363
+def s_commitState_6(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_6(w_add_ok(w_add(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), ite(W, w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), w_sub(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:363#0
+def k_commitState_7(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_6(x)
+    case False{}:
+      xf_commitState(x, 40, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:363
+def s_commitState_7(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_7(w_add_ok(ge_e_block_timestamp(x_en), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:358#1
+def k_commitState_8(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_7(x)
+    case False{}:
+      xf_commitState(x, 39, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:358
+def s_commitState_8(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_8(Bool.or(Bool.not(w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_sub_ok(w_add(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}))), ge_e_block_timestamp(x_en))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:358#0
+def k_commitState_9(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_8(x)
+    case False{}:
+      xf_commitState(x, 38, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:358
+def s_commitState_9(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_9(Bool.or(Bool.not(w_nz(w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add_ok(sload(x_st, W{153, 0, 0, 0, 0, 0, 0, 0}), sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(sload(x_st, W{167, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0})))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def wr_commitState_10(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173])) : W}
+      +v = {sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitState_tw(sx_commitState_ov(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:354
+def s_commitState_10(x: X_commitState) -> X_commitState:
+  s_commitState_9(wr_commitState_10(x))
+
+def wr_commitState_11(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 171])) : W}
+      +v = {g_S_IRollup_BatchDataInput_postStateRoot(ga_commitState_batchDataInput(x_ar)) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitState_tw(sx_commitState_ov(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:353
+def s_commitState_11(x: X_commitState) -> X_commitState:
+  s_commitState_10(wr_commitState_11(x))
+
+def wr_commitState_12(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c6_0, +x_c6_1, +x_c6_2, +x_it6, +x_cn6, +x_rt6, +x_ld6}:
+      +o0 = x_ov
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])) : W}
+      +v = {h_get(x_kh, m_slice(ite(List<&2, U32>, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), m_put(249n, m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitState_5(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))), w0(), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))))), b_of_w(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), m_put(217n, m_put(185n, m_put(153n, m_put(121n, m_put(89n, m_put(57n, m_put(25n, m_put(17n, m_put(9n, m_put(1n, m_put(0n, Nil{}, [U32.and(w_lo(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar))), 255)]), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})))), b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_192(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), b_of_w(h_get(x_kh, m_slice(ite(List<&2, U32>, Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), ml_commitState_5(n_of_w(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))), w0(), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), m_put(8n, m_put(0n, Nil{}, b_of_w(w_shl_192(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), b_of_w(w_shl_240(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)))))))), b_of_w(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))))), b_of_w(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(g_S_IRollup_BatchDataInput_withdrawalRoot(ga_commitState_batchDataInput(x_ar)))), b_of_w(h_get(x_kh, g_S_IRollup_BatchSignatureInput_sequencerSets(ga_commitState_batchSignatureInput(x_ar))))), b_of_w(h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))))), W{0, 0, 0, 0, 0, 0, 0, 0}, ite(W, w_ge(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0}), W{257, 0, 0, 0, 0, 0, 0, 0}, W{249, 0, 0, 0, 0, 0, 0, 0}))) : W}
+      +o1 = {sstore(o0, k, v) : HSt}
+      sx_commitState_tw(sx_commitState_ov(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, o1), Con{k, x_tw})
+
+# write contracts/contracts/l1/rollup/Rollup.sol:352
+def s_commitState_12(x: X_commitState) -> X_commitState:
+  s_commitState_11(wr_commitState_12(x))
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:349#0
+def k_commitState_13(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_12(x)
+    case False{}:
+      xf_commitState(x, 37, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:349
+def s_commitState_13(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_13(Bool.or(Bool.not(w_ge(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar)), W{1, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_shr_64(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar)))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def ln_commitState_6(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, +x_it6, x_cn6, x_rt6, x_ld6}:
+      +n0 = {w_add(w_add(W{10, 0, 0, 0, 0, 0, 0, 0}, w_shl_5(x_it6)), W{32, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n1 = {w_add(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), x_it6), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n2 = {w_add(x_it6, W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      sx_commitState_ld6(sx_commitState_it6(sx_commitState_c6_2(sx_commitState_c6_1(sx_commitState_c6_0(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, n0), n1), n2), w_add(x_it6, w_u(1))), 1n)
+
+def lbk_commitState_6(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, +x_it6, x_cn6, x_rt6, x_ld6}:
+      sx_commitState_ld6(sx_commitState_cn6(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, x_it6), 3n)
+
+def lk_commitState_6(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      lbk_commitState_6(x)
+    case False{}:
+      ln_commitState_6(x)
+
+def lc_commitState_6(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      sx_commitState_ld6(x, 2n)
+    case False{}:
+      ln_commitState_6(x)
+
+def lb_commitState_6(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      lc_commitState_6(u_nz(x_cd), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def lz_commitState_6(x: X_commitState) -> X_commitState:
+  x
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:968#0
+def k_commitState_15(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      lz_commitState_6(x)
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, +x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 36, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), x_it6)), Nil{})))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), x_it6)), Nil{}))))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:968
+def s_commitState_15(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, +x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_15(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_lt(x_it6, g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))))), a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [174, 69, 60, 213], List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)), x_it6)), Nil{}))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def lx_commitState_6(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, +x_it6, x_cn6, x_rt6, x_ld6}:
+      sx_commitState_ld6(sx_commitState_cn6(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, x_it6), 0n)
+
+def lh_commitState_6(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      lb_commitState_6(s_commitState_15(x))
+    case False{}:
+      lx_commitState_6(x)
+
+def li_commitState_6(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, +x_it6, x_cn6, x_rt6, x_ld6}:
+      lh_commitState_6(w_lt(x_it6, g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def lpz_commitState_6(d: Nat, x: X_commitState) -> X_commitState:
+  match d:
+    case 0n:
+      x
+    case 1n+q:
+      match q:
+        case 0n:
+          xf_commitState(x, 4294967295, Nil{})
+        case 1n+s:
+          x
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:967-974: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
+def lp_commitState_6(f: Nat, d: Nat, x: X_commitState) -> X_commitState:
+  match f:
+    case 0n:
+      lpz_commitState_6(d, x)
+    case 1n+r:
+      match d:
+        case 0n:
+          x
+        case 1n+q:
+          match q:
+            case 0n:
+              +y = li_commitState_6(x)
+              lp_commitState_6(r, gx_commitState_ld6(y), y)
+            case 1n+s:
+              x
+
+def ls_commitState_6(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      +v0 = {W{10, 0, 0, 0, 0, 0, 0, 0} : W}
+      +v1 = {w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 17n)) : W}
+      +v2 = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
+      sx_commitState_ld6(sx_commitState_rt6(sx_commitState_cn6(sx_commitState_it6(sx_commitState_c6_2(sx_commitState_c6_1(sx_commitState_c6_0(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, v0), v1), v2), w0()), w0()), w0()), 1n)
+
+def la_commitState_14(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      x
+    case False{}:
+      s_commitState_13(x)
+
+def lg_commitState_14(x: X_commitState) -> X_commitState:
+  +y = lp_commitState_6(U32.to_nat(4097), 1n, ls_commitState_6(x))
+  la_commitState_14(u_nz(gx_commitState_cd(y)), y)
+
+def lq_commitState_14(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      lg_commitState_14(x)
+    case False{}:
+      s_commitState_13(x)
+
+# loop contracts/contracts/l1/rollup/Rollup.sol:967-974
+def s_commitState_14(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      lq_commitState_14(Bool.not(w_eq(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:312#0
+def k_commitState_16(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_14(x)
+    case False{}:
+      xf_commitState(x, 35, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:312
+def s_commitState_16(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_16(w_lt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{65536, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:311#0
+def k_commitState_17(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_16(x)
+    case False{}:
+      xf_commitState(x, 34, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:311
+def s_commitState_17(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_17(Bool.not(w_nz(w_shr_64(g_S_IRollup_BatchDataInput_lastBlockNumber(ga_commitState_batchDataInput(x_ar))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:306#0
+def k_commitState_18(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_17(x)
+    case False{}:
+      xf_commitState(x, 33, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 112, 114, 101, 118, 105, 111, 117, 115, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:306
+def s_commitState_18(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_18(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 171]))), g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitState_batchDataInput(x_ar))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:305#0
+def k_commitState_19(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_18(x)
+    case False{}:
+      xf_commitState(x, 32, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 112, 97, 114, 101, 110, 116, 32, 98, 97, 116, 99, 104, 32, 104, 97, 115, 104]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:305
+def s_commitState_19(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_19(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), h_get(x_kh, g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:304#0
+def k_commitState_20(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_19(x)
+    case False{}:
+      xf_commitState(x, 31, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 99, 111, 114, 114, 101, 99, 116, 32, 98, 97, 116, 99, 104, 32, 105, 110, 100, 101, 120]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:304
+def s_commitState_20(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_20(w_eq(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), sload(x_st, W{158, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:303#1
+def k_commitState_21(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_20(x)
+    case False{}:
+      xf_commitState(x, 30, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 97, 108, 114, 101, 97, 100, 121, 32, 99, 111, 109, 109, 105, 116, 116, 101, 100]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:303
+def s_commitState_21(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_21(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:303#0
+def k_commitState_22(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_21(x)
+    case False{}:
+      xf_commitState(x, 29, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:303
+def s_commitState_22(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_22(w_add_ok(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:875#1
+def k_commitState_23(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_22(x)
+    case False{}:
+      xf_commitState(x, 28, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([85, 110, 115, 117, 112, 112, 111, 114, 116, 101, 100, 32, 98, 97, 116, 99, 104, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:875
+def s_commitState_23(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_23(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#1
+def k_commitState_24(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_23(x)
+    case False{}:
+      xf_commitState(x, 27, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 105, 115, 32, 105, 110, 99, 111, 114, 114, 101, 99, 116]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
+def s_commitState_24(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_24(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#1
+def k_commitState_25(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_24(x)
+    case False{}:
+      xf_commitState(x, 26, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 116, 111, 111, 32, 115, 109, 97, 108, 108]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
+def s_commitState_25(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_25(Bool.or(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:857#1
+def k_commitState_26(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_25(x)
+    case False{}:
+      xf_commitState(x, 25, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:857
+def s_commitState_26(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_26(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:856#1
+def k_commitState_27(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_26(x)
+    case False{}:
+      xf_commitState(x, 24, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([69, 109, 112, 116, 121, 32, 98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:856
+def s_commitState_27(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_27(w_gt(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:287#0
+def k_commitState_28(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_27(x)
+    case False{}:
+      xf_commitState(x, 23, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([110, 101, 119, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116, 32, 105, 115, 32, 122, 101, 114, 111]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:287
+def s_commitState_28(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_28(Bool.not(w_eq(g_S_IRollup_BatchDataInput_postStateRoot(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:286#0
+def k_commitState_29(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_28(x)
+    case False{}:
+      xf_commitState(x, 22, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([112, 114, 101, 118, 105, 111, 117, 115, 32, 115, 116, 97, 116, 101, 32, 114, 111, 111, 116, 32, 105, 115, 32, 122, 101, 114, 111]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:286
+def s_commitState_29(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_29(Bool.not(w_eq(g_S_IRollup_BatchDataInput_prevStateRoot(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:285#1
+def k_commitState_30(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_29(x)
+    case False{}:
+      xf_commitState(x, 21, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([105, 110, 118, 97, 108, 105, 100, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:285
+def s_commitState_30(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_30(w_le(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar)), W{2, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:285#0
+def k_commitState_31(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_30(x)
+    case False{}:
+      xf_commitState(x, 20, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:285
+def s_commitState_31(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_31(w_lt(g_S_IRollup_BatchDataInput_version(ga_commitState_batchDataInput(x_ar)), W{256, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:270#0
+def k_commitState_32(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_31(x)
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 19, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{}))))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:270
+def s_commitState_32(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_32(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [208, 150, 195, 198], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:268#1
+def k_commitState_33(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_32(x)
+    case False{}:
+      xf_commitState(x, 18, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([108, 49, 109, 115, 103, 32, 100, 101, 108, 97, 121]))))
+
+def cq_commitState_33_0(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      match x:
+        case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          k_commitState_33(Bool.or(Bool.not(w_lt(w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), w_gt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:268
+def s_commitState_33(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      cq_commitState_33_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:268#0
+def k_commitState_34(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_33(x)
+    case False{}:
+      xf_commitState(x, 17, Nil{})
+
+def cq_commitState_34_0(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      match x:
+        case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          k_commitState_34(Bool.or(Bool.not(w_lt(w_add(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), w_lt(g_S_IRollup_BatchDataInput_numL1Messages(ga_commitState_batchDataInput(x_ar)), W{65536, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:268
+def s_commitState_34(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      cq_commitState_34_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:266#1
+def k_commitState_35(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_34(x)
+    case False{}:
+      xf_commitState(x, 16, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+def cq_commitState_35_0(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      match x:
+        case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))))
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          k_commitState_35(w_add_ok(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), 0n), sload(x_st, W{172, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:266
+def s_commitState_35(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      cq_commitState_35_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:266#0
+def k_commitState_36(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_35(x)
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 15, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{})))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:266
+def s_commitState_36(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_36(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [181, 155, 26, 120], Nil{}))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:264#0
+def k_commitState_37(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_36(x)
+    case False{}:
+      xf_commitState(x, 14, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([110, 111, 32, 115, 116, 111, 114, 101, 100, 32, 98, 108, 111, 98, 32, 104, 97, 115, 104, 32, 102, 111, 114, 32, 116, 104, 105, 115, 32, 98, 97, 116, 99, 104]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:264
+def s_commitState_37(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_37(Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173]))), W{0, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:263#0
+def k_commitState_38(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_37(x)
+    case False{}:
+      xf_commitState(x, 13, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:263
+def s_commitState_38(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_38(w_add_ok(w_shr_192(b_word(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:875#0
+def k_commitState_39(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_38(x)
+    case False{}:
+      xf_commitState(x, 12, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([85, 110, 115, 117, 112, 112, 111, 114, 116, 101, 100, 32, 98, 97, 116, 99, 104, 32, 118, 101, 114, 115, 105, 111, 110]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:875
+def s_commitState_39(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_39(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0
+def k_commitState_40(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_39(x)
+    case False{}:
+      xf_commitState(x, 11, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 105, 115, 32, 105, 110, 99, 111, 114, 114, 101, 99, 116]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
+def s_commitState_40(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_40(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0
+def k_commitState_41(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_40(x)
+    case False{}:
+      xf_commitState(x, 10, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114, 32, 108, 101, 110, 103, 116, 104, 32, 116, 111, 111, 32, 115, 109, 97, 108, 108]))))
+
+# check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
+def s_commitState_41(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_41(Bool.or(Bool.not(w_eq(w_u(b_at(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:857#0
+def k_commitState_42(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_41(x)
+    case False{}:
+      xf_commitState(x, 9, [78, 72, 123, 113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50])
+
+# check contracts/contracts/l1/rollup/Rollup.sol:857
+def s_commitState_42(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_42(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:856#0
+def k_commitState_43(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_42(x)
+    case False{}:
+      xf_commitState(x, 8, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([69, 109, 112, 116, 121, 32, 98, 97, 116, 99, 104, 32, 104, 101, 97, 100, 101, 114]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:856
+def s_commitState_43(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_43(w_gt(w_u(b_len(g_S_IRollup_BatchDataInput_parentBatchHeader(ga_commitState_batchDataInput(x_ar)))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:261#0
+def k_commitState_44(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_43(x)
+    case False{}:
+      xf_commitState(x, 7, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([99, 111, 109, 109, 105, 116, 83, 116, 97, 116, 101, 32, 109, 117, 115, 116, 32, 110, 111, 116, 32, 99, 97, 114, 114, 121, 32, 98, 108, 111, 98]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:261
+def s_commitState_44(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_44(w_eq(w_nth(ge_e_blobs(x_en), 0n), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#_openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0
+def k_commitState_45(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_44(x)
+    case False{}:
+      xf_commitState(x, 6, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([80, 97, 117, 115, 97, 98, 108, 101, 58, 32, 112, 97, 117, 115, 101, 100]))))
+
+# check _openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
+def s_commitState_45(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_45(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:130#0
+def k_commitState_46(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_45(x)
+    case False{}:
+      xf_commitState(x, 5, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([112, 101, 110, 100, 105, 110, 103, 32, 114, 101, 118, 101, 114, 116, 32, 114, 101, 113, 117, 101, 115, 116]))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:130
+def s_commitState_46(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_46(w_eq(sload(x_st, W{168, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:118#1
+def k_commitState_47(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_46(x)
+    case False{}:
+      xf_commitState(x, 4, List.append(&2, U32, [8, 195, 121, 160], List.append(&2, U32, b_of_u(32), abi_dyn([111, 110, 108, 121, 32, 97, 99, 116, 105, 118, 101, 32, 115, 116, 97, 107, 101, 114, 32, 97, 108, 108, 111, 119, 101, 100]))))
+
+def cq_commitState_47_0(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      match x:
+        case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 4294967294, a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))))
+    case False{}:
+      match x:
+        case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          k_commitState_47(w_nz(b_word(a_ret(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), 0n)), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:118
+def s_commitState_47(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      cq_commitState_47_0(Bool.not(a_ok(c_find(ge_e_calls(x_en), w0(), False{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{}))))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:118#0
+def k_commitState_48(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_47(x)
+    case False{}:
+      match x:
+        case X_commitState{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+          xf_commitState(X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}, 3, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{}))))))
+
+# check contracts/contracts/l1/rollup/Rollup.sol:118
+def s_commitState_48(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_48(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [104, 1, 87, 145], List.append(&2, U32, b_of_w(ge_e_caller(x_en)), Nil{})))), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:257-277#1
+def k_commitState_49(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_48(x)
+    case False{}:
+      xf_commitState(x, 2, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:257-277
+def s_commitState_49(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_49(w_ge(ge_e_msg_data_length(x_en), W{68, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+# commitState#contracts/contracts/l1/rollup/Rollup.sol:257-277#0
+def k_commitState_50(c: Bool, x: X_commitState) -> X_commitState:
+  match c:
+    case True{}:
+      s_commitState_49(x)
+    case False{}:
+      xf_commitState(x, 1, Nil{})
+
+# check contracts/contracts/l1/rollup/Rollup.sol:257-277
+def s_commitState_50(x: X_commitState) -> X_commitState:
+  match x:
+    case X_commitState{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6}:
+      k_commitState_50(w_eq(ge_e_msg_value(x_en), W{0, 0, 0, 0, 0, 0, 0, 0}), X_commitState{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_c6_2, x_it6, x_cn6, x_rt6, x_ld6})
+
+def x0_commitState(+st: HSt, +ar: AR_commitState, +en: HEnv, +kh: List<&2, HKB>) -> X_commitState:
+  X_commitState{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}, w0(), w0(), w0(), w0(), w0(), w0(), 0n}
+
+# the context after the action's program ran (holon.extracted_eval's order)
+def xr_commitState(+st: HSt, +ar: AR_commitState, +en: HEnv, +kh: List<&2, HKB>) -> X_commitState:
+  s_commitState_50(x0_commitState(st, ar, en, kh))
+
+def xo_commitState(x: X_commitState) -> HOut:
+  match x:
+    case X_commitState{_, x_ov, _, _, _, x_cd, x_rv, x_lg, x_tw, _, _, _, _, _, _, _}:
+      HOut{x_cd, x_rv, x_ov, lg_rev(x_lg, Nil{}), x_tw}
+
+def run_commitState(+st: HSt, +ar: AR_commitState, +en: HEnv, +kh: List<&2, HKB>) -> HOut:
+  xo_commitState(xr_commitState(st, ar, en, kh))
+
+# 0 when every check of commitState holds, k + 1 when check k (holon.machine's order) is the first to fail
+def chk_commitState(+st: HSt, +ar: AR_commitState, +en: HEnv, +kh: List<&2, HKB>) -> U32:
+  o_code(run_commitState(st, ar, en, kh))
+
+def post_commitState(+st: HSt, +ar: AR_commitState, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  o_post(run_commitState(st, ar, en, kh))
+
+def logs_commitState(+st: HSt, +ar: AR_commitState, +en: HEnv, +kh: List<&2, HKB>) -> List<&2, HLog>:
+  o_logs(run_commitState(st, ar, en, kh))
+
+def step_commitState(+st: HSt, +ar: AR_commitState, +en: HEnv, +kh: List<&2, HKB>) -> HSt:
+  st_after(run_commitState(st, ar, en, kh), st)
+
 type X_finalizeBatch is Data:
-  X_finalizeBatch{st: HSt, ov: HSt, ar: AR_finalizeBatch, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c2_0: W, c2_1: W, it2: W, cn2: W, rt2: W, ld2: Nat}
+  X_finalizeBatch{st: HSt, ov: HSt, ar: AR_finalizeBatch, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c7_0: W, c7_1: W, it7: W, cn7: W, rt7: W, ld7: Nat}
 
 def gx_finalizeBatch_st(e: X_finalizeBatch) -> HSt:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       st
 
 def gx_finalizeBatch_ov(e: X_finalizeBatch) -> HSt:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       ov
 
 def gx_finalizeBatch_ar(e: X_finalizeBatch) -> AR_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       ar
 
 def gx_finalizeBatch_en(e: X_finalizeBatch) -> HEnv:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       en
 
 def gx_finalizeBatch_kh(e: X_finalizeBatch) -> List<&2, HKB>:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       kh
 
 def gx_finalizeBatch_cd(e: X_finalizeBatch) -> U32:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       cd
 
 def gx_finalizeBatch_rv(e: X_finalizeBatch) -> List<&2, U32>:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       rv
 
 def gx_finalizeBatch_lg(e: X_finalizeBatch) -> List<&2, HLog>:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       lg
 
 def gx_finalizeBatch_tw(e: X_finalizeBatch) -> List<&2, W>:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
       tw
 
-def gx_finalizeBatch_c2_0(e: X_finalizeBatch) -> W:
+def gx_finalizeBatch_c7_0(e: X_finalizeBatch) -> W:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      c2_0
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      c7_0
 
-def gx_finalizeBatch_c2_1(e: X_finalizeBatch) -> W:
+def gx_finalizeBatch_c7_1(e: X_finalizeBatch) -> W:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      c2_1
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      c7_1
 
-def gx_finalizeBatch_it2(e: X_finalizeBatch) -> W:
+def gx_finalizeBatch_it7(e: X_finalizeBatch) -> W:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      it2
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      it7
 
-def gx_finalizeBatch_cn2(e: X_finalizeBatch) -> W:
+def gx_finalizeBatch_cn7(e: X_finalizeBatch) -> W:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      cn2
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      cn7
 
-def gx_finalizeBatch_rt2(e: X_finalizeBatch) -> W:
+def gx_finalizeBatch_rt7(e: X_finalizeBatch) -> W:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      rt2
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      rt7
 
-def gx_finalizeBatch_ld2(e: X_finalizeBatch) -> Nat:
+def gx_finalizeBatch_ld7(e: X_finalizeBatch) -> Nat:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      ld2
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      ld7
 
 def sx_finalizeBatch_st(e: X_finalizeBatch, +v: HSt) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{_, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{v, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{_, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{v, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}
 
 def sx_finalizeBatch_ov(e: X_finalizeBatch, +v: HSt) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, _, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, v, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, _, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, v, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}
 
 def sx_finalizeBatch_ar(e: X_finalizeBatch, +v: AR_finalizeBatch) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, _, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, v, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, _, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, v, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}
 
 def sx_finalizeBatch_en(e: X_finalizeBatch, +v: HEnv) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, _, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, v, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, _, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, v, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}
 
 def sx_finalizeBatch_kh(e: X_finalizeBatch, +v: List<&2, HKB>) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, _, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, v, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, _, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, v, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}
 
 def sx_finalizeBatch_cd(e: X_finalizeBatch, +v: U32) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, _, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, v, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, _, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, v, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}
 
 def sx_finalizeBatch_rv(e: X_finalizeBatch, +v: List<&2, U32>) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, _, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, v, lg, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, _, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, v, lg, tw, c7_0, c7_1, it7, cn7, rt7, ld7}
 
 def sx_finalizeBatch_lg(e: X_finalizeBatch, +v: List<&2, HLog>) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, _, tw, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, v, tw, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, _, tw, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, v, tw, c7_0, c7_1, it7, cn7, rt7, ld7}
 
 def sx_finalizeBatch_tw(e: X_finalizeBatch, +v: List<&2, W>) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, _, c2_0, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, v, c2_0, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, _, c7_0, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, v, c7_0, c7_1, it7, cn7, rt7, ld7}
 
-def sx_finalizeBatch_c2_0(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
+def sx_finalizeBatch_c7_0(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, _, c2_1, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, v, c2_1, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, _, c7_1, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, v, c7_1, it7, cn7, rt7, ld7}
 
-def sx_finalizeBatch_c2_1(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
+def sx_finalizeBatch_c7_1(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, _, it2, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, v, it2, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, _, it7, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, v, it7, cn7, rt7, ld7}
 
-def sx_finalizeBatch_it2(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
+def sx_finalizeBatch_it7(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, _, cn2, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, v, cn2, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, _, cn7, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, v, cn7, rt7, ld7}
 
-def sx_finalizeBatch_cn2(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
+def sx_finalizeBatch_cn7(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, _, rt2, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, v, rt2, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, _, rt7, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, v, rt7, ld7}
 
-def sx_finalizeBatch_rt2(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
+def sx_finalizeBatch_rt7(e: X_finalizeBatch, +v: W) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, _, ld2}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, v, ld2}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, _, ld7}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, v, ld7}
 
-def sx_finalizeBatch_ld2(e: X_finalizeBatch, +v: Nat) -> X_finalizeBatch:
+def sx_finalizeBatch_ld7(e: X_finalizeBatch, +v: Nat) -> X_finalizeBatch:
   match e:
-    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, _}:
-      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c2_0, c2_1, it2, cn2, rt2, v}
+    case X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, _}:
+      X_finalizeBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c7_0, c7_1, it7, cn7, rt7, v}
 
 def xf_finalizeBatch(x: X_finalizeBatch, +c: U32, +r: List<&2, U32>) -> X_finalizeBatch:
   sx_finalizeBatch_cd(sx_finalizeBatch_rv(x, r), c)
@@ -3355,8 +7490,8 @@ def sz_finalizeBatch(x: X_finalizeBatch) -> X_finalizeBatch:
 
 def ev_finalizeBatch_1(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, +x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      sx_finalizeBatch_lg(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, Con{HLog{[W{2500491821, 2483512411, 1446763374, 1138585307, 4064143210, 3380415678, 120684269, 649757433}, w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])))], List.append(&2, U32, b_of_w(b_word(ga_finalizeBatch__batchHeader(x_ar), 121n)), b_of_w(b_word(ga_finalizeBatch__batchHeader(x_ar), 153n)))}, x_lg})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, +x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      sx_finalizeBatch_lg(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, Con{HLog{[W{2500491821, 2483512411, 1446763374, 1138585307, 4064143210, 3380415678, 120684269, 649757433}, w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])))], List.append(&2, U32, b_of_w(b_word(ga_finalizeBatch__batchHeader(x_ar), 121n)), b_of_w(b_word(ga_finalizeBatch__batchHeader(x_ar), 153n)))}, x_lg})
 
 # event contracts/contracts/l1/rollup/Rollup.sol:670-675
 def s_finalizeBatch_1(x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3364,7 +7499,7 @@ def s_finalizeBatch_1(x: X_finalizeBatch) -> X_finalizeBatch:
 
 def wr_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
       +o0 = x_ov
       +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])) : W}
       +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))) : HSt}
@@ -3373,7 +7508,7 @@ def wr_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
       +o4 = {sstore(o3, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
       +o5 = {sstore(o4, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(o4, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))) : HSt}
       +o6 = {sstore(o5, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(o5, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294902015, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_shl_8(w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0})))) : HSt}
-      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, o6), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
+      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, o6), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
 
 # write contracts/contracts/l1/rollup/Rollup.sol:668
 def s_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3390,17 +7525,17 @@ def k_finalizeBatch_3(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:668
 def s_finalizeBatch_3(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_3(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_3(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 def wr_finalizeBatch_4(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
       +o0 = x_ov
       +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173])) : W}
       +v = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
       +o1 = {sstore(o0, k, v) : HSt}
-      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, o1), Con{k, x_tw})
+      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, o1), Con{k, x_tw})
 
 # write contracts/contracts/l1/rollup/Rollup.sol:667
 def s_finalizeBatch_4(x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3417,17 +7552,17 @@ def k_finalizeBatch_5(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:667
 def s_finalizeBatch_5(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_5(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_5(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 def wr_finalizeBatch_6(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
       +o0 = x_ov
       +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 171])) : W}
       +v = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
       +o1 = {sstore(o0, k, v) : HSt}
-      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, o1), Con{k, x_tw})
+      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, o1), Con{k, x_tw})
 
 # write contracts/contracts/l1/rollup/Rollup.sol:666
 def s_finalizeBatch_6(x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3444,19 +7579,19 @@ def k_finalizeBatch_7(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:666
 def s_finalizeBatch_7(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_7(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_7(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 def wr_finalizeBatch_8(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
       +o0 = x_ov
       +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162])) : W}
       +o1 = {sstore(o0, k, w0()) : HSt}
       +o2 = {sstore(o1, w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
       +o3 = {sstore(o2, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
       +o4 = {sstore(o3, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
-      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, o4), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
+      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, o4), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
 
 # write contracts/contracts/l1/rollup/Rollup.sol:665
 def s_finalizeBatch_8(x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3473,77 +7608,77 @@ def k_finalizeBatch_9(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:665
 def s_finalizeBatch_9(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_9(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_9(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
-def ln_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
+def ln_finalizeBatch_7(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
-      +n0 = {w_add(w_shl_8(x_it2), W{256, 0, 0, 0, 0, 0, 0, 0}) : W}
-      +n1 = {w_add(w_add(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), w_shl_8(x_it2)), W{256, 0, 0, 0, 0, 0, 0, 0}) : W}
-      sx_finalizeBatch_ld2(sx_finalizeBatch_it2(sx_finalizeBatch_c2_1(sx_finalizeBatch_c2_0(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, n0), n1), w_add(x_it2, w_u(1))), 1n)
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, +x_it7, x_cn7, x_rt7, x_ld7}:
+      +n0 = {w_add(w_shl_8(x_it7), W{256, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n1 = {w_add(w_add(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), w_shl_8(x_it7)), W{256, 0, 0, 0, 0, 0, 0, 0}) : W}
+      sx_finalizeBatch_ld7(sx_finalizeBatch_it7(sx_finalizeBatch_c7_1(sx_finalizeBatch_c7_0(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, n0), n1), w_add(x_it7, w_u(1))), 1n)
 
-def lbk_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
+def lbk_finalizeBatch_7(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
-      sx_finalizeBatch_ld2(sx_finalizeBatch_cn2(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, x_it2), 3n)
+    case X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, +x_it7, x_cn7, x_rt7, x_ld7}:
+      sx_finalizeBatch_ld7(sx_finalizeBatch_cn7(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, x_it7), 3n)
 
-def lk_finalizeBatch_2(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
+def lk_finalizeBatch_7(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
   match c:
     case True{}:
-      lbk_finalizeBatch_2(x)
+      lbk_finalizeBatch_7(x)
     case False{}:
-      ln_finalizeBatch_2(x)
+      ln_finalizeBatch_7(x)
 
-def lc_finalizeBatch_2(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
+def lc_finalizeBatch_7(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
   match c:
     case True{}:
-      sx_finalizeBatch_ld2(x, 2n)
+      sx_finalizeBatch_ld7(x, 2n)
     case False{}:
-      ln_finalizeBatch_2(x)
+      ln_finalizeBatch_7(x)
 
-def lb_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
+def lb_finalizeBatch_7(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      lc_finalizeBatch_2(u_nz(x_cd), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      lc_finalizeBatch_7(u_nz(x_cd), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
-def lz_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
+def lz_finalizeBatch_7(x: X_finalizeBatch) -> X_finalizeBatch:
   x
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:749#0
 def k_finalizeBatch_11(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
   match c:
     case True{}:
-      lz_finalizeBatch_2(x)
+      lz_finalizeBatch_7(x)
     case False{}:
       match x:
-        case X_finalizeBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
-          xf_finalizeBatch(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, 19, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [60, 127, 82, 131], List.append(&2, U32, b_of_w(w_add(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), w_shl_8(x_it2))), List.append(&2, U32, b_of_w(ite(W, w_lt(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it2)), W{256, 0, 0, 0, 0, 0, 0, 0}), w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it2)), W{256, 0, 0, 0, 0, 0, 0, 0})), Nil{}))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [60, 127, 82, 131], List.append(&2, U32, b_of_w(w_add(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), w_shl_8(x_it2))), List.append(&2, U32, b_of_w(ite(W, w_lt(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it2)), W{256, 0, 0, 0, 0, 0, 0, 0}), w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it2)), W{256, 0, 0, 0, 0, 0, 0, 0})), Nil{})))))))
+        case X_finalizeBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, +x_it7, x_cn7, x_rt7, x_ld7}:
+          xf_finalizeBatch(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, 19, ite(List<&2, U32>, a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [60, 127, 82, 131], List.append(&2, U32, b_of_w(w_add(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), w_shl_8(x_it7))), List.append(&2, U32, b_of_w(ite(W, w_lt(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it7)), W{256, 0, 0, 0, 0, 0, 0, 0}), w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it7)), W{256, 0, 0, 0, 0, 0, 0, 0})), Nil{}))))), Nil{}, a_ret(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [60, 127, 82, 131], List.append(&2, U32, b_of_w(w_add(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), w_shl_8(x_it7))), List.append(&2, U32, b_of_w(ite(W, w_lt(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it7)), W{256, 0, 0, 0, 0, 0, 0, 0}), w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it7)), W{256, 0, 0, 0, 0, 0, 0, 0})), Nil{})))))))
 
 # check contracts/contracts/l1/rollup/Rollup.sol:749
 def s_finalizeBatch_11(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_11(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_lt(w_shl_8(x_it2), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))))), a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [60, 127, 82, 131], List.append(&2, U32, b_of_w(w_add(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), w_shl_8(x_it2))), List.append(&2, U32, b_of_w(ite(W, w_lt(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it2)), W{256, 0, 0, 0, 0, 0, 0, 0}), w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it2)), W{256, 0, 0, 0, 0, 0, 0, 0})), Nil{})))))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, +x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_11(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_lt(w_shl_8(x_it7), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))))), a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, List.append(&2, U32, [60, 127, 82, 131], List.append(&2, U32, b_of_w(w_add(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), w_shl_8(x_it7))), List.append(&2, U32, b_of_w(ite(W, w_lt(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it7)), W{256, 0, 0, 0, 0, 0, 0, 0}), w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), w_shl_8(x_it7)), W{256, 0, 0, 0, 0, 0, 0, 0})), Nil{})))))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
-def lx_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
+def lx_finalizeBatch_7(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
-      sx_finalizeBatch_ld2(sx_finalizeBatch_cn2(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, x_it2), 0n)
+    case X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, +x_it7, x_cn7, x_rt7, x_ld7}:
+      sx_finalizeBatch_ld7(sx_finalizeBatch_cn7(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, x_it7), 0n)
 
-def lh_finalizeBatch_2(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
+def lh_finalizeBatch_7(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
   match c:
     case True{}:
-      lb_finalizeBatch_2(s_finalizeBatch_11(x))
+      lb_finalizeBatch_7(s_finalizeBatch_11(x))
     case False{}:
-      lx_finalizeBatch_2(x)
+      lx_finalizeBatch_7(x)
 
-def li_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
+def li_finalizeBatch_7(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, +x_it2, x_cn2, x_rt2, x_ld2}:
-      lh_finalizeBatch_2(w_lt(w_shl_8(x_it2), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, +x_it7, x_cn7, x_rt7, x_ld7}:
+      lh_finalizeBatch_7(w_lt(w_shl_8(x_it7), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
-def lpz_finalizeBatch_2(d: Nat, x: X_finalizeBatch) -> X_finalizeBatch:
+def lpz_finalizeBatch_7(d: Nat, x: X_finalizeBatch) -> X_finalizeBatch:
   match d:
     case 0n:
       x
@@ -3555,10 +7690,10 @@ def lpz_finalizeBatch_2(d: Nat, x: X_finalizeBatch) -> X_finalizeBatch:
           x
 
 # loop contracts/contracts/l1/rollup/Rollup.sol:744-751: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
-def lp_finalizeBatch_2(f: Nat, d: Nat, x: X_finalizeBatch) -> X_finalizeBatch:
+def lp_finalizeBatch_7(f: Nat, d: Nat, x: X_finalizeBatch) -> X_finalizeBatch:
   match f:
     case 0n:
-      lpz_finalizeBatch_2(d, x)
+      lpz_finalizeBatch_7(d, x)
     case 1n+r:
       match d:
         case 0n:
@@ -3566,17 +7701,17 @@ def lp_finalizeBatch_2(f: Nat, d: Nat, x: X_finalizeBatch) -> X_finalizeBatch:
         case 1n+q:
           match q:
             case 0n:
-              +y = li_finalizeBatch_2(x)
-              lp_finalizeBatch_2(r, gx_finalizeBatch_ld2(y), y)
+              +y = li_finalizeBatch_7(x)
+              lp_finalizeBatch_7(r, gx_finalizeBatch_ld7(y), y)
             case 1n+s:
               x
 
-def ls_finalizeBatch_2(x: X_finalizeBatch) -> X_finalizeBatch:
+def ls_finalizeBatch_7(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
       +v0 = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
       +v1 = {w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 17n)), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n))) : W}
-      sx_finalizeBatch_ld2(sx_finalizeBatch_rt2(sx_finalizeBatch_cn2(sx_finalizeBatch_it2(sx_finalizeBatch_c2_1(sx_finalizeBatch_c2_0(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, v0), v1), w0()), w0()), w0()), 1n)
+      sx_finalizeBatch_ld7(sx_finalizeBatch_rt7(sx_finalizeBatch_cn7(sx_finalizeBatch_it7(sx_finalizeBatch_c7_1(sx_finalizeBatch_c7_0(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, v0), v1), w0()), w0()), w0()), 1n)
 
 def la_finalizeBatch_10(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
   match c:
@@ -3586,7 +7721,7 @@ def la_finalizeBatch_10(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
       s_finalizeBatch_9(x)
 
 def lg_finalizeBatch_10(x: X_finalizeBatch) -> X_finalizeBatch:
-  +y = lp_finalizeBatch_2(U32.to_nat(4097), 1n, ls_finalizeBatch_2(x))
+  +y = lp_finalizeBatch_7(U32.to_nat(4097), 1n, ls_finalizeBatch_7(x))
   la_finalizeBatch_10(u_nz(gx_finalizeBatch_cd(y)), y)
 
 def lq_finalizeBatch_10(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3599,17 +7734,17 @@ def lq_finalizeBatch_10(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # loop contracts/contracts/l1/rollup/Rollup.sol:744-751
 def s_finalizeBatch_10(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      lq_finalizeBatch_10(Bool.not(w_eq(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      lq_finalizeBatch_10(Bool.not(w_eq(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 9n)), W{0, 0, 0, 0, 0, 0, 0, 0})), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 def wr_finalizeBatch_12(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
       +o0 = x_ov
       +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 160])) : W}
       +v = {b_word(ga_finalizeBatch__batchHeader(x_ar), 121n) : W}
       +o1 = {sstore(o0, k, v) : HSt}
-      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, o1), Con{k, x_tw})
+      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, o1), Con{k, x_tw})
 
 # write contracts/contracts/l1/rollup/Rollup.sol:657
 def s_finalizeBatch_12(x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3617,12 +7752,12 @@ def s_finalizeBatch_12(x: X_finalizeBatch) -> X_finalizeBatch:
 
 def wr_finalizeBatch_13(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
       +o0 = x_ov
       +k = {h_get(x_kh, List.append(&2, U32, b_of_w(b_word(ga_finalizeBatch__batchHeader(x_ar), 153n)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 163])) : W}
       +v = {W{1, 0, 0, 0, 0, 0, 0, 0} : W}
       +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(v, W{255, 0, 0, 0, 0, 0, 0, 0}))) : HSt}
-      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, o1), Con{k, x_tw})
+      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, o1), Con{k, x_tw})
 
 # write contracts/contracts/l1/rollup/Rollup.sol:656
 def s_finalizeBatch_13(x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3630,12 +7765,12 @@ def s_finalizeBatch_13(x: X_finalizeBatch) -> X_finalizeBatch:
 
 def wr_finalizeBatch_14(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
+    case X_finalizeBatch{x_st, +x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
       +o0 = x_ov
       +k = {W{157, 0, 0, 0, 0, 0, 0, 0} : W}
       +v = {w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)) : W}
       +o1 = {sstore(o0, k, v) : HSt}
-      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}, o1), Con{k, x_tw})
+      sx_finalizeBatch_tw(sx_finalizeBatch_ov(X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}, o1), Con{k, x_tw})
 
 # write contracts/contracts/l1/rollup/Rollup.sol:652
 def s_finalizeBatch_14(x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3652,8 +7787,8 @@ def k_finalizeBatch_15(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:651
 def s_finalizeBatch_15(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_15(w_eq(w_add(sload(x_st, W{157, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_15(w_eq(w_add(sload(x_st, W{157, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}), w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:648#0
 def k_finalizeBatch_16(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3666,8 +7801,8 @@ def k_finalizeBatch_16(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:648
 def s_finalizeBatch_16(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_16(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 160]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_16(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 160]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:643-646#0
 def k_finalizeBatch_17(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3680,8 +7815,8 @@ def k_finalizeBatch_17(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:643-646
 def s_finalizeBatch_17(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_17(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 160]))), b_word(ga_finalizeBatch__batchHeader(x_ar), 89n)), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_17(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_sub(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 160]))), b_word(ga_finalizeBatch__batchHeader(x_ar), 89n)), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:644#0
 def k_finalizeBatch_18(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3694,8 +7829,8 @@ def k_finalizeBatch_18(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:644
 def s_finalizeBatch_18(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_18(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_18(w_sub_ok(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:641#0
 def k_finalizeBatch_19(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3708,8 +7843,8 @@ def k_finalizeBatch_19(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:641
 def s_finalizeBatch_19(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_19(Bool.not(w_gt(sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162])), W{1, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_19(Bool.not(w_gt(sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162])), W{1, 0, 0, 0, 0, 0, 0, 0})), ge_e_block_timestamp(x_en))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:640#0
 def k_finalizeBatch_20(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3722,8 +7857,8 @@ def k_finalizeBatch_20(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:640
 def s_finalizeBatch_20(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_20(Bool.not(w_nz(w_and(sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_20(Bool.not(w_nz(w_and(sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:639#0
 def k_finalizeBatch_21(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3736,8 +7871,8 @@ def k_finalizeBatch_21(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:639
 def s_finalizeBatch_21(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_21(Bool.not(Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0}))))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_21(Bool.not(Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_st, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0}))))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:638#0
 def k_finalizeBatch_22(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3750,8 +7885,8 @@ def k_finalizeBatch_22(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:638
 def s_finalizeBatch_22(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_22(Bool.and(w_gt(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_22(Bool.and(w_gt(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 162]))), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.not(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:637#0
 def k_finalizeBatch_23(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3764,8 +7899,8 @@ def k_finalizeBatch_23(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:637
 def s_finalizeBatch_23(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_23(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), h_get(x_kh, ga_finalizeBatch__batchHeader(x_ar))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_23(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_finalizeBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), h_get(x_kh, ga_finalizeBatch__batchHeader(x_ar))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:875#0
 def k_finalizeBatch_24(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3778,8 +7913,8 @@ def k_finalizeBatch_24(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:875
 def s_finalizeBatch_24(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_24(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_24(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0
 def k_finalizeBatch_25(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3792,8 +7927,8 @@ def k_finalizeBatch_25(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
 def s_finalizeBatch_25(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_25(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(ga_finalizeBatch__batchHeader(x_ar))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_25(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(ga_finalizeBatch__batchHeader(x_ar))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0
 def k_finalizeBatch_26(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3806,8 +7941,8 @@ def k_finalizeBatch_26(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
 def s_finalizeBatch_26(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_26(Bool.or(Bool.not(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(ga_finalizeBatch__batchHeader(x_ar))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_26(Bool.or(Bool.not(w_eq(w_u(b_at(ga_finalizeBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(ga_finalizeBatch__batchHeader(x_ar))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:857#0
 def k_finalizeBatch_27(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3820,8 +7955,8 @@ def k_finalizeBatch_27(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:857
 def s_finalizeBatch_27(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_27(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(ga_finalizeBatch__batchHeader(x_ar)))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_27(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(ga_finalizeBatch__batchHeader(x_ar)))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:856#0
 def k_finalizeBatch_28(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3834,8 +7969,8 @@ def k_finalizeBatch_28(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:856
 def s_finalizeBatch_28(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_28(w_gt(w_u(b_len(ga_finalizeBatch__batchHeader(x_ar))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_28(w_gt(w_u(b_len(ga_finalizeBatch__batchHeader(x_ar))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#_openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77#0
 def k_finalizeBatch_29(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3848,8 +7983,8 @@ def k_finalizeBatch_29(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check _openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:77
 def s_finalizeBatch_29(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_29(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_29(Bool.not(w_nz(w_and(sload(x_st, W{101, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}))), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:130#0
 def k_finalizeBatch_30(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3862,8 +7997,8 @@ def k_finalizeBatch_30(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:130
 def s_finalizeBatch_30(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_30(w_eq(sload(x_st, W{168, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_30(w_eq(sload(x_st, W{168, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:633-676#1
 def k_finalizeBatch_31(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3876,8 +8011,8 @@ def k_finalizeBatch_31(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:633-676
 def s_finalizeBatch_31(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_31(w_ge(ge_e_msg_data_length(x_en), W{36, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_31(w_ge(ge_e_msg_data_length(x_en), W{36, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 # finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:633-676#0
 def k_finalizeBatch_32(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
@@ -3890,8 +8025,8 @@ def k_finalizeBatch_32(c: Bool, x: X_finalizeBatch) -> X_finalizeBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:633-676
 def s_finalizeBatch_32(x: X_finalizeBatch) -> X_finalizeBatch:
   match x:
-    case X_finalizeBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2}:
-      k_finalizeBatch_32(w_eq(ge_e_msg_value(x_en), W{0, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_it2, x_cn2, x_rt2, x_ld2})
+    case X_finalizeBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7}:
+      k_finalizeBatch_32(w_eq(ge_e_msg_value(x_en), W{0, 0, 0, 0, 0, 0, 0, 0}), X_finalizeBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c7_0, x_c7_1, x_it7, x_cn7, x_rt7, x_ld7})
 
 def x0_finalizeBatch(+st: HSt, +ar: AR_finalizeBatch, +en: HEnv, +kh: List<&2, HKB>) -> X_finalizeBatch:
   X_finalizeBatch{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}, w0(), w0(), w0(), w0(), w0(), 0n}
@@ -7285,217 +11420,217 @@ def step_renounceOwnership(+st: HSt, +ar: AR_renounceOwnership, +en: HEnv, +kh: 
   st_after(run_renounceOwnership(st, ar, en, kh), st)
 
 type X_revertBatch is Data:
-  X_revertBatch{st: HSt, ov: HSt, ar: AR_revertBatch, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c3_0: W, c3_1: W, c3_2: W, c3_3: HSt, c3_4: HSt, c3_5: HSt, c3_6: W, c3_7: W, it3: W, cn3: W, rt3: W, ld3: Nat}
+  X_revertBatch{st: HSt, ov: HSt, ar: AR_revertBatch, en: HEnv, kh: List<&2, HKB>, cd: U32, rv: List<&2, U32>, lg: List<&2, HLog>, tw: List<&2, W>, c8_0: W, c8_1: W, c8_2: W, c8_3: HSt, c8_4: HSt, c8_5: HSt, c8_6: W, c8_7: W, it8: W, cn8: W, rt8: W, ld8: Nat}
 
 def gx_revertBatch_st(e: X_revertBatch) -> HSt:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       st
 
 def gx_revertBatch_ov(e: X_revertBatch) -> HSt:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       ov
 
 def gx_revertBatch_ar(e: X_revertBatch) -> AR_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       ar
 
 def gx_revertBatch_en(e: X_revertBatch) -> HEnv:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       en
 
 def gx_revertBatch_kh(e: X_revertBatch) -> List<&2, HKB>:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       kh
 
 def gx_revertBatch_cd(e: X_revertBatch) -> U32:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       cd
 
 def gx_revertBatch_rv(e: X_revertBatch) -> List<&2, U32>:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       rv
 
 def gx_revertBatch_lg(e: X_revertBatch) -> List<&2, HLog>:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       lg
 
 def gx_revertBatch_tw(e: X_revertBatch) -> List<&2, W>:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
       tw
 
-def gx_revertBatch_c3_0(e: X_revertBatch) -> W:
+def gx_revertBatch_c8_0(e: X_revertBatch) -> W:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      c3_0
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      c8_0
 
-def gx_revertBatch_c3_1(e: X_revertBatch) -> W:
+def gx_revertBatch_c8_1(e: X_revertBatch) -> W:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      c3_1
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      c8_1
 
-def gx_revertBatch_c3_2(e: X_revertBatch) -> W:
+def gx_revertBatch_c8_2(e: X_revertBatch) -> W:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      c3_2
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      c8_2
 
-def gx_revertBatch_c3_3(e: X_revertBatch) -> HSt:
+def gx_revertBatch_c8_3(e: X_revertBatch) -> HSt:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      c3_3
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      c8_3
 
-def gx_revertBatch_c3_4(e: X_revertBatch) -> HSt:
+def gx_revertBatch_c8_4(e: X_revertBatch) -> HSt:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      c3_4
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      c8_4
 
-def gx_revertBatch_c3_5(e: X_revertBatch) -> HSt:
+def gx_revertBatch_c8_5(e: X_revertBatch) -> HSt:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      c3_5
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      c8_5
 
-def gx_revertBatch_c3_6(e: X_revertBatch) -> W:
+def gx_revertBatch_c8_6(e: X_revertBatch) -> W:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      c3_6
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      c8_6
 
-def gx_revertBatch_c3_7(e: X_revertBatch) -> W:
+def gx_revertBatch_c8_7(e: X_revertBatch) -> W:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      c3_7
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      c8_7
 
-def gx_revertBatch_it3(e: X_revertBatch) -> W:
+def gx_revertBatch_it8(e: X_revertBatch) -> W:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      it3
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      it8
 
-def gx_revertBatch_cn3(e: X_revertBatch) -> W:
+def gx_revertBatch_cn8(e: X_revertBatch) -> W:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      cn3
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      cn8
 
-def gx_revertBatch_rt3(e: X_revertBatch) -> W:
+def gx_revertBatch_rt8(e: X_revertBatch) -> W:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      rt3
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      rt8
 
-def gx_revertBatch_ld3(e: X_revertBatch) -> Nat:
+def gx_revertBatch_ld8(e: X_revertBatch) -> Nat:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      ld3
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      ld8
 
 def sx_revertBatch_st(e: X_revertBatch, +v: HSt) -> X_revertBatch:
   match e:
-    case X_revertBatch{_, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{v, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{_, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{v, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
 def sx_revertBatch_ov(e: X_revertBatch, +v: HSt) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, _, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, v, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, _, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, v, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
 def sx_revertBatch_ar(e: X_revertBatch, +v: AR_revertBatch) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, _, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, v, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, _, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, v, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
 def sx_revertBatch_en(e: X_revertBatch, +v: HEnv) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, _, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, v, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, _, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, v, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
 def sx_revertBatch_kh(e: X_revertBatch, +v: List<&2, HKB>) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, _, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, v, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, _, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, v, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
 def sx_revertBatch_cd(e: X_revertBatch, +v: U32) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, _, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, v, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, _, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, v, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
 def sx_revertBatch_rv(e: X_revertBatch, +v: List<&2, U32>) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, _, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, v, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, _, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, v, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
 def sx_revertBatch_lg(e: X_revertBatch, +v: List<&2, HLog>) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, _, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, v, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, _, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, v, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
 def sx_revertBatch_tw(e: X_revertBatch, +v: List<&2, W>) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, _, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, v, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, _, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, v, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_c3_0(e: X_revertBatch, +v: W) -> X_revertBatch:
+def sx_revertBatch_c8_0(e: X_revertBatch, +v: W) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, _, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, v, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, _, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, v, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_c3_1(e: X_revertBatch, +v: W) -> X_revertBatch:
+def sx_revertBatch_c8_1(e: X_revertBatch, +v: W) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, _, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, v, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, _, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, v, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_c3_2(e: X_revertBatch, +v: W) -> X_revertBatch:
+def sx_revertBatch_c8_2(e: X_revertBatch, +v: W) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, _, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, v, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, _, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, v, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_c3_3(e: X_revertBatch, +v: HSt) -> X_revertBatch:
+def sx_revertBatch_c8_3(e: X_revertBatch, +v: HSt) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, _, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, v, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, _, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, v, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_c3_4(e: X_revertBatch, +v: HSt) -> X_revertBatch:
+def sx_revertBatch_c8_4(e: X_revertBatch, +v: HSt) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, _, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, v, c3_5, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, _, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, v, c8_5, c8_6, c8_7, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_c3_5(e: X_revertBatch, +v: HSt) -> X_revertBatch:
+def sx_revertBatch_c8_5(e: X_revertBatch, +v: HSt) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, _, c3_6, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, v, c3_6, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, _, c8_6, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, v, c8_6, c8_7, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_c3_6(e: X_revertBatch, +v: W) -> X_revertBatch:
+def sx_revertBatch_c8_6(e: X_revertBatch, +v: W) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, _, c3_7, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, v, c3_7, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, _, c8_7, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, v, c8_7, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_c3_7(e: X_revertBatch, +v: W) -> X_revertBatch:
+def sx_revertBatch_c8_7(e: X_revertBatch, +v: W) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, _, it3, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, v, it3, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, _, it8, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, v, it8, cn8, rt8, ld8}
 
-def sx_revertBatch_it3(e: X_revertBatch, +v: W) -> X_revertBatch:
+def sx_revertBatch_it8(e: X_revertBatch, +v: W) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, _, cn3, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, v, cn3, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, _, cn8, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, v, cn8, rt8, ld8}
 
-def sx_revertBatch_cn3(e: X_revertBatch, +v: W) -> X_revertBatch:
+def sx_revertBatch_cn8(e: X_revertBatch, +v: W) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, _, rt3, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, v, rt3, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, _, rt8, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, v, rt8, ld8}
 
-def sx_revertBatch_rt3(e: X_revertBatch, +v: W) -> X_revertBatch:
+def sx_revertBatch_rt8(e: X_revertBatch, +v: W) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, _, ld3}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, v, ld3}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, _, ld8}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, v, ld8}
 
-def sx_revertBatch_ld3(e: X_revertBatch, +v: Nat) -> X_revertBatch:
+def sx_revertBatch_ld8(e: X_revertBatch, +v: Nat) -> X_revertBatch:
   match e:
-    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, _}:
-      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c3_0, c3_1, c3_2, c3_3, c3_4, c3_5, c3_6, c3_7, it3, cn3, rt3, v}
+    case X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, _}:
+      X_revertBatch{st, ov, ar, en, kh, cd, rv, lg, tw, c8_0, c8_1, c8_2, c8_3, c8_4, c8_5, c8_6, c8_7, it8, cn8, rt8, v}
 
 def xf_revertBatch(x: X_revertBatch, +c: U32, +r: List<&2, U32>) -> X_revertBatch:
   sx_revertBatch_cd(sx_revertBatch_rv(x, r), c)
@@ -7503,90 +11638,90 @@ def xf_revertBatch(x: X_revertBatch, +c: U32, +r: List<&2, U32>) -> X_revertBatc
 def sz_revertBatch(x: X_revertBatch) -> X_revertBatch:
   x
 
-def ln_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
+def ln_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, +x_c3_3, +x_c3_4, +x_c3_5, +x_c3_6, +x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      +n0 = {sload(sstore(x_c3_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))) : W}
-      +n1 = {w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
-      +n2 = {w_sub(w_sub(ga_revertBatch__count(x_ar), x_it3), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
-      +n3 = {ite(HSt, Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))), sstore(x_c3_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165])), w_add(sload(x_c3_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165]))), sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0})))), x_c3_3) : HSt}
-      +n4 = {sstore(sstore(sstore(sstore(sstore(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294902015, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_shl_8(w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0})))) : HSt}
-      +n5 = {sstore(x_c3_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()) : HSt}
-      +n6 = {ite(W, Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))), W{0, 0, 0, 0, 0, 0, 0, 0}, x_c3_6) : W}
-      +n7 = {ite(W, Bool.and(w_gt(x_c3_7, W{0, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), x_c3_7)), W{0, 0, 0, 0, 0, 0, 0, 0}, x_c3_7) : W}
-      sx_revertBatch_ld3(sx_revertBatch_it3(sx_revertBatch_c3_7(sx_revertBatch_c3_6(sx_revertBatch_c3_5(sx_revertBatch_c3_4(sx_revertBatch_c3_3(sx_revertBatch_c3_2(sx_revertBatch_c3_1(sx_revertBatch_c3_0(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, n0), n1), n2), n3), n4), n5), n6), n7), w_add(x_it3, w_u(1))), 1n)
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, +x_c8_3, +x_c8_4, +x_c8_5, +x_c8_6, +x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      +n0 = {sload(sstore(x_c8_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))) : W}
+      +n1 = {w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n2 = {w_sub(w_sub(ga_revertBatch__count(x_ar), x_it8), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +n3 = {ite(HSt, Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))), sstore(x_c8_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165])), w_add(sload(x_c8_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165]))), sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0})))), x_c8_3) : HSt}
+      +n4 = {sstore(sstore(sstore(sstore(sstore(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294902015, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_shl_8(w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0})))) : HSt}
+      +n5 = {sstore(x_c8_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()) : HSt}
+      +n6 = {ite(W, Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))), W{0, 0, 0, 0, 0, 0, 0, 0}, x_c8_6) : W}
+      +n7 = {ite(W, Bool.and(w_gt(x_c8_7, W{0, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), x_c8_7)), W{0, 0, 0, 0, 0, 0, 0, 0}, x_c8_7) : W}
+      sx_revertBatch_ld8(sx_revertBatch_it8(sx_revertBatch_c8_7(sx_revertBatch_c8_6(sx_revertBatch_c8_5(sx_revertBatch_c8_4(sx_revertBatch_c8_3(sx_revertBatch_c8_2(sx_revertBatch_c8_1(sx_revertBatch_c8_0(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, n0), n1), n2), n3), n4), n5), n6), n7), w_add(x_it8, w_u(1))), 1n)
 
-def lbk_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
+def lbk_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, +x_c3_3, +x_c3_4, +x_c3_5, +x_c3_6, +x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      +b0 = {sload(sstore(x_c3_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))) : W}
-      +b1 = {w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
-      +b2 = {w_sub(w_sub(ga_revertBatch__count(x_ar), x_it3), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
-      +b3 = {ite(HSt, Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))), sstore(x_c3_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165])), w_add(sload(x_c3_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165]))), sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0})))), x_c3_3) : HSt}
-      +b4 = {sstore(sstore(sstore(sstore(sstore(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294902015, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_shl_8(w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0})))) : HSt}
-      +b5 = {sstore(x_c3_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()) : HSt}
-      +b6 = {ite(W, Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))), W{0, 0, 0, 0, 0, 0, 0, 0}, x_c3_6) : W}
-      +b7 = {ite(W, Bool.and(w_gt(x_c3_7, W{0, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), x_c3_7)), W{0, 0, 0, 0, 0, 0, 0, 0}, x_c3_7) : W}
-      sx_revertBatch_ld3(sx_revertBatch_cn3(sx_revertBatch_c3_7(sx_revertBatch_c3_6(sx_revertBatch_c3_5(sx_revertBatch_c3_4(sx_revertBatch_c3_3(sx_revertBatch_c3_2(sx_revertBatch_c3_1(sx_revertBatch_c3_0(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, b0), b1), b2), b3), b4), b5), b6), b7), x_it3), 3n)
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, +x_c8_3, +x_c8_4, +x_c8_5, +x_c8_6, +x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      +b0 = {sload(sstore(x_c8_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))) : W}
+      +b1 = {w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +b2 = {w_sub(w_sub(ga_revertBatch__count(x_ar), x_it8), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
+      +b3 = {ite(HSt, Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))), sstore(x_c8_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165])), w_add(sload(x_c8_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165]))), sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0})))), x_c8_3) : HSt}
+      +b4 = {sstore(sstore(sstore(sstore(sstore(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(sstore(sstore(sstore(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(sstore(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), w_or(w_and(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164]))), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{2, 0, 0, 0, 0, 0, 0, 0}), w0()), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))), w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294902015, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_shl_8(w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0})))) : HSt}
+      +b5 = {sstore(x_c8_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()) : HSt}
+      +b6 = {ite(W, Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))), W{0, 0, 0, 0, 0, 0, 0, 0}, x_c8_6) : W}
+      +b7 = {ite(W, Bool.and(w_gt(x_c8_7, W{0, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), x_c8_7)), W{0, 0, 0, 0, 0, 0, 0, 0}, x_c8_7) : W}
+      sx_revertBatch_ld8(sx_revertBatch_cn8(sx_revertBatch_c8_7(sx_revertBatch_c8_6(sx_revertBatch_c8_5(sx_revertBatch_c8_4(sx_revertBatch_c8_3(sx_revertBatch_c8_2(sx_revertBatch_c8_1(sx_revertBatch_c8_0(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, b0), b1), b2), b3), b4), b5), b6), b7), x_it8), 3n)
 
-def lk_revertBatch_3(c: Bool, x: X_revertBatch) -> X_revertBatch:
+def lk_revertBatch_8(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
     case True{}:
-      lbk_revertBatch_3(x)
+      lbk_revertBatch_8(x)
     case False{}:
-      ln_revertBatch_3(x)
+      ln_revertBatch_8(x)
 
-def lc_revertBatch_3(c: Bool, x: X_revertBatch) -> X_revertBatch:
+def lc_revertBatch_8(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
     case True{}:
-      sx_revertBatch_ld3(x, 2n)
+      sx_revertBatch_ld8(x, 2n)
     case False{}:
       match x:
-        case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, +x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-          lk_revertBatch_3(w_eq(sload(sstore(x_c3_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+        case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, +x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+          lk_revertBatch_8(w_eq(sload(sstore(x_c8_5, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])), w0()), h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), W{1, 0, 0, 0, 0, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
-def lb_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
+def lb_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      lc_revertBatch_3(u_nz(x_cd), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, +x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      lc_revertBatch_8(u_nz(x_cd), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
-def lz_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
+def lz_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   x
 
 def wr_revertBatch_2(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
+    case X_revertBatch{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
       +o0 = x_ov
       +k = {W{168, 0, 0, 0, 0, 0, 0, 0} : W}
       +v = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
       +o1 = {sstore(o0, k, v) : HSt}
-      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, o1), Con{k, x_tw})
 
 def wc_revertBatch_2(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
     case True{}:
-      lz_revertBatch_3(wr_revertBatch_2(x))
+      lz_revertBatch_8(wr_revertBatch_2(x))
     case False{}:
-      lz_revertBatch_3(x)
+      lz_revertBatch_8(x)
 
 # write contracts/contracts/l1/rollup/Rollup.sol:464
 def s_revertBatch_2(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, +x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      wc_revertBatch_2(Bool.and(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it3), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.and(w_gt(x_c3_7, W{0, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), x_c3_7))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, +x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      wc_revertBatch_2(Bool.and(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it8), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.and(w_gt(x_c8_7, W{0, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), x_c8_7))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 def wr_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
+    case X_revertBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
       +o0 = x_ov
-      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])) : W}
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])) : W}
       +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{0, 0, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 0}))) : HSt}
       +o2 = {sstore(o1, k, w_or(w_and(sload(o1, k), W{4294967295, 4294967295, 0, 0, 0, 0, 0, 4294967295}), w_shl_64(w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})))) : HSt}
       +o3 = {sstore(o2, w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
       +o4 = {sstore(o3, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
       +o5 = {sstore(o4, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(o4, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0}))) : HSt}
       +o6 = {sstore(o5, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), w_or(w_and(sload(o5, w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0})), W{4294902015, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_shl_8(w_and(w0(), W{255, 0, 0, 0, 0, 0, 0, 0})))) : HSt}
-      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, o6), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
+      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, o6), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{3, 0, 0, 0, 0, 0, 0, 0}), x_tw}}}})
 
 def wc_revertBatch_3(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
@@ -7598,17 +11733,17 @@ def wc_revertBatch_3(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # write contracts/contracts/l1/rollup/Rollup.sol:461
 def s_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      wc_revertBatch_3(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it3), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      wc_revertBatch_3(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it8), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 def wr_revertBatch_4(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
+    case X_revertBatch{x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
       +o0 = x_ov
       +k = {W{166, 0, 0, 0, 0, 0, 0, 0} : W}
       +v = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
       +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{4294967040, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295}), w_and(v, W{255, 0, 0, 0, 0, 0, 0, 0}))) : HSt}
-      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, o1), Con{k, x_tw})
 
 def wc_revertBatch_4(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
@@ -7620,17 +11755,17 @@ def wc_revertBatch_4(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # write contracts/contracts/l1/rollup/Rollup.sol:459
 def s_revertBatch_4(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, +x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      wc_revertBatch_4(Bool.and(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it3), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0}))))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, +x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      wc_revertBatch_4(Bool.and(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it8), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0}))))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 def wr_revertBatch_5(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c3_0, x_c3_1, x_c3_2, +x_c3_3, +x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
+    case X_revertBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c8_0, x_c8_1, x_c8_2, +x_c8_3, +x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
       +o0 = x_ov
-      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165])) : W}
-      +v = {w_add(sload(x_c3_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165]))), sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}))) : W}
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165])) : W}
+      +v = {w_add(sload(x_c8_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165]))), sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0}))) : W}
       +o1 = {sstore(o0, k, v) : HSt}
-      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, o1), Con{k, x_tw})
 
 def wc_revertBatch_5(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
@@ -7642,8 +11777,8 @@ def wc_revertBatch_5(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # write contracts/contracts/l1/rollup/Rollup.sol:458
 def s_revertBatch_5(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, +x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      wc_revertBatch_5(Bool.and(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it3), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0}))))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, +x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      wc_revertBatch_5(Bool.and(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it8), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0}))))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:458#0
 def k_revertBatch_6(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7656,17 +11791,17 @@ def k_revertBatch_6(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:458
 def s_revertBatch_6(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, +x_c3_3, +x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_6(Bool.or(Bool.not(Bool.and(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it3), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))))), w_add_ok(sload(x_c3_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c3_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165]))), sload(x_c3_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0})))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, +x_c8_3, +x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_6(Bool.or(Bool.not(Bool.and(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it8), W{0, 0, 0, 0, 0, 0, 0, 0}), Bool.and(Bool.not(w_eq(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(w_shr_8(sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{3, 0, 0, 0, 0, 0, 0, 0}))), W{255, 0, 0, 0, 0, 0, 0, 0})))))), w_add_ok(sload(x_c8_3, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(w_shr_64(sload(x_c8_4, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165]))), sload(x_c8_4, w_add(h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 164])), W{1, 0, 0, 0, 0, 0, 0, 0})))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 def wr_revertBatch_7(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
+    case X_revertBatch{x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
       +o0 = x_ov
-      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])) : W}
+      +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8)), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161])) : W}
       +v = {W{0, 0, 0, 0, 0, 0, 0, 0} : W}
       +o1 = {sstore(o0, k, v) : HSt}
-      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, o1), Con{k, x_tw})
 
 def wc_revertBatch_7(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
@@ -7678,13 +11813,13 @@ def wc_revertBatch_7(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # write contracts/contracts/l1/rollup/Rollup.sol:455
 def s_revertBatch_7(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      wc_revertBatch_7(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it3), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      wc_revertBatch_7(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it8), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 def ev_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, +x_lg, x_tw, +x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      sx_revertBatch_lg(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, Con{HLog{[W{3027304774, 2010995886, 1538788607, 1763577042, 169266910, 3642505023, 2425469663, 13296243}, w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it3), x_c3_0], Nil{}}, x_lg})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, +x_lg, x_tw, +x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      sx_revertBatch_lg(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, Con{HLog{[W{3027304774, 2010995886, 1538788607, 1763577042, 169266910, 3642505023, 2425469663, 13296243}, w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), x_it8), x_c8_0], Nil{}}, x_lg})
 
 def ec_revertBatch_8(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
@@ -7696,27 +11831,27 @@ def ec_revertBatch_8(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # event contracts/contracts/l1/rollup/Rollup.sol:453
 def s_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      ec_revertBatch_8(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it3), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      ec_revertBatch_8(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it8), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
-def lx_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
+def lx_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      sx_revertBatch_ld3(sx_revertBatch_cn3(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, x_it3), 0n)
+    case X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      sx_revertBatch_ld8(sx_revertBatch_cn8(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, x_it8), 0n)
 
-def lh_revertBatch_3(c: Bool, x: X_revertBatch) -> X_revertBatch:
+def lh_revertBatch_8(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
     case True{}:
-      lb_revertBatch_3(s_revertBatch_8(x))
+      lb_revertBatch_8(s_revertBatch_8(x))
     case False{}:
-      lx_revertBatch_3(x)
+      lx_revertBatch_8(x)
 
-def li_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
+def li_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, +x_it3, x_cn3, x_rt3, x_ld3}:
-      lh_revertBatch_3(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it3), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, +x_it8, x_cn8, x_rt8, x_ld8}:
+      lh_revertBatch_8(w_gt(w_sub(ga_revertBatch__count(x_ar), x_it8), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
-def lpz_revertBatch_3(d: Nat, x: X_revertBatch) -> X_revertBatch:
+def lpz_revertBatch_8(d: Nat, x: X_revertBatch) -> X_revertBatch:
   match d:
     case 0n:
       x
@@ -7728,10 +11863,10 @@ def lpz_revertBatch_3(d: Nat, x: X_revertBatch) -> X_revertBatch:
           x
 
 # loop contracts/contracts/l1/rollup/Rollup.sol:452-475: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)
-def lp_revertBatch_3(f: Nat, d: Nat, x: X_revertBatch) -> X_revertBatch:
+def lp_revertBatch_8(f: Nat, d: Nat, x: X_revertBatch) -> X_revertBatch:
   match f:
     case 0n:
-      lpz_revertBatch_3(d, x)
+      lpz_revertBatch_8(d, x)
     case 1n+r:
       match d:
         case 0n:
@@ -7739,14 +11874,14 @@ def lp_revertBatch_3(f: Nat, d: Nat, x: X_revertBatch) -> X_revertBatch:
         case 1n+q:
           match q:
             case 0n:
-              +y = li_revertBatch_3(x)
-              lp_revertBatch_3(r, gx_revertBatch_ld3(y), y)
+              +y = li_revertBatch_8(x)
+              lp_revertBatch_8(r, gx_revertBatch_ld8(y), y)
             case 1n+s:
               x
 
-def ls_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
+def ls_revertBatch_8(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
+    case X_revertBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
       +v0 = {h_get(x_kh, ga_revertBatch__batchHeader(x_ar)) : W}
       +v1 = {w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)) : W}
       +v2 = {ga_revertBatch__count(x_ar) : W}
@@ -7755,7 +11890,7 @@ def ls_revertBatch_3(x: X_revertBatch) -> X_revertBatch:
       +v5 = {x_st : HSt}
       +v6 = {w_and(sload(x_st, W{166, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0}) : W}
       +v7 = {sload(x_st, W{168, 0, 0, 0, 0, 0, 0, 0}) : W}
-      sx_revertBatch_ld3(sx_revertBatch_rt3(sx_revertBatch_cn3(sx_revertBatch_it3(sx_revertBatch_c3_7(sx_revertBatch_c3_6(sx_revertBatch_c3_5(sx_revertBatch_c3_4(sx_revertBatch_c3_3(sx_revertBatch_c3_2(sx_revertBatch_c3_1(sx_revertBatch_c3_0(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, v0), v1), v2), v3), v4), v5), v6), v7), w0()), w0()), w0()), 1n)
+      sx_revertBatch_ld8(sx_revertBatch_rt8(sx_revertBatch_cn8(sx_revertBatch_it8(sx_revertBatch_c8_7(sx_revertBatch_c8_6(sx_revertBatch_c8_5(sx_revertBatch_c8_4(sx_revertBatch_c8_3(sx_revertBatch_c8_2(sx_revertBatch_c8_1(sx_revertBatch_c8_0(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, v0), v1), v2), v3), v4), v5), v6), v7), w0()), w0()), w0()), 1n)
 
 def la_revertBatch_1(c: Bool, x: X_revertBatch) -> X_revertBatch:
   match c:
@@ -7765,7 +11900,7 @@ def la_revertBatch_1(c: Bool, x: X_revertBatch) -> X_revertBatch:
       sz_revertBatch(x)
 
 def lg_revertBatch_1(x: X_revertBatch) -> X_revertBatch:
-  +y = lp_revertBatch_3(U32.to_nat(4097), 1n, ls_revertBatch_3(x))
+  +y = lp_revertBatch_8(U32.to_nat(4097), 1n, ls_revertBatch_8(x))
   la_revertBatch_1(u_nz(gx_revertBatch_cd(y)), y)
 
 # loop contracts/contracts/l1/rollup/Rollup.sol:452-475
@@ -7774,12 +11909,12 @@ def s_revertBatch_1(x: X_revertBatch) -> X_revertBatch:
 
 def wr_revertBatch_9(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, +x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
+    case X_revertBatch{x_st, +x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
       +o0 = x_ov
       +k = {W{158, 0, 0, 0, 0, 0, 0, 0} : W}
       +v = {w_sub(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
       +o1 = {sstore(o0, k, v) : HSt}
-      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}, o1), Con{k, x_tw})
+      sx_revertBatch_tw(sx_revertBatch_ov(X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}, o1), Con{k, x_tw})
 
 # write contracts/contracts/l1/rollup/Rollup.sol:451
 def s_revertBatch_9(x: X_revertBatch) -> X_revertBatch:
@@ -7796,8 +11931,8 @@ def k_revertBatch_10(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:451
 def s_revertBatch_10(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_10(w_sub_ok(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_10(w_sub_ok(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), W{1, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:449#0
 def k_revertBatch_11(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7810,8 +11945,8 @@ def k_revertBatch_11(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:449
 def s_revertBatch_11(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_11(w_gt(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), sload(x_st, W{157, 0, 0, 0, 0, 0, 0, 0})), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_11(w_gt(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), sload(x_st, W{157, 0, 0, 0, 0, 0, 0, 0})), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:447#1
 def k_revertBatch_12(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7824,8 +11959,8 @@ def k_revertBatch_12(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:447
 def s_revertBatch_12(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_12(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), ga_revertBatch__count(x_ar))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_12(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_add(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), ga_revertBatch__count(x_ar))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:447#0
 def k_revertBatch_13(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7838,8 +11973,8 @@ def k_revertBatch_13(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:447
 def s_revertBatch_13(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_13(w_add_ok(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), ga_revertBatch__count(x_ar)), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_13(w_add_ok(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n)), ga_revertBatch__count(x_ar)), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:444#0
 def k_revertBatch_14(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7852,8 +11987,8 @@ def k_revertBatch_14(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:444
 def s_revertBatch_14(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_14(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), h_get(x_kh, ga_revertBatch__batchHeader(x_ar))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_14(w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_shr_192(b_word(ga_revertBatch__batchHeader(x_ar), 1n))), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 161]))), h_get(x_kh, ga_revertBatch__batchHeader(x_ar))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:875#0
 def k_revertBatch_15(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7866,8 +12001,8 @@ def k_revertBatch_15(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:875
 def s_revertBatch_15(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_15(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_15(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(Bool.or(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0}))))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0
 def k_revertBatch_16(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7880,8 +12015,8 @@ def k_revertBatch_16(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35
 def s_revertBatch_16(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_16(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(ga_revertBatch__batchHeader(x_ar))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_16(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.or(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{1, 0, 0, 0, 0, 0, 0, 0}), w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{2, 0, 0, 0, 0, 0, 0, 0})))), w_eq(w_u(b_len(ga_revertBatch__batchHeader(x_ar))), W{257, 0, 0, 0, 0, 0, 0, 0})), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0
 def k_revertBatch_17(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7894,8 +12029,8 @@ def k_revertBatch_17(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32
 def s_revertBatch_17(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_17(Bool.or(Bool.not(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(ga_revertBatch__batchHeader(x_ar))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_17(Bool.or(Bool.not(w_eq(w_u(b_at(ga_revertBatch__batchHeader(x_ar), 0n)), W{0, 0, 0, 0, 0, 0, 0, 0})), w_ge(w_u(b_len(ga_revertBatch__batchHeader(x_ar))), W{249, 0, 0, 0, 0, 0, 0, 0})), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:857#0
 def k_revertBatch_18(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7908,8 +12043,8 @@ def k_revertBatch_18(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:857
 def s_revertBatch_18(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_18(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(ga_revertBatch__batchHeader(x_ar)))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_18(w_lt(W{0, 0, 0, 0, 0, 0, 0, 0}, w_u(b_len(ga_revertBatch__batchHeader(x_ar)))), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:856#0
 def k_revertBatch_19(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7922,8 +12057,8 @@ def k_revertBatch_19(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:856
 def s_revertBatch_19(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_19(w_gt(w_u(b_len(ga_revertBatch__batchHeader(x_ar))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_19(w_gt(w_u(b_len(ga_revertBatch__batchHeader(x_ar))), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:439#0
 def k_revertBatch_20(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7936,8 +12071,8 @@ def k_revertBatch_20(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:439
 def s_revertBatch_20(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_20(w_gt(ga_revertBatch__count(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_20(w_gt(ga_revertBatch__count(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#_openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0
 def k_revertBatch_21(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7950,8 +12085,8 @@ def k_revertBatch_21(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check _openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56
 def s_revertBatch_21(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_21(w_eq(w_and(sload(x_st, W{51, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), ge_e_caller(x_en)), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_21(w_eq(w_and(sload(x_st, W{51, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), ge_e_caller(x_en)), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:438-476#1
 def k_revertBatch_22(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7964,8 +12099,8 @@ def k_revertBatch_22(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:438-476
 def s_revertBatch_22(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_22(w_ge(ge_e_msg_data_length(x_en), W{68, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_22(w_ge(ge_e_msg_data_length(x_en), W{68, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 # revertBatch#contracts/contracts/l1/rollup/Rollup.sol:438-476#0
 def k_revertBatch_23(c: Bool, x: X_revertBatch) -> X_revertBatch:
@@ -7978,8 +12113,8 @@ def k_revertBatch_23(c: Bool, x: X_revertBatch) -> X_revertBatch:
 # check contracts/contracts/l1/rollup/Rollup.sol:438-476
 def s_revertBatch_23(x: X_revertBatch) -> X_revertBatch:
   match x:
-    case X_revertBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3}:
-      k_revertBatch_23(w_eq(ge_e_msg_value(x_en), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c3_0, x_c3_1, x_c3_2, x_c3_3, x_c3_4, x_c3_5, x_c3_6, x_c3_7, x_it3, x_cn3, x_rt3, x_ld3})
+    case X_revertBatch{x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8}:
+      k_revertBatch_23(w_eq(ge_e_msg_value(x_en), W{0, 0, 0, 0, 0, 0, 0, 0}), X_revertBatch{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c8_0, x_c8_1, x_c8_2, x_c8_3, x_c8_4, x_c8_5, x_c8_6, x_c8_7, x_it8, x_cn8, x_rt8, x_ld8})
 
 def x0_revertBatch(+st: HSt, +ar: AR_revertBatch, +en: HEnv, +kh: List<&2, HKB>) -> X_revertBatch:
   X_revertBatch{st, st, ar, en, kh, 0, Nil{}, Nil{}, Nil{}, w0(), w0(), w0(), st, st, st, w0(), w0(), w0(), w0(), w0(), 0n}
@@ -9688,6 +13823,9 @@ type HAct is Data:
   A_challengeState{ar: AR_challengeState, en: HEnv}
   A_claimProveRemaining{ar: AR_claimProveRemaining, en: HEnv}
   A_claimReward{ar: AR_claimReward, en: HEnv}
+  A_commitBatch{ar: AR_commitBatch, en: HEnv}
+  A_commitBatchWithProof{ar: AR_commitBatchWithProof, en: HEnv}
+  A_commitState{ar: AR_commitState, en: HEnv}
   A_finalizeBatch{ar: AR_finalizeBatch, en: HEnv}
   A_importGenesisBatch{ar: AR_importGenesisBatch, en: HEnv}
   A_initialize{ar: AR_initialize, en: HEnv}
@@ -9728,6 +13866,12 @@ def step(a: HAct, +s: HSt, +kh: List<&2, HKB>) -> HSt:
       step_claimProveRemaining(s, ar, en, kh)
     case A_claimReward{ar, en}:
       step_claimReward(s, ar, en, kh)
+    case A_commitBatch{ar, en}:
+      step_commitBatch(s, ar, en, kh)
+    case A_commitBatchWithProof{ar, en}:
+      step_commitBatchWithProof(s, ar, en, kh)
+    case A_commitState{ar, en}:
+      step_commitState(s, ar, en, kh)
     case A_finalizeBatch{ar, en}:
       step_finalizeBatch(s, ar, en, kh)
     case A_importGenesisBatch{ar, en}:

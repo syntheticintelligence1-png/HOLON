@@ -388,9 +388,15 @@ class TestLaws(unittest.TestCase):
     def check_decided(self, lid: str, status: str):
         e = self.decision(lid)
         self.assertEqual(e["status"], status, e.get("tried"))
-        self.assertEqual(e["statement_hash"], th()["i88"]["statement_hashes"][lid])
         reg = need(ROOT / "laws" / "M3" / "derivation" / "REGISTRY.json")
         self.assertEqual(reg["statements"][lid], e["statement_hash"])
+        # amended (spec/M3/amendments.jsonl): pipeline v2 part A re-stamped the law set on hash_scheme 2, so the key's
+        # (scheme 1) hash is tied to the registry's by the law's hash_migration line in laws/STATEMENT_DIFF.jsonl
+        key_hash = th()["i88"]["statement_hashes"][lid]
+        if e["statement_hash"] != key_hash:
+            log = [json.loads(x) for x in (ROOT / "laws" / "STATEMENT_DIFF.jsonl").read_text().splitlines() if x.strip()]
+            self.assertIn((lid, key_hash, e["statement_hash"]), {(x.get("law_id"), x.get("old_hash"), x.get("new_hash"))
+                                                                 for x in log if x.get("kind") == "hash_migration"})
         want = ("cl_" if status == "REFUTED" else "") + lid.lower()
         self.assertEqual(e["law_name"], want)
         lf, pf = ROOT / e["laws_file"], ROOT / e["proof_file"]

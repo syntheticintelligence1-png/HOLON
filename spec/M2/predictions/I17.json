@@ -1,0 +1,159 @@
+{
+  "title": "Solidity frontend I: compile, AST/Yul walk, layouts (holon-facts/0.3)",
+  "plan": "docs/BUILD_PLAN.md#i17",
+  "prompt": "prompts/I17_solidity_layout.md",
+  "predictions": [
+    {
+      "id": "I17-P1",
+      "claim": "The extracted enc_sol layout equals the frozen facts/morph_header.json layout cell for cell for versions 0, 1 and 2, modulo a bijective renaming of field names: at each version the active ok path's layout (rule W11, cut to its length) has the frozen length (249, 257, 257) and, at every byte, the frozen state: the same constant where the frozen facts hold a constant (the 32 zero bytes at 185..216: sequencerSetVerifyHash is never an input, the code stores bytes32(0), which is the obstruction of L_par_hdr_ssvh), no unknown byte, and a field byte with the same byte index where the frozen facts hold a field byte. Derived by reading BatchHeaderCodecV0.store* (mstore8 at 0; mstore of shl(192, x) at 1, 9, 17; mstore of a bytes32 at 25, 57, 89, 121, 153, 185, 217), BatchHeaderCodecV1.storeLastBlockNumber (mstore of shl(192, x) at 249) and the header block of Rollup._commitBatchWithBatchData (:330-357: _headerLength 249, or 257 when version >= 1; the stores in that order; the V1 store under the same condition): later writes override the trailing zeros of the 8-byte stores, and the last 32-byte store of version 0 ends exactly at 248.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_enc_sol_layout_equals_the_frozen_layout_per_version_modulo_field_names"
+    },
+    {
+      "id": "I17-P2",
+      "claim": "The renaming of I17-P1 is the identity: naming a field after the formal parameter of the store function that writes it, without its leading underscores (rule N1: _version, _batchIndex, _l1MessagePopped, _totalL1MessagePopped, _dataHash, _blobVersionedHash, _prevStateHash, _postStateHash, _withdrawRootHash, _parentBatchHash, _lastBlockNumber), gives exactly the frozen field names, so the extracted layouts of versions 0, 1 and 2 equal the frozen ones as written.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_extracted_field_names_are_the_frozen_names"
+    },
+    {
+      "id": "I17-P3",
+      "claim": "enc_sol is a Maybe<Bytes> encoder whose revert paths (rule J1: requires before the sink whose condition mentions only fields) are exactly three: [!(version <= 2)] 'invalid version' at Rollup.sol:293, [version <= 2, !(prevStateHash != 0)] 'previous state root is zero' at :294 and [version <= 2, prevStateHash != 0, !(postStateHash != 0)] 'new state root is zero' at :295 (the requires on the parent header and on storage at :309-314 are environment guards and are projected away). So enc_sol is None for every version byte 3..255, where the frozen domain (version_le 2) agrees, and also None at versions 0..2 whenever a state root is zero, which the frozen enc_sol (defined on every header of version <= 2) does not state: the frozen M0 witness of L_par_hdr_v2 (version 2, both roots zero) lies outside the extracted domain, the witness of L_par_hdr_ssvh (version 1, all bytes 0xff) inside. A difference to report about the frozen facts (a Question for the human), not an extractor bug; no frozen law changes (L_par_hdr_v0/v1 hold on the larger frozen domain). Prior record: the three requires themselves are recorded as commit-path revert codes 8-10 in spec/M1/facts/morph_rollup.json (hand-written M1 facts); what is predicted is that the extracted enc_sol edge, built by rules J1-J2 without reading any fact document, carries exactly these three as its partiality and nothing else.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_enc_sol_is_partial_exactly_on_three_field_conditions"
+    },
+    {
+      "id": "I17-P4",
+      "claim": "The plan's prediction: the unsupported-Yul debt list is empty for the store sequences. enc_sol and load_sol each have debt [] and exact true (rule D2): between the mload(0x40) that allocates the sink's region and the keccak256 sink, every statement is a supported Solidity statement and every Yul call is one of mstore, mstore8, add, shl, calldatacopy, keccak256 (BatchHeaderCodecV0/V1.store*, loadAndValidate, computeBatchHash).",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_store_sequences_carry_no_debt"
+    },
+    {
+      "id": "I17-P5",
+      "claim": "The whole enc_sol walk records exactly one debt entry, {kind loop, construct ForStatement, src Rollup.sol:936-943, fn Rollup._loadL1MessageHashes, stack [Rollup.sol:318-322, Rollup.sol:879, Rollup.sol:936-943]}: the unchecked loop that loads L1 message hashes through an external call, before the header region is allocated, so outside the store sequence; the load_sol walk records none.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_walk_debt_is_exactly_the_message_hash_loop"
+    },
+    {
+      "id": "I17-P6",
+      "claim": "Walk inventory (rules W8-W10 before projection): the enc_sol walk enters exactly 22 functions (Rollup._commitBatchWithBatchData, _loadBatchHeader, _getBatchVersion, _commitBatch, _loadL1MessageHashes; BatchHeaderCodecV0.loadAndValidate, computeBatchHash, getBatchIndex, getTotalL1MessagePopped and its 11 store functions; BatchHeaderCodecV1.loadAndValidate and storeLastBlockNumber), reaches exactly 3 keccak256 sinks (the parent header hash, stack [:309, :849, V0:242]; the data hash, [:318-322, :883]; the selected header hash, [:357, V0:242]) and counts 8 ok, 15 revert and 0 other paths (3 field requires; 4 loader reverts; 4 storage requires on each of the 2 parent-header paths; 2 parent paths x 2 for numL1Messages == 0 x 2 for version >= 1 reaching the sink); the load_sol walk enters 5 functions, reaches 1 sink and counts 2 ok, 4 revert, 0 other.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_walk_inventory"
+    },
+    {
+      "id": "I17-P7",
+      "claim": "enc_sol has exactly two ok paths after projection and merging (rules J1-J2), told apart by version >= 1 alone: the :333 and :353 conditions coincide, the numL1Messages == 0 early return of _loadL1MessageHashes (a condition on the field l1MessagePopped) merges away, no environment conjunct survives. Conditions [version <= 2, prevStateHash != 0, postStateHash != 0] plus version >= 1 (length 257, 12 ops) or !(version >= 1) (length 249, the first 11): ops in program order mstore8 at 0 (storeVersion, called at :342), mstore at 1, 9, 17 (shl(192) stores at :343-345), 25, 57, 89, 121, 153 (:346-350), 185 with 32 zero bytes (storeSequencerSetVerifyHash(_batchPtr, bytes32(0)) at :351), 217 (:352) and, on the first path, 249 (BatchHeaderCodecV1.storeLastBlockNumber at :354), each with its origin function, its Yul span in the codec library and its stack; the free-pointer update at :338 is no op.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_enc_sol_ok_paths_and_their_ops"
+    },
+    {
+      "id": "I17-P8",
+      "claim": "The domain and length checks of the Solidity header loader are recovered as partiality equal to the frozen ok_sol: load_sol (Rollup._loadBatchHeader) has exactly 2 ok and 4 revert paths, 'Empty batch header' (:825), 'batch header length too small' (BatchHeaderCodecV0.sol:32), 'batch header length is incorrect' (BatchHeaderCodecV1.sol:35) and 'Unsupported batch version' (:844), and for every first byte 0..255 and every length in thresholds.loader_grid_lengths it is defined exactly where the frozen ok_sol is true (version 0: length >= 249; versions 1 and 2: length == 257; otherwise never).",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_load_sol_partiality_equals_the_frozen_ok_sol"
+    },
+    {
+      "id": "I17-P9",
+      "claim": "calldatacopy cells: each load_sol ok path holds exactly one op, calldatacopy at offset 0 with width and length ['len', 'batchHeader'] and src [{input batchHeader, from 0, len ['len', 'batchHeader']}], from BatchHeaderCodecV0.loadAndValidate (V0:36 via :839) on the version-0 path and BatchHeaderCodecV1.loadAndValidate (V1:39 via :842) on the version-1/2 path (no equality is substituted: the 257 stays a path condition); on the grid every ok input's layout is ['input', 'batchHeader', k] for every k below its length, the identity on calldata (whitepaper 10.2: positions map to calldata).",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_load_sol_layout_is_the_calldata_copy"
+    },
+    {
+      "id": "I17-P10",
+      "claim": "The extracted Header record holds 11 fields, the frozen Header fields in the frozen order with the frozen widths minus sequencerSetVerifyHash (no input reaches byte 185); value types (rule N2) uint8, uint256, uint16, uint256, bytes32 x6, uint64, so the width obligations (A-width:Header: value type wider than the stored width) are exactly batchIndex and totalL1MessagePopped (uint256 locals stored as shl(192, x)), while version (uint8 in one byte), l1MessagePopped (uint16) and lastBlockNumber (uint64) fit: the frozen A-width and A-version assumptions name five fields, the extraction two.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestPredictions::test_header_record_and_width_obligations"
+    },
+    {
+      "id": "I17-P11",
+      "kind": "construction",
+      "claim": "Construction check, not counted: `python -m holon extract solidity --milestone M2` writes spec/M2/facts/morph_header.extracted.json in the contract's holon-facts/0.3 shape (header, toolchain sha equal to the replay pin, every solc input unit hashed, the sidecar hashed, canonical bytes, no absolute path or date, spans inside their files, edge and path keys as fixed, assumptions A-dirty, A-env, A-implicit, A-width:Header), valid under spec/schemas/facts_0_3.schema.json (which rejects an unknown outcome, a missing facts_version and an unknown src item, and is the shared envelope: a document in I18's Go shape validates, one with another or an unknown frontend, without its go object or with a top-level functions key does not); two runs are byte-identical and equal the committed file (the plan's exit); --check exits 0 on it and 1 on a stale file without writing.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestDocument::test_cli_writes_the_document and tests_m2/test_extract_solidity_layout.py::TestDocument::test_header_toolchain_and_inputs and tests_m2/test_extract_solidity_layout.py::TestDocument::test_document_validates_against_the_0_3_schema and tests_m2/test_extract_solidity_layout.py::TestDocument::test_the_0_3_schema_is_the_shared_envelope and tests_m2/test_extract_solidity_layout.py::TestDocument::test_canonical_bytes_no_absolute_path_no_time and tests_m2/test_extract_solidity_layout.py::TestDocument::test_two_runs_are_byte_identical_and_match_the_committed_file and tests_m2/test_extract_solidity_layout.py::TestDocument::test_check_mode and tests_m2/test_extract_solidity_layout.py::TestDocument::test_edge_shapes_and_spans and tests_m2/test_extract_solidity_layout.py::TestDocument::test_assumptions"
+    },
+    {
+      "id": "I17-P12",
+      "kind": "construction",
+      "claim": "Construction check, not counted: refusals write nothing: a solc whose sha256 differs from config replay.solc_sha256 and a source tree that is not a checkout at the sidecar's commit exit 2; a selected sink that no path reaches exits 3 naming the edge. The CLI is the one shared with I18, `holon extract <frontend> ...`: holon.frontends.main dispatches to holon.frontends.<frontend>.main with no registry (an in-process probe module receives the remaining arguments), and a missing, option-like or unknown frontend (the old `--frontend` spelling included) exits 2 with 'unknown frontend', writing nothing.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestRefusals::test_a_solc_whose_sha_differs_from_the_pin_is_refused and tests_m2/test_extract_solidity_layout.py::TestRefusals::test_a_source_tree_not_at_the_target_commit_is_refused and tests_m2/test_extract_solidity_layout.py::TestRefusals::test_a_sink_never_reached_is_an_extraction_error_naming_the_edge and tests_m2/test_extract_solidity_layout.py::TestDispatch::test_the_dispatch_is_generic and tests_m2/test_extract_solidity_layout.py::TestDispatch::test_an_unknown_or_missing_frontend_is_refused"
+    },
+    {
+      "id": "I17-P13",
+      "kind": "construction",
+      "claim": "Construction check, not counted: G1 covers the extraction: holon.gate.regenerate_m2_outputs regenerates spec/M2/facts/morph_header.extracted.json through holon.frontends.regenerate, names it in its note, reports no difference on the committed tree and reports the file when it is tampered with; holon.frontends.sidecars finds the sidecar and render reproduces the committed bytes; holon.diagram.fact_documents skips *.extracted.json (I17's and I18's), so the diagram, sorts, evidence and derive inputs do not change.",
+      "check": "tests_m2/test_extract_solidity_layout.py::TestG1Coverage::test_g1_regenerates_and_compares_the_extracted_facts and tests_m2/test_extract_solidity_layout.py::TestG1Coverage::test_frontends_regenerate_and_sidecars and tests_m2/test_extract_solidity_layout.py::TestFactDocuments::test_extracted_documents_are_not_fact_documents"
+    },
+    {
+      "id": "I17-P14",
+      "kind": "construction",
+      "claim": "Construction check, not counted (honesty): holon/frontends/__init__.py and holon/frontends/solidity/* hold no distinctive name the pinned codec sources declare, no frozen function or field name, no sidecar edge name, no revert text of Rollup.sol or the codec libraries, neither 249 nor 257, no .sol:<line> span and no 'morph'; they import no fact or result reader, and I17's own modules no analysis tool (a later lazily imported SlithIR module of I19 may); under an audit hook the extraction opens inside the checkout only holon/, config/, spec/schemas/ and the sidecar (the toy only its fixture besides) and runs the pinned solc; a copy with poisoned fact documents and a poisoned committed extraction yields the committed bytes; the sidecar states no field name, layout constant or integer other than its version; and the extraction follows the code: on a scratch copy of the pinned contracts with storeBlobVersionedHash's offset 57 -> 58, BatchHeaderCodecV0.BATCH_HEADER_LENGTH 249 -> 250, the version bound 2 -> 3 and the formal _withdrawRootHash renamed _exitRootHash (sidecar copy with commit null), the document differs from the committed one exactly in that op's offset, the version-0 ok length and loader bound, the invalid-version condition and the field name, and nowhere else.",
+      "check": "tests_m2/test_extract_solidity_honesty.py::TestGenericFrontendCode::test_frontend_code_holds_no_target_vocabulary and tests_m2/test_extract_solidity_honesty.py::TestGenericFrontendCode::test_frontend_code_imports_no_fact_reader_and_no_analysis_tool and tests_m2/test_extract_solidity_honesty.py::TestExtractionReads::test_the_extraction_opens_no_fact_document and tests_m2/test_extract_solidity_honesty.py::TestExtractionReads::test_the_toy_extraction_opens_only_the_toy and tests_m2/test_extract_solidity_honesty.py::TestExtractionReads::test_poisoned_fact_documents_change_no_byte and tests_m2/test_extract_solidity_honesty.py::TestSidecar::test_the_sidecar_states_no_layout_fact and tests_m2/test_extract_solidity_honesty.py::TestMutations::test_a_mutated_codec_moves_the_extraction_and_nothing_else"
+    },
+    {
+      "id": "I17-P15",
+      "kind": "construction",
+      "claim": "Construction check, not counted: the planted toy (tests_m2/fixtures/extract_solidity/toy) extracts exactly as tests_m2/fixtures/extract_solidity/toy/expected.json states, written by hand at the prereg: types and value types (kind is uint8 through _stamp's uint256 formal), assumptions, every edge's revert and ok paths with their ops, the per-kind layouts of enc_toy (None from kind 4), the loader grid of load_toy, the YulSwitch debt and all-unknown layout of enc_bad (exact false), every walk's functions, path counts, sinks and debt; byte-identical runs; and the environment-dependent enc_env fails with exit 3 naming it.",
+      "check": "tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_document_header and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_types_and_fields and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_assumptions and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_edges_paths_and_debt and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_layouts_per_selector and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_loader_grid and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_walks and tests_m2/test_extract_solidity_toy.py::TestToyExtraction::test_toy_two_runs_are_byte_identical and tests_m2/test_extract_solidity_toy.py::TestToyFailure::test_an_environment_dependent_layout_is_an_error_naming_the_edge"
+    },
+    {
+      "id": "I17-P16",
+      "kind": "construction",
+      "claim": "Construction check, not counted: tools/setup_env.sh --extract installs thresholds.tool_pins into a venv at ${HOLON_PREFIX:-~/.holon}/tools/extract from the hash-pinned tools/extract-requirements.txt, and they are installed there (outside the repo); the extraction loads none of slither, crytic_compile, z3 or solcx; config/holon.json extract.sources maps the sidecar's repository to the replay checkout.",
+      "check": "tests_m2/test_extract_toolchain.py::TestSetupScript::test_setup_env_has_an_extract_option and tests_m2/test_extract_toolchain.py::TestSetupScript::test_requirements_are_hash_pinned_and_hold_the_tool_pins and tests_m2/test_extract_toolchain.py::TestInstalled::test_the_pinned_tools_are_installed_under_holon_tools and tests_m2/test_extract_toolchain.py::TestNoToolDependency::test_the_extraction_loads_neither_slither_nor_z3 and tests_m2/test_extract_toolchain.py::TestNoToolDependency::test_config_names_the_source_checkout_by_repository"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I17-R1",
+      "claim": "M0 and M1 are untouched: gen/M0 and gen/M1 are byte-identical (I6 GEN_PIN), the M0/M1 records are unchanged modulo seconds and generator hash (RECORDS_PIN), and gates M0 and M1 pass.",
+      "check": "tests_m2/test_target_agnostic.py::TestByteIdentity::test_generated_files_unchanged and tests_m2/test_target_agnostic.py::TestByteIdentity::test_records_unchanged_modulo_seconds_and_generator_hash and gate"
+    },
+    {
+      "id": "I17-R2",
+      "claim": "With spec/M2/facts/morph_header.extracted.json committed, gen/M2/diagram, gen/M2/sorts and gen/M2/evidence.json regenerate byte for byte (fact_documents skips extracted documents; once I15 has merged, laws/M2 likewise).",
+      "check": "tests_m2/test_diagram.py::TestDiagramFiles::test_regeneration_is_byte_identical and tests_m2/test_sorts_morph.py::TestSortsFiles::test_two_runs_are_byte_identical_and_match_the_committed_files and tests_m2/test_evidence.py::TestEvidenceFile::test_two_runs_are_byte_identical_and_match_the_committed_file"
+    },
+    {
+      "id": "I17-R3",
+      "claim": "The exhaustive target-agnostic grep (F-M2-14) stays green over every module of holon/, the new frontend modules included.",
+      "check": "tests_m2/test_target_agnostic_exhaustive.py::TestNoMorphIdentifierAnywhere::test_generic_code_holds_no_morph_identifier"
+    },
+    {
+      "id": "I17-R4",
+      "claim": "No frozen file changes (FROZEN.sha256 manifest).",
+      "check": "tests/test_00_freeze.py::TestFreeze::test_manifest_matches"
+    },
+    {
+      "id": "I17-R5",
+      "claim": "The I16 refinement records are untouched: 0 disagreements on every codec edge, including enc_sol against its own Solidity implementation (the frozen enc_sol the extraction is compared with already refines the real code).",
+      "check": "tests_m2/test_refinement.py::TestAgreement::test_zero_disagreements_on_every_edge"
+    }
+  ],
+  "outcome_paths": [
+    "spec/M2/facts/morph_header.extracted.json"
+  ],
+  "tests": [
+    "tests_m2/test_extract_solidity_layout.py",
+    "tests_m2/test_extract_solidity_toy.py",
+    "tests_m2/test_extract_solidity_honesty.py",
+    "tests_m2/test_extract_toolchain.py"
+  ],
+  "thresholds": {
+    "versions_compared": [
+      0,
+      1,
+      2
+    ],
+    "version_bytes": [
+      0,
+      255
+    ],
+    "loader_grid_lengths": [
+      0,
+      1,
+      2,
+      248,
+      249,
+      250,
+      256,
+      257,
+      258,
+      300
+    ],
+    "max_paths_per_walk": 4096,
+    "max_call_depth": 16,
+    "tool_pins": {
+      "slither-analyzer": "0.11.6",
+      "crytic-compile": "0.4.2",
+      "z3-solver": "4.16.0.0"
+    }
+  }
+}

@@ -130,7 +130,7 @@
   "bound": "the counter-law's witness satisfies every premise (Bend and BendTT): the commit from the deployment state, the consumer model's runs",
   "degenerate": false,
   "law": "cl_l_prod_cycle_lastblocknumber",
-  "parent_statement_hash": "sha256:1e59b09b64ce4b673d91cb1437adf513dc56f6f21eaeaf7b32bbe30e7aed120a",
+  "parent_statement_hash": "sha256:ff886b218745e66961011db5ef98670265b6ba824146dd4685b90feac56f79cb",
   "reachable": true,
   "status": "counter_witness",
   "witness": {
@@ -170,7 +170,7 @@
   "kind": "unbounded"
  },
  "statement": "∀ s: Reach, ∀ x: Act, ∀ p: List<Nat>, ∀ ts: List<Nat>, ∀ cb: Fn<Bytes,Blobs>, ∀ pl: Fn<Blobs,Payload>, ∀ vh: Fn<Blob,Word>, ∀ et: Fn<Txs,Bytes>, ∀ dt: Fn<Bytes,Txs>. is_commitBatch(x) == true ∧ last_ok(step(x, s)) == true ∧ blobs_match(x, p, cb, vh) == true ∧ HypB(cb, pl) ∧ HypT(et, dt) ∧ txs_data(x, p, cb, pl) == et(ts) ∧ derive_ok(x, p, cb, pl, dt) == true ∧ committed_ok:LastBlockNumber(s, x) == true ⇒ derived:lastBlockNumber(x, p, cb, pl, dt) == committed:LastBlockNumber(s, x)",
- "statement_hash": "sha256:1e59b09b64ce4b673d91cb1437adf513dc56f6f21eaeaf7b32bbe30e7aed120a",
+ "statement_hash": "sha256:ff886b218745e66961011db5ef98670265b6ba824146dd4685b90feac56f79cb",
  "statement_scope": {
   "kind": "unbounded"
  },
