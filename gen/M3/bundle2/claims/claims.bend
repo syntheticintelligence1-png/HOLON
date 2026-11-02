@@ -3214,7 +3214,7 @@ def fx_sel_challengeState(x: M.HAct) -> FxO_challengeState:
 
 # iters: the count term of the cost site contracts/contracts/l1/rollup/Rollup.sol:489-493
 def fx_it_disch_self_Rollup_challengeState_489_493(+x: M.X_challengeState, +kh: List<&2, M.HKB>) -> M.W:
-  M.ite(M.W, M.w_le(M.w_add(M.sload(M.gx_challengeState_st(x), M.W{157, 0, 0, 0, 0, 0, 0, 0}), M.W{1, 0, 0, 0, 0, 0, 0, 0}), M.sload(M.gx_challengeState_st(x), M.W{158, 0, 0, 0, 0, 0, 0, 0})), M.w_add(M.w_sub(M.sload(M.gx_challengeState_st(x), M.W{158, 0, 0, 0, 0, 0, 0, 0}), M.w_add(M.sload(M.gx_challengeState_st(x), M.W{157, 0, 0, 0, 0, 0, 0, 0}), M.W{1, 0, 0, 0, 0, 0, 0, 0})), M.W{1, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0})
+  M.ite(M.W, M.w_le(M.w_add(M.sload(M.gx_challengeState_st(x), M.SK{M.W{157, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{1, 0, 0, 0, 0, 0, 0, 0}), M.sload(M.gx_challengeState_st(x), M.SK{M.W{158, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})), M.w_add(M.w_sub(M.sload(M.gx_challengeState_st(x), M.SK{M.W{158, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.w_add(M.sload(M.gx_challengeState_st(x), M.SK{M.W{157, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}}), M.W{1, 0, 0, 0, 0, 0, 0, 0})), M.W{1, 0, 0, 0, 0, 0, 0, 0}), M.W{0, 0, 0, 0, 0, 0, 0, 0})
 
 # the calibrated cost is within the ceiling: 164162 + 5513 * it <= 30000000 (c0 + c1 * it <= G, scaled)
 def fx_le_disch_self_Rollup_challengeState_489_493(+it: M.W) -> Bool:
@@ -3818,7 +3818,7 @@ def fx_li_par_ldom_Rollup_proveState_MultipleVersionRollupVerifier_verifyAggrega
 
 # the condition under which proveState makes that call
 def fx_lc_par_ldom_Rollup_proveState_MultipleVersionRollupVerifier_verifyAggregateProof(+x: M.X_proveState, +kh: List<&2, M.HKB>) -> M.W:
-  M.w_b(Bool.not(M.w_le(M.w_add(M.sload(M.gx_proveState_st(x), M.w_add(M.h_get(M.gx_proveState_kh(x), List.append(&2, U32, M.b_of_w(M.w_shr_192(M.b_word(M.ga_proveState__batchHeader(M.gx_proveState_ar(x)), 1n))), M.b_of_w(M.W{164, 0, 0, 0, 0, 0, 0, 0}))), M.W{2, 0, 0, 0, 0, 0, 0, 0})), M.sload(M.gx_proveState_st(x), M.W{153, 0, 0, 0, 0, 0, 0, 0})), M.ge_e_block_timestamp(M.gx_proveState_en(x)))))
+  M.w_b(Bool.not(M.w_le(M.w_add(M.sload(M.gx_proveState_st(x), M.SK{M.W{164, 0, 0, 0, 0, 0, 0, 0}, M.w0(), [M.SP_m{M.w_shr_192(M.b_word(M.ga_proveState__batchHeader(M.gx_proveState_ar(x)), 1n)), M.W{2, 0, 0, 0, 0, 0, 0, 0}}]}), M.sload(M.gx_proveState_st(x), M.SK{M.W{153, 0, 0, 0, 0, 0, 0, 0}, M.w0(), Nil{}})), M.ge_e_block_timestamp(M.gx_proveState_en(x)))))
 
 # the call (ar, en) of proveState succeeds from s
 def fx_s_par_ldom_Rollup_proveState_MultipleVersionRollupVerifier_verifyAggregateProof(+ar: M.AR_proveState, +en: M.HEnv, +s: M.GSt, +kh: List<&2, M.HKB>) -> Bool:

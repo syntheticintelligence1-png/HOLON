@@ -22,7 +22,7 @@
         "run 2: neither its last step nor a single-leaf variant runs on the deployment",
         "run 2: neither its last step nor a single-leaf variant runs on the deployment"
       ],
-      "seconds": 2781.1
+      "seconds": 1099.1
     }
   ],
   "bound": "prefixes of at most 2 steps from the laws' deployment, breadth first (252 states visited), 1005 succeeding candidates of commitBatchWithProof bucketed by the public input (versions [0, 1, 2], last block numbers [0, 1], L1 message counts [0, 1]); 72 candidates run on the deployment (3 accepted as a single-leaf variant); 72 model witnesses refused by the real side; 0 counter-laws the kernels did not both accept",
@@ -34,7 +34,7 @@
     "exit_code": null,
     "marker": "not_run"
   },
-  "compiled_sha256": "6b2efa338ada30c139a8ffa3443dd3e82285987266180f0664b1abc59673f789",
+  "compiled_sha256": "d466d2838960b87fe04f4f6a79c79ee5bbb565c8bd9554a12b422d7e5a1d57c5",
   "cone": [
     "AR_addChallenger",
     "AR_batchChallengedSuccess",
@@ -80,8 +80,10 @@
     "HLog",
     "HSt",
     "KB",
-    "KW",
+    "KV",
     "Reach",
+    "SK",
+    "SP",
     "S_IRollup_BatchDataInput",
     "T_Dig_Agg",
     "T_Dig_Agg_Dig_VH",
@@ -748,9 +750,9 @@
     "k_updateVerifier_6",
     "k_updateVerifier_7",
     "kb_get",
-    "kw_get",
-    "kw_put",
-    "kw_set",
+    "kv_get",
+    "kv_put",
+    "kv_set",
     "l_add",
     "l_at",
     "l_hi_zero",
@@ -1348,7 +1350,10 @@
     "s_updateVerifier_5",
     "s_updateVerifier_6",
     "s_updateVerifier_7",
+    "sk_eq",
     "sload",
+    "sp_eq",
+    "sps_eq",
     "sstore",
     "sub_Time_Time",
     "sx_addChallenger_cd",
@@ -1846,7 +1851,7 @@
   },
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": null,
-  "generator_sha256": "0718df3df82878788dc6df6336953588868ea477da708c34993a42c1e3b81dfd",
+  "generator_sha256": "f1bbd33b9a745c123c8939f8d5f396a484116941770c71a4f924df791f041bd0",
   "independence_class": "none",
   "kernel": {
     "name": "bend",
@@ -1868,12 +1873,12 @@
   ],
   "ledger_match": "exact",
   "model_assumptions": [],
-  "model_sha256": "8ddccbd0c1444b2a22b9e41916b377b1c5a1fbc4a53786a1649ac7bd62cbf087",
+  "model_sha256": "a3b6099558f20ae19abbf8abc8c9ce20f74857f6ea038abd10e5611199488e19",
   "non_vacuity": {
     "bound": "no proof",
     "degenerate": null,
     "law": null,
-    "parent_statement_hash": "sha256:2d3d2ac8a97394cfb4a0028c3f143fc9da7bc790450af526a0c45af1dccac50e",
+    "parent_statement_hash": "sha256:b84d6042e6865bfb824806d91f288c15a1cdae8b800c22f0c2b829e970c4f7b9",
     "reachable": null,
     "status": "unknown",
     "witness": null
@@ -1896,9 +1901,9 @@
     "horizon": "prefixes of at most 2 steps from the laws' deployment, breadth first (252 states visited), 1005 succeeding candidates of commitBatchWithProof bucketed by the public input (versions [0, 1, 2], last block numbers [0, 1], L1 message counts [0, 1]); 72 candidates run on the deployment (3 accepted as a single-leaf variant); 72 model witnesses refused by the real side; 0 counter-laws the kernels did not both accept",
     "kind": "bounded"
   },
-  "seconds": 2784.0,
+  "seconds": 1101.8,
   "statement": "if calls x1 and x2 of commitBatchWithProof both succeed from reachable states and pass equal public inputs to contracts/contracts/l1/rollup/Rollup.sol:779-784, the parent headers they take hold equal TotalL1MessagePopped (bytes 17..25, read by the derivation: Thm 6.8 (iii), ker(m) within ker(c)); bundle morph_rollup.extracted:public_input:commitBatchWithProof:TotalL1MessagePopped",
-  "statement_hash": "sha256:2d3d2ac8a97394cfb4a0028c3f143fc9da7bc790450af526a0c45af1dccac50e",
+  "statement_hash": "sha256:b84d6042e6865bfb824806d91f288c15a1cdae8b800c22f0c2b829e970c4f7b9",
   "status": "UNKNOWN",
   "subform": "public_input",
   "triage": "none",

@@ -13,13 +13,13 @@
       "found": true,
       "kind": "refute",
       "refused": [],
-      "seconds": 18.9
+      "seconds": 8.4
     },
     {
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 4.59
+        "seconds": 1.498
       },
       "evaluator": "the antecedent holds and the callee's model does not resolve the arguments",
       "kind": "counter",
@@ -53,9 +53,9 @@
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 4.59
+    "seconds": 1.498
   },
-  "compiled_sha256": "6b2efa338ada30c139a8ffa3443dd3e82285987266180f0664b1abc59673f789",
+  "compiled_sha256": "d466d2838960b87fe04f4f6a79c79ee5bbb565c8bd9554a12b422d7e5a1d57c5",
   "concretization": {
     "bound": null,
     "kind": "direct",
@@ -110,8 +110,10 @@
     "HLog",
     "HSt",
     "KB",
-    "KW",
+    "KV",
     "Reach",
+    "SK",
+    "SP",
     "S_IRollup_BatchDataInput",
     "T_Dig_Agg",
     "T_Dig_Agg_Dig_VH",
@@ -755,9 +757,9 @@
     "k_updateVerifier_6",
     "k_updateVerifier_7",
     "kb_get",
-    "kw_get",
-    "kw_put",
-    "kw_set",
+    "kv_get",
+    "kv_put",
+    "kv_set",
     "l_add",
     "l_at",
     "l_hi_zero",
@@ -1355,7 +1357,10 @@
     "s_updateVerifier_5",
     "s_updateVerifier_6",
     "s_updateVerifier_7",
+    "sk_eq",
     "sload",
+    "sp_eq",
+    "sps_eq",
     "sstore",
     "sub_Time_Time",
     "sx_addChallenger_cd",
@@ -1847,7 +1852,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": "pending",
-  "generator_sha256": "0718df3df82878788dc6df6336953588868ea477da708c34993a42c1e3b81dfd",
+  "generator_sha256": "f1bbd33b9a745c123c8939f8d5f396a484116941770c71a4f924df791f041bd0",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -1877,12 +1882,12 @@
   ],
   "ledger_match": "exact",
   "model_assumptions": [],
-  "model_sha256": "8ddccbd0c1444b2a22b9e41916b377b1c5a1fbc4a53786a1649ac7bd62cbf087",
+  "model_sha256": "a3b6099558f20ae19abbf8abc8c9ce20f74857f6ea038abd10e5611199488e19",
   "non_vacuity": {
     "bound": "the accepted counter-law inhabits the premises",
     "degenerate": null,
     "law": "gen/M3/laws/L_par_ldom_Rollup_proveCommittedBatchState_MultipleVersionRollupVerifier_verifyAggregateProof/LAWS.bend",
-    "parent_statement_hash": "sha256:003fbfa100367cc26dfd66f66fbb48d42a0d7d7ade4ca702620f2c827ca062f5",
+    "parent_statement_hash": "sha256:b1033f2c59fe27a777d5157b087ba9cf3c812c35eae3ce08be11b8928365be3c",
     "reachable": null,
     "status": "counter_witness",
     "witness": null
@@ -1905,9 +1910,9 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 18.9,
+  "seconds": 8.4,
   "statement": "if a call x of proveCommittedBatchState succeeds from a reachable state s and makes its call IRollupVerifier.verifyAggregateProof at contracts/contracts/l1/rollup/Rollup.sol:779-784 (answered as an oracle), then router's resolution of the call's (version, index) by the view of x's input is defined and non-zero in every state the trace vt reaches from router's deployment (domain coherence at the interface, §5.1); bundle morph_rollup.extracted:link_domain:proveCommittedBatchState:router:verifyAggregateProof",
-  "statement_hash": "sha256:003fbfa100367cc26dfd66f66fbb48d42a0d7d7ade4ca702620f2c827ca062f5",
+  "statement_hash": "sha256:b1033f2c59fe27a777d5157b087ba9cf3c812c35eae3ce08be11b8928365be3c",
   "status": "REFUTED",
   "subform": "link_domain",
   "triage": "finding",
@@ -1925,10 +1930,6 @@
         [
           "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003",
           "0x3617319a054d772f909f7c479a2cebe5066e836a939412e32403c99029b92eff"
-        ],
-        [
-          "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a1",
-          "0x32ae1b88a7d4f92d7e214b63c8ea04cd13e2faaa60c50f499f2254336d98f882"
         ],
         [
           "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",

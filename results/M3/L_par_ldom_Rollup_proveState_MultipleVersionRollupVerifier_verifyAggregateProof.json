@@ -22,13 +22,13 @@
         "with the deployment's call answers the antecedent fails on the model",
         "with the deployment's call answers the antecedent fails on the model"
       ],
-      "seconds": 2569.9
+      "seconds": 1162.3
     },
     {
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 13.507,
+        "seconds": 4.757,
         "verdict_detail": "en the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug."
       },
       "evaluator": "the antecedent holds and the callee's model does not resolve the arguments",
@@ -50,7 +50,7 @@
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 12.354,
+        "seconds": 4.623,
         "verdict_detail": "en the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug."
       },
       "evaluator": "the antecedent holds and the callee's model does not resolve the arguments",
@@ -79,7 +79,7 @@
     "exit_code": null,
     "marker": "not_run"
   },
-  "compiled_sha256": "6b2efa338ada30c139a8ffa3443dd3e82285987266180f0664b1abc59673f789",
+  "compiled_sha256": "d466d2838960b87fe04f4f6a79c79ee5bbb565c8bd9554a12b422d7e5a1d57c5",
   "cone": [
     "AR_addChallenger",
     "AR_batchChallengedSuccess",
@@ -124,8 +124,10 @@
     "HLog",
     "HSt",
     "KB",
-    "KW",
+    "KV",
     "Reach",
+    "SK",
+    "SP",
     "S_IRollup_BatchDataInput",
     "T_Dig_Agg",
     "T_Dig_Agg_Dig_VH",
@@ -769,9 +771,9 @@
     "k_updateVerifier_6",
     "k_updateVerifier_7",
     "kb_get",
-    "kw_get",
-    "kw_put",
-    "kw_set",
+    "kv_get",
+    "kv_put",
+    "kv_set",
     "l_add",
     "l_at",
     "l_hi_zero",
@@ -1369,7 +1371,10 @@
     "s_updateVerifier_5",
     "s_updateVerifier_6",
     "s_updateVerifier_7",
+    "sk_eq",
     "sload",
+    "sp_eq",
+    "sps_eq",
     "sstore",
     "sub_Time_Time",
     "sx_addChallenger_cd",
@@ -1857,7 +1862,7 @@
   "evidence_triage": "none",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": null,
-  "generator_sha256": "0718df3df82878788dc6df6336953588868ea477da708c34993a42c1e3b81dfd",
+  "generator_sha256": "f1bbd33b9a745c123c8939f8d5f396a484116941770c71a4f924df791f041bd0",
   "independence_class": "none",
   "kernel": {
     "name": "bend",
@@ -1879,12 +1884,12 @@
   ],
   "ledger_match": "exact",
   "model_assumptions": [],
-  "model_sha256": "8ddccbd0c1444b2a22b9e41916b377b1c5a1fbc4a53786a1649ac7bd62cbf087",
+  "model_sha256": "a3b6099558f20ae19abbf8abc8c9ce20f74857f6ea038abd10e5611199488e19",
   "non_vacuity": {
     "bound": "no proof",
     "degenerate": null,
     "law": null,
-    "parent_statement_hash": "sha256:06d762ca240843e13217fb39c27c069f797ba65f3e530e099fd1d8446afdf12a",
+    "parent_statement_hash": "sha256:51c65f75664454f4cefb3038199cb954f8ae0daf29e5118ae50903c53c0ce053",
     "reachable": null,
     "status": "unknown",
     "witness": null
@@ -1907,9 +1912,9 @@
     "horizon": "prefix states of at most 3 steps from the laws' deployment, breadth first (1214 states visited), 2062 candidates (versions [0, 1, 2]); 116 model witnesses refused by the real side; 2 counter-laws the kernels did not both accept",
     "kind": "bounded"
   },
-  "seconds": 2574.2,
+  "seconds": 1165.4,
   "statement": "if a call x of proveState succeeds from a reachable state s and makes its call IRollupVerifier.verifyAggregateProof at contracts/contracts/l1/rollup/Rollup.sol:779-784 (answered as an oracle), then router's resolution of the call's (version, index) by the view of x's input is defined and non-zero in every state the trace vt reaches from router's deployment (domain coherence at the interface, §5.1); bundle morph_rollup.extracted:link_domain:proveState:router:verifyAggregateProof",
-  "statement_hash": "sha256:06d762ca240843e13217fb39c27c069f797ba65f3e530e099fd1d8446afdf12a",
+  "statement_hash": "sha256:51c65f75664454f4cefb3038199cb954f8ae0daf29e5118ae50903c53c0ce053",
   "status": "UNKNOWN",
   "subform": "link_domain",
   "triage": "none",
