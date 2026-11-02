@@ -129,8 +129,8 @@ class TestCatalogRederivation(unittest.TestCase):
             m = AT.search(e["reason"])
             return m.group(1) if m else None
 
-        def masked(e):
-            return json.dumps({**{k: v for k, v in e.items() if k != "accepted"},
+        def masked(e):   # the acceptance record and (PV2A) the line id are written by append, checked below
+            return json.dumps({**{k: v for k, v in e.items() if k not in ("accepted", "id")},
                                "reason": AT.sub("(registry change at ..)", e["reason"])}, sort_keys=True)
         committed = {key(x): x for x in self.lines}
         self.assertEqual(len(committed), len(self.lines), "one line per registry change")
@@ -144,6 +144,8 @@ class TestCatalogRederivation(unittest.TestCase):
                 r = SD.check_entry(e, ROOT)
                 self.assertTrue(r["ok"], r["reason"])
                 self.assertEqual(SD.acceptance(e, r, ROOT), x["accepted"])
+                if "id" in x:   # PV2A: a line appended since carries its id, the sha256 of its own canonical JSON
+                    self.assertEqual(x["id"], SD.line_id(x))
 
     def test_a_claim_change_is_never_a_catalog_rederivation(self):
         SD = self.SD
