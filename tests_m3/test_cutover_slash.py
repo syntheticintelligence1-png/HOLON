@@ -310,6 +310,40 @@ class TestLaws(unittest.TestCase):
         self.assertGreater(int(w["right"]["ret"]), 0)
 
 
+# ---------------------------------------------------------------------------------------------- the catalog
+class TestCatalog(unittest.TestCase):
+    """Added at the build (stage 2), robust to later bumps in I84's C1/C2 style (08431efd): the slash sub-forms' catalog
+    is holon-rules/1.13 (I34 took 1.12), chained over the newest version below it, and M3 derives with it or a later
+    version of the chain that keeps its producers as the same objects."""
+
+    VERSION = "holon-rules/1.13"
+
+    @staticmethod
+    def key(k: str) -> tuple:
+        return tuple(int(x) for x in k.split("/")[1].split("."))
+
+    def test_c1_the_catalog_holds_the_slash_producers(self):
+        from tests_m3._m3 import holon_module
+        R, S = holon_module("holon.rules"), holon_module("holon.rules.slash")
+        cur = R.catalog_version("M3")
+        self.assertTrue(cur.startswith("holon-rules/1.") and self.key(cur) >= self.key(self.VERSION), cur)
+        cat = R.CATALOGS[self.VERSION]
+        for rule in ("NAT", "SORT"):
+            self.assertIs(cat[rule]["slash"], S.PRODUCERS[rule], rule)
+            self.assertIs((R.CATALOGS[cur].get(rule) or {}).get("slash"), S.PRODUCERS[rule], f"{rule} at {cur}")
+        prev = [k for k in R.CATALOGS if k.startswith("holon-rules/1.") and self.key(k) < self.key(self.VERSION)]
+        base = max(prev, key=self.key)
+        for rule, subs in R.CATALOGS[base].items():
+            for sub, prod in subs.items():
+                self.assertIs(cat[rule][sub], prod, f"{rule}/{sub} is not the base's producer object")
+
+    def test_c2_the_slash_laws_carry_m3s_catalog_version(self):
+        from tests_m3._m3 import holon_module
+        cur = holon_module("holon.rules").catalog_version("M3")
+        for lid in LAW_IDS:
+            self.assertEqual(load_json(ROOT / "laws" / "M3" / f"{lid}.json").get("rule_catalog_version"), cur, lid)
+
+
 # ---------------------------------------------------------------------------------------------- regressions
 class TestRegressions(unittest.TestCase):
     def test_r1_earlier_outputs_do_not_move(self):
