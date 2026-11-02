@@ -16,13 +16,17 @@ or its subform, no measure).
          bound 1 (an empty continuation observes nothing); upper bound the first step at which the model's
          observations of the witness's two runs differ (replay/<M>/undo/report.json), else the continuation's length.
   FACT   F(m, c) of a kernel law: I26's measure (holon.measures_fact, through holon.rules.fact.analyse), exact over I26's
-         domain; 0 for a PROVED law (Thm 6.8).
+         domain; 0 for a PROVED law (Thm 6.8). A sub-form the sidecar lists as `recorded` (I44's stage 2) reads its
+         decider's recorded measure; an UNKNOWN law of it has lower bound 0.
   DISCH  discharge profile: pending (no cost model; the sidecar's key), with I32's class (holon.profile.classification).
   NAT    naturality defect mass (I44 = I44b; the contract is the docstring of tests_m3/test_measures_i44.py, rule
          M-NAT): the number of components of a square's observation (the end version, the success of each step the
          two sides share, each storage word either end state holds) on which its two paths end differently at the
          witness, read from the model's two runs that replay it (replay/<M>/<the sidecar's replay>/report.json); an
          UNKNOWN square has the bound [0, unbounded). Pending while the sidecar names a pending key.
+
+pairs(ctx) measures the sidecar's named pairs over a law set outside laws/<M>'s top level (I44's stage 2: F(Z,
+derivation) over the product's FACT laws, a REFUTED one giving F >= 1 bit from its kernel-checked witness).
 
 Ctx loads the committed inputs once and keeps the sha256 of every file it reads, for the document's `inputs`.
 Nothing here names a target: every name comes from the laws, the records, the documents and the sidecar.
@@ -339,10 +343,76 @@ def undo(ctx: Ctx, lid: str, law: dict, rec: dict) -> dict:
                      "shorter continuations were not searched exhaustively", detail=detail)
 
 
+def fact_recorded(mc: dict, rec: dict, sub) -> dict:
+    """A FACT sub-form whose decider records the measure (the sidecar's `recorded`; I44's stage 2): a REFUTED law's
+    is its record's fact.measure, certified iff a value; an UNKNOWN one has lower 0 (no kernel-checked witness) and the
+    recorded upper; a PROVED one is 0 (Thm 6.8)."""
+    name, unit = mc["name"], mc["unit"]
+    m = (rec.get("fact") or {}).get("measure") or {}
+    detail = {"subform": sub, "class": m.get("class"), "recorded": m or None}
+    st = rec["status"]
+    if st == "PROVED":
+        return entry("FACT", name, unit, "value", value=0.0, lower=0.0, upper=0.0, certified=True,
+                     why="the kernel proved the factorization (Thm 6.8: F = 0)", detail=detail)
+    if st == "REFUTED" and m.get("kind") in ("value", "bound"):
+        exact = m["kind"] == "value"
+        return entry("FACT", name, unit, m["kind"], value=m.get("value") if exact else None, lower=m.get("lower"),
+                     upper=m.get("upper"), certified=exact, scope=mc.get("recorded_scope"),
+                     why=f"the decider's measure, recorded with the kernel-checked witness (class {m.get('class')})",
+                     detail=detail)
+    return entry("FACT", name, unit, "bound", lower=0, upper=m.get("upper"),
+                 why=(f"{st}: no kernel-checked witness, so no lower bound beyond 0; the upper bound is the decider's "
+                      "recorded one" if m.get("upper") is not None else f"{st}: no measure recorded"), detail=detail)
+
+
+def fact_witnessed(status) -> tuple[str, float, float | None, bool]:
+    """(kind, lower, upper, certified) of a FACT law with no enumeration and no recorded measure: a REFUTED law's
+    kernel-checked witness is one fiber holding two consumer values (F >= 1 bit); PROVED is 0 (Thm 6.8)."""
+    if status == "PROVED":
+        return "value", 0.0, 0.0, True
+    if status == "REFUTED":
+        return "bound", 1.0, None, False
+    return "bound", 0.0, None, False
+
+
+def pairs(ctx: Ctx) -> list:
+    """Def 6.13 measures of the sidecar's named pairs over a law set outside laws/<M>'s top level (its `laws` and
+    `records` directories, {m} the milestone): the pair's rule's laws there, each measured by fact_witnessed, and the
+    pair's bound their maximum (I26 took F(Z, derivation) as the maximum over its kernel laws)."""
+    out = []
+    for p in ctx.sidecar.get("pairs") or []:
+        if p.get("rule") != "FACT":
+            raise MeasureError(f"pair {p.get('pair')!r}: only FACT pairs are measured")
+        ld, rd = p["laws"].format(m=ctx.m), p["records"].format(m=ctx.m)
+        members = {}
+        for lp in sorted((ctx.root / ld).glob("L*.json")):
+            law = ctx.read(ctx.rel(lp))
+            if law.get("rule") != p["rule"]:
+                continue
+            rec = ctx.maybe(f"{rd}/{lp.stem}.json")
+            st = (rec or {}).get("status")
+            kind, lo, up, cert = fact_witnessed(st)
+            members[lp.stem] = {"status": st, "subform": law.get("subform"), "kind": kind, "lower": lo, "upper": up,
+                                "certified": cert}
+        if not members:
+            lo, up, kind, cert = None, None, "pending", False
+        else:
+            lo = max(x["lower"] for x in members.values())
+            ups = [x["upper"] for x in members.values()]
+            up = None if any(u is None for u in ups) else max(ups)
+            cert = all(x["certified"] for x in members.values()) and lo == up
+            kind = "value" if cert else "bound"
+        out.append({"rule": p["rule"], "pair": p["pair"], "kind": kind, "value": lo if cert else None, "lower": lo,
+                    "upper": up, "certified": cert, "laws": members, "why": p.get("why", "")})
+    return out
+
+
 def fact(ctx: Ctx, lid: str, law: dict, rec: dict) -> dict:
     mc = ctx.sidecar["measures"]["FACT"]
     name, unit = mc["name"], mc["unit"]
     sub = rec.get("subform") or law.get("subform")
+    if sub in mc.get("recorded", []):
+        return fact_recorded(mc, rec, sub)
     if sub not in mc.get("subforms", []):
         return entry("FACT", None, None, "not_applicable", why=mc.get("why_not", ""), detail={"subform": sub})
     fid = claim_term(law).get("fact")
