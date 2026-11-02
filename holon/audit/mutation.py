@@ -43,10 +43,12 @@ Per mutant, in its own copy of the staged tree:
      re-run with `holon run --milestone M --laws <id>`, on the mutant's tree and on an unmutated copy (the baseline,
      run once per law and round), each under --law-timeout seconds, at most --max-law-runs runs in the round: first
      the spec's own `laws` of the mutant, then those whose law file names a changed entry of a changed document, then
-     the rest, each group by id. A re-run whose status differs from the baseline's is a "flip".
-Verdicts: "detected" (extraction rejects, a derivation change or refusal, or a flip), "missed" (every touched law ran
-and nothing moved, or nothing reached a document), "incomplete" (nothing moved among what ran, but a touched law did
-not run or finish within the caps), "refused" (the mutation could not be applied).
+     the rest; within a group the laws decided at the target (PROVED, REFUTED) first, each by id. A re-run whose
+     status differs from the baseline's is a "flip".
+Verdicts: "detected" (extraction rejects, a derivation change or refusal, a flip, or a law run that holon run refuses
+on the mutant but decides on the baseline, such as a statement that no longer binds to the mutant's model), "missed"
+(every touched law ran and nothing moved, or nothing reached a document), "incomplete" (nothing moved among what ran,
+but a touched law did not run or finish within the caps), "refused" (the mutation could not be applied).
 
 Output: audit/rounds/<M>/round<n>/a1.json (holon-audit-a1/0.1; json.dumps(indent=1, sort_keys=True) + newline; no
 timestamps, no scratch paths), whose "attack" is the round file's attack entry (run true; the auditor files each miss
@@ -498,6 +500,11 @@ class Round:
         self.timings["stage_s"] = round(time.monotonic() - t0, 1)
         self.docs = docs_in_scope(self.T0, milestone)
         self.base_laws = self.law_files(self.T0)
+        self.committed = {}
+        for lid in self.base_laws:
+            rp = self.T0 / "results" / milestone / f"{lid}.json"
+            if rp.is_file():
+                self.committed[lid] = json.loads(rp.read_text(encoding="utf-8")).get("status")
         self.cfg = json.loads((self.T0 / "config" / "holon.json").read_text(encoding="utf-8"))
         front = [d for d in self.docs.values() if d.frontend]
         repos = sorted({d.repo for d in front if isinstance(d.repo, str)})
@@ -756,10 +763,12 @@ class Round:
         def mentions(lid: str) -> bool:
             t = json.dumps(laws[lid], sort_keys=True)
             return any(n in t for n in long)
+        decided = {x for x in cands if self.committed.get(x) in ("PROVED", "REFUTED")}
         order = [x for x in asked if x in cands]
-        order += [x for x in cands if x not in order and mentions(x)]
-        order += [x for x in cands if x not in order]
-        flips = []
+        for group in ([x for x in cands if mentions(x)], cands):     # each group: decided laws first, then by id
+            order += [x for x in sorted(group, key=lambda x: (x not in decided, x)) if x not in order]
+        flips, refusals = [], []
+        done = ("PROVED", "REFUTED", "UNKNOWN")
         for lid in order:
             need = (0 if lid in self.base_runs else 1) + 1
             if self.runs_used + need > self.budget["max_law_runs"]:
@@ -769,19 +778,24 @@ class Round:
             self.runs_used += 1
             r = self.run_law(U, lid)
             tm[f"run:{lid}"] = r.pop("_s")
-            moved = (b["status"] in ("PROVED", "REFUTED", "UNKNOWN") and r["status"] in ("PROVED", "REFUTED", "UNKNOWN")
-                     and b["status"] != r["status"])
-            rec["runs"][lid] = {"baseline": b, "mutant": r, "flip": moved,
+            moved = b["status"] in done and r["status"] in done and b["status"] != r["status"]
+            refused = b["status"] in done and r["status"] == "error"   # holon run refuses the mutant only
+            rec["runs"][lid] = {"committed": self.committed.get(lid), "baseline": b, "mutant": r, "flip": moved,
+                                "refusal": refused,
                                 "selected": "spec" if lid in asked else ("names" if mentions(lid) else "rest")}
             if moved:
                 flips.append(lid)
+            if refused:
+                refusals.append(lid)
         if flips:
             rec["obstructions"].append(f"law flips: {', '.join(flips)}")
+        if refusals:
+            rec["obstructions"].append(f"law runs refused on the mutant only: {', '.join(refusals)}")
         if rec["obstructions"]:
             rec["verdict"] = "detected"
             return
-        unfinished = [lid for lid, x in rec["runs"].items()
-                      if x["mutant"]["status"] in ("timeout", "error") or x["baseline"]["status"] in ("timeout", "error")]
+        unfinished = [lid for lid, x in rec["runs"].items() if not x["refusal"]
+                      and (x["mutant"]["status"] in ("timeout", "error") or x["baseline"]["status"] in ("timeout", "error"))]
         skipped = [lid for lid in order if lid not in rec["runs"]]
         if unfinished or skipped:
             rec["verdict"] = "incomplete"

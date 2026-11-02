@@ -279,6 +279,22 @@ class TestSmoke(unittest.TestCase):
             self.assertNotIn(bad, text)
         self.assertEqual(json.dumps(json.loads(text), indent=1, sort_keys=True, ensure_ascii=False) + "\n", text)
 
+    def _round_accepts(self, rec: dict, fname: str):
+        """The record is schema-valid, and RD5 accepts it in round 1 of a scratch root whose attack is its own."""
+        from holon.schema import errors
+        schema = json.loads((ROOT / "spec" / "schemas" / f"audit_{fname[:2]}.schema.json").read_text())
+        self.assertEqual(errors(rec, schema), [])
+        t = TempRoot()
+        try:
+            r = _round(1, "s1", "same", False)
+            r["target_commit"] = rec["target_commit"]
+            r["attacks"] = [rec["attack"] if a["id"] == rec["attack"]["id"] else a for a in r["attacks"]]
+            t.write("audit/rounds/M3/round1.json", r)
+            t.write(f"audit/rounds/M3/round1/{fname}", rec)
+            self.assertEqual([x for x in rounds.check(t.d, "M3")["problems"] if x.startswith("RD5")], [])
+        finally:
+            t.close()
+
     def test_a1_on_the_fixture(self):
         out = self.d / "a1.json"
         p = _run(["audit", "mutation", "--milestone", "M3", "--round", "1", "--spec", str(FIX / "a1_spec.json"),
@@ -294,14 +310,17 @@ class TestSmoke(unittest.TestCase):
         sol = v["sol-guard-constant"]
         self.assertIn("changed", [d["status"] for d in sol["documents"].values()])
         self.assertEqual(sol["derivation"]["steps"].get("derive"), "ok", sol["derivation"])
-        self.assertIn(sol["verdict"], ("detected", "incomplete"))
-        go = v["go-blob-offset"]
-        self.assertTrue(go["documents"], go)
-        self.assertEqual(rec["law_runs"], 0)
+        self.assertEqual(sol["verdict"], "incomplete", sol)    # no run left within the cap
+        go = v["go-missing-check"]
+        self.assertIn("changed", [d["status"] for d in go["documents"].values()])
+        self.assertEqual(sorted(go["runs"]), ["L_par_tot_batch_RetrieveBlobBytes"])
+        self.assertEqual(go["verdict"], "detected", go)
+        self.assertEqual(rec["law_runs"], 2)
         self.assertEqual(rec["attack"]["auditor_type"], "A1")
         self.assertTrue(rec["attack"]["run"])
         self.assertEqual(mutation.spec_problems(rec["spec"]["body"], "M3"), [])
         self.assertTrue((self.d / "a1.timings.json").is_file())
+        self._round_accepts(rec, "a1.json")
 
     def test_a2_on_the_fixture(self):
         out = self.d / "a2.json"
@@ -319,6 +338,7 @@ class TestSmoke(unittest.TestCase):
         self.assertEqual(v["go-low-bytes"]["real"]["class"], "ORet", v["go-low-bytes"])
         self.assertEqual(v["act-zero-period"]["real"]["status"], "revert", v["act-zero-period"])
         self.assertEqual(rec["attack"]["auditor_type"], "A2")
+        self._round_accepts(rec, "a2.json")
 
 
 if __name__ == "__main__":
