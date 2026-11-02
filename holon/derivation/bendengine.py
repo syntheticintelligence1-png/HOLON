@@ -13,7 +13,9 @@ PROOF.bend, results/M3/derivation/bend/decisions.json and replay/M3/derivation/b
 For each law (engine.decide(law, evidence)):
   hyp_apply   a law whose claim is the conclusion of one of its hypothesis premises at its own binders (the premises
               of that hypothesis the law's): LAWS.bend states it (law_id.lower()), PROOF.bend applies the premise
-              (holon.derivation.bendproof.hyp_apply_proof). PROVED iff Bend and BendTT both accept it.
+              (holon.derivation.bendproof.hyp_apply_proof). Bend and BendTT accepting it is not enough: by the landing
+              rule a PROVED needs a checked inhabitant of the law's premises (G11V), which no generator here builds,
+              so the law is UNKNOWN with that obstruction and the checked proof files stay as evidence.
   counter     otherwise a bounded search on the compiled models: I88's candidates in its order, its evaluator witness
               first, at most SEARCH_BOUND, each a commit on the typed model (from the deployment state) and the consumer
               model's runs (node); the first whose premises hold there and whose claim fails is the witness. LAWS.bend
@@ -44,6 +46,7 @@ BEND_SIDECAR = "spec/M3/lib/derivation_bend.json"
 BENDTT_NOTE = ("BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so "
                "agreement is not independent evidence (class I1-shared, not I2)")
 KERNEL_TIMEOUT = 5400
+NO_INHABITANT = "a proof checks, but non-vacuity of its premises is not established (G11V)"
 
 
 def dumps(o) -> str:
@@ -359,7 +362,9 @@ class Engine:
                      f"{ks['bendtt']['marker']!r} (exit {ks['bendtt']['exit_code']})")
         status, witness, observation, replay = "UNKNOWN", None, None, None
         if cls == "hyp_apply" and both:
-            status = "PROVED"
+            # the landing rule: PROVED needs a checked inhabitant of the law's premises (G11V exists to block a proof
+            # that may be vacuous), and no generator here builds one, so the checked proof stays evidence: UNKNOWN
+            tried.append(NO_INHABITANT)
         if found is not None:
             cand, got = found
             observation = got["observation"]
@@ -418,14 +423,6 @@ class Engine:
                                 "degenerate": False, "parent_statement_hash": self.reg["statements"][lid],
                                 "bound": "the counter-law's witness satisfies every premise (Bend and BendTT): the "
                                          "commit from the deployment state, the consumer model's runs"}})
-        else:
-            out.update({
-                "replay": {"status": "not_applicable", "detail": "a proof has no witness"},
-                "non_vacuity": {"status": "unknown", "law": name, "witness": None, "reachable": None,
-                                "degenerate": None, "parent_statement_hash": self.reg["statements"][lid],
-                                "bound": "finding: PROVED, non-vacuity not established: no checked inhabitant of the "
-                                         "law's premises (G11V); the proof applies a hypothesis premise, so it holds "
-                                         "of every instance of that hypothesis, inhabited or not"}})
         return out
 
     def assumptions(self, law: dict) -> list:
