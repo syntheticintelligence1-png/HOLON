@@ -91,9 +91,17 @@ class TestOneHash(unittest.TestCase):
                 for law in laws:
                     if law.get("hash_scheme", 1) == 2:
                         e = mig.get((law["law_id"], reg["statements"][law["law_id"]]))
-                        self.assertIsNotNone(e, f"{law['law_id']}: scheme 2 without its hash_migration line")
-                        self.assertEqual(e["old_hash"], R.tree_law_hash(scheme1(law), ROOT))
-                        self.assertEqual(SD.unschemed(e["new"]), SD.unschemed(law))
+                        if e is None:   # born under scheme 2 (I35's OWN laws, derived after A): no scheme-1 hash to
+                            continue    # migrate; a law that had one changed hash, and G2's tie demands its line
+                        # the line's old law hashes to its old hash; a law migrated on the lead (A's migrate-hash) was
+                        # under the current catalog, and a law born on an iteration branch under scheme 1 migrates on
+                        # landing from the catalog it was born under (scheme 2 does not hash the catalog version)
+                        self.assertEqual(e["old_hash"], R.tree_law_hash(e["old"], ROOT))
+                        if e["old"].get("rule_catalog_version") == law.get("rule_catalog_version"):
+                            self.assertEqual(e["old_hash"], R.tree_law_hash(scheme1(law), ROOT))
+                        def unc(x):
+                            return SD.unschemed({k: v for k, v in x.items() if k != "rule_catalog_version"})
+                        self.assertEqual(unc(e["new"]), unc(law))
         side = DL.side_of(ROOT, DL.LAWS_SIDECAR)
         reg = load_json(ROOT / side["law_set"]["laws"] / "REGISTRY.json")["statements"]
         for lid, h in reg.items():
