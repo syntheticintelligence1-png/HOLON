@@ -149,7 +149,7 @@
      "if": {"required": ["prover"], "properties": {"prover": {"type": "string", "pattern": "^agent:"}}},
      "then": {"properties": {"status": {"const": "PROVED"}}}},
     {"if": {"properties": {"status": {"const": "REFUTED"}}},
-     "then": {"properties": {"witness_provenance": {"type": "object"}, "filter_bin": {"enum": ["finding", "model_defect", "known_limitation", "pending", "intended_bounded"]}}}},
+     "then": {"properties": {"witness_provenance": {"type": "object"}, "filter_bin": {"enum": ["finding", "model_defect", "known_limitation", "pending", "intended_bounded", "split_pending"]}}}},
     {"$comment": "I64: intended_bounded exactly when the record carries its contract's mark (K5, K8), in both directions",
      "if": {"required": ["filter_bin"], "properties": {"filter_bin": {"const": "intended_bounded"}}},
      "then": {"required": ["intended"], "properties": {"status": {"const": "REFUTED"}}}},
