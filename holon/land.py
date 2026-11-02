@@ -502,6 +502,8 @@ def step_apply(a) -> int:
     root = top()
     ref = a.source
     git("fetch", "-q", "origin", ref.split("/", 1)[1] if ref.startswith("origin/") else ref, check=False)
+    if subprocess.run(["git", "rev-parse", "-q", "--verify", f"{ref}^{{commit}}"], capture_output=True).returncode != 0:
+        ref = f"origin/{ref}"   # the outputs branch as `plan` names it (claude/ci-<tag>-out-<run id>), fetched above
     tops = [x for x in git("ls-tree", "--name-only", ref).splitlines() if x.endswith("-out")]
     order = ["filter-out"] if "filter-out" in tops else sorted(tops)
     n = 0
