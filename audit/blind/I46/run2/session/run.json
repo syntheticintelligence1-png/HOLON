@@ -24,6 +24,7 @@
     "sha256": "e4da66de8cfcaf773097810a6f5c8312b492caacda4c399d3833a93a2e9bfc59"
   },
   "bundle_sha256": "0918b79637d749d437986a90855b8567b1424dd7f14397693793b626852c4d99",
+  "cleanup": "after the session, W/cache (1.2 GB of Go module and build caches the session made inside W) was deleted to free a full disk; it is regenerable and the protocol keeps no cache",
   "family": "same",
   "forbidden_prefixes": [
     "/home/user/HOLON",
@@ -32,11 +33,13 @@
     "/root/.holon/eval",
     "/home/user/blind-i46 (run 1's W)"
   ],
+  "launch": "a fresh subagent in this same container (not run 1's), launched by the coordinator with the run-2 launch prompt; AGENTS.md's rules text may be in its context (no outcomes); its shell cwd was /home/user/HOLON (the harness says so in its background-task notices) and every command began with cd W",
   "manifest_sha256": "a6c9fb41cc7358760dde25775ea8ba65bb62658c5b7cd721ef2bda120cb1230a",
   "note": "Written before run 2, by a new agent. The run-1 records under audit/blind/I46/session stay as they are, and run 1 scores the preregistered predictions. Run 2 is the amended rerun, and its comparison is the one of record for the exit section, disclosed as such.",
   "pack": "/home/user/blind-i46-r2/bundle.tar",
   "pack_commit": "c3eda1976c6811ff181fd71ae6ad1166f7e86a49",
   "readme": "/home/user/blind-i46-r2/README.md (a byte copy of spec/M3/lib/blind_session_r2.md)",
+  "reply": "done: 2 steps failed, 12 not reproducible, 10 files authored",
   "run": 2,
   "scope": "/home/user/blind-i46-r2/scope",
   "scope_set": "audit/blind/I46/scope/ (the same files and stripped.json as run 1)",
@@ -44,6 +47,7 @@
     "amended": "tests_m3/_i46_reads.py::reads_problems",
     "preregistered": "tests_m3/_i46.py::calls_problems"
   },
-  "tool_calls": null,
-  "transcript_sha256": null
+  "tool_calls": 227,
+  "transcript": "the coordinator's subagent transcript agent-a2754aa27a13d41e5.jsonl (638 JSON lines), not committed; tool_calls.jsonl is its projection by python -m tests_m3._i46 calls",
+  "transcript_sha256": "6ed057116be1f1c87e110f59ef497fed13213a36e8e8c923c2e3154882970a3c"
 }
