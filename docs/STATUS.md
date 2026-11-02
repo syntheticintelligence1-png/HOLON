@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 38 | 249 | 188 | 38 |
+| M3 | 39 | 255 | 192 | 39 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -72,6 +72,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I67 | M3 | I67 (= I38a): Go codecs at loop granularity (holon-go-frontend/0.2 loop bodies), Go-op components over interface carrie… | `prompts/I67_go_loop.md` | 5 | 5 | 1 | `docs/iterations/I67.md` |
 | I68 | M3 | Structural storage keys in the M3 model (the Q21 fix): mapping storage keyed as (base slot, key path) instead of a look… | `prompts/I68_structural_keys.md` | 7 | 8 | 1 | `docs/iterations/I68.md` |
 | I69 | M3 | = I36a: Bundle I's extraction and acquisition, no laws: the message queue, the messenger, the whitelist and the Submitt… | `prompts/I69_bundle_extraction.md` | 7 | 5 | 1 | `docs/iterations/I69.md` |
+| I70 | M3 | = I36c: the cutover x slash laws, O13 and O20's economic half, over the real legacy staking code (Q12): the legacy regi… | `prompts/I70_cutover_slash.md` | 6 | 4 | 1 | `docs/iterations/I70.md` |
 | I71 | M3 | UNDO's third sub-form cancel (I33's catalog key): the cancel restore U3' and criterion U4' over the extracted transitio… | `prompts/I71_undo_cancel.md` | 6 | 6 | 1 | `docs/iterations/I71.md` |
 | I72 | M3 | E2 over the adopted holon-facts/0.3 transitions documents (I33's evidence key): written-via-p, read-via-q atoms from th… | `prompts/I72_e2_transitions.md` | 1 | 5 | 1 | `docs/iterations/I72.md` |
 | I80 | M3 | = I37a: Bundle II's extraction and acquisition, no laws: the verifier router (MultipleVersionRollupVerifier) extracted … | `prompts/I80_bundle2_extraction.md` | 6 | 4 | 1 | `docs/iterations/I80.md` |

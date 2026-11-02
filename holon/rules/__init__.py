@@ -165,16 +165,28 @@ SYM_CATALOG_VERSION = "holon-rules/1.12"
 CATALOGS[SYM_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_newest_catalog(SYM_CATALOG_VERSION)].items()}
 CATALOGS[SYM_CATALOG_VERSION][_sym.RULE] = dict(_sym.PRODUCERS)
 
+#   holon-rules/1.13 I70's: the rules of the newest catalog version below it (its predecessor in the chain: holon-rules/1.12,
+#                    I34's, once it is defined; holon-rules/1.11 before) unchanged (the same producer objects), plus NAT's
+#                    and SORT's slash sub-forms (holon.rules.slash: a migration's slash sites over the versioned document,
+#                    with the milestone's cutover sidecar spec/<M>/lib/cutover_slash.json; a milestone without one derives
+#                    none of them), run by derive's slash part (_slash_part); M3 and later.
+from . import slash as _slash  # noqa: E402
+SLASH_CATALOG_VERSION = "holon-rules/1.13"
+_SLASH_BASE = _newest_catalog(SLASH_CATALOG_VERSION)
+CATALOGS[SLASH_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_SLASH_BASE].items()}
+for _rule in _slash.RULES:
+    CATALOGS[SLASH_CATALOG_VERSION].setdefault(_rule, {})[_slash.SUBFORM] = _slash.PRODUCERS[_rule]
+
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.12 for the typed target milestones (M3 and
+    """The rule-catalog version a milestone derives with: holon-rules/1.13 for the typed target milestones (M3 and
     later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel, I29's NAT, I35's OWN, I84's
-    and I86's bundle sub-forms, I34's SYM); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
+    and I86's bundle sub-forms, I34's SYM, I70's slash sub-forms over every version below it); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
     holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's
     catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return SYM_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return SLASH_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -384,7 +396,8 @@ def _typed_part(milestone: str, root: Path, cv: str, facts: list[str] | None = N
     try:
         for rule in _typed_rules(catalog):
             for sub in sorted(catalog[rule]):
-                if getattr(catalog[rule][sub], "bundle", False):   # derive's bundle part runs these (I86)
+                if getattr(catalog[rule][sub], "bundle", False) or getattr(catalog[rule][sub], "part", None):
+                    # derive's bundle part (I86) and the parts a producer's marker names (I70: slash) run these
                     continue
                 pairs += catalog[rule][sub].produce(ctx)
     except (_sort.SortRuleError, _undo.UndoError, _fact.FactError, _sym.SymRuleError) as e:
@@ -810,9 +823,41 @@ def _nat_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | No
     pairs = []
     try:
         for sub in sorted(subs):
+            if getattr(subs[sub], "part", None):   # a sub-form another part runs (I70: slash)
+                continue
             pairs += subs[sub].produce(ctx)
     except ValueError as e:
         raise ValueError(f"{_nat.RULE}: {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
+def _slash_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
+    """derive's part for the slash sub-forms (I70, holon.rules.slash), when the catalog holds one: their producers over
+    the milestone's versioned document (none without a cutover sidecar), read through their own input list. Returns
+    the laws, their DERIVATION entries, the inputs read and the documents' sha256, or None when the catalog holds no
+    slash sub-form."""
+    from ..gen import refs as R
+    prods = [(rule, (CATALOGS[cv].get(rule) or {}).get(_slash.SUBFORM)) for rule in _slash.RULES]
+    prods = [(r, pr) for r, pr in prods if pr is not None]
+    if not prods or not _slash.has_sidecar(milestone, root):
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for _rule, pr in prods:
+            pairs += pr.produce(ctx)
+    except (_slash.SlashError, KeyError, ValueError) as e:
+        raise ValueError(f"slash: {e}") from e
     laws, entries, shas = {}, [], {}
     for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
         facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
@@ -981,8 +1026,11 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
     bpart = _bundle_part(milestone, root, cv, scheme) if not given else None   # I86: the bundle laws
     if bpart is not None:
         inputs.files.update(bpart["inputs"].files)
+    spart = _slash_part(milestone, root, cv, scheme) if not given else None   # I70: the slash laws
+    if spart is not None:
+        inputs.files.update(spart["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed, init, nat, own, ldom, bpart):
+    for part in (par, typed, init, nat, own, ldom, bpart, spart):
         if part is None:
             continue
         for lid, law in part["laws"].items():
