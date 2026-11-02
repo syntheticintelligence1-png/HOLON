@@ -123,6 +123,17 @@ def linked_diagrams(milestone: str, root: Path) -> dict[str, str]:
         dg["provenance"] = {}
         dg["inputs"] = []
         out[model] = dumps(dg)
+    from .. import own as OW   # I35 (rule W7 of tests_m3/test_own.py): the OWN carrier documents' diagrams
+    try:
+        odiagrams = OW.diagrams(milestone, root)
+    except (OW.OwnError, KeyError, TypeError, ValueError) as e:
+        raise DiagramError(str(e)) from e
+    for model, dg in odiagrams.items():
+        if model in out:
+            raise DiagramError(f"an OWN carrier document shares the model name {model} with another component")
+        dg["provenance"] = {}
+        dg["inputs"] = []
+        out[model] = dumps(dg)
     if not out:
         raise DiagramError(f"no linked codec documents under gen/{milestone}/codec (run `holon codecs --milestone "
                            f"{milestone}`)")
