@@ -1,0 +1,471 @@
+{
+ "basis_version": "holon-bundle2-laws-basis/0.1",
+ "consumers": [
+  {
+   "edges": [
+    {
+     "caller": "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+     "site": "node/derivation/batch_info.go:92:55"
+    },
+    {
+     "caller": "(*morph-l2/node/derivation.Derivation).fetchBatchInfoOutline",
+     "site": "node/derivation/verify_local.go:67:50"
+    }
+   ],
+   "function": "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+   "getter": "BatchIndex",
+   "offset": 1,
+   "via": "be_uint",
+   "width": 8
+  },
+  {
+   "edges": [
+    {
+     "caller": "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+     "site": "node/derivation/batch_info.go:151:62"
+    },
+    {
+     "caller": "(*morph-l2/node/derivation.Derivation).fetchBatchInfoOutline",
+     "site": "node/derivation/verify_local.go:102:50"
+    }
+   ],
+   "function": "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+   "getter": "LastBlockNumber",
+   "offset": 249,
+   "via": "be_uint",
+   "width": 8
+  },
+  {
+   "edges": [
+    {
+     "caller": "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+     "site": "node/derivation/batch_info.go:96:69"
+    },
+    {
+     "caller": "(*morph-l2/node/derivation.Derivation).fetchBatchInfoOutline",
+     "site": "node/derivation/verify_local.go:71:63"
+    }
+   ],
+   "function": "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+   "getter": "TotalL1MessagePopped",
+   "offset": 17,
+   "via": "be_uint",
+   "width": 8
+  },
+  {
+   "edges": [
+    {
+     "caller": "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+     "site": "node/derivation/batch_info.go:129:50"
+    },
+    {
+     "caller": "(*morph-l2/node/derivation.Derivation).fetchBatchInfoOutline",
+     "site": "node/derivation/verify_local.go:99:48"
+    }
+   ],
+   "function": "(morph-l2/common/batch.BatchHeaderBytes).Version",
+   "getter": "Version",
+   "offset": 0,
+   "via": "index",
+   "width": 1
+  }
+ ],
+ "deploy_script": {
+  "blob": "9043d2b34d3803b6410b26e8d0bd88e6de6e498d",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "lines": [
+   38,
+   39,
+   40
+  ],
+  "matches": [
+   true,
+   true,
+   true
+  ],
+  "path": "contracts/deploy/016-RollupInit.ts",
+  "verifiers": "[ZkEvmVerifierV1Address]",
+  "versions": [
+   1
+  ]
+ },
+ "field_classes": {
+  "BatchIndex": {
+   "actions": [
+    "commitBatch",
+    "commitBatchWithProof",
+    "commitState"
+   ],
+   "class": "computed",
+   "kind": "bound",
+   "lower": 1.0,
+   "upper": 64.0
+  },
+  "LastBlockNumber": {
+   "actions": [
+    "commitBatch",
+    "commitBatchWithProof",
+    "commitState"
+   ],
+   "class": "free",
+   "kind": "value",
+   "lower": 64.0,
+   "upper": 64.0,
+   "value": 64.0
+  },
+  "TotalL1MessagePopped": {
+   "actions": [
+    "commitBatch",
+    "commitBatchWithProof",
+    "commitState"
+   ],
+   "class": "computed",
+   "kind": "bound",
+   "lower": 1.0,
+   "upper": 64.0
+  },
+  "Version": {
+   "actions": [
+    "commitBatch",
+    "commitBatchWithProof",
+    "commitState"
+   ],
+   "admitted": [
+    0,
+    1,
+    2
+   ],
+   "class": "checked_joint",
+   "kind": "bound",
+   "lower": 1.0,
+   "upper": 1.584963
+  }
+ },
+ "gas_ceiling": 30000000,
+ "inputs_sha256": {
+  "spec/M2/facts/morph_batch.go.extracted.json": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573",
+  "spec/M2/facts/morph_derivation.go.extracted.json": "f0f1ee13857f10a38c73f0f2b0e002d5602d2fbea266fdf3c87ffa4cc5e8a89d",
+  "spec/M2/facts/morph_rollup.extracted.json": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+  "spec/M3/lib/bundle2.json": "0f71fbf45bf567a4fb87b1cda673f9dec5494e4cb0e2623ee787ed252c876b47"
+ },
+ "law_ids": {
+  "link_domain": [
+   "L_par_ldom_Rollup_commitBatchWithProof_MultipleVersionRollupVerifier_verifyAggregateProof",
+   "L_par_ldom_Rollup_proveCommittedBatchState_MultipleVersionRollupVerifier_verifyAggregateProof",
+   "L_par_ldom_Rollup_proveState_MultipleVersionRollupVerifier_verifyAggregateProof"
+  ],
+  "public_input": [
+   "L_fact_pi_Rollup_commitBatchWithProof_BatchIndex",
+   "L_fact_pi_Rollup_commitBatchWithProof_LastBlockNumber",
+   "L_fact_pi_Rollup_commitBatchWithProof_TotalL1MessagePopped",
+   "L_fact_pi_Rollup_commitBatchWithProof_Version"
+  ],
+  "self_controlled": [
+   "L_disch_self_Rollup_challengeState_489_493"
+  ]
+ },
+ "links": [
+  [
+   "rollup",
+   "commitBatchWithProof",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   "router",
+   "action",
+   "verifyAggregateProof"
+  ],
+  [
+   "rollup",
+   "proveCommittedBatchState",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   "router",
+   "action",
+   "verifyAggregateProof"
+  ],
+  [
+   "rollup",
+   "proveState",
+   "contracts/contracts/l1/rollup/Rollup.sol:779-784",
+   "IRollupVerifier.verifyAggregateProof",
+   "router",
+   "action",
+   "verifyAggregateProof"
+  ]
+ ],
+ "public_input": [
+  {
+   "action": "commitBatchWithProof",
+   "all": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     9
+    ],
+    [
+     25,
+     57
+    ],
+    [
+     57,
+     89
+    ],
+    [
+     89,
+     121
+    ],
+    [
+     121,
+     153
+    ],
+    [
+     153,
+     185
+    ],
+    [
+     185,
+     217
+    ]
+   ],
+   "fn": "IRollupVerifier.verifyAggregateProof",
+   "member": "rollup",
+   "pi": [
+    [
+     25,
+     57
+    ],
+    [
+     57,
+     89
+    ],
+    [
+     89,
+     121
+    ],
+    [
+     121,
+     153
+    ],
+    [
+     153,
+     185
+    ],
+    [
+     185,
+     217
+    ]
+   ],
+   "pi_immutables": [
+    "LAYER_2_CHAIN_ID"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+  },
+  {
+   "action": "proveCommittedBatchState",
+   "all": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     9
+    ],
+    [
+     25,
+     57
+    ],
+    [
+     57,
+     89
+    ],
+    [
+     89,
+     121
+    ],
+    [
+     121,
+     153
+    ],
+    [
+     153,
+     185
+    ],
+    [
+     185,
+     217
+    ]
+   ],
+   "fn": "IRollupVerifier.verifyAggregateProof",
+   "member": "rollup",
+   "pi": [
+    [
+     25,
+     57
+    ],
+    [
+     57,
+     89
+    ],
+    [
+     89,
+     121
+    ],
+    [
+     121,
+     153
+    ],
+    [
+     153,
+     185
+    ],
+    [
+     185,
+     217
+    ]
+   ],
+   "pi_immutables": [
+    "LAYER_2_CHAIN_ID"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+  },
+  {
+   "action": "proveState",
+   "all": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     9
+    ],
+    [
+     25,
+     57
+    ],
+    [
+     57,
+     89
+    ],
+    [
+     89,
+     121
+    ],
+    [
+     121,
+     153
+    ],
+    [
+     153,
+     185
+    ],
+    [
+     185,
+     217
+    ]
+   ],
+   "fn": "IRollupVerifier.verifyAggregateProof",
+   "member": "rollup",
+   "pi": [
+    [
+     25,
+     57
+    ],
+    [
+     57,
+     89
+    ],
+    [
+     89,
+     121
+    ],
+    [
+     121,
+     153
+    ],
+    [
+     153,
+     185
+    ],
+    [
+     185,
+     217
+    ]
+   ],
+   "pi_immutables": [
+    "LAYER_2_CHAIN_ID"
+   ],
+   "src": "contracts/contracts/l1/rollup/Rollup.sol:779-784"
+  }
+ ],
+ "receiver_sites": [
+  {
+   "blob": "05f0779dcdd2c20e2bcd490e6d45be4567e0b81a",
+   "constructions": 1,
+   "function": "(*morph-l2/node/derivation.BatchInfo).ParseBatch",
+   "line": 91,
+   "matches": true,
+   "path": "node/derivation/batch_info.go"
+  },
+  {
+   "blob": "540f688980cbf824735030df2838737c055b6b16",
+   "constructions": 1,
+   "function": "(*morph-l2/node/derivation.Derivation).fetchBatchInfoOutline",
+   "line": 66,
+   "matches": true,
+   "path": "node/derivation/verify_local.go"
+  }
+ ],
+ "sidecar_sha256": "d1af3a21a39f15cf1a0ebdb1b9c887af74f144a16912e54b0398d2c155b2db67",
+ "state_cost_sites": [
+  [
+   "rollup",
+   "challengeState",
+   "contracts/contracts/l1/rollup/Rollup.sol:489-493",
+   17,
+   false,
+   [
+    "?",
+    [
+     "<=",
+     [
+      "+",
+      [
+       "storage",
+       "lastFinalizedBatchIndex"
+      ],
+      1
+     ],
+     [
+      "storage",
+      "lastCommittedBatchIndex"
+     ]
+    ],
+    [
+     "+",
+     [
+      "-",
+      [
+       "storage",
+       "lastCommittedBatchIndex"
+      ],
+      [
+       "+",
+       [
+        "storage",
+        "lastFinalizedBatchIndex"
+       ],
+       1
+      ]
+     ],
+     1
+    ],
+    0
+   ]
+  ]
+ ]
+}
