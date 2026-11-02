@@ -18,7 +18,11 @@ or its subform, no measure).
   FACT   F(m, c) of a kernel law: I26's measure (holon.measures_fact, through holon.rules.fact.analyse), exact over I26's
          domain; 0 for a PROVED law (Thm 6.8).
   DISCH  discharge profile: pending (no cost model; the sidecar's key), with I32's class (holon.profile.classification).
-  NAT    naturality defect mass: pending (the sidecar's key).
+  NAT    naturality defect mass (I44 = I44b; the contract is the docstring of tests_m3/test_measures_i44.py, rule
+         M-NAT): the number of components of a square's observation (the end version, the success of each step the
+         two sides share, each storage word either end state holds) on which its two paths end differently at the
+         witness, read from the model's two runs that replay it (replay/<M>/<the sidecar's replay>/report.json); an
+         UNKNOWN square has the bound [0, unbounded). Pending while the sidecar names a pending key.
 
 Ctx loads the committed inputs once and keeps the sha256 of every file it reads, for the document's `inputs`.
 Nothing here names a target: every name comes from the laws, the records, the documents and the sidecar.
@@ -88,6 +92,11 @@ class Ctx:
         """replay/<M>/<sub>/report.json's laws, or {}."""
         d = self.maybe(f"replay/{self.m}/{sub}/report.json")
         return (d or {}).get("laws") or {}
+
+    def runs(self, sub: str) -> dict:
+        """replay/<M>/<sub>/report.json's runs by name, or {}."""
+        d = self.maybe(f"replay/{self.m}/{sub}/report.json") or {}
+        return {r["name"]: r for r in d.get("runs") or [] if isinstance(r, dict) and isinstance(r.get("name"), str)}
 
     # ------------------------------------------------------------------ I32's classes and I26's analysis
     def disch_classes(self) -> list:
@@ -383,9 +392,97 @@ def disch(ctx: Ctx, lid: str, law: dict, rec: dict) -> dict:
                  detail={"class": klass, "entries": read})
 
 
+def _word(v) -> int:
+    """A "0x" hex word as an int (an absent or malformed word is the zero word)."""
+    try:
+        return int(v, 16) if isinstance(v, str) and v.startswith("0x") else 0
+    except ValueError:
+        return 0
+
+
+def _paired(steps: list, ok) -> dict:
+    """{(label, k): success} over a square side's steps, the k-th step of each label (ok(j, step) gives success)."""
+    out, seen = {}, {}
+    for j, st in enumerate(steps):
+        lab = st.get("label")
+        k = seen.get(lab, 0)
+        seen[lab] = k + 1
+        out[(lab, k)] = ok(j, st)
+    return out
+
+
+def square_observation(ctx: Ctx, lid: str, rec: dict, sub: str) -> dict | None:
+    """The model's observation of each side of a REFUTED square's witness, from the runs <lid>:left and <lid>:right of
+    replay/<M>/<sub>/report.json that replay it (same witness sha256, same trace), else None:
+    {side: {"storage": {word: value}, "outcomes": {(label, k): success}, "version": the end version}}."""
+    from .rules.nat_replay import run_steps, witness_sha256
+    w = rec.get("witness") or {}
+    sq = w.get("square") or {}
+    runs = ctx.runs(sub)
+    n0 = len(w.get("trace") or [])
+    out = {}
+    for side in ("left", "right"):
+        r = runs.get(f"{lid}:{side}")
+        steps = (r or {}).get("steps") or []
+        mine = sq.get(side) or []
+        if r is None or r.get("witness_sha256") != witness_sha256(w) or r.get("trace") != run_steps(w, side) \
+                or len(steps) != n0 + len(mine) or not mine:
+            return None
+        storage: dict[int, int] = {}
+        for st in steps:
+            for s in st.get("slots") or []:
+                storage[_word(s.get("slot"))] = _word(s.get("model"))
+        out[side] = {"storage": storage, "outcomes": _paired(mine, lambda j, st: steps[n0 + j].get("model") == "ok"),
+                     "version": mine[-1].get("version")}
+    return out
+
+
+def _differs(a: dict, b: dict) -> list:
+    return sorted((k for k in set(a) | set(b) if a.get(k) != b.get(k)), key=lambda k: (str(k[0]), k[1]))
+
+
 def nat(ctx: Ctx, lid: str, law: dict, rec: dict) -> dict:
     mc = ctx.sidecar["measures"]["NAT"]
-    return entry("NAT", mc["name"], None, "pending", pending=mc["pending"], why=mc.get("why", ""))
+    name, unit = mc["name"], mc.get("unit")
+    if mc.get("pending"):
+        return entry("NAT", name, None, "pending", pending=mc["pending"], why=mc.get("why", ""))
+    st = rec["status"]
+    if st == "PROVED":
+        return entry("NAT", name, unit, "value", value=0, lower=0, upper=0, certified=True,
+                     why="the kernel proved the square: its two paths agree at every state it ranges over",
+                     detail={"words": [], "outcomes": [], "version": False})
+    if st != "REFUTED":
+        return entry("NAT", name, unit, "bound", lower=0, upper=None,
+                     why=(f"UNKNOWN: no witness ({rec.get('bound') or 'no bound recorded'}); no footprint bound is "
+                          "computed"))
+    sub = mc.get("replay") or ""
+    rel = f"replay/{ctx.m}/{sub}/report.json"
+    obs = square_observation(ctx, lid, rec, sub)
+    if obs is None:
+        sq = (rec.get("witness") or {}).get("square") or {}
+        sides = [sq.get(s) or [] for s in ("left", "right")]
+        pairs = _differs(*(_paired(x, lambda j, st: st.get("ok") is True) for x in sides))
+        version = (sides[0][-1].get("version") if sides[0] else None) != (sides[1][-1].get("version") if sides[1] else None)
+        low = len(pairs) + (1 if version else 0)
+        return entry("NAT", name, unit, "bound", lower=low, upper=None,
+                     why=(f"no run of {rel} replays this witness, so its storage is not observed; the witness's own "
+                          "steps differ in the components counted here"),
+                     detail={"words": None, "outcomes": sorted({str(p[0]) for p in pairs}), "version": version,
+                             "replay": rel})
+    a, b = obs["left"], obs["right"]
+    words = sorted(x for x in set(a["storage"]) | set(b["storage"])
+                   if a["storage"].get(x, 0) != b["storage"].get(x, 0))
+    pairs = _differs(a["outcomes"], b["outcomes"])
+    version = a["version"] != b["version"]
+    mass = len(words) + len(pairs) + (1 if version else 0)
+    detail = {"words": [f"0x{x:064x}" for x in words], "outcomes": sorted({str(p[0]) for p in pairs}),
+              "version": version, "replay": rel}
+    why = (f"at the witness the square's two paths end differently in {mass} components: "
+           f"{len(words)} storage words, {len(pairs)} step outcomes"
+           + (", the end version" if version else "") + f" (the model's two runs in {rel})")
+    return entry("NAT", name, unit, "value", value=mass, lower=mass, upper=mass, certified=True,
+                 scope=("the witness's state and arguments (Bend checked the counter-law there), observed on the "
+                        "model's two runs that replay it"), why=why, detail=detail)
 
 
 MEASURES = {"PAR": par, "UNDO": undo, "FACT": fact, "DISCH": disch, "NAT": nat}
