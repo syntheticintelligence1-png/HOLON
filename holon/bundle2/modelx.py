@@ -64,6 +64,25 @@ def make_class():
                 return f"{rec}{{{', '.join(vals)}}}", "r:" + rec
             return super().read_path(p, sc)
 
+        def compile_action(self, a: str) -> None:
+            """model3's compile_action, with a default value for the extension's struct records: an action whose
+            context holds a struct value (a loop that carries one, such as a search's current element) initializes
+            that field to the record of its members' defaults. model3's own _default (a module function) knows
+            only model3's types, so it is extended for the duration of this call and restored after it: model3's
+            text for any document without struct records is unchanged."""
+            orig = M3._default
+            recs = self.records
+
+            def default_ext(ty: str) -> str:
+                if ty.startswith("SR_") and ty in recs:
+                    return f"{ty}{{{', '.join(default_ext(fty) for _f, fty, _p in recs[ty])}}}"
+                return orig(ty)
+            M3._default = default_ext
+            try:
+                return super().compile_action(a)
+            finally:
+                M3._default = orig
+
         def t_update(self, t, sc):
             c, k = self.value(t[1], sc)
             tgt = t[2]

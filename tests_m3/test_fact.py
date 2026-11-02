@@ -460,11 +460,18 @@ def doc_basis() -> dict:
 
 
 def fact_laws(root: Path = ROOT, milestone: str = M3) -> dict:
-    return {p.stem: load_json(p) for p in sorted((root / "laws" / milestone).glob("L_fact_*.json"))}
+    """The FACT laws but those of sub-form public_input (amended at I84's build, spec/M3/amendments.jsonl: I84's laws
+    over I80's bundle declaration, which I26's checks never covered)."""
+    laws = {p.stem: load_json(p) for p in sorted((root / "laws" / milestone).glob("L_fact_*.json"))}
+    return {k: v for k, v in laws.items() if v.get("subform") != "public_input"}
 
 
 def fact_records(root: Path = ROOT, milestone: str = M3) -> dict:
-    return {p.stem: load_json(p) for p in sorted((root / "results" / milestone).glob("L_fact_*.json"))}
+    """The records of the FACT laws but those of sub-form public_input (amended at I84's build, as fact_laws)."""
+    pi = {p.stem for p in (root / "laws" / milestone).glob("L_fact_*.json")
+          if load_json(p).get("subform") == "public_input"}
+    return {p.stem: load_json(p) for p in sorted((root / "results" / milestone).glob("L_fact_*.json"))
+            if p.stem not in pi}
 
 
 def derivation(root: Path = ROOT, milestone: str = M3) -> dict:
