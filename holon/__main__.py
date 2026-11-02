@@ -52,7 +52,10 @@
                                                         (the linked codec documents gen/<M>/codec/<role>.json; I24;
                                                          and the Go-op documents gen/<M>/goops/<component>.json; I67)
   python -m holon replay-go --milestone M3 [--root DIR]  (the Go-op laws' witnesses on the real code,
-                                                         replay/<M>/goops/report.json; I67)
+                                                         replay/<M>/goops/report.json; I67; and the OWN laws',
+                                                         replay/<M>/own/report.json; I35)
+  python -m holon own --milestone M3 [--root DIR] [--out DIR] [--check]
+                                                        (rule OWN's carrier documents gen/<M>/own/<pkg>_<T>.json; I35)
   python -m holon backtest --milestone M3 [--root DIR] [--out PATH]
                                                         (the back-test across documents, results/M3/backtest.json; I24)
   python -m holon report --milestone M3 [--root DIR] [--check] [--results SET=DIR ..]
@@ -316,6 +319,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["codecs"]:  # likewise for holon.diagram.linked (the linked codec layer, I24)
         from .diagram import linked
         return linked.main(argv[1:])
+    if argv[:1] == ["own"]:  # likewise for holon.own (rule OWN's carrier documents, I35)
+        from . import own
+        return own.main(argv[1:])
     if argv[:1] == ["replay-go"]:  # likewise for holon.goreplay (the Go-op laws' replay on the real code, I67)
         from . import goreplay
         return goreplay.main(argv[1:])

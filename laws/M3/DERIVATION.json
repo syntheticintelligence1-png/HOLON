@@ -45,7 +45,7 @@
   },
   "derive_version": "holon-derive/0.1",
   "document": "derivation",
-  "evidence_sha256": "23037a4cec6e328188ebff28b10f04465eaab34acd24c961bc41dd64a263cef5",
+  "evidence_sha256": "f3468102dc5eb4181ccc6fee90dcc5f7104c0d2a25cca34cb7c2ed1cff24eac3",
   "inputs": [
     {
       "path": "audit/rounds/M2/round2/a4.json",
@@ -73,11 +73,23 @@
     },
     {
       "path": "gen/M3/evidence.json",
-      "sha256": "527284932416907a3290bc8bfc86fe1fec08a39ecb185599461a017ae4106308"
+      "sha256": "1eb4aa627d859237ddbdf169a203d370dd0b07b97f5372e710b42e16c19136a9"
     },
     {
       "path": "gen/M3/goops/blob_ops.json",
       "sha256": "10ad4e5161d975fc3077ffea2b1f904f30e69c41c4a12615188ebaf36d85ad06"
+    },
+    {
+      "path": "gen/M3/own/batch_BatchData.json",
+      "sha256": "18ea631f461b970bad739ac9c606dd97ee1a70f6d72949f90b3033c34624b0bc"
+    },
+    {
+      "path": "gen/M3/own/batch_BatchHeaderV0.json",
+      "sha256": "03bbd8b15ef088a33f50c41c6584eaeef98818e0521dce2be4a65e86e2020311"
+    },
+    {
+      "path": "gen/M3/own/batch_BatchHeaderV1.json",
+      "sha256": "60b6924afa59a33b9cef656cb5f069e47ce863feb7d8354a4914c1d9d1414698"
     },
     {
       "path": "gen/M3/sorts/assignment.json",
@@ -318,6 +330,10 @@
     {
       "path": "spec/M3/lib/link.json",
       "sha256": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371"
+    },
+    {
+      "path": "spec/M3/lib/own.json",
+      "sha256": "ec0d42b9aecf0d751546ac355d253a500dd07320e87033ef1fbfc84afa8ddbfd"
     },
     {
       "path": "spec/M3/lib/sort_seeds.json",
@@ -2855,6 +2871,196 @@
       "rule": "NAT",
       "statement_hash": "sha256:2034523561a95cd89d4b02f5aa23a55d84f68b7351347b2f317b95f0d4955e23",
       "subform": "naturality"
+    },
+    {
+      "basis": {
+        "abstracted": [
+          "l1TxHashes"
+        ],
+        "constructors": [
+          {
+            "function": "morph-l2/common/batch.NewBatchData",
+            "stores": []
+          }
+        ],
+        "fields": [
+          "blockContexts"
+        ],
+        "kind": "own_alias",
+        "modelled": [
+          "blockContexts",
+          "txsPayload"
+        ],
+        "stem": "batch_BatchData",
+        "type": "morph-l2/common/batch.BatchData",
+        "view": "TxsPayloadV2",
+        "writer": "Append"
+      },
+      "facts": "gen/M3/own/batch_BatchData.json",
+      "law_id": "L_own_alias_batch_BatchData_TxsPayloadV2_Append",
+      "rule": "OWN",
+      "statement_hash": "sha256:59c5b5b3788f684bf09c32008d3979b90892f9d20b863137a7dd04a1b314b8c2",
+      "subform": "alias"
+    },
+    {
+      "basis": {
+        "abstracted": [
+          "l1TxHashes"
+        ],
+        "constructors": [
+          {
+            "function": "morph-l2/common/batch.NewBatchData",
+            "stores": []
+          }
+        ],
+        "fields": [
+          "blockContexts"
+        ],
+        "kind": "own_alias",
+        "modelled": [
+          "blockContexts",
+          "txsPayload"
+        ],
+        "stem": "batch_BatchData",
+        "type": "morph-l2/common/batch.BatchData",
+        "view": "TxsPayloadV2",
+        "writer": "TxsPayloadV2"
+      },
+      "facts": "gen/M3/own/batch_BatchData.json",
+      "law_id": "L_own_alias_batch_BatchData_TxsPayloadV2_TxsPayloadV2",
+      "rule": "OWN",
+      "statement_hash": "sha256:4bb91701ff1c70bfda765bf7c30c0151ec90a17581525f0d19527a182493095d",
+      "subform": "alias"
+    },
+    {
+      "basis": {
+        "abstracted": [
+          "l1TxHashes"
+        ],
+        "constructors": [
+          {
+            "function": "morph-l2/common/batch.NewBatchData",
+            "stores": []
+          }
+        ],
+        "fields": [
+          "txsPayload"
+        ],
+        "kind": "own_alias",
+        "modelled": [
+          "blockContexts",
+          "txsPayload"
+        ],
+        "stem": "batch_BatchData",
+        "type": "morph-l2/common/batch.BatchData",
+        "view": "TxsPayload",
+        "writer": "Append"
+      },
+      "facts": "gen/M3/own/batch_BatchData.json",
+      "law_id": "L_own_alias_batch_BatchData_TxsPayload_Append",
+      "rule": "OWN",
+      "statement_hash": "sha256:f842f5bd0e5fc2419bae76b6a0f3324e73607fd8841abece9e6c5948f4d77855",
+      "subform": "alias"
+    },
+    {
+      "basis": {
+        "abstracted": [
+          "l1TxHashes"
+        ],
+        "constructors": [
+          {
+            "function": "morph-l2/common/batch.NewBatchData",
+            "stores": []
+          }
+        ],
+        "fields": [
+          "txsPayload"
+        ],
+        "kind": "own_alias",
+        "modelled": [
+          "blockContexts",
+          "txsPayload"
+        ],
+        "stem": "batch_BatchData",
+        "type": "morph-l2/common/batch.BatchData",
+        "view": "TxsPayload",
+        "writer": "EstimateCompressedSizeWithNewPayload"
+      },
+      "facts": "gen/M3/own/batch_BatchData.json",
+      "law_id": "L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload",
+      "rule": "OWN",
+      "statement_hash": "sha256:3b236278a407ba0fbc960769916bfb782cf532c0ed2bf952862c333d12cb0988",
+      "subform": "alias"
+    },
+    {
+      "basis": {
+        "field": "EncodedBytes",
+        "kind": "own_lost_write",
+        "method": "Bytes",
+        "readers": [
+          "Bytes"
+        ],
+        "site": "common/batch/batch_header.go:228:4",
+        "stem": "batch_BatchHeaderV0",
+        "type": "morph-l2/common/batch.BatchHeaderV0",
+        "value": [
+          "slice",
+          [
+            "alloc",
+            "common/batch/batch_header.go:216:20",
+            [
+              "const",
+              249
+            ]
+          ],
+          null,
+          [
+            "const",
+            249
+          ],
+          null
+        ]
+      },
+      "facts": "gen/M3/own/batch_BatchHeaderV0.json",
+      "law_id": "L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes",
+      "rule": "OWN",
+      "statement_hash": "sha256:d528236b8ec804f30c6da4e03d9f540c5cd20ee1a2a5056c2ce08c3c38eb1e41",
+      "subform": "lost_write"
+    },
+    {
+      "basis": {
+        "field": "EncodedBytes",
+        "kind": "own_lost_write",
+        "method": "Bytes",
+        "readers": [
+          "Bytes"
+        ],
+        "site": "common/batch/batch_header.go:258:4",
+        "stem": "batch_BatchHeaderV1",
+        "type": "morph-l2/common/batch.BatchHeaderV1",
+        "value": [
+          "slice",
+          [
+            "alloc",
+            "common/batch/batch_header.go:244:20",
+            [
+              "const",
+              257
+            ]
+          ],
+          null,
+          [
+            "const",
+            257
+          ],
+          null
+        ]
+      },
+      "facts": "gen/M3/own/batch_BatchHeaderV1.json",
+      "law_id": "L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes",
+      "rule": "OWN",
+      "statement_hash": "sha256:bc796cb70a5fd778b02c0009d283909ab1eb27847f5b9b7310ae1eaf8560399b",
+      "subform": "lost_write"
     },
     {
       "basis": {
@@ -6361,7 +6567,7 @@
       "version": null
     }
   ],
-  "rule_catalog_version": "holon-rules/1.8",
+  "rule_catalog_version": "holon-rules/1.9",
   "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",
   "uncovered": [
     {
