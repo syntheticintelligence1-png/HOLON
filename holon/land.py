@@ -75,6 +75,23 @@ def git(*args: str, check: bool = True, cwd: Path | None = None) -> str:
     return r.stdout.strip()
 
 
+def landing_module(name: str, root: Path):
+    """holon.<name> as the landing tree has it (root/holon/<name>.py), not as the tree this file was run from: a
+    landing may run land.py from another worktree (before the merge brings land.py in), and the resolvers must use the
+    merged tree's own code. For a module that imports only the standard library (holon.aggregate): a relative import
+    inside it would bind to this file's package."""
+    import importlib
+    import importlib.util
+    f = Path(root) / "holon" / f"{name}.py"
+    here = Path(__file__).resolve().parent / f"{name}.py"
+    if here.is_file() and here.read_bytes() == f.read_bytes():
+        return importlib.import_module(f"{__package__}.{name}")
+    spec = importlib.util.spec_from_file_location(f"holon_landing_{name}", f)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def blob(stage: int, path: str) -> str | None:
     r = subprocess.run(["git", "show", f":{stage}:{path}"], capture_output=True, text=True)
     return r.stdout if r.returncode == 0 else None
@@ -266,14 +283,25 @@ def resolve(path: str, kind: str, lid: str | None, root: Path, st: dict) -> str 
         # A's per-key sources: absorb what the branch's aggregate holds and no source does (a branch made before the
         # split keeps its own keys), then the lead's, then write the aggregate from the union of the sources; a key
         # whose value differs between an aggregate and its source stops here (a prereg key is never edited)
-        from . import aggregate as AG
+        # a milestone's two aggregates are resolved together: split reads both, and a conflicted one still holds git's
+        # markers, so each side's pair is written whole (that side's committed versions) before its split
         m = lid
-        for side in (ours, theirs):
-            if side is not None:
-                (root / path).write_text(side)
-                AG.split(m, root)
+        if m in st.setdefault("aggregates_done", []):
+            git("add", "-A", "--", f"spec/{m}")
+            return "regenerated from the per-key sources with its milestone's other aggregate"
+        AG = landing_module("aggregate", root)
+        pair = [rel for rel in (f"spec/{m}/predictions.json", f"spec/{m}/amendments.jsonl") if AGGREGATE.fullmatch(rel)]
+        for rev in ("HEAD", "MERGE_HEAD"):
+            for rel in pair:
+                r = subprocess.run(["git", "show", f"{rev}:{rel}"], capture_output=True, text=True)
+                if r.returncode == 0:
+                    (root / rel).write_text(r.stdout)
+                elif (root / rel).exists():
+                    (root / rel).unlink()
+            AG.split(m, root)
         AG.write(m, root)
         git("add", "-A", "--", f"spec/{m}")
+        st["aggregates_done"].append(m)
         return "regenerated from the per-key sources (the branch's and the lead's absorbed first)"
     if kind in ("generated", "law"):
         if theirs is None:
@@ -317,7 +345,7 @@ def resolve(path: str, kind: str, lid: str | None, root: Path, st: dict) -> str 
 def step_regen(a) -> int:
     root = top()
     if (root / "holon" / "aggregate.py").is_file():    # A: the aggregates from their per-key sources first
-        from . import aggregate as AG
+        AG = landing_module("aggregate", root)
         for d in sorted((root / "spec").glob("M*/predictions")):
             AG.regenerate(d.parent.name, root)
     base = load_state().get("lead_sha") or "HEAD"
