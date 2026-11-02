@@ -11,9 +11,9 @@ part A as the lead settled it:
      skips it and check_entry rejects one. A scheme-2 law's registry hash changes only through such a line.
   H3 Line ids. Every new line carries the sha256 of its canonical JSON; G2 rejects a wrong or a second id, append
      refuses a line the log holds.
-  H4 migrate-hash: a dry run writes nothing; --apply (on a copy) leaves every law of M2 and M3 under scheme 2, the
-     registries, bindings and records on the new hashes and holon derive reproducing laws/<M>; a second run changes
-     nothing.
+  H4 migrate-hash: a dry run writes nothing; --apply (on a copy) leaves every law of M3 (laws/M3 and the plan-stated
+     product laws) under scheme 2, its registry, bindings and records on the new hashes and holon derive reproducing
+     laws/M3, while M2 keeps scheme 1 byte for byte; a second run changes nothing.
   H5 Aggregates: spec/<M>/predictions.json and amendments.jsonl are what their per-key sources give (byte-identical to
      the files before PV2A for their keys); a later key lands at the end; a branch's aggregate-only key is absorbed; a
      conflict writes nothing; the prereg audit counts the sources as prereg inputs.
@@ -312,14 +312,19 @@ class TestMigrateHash(unittest.TestCase):
         try:
             SD, ir, MP = holon_module("holon.statement_diff"), holon_module("holon.ir"), holon_module("holon.mpipeline")
             rules, contracts = holon_module("holon.rules"), holon_module("holon.contracts")
-            old_reg = {m: load_json(repo / "laws" / m / "REGISTRY.json")["statements"] for m in ("M2", "M3")}
-            was1 = {(m, load_json(p)["law_id"]) for m in ("M2", "M3") for p in law_files(m, repo)
+            old_reg = {m: load_json(repo / "laws" / m / "REGISTRY.json")["statements"] for m in ("M3",)}
+            was1 = {(m, load_json(p)["law_id"]) for m in ("M3",) for p in law_files(m, repo)
                     if load_json(p).get("hash_scheme", 1) == 1}
+            m2 = lambda: {str(p.relative_to(repo)): p.read_bytes() for p in law_files("M2", repo)  # noqa: E731
+                          + [repo / "laws/M2/REGISTRY.json", repo / "spec/bindings/M2.json"]}
+            m2_before = m2()
             out = []
             self.assertEqual(SD.migrate_hash("M3", repo, apply=True, log=out.append), 0, "\n".join(out[-5:]))
             lines = [json.loads(x) for x in (repo / SD.LOG).read_text().splitlines() if x.strip()]
             mig = [e for e in lines if e.get("kind") == "hash_migration"]
-            for m in ("M2", "M3"):
+            self.assertEqual(m2(), m2_before, "M2 keeps hash scheme 1")
+            self.assertFalse((repo / "spec" / "M2" / "hash_scheme.json").exists())
+            for m in ("M3",):
                 with self.subTest(milestone=m):
                     laws, reg = ir.load_laws_any(m, repo), ir.load_registry(m, repo)
                     self.assertEqual({law.get("hash_scheme") for law in laws}, {2})
@@ -381,7 +386,14 @@ class TestAggregates(unittest.TestCase):
         its = list(json.loads((d / "predictions.json").read_text())["iterations"])
         self.assertEqual(its[-2:], ["I100", "I999"])
         self.assertEqual(its[:-2], list(json.loads(pred)["iterations"]))
-        self.assertEqual((d / "amendments.jsonl").read_text(), amend + ln24 + "\n" + ln999 + "\n")
+        # the lines split at PV2A stay a byte-identical prefix; every later line follows, by key in natural order
+        k = len(json.loads((d / "amendments" / "_index.json").read_text())["order"])
+        new, old = (d / "amendments.jsonl").read_text().splitlines(), amend.splitlines()
+        self.assertEqual(new[:k], old[:k])
+        self.assertEqual(sorted(new), sorted(old + [ln24, ln999]))
+        keys = [json.loads(x)["iteration"] for x in new[k:]]
+        self.assertEqual(keys, sorted(keys, key=A.natural))
+        self.assertEqual(new[-1], ln999)
         (d / "predictions" / "I999.json").unlink()
         (d / "predictions" / "I100.json").unlink()
         A.write("M3", self.tmp)

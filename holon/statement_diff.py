@@ -79,8 +79,9 @@ A frozen statement may change only through an entry that this module accepts:
                    but for "hash_scheme" (the byte-identical statement), and the entry's old_hash and new_hash are
                    holon.ir.statement_hash of old and of new with the refs recomputed on the tree (no Bend run). The
                    statement-change tie also requires the entry's two hashes to be the registry change's. `python -m
-                   holon.statement_diff migrate-hash --milestone M [--apply]` (migrate_hash) moves M and every earlier
-                   milestone's 0.3 laws to scheme 2 and appends one line per law.
+                   holon.statement_diff migrate-hash --milestone M [--apply]` (migrate_hash) moves milestone M's 0.3
+                   laws (laws/<M> and its plan-stated product laws) to scheme 2 and appends one line per law; every other
+                   milestone keeps its scheme.
 
 Line ids (PV2A): every line appended from PV2A on carries "id", the sha256 of its canonical JSON without the id
 ("sha256:<hex>"; line_id). G2 rejects a line whose id is not that, and a second line with an id already in the log
@@ -772,20 +773,17 @@ def _law_sets(milestone: str, root: Path) -> list[tuple[str, dict, object]]:
     return out
 
 
-def _milestones_through(milestone: str, root: Path) -> list[str]:
-    """M and every earlier target milestone (M<k>, k < n) that holds a holon-ir/0.3 law, in order."""
+def _target(milestone: str, root: Path) -> list[str]:
+    """[M] when M is a target milestone (M<n>) holding a holon-ir/0.3 law, else []. Only M migrates: an earlier
+    milestone keeps its scheme (M2 never bumps its catalog, and its statement hashes are named by later sidecars)."""
     import re
-    mm = re.fullmatch(r"M(\d+)", milestone or "")
-    if not mm:
+    if not re.fullmatch(r"M\d+", milestone or ""):
         raise ValueError(f"migrate-hash takes a target milestone M<n>, not {milestone!r}")
-    out = []
-    for k in range(int(mm.group(1)) + 1):
-        m = f"M{k}"
-        d = root / "laws" / m
-        if d.is_dir() and any(json.loads(f.read_text()).get("ir_version") == "holon-ir/0.3"
-                              for f in sorted(d.rglob(ir.LAW_GLOB))):
-            out.append(m)
-    return out
+    d = root / "laws" / milestone
+    if d.is_dir() and any(json.loads(f.read_text()).get("ir_version") == "holon-ir/0.3"
+                          for f in sorted(d.rglob(ir.LAW_GLOB))):
+        return [milestone]
+    return []
 
 
 def _restamp(pairs: dict, root: Path, dirs: list[str]) -> dict:
@@ -825,9 +823,9 @@ def _restamp(pairs: dict, root: Path, dirs: list[str]) -> dict:
 
 
 def migrate_hash(milestone: str, root: Path, apply: bool = False, log=print) -> int:
-    """`python -m holon.statement_diff migrate-hash --milestone M [--apply]` (PV2A): move every holon-ir/0.3 law of M and
-    of every earlier milestone (M2 for M3) to hash scheme 2. A dry run (the default) prints the plan and writes nothing.
-    --apply, for each milestone with a scheme-1 law:
+    """`python -m holon.statement_diff migrate-hash --milestone M [--apply]` (PV2A): move every holon-ir/0.3 law of M
+    (laws/<M> and, when they are M's, the plan-stated product laws) to hash scheme 2; every other milestone keeps its
+    scheme. A dry run (the default) prints the plan and writes nothing. --apply, when M has a scheme-1 law:
       1. writes spec/<M>/hash_scheme.json (scheme 2), which the generators read;
       2. regenerates laws/<M> with holon derive (and the plan-stated product laws with holon derivation laws), and
          refuses unless every law file is the committed one plus "hash_scheme": 2 and each hash is the recomputed one;
@@ -843,7 +841,7 @@ def migrate_hash(milestone: str, root: Path, apply: bool = False, log=print) -> 
     from . import contracts, rules
     from .gen import refs as R
     root = Path(root).resolve()
-    ms = _milestones_through(milestone, root)
+    ms = _target(milestone, root)
     plan = {}
     for m in ms:
         for d, side, gen in _law_sets(m, root):
@@ -861,7 +859,7 @@ def migrate_hash(milestone: str, root: Path, apply: bool = False, log=print) -> 
                 plan.setdefault(m, []).append((d, gen, side, law, h1, R.tree_law_hash(ir.with_hash_scheme(law, 2), root)))
     extra = {m: hash_migration_entries(m, root)[0] for m in ms}
     n = sum(len(v) for v in plan.values())
-    log(f"migrate-hash --milestone {milestone}: milestones {', '.join(ms) or 'none'}; {n} law(s) under scheme 1"
+    log(f"migrate-hash --milestone {milestone}: {', '.join(ms) or 'no 0.3 law'}; {n} law(s) under scheme 1"
         + "".join(f"; {m}: {len(v)}" for m, v in sorted(plan.items()))
         + "".join(f"; {m}: {len(v)} uncovered scheme migration(s) in the registry history" for m, v in extra.items() if v))
     for m, items in sorted(plan.items()):
@@ -2999,7 +2997,7 @@ def main(argv: list[str] | None = None) -> int:
                                                    "with its stats in the report")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve()
-    if a.command == "migrate-hash":   # PV2A: hash scheme 2 for M and every earlier milestone's 0.3 laws
+    if a.command == "migrate-hash":   # PV2A: hash scheme 2 for milestone M's 0.3 laws
         return migrate_hash(a.milestone, root, apply=a.apply)
     if a.command == "rebind":   # F31: the binding_change entries of laws whose cone changed under a fixed statement
         global EQV_DEADLINE
