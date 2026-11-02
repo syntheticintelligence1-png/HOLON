@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 31 | 192 | 157 | 31 |
+| M3 | 32 | 199 | 165 | 32 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -67,6 +67,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I65 | M3 | = I33b: the O12 intent contract on M2's window view of the extracted Rollup: a ghost counter (IR 0.3 term), the proof c… | `prompts/I65_o12_view.md` | 4 | 4 | 1 | `docs/iterations/I65.md` |
 | I66 | M3 | holon differential's window view in M2's evidence set (Q62): its diagram by I11's adapters and its E2, E3, E4 and E6 at… | `prompts/I66_view_evidence.md` | 1 | 5 | 1 | `docs/iterations/I66.md` |
 | I67 | M3 | I67 (= I38a): Go codecs at loop granularity (holon-go-frontend/0.2 loop bodies), Go-op components over interface carrie… | `prompts/I67_go_loop.md` | 5 | 5 | 1 | `docs/iterations/I67.md` |
+| I68 | M3 | Structural storage keys in the M3 model (the Q21 fix): mapping storage keyed as (base slot, key path) instead of a look… | `prompts/I68_structural_keys.md` | 7 | 8 | 1 | `docs/iterations/I68.md` |
 | I69 | M3 | = I36a: Bundle I's extraction and acquisition, no laws: the message queue, the messenger, the whitelist and the Submitt… | `prompts/I69_bundle_extraction.md` | 7 | 5 | 1 | `docs/iterations/I69.md` |
 | I71 | M3 | UNDO's third sub-form cancel (I33's catalog key): the cancel restore U3' and criterion U4' over the extracted transitio… | `prompts/I71_undo_cancel.md` | 6 | 6 | 1 | `docs/iterations/I71.md` |
 | I72 | M3 | E2 over the adopted holon-facts/0.3 transitions documents (I33's evidence key): written-via-p, read-via-q atoms from th… | `prompts/I72_e2_transitions.md` | 1 | 5 | 1 | `docs/iterations/I72.md` |

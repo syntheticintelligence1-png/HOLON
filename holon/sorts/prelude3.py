@@ -706,3 +706,111 @@ def kb_get(xs: List<&2, KB>, +k: W) -> List<&2, U32>:
 PRELUDE = (_PRELUDE.replace("@W_ADD@\n", _w_add(False) + "\n").replace("@W_ADD_OK@\n", _w_add(True) + "\n")
            .replace("@W_SUB@\n", _w_sub() + "\n").replace("@U8@\n", _u8() + "\n")
            .replace("@U_BE4W@\n", _u_be4w() + "\n").replace("@U_B4@", _u_b4()))
+
+# ------------------------------------------------------------------------------------------------ structural storage
+# I68 (the Q21 fix; rule S1 of tests_m3/test_structural_keys.py). The structural store: a location is SK{b, o, p}, the
+# family's base slot (the compiler's layout), the slot offset inside the top-level variable, and the hashed steps, each
+# SP_m{k, o}: a mapping key word as solc hashes it, then the slot offset inside the value. sload and sstore compare
+# keys with sk_eq (the base first, then the offset, then the path; inside a step the offset before the key), so two
+# locations of different families or members differ by evaluation whatever their keys, and two keys of one family
+# differ by a fact about the key words, never by a hash table. kv_get and kv_put have kw_get's and kw_put's A30 shape
+# (no reusable binder of a list they recurse on; the first entry whose key equals k takes v, a key no entry holds is
+# appended). Everything outside this block is PRELUDE's text: W, w_eq, KW and kw_* (the environment's balance table),
+# HKB and h_get (code-level hashes), so F32's pinned helpers keep their text.
+_RAW_STORE = '''type HSt is Data:
+  HSt{sl: List<&2, KW>}
+
+def sload(s: HSt, +k: W) -> W:
+  match s:
+    case HSt{sl}:
+      kw_get(sl, k)
+
+def sstore(s: HSt, +k: W, +v: W) -> HSt:
+  match s:
+    case HSt{sl}:
+      HSt{kw_set(sl, k, v)}
+'''
+
+_SK_STORE = '''type SP is Data:
+  SP_m{k: W, o: W}
+
+# a storage location: the family's base slot, the offset inside the top-level variable, the hashed steps
+type SK is Data:
+  SK{b: W, o: W, p: List<&2, SP>}
+
+def sp_eq(a: SP, b: SP) -> Bool:
+  match a b:
+    case SP_m{ak, ao} SP_m{bk, bo}:
+      Bool.and(w_eq(ao, bo), w_eq(ak, bk))
+
+def sps_eq(a: List<&2, SP>, b: List<&2, SP>) -> Bool:
+  match a b:
+    case Nil{} Nil{}:
+      True{}
+    case Nil{} Con{y, ys}:
+      False{}
+    case Con{x, xs} Nil{}:
+      False{}
+    case Con{x, xs} Con{y, ys}:
+      Bool.and(sp_eq(x, y), sps_eq(xs, ys))
+
+def sk_eq(a: SK, b: SK) -> Bool:
+  match a b:
+    case SK{ab, ao, ap} SK{bb, bo, bp}:
+      Bool.and(w_eq(ab, bb), Bool.and(w_eq(ao, bo), sps_eq(ap, bp)))
+
+type KV is Data:
+  KV{k: SK, v: W}
+
+def kv_get(xs: List<&2, KV>, +k: SK) -> W:
+  match xs:
+    case Nil{}:
+      w0()
+    case Con{h, t}:
+      match h:
+        case KV{hk, hv}:
+          ite(W, sk_eq(hk, k), hv, kv_get(t, k))
+
+# the first entry with key k takes v, every later one is kept; done: k was met
+def kv_put(xs: List<&2, KV>, +k: SK, +v: W, +done: Bool) -> List<&2, KV>:
+  match xs:
+    case Nil{}:
+      ite(List<&2, KV>, done, Nil{}, [KV{k, v}])
+    case Con{h, t}:
+      match h:
+        case KV{+hk, hv}:
+          +eq = sk_eq(hk, k)
+          Con{KV{hk, ite(W, Bool.and(eq, Bool.not(done)), v, hv)}, kv_put(t, k, v, Bool.or(done, eq))}
+
+def kv_set(xs: List<&2, KV>, +k: SK, +v: W) -> List<&2, KV>:
+  kv_put(xs, k, v, False{})
+
+type HSt is Data:
+  HSt{sl: List<&2, KV>}
+
+def sload(s: HSt, +k: SK) -> W:
+  match s:
+    case HSt{sl}:
+      kv_get(sl, k)
+
+def sstore(s: HSt, +k: SK, +v: W) -> HSt:
+  match s:
+    case HSt{sl}:
+      HSt{kv_set(sl, k, v)}
+'''
+
+_RAW_TW = "  HOut{c: U32, rv: List<&2, U32>, po: HSt, lg: List<&2, HLog>, tw: List<&2, W>}\n"
+_SK_TW = "  HOut{c: U32, rv: List<&2, U32>, po: HSt, lg: List<&2, HLog>, tw: List<&2, SK>}\n"
+if PRELUDE.count(_RAW_STORE) != 1 or PRELUDE.count(_RAW_TW) != 1:
+    raise AssertionError("prelude3: the raw store block is not where PRELUDE_SK replaces it")
+PRELUDE_SK = PRELUDE.replace(_RAW_STORE, _SK_STORE).replace(_RAW_TW, _SK_TW)
+SK_DEFS = ("SP", "SP_m", "SK", "sp_eq", "sps_eq", "sk_eq", "KV", "kv_get", "kv_put", "kv_set", "sload", "sstore")
+
+
+def prelude(storage: str) -> str:
+    """The prelude of a model whose storage is raw (PRELUDE) or structural (PRELUDE_SK)."""
+    if storage == "raw":
+        return PRELUDE
+    if storage == "structural":
+        return PRELUDE_SK
+    raise ValueError(f"storage mode {storage!r} (raw or structural)")
