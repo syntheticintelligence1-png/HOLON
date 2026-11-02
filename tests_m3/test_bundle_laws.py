@@ -392,14 +392,19 @@ class TestInstrument(unittest.TestCase):
 # ================================================================================================ catalog
 class TestCatalog(unittest.TestCase):
     def test_c1_the_catalog(self):
+        # amended (I86 instrument_inconsistency, at I70's bump to holon-rules/1.13): M3 derives with I86's version or a
+        # later version of the chain that keeps I86's producers; I86's base is the newest version below it
         R = holon_module("holon.rules")
         v = th()["catalog"]
-        self.assertEqual(R.catalog_version("M3"), v)
+        key = lambda k: tuple(int(x) for x in k.split("/")[1].split("."))
+        cur = R.catalog_version("M3")
+        self.assertTrue(cur.startswith("holon-rules/1.") and key(cur) >= key(v), cur)
         cat = R.CATALOGS[v]
         for sub, rule in SUBFORMS.items():
             self.assertIn(sub, cat.get(rule, {}), f"{rule}/{sub}")
-        prev = [k for k in R.CATALOGS if k != v and k.startswith("holon-rules/1.")]
-        base = max(prev, key=lambda k: tuple(int(x) for x in k.split("/")[1].split(".")))
+            self.assertIs((R.CATALOGS[cur].get(rule) or {}).get(sub), cat[rule][sub], f"{rule}/{sub} at {cur}")
+        prev = [k for k in R.CATALOGS if k.startswith("holon-rules/1.") and key(k) < key(v)]
+        base = max(prev, key=key)
         for rule, subs in R.CATALOGS[base].items():
             for sub, prod in subs.items():
                 self.assertIs(cat[rule][sub], prod, f"{rule}/{sub} is not the base's producer object")
@@ -413,7 +418,8 @@ class TestCatalog(unittest.TestCase):
             for lid in ids(sub):
                 lw = law(lid)
                 self.assertEqual((lw.get("rule"), lw.get("subform")), (SUBFORMS[sub], sub), lid)
-                self.assertEqual(lw.get("rule_catalog_version"), th()["catalog"], lid)
+                # amended (I86 instrument_inconsistency, at I70's bump): the laws carry M3's current catalog version
+                self.assertEqual(lw.get("rule_catalog_version"), holon_module("holon.rules").catalog_version("M3"), lid)
 
 
 # ================================================================================================ the model debt

@@ -416,6 +416,9 @@
     },
     {
      "$ref": "#/$defs/t_bundle"
+    },
+    {
+     "$ref": "#/$defs/t_slash"
     }
    ]
   },
@@ -1177,6 +1180,29 @@
      }
     }
    ]
+  },
+  "t_slash": {
+   "type": "object",
+   "required": [
+    "slash",
+    "on"
+   ],
+   "additionalProperties": false,
+   "description": "a slash term (I70, holon.rules.slash): the slash id <model>:slash_<nat|sort>:<a>:<b>:<op> of a migration's site pair (rule NAT or SORT, sub-form slash) applied to a linked state with its reachability, a batch index, the edge's migration choice and the two registries' environments: the Bool 'the answer of the op's slash site at b after the migration equals its answer at a' (NAT) or 'a nonzero return at a's site gives a nonzero return at b's' (SORT); rendered slash_ok[ID](S, K, U, EA, EB); its statement ref slash:ID hashes the site pair recomputed from the versioned document (holon.gen.refs)",
+   "properties": {
+    "slash": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:slash_(nat|sort):[A-Za-z0-9_]+:[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+    },
+    "on": {
+     "type": "array",
+     "minItems": 5,
+     "maxItems": 5,
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
   }
  }
 }

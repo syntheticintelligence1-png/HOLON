@@ -240,7 +240,9 @@ def record(lid: str) -> dict:
 
 
 def nat_laws() -> dict:
-    return {k: v for k, v in laws(M3).items() if v.get("rule") == NAT_RULE}
+    # amended (I29 foundation_conflict, at I70's slash sub-form): I29's NAT laws, of its two sub-forms
+    return {k: v for k, v in laws(M3).items() if v.get("rule") == NAT_RULE
+            and v.get("subform") in ("composition", "naturality")}
 
 
 def steps_ok(steps) -> list:

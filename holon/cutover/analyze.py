@@ -20,101 +20,16 @@ from . import Ctx, render, sha256_bytes
 SLASH_VERSION = "holon-cutover-slash/0.1"
 
 
-def _label(entry: str) -> str:
-    return entry.split(".", 1)[1] if "." in entry else entry
-
-
-def _contains(term, sub) -> bool:
-    if term == sub:
-        return True
-    if isinstance(term, list):
-        return any(_contains(t, sub) for t in term)
-    if isinstance(term, dict):
-        return any(_contains(t, sub) for t in term.values())
-    return False
-
-
-def _member_reads(term, family: str) -> list:
-    out = []
-    if isinstance(term, list):
-        if (len(term) == 3 and term[0] == "member" and isinstance(term[1], list) and len(term[1]) == 3
-                and term[1][0] == "map" and term[1][1] == ["storage", family]):
-            out.append(term[2])
-        for t in term:
-            out.extend(_member_reads(t, family))
-    return out
-
-
-def edge_types(vdoc: dict) -> dict:
-    """S1."""
-    out: dict = {}
-    for t in vdoc.get("in_flight_types") or []:
-        e = out.setdefault(t["edge"], {"retyped": [], "reinterpreted": []})
-        if t["kind"] == "retyped":
-            e["retyped"].append(_label(t["entry"]))
-        elif t["kind"] == "reinterpreted":
-            e["reinterpreted"].append({"entry": _label(t["entry"]), "reads": sorted(_label(r) for r in t["reads"])})
-    for e in out.values():
-        e["retyped"].sort()
-        e["reinterpreted"].sort(key=lambda r: r["entry"])
-    return out
-
-
-def _credits(action: dict, call: dict) -> list:
-    res = ["call", call["fn"], *call["args"]]
-    out = []
-    for w in action.get("writes") or []:
-        path = w.get("path") or []
-        if not path or not isinstance(path[0], list) or path[0][0] != "map":
-            continue
-        if _contains(w.get("value"), res) and _contains(w.get("value"), ["storage", w["family"]]):
-            out.append({"family": w["family"], "seq": w.get("seq"), "src": w.get("src")})
-    return out
-
-
-def sites(action: dict, words: list, retyped: list) -> list:
-    """S2."""
-    out = []
-    for c in action.get("calls") or []:
-        rec = c.get("receiver")
-        if not (isinstance(rec, list) and len(rec) == 2 and rec[0] == "storage" and rec[1] in words):
-            continue
-        reads = sorted({f"{f}.{m}" for f in retyped for a in c.get("args") or [] for m in _member_reads(a, f)})
-        if not reads:
-            continue
-        cr = _credits(action, c)
-        if cr:
-            out.append({"fn": c["fn"], "receiver": rec[1], "reads": reads, "seq": c.get("seq"), "src": c.get("src"),
-                        "credits": cr})
-    return out
+from ..rules.slash import edge_types, pairs_of  # noqa: E402  (S1-S3, the catalog producers' own analysis)
 
 
 def analysis(ctx: Ctx) -> dict:
     """S1-S3 over the versioned document the sidecar names."""
     vrel = ctx.side["inputs"]["versioned"]
     vdoc = ctx.load(vrel)
-    contract = vdoc["contract"]["name"]
-    types = edge_types(vdoc)
     docs = {v: ctx.load(d["path"]) for v, d in vdoc["documents"].items()}
-    pairs = []
-    for edge in sorted(types):
-        a, b = edge.split("->")
-        t = types[edge]
-        if not t["retyped"] or not t["reinterpreted"]:
-            continue
-        words_b = sorted({r["entry"] for r in t["reinterpreted"]})
-        words_a = sorted({x for r in t["reinterpreted"] for x in r["reads"]})
-        acts_a = {x["name"]: x for x in docs[a]["actions"]}
-        for op in sorted(x["name"] for x in docs[b]["actions"]):
-            act_b = next(x for x in docs[b]["actions"] if x["name"] == op)
-            act_a = acts_a.get(op)
-            if act_a is None or act_a.get("selector") != act_b.get("selector"):
-                continue
-            sa, sb = sites(act_a, words_a, t["retyped"]), sites(act_b, words_b, t["retyped"])
-            if sa and sb:
-                tag = f"{contract}_{a}_{b}_{op}"
-                pairs.append({"edge": edge, "op": op, "selector": act_b.get("selector"), "a": sa, "b": sb,
-                              "laws": {"NAT": f"L_nat_slash_{tag}", "SORT": f"L_sort_slash_{tag}"}})
+    types = edge_types(vdoc)
+    pairs = pairs_of(vdoc, docs)
     return {"slash_version": SLASH_VERSION,
             "versioned": {"path": vrel, "sha256": sha256_bytes(ctx.path(vrel).read_bytes())},
             "documents": {v: {"path": d["path"], "sha256": sha256_bytes(ctx.path(d["path"]).read_bytes())}
