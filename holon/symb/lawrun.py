@@ -827,6 +827,9 @@ class Decider:
             return {**base, "status": "unknown", "law": None, "witness": None, "reachable": None,
                     "bound": "no frame of the site's action meets the premises on the member's model"}
         tr, f, act, chain, kh = found
+        # the literals re-made small: each act's environment reduced to the code-table entries its step needs (the
+        # same outcome), and a hash table of only the keys this chain and act look up
+        chain, act, kh = self.reduced(lm, chain, act, e["hit"])
         p["nv_laws"].parent.mkdir(parents=True, exist_ok=True)
         p["nv_laws"].write_text(nv_text(e, lid, sh, p["nv_laws"].parent, self.root, self.m), encoding="utf-8")
         acts = [lm.lit.text(a) for _f, a, _s in chain]
@@ -847,6 +850,28 @@ class Decider:
                     "bound": f"the inhabitant does not check: {chk['checker'].get('failing', '')[-400:]}"}
         return {**base, "status": "inhabited", "law": self.rel(p["nv_laws"]), "witness": wj, "reachable": True,
                 "_checker": chk["checker"], "bound": "a checked inhabitant of the premises"}
+
+    def reduced(self, lm, chain: list, act: dict, hit: str) -> tuple:
+        """(chain, act, table) re-run from the deployment with each act's environment reduced (holon.bundle.lawrun's
+        reduce_env: the code-table entries whose removal changes the step's outcome) and a fresh hash table; the reduced
+        chain must reach the same states and the act must still meet the premises."""
+        kh: dict = {}
+        ref, _v = lm.s0()
+        out = []
+        for f, a, want in chain:
+            name = f["action"]
+            en = lm.reduce_env(name, ref, a["f"]["ar"], a["f"]["en"], kh)
+            a2 = lm.act(name, a["f"]["ar"], en)
+            ref, val = lm.step(a2, ref, kh)
+            if val != want:
+                raise LawRefused(f"the reduced environment changed a prefix step of {name}")
+            out.append((f, a2, val))
+        name = next(n for n in lm.doc.actions if bname(n) == act["$r"][2:])
+        en = lm.reduce_env(name, ref, act["f"]["ar"], act["f"]["en"], kh)
+        a2 = lm.act(name, act["f"]["ar"], en)
+        if not lm.fn(f"C_{hit}", lambda t: [{"$ref": ref}, a2, t], kh):
+            raise LawRefused("the reduced act no longer meets the premises")
+        return out, a2, kh
 
     def record(self, law: dict, e: dict, status: str, witness, attempts: list, lp: Path, prim, bound, nonvac,
                symb: dict) -> dict:

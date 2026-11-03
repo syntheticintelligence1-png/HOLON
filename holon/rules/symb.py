@@ -219,7 +219,10 @@ def law_ir(e: dict, milestone: str, catalog_version: str) -> dict:
 
 
 def entry_of(e: dict) -> dict:
-    return {"law_id": e["law_id"], "rule": RULE, "subform": e["subform"], "facts": e["facts"], "basis": e["basis"]}
+    """The DERIVATION entry; its member names the law's bundle member, as I86's bundle-law entries do (the evidence set
+    covers the documents of the entries with a member: holon.diagram.evidence.bundle_documents)."""
+    return {"law_id": e["law_id"], "rule": RULE, "subform": e["subform"], "facts": e["facts"], "member": e["member"],
+            "basis": e["basis"]}
 
 
 def is_symb_law(law: dict) -> bool:
