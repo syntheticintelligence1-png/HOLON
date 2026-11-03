@@ -297,6 +297,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["bundle2"]:  # likewise for holon.bundle2 (Bundle II's extraction and linked machine, I80)
         from . import bundle2
         return bundle2.main(argv[1:])
+    if argv[:1] == ["symb"]:  # likewise for holon.symb (I92: SYM over Bundle I's members and links; outside every closure)
+        from . import symb
+        return symb.main(argv[1:])
     if argv[:1] == ["cutover"]:  # likewise for holon.cutover (a migration's slash sites, linked; outside every closure)
         from . import cutover
         return cutover.main(argv[1:])
@@ -449,6 +452,18 @@ def _main(argv: list) -> int:
             if others:
                 rc = _main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
             return max(rc, versions_run.main(versions_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(vids)]))
+    if argv[:1] == ["run"] and _typed_milestone(argv):
+        # I92: the SYM member laws a --laws list names (holon.rules.symb) are decided by holon.symb.lawrun over their
+        # members' bundle models; the list's other laws go on as before (imported by name: outside every closure)
+        import importlib
+        symb_run = importlib.import_module("holon.symb.lawrun")
+        split = symb_run.ids_of(argv)
+        if split is not None:
+            yids, others = split
+            rc = 0
+            if others:
+                rc = _main(symb_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(others)])
+            return max(rc, symb_run.run_main(symb_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(yids)]))
     if argv[:1] == ["run"] and _typed_milestone(argv):
         # I70: the slash laws a --laws list names (rules NAT and SORT, sub-form slash) are decided by
         # holon.cutover.lawrun over the linked layer; the list's other laws go on as before

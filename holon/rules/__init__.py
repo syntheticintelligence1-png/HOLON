@@ -177,16 +177,30 @@ CATALOGS[SLASH_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_SLASH_
 for _rule in _slash.RULES:
     CATALOGS[SLASH_CATALOG_VERSION].setdefault(_rule, {})[_slash.SUBFORM] = _slash.PRODUCERS[_rule]
 
+#   holon-rules/1.14 I92's: the rules of the newest catalog version below it (its predecessor in the chain: holon-rules/1.13,
+#                    I70's) unchanged (the same producer objects), plus rule SYM's member sub-forms member_tau,
+#                    member_sentinel and sentinel_inv (holon.rules.symb: SYM over the members of a bundle, with the
+#                    milestone's SYM-bundle sidecar spec/<M>/lib/sym_bundle.json; a milestone without one derives none of
+#                    them), run by derive's symb part (_symb_part); M3 and later. Its sub-forms and holon-rules/1.12's
+#                    SYM sub-forms are disjoint (rule K5 of tests_m3/test_sym_bundle.py).
+from . import symb as _symb  # noqa: E402
+SYMB_CATALOG_VERSION = "holon-rules/1.14"
+_SYMB_BASE = _newest_catalog(SYMB_CATALOG_VERSION)
+CATALOGS[SYMB_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_SYMB_BASE].items()}
+for _sub in _symb.SUBFORMS:
+    CATALOGS[SYMB_CATALOG_VERSION].setdefault(_symb.RULE, {})[_sub] = _symb.PRODUCERS[_sub]
+
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.13 for the typed target milestones (M3 and
+    """The rule-catalog version a milestone derives with: holon-rules/1.14 for the typed target milestones (M3 and
     later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel, I29's NAT, I35's OWN, I84's
-    and I86's bundle sub-forms, I34's SYM, I70's slash sub-forms over every version below it); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
+    and I86's bundle sub-forms, I34's SYM, I70's slash sub-forms, I92's SYM member sub-forms over every version below
+    it); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
     holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's
     catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return SLASH_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return SYMB_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -868,6 +882,35 @@ def _slash_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | 
     return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
 
 
+def _symb_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
+    """derive's part for rule SYM's member sub-forms (I92, holon.rules.symb), when the catalog holds one and the
+    milestone has a SYM-bundle sidecar: their producers over the sidecar's member documents, read through their own
+    input list. Returns the laws, their DERIVATION entries, the inputs read and the documents' sha256, or None."""
+    from ..gen import refs as R
+    prods = [(sub, (CATALOGS[cv].get(_symb.RULE) or {}).get(sub)) for sub in _symb.SUBFORMS]
+    prods = [(sub, pr) for sub, pr in prods if pr is not None]
+    if not prods or not _symb.has_sidecar(root, milestone):
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for _sub, pr in prods:
+            pairs += pr.produce(ctx)
+    except (_symb.SymbRuleError, KeyError, ValueError) as e:
+        raise ValueError(f"SYM (members): {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
+
+
 def _own_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
     """derive's part for rule OWN (I35, holon.rules.own; rule W8 of tests_m3/test_own.py), when the catalog holds it:
     its producers over the milestone's committed carrier documents gen/<M>/own/*.json, read through its own input list
@@ -1029,8 +1072,11 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
     spart = _slash_part(milestone, root, cv, scheme) if not given else None   # I70: the slash laws
     if spart is not None:
         inputs.files.update(spart["inputs"].files)
+    ypart = _symb_part(milestone, root, cv, scheme) if not given else None   # I92: SYM over the bundle's members
+    if ypart is not None:
+        inputs.files.update(ypart["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed, init, nat, own, ldom, bpart, spart):
+    for part in (par, typed, init, nat, own, ldom, bpart, spart, ypart):
         if part is None:
             continue
         for lid, law in part["laws"].items():

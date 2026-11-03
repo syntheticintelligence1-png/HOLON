@@ -1629,15 +1629,19 @@ class Gate:
 
     def g11v(self) -> None:
         from . import inhabit
-        from .bindings import _sym
+        from .bindings import _sym, _symb
         laws = self.laws()
         sym = [law for law in laws if _sym(law)]
-        if sym:   # I34: a SYM law's inhabitant is stated over the typed model and its sym section (holon.symd.gate,
-            import importlib   # imported by name: it stays outside every generator closure)
-            SG = importlib.import_module("holon.symd.gate")
-            ok_s, det_s = SG.g11v(self, sym)
-            ok, detail = inhabit.g11v(_Narrowed(self, [law for law in laws if not _sym(law)]))
-            ok, detail = ok and ok_s, f"{detail}; SYM laws: {det_s}"
+        symb = [law for law in laws if _symb(law)]
+        if sym or symb:   # I34: a SYM law's inhabitant is stated over the typed model and its sym section
+            import importlib   # (holon.symd.gate); I92: a SYM member law's over its member's model and section
+            ok, detail = inhabit.g11v(_Narrowed(self, [law for law in laws if not _sym(law) and not _symb(law)]))
+            if sym:   # imported by name: they stay outside every generator closure
+                ok_s, det_s = importlib.import_module("holon.symd.gate").g11v(self, sym)
+                ok, detail = ok and ok_s, f"{detail}; SYM laws: {det_s}"
+            if symb:
+                ok_y, det_y = importlib.import_module("holon.symb.gate").g11v(self, symb)
+                ok, detail = ok and ok_y, f"{detail}; SYM member laws: {det_y}"
         else:
             ok, detail = inhabit.g11v(self)
         try:      # I28 (V8): a milestone with a versions sidecar has in-flight inhabitants of its path's MIG edges

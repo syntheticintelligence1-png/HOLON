@@ -3474,3 +3474,55 @@ class Model3X(Model3):
     t_pop = _i70_t_pop
     t_len = _i70_t_len
     write_body = _i70_write_body2
+
+
+# ------------------------------------------------------------------------------------------- EXT1, I92's additions (K8)
+# Three constructs EXT1 lacked, each a term or write that raised GenError before, so a model that compiled without them
+# is unchanged byte for byte: the length of a storage array read as a storage path (EXT1's length took only a carried
+# view), Yul byte, and a top-level conditional memory write compiled as a helper instead of inlined into both branches.
+
+def _i92_t_len(self, t, sc):
+    """["len", A]: a storage dynamic array's length read as a storage path (kind "p", a path under compilation) is
+    taken as its view first; every other operand is EXT1's length unchanged."""
+    _c, k = self.tx(t[1], sc)
+    if k == "p" and not self.sk:
+        c, k = self.value(t[1], sc)
+        if k.startswith("v:"):
+            fam = k[2:]
+            slot0, _o, tid, _l = self.locate(StoragePath(c, fam, [], fam), sc)
+            if self.m.type_of(tid).get("encoding") == "dynamic_array":
+                return f"sload({c}, {slot0})", "w"
+    return _i70_t_len(self, t, sc)
+
+
+def _i92_t_wbyte(self, t, sc):
+    """["wbyte", x, n]: byte n of the word x, 0 the most significant, 0 past the word (Yul byte(n, x); the frontend's
+    term, holon.extracted_eval's t_wbyte)."""
+    x = self.w(t[1], sc)
+    n = t[2]
+    if isinstance(n, int) and not isinstance(n, bool):
+        return (f"w_u(b_at(b_of_w({x}), {n}n))" if 0 <= n < 32 else "w0()"), "w"
+    nw = self.w(n, sc)
+    return f"ite(W, w_lt({nw}, {wlit(32)}), w_u(b_at(b_of_w({x}), n_of_w({nw}))), w0())", "w"
+
+
+_i92_mem_write0 = Model3.mem_write
+
+
+def _i92_mem_write(self, mem: str, wr, sc) -> str:
+    """A top-level conditional memory write ["when", c, w] (no loop variable in scope) as a helper of the action's input
+    and the memory, as a memory loop is: the memory term appears once, where model3's inline form puts it in both
+    branches of the conditional, so n conditional writes in a row double it n times. Every other write is model3's."""
+    k = wr[0] if isinstance(wr, list) and wr else None
+    if k != "when" or sc.subst:
+        return _i92_mem_write0(self, mem, wr, sc)
+    name = self.fresh(f"mw_{bname(sc.action)}")
+    xt = f"X_{bname(sc.action)}"
+    body = f"ite(List<&2, U32>, {self.cond(wr[1], sc)}, {self.mem_write('mem', wr[2], sc)}, mem)"
+    self.add(f"def {name}(+{sc.x}: {xt}, +mem: List<&2, U32>) -> List<&2, U32>:\n  {body}\n")
+    return f"{name}({sc.x}, {mem})"
+
+
+Model3X.t_len = _i92_t_len
+Model3X.t_wbyte = _i92_t_wbyte
+Model3X.mem_write = _i92_mem_write

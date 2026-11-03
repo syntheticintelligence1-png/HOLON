@@ -548,6 +548,9 @@ BUNDLE2_SUBFORMS = ("link_domain", "public_input", "self_controlled")
 # I86's bundle-law sub-forms (holon.rules.bundle.RULE_SUBFORMS): decided by `holon run`, then their witnesses replayed
 # on the real bundle (`holon bundle replay-laws`, a forge run), in one job (the re-make template's cmd bundle).
 BUNDLE_SUBFORMS = ("payer", "conservation", "keyed_blocking", "keyed_external", "keyed_external_none", "push")
+# I92's SYM member sub-forms (holon.rules.symb.SUBFORMS): decided by `holon run` (holon.symb.lawrun), one job, apart
+# from I34's sharded SYM laws.
+SYMB_SUBFORMS = ("member_tau", "member_sentinel", "sentinel_inv")
 
 
 def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
@@ -572,6 +575,8 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
             g = f"undo-{s}-{lid}"
         elif r == "PAR":
             g = "pinit" if s == "init_chain" else "par"
+        elif r == "SYM" and s in SYMB_SUBFORMS:   # I92's member laws: one job of their own
+            g = "symb"
         elif r in ("DISCH", "SYM"):
             g = r.lower()
         else:

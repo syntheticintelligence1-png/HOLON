@@ -29,15 +29,16 @@ def init_of(ctx: Ctx, name: str) -> dict:
     return {"binding": ctx.out("deployment"), "storage": dict(st)}
 
 
-def compile_member(ctx: Ctx, name: str, init: dict) -> tuple:
-    """(model text, debt [(action, error)]) of one member: model3's untyped machine, an action it cannot compile
-    left out as debt."""
+def compile_member(ctx: Ctx, name: str, init: dict, rel: str | None = None) -> tuple:
+    """(model text, debt [(action, error)]) of one member: model3's untyped machine with its extension EXT1 (I70's
+    storage arrays and calls, I92's array length, Yul byte and shared conditional memory writes), an action it cannot
+    compile left out as debt."""
     from ..machine import ExtractedModel
     from ..rules.sort import DocBasis, hash_functions
     from ..sorts import model3
     from ..sorts.typed_sidecar import load as load_ts
     from . import members as M
-    rel = ctx.document_rel(ctx.member(name))
+    rel = rel or ctx.document_rel(ctx.member(name))     # another version's document of the member (I92's legacy)
     data = ctx.path(rel).read_bytes()
     doc = json.loads(data)
     info = M.info(ctx, name)
@@ -60,7 +61,7 @@ def compile_member(ctx: Ctx, name: str, init: dict) -> tuple:
             text, _mm = model3.build_text(m, typed=False, sorts={}, seeds=seeds, init=storage,
                                           hashes=hash_functions(d2) or ["keccak256"],
                                           basis=DocBasis(rel, d2, mname, assignment, seeds), site_rows=[],
-                                          header=header)
+                                          header=header, ext1=True)
             return text, sorted(debt.items())
         except model3.GenError as e:
             a = str(e).split(":", 1)[0].strip()

@@ -440,6 +440,9 @@
     },
     {
      "$ref": "#/$defs/t_slash"
+    },
+    {
+     "$ref": "#/$defs/t_symb"
     }
    ]
   },
@@ -1363,6 +1366,27 @@
      "type": "array",
      "minItems": 5,
      "maxItems": 5,
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_symb": {
+   "type": "object",
+   "required": [
+    "symb",
+    "on"
+   ],
+   "additionalProperties": false,
+   "description": "a SYM member term (I92, holon.rules.symb): the symb id <member>:<member_tau|member_sentinel|sentinel_inv>:<basis words> applied to the law's binders, in order: the Bool 'the member action is equivariant under time translation' (member_tau: s, x, d), 'the site writes no sentinel' (member_sentinel: s, x) or 'the view's other conjunct implies the sentinel register differs from its constant on every state of the versioned member' (sentinel_inv: s), each with its premises as the antecedent; rendered symb_ok[ID](args); its statement ref symb:ID hashes the template, version, subform and basis recomputed from the SYM-bundle sidecar, the member documents and their sorts (holon.gen.refs)",
+   "properties": {
+    "symb": {
+     "type": "string",
+     "pattern": "^[A-Za-z0-9_.]+:(member_tau|member_sentinel|sentinel_inv)(:[A-Za-z0-9_.]+)+$"
+    },
+    "on": {
+     "type": "array",
      "items": {
       "$ref": "#/$defs/term"
      }

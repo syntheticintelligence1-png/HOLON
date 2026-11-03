@@ -10006,7 +10006,7 @@
     }
   ],
   "document": "evidence",
-  "evidence_sha256": "abe5796b3dc54eb214f47ef7f0dfd4bae79c9f60c4ef58f84eb10500e39e5eb8",
+  "evidence_sha256": "a9a6d8230a9719fa51ee897f7c91c785cc78739b96621b48f29e2b2594d514be",
   "evidence_version": "holon-evidence/0.1",
   "inputs": [
     {
@@ -10016,6 +10016,10 @@
     {
       "path": "gen/M3/bundle/documents/messenger.json",
       "sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519"
+    },
+    {
+      "path": "gen/M3/bundle/documents/queue.json",
+      "sha256": "32786cbfecfc119492d4b12e1d29c02201c3b34d3adebeb6bd0553b118112d8c"
     },
     {
       "path": "gen/M3/bundle/documents/submitter.json",
@@ -11585,6 +11589,174 @@
       "facts": "gen/M3/own/batch_BatchHeaderV1.json",
       "facts_sha256": "60b6924afa59a33b9cef656cb5f069e47ce863feb7d8354a4914c1d9d1414698",
       "facts_version": "holon-own/0.1"
+    },
+    "queue": {
+      "anchors": {
+        "actions": {
+          "appendCrossDomainMessage": "TRANS.appendCrossDomainMessage",
+          "appendEnforcedTransaction": "TRANS.appendEnforcedTransaction",
+          "calculateIntrinsicGasFee": "TRANS.calculateIntrinsicGasFee",
+          "computeTransactionHash": "TRANS.computeTransactionHash",
+          "estimateCrossDomainMessageFee": "TRANS.estimateCrossDomainMessageFee",
+          "getCrossDomainMessage": "TRANS.getCrossDomainMessage",
+          "getFirstUnfinalizedMessageEnqueueTime": "TRANS.getFirstUnfinalizedMessageEnqueueTime",
+          "getMessageEnqueueTimestamp": "TRANS.getMessageEnqueueTimestamp",
+          "initialize": "TRANS.initialize",
+          "nextCrossDomainMessageIndex": "TRANS.nextCrossDomainMessageIndex",
+          "owner": "TRANS.owner",
+          "popCrossDomainMessage": "TRANS.popCrossDomainMessage",
+          "renounceOwnership": "TRANS.renounceOwnership",
+          "setL2BaseFee": "TRANS.setL2BaseFee",
+          "transferOwnership": "TRANS.transferOwnership",
+          "updateMaxGasLimit": "TRANS.updateMaxGasLimit",
+          "updateWhitelistChecker": "TRANS.updateWhitelistChecker"
+        },
+        "carriers": {
+          "ContextUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "OwnableUpgradeable.__gap": {
+            "readers": [],
+            "writers": []
+          },
+          "__droppedMessageBitmap": {
+            "readers": [],
+            "writers": []
+          },
+          "__skippedMessageBitmap": {
+            "readers": [],
+            "writers": []
+          },
+          "_initialized": {
+            "readers": [
+              "TRANS.initialize"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "_initializing": {
+            "readers": [
+              "TRANS.initialize"
+            ],
+            "writers": [
+              "TRANS.initialize"
+            ]
+          },
+          "_owner": {
+            "readers": [
+              "TRANS.initialize",
+              "TRANS.owner",
+              "TRANS.renounceOwnership",
+              "TRANS.setL2BaseFee",
+              "TRANS.transferOwnership",
+              "TRANS.updateMaxGasLimit",
+              "TRANS.updateWhitelistChecker"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.renounceOwnership",
+              "TRANS.transferOwnership"
+            ]
+          },
+          "l2BaseFee": {
+            "readers": [
+              "TRANS.estimateCrossDomainMessageFee",
+              "TRANS.setL2BaseFee"
+            ],
+            "writers": [
+              "TRANS.setL2BaseFee"
+            ]
+          },
+          "maxGasLimit": {
+            "readers": [
+              "TRANS.appendCrossDomainMessage",
+              "TRANS.appendEnforcedTransaction",
+              "TRANS.updateMaxGasLimit"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateMaxGasLimit"
+            ]
+          },
+          "messageEnqueueTime": {
+            "readers": [
+              "TRANS.appendCrossDomainMessage",
+              "TRANS.appendEnforcedTransaction",
+              "TRANS.getFirstUnfinalizedMessageEnqueueTime",
+              "TRANS.getMessageEnqueueTimestamp"
+            ],
+            "writers": [
+              "TRANS.appendCrossDomainMessage",
+              "TRANS.appendEnforcedTransaction"
+            ]
+          },
+          "messageQueue": {
+            "readers": [
+              "TRANS.appendCrossDomainMessage",
+              "TRANS.appendEnforcedTransaction",
+              "TRANS.getCrossDomainMessage",
+              "TRANS.getFirstUnfinalizedMessageEnqueueTime",
+              "TRANS.nextCrossDomainMessageIndex"
+            ],
+            "writers": [
+              "TRANS.appendCrossDomainMessage",
+              "TRANS.appendEnforcedTransaction"
+            ]
+          },
+          "pendingQueueIndex": {
+            "readers": [
+              "TRANS.getFirstUnfinalizedMessageEnqueueTime",
+              "TRANS.popCrossDomainMessage"
+            ],
+            "writers": [
+              "TRANS.popCrossDomainMessage"
+            ]
+          },
+          "whitelistChecker": {
+            "readers": [
+              "TRANS.estimateCrossDomainMessageFee",
+              "TRANS.updateWhitelistChecker"
+            ],
+            "writers": [
+              "TRANS.initialize",
+              "TRANS.updateWhitelistChecker"
+            ]
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.appendCrossDomainMessage",
+          "TRANS.appendEnforcedTransaction",
+          "TRANS.calculateIntrinsicGasFee",
+          "TRANS.computeTransactionHash",
+          "TRANS.estimateCrossDomainMessageFee",
+          "TRANS.getCrossDomainMessage",
+          "TRANS.getFirstUnfinalizedMessageEnqueueTime",
+          "TRANS.getMessageEnqueueTimestamp",
+          "TRANS.initialize",
+          "TRANS.nextCrossDomainMessageIndex",
+          "TRANS.owner",
+          "TRANS.popCrossDomainMessage",
+          "TRANS.renounceOwnership",
+          "TRANS.setL2BaseFee",
+          "TRANS.transferOwnership",
+          "TRANS.updateMaxGasLimit",
+          "TRANS.updateWhitelistChecker"
+        ]
+      },
+      "diagram": null,
+      "facts": "gen/M3/bundle/documents/queue.json",
+      "facts_sha256": "32786cbfecfc119492d4b12e1d29c02201c3b34d3adebeb6bd0553b118112d8c",
+      "facts_version": "holon-facts/0.3"
     },
     "submitter": {
       "anchors": {
