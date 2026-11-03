@@ -60,6 +60,11 @@ ALLOWLIST: dict[str, list[str]] = {
     "holon/gen/basis.py": ["kappa"],
     # I43's frozen theory core II texts (emitted verbatim) name Thm 6.7's natural transformation eta2, not the migration
     "holon/gen/theory2.py": ["eta2"],
+    # I92's preregistered contract (tests_m3/test_sym_bundle.py K3) fixes the upgrade map's output name
+    # gen/M3/symb/eta_enq.json (I29's eta notation): the file's name, not the M1 action, and no behaviour depends on it
+    "holon/rules/symb.py": ["enq"],
+    "holon/symb/legacy.py": ["enq"],
+    "holon/symb/sections.py": ["enq"],
 }
 TARGET_NAMES = {"Rollup", "Morph", "morph", "batchdata"}
 

@@ -250,13 +250,13 @@ def _sol_frame(sdoc: dict, act: dict, val) -> tuple[str, str]:
     raise ReplayError("no mstore of the stored value's frame")
 
 
-def solidity_harness(root: Path, b: dict, w: dict, morph: Path) -> tuple[str, dict, Path]:
+def solidity_harness(root: Path, b: dict, w: dict, checkout: Path) -> tuple[str, dict, Path]:
     """(the harness text, the call's input values, the foundry project dir) of the go_recompute replay's Solidity side."""
     sol = b["solidity"]
     sdoc = json.loads((root / sol["document"]).read_text(encoding="utf-8"))
     act = next(a for a in sdoc["actions"] if a["name"] == sol["action"])
     src_rel, span = _sol_frame(sdoc, act, sol["value"])
-    lines = (morph / src_rel).read_text(encoding="utf-8").splitlines()
+    lines = (checkout / src_rel).read_text(encoding="utf-8").splitlines()
     a, z = (int(x) for x in (span.split("-") + [span])[:2])
     call = " ".join(lines[a - 1:z])
     m = re.search(r"([A-Za-z_][A-Za-z0-9_]*)\s*\(([^;]*)\)\s*;", call)
@@ -264,7 +264,7 @@ def solidity_harness(root: Path, b: dict, w: dict, morph: Path) -> tuple[str, di
         raise ReplayError(f"no call at {src_rel}:{span}")
     fn, argtext = m.group(1), m.group(2)
     args = [x.strip() for x in argtext.split(",")]
-    text = (morph / src_rel).read_text(encoding="utf-8")
+    text = (checkout / src_rel).read_text(encoding="utf-8")
     d = re.search(rf"function\s+{re.escape(fn)}\s*\(([^)]*)\)", text)
     if not d:
         raise ReplayError(f"no declaration of {fn}")
@@ -290,8 +290,8 @@ def solidity_harness(root: Path, b: dict, w: dict, morph: Path) -> tuple[str, di
     for ex in args:
         mm = re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*\.([A-Za-z_][A-Za-z0-9_]*)", ex)
         argv.append(str(inputs.get(mm.group(1), 0)) if mm else "0")
-    root_dir = next(p for p in (morph / src_rel).parents if (p / "foundry.toml").is_file())
-    imp = (morph / src_rel).relative_to(root_dir).as_posix()
+    root_dir = next(p for p in (checkout / src_rel).parents if (p / "foundry.toml").is_file())
+    imp = (checkout / src_rel).relative_to(root_dir).as_posix()
     params = ", ".join(f"{t} a{i}" for i, t in enumerate(types))
     harness = (f"// SPDX-License-Identifier: UNLICENSED\n{pragma}\n\nimport {{Test}} from \"forge-std/Test.sol\";\n"
                f"import {{{contract}}} from \"../{imp}\";\n\n"
@@ -304,7 +304,7 @@ def solidity_harness(root: Path, b: dict, w: dict, morph: Path) -> tuple[str, di
     return harness, {"function": fn, "args": dict(zip(args, argv)), "inputs": inputs}, root_dir
 
 
-def run_solidity(root: Path, harness: str, morph: Path, foundry_dir: Path) -> str:
+def run_solidity(root: Path, harness: str, checkout: Path, foundry_dir: Path) -> str:
     from ..replay import toolchain
     from ..replay_fragments import forge_build, harness_project
 
@@ -315,9 +315,9 @@ def run_solidity(root: Path, harness: str, morph: Path, foundry_dir: Path) -> st
     try:
         hf = work / "HolonGox.t.sol"
         hf.write_text(harness, encoding="utf-8")
-        binding = {"project": {"kind": "checkout", "foundry_dir": foundry_dir.relative_to(morph).as_posix(),
+        binding = {"project": {"kind": "checkout", "foundry_dir": foundry_dir.relative_to(checkout).as_posix(),
                                "drop": ["mock", "test"]}, "harness": {"files": [str(hf)]}}
-        proj = harness_project(binding, work, root, morph, tc)
+        proj = harness_project(binding, work, root, checkout, tc)
         forge_build(proj, tc)
         p = subprocess.run([tc["forge"], "test", "--match-contract", "^HolonGoxTest$", "--offline", "--use", tc["solc"],
                             "-vv"], cwd=proj, capture_output=True, text=True, timeout=3600)
@@ -351,9 +351,9 @@ def replay_law(root: Path, m: str, lid: str, e: dict) -> dict:
     wr = recompute_record_witness(b, w)
     pkg, text = recompute_go(cx.doc, b, w)
     obs = run_go(root, cx.doc, pkg, text)
-    morph = morph_path(A(), root)
-    harness, call, fdir = solidity_harness(root, b, w, morph)
-    sd = run_solidity(root, harness, morph, fdir)
+    checkout = morph_path(A(), root)
+    harness, call, fdir = solidity_harness(root, b, w, checkout)
+    sd = run_solidity(root, harness, checkout, fdir)
     obs = {**obs, "solidity_digest": sd, "solidity_call": call}
     if not all(obs["state"].values()):
         verdict, detail = "disagree", f"the constructor and append method do not build the witness: {obs['state']}"
