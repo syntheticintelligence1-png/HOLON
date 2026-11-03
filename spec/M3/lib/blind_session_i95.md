@@ -15,6 +15,7 @@ The target is the repository `morph-l2/morph` at commit `3e44e795586af3e11285b60
 - `spec/M3/lib/term_size.json`: FACT's term-size budget;
 - `spec/M3/lib/binding.json`: the configuration of the deployment that `holon binding` re-runs (its harness, project,
   target and parameters);
+- `spec/M3/lib/binding_facts.json`: a copy of the M1 facts' initial members that the binding's parameters read (facts);
 - the three harness sources that `spec/M3/lib/binding.json` names, under `replay/M1/solidity/` and `replay/M2/solidity/`.
 
 They are given, not authored: never edit them, and log no `authored` line for them. Step 0 places them.

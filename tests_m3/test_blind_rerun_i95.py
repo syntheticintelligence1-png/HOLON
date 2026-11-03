@@ -93,7 +93,13 @@ class TestBuild(unittest.TestCase):
     def test_r4_b2_the_binding_spec_is_configuration(self):
         spec = json.loads((ROOT / "spec" / "M3" / "lib" / "binding.json").read_text(encoding="utf-8"))
         self.assertEqual(set(spec) - {"binding_version", "doc"}, {"harness", "project", "target", "init"})
-        self.assertIsInstance(spec["init"], list)
+        # amended after C_K (spec/M3/amendments/I95.jsonl): the lead's condition reads the parameters from the pack's
+        # copy of the M1 facts' initial members ({"facts", "keys"}), never from a literal list; the copy holds facts
+        init = spec["init"]
+        self.assertEqual(set(init), {"facts", "keys"})
+        copy = json.loads((ROOT / init["facts"]).read_text(encoding="utf-8"))
+        self.assertEqual(set(copy) - {"facts_copy_version", "doc"}, {"copy_of", "copy_of_sha256", "initial"})
+        self.assertEqual(set(copy["initial"]), {k.split(".")[0] for k in init["keys"]})
         sys.path.insert(0, str(ROOT / "tests_m3"))
         import blind_scope as S
         sc = json.loads((ROOT / "spec" / "M3" / "lib" / "blind_rerun.json").read_text(encoding="utf-8"))["scope"]
