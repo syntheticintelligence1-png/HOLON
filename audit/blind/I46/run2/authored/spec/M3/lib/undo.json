@@ -1,0 +1,8 @@
+{
+  "undo_version": "holon-undo/0.1",
+  "doc": "Blind rerun, authored (README rule 7, step 3.5) from holon/rules/undo.py and holon/undo/trace.py. sort_types: the typed-sorts sidecar whose transitions documents rule UNDO reads. observation and premise: what holon.undo.trace states (obs and NZ). search: empty, so holon.undo.search uses its own defaults. No backtest map: the M1 analogues are laws of another milestone.",
+  "sort_types": "spec/M3/lib/sort_types.json",
+  "observation": "obs(t, s): one observation per step of the trace t run from the state s: success, the return data or the revert data, and the target's logs; a reverted step shows no logs and leaves the state unchanged. The target's external calls are left out of obs and compared on both runs of a witness by its replay on the real contract (holon.undo.trace).",
+  "premise": "NZ: no hash value the steps compute is the zero word, stated over the law's hash tables (holon.undo.trace).",
+  "search": {}
+}

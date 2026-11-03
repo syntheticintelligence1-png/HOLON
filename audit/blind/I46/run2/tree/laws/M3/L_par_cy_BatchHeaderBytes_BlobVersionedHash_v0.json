@@ -1,0 +1,62 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "e36ed60005a5b1a8ee0af81b4d3079ffeb401776ec35578b4306a6e4f98bac9e",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_cy_BatchHeaderBytes_BlobVersionedHash_v0",
+  "milestone": "M3",
+  "notes": "PAR cycle (holon.rules.par): the fundamental cycle of CODEC.BatchHeaderBytes_BlobVersionedHash: CODEC.BatchHeaderBytes_BlobVersionedHash against CODEC.BatchHeaderBytes_BlobCommitHash from Bytes; at version 0",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.13",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "args": [
+              {
+                "var": "b"
+              }
+            ],
+            "call": "BatchHeaderBytes_Version"
+          },
+          {
+            "some": {
+              "bytes": "0x00"
+            }
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "b",
+        "q": "forall",
+        "type": "Bytes"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "BatchHeaderBytes_BlobVersionedHash"
+        },
+        {
+          "args": [
+            {
+              "var": "b"
+            }
+          ],
+          "call": "BatchHeaderBytes_BlobCommitHash"
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "cycle"
+}
