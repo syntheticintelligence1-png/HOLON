@@ -1,6 +1,8 @@
 {
  "laws": {
   "L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_5f7b1577_305": {
+   "action": "sendMessage_5f7b1577",
+   "constant": 0,
    "hit": "sn_hit_4",
    "kind": "sentinel",
    "member": "messenger",
@@ -8,6 +10,8 @@
    "ok": "sn_ok_4"
   },
   "L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_b2267a7b_305": {
+   "action": "sendMessage_b2267a7b",
+   "constant": 0,
    "hit": "sn_hit_5",
    "kind": "sentinel",
    "member": "messenger",
@@ -15,13 +19,23 @@
    "ok": "sn_ok_5"
   },
   "L_sym_sentinel_L1CrossDomainMessenger_replayStates_lastIndex_replayMessage_231": {
+   "action": "replayMessage",
+   "callee": "queue",
+   "calls": [
+    "IL1MessageQueue.nextCrossDomainMessageIndex"
+   ],
+   "constant": 0,
+   "defs_from": 0,
    "hit": null,
    "kind": "link",
    "member": "messenger",
-   "n": null,
-   "ok": null
+   "module": "gen/M3/symb/link/messenger.bend",
+   "n": 6,
+   "ok": "lk_ok_6"
   },
   "L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendCrossDomainMessage_377": {
+   "action": "appendCrossDomainMessage",
+   "constant": 0,
    "hit": "sn_hit_5",
    "kind": "sentinel",
    "member": "queue",
@@ -29,6 +43,8 @@
    "ok": "sn_ok_5"
   },
   "L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendEnforcedTransaction_377": {
+   "action": "appendEnforcedTransaction",
+   "constant": 0,
    "hit": "sn_hit_6",
    "kind": "sentinel",
    "member": "queue",
@@ -36,68 +52,251 @@
    "ok": "sn_ok_6"
   },
   "L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime": {
+   "constant": 0,
+   "g": "sn_g_7",
    "hit": null,
    "kind": "versioned",
    "member": "queue",
-   "n": null,
-   "ok": null
+   "module": "gen/M3/symb/versioned/queue.bend",
+   "n": 7,
+   "ok": "sn_inv_7",
+   "rne": "sn_rne_7",
+   "view": "getFirstUnfinalizedMessageEnqueueTime"
   },
   "L_sym_tau_L1CrossDomainMessenger_replayMessage": {
+   "cmps": [
+    {
+     "flip": "sy_flip_1_0",
+     "i": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:193",
+     "term": [
+      ">",
+      [
+       "map",
+       [
+        "storage",
+        "messageSendTimestamp"
+       ],
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "param",
+          "_from"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "param",
+          "_messageNonce"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ],
+      0
+     ],
+     "where": "guard"
+    }
+   ],
    "hit": "sy_hit_1",
    "kind": "tau",
    "member": "messenger",
    "n": 1,
    "ok": "sy_ok_1",
+   "ret": null,
    "time_return": false
   },
   "L_sym_tau_L1CrossDomainMessenger_sendMessage_5f7b1577": {
+   "cmps": [
+    {
+     "flip": "sy_flip_2_0",
+     "i": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:304",
+     "term": [
+      "==",
+      [
+       "map",
+       [
+        "storage",
+        "messageSendTimestamp"
+       ],
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ],
+      0
+     ],
+     "where": "guard"
+    }
+   ],
    "hit": "sy_hit_2",
    "kind": "tau",
    "member": "messenger",
    "n": 2,
    "ok": "sy_ok_2",
+   "ret": null,
    "time_return": false
   },
   "L_sym_tau_L1CrossDomainMessenger_sendMessage_b2267a7b": {
+   "cmps": [
+    {
+     "flip": "sy_flip_3_0",
+     "i": 0,
+     "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:304",
+     "term": [
+      "==",
+      [
+       "map",
+       [
+        "storage",
+        "messageSendTimestamp"
+       ],
+       [
+        "keccak256",
+        [
+         "abi.encodeWithSignature",
+         [
+          "str",
+          "72656c61794d65737361676528616464726573732c616464726573732c75696e743235362c75696e743235362c627974657329"
+         ],
+         [
+          "caller"
+         ],
+         [
+          "param",
+          "_to"
+         ],
+         [
+          "param",
+          "_value"
+         ],
+         [
+          "call",
+          "IL1MessageQueue.nextCrossDomainMessageIndex"
+         ],
+         [
+          "param",
+          "_message"
+         ]
+        ]
+       ]
+      ],
+      0
+     ],
+     "where": "guard"
+    }
+   ],
    "hit": "sy_hit_3",
    "kind": "tau",
    "member": "messenger",
    "n": 3,
    "ok": "sy_ok_3",
+   "ret": null,
    "time_return": false
   },
   "L_sym_tau_L1MessageQueueWithGasPriceOracle_appendCrossDomainMessage": {
+   "cmps": [],
    "hit": "sy_hit_1",
    "kind": "tau",
    "member": "queue",
    "n": 1,
    "ok": "sy_ok_1",
+   "ret": null,
    "time_return": false
   },
   "L_sym_tau_L1MessageQueueWithGasPriceOracle_appendEnforcedTransaction": {
+   "cmps": [],
    "hit": "sy_hit_2",
    "kind": "tau",
    "member": "queue",
    "n": 2,
    "ok": "sy_ok_2",
+   "ret": null,
    "time_return": false
   },
   "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime": {
+   "cmps": [
+    {
+     "flip": "sy_flip_3_0",
+     "i": 0,
+     "src": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:261-268",
+     "term": [
+      "!=",
+      [
+       "map",
+       [
+        "storage",
+        "messageEnqueueTime"
+       ],
+       [
+        "storage",
+        "pendingQueueIndex"
+       ]
+      ],
+      0
+     ],
+     "where": "return"
+    }
+   ],
    "hit": "sy_hit_3",
    "kind": "tau",
    "member": "queue",
    "n": 3,
    "ok": "sy_ok_3",
+   "ret": "sy_rw_3",
    "time_return": true
   },
   "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp": {
+   "cmps": [],
    "hit": "sy_hit_4",
    "kind": "tau",
    "member": "queue",
    "n": 4,
    "ok": "sy_ok_4",
+   "ret": "sy_rw_4",
    "time_return": true
   }
  },
- "sections_version": "holon-symb-sections/0.1"
+ "sections_version": "holon-symb-sections/0.2"
 }

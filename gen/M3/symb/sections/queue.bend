@@ -420,6 +420,52 @@ def sy_ok_3(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
 def sy_hit_3(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(sy_is_getFirstUnfinalizedMessageEnqueueTime(x), Bool.and(sy_fits_st(kh, s, d), sy_fits_en(sy_en(x), d)))
 
+def sy_xor(+a: Bool, +b: Bool) -> Bool:
+  Bool.or(Bool.and(a, Bool.not(b)), Bool.and(Bool.not(a), b))
+
+def sy_cmp_3_0(+s: M.HSt, +ar: M.AR_getFirstUnfinalizedMessageEnqueueTime, +en: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
+  Bool.not(M.w_eq(M.sload(s, M.h_get(kh, List.append(&2, U32, M.b_of_w(M.sload(s, M.W{103, 0, 0, 0, 0, 0, 0, 0})), M.b_of_w(M.W{108, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0}))
+
+def sy_cmpx_3_0(x: M.HAct, +s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:
+  match x:
+    case M.A_appendCrossDomainMessage{ar, en}:
+      False{}
+    case M.A_appendEnforcedTransaction{ar, en}:
+      False{}
+    case M.A_calculateIntrinsicGasFee{ar, en}:
+      False{}
+    case M.A_computeTransactionHash{ar, en}:
+      False{}
+    case M.A_estimateCrossDomainMessageFee{ar, en}:
+      False{}
+    case M.A_getCrossDomainMessage{ar, en}:
+      False{}
+    case M.A_getFirstUnfinalizedMessageEnqueueTime{ar, en}:
+      sy_cmp_3_0(s, ar, en, kh)
+    case M.A_getMessageEnqueueTimestamp{ar, en}:
+      False{}
+    case M.A_initialize{ar, en}:
+      False{}
+    case M.A_nextCrossDomainMessageIndex{ar, en}:
+      False{}
+    case M.A_owner{ar, en}:
+      False{}
+    case M.A_popCrossDomainMessage{ar, en}:
+      False{}
+    case M.A_renounceOwnership{ar, en}:
+      False{}
+    case M.A_setL2BaseFee{ar, en}:
+      False{}
+    case M.A_transferOwnership{ar, en}:
+      False{}
+    case M.A_updateMaxGasLimit{ar, en}:
+      False{}
+    case M.A_updateWhitelistChecker{ar, en}:
+      False{}
+
+def sy_flip_3_0(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
+  sy_xor(sy_cmpx_3_0(x, s, kh), sy_cmpx_3_0(sy_tx(x, d), sy_tst(kh, s, d), kh))
+
 def sy_is_getMessageEnqueueTimestamp(x: M.HAct) -> Bool:
   match x:
     case M.A_appendCrossDomainMessage{ar, en}:
@@ -546,10 +592,10 @@ def sn_ar_5(x: M.HAct) -> M.AR_appendCrossDomainMessage:
 
 # L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendCrossDomainMessage_377: the value the site writes is not the register's constant 0 (K4)
 def sn_ok_5(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.or(Bool.not(Bool.and(sy_is_appendCrossDomainMessage(x), Bool.and(U32.is_eq(M.chk_appendCrossDomainMessage(s, sn_ar_5(x), sy_en(x), kh), 0), M.w_ge(M.ge_e_block_timestamp(sy_en(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0})))), Bool.not(M.w_eq(M.ge_e_block_timestamp(sy_en(x)), M.W{0, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.or(Bool.not(Bool.and(sy_is_appendCrossDomainMessage(x), Bool.and(U32.is_eq(M.chk_appendCrossDomainMessage(s, sn_ar_5(x), sy_en(x), kh), 0), M.w_nz(M.ge_e_block_timestamp(sy_en(x)))))), M.w_nz(M.ge_e_block_timestamp(sy_en(x))))
 
 def sn_hit_5(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.and(sy_is_appendCrossDomainMessage(x), Bool.and(U32.is_eq(M.chk_appendCrossDomainMessage(s, sn_ar_5(x), sy_en(x), kh), 0), M.w_ge(M.ge_e_block_timestamp(sy_en(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.and(sy_is_appendCrossDomainMessage(x), Bool.and(U32.is_eq(M.chk_appendCrossDomainMessage(s, sn_ar_5(x), sy_en(x), kh), 0), M.w_nz(M.ge_e_block_timestamp(sy_en(x)))))
 
 def sn_ar0_6() -> M.AR_appendEnforcedTransaction:
   M.AR_appendEnforcedTransaction{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.W{0, 0, 0, 0, 0, 0, 0, 0}, Nil{}}
@@ -593,7 +639,17 @@ def sn_ar_6(x: M.HAct) -> M.AR_appendEnforcedTransaction:
 
 # L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendEnforcedTransaction_377: the value the site writes is not the register's constant 0 (K4)
 def sn_ok_6(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.or(Bool.not(Bool.and(sy_is_appendEnforcedTransaction(x), Bool.and(U32.is_eq(M.chk_appendEnforcedTransaction(s, sn_ar_6(x), sy_en(x), kh), 0), M.w_ge(M.ge_e_block_timestamp(sy_en(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0})))), Bool.not(M.w_eq(M.ge_e_block_timestamp(sy_en(x)), M.W{0, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.or(Bool.not(Bool.and(sy_is_appendEnforcedTransaction(x), Bool.and(U32.is_eq(M.chk_appendEnforcedTransaction(s, sn_ar_6(x), sy_en(x), kh), 0), M.w_nz(M.ge_e_block_timestamp(sy_en(x)))))), M.w_nz(M.ge_e_block_timestamp(sy_en(x))))
 
 def sn_hit_6(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.and(sy_is_appendEnforcedTransaction(x), Bool.and(U32.is_eq(M.chk_appendEnforcedTransaction(s, sn_ar_6(x), sy_en(x), kh), 0), M.w_ge(M.ge_e_block_timestamp(sy_en(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.and(sy_is_appendEnforcedTransaction(x), Bool.and(U32.is_eq(M.chk_appendEnforcedTransaction(s, sn_ar_6(x), sy_en(x), kh), 0), M.w_nz(M.ge_e_block_timestamp(sy_en(x)))))
+
+# L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime: the view's other conjunct implies the sentinel register differs from its constant (K4)
+def sn_g_7(+s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:
+  M.w_lt(M.sload(s, M.W{103, 0, 0, 0, 0, 0, 0, 0}), M.sload(s, M.W{102, 0, 0, 0, 0, 0, 0, 0}))
+
+def sn_rne_7(+s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:
+  Bool.not(M.w_eq(M.sload(s, M.h_get(kh, List.append(&2, U32, M.b_of_w(M.sload(s, M.W{103, 0, 0, 0, 0, 0, 0, 0})), M.b_of_w(M.W{108, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0}))
+
+def sn_inv_7(+s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:
+  Bool.or(Bool.not(sn_g_7(s, kh)), sn_rne_7(s, kh))

@@ -284,6 +284,50 @@ def sy_ok_1(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
 def sy_hit_1(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(sy_is_replayMessage(x), Bool.and(sy_fits_st(kh, s, d), sy_fits_en(sy_en(x), d)))
 
+def sy_xor(+a: Bool, +b: Bool) -> Bool:
+  Bool.or(Bool.and(a, Bool.not(b)), Bool.and(Bool.not(a), b))
+
+def sy_cmp_1_0(+s: M.HSt, +ar: M.AR_replayMessage, +en: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
+  M.w_gt(M.sload(s, M.h_get(kh, List.append(&2, U32, M.b_of_w(M.h_get(kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, M.b_of_w(M.ga_replayMessage__from(ar)), List.append(&2, U32, M.b_of_w(M.ga_replayMessage__to(ar)), List.append(&2, U32, M.b_of_w(M.ga_replayMessage__value(ar)), List.append(&2, U32, M.b_of_w(M.ga_replayMessage__messageNonce(ar)), List.append(&2, U32, M.b_of_w(M.w_u(160)), List.append(&2, U32, M.abi_dyn(M.ga_replayMessage__message(ar)), Nil{}))))))))), M.b_of_w(M.W{251, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0})
+
+def sy_cmpx_1_0(x: M.HAct, +s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:
+  match x:
+    case M.A_initialize{ar, en}:
+      False{}
+    case M.A_messageNonce{ar, en}:
+      False{}
+    case M.A_owner{ar, en}:
+      False{}
+    case M.A_paused{ar, en}:
+      False{}
+    case M.A_proveAndRelayMessage{ar, en}:
+      False{}
+    case M.A_receive{ar, en}:
+      False{}
+    case M.A_renounceOwnership{ar, en}:
+      False{}
+    case M.A_replayMessage{ar, en}:
+      sy_cmp_1_0(s, ar, en, kh)
+    case M.A_sendMessage_5f7b1577{ar, en}:
+      False{}
+    case M.A_sendMessage_b2267a7b{ar, en}:
+      False{}
+    case M.A_setPause{ar, en}:
+      False{}
+    case M.A_transferOwnership{ar, en}:
+      False{}
+    case M.A_updateFeeVault{ar, en}:
+      False{}
+    case M.A_updateMaxReplayTimes{ar, en}:
+      False{}
+    case M.A_updateRollup{ar, en}:
+      False{}
+    case M.A_verifyMerkleProof{ar, en}:
+      False{}
+
+def sy_flip_1_0(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
+  sy_xor(sy_cmpx_1_0(x, s, kh), sy_cmpx_1_0(sy_tx(x, d), sy_tst(kh, s, d), kh))
+
 def sy_is_sendMessage_5f7b1577(x: M.HAct) -> Bool:
   match x:
     case M.A_initialize{ar, en}:
@@ -325,6 +369,47 @@ def sy_ok_2(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
 
 def sy_hit_2(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(sy_is_sendMessage_5f7b1577(x), Bool.and(sy_fits_st(kh, s, d), sy_fits_en(sy_en(x), d)))
+
+def sy_cmp_2_0(+s: M.HSt, +ar: M.AR_sendMessage_5f7b1577, +en: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
+  M.w_eq(M.sload(s, M.h_get(kh, List.append(&2, U32, M.b_of_w(M.h_get(kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, M.b_of_w(M.ge_e_caller(en)), List.append(&2, U32, M.b_of_w(M.ga_sendMessage_5f7b1577__to(ar)), List.append(&2, U32, M.b_of_w(M.ga_sendMessage_5f7b1577__value(ar)), List.append(&2, U32, M.b_of_w(M.b_word(M.a_ret(M.c_find(M.ge_e_calls(en), M.w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, M.b_of_w(M.w_u(160)), List.append(&2, U32, M.abi_dyn(M.ga_sendMessage_5f7b1577__message(ar)), Nil{}))))))))), M.b_of_w(M.W{251, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0})
+
+def sy_cmpx_2_0(x: M.HAct, +s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:
+  match x:
+    case M.A_initialize{ar, en}:
+      False{}
+    case M.A_messageNonce{ar, en}:
+      False{}
+    case M.A_owner{ar, en}:
+      False{}
+    case M.A_paused{ar, en}:
+      False{}
+    case M.A_proveAndRelayMessage{ar, en}:
+      False{}
+    case M.A_receive{ar, en}:
+      False{}
+    case M.A_renounceOwnership{ar, en}:
+      False{}
+    case M.A_replayMessage{ar, en}:
+      False{}
+    case M.A_sendMessage_5f7b1577{ar, en}:
+      sy_cmp_2_0(s, ar, en, kh)
+    case M.A_sendMessage_b2267a7b{ar, en}:
+      False{}
+    case M.A_setPause{ar, en}:
+      False{}
+    case M.A_transferOwnership{ar, en}:
+      False{}
+    case M.A_updateFeeVault{ar, en}:
+      False{}
+    case M.A_updateMaxReplayTimes{ar, en}:
+      False{}
+    case M.A_updateRollup{ar, en}:
+      False{}
+    case M.A_verifyMerkleProof{ar, en}:
+      False{}
+
+def sy_flip_2_0(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
+  sy_xor(sy_cmpx_2_0(x, s, kh), sy_cmpx_2_0(sy_tx(x, d), sy_tst(kh, s, d), kh))
 
 def sy_is_sendMessage_b2267a7b(x: M.HAct) -> Bool:
   match x:
@@ -368,6 +453,47 @@ def sy_ok_3(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
 def sy_hit_3(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
   Bool.and(sy_is_sendMessage_b2267a7b(x), Bool.and(sy_fits_st(kh, s, d), sy_fits_en(sy_en(x), d)))
 
+def sy_cmp_3_0(+s: M.HSt, +ar: M.AR_sendMessage_b2267a7b, +en: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:
+  M.w_eq(M.sload(s, M.h_get(kh, List.append(&2, U32, M.b_of_w(M.h_get(kh, List.append(&2, U32, [142, 241, 51, 46], List.append(&2, U32, M.b_of_w(M.ge_e_caller(en)), List.append(&2, U32, M.b_of_w(M.ga_sendMessage_b2267a7b__to(ar)), List.append(&2, U32, M.b_of_w(M.ga_sendMessage_b2267a7b__value(ar)), List.append(&2, U32, M.b_of_w(M.b_word(M.a_ret(M.c_find(M.ge_e_calls(en), M.w0(), False{}, List.append(&2, U32, [253, 10, 211, 30], Nil{}))), 0n)), List.append(&2, U32, M.b_of_w(M.w_u(160)), List.append(&2, U32, M.abi_dyn(M.ga_sendMessage_b2267a7b__message(ar)), Nil{}))))))))), M.b_of_w(M.W{251, 0, 0, 0, 0, 0, 0, 0})))), M.W{0, 0, 0, 0, 0, 0, 0, 0})
+
+def sy_cmpx_3_0(x: M.HAct, +s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:
+  match x:
+    case M.A_initialize{ar, en}:
+      False{}
+    case M.A_messageNonce{ar, en}:
+      False{}
+    case M.A_owner{ar, en}:
+      False{}
+    case M.A_paused{ar, en}:
+      False{}
+    case M.A_proveAndRelayMessage{ar, en}:
+      False{}
+    case M.A_receive{ar, en}:
+      False{}
+    case M.A_renounceOwnership{ar, en}:
+      False{}
+    case M.A_replayMessage{ar, en}:
+      False{}
+    case M.A_sendMessage_5f7b1577{ar, en}:
+      False{}
+    case M.A_sendMessage_b2267a7b{ar, en}:
+      sy_cmp_3_0(s, ar, en, kh)
+    case M.A_setPause{ar, en}:
+      False{}
+    case M.A_transferOwnership{ar, en}:
+      False{}
+    case M.A_updateFeeVault{ar, en}:
+      False{}
+    case M.A_updateMaxReplayTimes{ar, en}:
+      False{}
+    case M.A_updateRollup{ar, en}:
+      False{}
+    case M.A_verifyMerkleProof{ar, en}:
+      False{}
+
+def sy_flip_3_0(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:
+  sy_xor(sy_cmpx_3_0(x, s, kh), sy_cmpx_3_0(sy_tx(x, d), sy_tst(kh, s, d), kh))
+
 def sn_ar0_4() -> M.AR_sendMessage_5f7b1577:
   M.AR_sendMessage_5f7b1577{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.W{0, 0, 0, 0, 0, 0, 0, 0}, Nil{}, M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.W{0, 0, 0, 0, 0, 0, 0, 0}}
 
@@ -408,10 +534,10 @@ def sn_ar_4(x: M.HAct) -> M.AR_sendMessage_5f7b1577:
 
 # L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_5f7b1577_305: the value the site writes is not the register's constant 0 (K4)
 def sn_ok_4(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.or(Bool.not(Bool.and(sy_is_sendMessage_5f7b1577(x), Bool.and(U32.is_eq(M.chk_sendMessage_5f7b1577(s, sn_ar_4(x), sy_en(x), kh), 0), M.w_ge(M.ge_e_block_timestamp(sy_en(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0})))), Bool.not(M.w_eq(M.ge_e_block_timestamp(sy_en(x)), M.W{0, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.or(Bool.not(Bool.and(sy_is_sendMessage_5f7b1577(x), Bool.and(U32.is_eq(M.chk_sendMessage_5f7b1577(s, sn_ar_4(x), sy_en(x), kh), 0), M.w_nz(M.ge_e_block_timestamp(sy_en(x)))))), M.w_nz(M.ge_e_block_timestamp(sy_en(x))))
 
 def sn_hit_4(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.and(sy_is_sendMessage_5f7b1577(x), Bool.and(U32.is_eq(M.chk_sendMessage_5f7b1577(s, sn_ar_4(x), sy_en(x), kh), 0), M.w_ge(M.ge_e_block_timestamp(sy_en(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.and(sy_is_sendMessage_5f7b1577(x), Bool.and(U32.is_eq(M.chk_sendMessage_5f7b1577(s, sn_ar_4(x), sy_en(x), kh), 0), M.w_nz(M.ge_e_block_timestamp(sy_en(x)))))
 
 def sn_ar0_5() -> M.AR_sendMessage_b2267a7b:
   M.AR_sendMessage_b2267a7b{M.W{0, 0, 0, 0, 0, 0, 0, 0}, M.W{0, 0, 0, 0, 0, 0, 0, 0}, Nil{}, M.W{0, 0, 0, 0, 0, 0, 0, 0}}
@@ -453,7 +579,7 @@ def sn_ar_5(x: M.HAct) -> M.AR_sendMessage_b2267a7b:
 
 # L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_b2267a7b_305: the value the site writes is not the register's constant 0 (K4)
 def sn_ok_5(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.or(Bool.not(Bool.and(sy_is_sendMessage_b2267a7b(x), Bool.and(U32.is_eq(M.chk_sendMessage_b2267a7b(s, sn_ar_5(x), sy_en(x), kh), 0), M.w_ge(M.ge_e_block_timestamp(sy_en(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0})))), Bool.not(M.w_eq(M.ge_e_block_timestamp(sy_en(x)), M.W{0, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.or(Bool.not(Bool.and(sy_is_sendMessage_b2267a7b(x), Bool.and(U32.is_eq(M.chk_sendMessage_b2267a7b(s, sn_ar_5(x), sy_en(x), kh), 0), M.w_nz(M.ge_e_block_timestamp(sy_en(x)))))), M.w_nz(M.ge_e_block_timestamp(sy_en(x))))
 
 def sn_hit_5(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:
-  Bool.and(sy_is_sendMessage_b2267a7b(x), Bool.and(U32.is_eq(M.chk_sendMessage_b2267a7b(s, sn_ar_5(x), sy_en(x), kh), 0), M.w_ge(M.ge_e_block_timestamp(sy_en(x)), M.W{1, 0, 0, 0, 0, 0, 0, 0})))
+  Bool.and(sy_is_sendMessage_b2267a7b(x), Bool.and(U32.is_eq(M.chk_sendMessage_b2267a7b(s, sn_ar_5(x), sy_en(x), kh), 0), M.w_nz(M.ge_e_block_timestamp(sy_en(x)))))

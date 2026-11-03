@@ -17,8 +17,13 @@ table List<HKB{b, v}>):
   sy_tout(kh, o, d, t)  tau_d on a run: its post-state, and its return word when t (the action's return term is Time, K2)
                         and the run succeeds with one word of return data (K5)
   sy_ok_<n>, sy_hit_<n> a tau law's claim (the premises imply that tau_d commutes with the step) and its premises alone
-  sn_ok_<n>, sn_hit_<n> a sentinel law's claim (the act succeeds and block.timestamp >= 1 imply that the site's value is not
-                        the register's constant) and its premises alone
+  sn_ok_<n>, sn_hit_<n> a sentinel law's claim (the act succeeds and block.timestamp >= 1, a nonzero word, imply that the
+                        site's value is not the register's constant) and its premises alone
+  sy_flip_<n>_<i>       a tau law's comparison site i decides differently on (s, x) and (tau_d s, tau_d x)
+  sn_inv_<n>            a sentinel invariant's predicate on a state (the view's other conjunct implies R != c)
+
+The versioned member (gen/<M>/symb/versioned/<member>.bend) and the link (gen/<M>/symb/link/<member>.bend) are written
+by the same step (versioned_module, link_module).
 
 Nothing here names a target: actions, registers, slots and sorts come from the member's document, its sorts
 (gen/<M>/symb/sorts.json) and the model text.
@@ -214,23 +219,52 @@ class Section:
         self.add(f"def sy_hit_{n}(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:\n  {prem}\n")
 
     def sentinel(self, n: int, lid: str, action: str, value_term, constant: int) -> None:
-        """A sentinel site whose value term is block.timestamp (the four Time sites): the act succeeds and its
-        block.timestamp is at least 1 imply that the value is not the constant."""
+        """A sentinel site whose value term is block.timestamp (the Time sites): the act succeeds and its
+        block.timestamp is at least 1 (a nonzero word) imply that the value is not the constant. For the constant 0 the
+        claim is the value's non-zeroness itself, so that at the site's action the claim is ux(c, p) =
+        Bool.or(Bool.not(Bool.and(c, p)), p) (holon.symb.lawrun's sentinel proof)."""
         if value_term != ["env", "block.timestamp"]:
             raise ValueError(f"{lid}: the member section states a sentinel site whose value is block.timestamp; "
                              f"{value_term!r} is the link's (K3)")
         isd = self.is_def(action)
         c = f"A_{bname(action)}"
+        clock = "M.ge_e_block_timestamp(sy_en(x))"
         prem = (f"Bool.and({isd}(x), Bool.and(U32.is_eq(M.chk_{bname(action)}(s, sn_ar_{n}(x), sy_en(x), kh), 0), "
-                f"M.w_ge(M.ge_e_block_timestamp(sy_en(x)), {wlit(1)})))")
+                f"M.w_nz({clock})))")
+        concl = f"M.w_nz({clock})" if constant == 0 else f"Bool.not(M.w_eq({clock}, {wlit(constant)}))"
         arms = "".join(f"    case M.{k}{{ar, en}}:\n      {'ar' if k == c else f'sn_ar0_{n}()'}\n" for k in self.acts)
         ar_t = f"M.AR_{bname(action)}"
         self.add(f"def sn_ar0_{n}() -> {ar_t}:\n  {self._ar_zero(action)}\n")
         self.add(f"def sn_ar_{n}(x: M.HAct) -> {ar_t}:\n  match x:\n{arms}")
         self.add(f"# {lid}: the value the site writes is not the register's constant {constant} (K4)\n"
                  f"def sn_ok_{n}(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:\n"
-                 f"  Bool.or(Bool.not({prem}), Bool.not(M.w_eq(M.ge_e_block_timestamp(sy_en(x)), {wlit(constant)})))\n")
+                 f"  Bool.or(Bool.not({prem}), {concl})\n")
         self.add(f"def sn_hit_{n}(+s: M.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:\n  {prem}\n")
+
+    def cmp_sites(self, n: int, action: str, codes: list) -> None:
+        """The comparison sites of a tau law's action (a Time-sorted term against a constant), each compiled by the
+        member's generator: sy_cmp_<n>_<i> over (s, ar, en, kh), and sy_flip_<n>_<i>(s, x, d, kh), true when the site
+        decides differently on (s, x) and on (tau_d s, tau_d x): the site a witness crosses (K6)."""
+        c = f"A_{bname(action)}"
+        ar_t = f"M.AR_{bname(action)}"
+        if codes and "sy_xor" not in "".join(self.defs):
+            self.add("def sy_xor(+a: Bool, +b: Bool) -> Bool:\n  Bool.or(Bool.and(a, Bool.not(b)), Bool.and(Bool.not(a), b))\n")
+        for i, code in codes:
+            self.add(f"def sy_cmp_{n}_{i}(+s: M.HSt, +ar: {ar_t}, +en: M.HEnv, +kh: List<&2, M.HKB>) -> Bool:\n"
+                     f"  {code}\n")
+            arms = "".join(f"    case M.{k}{{ar, en}}:\n      "
+                           f"{f'sy_cmp_{n}_{i}(s, ar, en, kh)' if k == c else 'False{}'}\n" for k in self.acts)
+            self.add(f"def sy_cmpx_{n}_{i}(x: M.HAct, +s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:\n  match x:\n{arms}")
+            self.add(f"def sy_flip_{n}_{i}(+s: M.HSt, +x: M.HAct, +d: M.W, +kh: List<&2, M.HKB>) -> Bool:\n"
+                     f"  sy_xor(sy_cmpx_{n}_{i}(x, s, kh), sy_cmpx_{n}_{i}(sy_tx(x, d), sy_tst(kh, s, d), kh))\n")
+
+    def invariant(self, n: int, lid: str, g_code: str, r_code: str) -> None:
+        """A sentinel invariant's predicate on a state (K4): the view's other conjunct G implies R != c."""
+        self.add(f"# {lid}: the view's other conjunct implies the sentinel register differs from its constant (K4)\n"
+                 f"def sn_g_{n}(+s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:\n  {g_code}\n")
+        self.add(f"def sn_rne_{n}(+s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:\n  {r_code}\n")
+        self.add(f"def sn_inv_{n}(+s: M.HSt, +kh: List<&2, M.HKB>) -> Bool:\n"
+                 f"  Bool.or(Bool.not(sn_g_{n}(s, kh)), sn_rne_{n}(s, kh))\n")
 
     def _ar_zero(self, action: str) -> str:
         """A literal argument record of the action (every field zero, a list empty), for the arms that are not its act;
@@ -256,6 +290,121 @@ class Section:
 
 
 # ---------------------------------------------------------------------------------------------------- the step
+def _walk(e):
+    if isinstance(e, list):
+        yield e
+        for x in e[1:] if e and isinstance(e[0], str) else e:
+            yield from _walk(x)
+    elif isinstance(e, dict):
+        for x in e.values():
+            yield from _walk(x)
+
+
+def time_compares(a: dict, member: str, solver) -> list:
+    """The comparisons of a Time-sorted term against an integer constant an action decides on, in document order and
+    without repeats: [(term, src, where)] (where: guard, check, return or write)."""
+    import json
+    out, seen = [], set()
+
+    def scan(e, src, where):
+        for x in _walk(e):
+            if len(x) == 3 and x[0] in ("==", "!=", "<", "<=", ">", ">="):
+                for t, c in ((x[1], x[2]), (x[2], x[1])):
+                    if isinstance(c, int) and not isinstance(c, bool) and solver.sort(member, t) == "time":
+                        k = json.dumps(x, sort_keys=True)
+                        if k not in seen:
+                            seen.add(k)
+                            out.append((x, src or a.get("src"), where))
+                        break
+    for g in a.get("guards") or []:
+        scan(g.get("expr"), g.get("src"), "guard")
+    for c in a.get("checks") or []:
+        scan(c.get("expr"), c.get("src"), "check")
+    if a.get("mutability") in ("view", "pure"):
+        scan(a.get("returns"), a.get("src"), "return")
+    for w in a.get("writes") or []:
+        scan(w.get("cond"), w.get("src"), "write")
+    return out
+
+
+def _conj(e) -> list:
+    if isinstance(e, list) and e[:1] == ["&&"]:
+        return [y for x in e[1:] for y in _conj(x)]
+    return [e]
+
+
+def _qualify_ite(code: str, names: set, alias: str = "M") -> str:
+    """qualify only qualifies a name before ( or {: ite's type argument is a model type too."""
+    return re.sub(rf"(?<![\w.]){alias}\.ite\((\w+),",
+                  lambda mt: f"{alias}.ite({alias + '.' if mt.group(1) in names else ''}{mt.group(1)},", code)
+
+
+def _conv_defs(src: str, dst: str, name: str) -> list:
+    """Word, store-pair and hash-table conversions from module src's records to module dst's (the same definitions)."""
+    limbs = ", ".join(f"a{i}" for i in range(8))
+    return [f"def {name}_w(w: {src}.W) -> {dst}.W:\n  match w:\n    case {src}.W{{{limbs}}}:\n      {dst}.W{{{limbs}}}\n",
+            f"def {name}_kws(xs: List<&2, {src}.KW>) -> List<&2, {dst}.KW>:\n  match xs:\n    case Nil{{}}:\n      Nil{{}}\n"
+            f"    case Con{{h, t}}:\n      match h:\n        case {src}.KW{{k, v}}:\n"
+            f"          Con{{{dst}.KW{{{name}_w(k), {name}_w(v)}}, {name}_kws(t)}}\n",
+            f"def {name}_kh(xs: List<&2, {src}.HKB>) -> List<&2, {dst}.HKB>:\n  match xs:\n    case Nil{{}}:\n      Nil{{}}\n"
+            f"    case Con{{h, t}}:\n      match h:\n        case {src}.HKB{{b, v}}:\n"
+            f"          Con{{{dst}.HKB{{b, {name}_w(v)}}, {name}_kh(t)}}\n"]
+
+
+def versioned_module(member: str, legacy_import: str, head_import: str, section_import: str, eta: dict) -> str:
+    """The versioned member (K3): the legacy version's reachability, the upgrade eta (every legacy register keeps its
+    slot, so eta is the store's list of slot-word pairs read in the head's module, and the registers the legacy layout
+    lacks hold nothing), then head steps whose block.timestamp is at least 1 (K4's premise; the legacy model reads no
+    clock)."""
+    moved = [m["register"] for m in eta["map"] if int(m["from_slot"]) != int(m["to_slot"])]
+    if moved or not eta.get("inherited"):
+        raise ValueError(f"{member}: eta moves {moved or 'the inherited layout'}: not the identity on the store")
+    lines = [f"# GENERATED by holon.symb.sections (I92, K3) for the versioned member {member}; do not edit.",
+             f"# eta: {eta['from']['tag']} ({eta['from']['commit']}) -> the head; fresh registers {eta['fresh']}",
+             "import Base", f"import {legacy_import} as L", f"import {head_import} as M", f"import {section_import} as U",
+             ""]
+    lines += _conv_defs("L", "M", "eta") + _conv_defs("M", "L", "inv")
+    lines += ["# eta (K3): the legacy store as the head's (the same slots)\n"
+              "def eta(s: L.HSt) -> M.HSt:\n  match s:\n    case L.HSt{sl}:\n      M.HSt{eta_kws(sl)}\n",
+              "# the versioned reachability: a legacy-reachable state upgraded (VUp), then head steps at a nonzero clock\n"
+              "type VReach<-kh: List<&2, M.HKB>, -s: M.HSt> is Type:\n"
+              "  VUp{l: L.HSt, r: L.Reach<inv_kh(kh), l>, e: {s == eta(l) : M.HSt}}\n"
+              "  VStep{a: M.HAct, p: M.HSt, r: VReach<kh, p>, "
+              "t: {M.w_nz(M.ge_e_block_timestamp(U.sy_en(a))) == True{} : Bool}, e: {s == M.step(a, p, kh) : M.HSt}}\n"]
+    return "\n".join(lines)
+
+
+def link_module(caller: str, callee: str, caller_import: str, callee_import: str, section_import: str,
+                defs: list) -> str:
+    """The members' link in I94's form (K3): the caller's reachability of s and the callee's of q (its own deployment
+    and steps), under the hash table read in the callee's module, and the caller's call answers at a site read from
+    the callee's state (defs: the answer and the site's functions)."""
+    lines = [f"# GENERATED by holon.symb.sections (I92, K3) for the link {caller} -> {callee}; do not edit.",
+             "import Base", f"import {caller_import} as M", f"import {callee_import} as Q", f"import {section_import} as U",
+             ""]
+    lines += _conv_defs("M", "Q", "q") + _conv_defs("Q", "M", "m")
+    lines += ["# the linked reachability: the caller's of s and the callee's of q\n"
+              "type LReach<-kh: List<&2, M.HKB>, -s: M.HSt, -q: Q.HSt> is Type:\n"
+              "  LR{rs: M.Reach<kh, s>, rq: Q.Reach<q_kh(kh), q>}\n"]
+    return "\n".join(lines + defs)
+
+
+def _claims(ctx, member: str, cache: dict):
+    if member not in cache:
+        from ..bundle.laws import Claims
+        mtext, mm = member_machine(ctx, member)
+        cache[member] = Claims(mm, mtext)
+    return cache[member]
+
+
+def _compile(cl, action: str, term, kind: str = "w", view: str = "s", alias: str = "M") -> str:
+    code = _qualify_ite(cl.compile(action, term, kind, view=view), cl.names)
+    if alias != "M":
+        code = re.sub(r"(?<![\w.])M\.", f"{alias}.", code)
+        code = _qualify_ite(code, cl.names, alias)
+    return code
+
+
 def member_machine(ctx, name: str):
     """(text, generator) of a member's bundle model, built as holon.bundle.model builds it (model3 with EXT1); the text
     must equal the committed model, so that a term compiled by the generator names the model's own functions."""
@@ -293,9 +442,10 @@ def member_machine(ctx, name: str):
 
 
 def build(ctx, log=print) -> dict:
-    """{path: bytes}: each member's section and gen/<M>/symb/sections/index.json {law: {"member", "kind", "n", "ok",
-    "hit"}} (a law the member section cannot state, the lastIndex site whose value is the link's, is listed with kind
-    "link" and no functions)."""
+    """{path: bytes}: each member's section, the versioned member and the link modules, and
+    gen/<M>/symb/sections/index.json {law: {"member", "kind", "n", "ok", "hit", ...}}: kind tau (with its comparison
+    sites "cmps": [{"i", "term", "src", "where", "flip"}]), sentinel, link (the module and its functions) or versioned
+    (the module and the invariant's functions)."""
     import json
     from pathlib import Path
     from . import basis as B
@@ -303,60 +453,125 @@ def build(ctx, log=print) -> dict:
     from ..bundle import render
     sorts = json.loads((ctx.root / ctx.out("sorts.json")).read_text(encoding="utf-8"))
     laws = B.member_laws(ctx, sorts)
-    files, index = {}, {}
+    files, index, cl = {}, {}, {}
     out = ctx.out("sections")
+    lg = ctx.side.get("legacy") or {}
+    docs = {m: ctx.bundle.load(ctx.side["members"][m]["document"]) for m in sorted(ctx.side["members"])}
     for member in sorted(laws):
         v = laws[member]
-        doc = ctx.bundle.load(ctx.side["members"][member]["document"])
+        doc = docs[member]
         mrel = f"gen/{ctx.milestone}/bundle/models/{member}.bend"
         text = (ctx.root / mrel).read_text(encoding="utf-8")
         imp = Path("../../bundle/models") / f"{member}.bend"
         sec = Section(member, str(imp), text, doc, sorts["members"][member])
         sec.prelude()
-        claims = None
         solver = Solver({member: doc}, {})
         solver.time[member] = set(sorts["members"][member]["time"])
         solver.idx[member] = set(sorts["members"][member]["idx"])
         acts = {a["name"]: a for a in doc["actions"]}
         n = 0
         c = v["contract"]
+        link_defs = []
         for act in v["tau"]:
             n += 1
             lid = f"{B.PREFIX}tau_{c}_{act}"
             a = acts[act]
             view = a.get("mutability") in ("view", "pure") and a.get("returns") is not None
             treturn = view and solver.sort(member, a.get("returns")) == "time"
-            ret_code = None
-            if view:
-                if claims is None:
-                    from ..bundle.laws import Claims
-                    mtext, mm = member_machine(ctx, member)
-                    claims = Claims(mm, mtext)
-                # qualify only qualifies a name before ( or {: ite's type argument is a model type too
-                ret_code = re.sub(r"(?<![\w.])M\.ite\((\w+),",
-                                  lambda mt: f"M.ite({'M.' if mt.group(1) in claims.names else ''}{mt.group(1)},",
-                                  claims.compile(act, a.get("returns")))
+            ret_code = _compile(_claims(ctx, member, cl), act, a.get("returns")) if view else None
             sec.tau(n, lid, act, treturn, ret_code)
+            cmps, codes = [], []
+            for i, (term, src, where) in enumerate(time_compares(a, member, solver)):
+                try:
+                    codes.append((i, _compile(_claims(ctx, member, cl), act, term, "bool")))
+                except Exception as e:  # noqa: BLE001  (a site the generator cannot compile is listed as such)
+                    cmps.append({"i": i, "term": term, "src": src, "where": where, "flip": None,
+                                 "error": f"{type(e).__name__}: {e}"[:300]})
+                    continue
+                cmps.append({"i": i, "term": term, "src": src, "where": where, "flip": f"sy_flip_{n}_{i}"})
+            sec.cmp_sites(n, act, codes)
             index[lid] = {"member": member, "kind": "tau", "n": n, "ok": f"sy_ok_{n}", "hit": f"sy_hit_{n}",
-                          "time_return": treturn}
-        for p, act, src, val, const in v["sentinels"]:
+                          "time_return": treturn, "ret": f"sy_rw_{n}" if view else None, "cmps": cmps}
+        for path, act, src, val, const in v["sentinels"]:
             line = re.search(r":(\d+)(?:-\d+)?$", src or "")
-            lid = f"{B.PREFIX}sentinel_{c}_{p.replace('.', '_')}_{act}_{line.group(1) if line else 'x'}"
+            lid = f"{B.PREFIX}sentinel_{c}_{path.replace('.', '_')}_{act}_{line.group(1) if line else 'x'}"
+            n += 1
             if val == ["env", "block.timestamp"]:
-                n += 1
                 sec.sentinel(n, lid, act, val, const)
-                index[lid] = {"member": member, "kind": "sentinel", "n": n, "ok": f"sn_ok_{n}", "hit": f"sn_hit_{n}"}
-            else:
-                index[lid] = {"member": member, "kind": "link", "n": None, "ok": None, "hit": None}
-        for p, view, const in v["readers"]:
-            lid = f"{B.PREFIX}sentinel_inv_{c}_{p.replace('.', '_')}_{view}"
-            index[lid] = {"member": member, "kind": "versioned", "n": None, "ok": None, "hit": None}
+                index[lid] = {"member": member, "kind": "sentinel", "n": n, "ok": f"sn_ok_{n}", "hit": f"sn_hit_{n}",
+                              "action": act, "constant": const}
+                continue
+            # a value reading a callee's answer: stated over the link (K3), in the link module
+            calls = sorted({x[1] for x in _walk(val) if len(x) == 2 and x[0] == "call" and isinstance(x[1], str)})
+            callee = next((m for m in sorted(docs) if m != member and all(
+                any(b["name"] == fn.rsplit(".", 1)[-1] and b.get("returns") is not None for b in docs[m]["actions"])
+                for fn in calls)), None)
+            if callee is None or not calls:
+                raise ValueError(f"{lid}: no member answers the value's calls {calls}")
+            k = len(link_defs)
+            for j, fn in enumerate(calls):
+                ca = next(b for b in docs[callee]["actions"] if b["name"] == fn.rsplit(".", 1)[-1])
+                qcode = _compile(_claims(ctx, callee, cl), ca["name"], ca["returns"], view="q", alias="Q")
+                link_defs.append(f"# the callee's answer to {fn}: {ca['name']}'s return word on q\n"
+                                 f"def lk_q_{n}_{j}(+q: Q.HSt, +kh: List<&2, Q.HKB>) -> Q.W:\n  {qcode}\n")
+                acode = _compile(_claims(ctx, member, cl), act, ["call", fn])
+                link_defs.append(f"def lk_ans_{n}_{j}(+s: M.HSt, +ar: M.AR_{bname(act)}, +en: M.HEnv, "
+                                 f"+kh: List<&2, M.HKB>) -> M.W:\n  {acode}\n")
+            vcode = _compile(_claims(ctx, member, cl), act, val)
+            ar_t = f"M.AR_{bname(act)}"
+            link_defs.append(f"def lk_val_{n}(+s: M.HSt, +ar: {ar_t}, +en: M.HEnv, +kh: List<&2, M.HKB>) -> M.W:\n"
+                             f"  {vcode}\n")
+            ans = " ".join(f"Bool.and(M.w_eq(lk_ans_{n}_{j}(s, ar, en, kh), m_w(lk_q_{n}_{j}(q, q_kh(kh)))),"
+                           for j in range(len(calls)))
+            close = ")" * len(calls)
+            concl = (f"M.w_nz(lk_val_{n}(s, ar, en, kh))" if const == 0 else
+                     f"Bool.not(M.w_eq(lk_val_{n}(s, ar, en, kh), {wlit(const)}))")
+            body = (f"Bool.or(Bool.not({ans} U32.is_eq(M.chk_{bname(act)}(s, ar, en, kh), 0){close}), {concl})")
+            arms = "".join(f"    case M.{kc}{{ar, en}}:\n      {body if kc == f'A_{bname(act)}' else 'True{}'}\n"
+                           for kc in sec.acts)
+            link_defs.append(f"# {lid}: over the link, the value the site writes is not the register's constant {const}"
+                             f" (K4)\ndef lk_ok_{n}(+s: M.HSt, +q: Q.HSt, +x: M.HAct, +kh: List<&2, M.HKB>) -> Bool:\n"
+                             f"  match x:\n{arms}")
+            index[lid] = {"member": member, "kind": "link", "n": n, "ok": f"lk_ok_{n}", "hit": None, "callee": callee,
+                          "calls": calls, "action": act, "constant": const,
+                          "module": ctx.out("link", f"{member}.bend"), "defs_from": k}
+        for path, view, const in v["readers"]:
+            lid = f"{B.PREFIX}sentinel_inv_{c}_{path.replace('.', '_')}_{view}"
+            n += 1
+            r = acts[view]["returns"]
+            conj = _conj(r[1])
+            from .sorts import register_of
+            rne = next(x for x in conj if isinstance(x, list) and len(x) == 3 and x[0] == "!=" and
+                       ((register_of(x[1]) == path and x[2] == const) or (register_of(x[2]) == path and x[1] == const)))
+            rest = [x for x in conj if x is not rne]
+            g = rest[0] if len(rest) == 1 else ["&&", *rest]
+            cla = _claims(ctx, member, cl)
+            g_code, r_code = _compile(cla, view, g, "bool"), _compile(cla, view, rne, "bool")
+            for code in (g_code, r_code):
+                if re.search(r"(?<![\w.])(ar|en)(?![\w])", code):
+                    raise ValueError(f"{lid}: the view's conjuncts read its arguments or environment")
+            sec.invariant(n, lid, g_code, r_code)
+            entry = {"member": member, "kind": "versioned", "n": n, "ok": f"sn_inv_{n}", "hit": None, "view": view,
+                     "constant": const, "g": f"sn_g_{n}", "rne": f"sn_rne_{n}"}
+            if lg.get("member") == member:
+                eta = json.loads((ctx.root / ctx.out(f"eta_{lg.get('eta', 'enq')}.json")).read_text(encoding="utf-8"))
+                vrel = ctx.out("versioned", f"{member}.bend")
+                files[vrel] = versioned_module(member, f"../legacy/{member}.bend", f"../../bundle/models/{member}.bend",
+                                               f"../sections/{member}.bend", eta).encode("utf-8")
+                entry["module"] = vrel
+            index[lid] = entry
         files[f"{out}/{member}.bend"] = sec.text_out().encode("utf-8")
-        log(f"{member}: {n} laws stated in the section")
-    files[f"{out}/index.json"] = render({"sections_version": "holon-symb-sections/0.1", "laws": index})
+        if link_defs:
+            callee = next(e["callee"] for e in index.values() if e["member"] == member and e["kind"] == "link")
+            files[ctx.out("link", f"{member}.bend")] = link_module(
+                member, callee, f"../../bundle/models/{member}.bend", f"../../bundle/models/{callee}.bend",
+                f"../sections/{member}.bend", link_defs).encode("utf-8")
+        log(f"{member}: {n} laws stated")
+    files[f"{out}/index.json"] = render({"sections_version": "holon-symb-sections/0.2", "laws": index})
     return files
 
 
 def main(ctx, check: bool, log) -> int:
     from ..bundle import write_or_check
-    return write_or_check(ctx.bundle, build(ctx, log), check, owned=[ctx.out("sections")], log=log)
+    return write_or_check(ctx.bundle, build(ctx, log), check,
+                          owned=[ctx.out("sections"), ctx.out("versioned"), ctx.out("link")], log=log)
