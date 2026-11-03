@@ -362,12 +362,6 @@ def _slash(law: dict) -> bool:
 
 
 def _slash_model(m: str, root: Path) -> Path:
-    """I94: the claims module (the I94 sidecar's outputs.claims) when it exists, else I70's registry model."""
-    dp = Path(root) / "spec" / m / "lib" / "slash_decide.json"
-    if dp.is_file():
-        c = Path(root) / json.loads(dp.read_text())["outputs"]["claims"]
-        if c.is_file():
-            return c
     side = json.loads((Path(root) / S_SIDECAR.format(m)).read_text())
     return Path(root) / side["outputs"]["models"] / f"{side['link']['a']['registry']}.bend"
 
@@ -603,10 +597,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     from .mpipeline import layout
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
-    if _slash(law):   # I70, I94: as holon.cutover.lawrun writes it (None until the linked layer and claims are built)
-        import importlib
-        return importlib.import_module("holon.cutover.lawrun").law_file(law, m, root, statement_hash(law, m, root),
-                                                                         counter)
+    if _slash(law):   # I70: no emitter states a slash law until the linked layer is built (holon.cutover.lawrun)
+        return None
     if _bundle_law(law):   # I86: as holon.bundle.lawrun writes it (None: an existential law's counter-law, or a claim
         # the M3 model cannot express, CS3's outflow class)
         return _lawrun().law_file(law, m, root, statement_hash(law, m, root), counter)
@@ -801,11 +793,9 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
-    if _slash(law):   # I70, I94: the emitted statement and counter-law (their sha256), over the claims module; the
-        # cone over the linked layer's kernel entries is not computed (the layer's translation is a module set)
+    if _slash(law):   # I70: no statement over the linked layer yet, so the binding is its statement hash alone
         return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
-                "statement_sha256": text_sha256(_emit(law, m, root, counter=False)),
-                "counter_sha256": text_sha256(_emit(law, m, root, counter=True)), "cone": {}}
+                "statement_sha256": None, "counter_sha256": None, "cone": {}}
     if _bundle_law(law):   # I86: the law model and the claims module as one module; C. roots are the claims module's
         st = _emit(law, m, root, counter=False)
         if st is None:   # CS3's outflow class: no claim over the M3 model, so the binding is its statement hash alone
