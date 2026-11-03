@@ -88,7 +88,7 @@ def build(ctx: Ctx, log=print) -> dict:
                 agree = agree and not diff
                 if frames and frames[0][2] == vname and frames[0][1] == "c" and int(frames[0][4]) > 0:
                     deposit = int(frames[0][4])
-                if ".proveState " in step["label"] or step["label"].endswith(".proveState"):
+                if f".{pair['op']} " in step["label"] or step["label"].endswith(f".{pair['op']}"):
                     v = machine.version
                     f = family(docs[v], credit)
                     slot = int.from_bytes(keccak256(challenger.to_bytes(32, "big") + int(f["slot"]).to_bytes(32, "big")),
