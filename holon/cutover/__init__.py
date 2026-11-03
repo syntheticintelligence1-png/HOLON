@@ -1,7 +1,7 @@
 """A migration's slash sites linked with the registries each version names (the contract: the docstring of
 tests_m3/test_cutover_slash.py).
 
-  python -m holon cutover acquire|model|corpus|refine|analyze|s0|linked [--milestone M3] [--root DIR] [--check]
+  python -m holon cutover acquire|model|corpus|refine|analyze|s0|linked|claims [--milestone M3] [--root DIR] [--check]
 
 A milestone's sidecar (spec/<M>/lib/cutover_slash.json) names the versioned document, the bundle it extends (I69's
 sidecar and outputs), the registry linked at each end of the migration, the acquisition (the explorer record, the
@@ -85,7 +85,7 @@ def context(root: Path, milestone: str) -> Ctx:
     return Ctx(root=root, milestone=milestone, side_rel=rel, side=side, cfg=cfg)
 
 
-STEPS = ("acquire", "model", "corpus", "refine", "analyze", "s0", "linked")
+STEPS = ("acquire", "model", "corpus", "refine", "analyze", "s0", "linked", "claims")
 
 
 def main(argv=None) -> int:
@@ -120,6 +120,9 @@ def main(argv=None) -> int:
         if a.step == "linked":
             from . import linked
             return write_or_check(ctx, linked.build(ctx, log), a.check, log=log)
+        if a.step == "claims":
+            from . import claims
+            return write_or_check(ctx, claims.build(ctx, log), a.check, log=log)
         from . import refine
         return write_or_check(ctx, refine.run(ctx, log), a.check, log=log)
     except (Refused, FRefused) as e:
