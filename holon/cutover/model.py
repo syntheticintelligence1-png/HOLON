@@ -70,6 +70,19 @@ def info_of(ctx: Ctx, name: str) -> dict:
 
 
 def init_of(ctx: Ctx, name: str) -> dict:
+    """The model's initial state: the registry's storage the I94 sidecar's registry_s0 record holds when it names this
+    member (the real code's state after the stakers registered, holon.cutover.s0), else its storage in the cutover
+    harness's deployment."""
+    from .s0 import SIDECAR as S0_SIDECAR
+    sp = ctx.path(S0_SIDECAR.format(m=ctx.milestone))
+    if sp.is_file():
+        srel = json.loads(sp.read_text(encoding="utf-8"))["outputs"]["registry_s0"]
+        if ctx.path(srel).is_file():
+            r = json.loads(ctx.path(srel).read_text(encoding="utf-8"))
+            if r.get("member") == name:
+                return {"binding": srel, "binding_sha256": sha256_bytes(ctx.path(srel).read_bytes()),
+                        "address": r["address"], "read": r["read"], "trace": r["trace"], "step": r["step"],
+                        "block_number": r["block_number"], "timestamp": r["timestamp"], "storage": dict(r["storage"])}
     rel = ctx.out("deployment")
     p = ctx.path(rel)
     if not p.is_file():
@@ -124,20 +137,22 @@ def compile_registry(ctx: Ctx, name: str, init: dict) -> tuple:
 
 
 def build(ctx: Ctx, log=print) -> dict:
-    name = registry(ctx)
+    """Both registries' models (the link's old-version registry and, since I94, its new-version one)."""
     out = ctx.out("models")
-    init = init_of(ctx, name)
-    text, debt = compile_registry(ctx, name, init)
-    log(f"{name}: {len(debt)} actions in model debt ({', '.join(a for a, _e in debt) or 'none'})")
-    if text is None:
-        raise BundleError(f"{name}: the model does not compile: {debt[0][1][:300]}")
-    rel = document_rel(ctx, name)
-    bp = f"{out}/{name}.bend"
-    files = {bp: text.encode("utf-8"), f"{out}/{name}.init.json": render(init)}
-    files[f"{out}/models.json"] = render({
-        "models_version": MODELS_VERSION,
-        name: {"path": bp, "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(), "document": rel,
-               "document_sha256": sha256_bytes(ctx.path(rel).read_bytes()), "init": f"{out}/{name}.init.json",
-               "language": "holon.sorts.model3 EXT1 (holon.sorts.model3.Model3X)",
-               "debt": [{"action": a, "error": e} for a, e in debt]}})
+    files, rec = {}, {"models_version": MODELS_VERSION}
+    for name in (registry(ctx), ctx.side["link"]["b"]["registry"]):
+        init = init_of(ctx, name)
+        text, debt = compile_registry(ctx, name, init)
+        log(f"{name}: {len(debt)} actions in model debt ({', '.join(a for a, _e in debt) or 'none'})")
+        if text is None:
+            raise BundleError(f"{name}: the model does not compile: {debt[0][1][:300]}")
+        rel = document_rel(ctx, name)
+        bp = f"{out}/{name}.bend"
+        files[bp] = text.encode("utf-8")
+        files[f"{out}/{name}.init.json"] = render(init)
+        rec[name] = {"path": bp, "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(), "document": rel,
+                     "document_sha256": sha256_bytes(ctx.path(rel).read_bytes()), "init": f"{out}/{name}.init.json",
+                     "language": "holon.sorts.model3 EXT1 (holon.sorts.model3.Model3X)",
+                     "debt": [{"action": a, "error": e} for a, e in debt]}
+    files[f"{out}/models.json"] = render(rec)
     return files
