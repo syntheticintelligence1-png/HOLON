@@ -9988,6 +9988,117 @@
           "Counting: P1 is recorded (its constants were read before the prereg); P2-P6 are counted (no codec call before the prereg; P5's first half rests on the binding's source text, which was read). Count them as listed if you judge that enough."
         ]
       }
+    },
+    "I94": {
+      "title": "= I36d: O13 and O20's economic half decided by the checker (I70's two slash laws, statements unchanged), and model3's clearing of a deleted struct's bytes and string members: the Bend linked layer over the Rollup's versioned layer and both registries' models, a claims module, a witness search over the compiled layer whose candidates reach V10 through the deployed path V3..V10 (I70-Q1, option (a)), counter-laws checked by Bend and BendTT, and every witness replayed on the real code; the linked layer generic in its callee member, kind and version chain (the lead's constraint for I92)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I94)",
+      "prompt": "prompts/I94_slash_decide.md",
+      "predictions": [
+        {
+          "id": "I94-P1",
+          "claim": "The model3 fix (F1-F2): with a deleted struct clearing its bytes and string members' length and data slots, I70's M2 refinement of the legacy registry's model (holon cutover refine, results/M3/cutover/refinement_models.json) has 0 disagreements: claimWithdrawal's delete stakers[s1], which clears blsKey's length slot and its eight data slots on the real code, now agrees; the other compared steps agree as before. Every other committed model3 output regenerates byte for byte (holon bundle model, versions model, bundle laws and bundle2 model --check; the typed and untyped Rollup models). Derivation: I70's M2 detail names exactly those nine slots; model3's struct write skips a non-in-place member on a zero write, so only a model that deletes a struct with such a member changes, and of the committed models only L1Staking's stakers is one (StakerInfo's blsKey).",
+          "check": "tests_m3/test_slash_decide.py::TestFix::test_p1_the_registry_model_refines_with_no_disagreement and tests_m3/test_slash_decide.py::TestFix::test_p1_every_earlier_model_is_byte_identical"
+        },
+        {
+          "id": "I94-P2",
+          "claim": "O13 (F10): L_nat_slash_Rollup_V10_V11_proveState is REFUTED (D1-D4). The witness: the deployed path V3..V10 of I83's V10->V11 inhabitant with the legacy registry's address as V3's registry argument, then commitBatch at V10 by the first staker of the registry's initial state (s1, stakerIndexes 1), whose getStakerBitmap answer is 2; k = 1; u = initialize4(the Submitter's address, 1). Left (the V11 site after u: ISubmitter.slash on the reinterpreted bitmap, address(2), with no stake): (ok, 0). Right (the V10 site at s: IL1Staking.slash(2) at the registry's state): (ok, 200000000000000000), 20 % of the 1 ether staking value. The counter-law is accepted by Bend and, when enabled, by BendTT; both replay runs pass, with observed rewards 0 (left) and 200000000000000000 (right). Derivation: F10 on the real code in I70's results/M3/cutover/steps.json (T1 step 6: the Rollup calls l1staking.slash and 0.2 ether moves to it; T2 step 9: the same pre-cutover batch slashed at V11 calls submitter.slash and nothing moves back), I70's record of the site pair, and the v0.6.1 and Submitter sources (getStakerBitmap returns 1 << stakerIndexes; Submitter.slash pays stakeOf * rewardPercentage / 100).",
+          "check": "tests_m3/test_slash_decide.py::TestLaws::test_p2_o13_the_slash_naturality_law_is_refuted"
+        },
+        {
+          "id": "I94-P3",
+          "claim": "O20's economic half: L_sort_slash_Rollup_V10_V11_proveState is REFUTED at the same witness as P2 (the V10 site's return word 200000000000000000 is nonzero and the V11 site's after u is 0), its counter-law accepted by Bend and, when enabled, BendTT, and its two replay runs pass with observed rewards 0 (left) and 200000000000000000 (right). Derivation: as P2; the SORT claim fails exactly when the old site's word is nonzero and the new one's zero, which P2's witness gives.",
+          "check": "tests_m3/test_slash_decide.py::TestLaws::test_p3_o20_economic_half_the_slash_value_law_is_refuted"
+        },
+        {
+          "id": "I94-P4",
+          "claim": "The registries' models and the linked layer (K1-K3): replay/M3/cutover/registry_s0.json records the legacy registry's initial state with its source (trace T2_cutover_slash after step 2, the harness's block number and timestamp, the addresses, how it was read); gen/M3/cutover/models/linked.bend (the versioned layer and both registry models, with their conversions) and gen/M3/cutover/claims/slash.bend are accepted by Bend (ALL PROOFS CHECK), with no escape hatch. Derivation: the modules share model3's prelude shapes (W as eight U32 limbs, HSt as a list of word pairs, HKB, HCall, KB), as the versioned layer's conversions to its version modules already do.",
+          "check": "tests_m3/test_slash_decide.py::TestLinked::test_p4_the_linked_layer_and_claims_module_check"
+        },
+        {
+          "id": "I94-P5",
+          "claim": "The linked layer is generic (K2, the construction the lead asked for, so that I92 can link a versioned queue): holon cutover linked builds gen/M3/cutover/models/linked.bend from the sidecar's link spec alone, parametric in the callee member, in its kind (a model3 member model, or a versioned layer with its own version chain) and in the caller's version at which it is linked; holon/ names no member, version or family (tests_m2.test_target_agnostic_exhaustive); and the generator run on the sidecar's generic_check spec, whose callee is a versioned layer, writes a layer Bend accepts. Derivation: every module model3 or holon.versions generates shares model3's prelude shapes, so the conversions depend only on each module's own type definitions, and a callee's kind changes only its state and reachability types.",
+          "check": "tests_m3/test_slash_decide.py::TestLinked::test_p5_the_linked_layer_is_generic"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I94-R1",
+          "claim": "Earlier inputs do not move: the inputs of thresholds.inputs_sha256 keep their sha256, and holon bundle extract --check and holon versions extract --check reproduce.",
+          "check": "tests_m3/test_slash_decide.py::TestRegressions::test_r1_earlier_inputs_do_not_move"
+        },
+        {
+          "id": "I94-R2",
+          "claim": "I94's own commits write no frozen root and none of the forbidden outputs (gen/M3/versions/, gen/M3/bundle/, gen/M3/bundle2/, gen/M3/sorts/, gen/M3/nat/, gen/M3/bundle_laws/, results/M3/versions/, results/M3/bundle/, replay/M3/bundle/, replay/M3/versions/, laws/M3/, I70's sidecar, basis and instrument, I94's sidecar).",
+          "check": "tests_m3/test_slash_decide.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I94-R3",
+          "claim": "The prereg audits pass for M3 and M2.",
+          "check": "tests_m3/test_slash_decide.py::TestRegressions::test_r3_prereg_audits_pass"
+        },
+        {
+          "id": "I94-R4",
+          "claim": "The holon files I94's own commits add or change are not among tests_m2.test_target_agnostic_exhaustive's failures.",
+          "check": "tests_m3/test_slash_decide.py::TestRegressions::test_r4_own_code_names_no_target"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/cutover/models/linked.bend",
+        "gen/M3/cutover/claims/",
+        "results/M3/cutover/search.json",
+        "replay/M3/cutover/registry_s0.json",
+        "replay/M3/cutover/report.json",
+        "gen/M3/laws/L_nat_slash_",
+        "gen/M3/laws/L_sort_slash_",
+        "gen/M3/proofs/L_nat_slash_",
+        "gen/M3/proofs/L_sort_slash_",
+        "results/M3/L_nat_slash_",
+        "results/M3/L_sort_slash_",
+        "docs/iterations/I94.md"
+      ],
+      "tests": [
+        "tests_m3/test_slash_decide.py"
+      ],
+      "thresholds": {
+        "base": "9df9ddec (the lead after I46's landing; I70 landed via #92)",
+        "base_commit": "9df9ddec",
+        "sidecar": "spec/M3/lib/slash_decide.json",
+        "sidecar_sha256": "051509ade52ff7796d5214fea8744375ec885fa1a55942bc588a1e36066fc224",
+        "contract_docstring_sha256": "e1830b9f41546692bcdf1575d39f18c7c7d1e6c947303879c28ef5cbd3c0808f",
+        "law_ids": [
+          "L_nat_slash_Rollup_V10_V11_proveState",
+          "L_sort_slash_Rollup_V10_V11_proveState"
+        ],
+        "statement_hashes": {
+          "L_nat_slash_Rollup_V10_V11_proveState": "sha256:9ad84b0d1cadf7799bb32befd981462eb5ccd61d843984a5504b423f50c98e33",
+          "L_sort_slash_Rollup_V10_V11_proveState": "sha256:a09f041d1eb00179fac32ed5935349130ae4e69cb24ed3278f9c0e95b78e1c14"
+        },
+        "expected_witness": {
+          "k": 1,
+          "left_ret": 0,
+          "right_ret": 200000000000000000,
+          "bitmap": 2,
+          "committer": "s1"
+        },
+        "counted": [
+          "I94-P1",
+          "I94-P2",
+          "I94-P3",
+          "I94-P4",
+          "I94-P5"
+        ],
+        "read_before_prereg": "I70's records (results/M3/L_nat_slash_Rollup_V10_V11_proveState.json, results/M3/L_sort_slash_Rollup_V10_V11_proveState.json), its report, results/M3/cutover/steps.json, results/M3/cutover/refinement_models.json, I83's results/M3/versions/inflight.json and gen/M3/versions/inflight/V10_V11/INHABIT.bend, replay/M3/cutover/deployment.json, and the L1Staking v0.6.1, Submitter and V10 Rollup sources; no I94 code was written or run before C_K.",
+        "inputs_sha256": {
+          "gen/M3/versions/morph_rollup.versions.json": "b177a968bcd8c650c365768faac4fa32ffb46f64a15a3d81f8051fc5994bed78",
+          "gen/M3/versions/documents/V10.json": "b3329d0f5ae7cde0f8128f7624cfe1ee1f9ccec201c3d655263ec99692b8860f",
+          "gen/M3/versions/documents/V11.json": "a4a61f6269a8b243695c1d861bb25dc1a37e97f20ee9eb61251e4826ae13c5cd",
+          "gen/M3/bundle/documents/l1staking.json": "fa1b32ee17983fc8e1baa0ec08668110166ae46db97fd39fd9c33ba355d6dcad",
+          "gen/M3/bundle/documents/submitter.json": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2",
+          "results/M3/versions/inflight.json": "c0babd910c53fe8cff9446908116cc160953b306b429a1df8a5d3432b6d1de2d",
+          "gen/M3/cutover/corpus.json": "5650dff1433cfe99475e1be85c1fbf059d79fe1261938203a4d58fc0b01e9e23",
+          "spec/M3/lib/cutover_slash.json": "84ee8684897e7c5b3d2aa570b551f06774bafe7827218be5315b4a2f0c82b850"
+        }
+      }
     }
   }
 }

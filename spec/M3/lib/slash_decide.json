@@ -1,0 +1,79 @@
+{
+ "doc": "I94 (= I36d): the inputs, outputs, registry initial state, search and replay of the decision of I70's two slash laws (the contract: the docstring of tests_m3/test_slash_decide.py). The cutover sidecar (I70's, spec/M3/lib/cutover_slash.json) keeps naming the link, the corpus and the harness.",
+ "generic_check": {
+  "callees": [
+   {
+    "alias": "C",
+    "at": "V10",
+    "kind": "versioned",
+    "member": "rollup",
+    "module": "gen/M3/versions/models/morph_rollup_versions.bend",
+    "word": "messageQueue"
+   }
+  ],
+  "caller": {
+   "alias": "M",
+   "kind": "versioned",
+   "member": "rollup",
+   "module": "gen/M3/versions/models/morph_rollup_versions.bend"
+  },
+  "doc": "The genericity check of rule K2: a link whose callee is a versioned layer (the caller's own layer stands in for one), generated to a temporary directory beside the models and checked by Bend."
+ },
+ "inputs": {
+  "cutover_sidecar": "spec/M3/lib/cutover_slash.json",
+  "inhabitants": "results/M3/versions/inflight.json",
+  "versioned": "gen/M3/versions/morph_rollup.versions.json"
+ },
+ "link": {
+  "callees": [
+   {
+    "alias": "A",
+    "at": "V10",
+    "kind": "plain",
+    "member": "l1staking",
+    "module": "gen/M3/cutover/models/l1staking.bend",
+    "word": "l1StakingContract"
+   },
+   {
+    "alias": "B",
+    "at": "V11",
+    "kind": "plain",
+    "member": "submitter",
+    "module": "gen/M3/cutover/models/submitter.bend",
+    "word": "submitterContract"
+   }
+  ],
+  "caller": {
+   "alias": "M",
+   "kind": "versioned",
+   "member": "rollup",
+   "module": "gen/M3/versions/models/morph_rollup_versions.bend"
+  },
+  "doc": "The link spec (rule K2): the caller and its callees, each a model3 member model (kind plain) or a versioned layer (kind versioned), its module, its alias in the generated layer, and for a callee the caller's version at which it is linked and the caller's storage word that names it there."
+ },
+ "outputs": {
+  "claims": "gen/M3/cutover/claims/slash.bend",
+  "linked": "gen/M3/cutover/models/linked.bend",
+  "models": "gen/M3/cutover/models",
+  "registry_s0": "replay/M3/cutover/registry_s0.json",
+  "replay": "replay/M3/cutover/report.json",
+  "search": "results/M3/cutover/search.json"
+ },
+ "registry_s0": {
+  "after_step": 2,
+  "doc": "The legacy registry's initial state: its storage in the cutover harness after the named step of the named corpus trace (both stakers registered), read from the real code's run as the deployment's storage writes and the steps' writes up to that step, applied in order; its non-zero slots.",
+  "trace": "T2_cutover_slash"
+ },
+ "replay": {
+  "doc": "Two runs per REFUTED law on the real code (rule D4), each from a fresh cutover deployment: the stakers whitelisted and registered as the corpus does, then the commit of the witness's batch at the old version by its committer; left: the migration (the corpus's cutover step), the new registry's principal added and staked, the challenge of k at the new version, the proof window, proveState by that principal, the challenger's claim; right: the challenge of k at the old version, the proof window, proveState by the other staker, the challenger's claim. The observed reward: the challenger's batchChallengeReward read after proveState, less its deposit.",
+  "left": "T2_cutover_slash",
+  "right": "T1_legacy_slash"
+ },
+ "search": {
+  "doc": "Candidates (rule D2): I83's inhabitant trace of the edge up to the edge's old version, the initializer's registry argument set to the legacy registry's address in the cutover deployment, then the old version's commit by each staker of the registry's initial state in order; each with every in-flight k, increasing.",
+  "edge": "V10->V11",
+  "initializer_registry_argument": 0,
+  "max_candidates": 64
+ },
+ "slash_decide_version": "holon-slash-decide-sidecar/0.1"
+}
