@@ -1,0 +1,53 @@
+{
+  "doc": "Bundle sidecar of M3 (format: the docstrings and code of holon.bundle, holon.bundle.extract, holon.bundle.model and holon.bundle.corpus). Authored in the blind rerun from the target code only: the members are the adopted Rollup transitions document and the contracts in the target tree that implement the interfaces Rollup calls through its address-holding storage variables (submitterContract: ISubmitter, messageQueue: IL1MessageQueue, verifier: IRollupVerifier), all at the pinned head; the wiring is those variables and the members variables that hold the Rollup address. No deployment, corpus or acquisition is stated: the target code does not fix them.",
+  "target": {
+    "repo": "morph-l2/morph",
+    "head": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "base_sidecar": "spec/M2/lib/extract_rollup.json",
+  "members": [
+    {
+      "name": "Rollup",
+      "contract": "Rollup",
+      "adopted": true,
+      "document": "spec/M2/facts/morph_rollup.extracted.json"
+    },
+    {
+      "name": "L1MessageQueueWithGasPriceOracle",
+      "contract": "L1MessageQueueWithGasPriceOracle",
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "source": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+      "commit_interfaces": []
+    },
+    {
+      "name": "MultipleVersionRollupVerifier",
+      "contract": "MultipleVersionRollupVerifier",
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "source": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+      "commit_interfaces": []
+    },
+    {
+      "name": "Submitter",
+      "contract": "Submitter",
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "source": "contracts/contracts/l1/rollup/Submitter.sol",
+      "commit_interfaces": []
+    }
+  ],
+  "wiring": {
+    "Rollup.messageQueue": "L1MessageQueueWithGasPriceOracle",
+    "Rollup.submitterContract": "Submitter",
+    "Rollup.verifier": "MultipleVersionRollupVerifier",
+    "L1MessageQueueWithGasPriceOracle.ROLLUP_CONTRACT": "Rollup",
+    "MultipleVersionRollupVerifier.rollup": "Rollup",
+    "Submitter.rollupContract": "Rollup"
+  },
+  "outputs": {
+    "sidecars": "gen/M3/bundle/sidecars",
+    "documents": "gen/M3/bundle/documents",
+    "declaration": "gen/M3/bundle/bundle.json",
+    "models": "gen/M3/bundle/models",
+    "corpus": "gen/M3/bundle/corpus.json",
+    "deployment": "replay/M3/bundle/deployment.json"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "W": "/home/user/blind-i46-r2",
+  "allowed": [
+    "/home/user/blind-i46-r2",
+    "/usr/",
+    "/bin/",
+    "/etc/",
+    "/opt/node22/",
+    "/root/.bun/",
+    "/root/.holon/bend/",
+    "/root/.holon/bin/",
+    "/root/.holon/tools/",
+    "/root/.holon/lean-4.34.0-linux/",
+    "/root/.holon/solc-0.8.24/",
+    "/root/go/",
+    "/root/.cache/go-build/",
+    "/root/work/foundry/",
+    "/root/work/solc-0.8.24/",
+    "/dev/null"
+  ],
+  "amendments": "spec/M3/amendments/I46.jsonl. Lines 1-2: the run-1 brief's missing steps, and the textual reads scorer. Line 3: the assumption ledger holon run reads, given in the scope set. Line 4: the ledger's free text blanked. Lines 5-6: the runner branch's CI-only fixes (paths and .gitkeep; dropping the target gitlink). Line 7: holon coverage run by the session, term_size.json given cut to five members, OWN's 6 laws not run.",
+  "brief": {
+    "path": "spec/M3/lib/blind_session_r2.md",
+    "sha256": "e4da66de8cfcaf773097810a6f5c8312b492caacda4c399d3833a93a2e9bfc59"
+  },
+  "bundle_sha256": "0918b79637d749d437986a90855b8567b1424dd7f14397693793b626852c4d99",
+  "cleanup": "after the session, W/cache (1.2 GB of Go module and build caches the session made inside W) was deleted to free a full disk; it is regenerable and the protocol keeps no cache",
+  "comparison": "audit/blind/I46/run2/compare.json (the comparison of record for the exit section), audit/blind/I46/run2/breakdown.json",
+  "family": "same",
+  "forbidden_prefixes": [
+    "/home/user/HOLON",
+    "/root/work/morph",
+    "/root/.holon/cache",
+    "/root/.holon/eval",
+    "/home/user/blind-i46 (run 1's W)"
+  ],
+  "launch": "a fresh subagent in this same container (not run 1's), launched by the coordinator with the run-2 launch prompt; AGENTS.md's rules text may be in its context (no outcomes); its shell cwd was /home/user/HOLON (the harness says so in its background-task notices) and every command began with cd W",
+  "leak_check": {
+    "amended reads_problems": {
+      "adjudicated": "call 219, a log-writing command that does not parse (an apostrophe in its JSON text); it names no path outside W",
+      "amendment-3 resume": 0,
+      "amendment-7 resume": 0,
+      "first pass": 1,
+      "whole session": 1
+    },
+    "preregistered calls_problems": {
+      "adjudicated": "none is a read: a config sed, grep patterns, ps greps that showed only the session's own processes, a log line naming spec/M*/lib/par_lossy.json",
+      "amendment-3 resume": 3,
+      "amendment-7 resume": 0,
+      "first pass": 13,
+      "whole session": 16
+    }
+  },
+  "manifest_sha256": "a6c9fb41cc7358760dde25775ea8ba65bb62658c5b7cd721ef2bda120cb1230a",
+  "note": "Written before run 2, by a new agent. The run-1 records under audit/blind/I46/session stay as they are, and run 1 scores the preregistered predictions. Run 2 is the amended rerun, and its comparison is the one of record for the exit section, disclosed as such.",
+  "pack": "/home/user/blind-i46-r2/bundle.tar",
+  "pack_commit": "c3eda1976c6811ff181fd71ae6ad1166f7e86a49",
+  "passes": [
+    {
+      "calls": "0-226",
+      "pass": "first",
+      "reply": "done: 2 steps failed, 12 not reproducible, 10 files authored",
+      "transcript_lines": 638,
+      "transcript_sha256": "6ed057116be1f1c87e110f59ef497fed13213a36e8e8c923c2e3154882970a3c"
+    },
+    {
+      "calls": "227-250",
+      "did": "placed the redacted ledger; the par job's holon run (80 records), holon lean (failed: not run, the pinned Lean toolchain is not under the redirected HOME), holon run again; lossy not reproducible",
+      "pass": "amendment-3 resume",
+      "reply": "done: 1 steps failed, 12 not reproducible, 10 files authored",
+      "transcript_lines": 719,
+      "transcript_sha256": "76235d86b9717afa60cd0d384f3e1595f2e09c61655bf497541ad1af9fdcb20f"
+    },
+    {
+      "calls": "251-256",
+      "did": "placed term_size.json; holon coverage --milestone M3 (gen/M3/coverage.json)",
+      "pass": "amendment-7 resume",
+      "reply": "done: 1 steps failed, 12 not reproducible, 10 files authored",
+      "transcript_lines": 739,
+      "transcript_sha256": "3e565b5d30d10af9f0197f912ef4d47e8181dd36606d6c75e22c3d719aa47167"
+    }
+  ],
+  "readme": "/home/user/blind-i46-r2/README.md (a byte copy of spec/M3/lib/blind_session_r2.md)",
+  "reply": "done: 1 steps failed, 12 not reproducible, 10 files authored",
+  "run": 2,
+  "runners": "audit/blind/I46/run2/runners.json",
+  "scope": "/home/user/blind-i46-r2/scope",
+  "scope_set": "audit/blind/I46/scope/ (the same files and stripped.json as run 1), plus two files given after the session's first pass: spec/ledger/assumptions.json with its free text blanked by tests_m3/blind_ledger.py (amendments 3 and 4), and spec/M3/lib/term_size.json cut by tests_m3/blind_term_size.py (amendment 7). Recorded in audit/blind/I46/run2/scope/.",
+  "scorers": {
+    "amended": "tests_m3/_i46_reads.py::reads_problems",
+    "preregistered": "tests_m3/_i46.py::calls_problems"
+  },
+  "tool_calls": 257,
+  "transcript": "the coordinator's subagent transcript agent-a2754aa27a13d41e5.jsonl (739 JSON lines: the first pass, then two resumes appended), not committed; tool_calls.jsonl is its projection by python -m tests_m3._i46 calls",
+  "transcript_sha256": "3e565b5d30d10af9f0197f912ef4d47e8181dd36606d6c75e22c3d719aa47167"
+}

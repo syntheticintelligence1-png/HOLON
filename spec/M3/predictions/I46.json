@@ -1,0 +1,176 @@
+{
+  "title": "I46: the blind rerun from code, its comparison with the lead, and the M3 exit decision (I82 = I46a built the pack, the comparison generator and the metric). A fresh same-family session (Q9: labelled same) gets the pack of the lead at the commit that lands I70, plus the extraction-scope sidecars stripped of every member that could carry an outcome. It authors every other input itself, and runs extract, derive and run with the local checker. Runners re-make the other M3 laws from a pack-only orphan branch. holon compare --blind then gives agreement on the matched statements, per milestone, rule and facts family, and five mechanical clauses decide the M3 exit.",
+  "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I46) and section 4, I46",
+  "prompt": "prompts/I46_blind_rerun.md",
+  "predictions": [
+    {
+      "id": "I46-P1",
+      "claim": "The scope set at <P> is the base's (rule S). tests_m3/blind_scope.py --commit <P> gives six files: spec/M2/lib/extract_rollup.json, spec/M2/lib/extract_solidity.json, spec/M2/lib/go_frontend.json, spec/M2/lib/link.json, spec/M3/lib/go_frontend.json and spec/M3/lib/link.json. It strips exactly two members, edges/enc_sol/sink and edges/load_sol/sink of spec/M2/lib/extract_solidity.json (leak class code_site), and withholds no file. The committed audit/blind/I46/scope/ equals the instrument's recomputation, and no file given still holds a member the rules strip. Derivation: this is the listing at the base, computed by the tool and by the instrument before this commit (the sidecar's at_base). I70 and I34 change rules and laws, not the extraction scope.",
+      "check": "tests_m3/test_blind_rerun.py::TestRun::test_p1_the_scope_set_at_the_pack_commit"
+    },
+    {
+      "id": "I46-P2",
+      "claim": "The blind session reads only its pack (rule L, clause E5). Every tool call of its transcript stays inside W, the pack's tar, the scope directory and the toolchain prefixes. Every shell command begins with `cd W && `. It calls no web tool, no subagent and no MCP tool. The run is labelled same. Derivation: the brief allows nothing else, and the work needs nothing else.",
+      "check": "tests_m3/test_blind_rerun.py::TestRun::test_p2_the_blind_session_read_only_its_pack"
+    },
+    {
+      "id": "I46-P3",
+      "claim": "Matched fraction per milestone (rule C), over the lead's classes at <P>. M0 and M1: 0 matched classes (0 of 8 and 0 of 16 at the base), because their inputs are hand-written (facts/, laws/M0, laws/M1, spec/M1), outside the pack, and the brief has no M0 or M1 step. M2: matched_fraction <= 0.25 (point 0.0 of 13), because its sort sites and seeds are sidecars the session authors, and a site law names its site. M3: matched_fraction in [0.30, 0.60] (point: the codec family's share, 80 of 178 classes at the base, 0.45). The codec family regenerates from the given extraction scope once the session re-authors the two stripped sinks and the adoption and typed sidecars that derive needs. Most other M3 statements depend on rule sidecars that the session authors differently. Disclosure: I give the session about one chance in two of getting M3's derive to complete; if it does not, M3 matches nothing and this prediction misses.",
+      "check": "tests_m3/test_blind_rerun.py::TestRun::test_p3_matched_fraction_per_milestone"
+    },
+    {
+      "id": "I46-P4",
+      "claim": "Matched fraction per M3 rule and facts family (rule C, _i46.breakdown). By family: codec >= 0.90; every other family <= 0.25; versions exactly 0, because the brief fetches the target at depth 1, so there is no version history to extract. By rule: PAR >= 0.80; DISCH, SORT, UNDO, FACT and OWN <= 0.25 each; NAT and SYM 0 matched. Derivation: as for P3. PAR's part of derive reads no rule sidecar, while the typed rules' statements carry the documents, binding and hypotheses of sidecars that the session must author without the lead's.",
+      "check": "tests_m3/test_blind_rerun.py::TestRun::test_p4_matched_fraction_per_rule_and_family"
+    },
+    {
+      "id": "I46-P5",
+      "claim": "Agreement on the matched statements (I82's metric). M3's blind_agreement >= 0.95, and so is the pooled agreement. No matched class flips between PROVED and REFUTED: every disagreement has UNKNOWN on one side. Derivation: the generators and the checker's semantics are the lead's, and I82's dry run agreed 1.0 on 84 PAR laws with the local checker. A status can move only where a time budget decides (DISCH's law timebox, the deadlines, and the local checker's speed against the pinned one on runners), and that move has UNKNOWN on one side. The runner re-makes use the pinned checker, as the lead's typed records did.",
+      "check": "tests_m3/test_blind_rerun.py::TestRun::test_p5_agreement_on_matched_statements"
+    },
+    {
+      "id": "I46-P6",
+      "claim": "The exit decision (rule E). E1 holds. E2 holds. E3 fails: results/M3/audit_status.json at <P> has converged false, because under Q9 no same-family round counts and the streak stays 0. E4 fails: results/M3/backtest.json at <P> keeps the four M0 rule gaps as exit_blockers. E5 holds. So the M3 exit is not met, and I46's own clause (E1, E2 and E5) is met, scoped to the matched M3 classes and labelled same. Disclosure: E3's and E4's values were read at the base (ac3144de) before this commit.",
+      "check": "tests_m3/test_blind_rerun.py::TestRun::test_p6_the_exit_decision",
+      "expected": {
+        "E1": true,
+        "E2": true,
+        "E3": false,
+        "E4": false,
+        "E5": true,
+        "m3_exit": false,
+        "i46_clause": true
+      }
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I46-R0",
+      "claim": "The contract docstring, the instrument, I82's instrument, the protocol sidecar, the brief and the scope tool keep the sha256 pinned in thresholds.",
+      "check": "tests_m3/test_blind_rerun.py::TestPrereg::test_r0_the_prereg_pins_hold"
+    },
+    {
+      "id": "I46-R1",
+      "claim": "The brief holds no outcome, at the base and at <P>: no status word, no law id, no match of any leak class of the pack protocol.",
+      "check": "tests_m3/test_blind_rerun.py::TestPrereg::test_r1_the_brief_holds_no_outcome"
+    },
+    {
+      "id": "I46-R2",
+      "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+      "check": "tests_m3/test_blind_rerun.py::TestPrereg::test_r2_the_prereg_audit_passes"
+    },
+    {
+      "id": "I46-R3",
+      "claim": "I46's own commits (rule R) change only audit/blind/I46/ and docs/iterations/I46.md: no law, record, generator, gate, sidecar or test.",
+      "check": "tests_m3/test_blind_rerun.py::TestPrereg::test_r3_own_commits_touch_only_what_the_contract_allows"
+    },
+    {
+      "id": "I46-R4",
+      "claim": "At the base, the instrument's scope listing equals the sidecar's at_base.",
+      "check": "tests_m3/test_blind_rerun.py::TestPrereg::test_r4_the_scope_listing_at_the_base_is_the_rules"
+    },
+    {
+      "id": "I46-R5",
+      "claim": "The pack commit is the lead at the commit that lands I70: it holds docs/iterations/I70.md and its first parent does not, and where the lead's ref is present it is the oldest such first-parent commit. The committed manifest names it, and the leak list's summary is the manifest's.",
+      "check": "tests_m3/test_blind_rerun.py::TestRun::test_r5_the_pack_is_the_lead_at_the_commit_that_lands_i70"
+    }
+  ],
+  "outcome_paths": [
+    "audit/blind/I46/",
+    "docs/iterations/I46.md"
+  ],
+  "tests": [
+    "tests_m3/test_blind_rerun.py"
+  ],
+  "thresholds": {
+    "base": "ac3144de (the lead after I44's landing, PR #89: 179 M3 laws in 178 classes), with BUILD_PLAN's row I46 (6f429de7) committed before this commit",
+    "base_commit": "ac3144de46af932b40c98a425db98dd1cceae76a",
+    "pack_commit_rule": "the oldest commit of `git rev-list --first-parent origin/claude/holon-v2-bend2-c6z3cd` whose tree holds docs/iterations/I70.md (the lead at the commit that lands I70)",
+    "contract_docstring_sha256": "28c280aa609013bc22d254cafc4ce9578a0306610762e688ca2b35746ef427ed",
+    "instrument": {
+      "path": "tests_m3/_i46.py",
+      "sha256": "9b2cc698226460d0eeeeee03386d6e12ae678e4d7cde3ee2c40730e714014d72"
+    },
+    "i82_instrument": {
+      "path": "tests_m3/_i82.py",
+      "sha256": "3d446a12056fb1203cba3086e2d4f43e0385e003a5a27e394dba20bc1ae4e2c9"
+    },
+    "sidecar": {
+      "path": "spec/M3/lib/blind_rerun.json",
+      "sha256": "cbe878521769e939c7f4a4dacec92bec78e0a0c8744e9049adbf7a307dba7b86"
+    },
+    "brief": {
+      "path": "spec/M3/lib/blind_session.md",
+      "sha256": "66854aac607e3c47b0178d1fa720ca15d155ab7b0f579a9cff61dc34e87600c4"
+    },
+    "scope_tool": {
+      "path": "tests_m3/blind_scope.py",
+      "sha256": "2f040f69db8c4014824c2110fefa553f053d12be2f929137fa0230bd6960909e"
+    },
+    "q9": "same",
+    "blind_agreement_min": 0.9,
+    "min_matched_m3": 40,
+    "bands": {
+      "matched_fraction": {
+        "M2_max": 0.25,
+        "M3": [
+          0.3,
+          0.6
+        ]
+      },
+      "per_rule_family": {
+        "codec_min": 0.9,
+        "other_family_max": 0.25,
+        "PAR_min": 0.8,
+        "typed_max": 0.25
+      },
+      "agreement": {
+        "M3_min": 0.95,
+        "pooled_min": 0.95
+      }
+    },
+    "exit_predicted": {
+      "E1": true,
+      "E2": true,
+      "E3": false,
+      "E4": false,
+      "E5": true,
+      "m3_exit": false,
+      "i46_clause": true
+    },
+    "lead_at_base": {
+      "classes": {
+        "M0": 8,
+        "M1": 16,
+        "M2": 13,
+        "M3": 178
+      },
+      "m3_classes_by_rule": {
+        "PAR": 90,
+        "DISCH": 41,
+        "SORT": 14,
+        "UNDO": 10,
+        "FACT": 9,
+        "NAT": 8,
+        "OWN": 6
+      },
+      "m3_classes_by_family": {
+        "codec": 80,
+        "rollup": 64,
+        "bundle": 14,
+        "versions": 9,
+        "own": 6,
+        "goops": 5
+      }
+    },
+    "counted_predictions": [
+      "I46-P1",
+      "I46-P2",
+      "I46-P3",
+      "I46-P4",
+      "I46-P5",
+      "I46-P6"
+    ],
+    "read_before_prereg": "Read before this commit: I82's report, key, prompt and pack sidecar; the committed pack manifest's summary; the six scope sidecars at the base (the scope tool ran on the base to compute at_base); the lead's committed M0-M3 law files and records at the base, counted into classes by rule and by facts family (lead_at_base, with their statuses); results/M3/audit_status.json and results/M3/backtest.json at the base; and holon/'s extraction, derive and land code. No pack was built, no blind step ran, and holon compare --blind did not run. The pack commit does not exist yet."
+  }
+}

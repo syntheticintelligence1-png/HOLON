@@ -1,0 +1,167 @@
+{
+  "commit": "c3eda1976c6811ff181fd71ae6ad1166f7e86a49",
+  "files": [
+    {
+      "path": "spec/M2/lib/extract_rollup.json",
+      "sha256": "73c1242801c3781193f744d14f7f67a5c96ef1d29c5574bf94bdc1208d6affef",
+      "source_sha256": "73c1242801c3781193f744d14f7f67a5c96ef1d29c5574bf94bdc1208d6affef",
+      "stripped": []
+    },
+    {
+      "path": "spec/M2/lib/extract_solidity.json",
+      "sha256": "c17c5dba79180dd315193c1656eb927bdc7ca71b8c0cb664bb652c9b4708a45f",
+      "source_sha256": "43db32a60e0396250be1917a9b750d24232a718a63968a1d50d20ef77f70a9f2",
+      "stripped": [
+        {
+          "key": "edges/enc_sol/sink",
+          "reasons": [
+            "leak:code_site"
+          ]
+        },
+        {
+          "key": "edges/load_sol/sink",
+          "reasons": [
+            "leak:code_site"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "spec/M2/lib/go_frontend.json",
+      "sha256": "5f948249c90f8ac6d5092db74fcf51a196cd8ed34584fe23982f926b0db98f5f",
+      "source_sha256": "5f948249c90f8ac6d5092db74fcf51a196cd8ed34584fe23982f926b0db98f5f",
+      "stripped": []
+    },
+    {
+      "path": "spec/M2/lib/link.json",
+      "sha256": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371",
+      "source_sha256": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371",
+      "stripped": []
+    },
+    {
+      "path": "spec/M3/lib/go_frontend.json",
+      "sha256": "95aadbadb5c01bb823987c10d86f51229e95d91d7d5bef82f38fb3db799c1aa3",
+      "source_sha256": "95aadbadb5c01bb823987c10d86f51229e95d91d7d5bef82f38fb3db799c1aa3",
+      "stripped": []
+    },
+    {
+      "path": "spec/M3/lib/link.json",
+      "sha256": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371",
+      "source_sha256": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371",
+      "stripped": []
+    },
+    {
+      "blanked": [
+        "doc",
+        "bundles/0/entries/0/text",
+        "bundles/0/entries/1/text",
+        "bundles/0/entries/2/text",
+        "bundles/0/entries/3/text",
+        "bundles/0/entries/4/text",
+        "bundles/0/no_assumption/0/why",
+        "bundles/0/no_assumption/1/why",
+        "bundles/0/no_assumption/2/why",
+        "bundles/1/entries/0/text",
+        "bundles/1/entries/1/text",
+        "bundles/1/entries/2/text",
+        "bundles/1/entries/3/text",
+        "bundles/1/entries/4/text",
+        "bundles/1/entries/5/text",
+        "bundles/1/entries/6/text",
+        "bundles/1/entries/7/text",
+        "bundles/1/entries/8/text",
+        "bundles/1/entries/9/text",
+        "bundles/1/entries/10/text",
+        "bundles/1/entries/11/text",
+        "bundles/1/entries/12/text",
+        "bundles/1/entries/13/text",
+        "bundles/1/no_assumption/0/why",
+        "bundles/1/no_assumption/1/why",
+        "bundles/1/no_assumption/2/why",
+        "bundles/1/no_assumption/3/why",
+        "bundles/1/no_assumption/4/why",
+        "bundles/1/no_assumption/5/why",
+        "bundles/1/no_assumption/6/why",
+        "bundles/2/entries/0/text",
+        "bundles/2/entries/1/text",
+        "bundles/2/entries/2/text",
+        "bundles/2/entries/3/text",
+        "bundles/2/no_assumption/0/why",
+        "bundles/2/no_assumption/1/why",
+        "bundles/2/no_assumption/2/why",
+        "bundles/2/no_assumption/3/why",
+        "bundles/2/no_assumption/4/why",
+        "encodings/0/text"
+      ],
+      "given_by": "amendments 3 and 4 (spec/M3/amendments/I46.jsonl, lines 3 and 4): given with its free text blanked",
+      "path": "spec/ledger/assumptions.json",
+      "redaction": {
+        "command": "python tests_m3/blind_ledger.py --commit c3eda1976c6811ff181fd71ae6ad1166f7e86a49 --out <S>",
+        "marker": "(withheld from the blind tree: free text; no record field is computed from it)",
+        "rule": "every doc, text and why member whose value is a string gets the marker; every other member is kept",
+        "script": "tests_m3/blind_ledger.py"
+      },
+      "sha256": "379bcb48d1595e3fc559a1a8ed94ea97303f41384d92a2040977c3e4bca2f27b",
+      "source_sha256": "37e311b2f16d5d7b708b33ceaecceaa216947e2d9e0b403655ab765ff1b6187e",
+      "strip_rules_on_given": [],
+      "strip_rules_on_source": [
+        {
+          "key": "bundles",
+          "reasons": [
+            "leak:case_id",
+            "leak:code_site",
+            "leak:law_name",
+            "leak:section_ref"
+          ]
+        }
+      ],
+      "stripped": []
+    },
+    {
+      "cut": {
+        "command": "python tests_m3/blind_term_size.py --commit c3eda1976c6811ff181fd71ae6ad1166f7e86a49 --out <S>",
+        "rule": "keep term_size_version, budget, tokenizer, literal_list and placeholder; drop every other top-level member",
+        "script": "tests_m3/blind_term_size.py"
+      },
+      "dropped": [
+        "iteration",
+        "doc",
+        "cone_ratio_max",
+        "ratio_site",
+        "context"
+      ],
+      "given_by": "amendment 7 (spec/M3/amendments/I46.jsonl, line 7): cut to the members holon run reads",
+      "path": "spec/M3/lib/term_size.json",
+      "sha256": "26a542db86f5d1b2281237e0894ef440278a59b0cd19e7720d3f0f1ccce704f1",
+      "source_sha256": "31f686b8622677b98f1d4a00761e52110b501115aa6c36577b6b5d29a91f30cb",
+      "strip_rules_on_given": [],
+      "strip_rules_on_source": [
+        {
+          "key": "ratio_site",
+          "reasons": [
+            "leak:code_site"
+          ]
+        },
+        {
+          "key": "context/bend",
+          "reasons": [
+            "hash"
+          ]
+        }
+      ],
+      "stripped": []
+    }
+  ],
+  "leak_classes": [
+    "case_id",
+    "code_site",
+    "law_name",
+    "section_ref",
+    "witness"
+  ],
+  "note": "Run 2's scope set after amendments 3, 4 and 7: the six files and stripped keys of audit/blind/I46/scope/ (run 1's record, unchanged); spec/ledger/assumptions.json with its 40 free-text members blanked by tests_m3/blind_ledger.py; and spec/M3/lib/term_size.json cut to five members by tests_m3/blind_term_size.py. Their given bytes are under files/ here, and stripped.json lists the blanked and dropped key paths.",
+  "protocol": {
+    "path": "spec/M3/lib/blind_rerun.json",
+    "sha256": "cbe878521769e939c7f4a4dacec92bec78e0a0c8744e9049adbf7a307dba7b86"
+  }
+}

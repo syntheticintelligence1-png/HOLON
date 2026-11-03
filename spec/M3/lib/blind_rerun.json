@@ -1,0 +1,75 @@
+{
+  "doc": "I46's prereg sidecar (the contract is the docstring of tests_m3/test_blind_rerun.py; BUILD_PLAN I46 and row I46). It fixes the blind rerun's protocol before anything runs: the commit the pack is made from, the scope set the blind session is given beside the bundle, what the session may read and how that is checked, the runner re-makes from a pack-only branch, the comparison, the Q9 label and the rule that decides the M3 exit. It holds no outcome. <P> is the pack commit, <S> a scratch directory outside every checkout, W the blind session's work directory.",
+  "version": "holon-blind-rerun/0.1",
+  "key": "I46",
+  "pack": {
+    "commit": "the lead at the commit that lands I70: the oldest commit of `git rev-list --first-parent --reverse <lead_ref>` whose tree holds <marker>",
+    "lead_ref": "origin/claude/holon-v2-bend2-c6z3cd",
+    "marker": "docs/iterations/I70.md",
+    "command": "python tools/blind_pack.py --commit <P> --out <S>/pack",
+    "protocol": "spec/M3/lib/blind_pack.json at <P> (I82's, unchanged: the target code, the tooling roots and the redacted whitepaper)",
+    "given": ["bundle.tar"],
+    "withheld": ["manifest.json", "leaks.json"],
+    "committed": ["audit/blind/I46/pack/manifest.json", "audit/blind/I46/pack/leaks.json"]
+  },
+  "scope": {
+    "command": "python tests_m3/blind_scope.py --commit <P> --out <S>/scope",
+    "files": ["spec/*/lib/extract_*.json", "spec/*/lib/go_frontend.json", "spec/*/lib/link.json"],
+    "strip_key_pattern": "(?i)(status|verdict|expected|backtest|witness|outcome|result|(statement|law|record)s?_?(hash|sha256))",
+    "strip_hash_pattern": "sha256:[0-9a-f]{64}",
+    "strip_leaks": "every leak class of spec/M3/lib/blind_pack.json at <P> (its patterns, the law names of its law_names rule and the numbers of its witness_numbers rule), in rule context or not, matched against every scalar and every key under a member",
+    "granularity": "an object is entered and stripped member by member; a list or a scalar is removed whole; a file whose top level is not a JSON object is withheld whole",
+    "given": ["files/<path>", "stripped.json"],
+    "withheld": ["scope.json"],
+    "committed": ["audit/blind/I46/scope/scope.json", "audit/blind/I46/scope/stripped.json", "audit/blind/I46/scope/files/"],
+    "at_base": {
+      "commit": "ac3144de46af932b40c98a425db98dd1cceae76a",
+      "given": ["spec/M2/lib/extract_rollup.json", "spec/M2/lib/extract_solidity.json", "spec/M2/lib/go_frontend.json", "spec/M2/lib/link.json", "spec/M3/lib/go_frontend.json", "spec/M3/lib/link.json"],
+      "stripped": {"spec/M2/lib/extract_solidity.json": {"edges/enc_sol/sink": ["leak:code_site"], "edges/load_sol/sink": ["leak:code_site"]}},
+      "withheld": []
+    }
+  },
+  "session": {
+    "brief": "spec/M3/lib/blind_session.md",
+    "launch": "a fresh agent session, launched by the coordinator with the brief's text and three paths only: <S>/pack/bundle.tar, <S>/scope and W (a new empty directory outside every checkout of HOLON and of the target)",
+    "family": "same",
+    "may_read": "W, which holds only the unpacked bundle, the scope set, the target fetched at the pinned commit, and what the session itself writes",
+    "toolchain_prefixes": ["/usr/", "/bin/", "/etc/", "/opt/node22/", "/root/.bun/", "/root/.holon/bend/", "/root/.holon/bin/", "/root/.holon/tools/", "/root/.holon/lean-4.34.0-linux/", "/root/.holon/solc-0.8.24/", "/root/go/", "/root/.cache/go-build/", "/root/work/foundry/", "/root/work/solc-0.8.24/", "/dev/null"],
+    "network": ["git fetch of https://github.com/morph-l2/morph.git at the pinned commit, depth 1, and of a gitlink its tree names at the commit the tree names, only when a step needs it", "the modules `go` downloads for the target's own go.mod files"],
+    "env": {"BEND_NO_TELEMETRY": "1", "HOLON_BUILD_DIR": "W/build", "HOLON_CACHE": "W/cache"},
+    "authored": "every file the session writes by hand (a sidecar the tooling reads, a stripped key, a path of config/holon.json) is logged as authored, with its sha256 and the command that needed it, and is kept: audit/blind/I46/authored/<path>",
+    "log": "W/blind/log.jsonl, one JSON object per line: {kind: command, cmd, exit, seconds} | {kind: authored, path, sha256, for} | {kind: failed, step, error}; committed as audit/blind/I46/session/log.jsonl"
+  },
+  "runners": {
+    "what": "every M3 law of the blind tree that `holon land plan` routes to a job other than its par job (typed SORT, FACT attribution, UNDO pair and residue one job per law; DISCH and SYM in shards; PAR-init; the bundle and bundle2 jobs; one job per other rule or sub-form), then its final filter stage (holon replay-go when present, holon refute --milestone M3 --only filter, holon sym --aggregate when there are SYM laws)",
+    "branch": "an orphan commit (no parent, so no history of the lead) whose tree is W at the session's end less build/, cache/ and pack/, pushed by `holon land plan --tag i46-blind-<k> --push` run in that commit's repository; its first commit message starts 'CI only (not for merge)'; holon-ci is not in the tree",
+    "apply": "`holon land apply --from claude/ci-i46-blind-<k>-out-<run id>` onto a copy of that tree; nothing of the blind tree is edited by hand, before or after",
+    "local": "the blind session itself runs, with the local checker: M2 in full (run, bind, lean, run) and M3's par job (run, lean, run over the laws `holon land plan` routes to par)"
+  },
+  "leak_check": {
+    "pack": "audit/blind/I46/pack/leaks.json, I82's leak scan of the bundle at <P>, reported and never filtered",
+    "scope": "audit/blind/I46/scope/scope.json: no file given carries a member that the strip rules remove (instrument recomputation)",
+    "reads": "the session's transcript, projected by the coordinator into audit/blind/I46/session/tool_calls.jsonl (every tool call in order: {i, tool, input}; no outputs) with the transcript's sha256 in audit/blind/I46/session/run.json. Every path in a tool call's input is absolute and lies under W or a toolchain prefix (a file tool's path under W only); every shell command begins with `cd W && `; no input holds '..' as a path segment, the root of any HOLON checkout or of the lead's target checkout (/root/work/morph), or a lead path: results/, laws/, spec/, docs/, audit/, facts/, gen/, replay/ or prompts/ outside W; no web tool is called",
+    "void": "a run that fails the reads check is not a blind run: its comparison is reported, and no exit claim rests on it"
+  },
+  "comparison": {
+    "trees": "the blind tree's projection (`holon compare --snapshot <blind tree> --into audit/blind/I46/tree --milestone <M>` for each M with laws/<M> and results/<M>) and the lead's at <P> (`holon compare --snapshot <lead at P> --into audit/blind/I46/lead --milestone M0,M1,M2,M3`)",
+    "metric": "`holon compare --blind audit/blind/I46/tree --lead audit/blind/I46/lead --milestone <the milestones the blind tree holds> --out audit/blind/I46/compare.json` (I82's blind_agreement and matched_fraction over the statuses of alpha-equivalent statements); a milestone the blind tree does not hold has 0 matched classes",
+    "per_rule": "a lead class's rule is the '+'-joined sorted set of its lead laws' rules; per rule: lead classes, matched, agree, matched_fraction, blind_agreement (the instrument's recomputation, tests_m3/_i46.py)",
+    "families": "a lead class's family is its lead laws' facts path, by prefix: codec = gen/M3/codec/, goops = gen/M3/goops/, own = gen/M3/own/, versions = gen/M3/versions/, bundle = gen/M3/bundle/, rollup = spec/M2/facts/morph_rollup.extracted.json, other = anything else"
+  },
+  "exit": {
+    "threshold": 0.9,
+    "min_matched": 40,
+    "scope": "the M3 classes matched between the blind tree and the lead at <P>; the matched fraction is reported beside the agreement; the claim is labelled same-family (Q9)",
+    "clauses": {
+      "E1": "the comparison regenerates: `holon report --milestone M3 --check` prints REPORT OK on the final head",
+      "E2": "M3's blind_agreement >= threshold over at least min_matched matched M3 classes",
+      "E3": "results/M3/audit_status.json at <P> has converged = true (I45's exit, which BUILD_PLAN makes part of the M3 exit)",
+      "E4": "results/M3/backtest.json at <P> has no exit_blockers (I24: no open back-test rule gap)",
+      "E5": "the reads check passes (the run is blind)"
+    },
+    "rule": "the M3 exit is met iff E1-E5 all hold; I46's own clause (BUILD_PLAN I46 Exit) is E1, E2 and E5"
+  },
+  "q9": "same"
+}

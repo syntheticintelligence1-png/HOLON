@@ -1,0 +1,37 @@
+{
+  "steps_failed": [
+    "1: python -m holon versions extract",
+    "1: python -m holon versions model",
+    "1: python -m holon versions analyze",
+    "1: python -m holon bundle model --milestone M3",
+    "1: python -m holon bundle corpus --milestone M3",
+    "1: python -m holon bundle2 deploy",
+    "1: python -m holon bundle2 model",
+    "1: python -m holon bundle2 corpus",
+    "1: python -m holon derivation corpus",
+    "1: python -m holon derivation product",
+    "2: python -m holon sorts --milestone M2",
+    "2: python -m holon diagram --milestone M2",
+    "2: python -m holon evidence --milestone M2",
+    "2: python -m holon derive --milestone M2",
+    "2: python -m holon lossy --milestone M3",
+    "2: python -m holon derive --milestone M3",
+    "3.1: python -m holon run --milestone M2 (first)",
+    "3.1: python -m holon lean --milestone M2",
+    "3.1: python -m holon run --milestone M2 (second)",
+    "3.2: python -m holon run --milestone M3 --laws <par list> (first)",
+    "3.2: python -m holon lean --milestone M3",
+    "3.2: python -m holon run --milestone M3 --laws <par list> (second)"
+  ],
+  "authored": [
+    "config/holon.json",
+    "spec/M2/lib/extract_solidity.json",
+    "spec/M3/lib/derive_extracted.json",
+    "spec/M3/lib/bundle.json",
+    "spec/M3/lib/bundle2.json",
+    "spec/M3/lib/derivation.json",
+    "spec/M3/lib/sort_types.json",
+    "spec/M3/lib/sort_seeds.json",
+    "spec/M2/lib/evidence_lexical.json"
+  ]
+}

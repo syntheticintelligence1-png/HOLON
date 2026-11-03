@@ -1,0 +1,77 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_rt_go_v1",
+  "milestone": "M0",
+  "rule": "PAR",
+  "subform": "round_trip",
+  "evidence": [
+    "E1",
+    "E2"
+  ],
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "statement": {
+    "forall": [
+      {
+        "name": "h",
+        "type": "Header"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "field": "version",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x01"
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "field": "sequencerSetVerifyHash",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "call": "dec_go",
+          "args": [
+            {
+              "call": "enc_sol",
+              "args": [
+                {
+                  "var": "h"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "some": {
+            "call": "view",
+            "args": [
+              {
+                "var": "h"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "notes": "Go getters recover every field from the header Solidity commits at version 1 (blob field via BlobCommitHash)."
+}
