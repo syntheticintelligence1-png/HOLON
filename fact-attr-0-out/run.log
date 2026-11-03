@@ -1,0 +1,30 @@
+2026-11-02T23:31:37Z start
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 646, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 209, in main
+    rc = _main(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 486, in _main
+    return max(rc, fact_run.main(fact_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(fids)]))
+                   ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/fact/run.py", line 955, in main
+    return run_main(a, ids)
+  File "/home/runner/work/HOLON/HOLON/holon/fact/run.py", line 838, in run_main
+    rec, rep = Decider(ctx).decide(lid, real)
+               ~~~~~~~^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/fact/run.py", line 256, in __init__
+    side = json.loads((ctx.root / str(ctx.fsc.doc.get("term_size") or "spec/M3/lib/term_size.json")).read_text())
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/hostedtoolcache/Python/3.13.16/x64/lib/python3.13/pathlib/_local.py", line 546, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.13.16/x64/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.13.16/x64/lib/python3.13/pathlib/_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/HOLON/HOLON/spec/M3/lib/term_size.json'

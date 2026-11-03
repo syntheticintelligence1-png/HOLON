@@ -1,0 +1,37 @@
+2026-11-02T23:32:53Z start
+  prefix depth 0: 32 states, 2 candidates
+  prefix depth 1: 382 states, 64 candidates
+  prefix depth 2: 382 states, 764 candidates
+L_sym_omega_Rollup_challengeState_commitBatchWithProof: no witness (382 prefix states of at most 2 successful steps (max 400), 764 candidates (max 60000), continuations of at most 2 steps: no witness) in 310.4 s
+  prefix depth 0: 32 states, 2 candidates
+  prefix depth 1: 382 states, 64 candidates
+  prefix depth 2: 382 states, 764 candidates
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 646, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 209, in main
+    rc = _main(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 487, in _main
+    rc = _typed_run(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 192, in _typed_run
+    return undo_run.main(argv)
+           ~~~~~~~~~~~~~^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 650, in main
+    rc = max(rc, sym_run.run_main(a, sym_ids))
+                 ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/symd/run.py", line 839, in run_main
+    rec, rep, rs = Decider(ctx).decide(lid, real)
+                   ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/symd/run.py", line 632, in decide
+    rec = self.record(law, e, el, sc, status, wj if status == "REFUTED" else None, attempts, lp, prim,
+                      bound if status == "UNKNOWN" else None, diag, nv)
+  File "/home/runner/work/HOLON/HOLON/holon/symd/run.py", line 740, in record
+    "coverage": RC.coverage_field(law, ctx.root) if ctx.m.startswith("M") else None,
+                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/records.py", line 735, in coverage_field
+    raise ValueError(f"{law.get('law_id')}: its facts document {facts} has no entry in "
+                     f"gen/{law['milestone']}/coverage.json (python -m holon coverage --milestone {law['milestone']})")
+ValueError: L_sym_omega_Rollup_challengeState_commitBatchWithProof: its facts document spec/M2/facts/morph_rollup.extracted.json has no entry in gen/M3/coverage.json (python -m holon coverage --milestone M3)

@@ -1,0 +1,40 @@
+2026-11-02T23:33:17Z start
+L_disch_blk_initializable_120_b8d46c45_anyone: PROVED (frame) in 15.0 s
+L_disch_blk_rollup_132_d953872f_caller_rollup_210: PROVED (frame) in 4.9 s
+  explore: depth 1: 32 distinct states
+  explore: depth 2: 478 distinct states
+L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter: search found nothing in 52.1 s
+  L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner: a candidate at depth 1 (setPause)
+L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner: search found a candidate in 2.5 s
+L_disch_rev_initializable_120_b95c70f1: PROVED (chain_revert) in 4.1 s
+  L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner: a candidate at depth 1 (setPause)
+L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter: S3 found nothing in 42.4 s (1000 neighbourhood prefixes)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 646, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 209, in main
+    rc = _main(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 487, in _main
+    rc = _typed_run(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 188, in _typed_run
+    return max(rc, disch_run.main(disch_run.strip_args(argv, ("--laws",)) + ["--laws", ",".join(dids)]))
+                   ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/disch/run.py", line 947, in main
+    return max(rc, run_disch(a))
+                   ~~~~~~~~~^^^
+  File "/home/runner/work/HOLON/HOLON/holon/disch/run.py", line 829, in run_disch
+    rec, rep = r.finish(lid, outcomes[lid])
+               ~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/disch/run.py", line 621, in finish
+    rec = self.record(d, law, e, status, prim, witness, bound if status == "UNKNOWN" else None, nonvac, attempts,
+                      lp, rep)
+  File "/home/runner/work/HOLON/HOLON/holon/disch/run.py", line 708, in record
+    "coverage": R.coverage_field(law_ir, ctx.root) if ctx.m.startswith("M") else None,
+                ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/records.py", line 735, in coverage_field
+    raise ValueError(f"{law.get('law_id')}: its facts document {facts} has no entry in "
+                     f"gen/{law['milestone']}/coverage.json (python -m holon coverage --milestone {law['milestone']})")
+ValueError: L_disch_blk_initializable_120_b8d46c45_anyone: its facts document spec/M2/facts/morph_rollup.extracted.json has no entry in gen/M3/coverage.json (python -m holon coverage --milestone M3)

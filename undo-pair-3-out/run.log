@@ -1,0 +1,35 @@
+2026-11-02T23:33:11Z start
+  prefix depth 0: 32 states, 1 candidates
+  prefix depth 1: 478 states, 32 candidates
+  prefix depth 2: 2999 states, 478 candidates
+  prefix depth 3: 2999 states, 2999 candidates
+L_undo_pair_Rollup_commitBatchWithProof_revertBatch: no witness (2999 prefix states of at most 3 successful steps (max 3000), 2999 candidates (max 200000), continuations of at most 2 steps: no witness) in 1493.2 s
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 646, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 209, in main
+    rc = _main(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 487, in _main
+    rc = _typed_run(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 192, in _typed_run
+    return undo_run.main(argv)
+           ~~~~~~~~~~~~~^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 648, in main
+    rc = max(rc, run_main(a, undo_ids))
+                 ~~~~~~~~^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 522, in run_main
+    rec, rep = Decider(ctx).decide(lid, real)
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 380, in decide
+    rec = self.record(law, e, el, tc, status, wj if status == "REFUTED" else None, attempts, lp, prim,
+                      bound if status == "UNKNOWN" else None, diag, witness_kept=wj)
+  File "/home/runner/work/HOLON/HOLON/holon/undo/run.py", line 433, in record
+    "coverage": R.coverage_field(law, ctx.root) if ctx.m.startswith("M") else None,
+                ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/records.py", line 735, in coverage_field
+    raise ValueError(f"{law.get('law_id')}: its facts document {facts} has no entry in "
+                     f"gen/{law['milestone']}/coverage.json (python -m holon coverage --milestone {law['milestone']})")
+ValueError: L_undo_pair_Rollup_commitBatchWithProof_revertBatch: its facts document spec/M2/facts/morph_rollup.extracted.json has no entry in gen/M3/coverage.json (python -m holon coverage --milestone M3)

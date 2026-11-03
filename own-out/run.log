@@ -1,0 +1,34 @@
+2026-11-02T23:31:45Z start
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 646, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 209, in main
+    rc = _main(argv)
+  File "/home/runner/work/HOLON/HOLON/holon/__main__.py", line 581, in _main
+    return main_run(a)
+  File "/home/runner/work/HOLON/HOLON/holon/pipeline.py", line 233, in main_run
+    run(args.milestone, args.facts, args.out, args.gen_dir, args.no_registry, core=getattr(args, "core", "import"),
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        only=only)
+        ^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/pipeline.py", line 123, in run
+    return run_m1(milestone, facts_path, out, gen_dir, no_registry, log, core=core, only=only)
+  File "/home/runner/work/HOLON/HOLON/holon/mpipeline.py", line 759, in run_m1
+    rec, kb = CR.decide(law, kind, codec_models, milestone, ROOT, gen, cfg, kver, verdict, triage, report,
+              ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        layout, write_pair, accepted, relpath, scope_fields, test_milestone(milestone), log)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/codecrun.py", line 213, in decide
+    return own_run.decide(law, models.own, milestone, root, gen, cfg, kver, verdict, triage, layout, write_pair,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          accepted, relpath, scope_fields, test, log)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/HOLON/HOLON/holon/own_run.py", line 92, in decide
+    search = OH.search_of(root, milestone)
+  File "/home/runner/work/HOLON/HOLON/holon/gen/ownheap.py", line 1178, in search_of
+    return json.loads((Path(root) / SIDECAR.format(m=milestone)).read_text(encoding="utf-8"))["search"]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'search'
