@@ -646,8 +646,9 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
         return None
     if _slash(law):   # I70: no emitter states a slash law until the linked layer is built (holon.cutover.lawrun)
         return None
-    if _gox(law):   # I93: holon.gox.lawrun writes the law file from the basis; it binds through the statement hash
-        return None
+    if _gox(law):   # I93: as holon.gox.lawrun writes it from the basis; imported by name (outside the closures)
+        import importlib
+        return importlib.import_module("holon.gox.emit").emit(law, m, Path(root), counter)
     if _symb(law):   # I92: as holon.symb.lawrun writes it; imported by name, so the decider stays out of the closures
         import importlib
         SL = importlib.import_module("holon.symb.lawrun")
@@ -850,9 +851,15 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
-    if _slash(law) or _gox(law):   # I70, I93: the binding is the statement hash alone (gox: its basis is hashed in)
+    if _slash(law):   # I70: no statement over the linked layer yet, so the binding is its statement hash alone
         return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
                 "statement_sha256": None, "counter_sha256": None, "cone": {}}
+    if _gox(law):   # I93: the emitted law and counter-law (each None where the decider writes no such form); the
+        # module's definitions bind through the statement hash, whose gox: ref hashes the basis they are generated from
+        st, ct = _emit(law, m, root, counter=False), _emit(law, m, root, counter=True)
+        return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
+                "statement_sha256": text_sha256(st) if st is not None else None,
+                "counter_sha256": text_sha256(ct) if ct is not None else None, "cone": {}}
     if _symb(law):   # I92: the member's model and section as one module; U. roots are the section's (the versioned
         # and link modules' own names, V. and K., bind through the statement hash: their inputs are in its basis)
         st = _emit(law, m, root, counter=False)
