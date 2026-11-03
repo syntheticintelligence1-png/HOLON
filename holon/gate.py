@@ -1629,13 +1629,18 @@ class Gate:
 
     def g11v(self) -> None:
         from . import inhabit
-        from .bindings import _sym, _symb
+        from .bindings import _gox, _sym, _symb
         laws = self.laws()
         sym = [law for law in laws if _sym(law)]
         symb = [law for law in laws if _symb(law)]
-        if sym or symb:   # I34: a SYM law's inhabitant is stated over the typed model and its sym section
+        gox = [law for law in laws if _gox(law)]
+        if sym or symb or gox:   # I34: a SYM law's inhabitant is stated over the typed model and its sym section
             import importlib   # (holon.symd.gate); I92: a SYM member law's over its member's model and section
-            ok, detail = inhabit.g11v(_Narrowed(self, [law for law in laws if not _sym(law) and not _symb(law)]))
+            ok, detail = inhabit.g11v(_Narrowed(self, [law for law in laws if not _sym(law) and not _symb(law)
+                                                       and not _gox(law)]))
+            if gox:   # I93: PAR's Go laws (holon.gox.gate)
+                ok_g, det_g = importlib.import_module("holon.gox.gate").g11v(self, gox)
+                ok, detail = ok and ok_g, f"{detail}; PAR Go laws: {det_g}"
             if sym:   # imported by name: they stay outside every generator closure
                 ok_s, det_s = importlib.import_module("holon.symd.gate").g11v(self, sym)
                 ok, detail = ok and ok_s, f"{detail}; SYM laws: {det_s}"

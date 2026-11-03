@@ -352,6 +352,9 @@ def render_term(t: dict) -> str:
     # holon-ir/0.3 (I92): a SYM member term, symb_ok[ID](args) over a bundle member's section (holon.rules.symb)
     if isinstance(t.get("symb"), str) and isinstance(t.get("on"), list):
         return f"symb_ok[{t['symb']}]({', '.join(render_term(a) for a in t['on'])})"
+    # holon-ir/0.3 (I93): a PAR Go term, gox_ok[ID](args) over the law's generated module (holon.rules.gox)
+    if isinstance(t.get("gox"), str) and isinstance(t.get("on"), list):
+        return f"gox_ok[{t['gox']}]({', '.join(render_term(a) for a in t['on'])})"
     # holon-ir/0.3 (I70): a slash term, slash_ok[ID](S, K, U, EA, EB) over a migration's slash sites (holon.rules.slash)
     if isinstance(t.get("slash"), str) and isinstance(t.get("on"), list):
         return f"slash_ok[{t['slash']}]({', '.join(render_term(a) for a in t['on'])})"

@@ -551,6 +551,9 @@ BUNDLE_SUBFORMS = ("payer", "conservation", "keyed_blocking", "keyed_external", 
 # I92's SYM member sub-forms (holon.rules.symb.SUBFORMS): decided by `holon run` (holon.symb.lawrun), one job, apart
 # from I34's sharded SYM laws.
 SYMB_SUBFORMS = ("member_tau", "member_sentinel", "sentinel_inv")
+# I93's PAR Go sub-forms (holon.rules.gox.SUBFORMS): decided by `holon run` (holon.gox.lawrun) from the committed replays
+# of `holon gox replay`, one job of their own (no lean step).
+GOX_SUBFORMS = ("go_round_trip", "go_branch", "go_recompute")
 
 
 def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
@@ -573,6 +576,8 @@ def jobs_for(root: Path, m: str, laws: list[str], restamp: bool) -> list[dict]:
             g = f"fact-attr-{lid}"
         elif r == "UNDO" and s in ("pair", "residue"):
             g = f"undo-{s}-{lid}"
+        elif r == "PAR" and s in GOX_SUBFORMS:   # I93's Go laws: one job of their own
+            g = "gox"
         elif r == "PAR":
             g = "pinit" if s == "init_chain" else "par"
         elif r == "SYM" and s in SYMB_SUBFORMS:   # I92's member laws: one job of their own

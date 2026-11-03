@@ -1,0 +1,106 @@
+{
+  "detail": "(*morph-l2/common/batch.BatchData).DataHash hashes the witness's 58-byte preimage to 7cdb9d7f02ea58df..; the contract's _commitBatch at {'batchDataInput.lastBlockNumber': '0', 'batchDataInput.numL1Messages': '0', '_totalL1MessagesPoppedOverall': '0'} gives 6bd2dd6bd408cbee..",
+  "harness_sha256": "4b845293dfb22535ccb46c46ba7bbf66660a5bbd21d26fc6f5a3a37bfe600a57",
+  "kind": "go_recompute",
+  "law_id": "L_par_gorc_data_hash_BatchData_DataHash",
+  "observed": {
+    "go_digest": "7cdb9d7f02ea58dfeb797ed6b4f7ea68846e4f2b0e30ed1535fc98b60c4ec809",
+    "solidity_call": {
+      "args": {
+        "_totalL1MessagesPoppedOverall": "0",
+        "batchDataInput.lastBlockNumber": "0",
+        "batchDataInput.numL1Messages": "0"
+      },
+      "function": "_commitBatch",
+      "inputs": {
+        "lastBlockNumber": 0,
+        "numL1Messages": 0
+      }
+    },
+    "solidity_digest": "6bd2dd6bd408cbee33429358bf24fdc64612fbf8b1b4db604518f40ffd34b607",
+    "state": {
+      "blockContexts": true,
+      "blockNum": true,
+      "l1TxHashes": true
+    }
+  },
+  "verdict": "agree",
+  "witness": {
+    "appends": 1,
+    "function": "(*morph-l2/common/batch.BatchData).DataHash",
+    "go_preimage_length": 58,
+    "kind": "go_recompute",
+    "lists": {
+      "b_cks_blockContexts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "b_cks_l1TxHashes": []
+    },
+    "nats": {
+      "k_cks_blockNum": 1
+    },
+    "rest": [
+      "b_cks_l1TxHashes"
+    ]
+  },
+  "witness_sha256": "ce5c9ac2d88a011b99ad23661c78ebb4c320c30090d17930f1aa3cbe4a19b3ee"
+}

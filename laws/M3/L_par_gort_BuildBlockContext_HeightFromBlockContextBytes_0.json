@@ -1,0 +1,80 @@
+{
+  "facts": "spec/M3/facts/morph_go03.go.extracted.json",
+  "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_0",
+  "milestone": "M3",
+  "notes": "Go codec round trip: morph-l2/common/batch.HeightFromBlockContextBytes recovers what morph-l2/common/batch.BuildBlockContext (entry 0, length 60) wrote at its reads, for all of the encoder's inputs (P1 over an unversioned Go codec); gox go_round_trip:BuildBlockContext:HeightFromBlockContextBytes:0",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.15",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "x_0",
+        "q": "forall",
+        "type": "Bytes(8)"
+      },
+      {
+        "name": "x_1",
+        "q": "forall",
+        "type": "Bytes(8)"
+      },
+      {
+        "name": "x_2",
+        "q": "forall",
+        "type": "Bytes(32)"
+      },
+      {
+        "name": "x_3",
+        "q": "forall",
+        "type": "Bytes(8)"
+      },
+      {
+        "name": "x_4",
+        "q": "forall",
+        "type": "Bytes(2)"
+      },
+      {
+        "name": "x_5",
+        "q": "forall",
+        "type": "Bytes(2)"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "gox": "go_round_trip:BuildBlockContext:HeightFromBlockContextBytes:0",
+          "on": [
+            {
+              "var": "x_0"
+            },
+            {
+              "var": "x_1"
+            },
+            {
+              "var": "x_2"
+            },
+            {
+              "var": "x_3"
+            },
+            {
+              "var": "x_4"
+            },
+            {
+              "var": "x_5"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "go_round_trip"
+}
