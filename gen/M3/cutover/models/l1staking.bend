@@ -1017,6 +1017,11 @@ def w_shr_1(a: W) -> W:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{U32.or(U32.shrn(a0, 1n), U32.shln(a1, 31n)), U32.or(U32.shrn(a1, 1n), U32.shln(a2, 31n)), U32.or(U32.shrn(a2, 1n), U32.shln(a3, 31n)), U32.or(U32.shrn(a3, 1n), U32.shln(a4, 31n)), U32.or(U32.shrn(a4, 1n), U32.shln(a5, 31n)), U32.or(U32.shrn(a5, 1n), U32.shln(a6, 31n)), U32.or(U32.shrn(a6, 1n), U32.shln(a7, 31n)), U32.shrn(a7, 1n)}
 
+def w_shr_5(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{U32.or(U32.shrn(a0, 5n), U32.shln(a1, 27n)), U32.or(U32.shrn(a1, 5n), U32.shln(a2, 27n)), U32.or(U32.shrn(a2, 5n), U32.shln(a3, 27n)), U32.or(U32.shrn(a3, 5n), U32.shln(a4, 27n)), U32.or(U32.shrn(a4, 5n), U32.shln(a5, 27n)), U32.or(U32.shrn(a5, 5n), U32.shln(a6, 27n)), U32.or(U32.shrn(a6, 5n), U32.shln(a7, 27n)), U32.shrn(a7, 5n)}
+
 def w_shr_8(a: W) -> W:
   match a:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
@@ -1026,6 +1031,23 @@ def w_shr_160(a: W) -> W:
   match a:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{a5, a6, a7, 0, 0, 0, 0, 0}
+
+def b_clr(n: Nat, +o: HSt, +s: W) -> HSt:
+  match n:
+    case 0n:
+      o
+    case 1n+m:
+      b_clr(m, sstore(o, s, w0()), w_add(s, w_u(1)))
+
+def b_tw(n: Nat, +t: List<&2, W>, +s: W) -> List<&2, W>:
+  match n:
+    case 0n:
+      t
+    case 1n+m:
+      b_tw(m, Con{s, t}, w_add(s, w_u(1)))
+
+def b_cnt(+l: W) -> Nat:
+  ite(Nat, w_nz(w_and(l, w_u(1))), n_of_w(w_shr_5(w_add(w_shr_1(l), w_u(31)))), 0n)
 
 def w_rep(n: Nat) -> List<&2, W>:
   match n:
@@ -2025,7 +2047,8 @@ def wr_claimWithdrawal_14(x: X_claimWithdrawal) -> X_claimWithdrawal:
       +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(sload(x_c1_1, w_add(h_get(x_kh, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 160]), x_c1_0)), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 162])) : W}
       +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{0, 0, 0, 0, 0, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))) : HSt}
       +o2 = {sstore(o1, w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
-      sx_claimWithdrawal_tw(sx_claimWithdrawal_ov(X_claimWithdrawal{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_c1_2, x_c1_3, x_c1_4, x_c1_5, x_it1, x_cn1, x_rt1, x_ld1}, o2), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), x_tw}})
+      +o3 = {sstore(b_clr(b_cnt(sload(o2, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}))), o2, h_get(x_kh, b_of_w(w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0})))), w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
+      sx_claimWithdrawal_tw(sx_claimWithdrawal_ov(X_claimWithdrawal{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c1_0, x_c1_1, x_c1_2, x_c1_3, x_c1_4, x_c1_5, x_it1, x_cn1, x_rt1, x_ld1}, o3), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), b_tw(b_cnt(sload(o2, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}))), x_tw, h_get(x_kh, b_of_w(w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}))))}}})
 
 def wc_claimWithdrawal_14(c: Bool, x: X_claimWithdrawal) -> X_claimWithdrawal:
   match c:
@@ -2771,7 +2794,8 @@ def wr_cleanStakerStore_11(x: X_cleanStakerStore) -> X_cleanStakerStore:
       +k = {h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_and(sload(x_c2_1, w_add(h_get(x_kh, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 160]), x_c2_0)), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 162])) : W}
       +o1 = {sstore(o0, k, w_or(w_and(sload(o0, k), W{0, 0, 0, 0, 0, 4294967295, 4294967295, 4294967295}), w_and(w0(), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))) : HSt}
       +o2 = {sstore(o1, w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
-      sx_cleanStakerStore_tw(sx_cleanStakerStore_ov(X_cleanStakerStore{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_c2_2, x_c2_3, x_c2_4, x_c2_5, x_it2, x_cn2, x_rt2, x_ld2}, o2), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), x_tw}})
+      +o3 = {sstore(b_clr(b_cnt(sload(o2, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}))), o2, h_get(x_kh, b_of_w(w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0})))), w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), w0()) : HSt}
+      sx_cleanStakerStore_tw(sx_cleanStakerStore_ov(X_cleanStakerStore{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c2_0, x_c2_1, x_c2_2, x_c2_3, x_c2_4, x_c2_5, x_it2, x_cn2, x_rt2, x_ld2}, o3), Con{k, Con{w_add(k, W{1, 0, 0, 0, 0, 0, 0, 0}), Con{w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}), b_tw(b_cnt(sload(o2, w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}))), x_tw, h_get(x_kh, b_of_w(w_add(k, W{2, 0, 0, 0, 0, 0, 0, 0}))))}}})
 
 def wc_cleanStakerStore_11(c: Bool, x: X_cleanStakerStore) -> X_cleanStakerStore:
   match c:

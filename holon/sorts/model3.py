@@ -1817,6 +1817,7 @@ class Machine(Gen):
             lines = [f"  +o0 = {self.gx(sc, 'ov')}", f"  +k = {{{slot} : W}}"]
             kloc, kcode = None, "k"
         slots: list = []
+        wraps: list = []   # I94: touched words a member's clearing adds by count (bytes data slots), outermost last
         if t.get("encoding") == "inplace" and "members" in t:
             vals = self.struct_value(w.value, sc, lines)
             cur = "o0"
@@ -1826,6 +1827,19 @@ class Machine(Gen):
                 if mt.get("encoding") != "inplace" or "members" in mt or "base" in mt:
                     if vals.get(mm["label"], "w0()") != "w0()":
                         raise GenError(f"{sc.action}: a write of member {mm['label']} ({mt.get('label')}) of {fam}")
+                    if mt.get("encoding") == "bytes":
+                        # I94 (F1): the zero write of a struct clears a bytes or string member as the compiler does:
+                        # its slot, and in the long form (the slot's lowest bit set) its ceil(length / 32) data
+                        # slots from keccak256(slot), each a touched word
+                        if self.sk:
+                            raise GenError(f"{sc.action}: the delete of member {mm['label']} ({mt.get('label')}) "
+                                           f"of {fam} in a structural store")
+                        ms = "k" if not int(mm["slot"]) else f"w_add(k, {wlit(int(mm['slot']))})"
+                        n += 1
+                        lines.append(f"  +o{n} = {{{_i94_bytes_clear(self, f'o{n - 1}', ms, wraps, self.gx(sc, 'kh'))} : HSt}}")
+                        cur = f"o{n}"
+                        if ms not in slots:
+                            slots.append(ms)
                     continue
                 if self.sk:
                     ms = kloc.plus(int(mm["slot"])).code()
@@ -1845,6 +1859,8 @@ class Machine(Gen):
         else:
             raise GenError(f"{sc.action}: a write of a whole {t.get('label')} ({fam})")
         tw = self.gx(sc, "tw")
+        for wrap in wraps:
+            tw = wrap.replace("\x00TW\x00", tw)
         for s_ in reversed(slots):
             tw = f"Con{{{s_}, {tw}}}"
         lines.append(f"  {self.sx(sc, 'tw', self.sx(sc, 'ov', 'x', cur), tw)}")
@@ -3474,3 +3490,19 @@ class Model3X(Model3):
     t_pop = _i70_t_pop
     t_len = _i70_t_len
     write_body = _i70_write_body2
+
+
+# ------------------------------------------------------------------------------------------------ I94 (F1)
+def _i94_bytes_clear(self, view: str, ms: str, wraps: list, kh: str) -> str:
+    """The store view with the bytes or string value at slot ms cleared (raw store): the slot, and in the long form its
+    data slots keccak256(ms) + i for i < ceil(length / 32); wraps gets the touched-words wrapper of the data slots."""
+    bclr = _ext_helper(self, "b_clr", "def b_clr(n: Nat, +o: HSt, +s: W) -> HSt:\n  match n:\n    case 0n:\n      o\n"
+                       "    case 1n+m:\n      b_clr(m, sstore(o, s, w0()), w_add(s, w_u(1)))\n")
+    btw = _ext_helper(self, "b_tw", "def b_tw(n: Nat, +t: List<&2, W>, +s: W) -> List<&2, W>:\n  match n:\n"
+                      "    case 0n:\n      t\n    case 1n+m:\n      b_tw(m, Con{s, t}, w_add(s, w_u(1)))\n")
+    cnt = _ext_helper(self, "b_cnt", "def b_cnt(+l: W) -> Nat:\n  ite(Nat, w_nz(w_and(l, w_u(1))), "
+                      f"n_of_w({self.shr(5)}(w_add({self.shr(1)}(l), w_u(31)))), 0n)\n")
+    base = f"h_get({kh}, b_of_w({ms}))"
+    n = f"{cnt}(sload({view}, {ms}))"
+    wraps.append(f"{btw}({n}, \x00TW\x00, {base})")
+    return f"sstore({bclr}({n}, {view}, {base}), {ms}, w0())"
