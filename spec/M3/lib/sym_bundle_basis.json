@@ -1,0 +1,98 @@
+{
+ "idx_keys": {
+  "messenger": [
+   "prevReplayIndex"
+  ],
+  "queue": [
+   "messageEnqueueTime"
+  ]
+ },
+ "idx_registers": {
+  "messenger": [
+   "prevReplayIndex",
+   "replayStates.lastIndex"
+  ],
+  "queue": [
+   "pendingQueueIndex"
+  ]
+ },
+ "law_ids": [
+  "L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_5f7b1577_305",
+  "L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_b2267a7b_305",
+  "L_sym_sentinel_L1CrossDomainMessenger_replayStates_lastIndex_replayMessage_231",
+  "L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendCrossDomainMessage_377",
+  "L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendEnforcedTransaction_377",
+  "L_sym_tau_L1CrossDomainMessenger_replayMessage",
+  "L_sym_tau_L1CrossDomainMessenger_sendMessage_5f7b1577",
+  "L_sym_tau_L1CrossDomainMessenger_sendMessage_b2267a7b",
+  "L_sym_tau_L1MessageQueueWithGasPriceOracle_appendCrossDomainMessage",
+  "L_sym_tau_L1MessageQueueWithGasPriceOracle_appendEnforcedTransaction",
+  "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime",
+  "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp",
+  "L_sym_tau_link_Rollup_commitBatch",
+  "L_sym_tau_link_Rollup_commitBatchWithProof",
+  "L_sym_tau_link_Rollup_commitState"
+ ],
+ "link_callers": [
+  "commitBatch",
+  "commitBatchWithProof",
+  "commitState"
+ ],
+ "sentinel_registers": {
+  "messenger": [
+   [
+    "messageSendTimestamp",
+    0
+   ],
+   [
+    "replayStates.lastIndex",
+    0
+   ]
+  ],
+  "queue": [
+   [
+    "messageEnqueueTime",
+    0
+   ]
+  ]
+ },
+ "sentinel_sites": {
+  "messenger": [
+   [
+    "messageSendTimestamp",
+    "sendMessage_5f7b1577",
+    "contracts/contracts/l1/L1CrossDomainMessenger.sol:305"
+   ],
+   [
+    "messageSendTimestamp",
+    "sendMessage_b2267a7b",
+    "contracts/contracts/l1/L1CrossDomainMessenger.sol:305"
+   ],
+   [
+    "replayStates.lastIndex",
+    "replayMessage",
+    "contracts/contracts/l1/L1CrossDomainMessenger.sol:231"
+   ]
+  ],
+  "queue": [
+   [
+    "messageEnqueueTime",
+    "appendCrossDomainMessage",
+    "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:377"
+   ],
+   [
+    "messageEnqueueTime",
+    "appendEnforcedTransaction",
+    "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol:377"
+   ]
+  ]
+ },
+ "time_registers": {
+  "messenger": [
+   "messageSendTimestamp"
+  ],
+  "queue": [
+   "messageEnqueueTime"
+  ]
+ }
+}

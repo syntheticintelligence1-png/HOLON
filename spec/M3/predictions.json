@@ -9988,6 +9988,139 @@
           "Counting: P1 is recorded (its constants were read before the prereg); P2-P6 are counted (no codec call before the prereg; P5's first half rests on the binding's source text, which was read). Count them as listed if you judge that enough."
         ]
       }
+    },
+    "I92": {
+      "title": "= I34b: rule SYM over Bundle I (O21 and the messenger's sentinels). The queue's enqueue actions compiled by model3, the legacy queue (v0.4.9, before messageEnqueueTime) extracted with eta_enq, nominal Time and Idx sorts over the queue and the messenger, and SYM's tau and sentinel laws over both members and tau over the Rollup-queue link: O21 predicted REFUTED from a migrated legacy-queue state at the getter's comparison against 0, replayed on the real code through the proxy upgrade; the messenger's sentinels predicted PROVED",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I92)",
+      "prompt": "prompts/I92_sym_bundle.md",
+      "predictions": [
+        {
+          "id": "I92-P1",
+          "claim": "model3 compiles the queue's enqueue actions (K8): after I92, gen/M3/bundle/models/models.json lists no debt for the queue's appendCrossDomainMessage, appendEnforcedTransaction or getCrossDomainMessage, and the legacy queue's model (gen/M3/symb/legacy/models.json) compiles its appendCrossDomainMessage and appendEnforcedTransaction. Derivation: I69's debt for these three actions is one construct, the length of a storage dynamic array (and its push); the hash term the enqueue actions store is already in the generator's language (I69's document holds it inlined as mem/mstore8 terms), so the length and push are the only missing pieces. computeTransactionHash's wbyte is a standalone view no I92 law reads.",
+          "check": "tests_m3/test_sym_bundle.py::TestModels::test_p1_the_queue_enqueue_actions_compile"
+        },
+        {
+          "id": "I92-P2",
+          "claim": "The legacy queue and eta_enq (K1, K3): the queue at v0.4.9 (1f4e42cf) is extracted with I69's frontend and sidecar into gen/M3/symb/legacy/queue.json; gen/M3/symb/eta_enq.json maps each of its registers to the head register of the same name and slot, and lists exactly messageEnqueueTime as fresh. Derivation: v0.4.10 (9b49a94a, #849) appends mapping(uint256 => uint256) messageEnqueueTime after whitelistChecker (slot 107 at the head), and no declaration of v0.4.9 moves (the two sources' state variables, compared at the prereg), so every legacy slot keeps its slot and the upgrade leaves messageEnqueueTime empty: every message enqueued before the upgrade reads enqueue time 0.",
+          "check": "tests_m3/test_sym_bundle.py::TestModels::test_p2_eta_enq_is_the_layout_map"
+        },
+        {
+          "id": "I92-P3",
+          "claim": "The members' nominal sorts (K2) are the instrument's fixed point: Time registers queue messageEnqueueTime and messenger messageSendTimestamp; Idx registers queue pendingQueueIndex and messenger prevReplayIndex and replayStates.lastIndex; Idx key domains queue messageEnqueueTime and messenger prevReplayIndex (spec/M3/lib/sym_bundle_basis.json). Derivation: tests_m3/_i92.py on I69's documents at the prereg base: block.timestamp is stored in messageEnqueueTime (:377) and messageSendTimestamp (:305); the queue's length keys messageEnqueueTime and is compared with pendingQueueIndex in the getter; replayMessage stores trunc128 of nextCrossDomainMessageIndex (the queue's length) in lastIndex and lastIndex + 1 in prevReplayIndex, keyed by that answer.",
+          "check": "tests_m3/test_sym_bundle.py::TestSorts::test_p3_the_member_sorts_are_the_instruments"
+        },
+        {
+          "id": "I92-P4",
+          "claim": "The messenger's and the queue's sentinels are PROVED (K4, D6): the five sentinel laws of the basis, the four Time sentinels (messageEnqueueTime written by appendCrossDomainMessage and appendEnforcedTransaction at :377, messageSendTimestamp written by both sendMessage overloads at :305) under block_timestamp(x) >= 1, and replayStates.lastIndex written by replayMessage (:231) over the messenger-queue link. Derivation: each Time site stores block.timestamp, which the premise keeps at 1 or more; the lastIndex site stores trunc128 of the queue's length, read after the guard messageSendTimestamp[h] > 0, which only a send sets, and every send appends to the queue first, whose length never decreases, so the length is at least 1 and below 2^128 (a Reach induction in I68's S10 shape, the invariant across the two members). A proof the induction cannot close stays UNKNOWN naming the invariant.",
+          "check": "tests_m3/test_sym_bundle.py::TestLaws::test_p4_the_sentinel_laws_are_proved"
+        },
+        {
+          "id": "I92-P5",
+          "claim": "The member tau laws: the messenger's three (sendMessage_5f7b1577, sendMessage_b2267a7b, replayMessage) are REFUTED, each record naming the comparison of messageSendTimestamp against 0 its witness crosses (sendMessage's == 0 at :304, replayMessage's > 0 at :193; site_kind compare); none of the queue's four (appendCrossDomainMessage, appendEnforcedTransaction, getFirstUnfinalizedMessageEnqueueTime, getMessageEnqueueTimestamp) is REFUTED. Derivation: tau_d is EVM-faithful (I34's J3), so a hash never sent reads d in tau_d s: sendMessage's duplicate check reverts on one side only, and replayMessage's 'not enqueued' check passes on one side only. The queue's enqueue actions store block.timestamp, which translates with every other Time word, and compare no Time word against a constant; its two views write nothing and do not revert on a Time word. No tau law was PROVED at I34 (the relational mirror is not built), so the four queue laws are expected UNKNOWN.",
+          "check": "tests_m3/test_sym_bundle.py::TestLaws::test_p5_member_tau_laws"
+        },
+        {
+          "id": "I92-P6",
+          "claim": "O21: the three link tau laws (L_sym_tau_link_Rollup_commitBatch, _commitBatchWithProof, _commitState) are REFUTED. Each witness crosses the getter's comparison of messageEnqueueTime[pendingQueueIndex] against 0 (queue :262) from a prefix holding the queue's upgrade from v0.4.9 (eta_enq) after a message was enqueued, every step with block_timestamp >= 1, and the real-code replay (the legacy implementation behind the proxy, upgraded at the prefix's step) agrees. Under the same budgets the head-only search finds no witness crossing :262. Derivation: after the upgrade, the pending legacy message's enqueue time is 0, so in s the getter returns block.timestamp t and the Rollup's delay check t + rollupDelayPeriod < t is false; in tau_d s the absent key reads d, the getter returns d, and the check d + rollupDelayPeriod < t + d holds once t > rollupDelayPeriod, so a batch with numL1Messages = 0 reverts 'l1msg delay' on one side only. At the head, every enqueue stores block.timestamp >= 1, so a pending message never reads 0; I34's Rollup-only tau laws for these three actions are UNKNOWN (no witness).",
+          "check": "tests_m3/test_sym_bundle.py::TestLaws::test_p6_o21_the_link_tau_laws_are_refuted_from_a_migrated_queue"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I92-R1",
+          "claim": "Earlier outputs do not move: the inputs of thresholds.inputs_sha256 keep their sha256, I34's 77 SYM law statements are unchanged, and every bundle model but the queue's keeps its sha256.",
+          "check": "tests_m3/test_sym_bundle.py::TestRegressions::test_r1_earlier_outputs_do_not_move"
+        },
+        {
+          "id": "I92-R2",
+          "claim": "I92's own commits (the non-merge commits of git log --first-parent <C_K>..<end>, end the oldest commit adding docs/iterations/I92.md) write no frozen root and no other key's prediction, prompt or contract file.",
+          "check": "tests_m3/test_sym_bundle.py::TestRegressions::test_r2_own_commits_touch_nothing_forbidden"
+        },
+        {
+          "id": "I92-R3",
+          "claim": "holon audit prereg passes for M3 and M2 at the build head.",
+          "check": "tests_m3/test_sym_bundle.py::TestRegressions::test_r3_prereg_audits_pass"
+        },
+        {
+          "id": "I92-R4",
+          "claim": "Target-agnostic code: no holon/ file names the members' contracts, their Time or Idx registers or the getter (K11).",
+          "check": "tests_m3/test_sym_bundle.py::TestRegressions::test_r4_own_code_names_no_target"
+        }
+      ],
+      "outcome_paths": [
+        "gen/M3/symb/",
+        "results/M3/symb/",
+        "replay/M3/symb/",
+        "laws/M3/L_sym_tau_L1MessageQueueWithGasPriceOracle_",
+        "laws/M3/L_sym_tau_L1CrossDomainMessenger_",
+        "laws/M3/L_sym_tau_link_",
+        "laws/M3/L_sym_sentinel_L1MessageQueueWithGasPriceOracle_",
+        "laws/M3/L_sym_sentinel_L1CrossDomainMessenger_",
+        "gen/M3/laws/L_sym_tau_L1MessageQueueWithGasPriceOracle_",
+        "gen/M3/laws/L_sym_tau_L1CrossDomainMessenger_",
+        "gen/M3/laws/L_sym_tau_link_",
+        "gen/M3/laws/L_sym_sentinel_L1MessageQueueWithGasPriceOracle_",
+        "gen/M3/laws/L_sym_sentinel_L1CrossDomainMessenger_",
+        "gen/M3/proofs/L_sym_tau_L1MessageQueueWithGasPriceOracle_",
+        "gen/M3/proofs/L_sym_tau_L1CrossDomainMessenger_",
+        "gen/M3/proofs/L_sym_tau_link_",
+        "gen/M3/proofs/L_sym_sentinel_L1MessageQueueWithGasPriceOracle_",
+        "gen/M3/proofs/L_sym_sentinel_L1CrossDomainMessenger_",
+        "results/M3/L_sym_tau_L1MessageQueueWithGasPriceOracle_",
+        "results/M3/L_sym_tau_L1CrossDomainMessenger_",
+        "results/M3/L_sym_tau_link_",
+        "results/M3/L_sym_sentinel_L1MessageQueueWithGasPriceOracle_",
+        "results/M3/L_sym_sentinel_L1CrossDomainMessenger_",
+        "docs/iterations/I92.md"
+      ],
+      "tests": [
+        "tests_m3/test_sym_bundle.py"
+      ],
+      "thresholds": {
+        "base": "9df9ddec (the lead after I46's landing, #99)",
+        "base_commit": "9df9ddecb7164ba9b5b508bdfa2c873d71c4351a",
+        "instrument": "tests_m3/_i92.py",
+        "instrument_sha256": "5d8ce9ba386cee245ef39836062c059b873769e54e588a26c1a4486d3629fa71",
+        "sidecar": "spec/M3/lib/sym_bundle.json",
+        "sidecar_sha256": "e1e4d597a7bb280f2de632d8dd4d9dd16be74afd0a55a8c84ae2ce245c29a10e",
+        "basis": "spec/M3/lib/sym_bundle_basis.json",
+        "basis_sha256": "976b6446181b1ca2d48aafddb68f51be82a438625f53be376122b42e5cb03186",
+        "contract_docstring_sha256": "bde8afe93dd7f4f6a4b9dea326451a303e60744bf6743e2c7425142c2d4e726b",
+        "law_ids": [
+          "L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_5f7b1577_305",
+          "L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_b2267a7b_305",
+          "L_sym_sentinel_L1CrossDomainMessenger_replayStates_lastIndex_replayMessage_231",
+          "L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendCrossDomainMessage_377",
+          "L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendEnforcedTransaction_377",
+          "L_sym_tau_L1CrossDomainMessenger_replayMessage",
+          "L_sym_tau_L1CrossDomainMessenger_sendMessage_5f7b1577",
+          "L_sym_tau_L1CrossDomainMessenger_sendMessage_b2267a7b",
+          "L_sym_tau_L1MessageQueueWithGasPriceOracle_appendCrossDomainMessage",
+          "L_sym_tau_L1MessageQueueWithGasPriceOracle_appendEnforcedTransaction",
+          "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime",
+          "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp",
+          "L_sym_tau_link_Rollup_commitBatch",
+          "L_sym_tau_link_Rollup_commitBatchWithProof",
+          "L_sym_tau_link_Rollup_commitState"
+        ],
+        "catalog": "the next free holon-rules version when I92 derives, holding every earlier catalog's producers as the same objects (expected holon-rules/1.14, or the version after I94's if I94 lands first); fixed and disclosed at the derive",
+        "depends_on": {
+          "I34": "PR #90 (SYM, holon-rules/1.12)",
+          "I69": "the bundle documents and models",
+          "I94": "the Bend linked layer and versioned reach when generic (K3); otherwise I92 writes them"
+        },
+        "inputs_sha256": {
+          "gen/M3/bundle/documents/queue.json": "32786cbfecfc119492d4b12e1d29c02201c3b34d3adebeb6bd0553b118112d8c",
+          "gen/M3/bundle/documents/messenger.json": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+          "spec/M2/facts/morph_rollup.extracted.json": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+          "gen/M3/bundle/bundle.json": "e857b0e853b31945ceb8306c1451e43941bdf05aa1a3fb8491ced6423ff0e800"
+        },
+        "target": {
+          "head": "3e44e795586af3e11285b603ab642c67823add51",
+          "legacy_tag": "v0.4.9",
+          "legacy_commit": "1f4e42cf4c0e6680285770885477bc7450e5e900"
+        }
+      }
     }
   }
 }
