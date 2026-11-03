@@ -297,6 +297,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["bundle2"]:  # likewise for holon.bundle2 (Bundle II's extraction and linked machine, I80)
         from . import bundle2
         return bundle2.main(argv[1:])
+    if argv[:1] == ["symb"]:  # likewise for holon.symb (I92: SYM over Bundle I's members and links; outside every closure)
+        from . import symb
+        return symb.main(argv[1:])
     if argv[:1] == ["cutover"]:  # likewise for holon.cutover (a migration's slash sites, linked; outside every closure)
         from . import cutover
         return cutover.main(argv[1:])

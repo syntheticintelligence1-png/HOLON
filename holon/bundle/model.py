@@ -29,7 +29,7 @@ def init_of(ctx: Ctx, name: str) -> dict:
     return {"binding": ctx.out("deployment"), "storage": dict(st)}
 
 
-def compile_member(ctx: Ctx, name: str, init: dict) -> tuple:
+def compile_member(ctx: Ctx, name: str, init: dict, rel: str | None = None) -> tuple:
     """(model text, debt [(action, error)]) of one member: model3's untyped machine with its extension EXT1 (I70's
     storage arrays and calls, I92's array length, Yul byte and shared conditional memory writes), an action it cannot
     compile left out as debt."""
@@ -38,7 +38,7 @@ def compile_member(ctx: Ctx, name: str, init: dict) -> tuple:
     from ..sorts import model3
     from ..sorts.typed_sidecar import load as load_ts
     from . import members as M
-    rel = ctx.document_rel(ctx.member(name))
+    rel = rel or ctx.document_rel(ctx.member(name))     # another version's document of the member (I92's legacy)
     data = ctx.path(rel).read_bytes()
     doc = json.loads(data)
     info = M.info(ctx, name)
