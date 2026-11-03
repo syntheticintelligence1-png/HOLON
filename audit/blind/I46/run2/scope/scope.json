@@ -116,6 +116,40 @@
         }
       ],
       "stripped": []
+    },
+    {
+      "cut": {
+        "command": "python tests_m3/blind_term_size.py --commit c3eda1976c6811ff181fd71ae6ad1166f7e86a49 --out <S>",
+        "rule": "keep term_size_version, budget, tokenizer, literal_list and placeholder; drop every other top-level member",
+        "script": "tests_m3/blind_term_size.py"
+      },
+      "dropped": [
+        "iteration",
+        "doc",
+        "cone_ratio_max",
+        "ratio_site",
+        "context"
+      ],
+      "given_by": "amendment 7 (spec/M3/amendments/I46.jsonl, line 7): cut to the members holon run reads",
+      "path": "spec/M3/lib/term_size.json",
+      "sha256": "26a542db86f5d1b2281237e0894ef440278a59b0cd19e7720d3f0f1ccce704f1",
+      "source_sha256": "31f686b8622677b98f1d4a00761e52110b501115aa6c36577b6b5d29a91f30cb",
+      "strip_rules_on_given": [],
+      "strip_rules_on_source": [
+        {
+          "key": "ratio_site",
+          "reasons": [
+            "leak:code_site"
+          ]
+        },
+        {
+          "key": "context/bend",
+          "reasons": [
+            "hash"
+          ]
+        }
+      ],
+      "stripped": []
     }
   ],
   "leak_classes": [
@@ -125,7 +159,7 @@
     "section_ref",
     "witness"
   ],
-  "note": "Run 2's scope set after amendments 3 and 4: the six files and stripped keys of audit/blind/I46/scope/ (run 1's record, unchanged), plus spec/ledger/assumptions.json with its 40 free-text members blanked by tests_m3/blind_ledger.py. Its given bytes are files/spec/ledger/assumptions.json here, and stripped.json lists the blanked key paths.",
+  "note": "Run 2's scope set after amendments 3, 4 and 7: the six files and stripped keys of audit/blind/I46/scope/ (run 1's record, unchanged); spec/ledger/assumptions.json with its 40 free-text members blanked by tests_m3/blind_ledger.py; and spec/M3/lib/term_size.json cut to five members by tests_m3/blind_term_size.py. Their given bytes are under files/ here, and stripped.json lists the blanked and dropped key paths.",
   "protocol": {
     "path": "spec/M3/lib/blind_rerun.json",
     "sha256": "cbe878521769e939c7f4a4dacec92bec78e0a0c8744e9049adbf7a307dba7b86"
