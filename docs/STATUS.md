@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 42 | 272 | 206 | 42 |
+| M3 | 43 | 277 | 210 | 43 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -89,6 +89,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I90 | M3 | I90 (= I38b): O28 at 65,536 L1 messages, through the count channels of a Go component: a Go count component over the ca… | `prompts/I90_go_counts.md` | 4 | 5 | 1 | `docs/iterations/I90.md` |
 | I91 | M3 | I91 (= I38c): the compression oracle, HypZ and HypZ_len (§8.5; distinct from Hyp-Z0-kzg), tested on the real codec at t… | `prompts/I91_compression_oracle.md` | 6 | 4 | 1 | `docs/iterations/I91.md` |
 | I92 | M3 | = I34b: rule SYM over Bundle I (O21 and the messenger's sentinels). | `prompts/I92_sym_bundle.md` | 6 | 4 | 1 | `docs/iterations/I92.md` |
+| I93 | M3 | = I38d: O5, O6 and D3 as laws over a Go part of rule PAR (holon-rules/1.15) with the frontend 0.3 config: D3 as two PRO… | `prompts/I93_go_laws.md` | 5 | 4 | 1 | `docs/iterations/I93.md` |
 | I94 | M3 | = I36d: O13 and O20's economic half decided by the checker (I70's two slash laws, statements unchanged), and model3's c… | `prompts/I94_slash_decide.md` | 5 | 4 | 1 | `docs/iterations/I94.md` |
 
 ## Reports without a predictions key
