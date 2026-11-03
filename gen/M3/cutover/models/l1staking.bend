@@ -3797,7 +3797,9 @@ def xf_getStakerBitmap(x: X_getStakerBitmap, +c: U32, +r: List<&2, U32>) -> X_ge
   sx_getStakerBitmap_cd(sx_getStakerBitmap_rv(x, r), c)
 
 def sz_getStakerBitmap(x: X_getStakerBitmap) -> X_getStakerBitmap:
-  x
+  match x:
+    case X_getStakerBitmap{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_getStakerBitmap, U32.is_eq(x_cd, 0), sx_getStakerBitmap_rv(X_getStakerBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_getStakerBitmap__staker(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0})))), X_getStakerBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # getStakerBitmap#contracts/contracts/l1/staking/L1Staking.sol:397#0
 def k_getStakerBitmap_1(c: Bool, x: X_getStakerBitmap) -> X_getStakerBitmap:
@@ -4209,7 +4211,9 @@ def xf_getStakersBitmap(x: X_getStakersBitmap, +c: U32, +r: List<&2, U32>) -> X_
   sx_getStakersBitmap_cd(sx_getStakersBitmap_rv(x, r), c)
 
 def sz_getStakersBitmap(x: X_getStakersBitmap) -> X_getStakersBitmap:
-  x
+  match x:
+    case X_getStakersBitmap{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c5_0, +x_c5_1, +x_it5, +x_cn5, +x_rt5, +x_ld5}:
+      ite(X_getStakersBitmap, U32.is_eq(x_cd, 0), sx_getStakersBitmap_rv(X_getStakersBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c5_0, x_c5_1, x_it5, x_cn5, x_rt5, x_ld5}, b_of_w(x_c5_0)), X_getStakersBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c5_0, x_c5_1, x_it5, x_cn5, x_rt5, x_ld5})
 
 def ln_getStakersBitmap_5(x: X_getStakersBitmap) -> X_getStakersBitmap:
   match x:
@@ -5720,7 +5724,9 @@ def xf_isActiveStaker(x: X_isActiveStaker, +c: U32, +r: List<&2, U32>) -> X_isAc
   sx_isActiveStaker_cd(sx_isActiveStaker_rv(x, r), c)
 
 def sz_isActiveStaker(x: X_isActiveStaker) -> X_isActiveStaker:
-  x
+  match x:
+    case X_isActiveStaker{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_isActiveStaker, U32.is_eq(x_cd, 0), sx_isActiveStaker_rv(X_isActiveStaker{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(ite(W, w_eq(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isActiveStaker_addr(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_b(Bool.and(w_eq(w_and(sload(x_st, w_add(W{160, 0, 0, 0, 0, 0, 0, 0}, w_sub(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isActiveStaker_addr(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), ga_isActiveStaker_addr(x_ar)), w_eq(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isActiveStaker_addr(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0})))))), X_isActiveStaker{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # isActiveStaker#contracts/contracts/l1/staking/L1Staking.sol:385#1
 def k_isActiveStaker_1(c: Bool, x: X_isActiveStaker) -> X_isActiveStaker:
@@ -5917,7 +5923,9 @@ def xf_isStaker(x: X_isStaker, +c: U32, +r: List<&2, U32>) -> X_isStaker:
   sx_isStaker_cd(sx_isStaker_rv(x, r), c)
 
 def sz_isStaker(x: X_isStaker) -> X_isStaker:
-  x
+  match x:
+    case X_isStaker{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_isStaker, U32.is_eq(x_cd, 0), sx_isStaker_rv(X_isStaker{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(ite(W, w_eq(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isStaker_addr(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_b(w_eq(w_and(sload(x_st, w_add(W{160, 0, 0, 0, 0, 0, 0, 0}, w_sub(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isStaker_addr(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0}), W{1, 0, 0, 0, 0, 0, 0, 0}))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), ga_isStaker_addr(x_ar)))))), X_isStaker{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # isStaker#contracts/contracts/l1/staking/L1Staking.sol:376#1
 def k_isStaker_1(c: Bool, x: X_isStaker) -> X_isStaker:
@@ -6114,7 +6122,9 @@ def xf_isStakerInDeleteList(x: X_isStakerInDeleteList, +c: U32, +r: List<&2, U32
   sx_isStakerInDeleteList_cd(sx_isStakerInDeleteList_rv(x, r), c)
 
 def sz_isStakerInDeleteList(x: X_isStakerInDeleteList) -> X_isStakerInDeleteList:
-  x
+  match x:
+    case X_isStakerInDeleteList{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_isStakerInDeleteList, U32.is_eq(x_cd, 0), sx_isStakerInDeleteList_rv(X_isStakerInDeleteList{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(w_b(w_gt(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isStakerInDeleteList_addr(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 161]))), W{0, 0, 0, 0, 0, 0, 0, 0})))), X_isStakerInDeleteList{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # isStakerInDeleteList#contracts/contracts/l1/staking/L1Staking.sol:390#0
 def k_isStakerInDeleteList_1(c: Bool, x: X_isStakerInDeleteList) -> X_isStakerInDeleteList:
@@ -6283,7 +6293,9 @@ def xf_messenger(x: X_messenger, +c: U32, +r: List<&2, U32>) -> X_messenger:
   sx_messenger_cd(sx_messenger_rv(x, r), c)
 
 def sz_messenger(x: X_messenger) -> X_messenger:
-  x
+  match x:
+    case X_messenger{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_messenger, U32.is_eq(x_cd, 0), sx_messenger_rv(X_messenger{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(ge_e_immutable_MESSENGER(x_en))), X_messenger{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # messenger#contracts/contracts/libraries/staking/Staking.sol:42-44#0
 def k_messenger_1(c: Bool, x: X_messenger) -> X_messenger:
@@ -6424,7 +6436,9 @@ def xf_owner(x: X_owner, +c: U32, +r: List<&2, U32>) -> X_owner:
   sx_owner_cd(sx_owner_rv(x, r), c)
 
 def sz_owner(x: X_owner) -> X_owner:
-  x
+  match x:
+    case X_owner{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_owner, U32.is_eq(x_cd, 0), sx_owner_rv(X_owner{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(w_and(sload(x_st, W{51, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))), X_owner{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # owner#_openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:48-50#0
 def k_owner_1(c: Bool, x: X_owner) -> X_owner:
@@ -7724,7 +7738,9 @@ def xf_slash(x: X_slash, +c: U32, +r: List<&2, U32>) -> X_slash:
   sx_slash_cd(sx_slash_rv(x, r), c)
 
 def sz_slash(x: X_slash) -> X_slash:
-  x
+  match x:
+    case X_slash{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c9_0, +x_c9_1, +x_it9, +x_cn9, +x_rt9, +x_ld9, +x_c10_0, +x_c10_1, +x_c10_2, +x_it10, +x_cn10, +x_rt10, +x_ld10, +x_c11_0, +x_c11_1, +x_c11_2, +x_c11_3, +x_c11_4, +x_c11_5, +x_c11_6, +x_it11, +x_cn11, +x_rt11, +x_ld11}:
+      ite(X_slash, U32.is_eq(x_cd, 0), sx_slash_rv(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}, b_of_w(w_div_small(w_mul(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 def wr_slash_1(x: X_slash) -> X_slash:
   match x:
@@ -10599,7 +10615,9 @@ def xf_verifySignature(x: X_verifySignature, +c: U32, +r: List<&2, U32>) -> X_ve
   sx_verifySignature_cd(sx_verifySignature_rv(x, r), c)
 
 def sz_verifySignature(x: X_verifySignature) -> X_verifySignature:
-  x
+  match x:
+    case X_verifySignature{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_verifySignature, U32.is_eq(x_cd, 0), sx_verifySignature_rv(X_verifySignature{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]), X_verifySignature{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # verifySignature#contracts/contracts/l1/staking/L1Staking.sol:333-341#1
 def k_verifySignature_1(c: Bool, x: X_verifySignature) -> X_verifySignature:

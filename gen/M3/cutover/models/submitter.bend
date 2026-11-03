@@ -2620,7 +2620,9 @@ def xf_isActive(x: X_isActive, +c: U32, +r: List<&2, U32>) -> X_isActive:
   sx_isActive_cd(sx_isActive_rv(x, r), c)
 
 def sz_isActive(x: X_isActive) -> X_isActive:
-  x
+  match x:
+    case X_isActive{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_isActive, U32.is_eq(x_cd, 0), sx_isActive_rv(X_isActive{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(w_b(Bool.and(Bool.and(w_nz(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isActive_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 156]))), W{255, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_nz(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isActive_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 158]))), W{255, 0, 0, 0, 0, 0, 0, 0})))), w_ge(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_isActive_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{152, 0, 0, 0, 0, 0, 0, 0})))))), X_isActive{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # isActive#contracts/contracts/l1/rollup/Submitter.sol:70#0
 def k_isActive_1(c: Bool, x: X_isActive) -> X_isActive:
@@ -2789,7 +2791,9 @@ def xf_owner(x: X_owner, +c: U32, +r: List<&2, U32>) -> X_owner:
   sx_owner_cd(sx_owner_rv(x, r), c)
 
 def sz_owner(x: X_owner) -> X_owner:
-  x
+  match x:
+    case X_owner{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_owner, U32.is_eq(x_cd, 0), sx_owner_rv(X_owner{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(w_and(sload(x_st, W{51, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}))), X_owner{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # owner#_openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:48-50#0
 def k_owner_1(c: Bool, x: X_owner) -> X_owner:
@@ -3620,7 +3624,9 @@ def xf_slash(x: X_slash, +c: U32, +r: List<&2, U32>) -> X_slash:
   sx_slash_cd(sx_slash_rv(x, r), c)
 
 def sz_slash(x: X_slash) -> X_slash:
-  x
+  match x:
+    case X_slash{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
+      ite(X_slash, U32.is_eq(x_cd, 0), sx_slash_rv(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(ite(W, w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_div_small(w_mul(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 def wr_slash_1(x: X_slash) -> X_slash:
   match x:

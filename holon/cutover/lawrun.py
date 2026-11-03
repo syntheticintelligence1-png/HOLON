@@ -148,6 +148,96 @@ class Decider:
         self.ctx, self.root, self.results, self.gen = ctx, ctx.root, results, gen
         self.registry = ir.load_registry(ctx.milestone, self.root)
         self.entries = slash_entries(ctx.milestone, self.root)
+        self._search, self._found = None, None
+
+    def close(self) -> None:
+        if self._search is not None:
+            self._search.close()
+
+    def linked_ready(self) -> bool:
+        from .s0 import SIDECAR
+        sp = self.root / SIDECAR.format(m=self.ctx.milestone)
+        if not sp.is_file():
+            return False
+        side = json.loads(sp.read_text(encoding="utf-8"))
+        return all((self.root / side["outputs"][k]).is_file() for k in ("linked", "claims", "registry_s0"))
+
+    def refute(self, law: dict, t0: float, observed: str) -> dict | None:
+        """I94 (D2-D3): the witness the search finds on the compiled claims module, its LAWS.bend and PROOF.bend, and
+        their check; the REFUTED record, or None when the search finds none or the checker refuses (the caller records
+        UNKNOWN with what was tried)."""
+        from .. import bend
+        from ..bend import escape_hatches
+        from . import search as SR
+        if self._search is None:
+            self._search = SR.Search(self.ctx, log=lambda *a: None)
+            self._found = self._search.run(keep=True)
+        lid = law["law_id"]
+        w = (self._found.get("found") or {}).get(law["rule"])
+        self._tried = self._found.get("tried") or []
+        if w is None:
+            return None
+        sh = self.registry["statements"][lid]
+        ld = self.gen / "laws" / lid
+        pd = self.gen / "proofs" / lid
+        ld.mkdir(parents=True, exist_ok=True)
+        pd.mkdir(parents=True, exist_ok=True)
+        lp, pp = ld / "LAWS.bend", pd / "PROOF.bend"
+        lp.write_text(laws_text(self.ctx, law, sh, ld, True), encoding="utf-8")
+        pp.write_text(proof_text(self.ctx, law, w, self._search, self._search.m, pd), encoding="utf-8")
+        hits = escape_hatches(lp.read_text(encoding="utf-8") + pp.read_text(encoding="utf-8"))
+        r = bend.check(pp)
+        chk = {"exit_code": r.code, "marker": "ALL PROOFS CHECK" if r.ok else "SOME PROOFS FAIL", "seconds": r.seconds}
+        verdict = "not_run"
+        if r.ok and bend.verdict_enabled():
+            v = bend.check_verdict(pp)
+            verdict = "checked" if v.ok else "failed"
+        self._last = {"checker": chk, "verdict": verdict, "out": (r.out or "")[-1500:], "hits": hits}
+        if not r.ok or hits or verdict == "failed":
+            return None
+        rep = self.replay_status(lid, w)
+        rec = self.record(law, [{"kind": "refute", "engine": "holon.cutover.search", "found": True,
+                                 "candidates": self._tried},
+                                {"kind": "counter", "evaluator": "the claim is false at the witness",
+                                 "checker": chk, "verdict": verdict}], None, observed)
+        p_claims = self.root / self._search.side["outputs"]["claims"]
+        from .claims import claim_name
+        from .. import records as R
+        text = p_claims.read_text(encoding="utf-8")
+        cone = R.cone(f"M.{claim_name(law)}", text)
+        a, b = self._search.a, self._search.b
+        rec.update({"status": "REFUTED", "checker": chk,
+                    "kernel": dict(rec["kernel"], verdict=verdict),
+                    "artifacts": {"laws": self.rel(lp), "proof": self.rel(pp), "model": self.rel(p_claims),
+                                  "law_name": "cl_" + lid.lower()},
+                    "triage": "finding", "replay": rep, "bound": None,
+                    "witness": {"trace": [s_["label"] + ("@" + s_["version"] if s_.get("version") else "")
+                                          for s_ in w["trace"]],
+                                "committer": w["committer"], "k": w["k"], "u": w["mig"]["calldata"],
+                                "edge": f"{a}->{b}", "left": w["left"], "right": w["right"],
+                                "link_equations": w.get("link_equations", 0)},
+                    "compiled_sha256": w["compiled_sha256"], "model_sha256": sha256_file(p_claims),
+                    "cone": cone or rec["cone"], "difference": {"lhs": False, "rhs": True},
+                    "non_vacuity": dict(rec["non_vacuity"], status="counter_witness", law=self.rel(lp),
+                                        bound="the accepted counter-law inhabits the premises"),
+                    "witness_provenance": {"solidity": "internal_harness"}, "filter_bin": "finding"})
+        from .. import records as R2
+        rec["scope_v2"] = R2.scope_v2(law, rec)
+        rec["kernels"] = R2.kernels(rec)
+        rec["independence_class"] = R2.independence_class(rec)
+        rec.update(R2.evidence_fields(law, {"status": "REFUTED"}, self.root))
+        rec["seconds"] = round(time.monotonic() - t0, 3)
+        return rec
+
+    def replay_status(self, lid: str, w: dict) -> dict:
+        from .s0 import sidecar
+        p = self.root / sidecar(self.ctx)["outputs"]["replay"]
+        if not p.is_file():
+            return {"status": "not_run", "detail": "the replay report is missing (holon cutover replay)"}
+        runs = {x["id"]: x for x in json.loads(p.read_text(encoding="utf-8")).get("runs") or []}
+        ok = all((runs.get(f"{lid}:{s}") or {}).get("passed") for s in ("left", "right"))
+        return {"status": "passed" if ok else "failed",
+                "detail": f"{lid}:left and {lid}:right in {sidecar(self.ctx)['outputs']['replay']}"}
 
     def rel(self, p: Path) -> str:
         return Path(p).resolve().relative_to(self.root).as_posix()
@@ -170,6 +260,10 @@ class Decider:
         if e is None:
             raise KeyError(f"{lid} is not a slash law of {self.ctx.milestone}")
         law = json.loads((self.root / "laws" / self.ctx.milestone / f"{lid}.json").read_text(encoding="utf-8"))
+        if self.linked_ready():
+            rec = self.refute(law, t0, observation(self.ctx, e))
+            if rec is not None:
+                return rec
         debt = debt_of(self.ctx, law, e)
         bound = "not decided: " + "; ".join(f"({i + 1}) {d}" for i, d in enumerate(debt))
         attempts = [{"kind": "refute", "engine": "holon.cutover.lawrun", "found": False,
@@ -263,11 +357,16 @@ def run_main(argv: list) -> int:
         results = Path(a.out) if a.out else root / "results" / a.milestone
         gen = Path(a.gen_dir) if a.gen_dir else root / "gen" / a.milestone
         d = Decider(ctx, results, gen)
-        for lid in [x.strip() for x in a.laws.split(",") if x.strip()]:
-            rec = d.decide(lid)
-            results.mkdir(parents=True, exist_ok=True)
-            (results / f"{lid}.json").write_text(dumps(rec), encoding="utf-8")
-            print(f"{lid}: {rec['status']} ({rec['seconds']} s)")
+        try:
+            for lid in [x.strip() for x in a.laws.split(",") if x.strip()]:
+                rec = d.decide(lid)
+                results.mkdir(parents=True, exist_ok=True)
+                (results / f"{lid}.json").write_text(dumps(rec), encoding="utf-8")
+                print(f"{lid}: {rec['status']} ({rec['seconds']} s)")
+                if rec["status"] != "REFUTED" and getattr(d, "_last", None):
+                    print(f"{lid}: the counter-law: {d._last['checker']['marker']}: {d._last['out'][-600:]}")
+        finally:
+            d.close()
         return 0
     except Refused as e:
         print(f"holon run: refused: {e}", file=sys.stderr)
@@ -275,3 +374,117 @@ def run_main(argv: list) -> int:
     except (KeyError, FileNotFoundError) as e:
         print(f"holon run: error: {e}", file=sys.stderr)
         return 3
+
+
+# ------------------------------------------------------------------------------------------------ I94: the Bend files
+def _imports(ctx, d: Path) -> list:
+    """The modules a slash law's files import, relative to directory d: the link spec's members, the linked layer
+    (L) and the claims module (C)."""
+    from .linked import rel_import
+    from .s0 import sidecar
+    side = sidecar(ctx)
+    link = side["link"]
+    out = ["import Base", f"import {rel_import(d, ctx.root / link['caller']['module'])} as {link['caller']['alias']}"]
+    for c in link["callees"]:
+        out.append(f"import {rel_import(d, ctx.root / c['module'])} as {c['alias']}")
+    out.append(f"import {rel_import(d, ctx.root / side['outputs']['linked'])} as L")
+    out.append(f"import {rel_import(d, ctx.root / side['outputs']['claims'])} as C")
+    return out
+
+
+def laws_text(ctx, law: dict, sh: str, d: Path, counter: bool) -> str:
+    """A slash law's LAWS.bend (rule D1): the statement (for, ==) or its counter-law (exs, !=) over the table kh, the
+    caller's state and reachability, each callee's state (the linked reachability LReach), k, u and each callee's
+    environment."""
+    from .claims import claim_name
+    from .s0 import sidecar
+    link = sidecar(ctx)["link"]
+    P = link["caller"]["alias"]
+    st = {"versioned": "VSt", "plain": "HSt"}
+    q = "exs" if counter else "for"
+    a, b = law["statement"]["claim"]["eq"][0]["slash"].split(":")[2:4]
+    xs = [c["alias"] for c in link["callees"]]
+    lines = ["# GENERATED by holon.cutover.lawrun from the frozen law IR; do not edit.",
+             f"# law_id: {law['law_id']}   statement_hash: {sh}", *_imports(ctx, d), "",
+             f"law {('cl_' if counter else '') + law['law_id'].lower()}:",
+             f"  {q} kh: List<&2, {P}.HKB>", f"  {q} s: {P}.{st[link['caller']['kind']]}"]
+    lines += [f"  {q} s_{x}: {x}.{st[c['kind']]}" for x, c in zip(xs, link["callees"])]
+    lines += [f"  {q} r: L.LReach<kh, s, {', '.join('s_' + x for x in xs)}>", f"  {q} k: {P}.W",
+              f"  {q} u: {P}.UC_{a}_{b}"]
+    lines += [f"  {q} e_{x}: {x}.HEnv" for x in xs]
+    call = f"C.{claim_name(law)}(s, {', '.join('s_' + x for x in xs)}, k, u, {', '.join('e_' + x for x in xs)}, kh)"
+    lines += [f"  {{{call} {'!=' if counter else '=='} True{{}} : Bool}}", ""]
+    return "\n".join(lines)
+
+
+def law_file(law: dict, m: str, root, sh: str, counter: bool) -> str | None:
+    """The bound emission (holon.bindings): the law's LAWS.bend text as the decider writes it under gen/<m>/laws/<id>/,
+    or None while the linked layer or the claims module is missing."""
+    from . import context
+    from .s0 import SIDECAR
+    root = Path(root)
+    sp = root / SIDECAR.format(m=m)
+    if not sp.is_file():
+        return None
+    side = json.loads(sp.read_text(encoding="utf-8"))
+    if not ((root / side["outputs"]["linked"]).is_file() and (root / side["outputs"]["claims"]).is_file()):
+        return None
+    ctx = context(root, m)
+    return laws_text(ctx, law, sh, root / "gen" / m / "laws" / law["law_id"], counter)
+
+
+def proof_text(ctx, law: dict, w: dict, search, m, d: Path) -> str:
+    """A witness's counter-law PROOF.bend (rule D3): the trace's states, steps and step equations, the callees'
+    initial-state proofs, the link equations of the word-argument answers, and the claim false by computation."""
+    from ..versions.bendlit import Lit
+    from .claims import claim_name
+    link = search.link
+    xs = [c["alias"] for c in link["callees"]]
+    n = len(w["trace"])
+    defs = [x for x in search.literals(m, w) if not any(x.startswith(f"def s_{a}()") for a in xs)]
+    for c in link["callees"]:
+        x = c["alias"]
+        defs.append(f"def s_{x}() -> {x}.HSt:\n  {x}.s0()\n")
+        defs.append(f"def r_{x}_w() -> {x}.Reach<L.lHKB_to_{x}(t_kh()), s_{x}()>:\n  {x}.R0{{{{==}}}}\n")
+        defs.append(f"def rv_{x}(o: {x}.HOut) -> List<&2, U32>:\n  match o:\n    case {x}.HOut{{c, rv, po, lg, tw}}:\n"
+                    "      rv\n")
+    P = link["caller"]["alias"]
+    defs.append(f"def lr_w() -> L.LReach<t_kh(), s_{n}(), {', '.join(f's_{x}()' for x in xs)}>:\n"
+                f"  L.LR{{reach_w(), {', '.join(f'r_{x}_w()' for x in xs)}}}\n")
+    stated = 0
+    for i, a in enumerate(w.get("answered") or []):
+        x = a["callee"]
+        callee = next(c for c in search_callees(search) if c["alias"] == x)
+        doc = callee["doc"]
+        ps = doc.params(a["action"]) or []
+        if any(p.get("type") not in ("uint256", "address", "bool", "bytes32") and not str(p.get("type", "")).startswith(("uint", "int")) for p in ps):
+            continue
+        lit = Lit(x)
+        vals = [lit.word(int(a["args"].get(p["name"]) or 0) if not isinstance(a["args"].get(p["name"]), bool)
+                         else int(a["args"].get(p["name"]))) for p in ps]
+        ar = f"{x}.AR_{a['action']}{{{', '.join(vals)}}}"
+        env = search.henv(x, a["env"])
+        ret = Lit.blist(bytes.fromhex(a["ret"][2:]))
+        defs.append(f"def lk_{i}() -> {{{ret} == rv_{x}({x}.run_{a['action']}(s_{x}(), {ar}, {env}, "
+                    f"L.lHKB_to_{x}(t_kh()))) : List<&2, U32>}}:\n  {{==}}\n")
+        stated += 1
+    w["link_equations"] = stated
+    es = [f"e_{x}()" for x in xs]
+    call = f"C.{claim_name(law)}(s_{n}(), {', '.join(f's_{x}()' for x in xs)}, k_w(), u_w(), {', '.join(es)}, t_kh())"
+    defs.append(f"def cz() -> {{{call} == False{{}} : Bool}}:\n  {{==}}\n")
+    defs.append("def is_true(b: Bool) -> Type:\n  match b:\n    case True{}:\n      Unit\n    case False{}:\n      Empty\n")
+    defs.append("def true_ne_false(p: {True{} == False{} : Bool}) -> Empty:\n  (%p : is_true(_)\n  Unit{})\n")
+    wit = ["t_kh()", f"s_{n}()"] + [f"s_{x}()" for x in xs] + ["lr_w()", "k_w()", "u_w()"] + es
+    body = "e => true_ne_false((%e : {_ == False{} : Bool}\n  cz()))"
+    for x in reversed(wit):
+        body = f"({x}, {body})"
+    defs.append(f"def Laws.cl_{law['law_id'].lower()}():\n  {body}\n")
+    from .linked import rel_import
+    head = ["# GENERATED by holon.cutover.lawrun; untrusted, accepted only if Bend checks it.", *_imports(ctx, d),
+            f"import {rel_import(d, ctx.root / 'gen' / ctx.milestone / 'laws' / law['law_id'] / 'LAWS.bend')} as Laws"]
+    return "\n".join(head) + "\n\n" + "\n".join(defs)
+
+
+def search_callees(search) -> list:
+    """The callees' compiled-model handles the search used (their documents), by alias."""
+    return getattr(search, "_callee_docs", [])

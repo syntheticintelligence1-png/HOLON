@@ -1569,6 +1569,7 @@ class Machine(Gen):
         end = f"sz_{ba}"
         first = self.chain(prog.steps, sc, end)
         self.first[a] = first
+        ret = _i94_return(self, a, sc) if self.EXT1 else None   # EXT1 (I94): the action's return data
         body = self.defs
         fs = self.ctx_fields[a]
         hs = ", ".join(f"+{'kh' if h == 'keccak256' else 'sh'}: List<&2, HKB>" for h in self.hashes)
@@ -1577,7 +1578,9 @@ class Machine(Gen):
         args = f"st, ar, en{', ' + hv if hv else ''}"
         head = [_record(X, fs)] + _getters(f"gx_{ba}_", X, fs) + _setters(f"sx_{ba}_", X, fs)
         head.append(f"def xf_{ba}(+x: {X}, +c: U32, +r: List<&2, U32>) -> {X}:\n  sx_{ba}_cd(sx_{ba}_rv(x, r), c)\n")
-        head.append(f"def {end}(+x: {X}) -> {X}:\n  x\n")
+        head.append(f"def {end}(+x: {X}) -> {X}:\n  x\n" if ret is None else
+                    f"def {end}(+x: {X}) -> {X}:\n  ite({X}, U32.is_eq({self.gx(Scope(a), 'cd')}, 0), "
+                    f"{self.sx(Scope(a), 'rv', 'x', ret)}, x)\n")
         init = []
         for f, ty in fs:
             init.append({"st": "st", "ov": "st", "ar": "ar", "en": "en", "kh": "kh", "sh": "sh"}.get(f) or _default(ty))
@@ -3506,3 +3509,19 @@ def _i94_bytes_clear(self, view: str, ms: str, wraps: list, kh: str) -> str:
     n = f"{cnt}(sload({view}, {ms}))"
     wraps.append(f"{btw}({n}, \x00TW\x00, {base})")
     return f"sstore({bclr}({n}, {view}, {base}), {ms}, w0())"
+
+
+def _i94_return(self, a: str, sc) -> str | None:
+    """EXT1 (I94): the ABI encoding of the action's one return value (the document's returns term, a word or a Bool,
+    evaluated over the action's context at its end), the return data of a run whose checks all hold; None when the
+    action returns nothing."""
+    t = (self.m.actions.get(a) or {}).get("returns")
+    if t is None or isinstance(t, list) and t and isinstance(t[0], list):
+        return None
+    try:
+        c, k = self.value(t, sc)
+    except GenError:
+        return None   # a return term the language cannot compile: no return data, as before EXT1's return data
+    if k in ("w", "bool") or k.startswith("t:"):
+        return f"b_of_w({self.to_w(c, k)})"
+    return None       # a list, bytes or record return value: not encoded (no return data)
