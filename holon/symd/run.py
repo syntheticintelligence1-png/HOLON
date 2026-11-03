@@ -70,7 +70,8 @@ def generator_sha256(root: Path) -> str:
 
 
 def sym_laws(derivation: dict) -> list[str]:
-    return sorted(lid for lid, e in derivation.items() if e.get("rule") == R.RULE)
+    """I34's SYM laws (rule SYM, one of holon.rules.sym's sub-forms; I92's member sub-forms are holon.symb.lawrun's)."""
+    return sorted(lid for lid, e in derivation.items() if e.get("rule") == R.RULE and e.get("subform") in R.SUBFORMS)
 
 
 class SymCtx:
