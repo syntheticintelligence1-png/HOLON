@@ -1,0 +1,131 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_par_dom_batchheaderbytes_validate_ok_load_sol",
+    "laws": "gen/M3/laws/L_par_dom_BatchHeaderBytes_validate_ok_load_sol/LAWS.bend",
+    "model": "gen/M3/model/header_length.bend",
+    "proof": "gen/M3/proofs/L_par_dom_BatchHeaderBytes_validate_ok_load_sol/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "does not apply: a law over unbounded byte strings has no proof route here (gap G6)",
+      "generator": "open_refl",
+      "kind": "proof"
+    },
+    {
+      "bound": "probes (length, tag byte) from the integer constants [0, 1, 2, 249, 257] of the ok conditions of ['BatchHeaderBytes_validate', 'ok_load_sol']: lengths [0, 1, 2, 3, 248, 249, 250, 256, 257, 258] x tag bytes [0, 1, 2, 3, 248, 249, 250] (length 0 with tag 0 only), 64 probes, filler bytes ((i * 37) mod 255) + 1; first difference at length 250, tag byte 0",
+      "engine": "compiled-model probes",
+      "hit": true,
+      "kind": "refute",
+      "tried": 64
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.862
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.862
+  },
+  "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "cone": [
+    "BatchHeaderBytes_validate",
+    "byte_at",
+    "ok_load_sol"
+  ],
+  "coverage": null,
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "evidence_levels": [],
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "e36ed60005a5b1a8ee0af81b4d3079ffeb401776ec35578b4306a6e4f98bac9e",
+  "filter_bin": "pending",
+  "generator_sha256": "dfb418d1d17e3971c6057878f72fffe78b86f3f2ebffdc3fbd0219f2f7015586",
+  "independence_class": "I1",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "detail": "Lean is not the pinned toolchain: Lean toolchain leanprover/lean4:v4.34.0 not installed (no lean/lake in /home/user/blind-i46-r2/cache/home/.elan/toolchains/leanprover--lean4---v4.34.0/bin)",
+      "name": "lean4",
+      "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
+      "reason": "toolchain_unavailable",
+      "result": "not_run",
+      "role": "second-independent",
+      "source": "gen/M3/lean/L_par_dom_BatchHeaderBytes_validate_ok_load_sol.lean",
+      "source_sha256": "8035ea90a5618e76b6e368de2efe1b699e05fb046d788d417f2a6ff2423c8618",
+      "theorem": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol_counter",
+      "version": "4.34.0"
+    }
+  ],
+  "law_id": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol",
+  "ledger_assumptions": [
+    "A-dirty",
+    "A-env",
+    "A-implicit",
+    "A-width-Header",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "bc11750802b2eb58b93ee9c1d3c4351633c7c49150e738fb52c48d1c04e32254",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:5c6937157e893366533fd3f3f731ab48e7049668668f43ead6946069258a14d5",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 b: Bytes. BatchHeaderBytes_validate(b) == ok_load_sol(b)",
+  "statement_hash": "sha256:5c6937157e893366533fd3f3f731ab48e7049668668f43ead6946069258a14d5",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "REFUTED",
+  "subform": "domain_coherence",
+  "triage": "finding",
+  "witness": {
+    "b": "0x00264b7095badf052a4f7499bee3092e53789dc2e70d32577ca1c6eb11365b80a5caef153a5f84a9cef3193e6388add2f71d42678cb1d6fb21466b90b5daff254a6f94b9de04294e7398bde2082d52779cc1e60c31567ba0c5ea10355a7fa4c9ee14395e83a8cdf2183d6287acd1f61c41668bb0d5fa20456a8fb4d9fe24496e93b8dd03284d7297bce1072c51769bc0e50b30557a9fc4e90f34597ea3c8ed13385d82a7ccf1173c6186abd0f51b40658aafd4f91f44698eb3d8fd23486d92b7dc02274c7196bbe0062b50759abfe40a2f54799ec3e80e33587da2c7ec12375c81a6cbf0163b6085aacff41a3f6489aed3f81e43688db2d7fc22"
+  },
+  "witness_provenance": {}
+}

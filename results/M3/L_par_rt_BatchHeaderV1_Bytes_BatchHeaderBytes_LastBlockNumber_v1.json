@@ -1,0 +1,119 @@
+{
+  "artifacts": {
+    "law_name": "l_par_rt_batchheaderv1_bytes_batchheaderbytes_lastblocknumber_v1",
+    "laws": "gen/M3/laws/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1/LAWS.bend",
+    "model": "gen/M3/model/header_length.bend",
+    "proof": "gen/M3/proofs/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.74
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.74
+  },
+  "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "cone": [
+    "BatchHeaderBytes_LastBlockNumber",
+    "BatchHeaderBytes_LastBlockNumber_ok",
+    "BatchHeaderV1_Bytes",
+    "R_BatchHeaderV1",
+    "byte_at",
+    "get_BatchHeaderV1__LastBlockNumber",
+    "sel_bytes",
+    "slice"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [
+    "E1",
+    "E2"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "e36ed60005a5b1a8ee0af81b4d3079ffeb401776ec35578b4306a6e4f98bac9e",
+  "filter_bin": null,
+  "generator_sha256": "dfb418d1d17e3971c6057878f72fffe78b86f3f2ebffdc3fbd0219f2f7015586",
+  "independence_class": "I1",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "detail": "Lean is not the pinned toolchain: Lean toolchain leanprover/lean4:v4.34.0 not installed (no lean/lake in /home/user/blind-i46-r2/cache/home/.elan/toolchains/leanprover--lean4---v4.34.0/bin)",
+      "name": "lean4",
+      "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
+      "reason": "toolchain_unavailable",
+      "result": "not_run",
+      "role": "second-independent",
+      "source": "gen/M3/lean/L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1.lean",
+      "source_sha256": "e428c2c1871a5ce9f522a0c75c51e5f5e2661bfefe9e843afbe55c1cb2bf0cb0",
+      "theorem": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+      "version": "4.34.0"
+    }
+  ],
+  "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+  "ledger_assumptions": [
+    "A-codec-domain",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "bc11750802b2eb58b93ee9c1d3c4351633c7c49150e738fb52c48d1c04e32254",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:8f619256e904f59f3f1a07398704d12ae755f39aa74054643926615b03b82e17",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "codec laws are not replayed in I24",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 h: BatchHeaderV1. BatchHeaderBytes_LastBlockNumber(BatchHeaderV1_Bytes(h)) == Some(h.LastBlockNumber)",
+  "statement_hash": "sha256:8f619256e904f59f3f1a07398704d12ae755f39aa74054643926615b03b82e17",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "PROVED",
+  "subform": "round_trip",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}
