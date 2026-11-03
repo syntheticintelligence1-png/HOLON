@@ -188,6 +188,7 @@ class Loc:
 # ------------------------------------------------------------------------------------------------ the generator
 class Gen:
     EXT1 = False   # the language extension EXT1 (I70; Model3X below): off in every model compiled before it
+    EXT1_LINK = False   # EXT1's additions for linked calls (I94; Model3XL below): off in every other model
 
     def __init__(self, m: ExtractedModel, *, typed: bool, sorts: dict | None = None, seeds: dict | None = None,
                  init_storage: dict | None = None, hashes: list | None = None, basis=None, site: dict | None = None,
@@ -1569,6 +1570,7 @@ class Machine(Gen):
         end = f"sz_{ba}"
         first = self.chain(prog.steps, sc, end)
         self.first[a] = first
+        ret = _i94_return(self, a, sc) if self.EXT1_LINK else None   # EXT1 link (I94): the action's return data
         body = self.defs
         fs = self.ctx_fields[a]
         hs = ", ".join(f"+{'kh' if h == 'keccak256' else 'sh'}: List<&2, HKB>" for h in self.hashes)
@@ -1577,7 +1579,9 @@ class Machine(Gen):
         args = f"st, ar, en{', ' + hv if hv else ''}"
         head = [_record(X, fs)] + _getters(f"gx_{ba}_", X, fs) + _setters(f"sx_{ba}_", X, fs)
         head.append(f"def xf_{ba}(+x: {X}, +c: U32, +r: List<&2, U32>) -> {X}:\n  sx_{ba}_cd(sx_{ba}_rv(x, r), c)\n")
-        head.append(f"def {end}(+x: {X}) -> {X}:\n  x\n")
+        head.append(f"def {end}(+x: {X}) -> {X}:\n  x\n" if ret is None else
+                    f"def {end}(+x: {X}) -> {X}:\n  ite({X}, U32.is_eq({self.gx(Scope(a), 'cd')}, 0), "
+                    f"{self.sx(Scope(a), 'rv', 'x', ret)}, x)\n")
         init = []
         for f, ty in fs:
             init.append({"st": "st", "ov": "st", "ar": "ar", "en": "en", "kh": "kh", "sh": "sh"}.get(f) or _default(ty))
@@ -1817,6 +1821,7 @@ class Machine(Gen):
             lines = [f"  +o0 = {self.gx(sc, 'ov')}", f"  +k = {{{slot} : W}}"]
             kloc, kcode = None, "k"
         slots: list = []
+        wraps: list = []   # I94: touched words a member's clearing adds by count (bytes data slots), outermost last
         if t.get("encoding") == "inplace" and "members" in t:
             vals = self.struct_value(w.value, sc, lines)
             cur = "o0"
@@ -1826,6 +1831,19 @@ class Machine(Gen):
                 if mt.get("encoding") != "inplace" or "members" in mt or "base" in mt:
                     if vals.get(mm["label"], "w0()") != "w0()":
                         raise GenError(f"{sc.action}: a write of member {mm['label']} ({mt.get('label')}) of {fam}")
+                    if mt.get("encoding") == "bytes":
+                        # I94 (F1): the zero write of a struct clears a bytes or string member as the compiler does:
+                        # its slot, and in the long form (the slot's lowest bit set) its ceil(length / 32) data
+                        # slots from keccak256(slot), each a touched word
+                        if self.sk:
+                            raise GenError(f"{sc.action}: the delete of member {mm['label']} ({mt.get('label')}) "
+                                           f"of {fam} in a structural store")
+                        ms = "k" if not int(mm["slot"]) else f"w_add(k, {wlit(int(mm['slot']))})"
+                        n += 1
+                        lines.append(f"  +o{n} = {{{_i94_bytes_clear(self, f'o{n - 1}', ms, wraps, self.gx(sc, 'kh'))} : HSt}}")
+                        cur = f"o{n}"
+                        if ms not in slots:
+                            slots.append(ms)
                     continue
                 if self.sk:
                     ms = kloc.plus(int(mm["slot"])).code()
@@ -1845,6 +1863,8 @@ class Machine(Gen):
         else:
             raise GenError(f"{sc.action}: a write of a whole {t.get('label')} ({fam})")
         tw = self.gx(sc, "tw")
+        for wrap in wraps:
+            tw = wrap.replace("\x00TW\x00", tw)
         for s_ in reversed(slots):
             tw = f"Con{{{s_}, {tw}}}"
         lines.append(f"  {self.sx(sc, 'tw', self.sx(sc, 'ov', 'x', cur), tw)}")
@@ -2447,11 +2467,14 @@ def s0_text(init: dict) -> str:
 
 def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init: dict, hashes: list, basis,
                site_rows: list, header: list[str], storage: str = "raw", s0_entries: list | None = None,
-               ext1: bool = False) -> tuple[str, Model3]:
+               ext1: bool = False, ext1_link: bool = False) -> tuple[str, Model3]:
     """The model text and its generator. storage: raw (the default; I28's versioned modules) or structural (I68: the
-    store PRELUDE_SK, s0 from s0_entries, holon.sorts.skeys.s0_entries of the deployment)."""
-    mm = (Model3X if ext1 else Model3)(m, typed=typed, sorts=sorts, seeds=seeds, init_storage=init, hashes=hashes,
-                                      storage=storage)
+    store PRELUDE_SK, s0 from s0_entries, holon.sorts.skeys.s0_entries of the deployment). ext1: EXT1 (Model3X);
+    ext1_link: EXT1 with its additions for linked calls (Model3XL; I94), which require ext1."""
+    if ext1_link and not ext1:
+        raise ValueError("build_text: ext1_link requires ext1")
+    mm = ((Model3XL if ext1_link else Model3X) if ext1 else Model3)(m, typed=typed, sorts=sorts, seeds=seeds,
+                                                                    init_storage=init, hashes=hashes, storage=storage)
     acts = sorted(a for a in m.actions if m.params(a) is not None)
     for a in acts:
         mm.compile_action(a)
@@ -3526,3 +3549,113 @@ def _i92_mem_write(self, mem: str, wr, sc) -> str:
 Model3X.t_len = _i92_t_len
 Model3X.t_wbyte = _i92_t_wbyte
 Model3X.mem_write = _i92_mem_write
+
+
+# ------------------------------------------------------------------------------------------------ I94 (F1)
+def _i94_bytes_clear(self, view: str, ms: str, wraps: list, kh: str) -> str:
+    """The store view with the bytes or string value at slot ms cleared (raw store): the slot, and in the long form its
+    data slots keccak256(ms) + i for i < ceil(length / 32); wraps gets the touched-words wrapper of the data slots."""
+    bclr = _ext_helper(self, "b_clr", "def b_clr(n: Nat, +o: HSt, +s: W) -> HSt:\n  match n:\n    case 0n:\n      o\n"
+                       "    case 1n+m:\n      b_clr(m, sstore(o, s, w0()), w_add(s, w_u(1)))\n")
+    btw = _ext_helper(self, "b_tw", "def b_tw(n: Nat, +t: List<&2, W>, +s: W) -> List<&2, W>:\n  match n:\n"
+                      "    case 0n:\n      t\n    case 1n+m:\n      b_tw(m, Con{s, t}, w_add(s, w_u(1)))\n")
+    cnt = _ext_helper(self, "b_cnt", "def b_cnt(+l: W) -> Nat:\n  ite(Nat, w_nz(w_and(l, w_u(1))), "
+                      f"n_of_w({self.shr(5)}(w_add({self.shr(1)}(l), w_u(31)))), 0n)\n")
+    base = f"h_get({kh}, b_of_w({ms}))"
+    n = f"{cnt}(sload({view}, {ms}))"
+    wraps.append(f"{btw}({n}, \x00TW\x00, {base})")
+    return f"sstore({bclr}({n}, {view}, {base}), {ms}, w0())"
+
+
+def _i94_return(self, a: str, sc) -> str | None:
+    """EXT1 (I94): the ABI encoding of the action's one return value (the document's returns term, a word or a Bool,
+    evaluated over the action's context at its end), the return data of a run whose checks all hold; None when the
+    action returns nothing."""
+    t = (self.m.actions.get(a) or {}).get("returns")
+    if t is None or isinstance(t, list) and t and isinstance(t[0], list):
+        return None
+    try:
+        c, k = self.value(t, sc)
+    except GenError:
+        return None   # a return term the language cannot compile: no return data, as before EXT1's return data
+    if k in ("w", "bool") or k.startswith("t:"):
+        return f"b_of_w({self.to_w(c, k)})"
+    return None       # a list, bytes or record return value: not encoded (no return data)
+
+
+# ------------------------------------------------------------------------------------------------ I94 (EXT1 link: products)
+def _i94_mulx(self) -> tuple:
+    """(w_mulx, w_mul_okx): a product, and its no-overflow test, that take one factor's single limb when it has one
+    (w_mul_small: the other factor times a U32, as a literal factor already is), the full product otherwise. The
+    branch is a match, so a run evaluates one of them: a kernel then evaluates a small product limb by limb, not as a
+    256 x 256 product. Values equal w_mul's and w_mul_ok's."""
+    lim = wlit(1 << 224)
+    _ext_helper(self, "w_mulx_d", "def w_mulx_d(c: Bool, +a: W, +b: W) -> W:\n  match c:\n    case True{}:\n"
+                "      w_mul_small(b, w_lo(a))\n    case False{}:\n      w_mul(a, b)\n")
+    _ext_helper(self, "w_mulx_c", "def w_mulx_c(c: Bool, +a: W, +b: W) -> W:\n  match c:\n    case True{}:\n"
+                "      w_mul_small(a, w_lo(b))\n    case False{}:\n      w_mulx_d(w_hi0(a), a, b)\n")
+    mx = _ext_helper(self, "w_mulx", "def w_mulx(+a: W, +b: W) -> W:\n  w_mulx_c(w_hi0(b), a, b)\n")
+    _ext_helper(self, "w_mul_okx_d", "def w_mul_okx_d(c: Bool, +a: W, +b: W) -> Bool:\n  match c:\n    case True{}:\n"
+                "      True{}\n    case False{}:\n      w_mul_ok(a, b)\n")
+    _ext_helper(self, "w_mul_okx_c", "def w_mul_okx_c(c: Bool, +a: W, +b: W) -> Bool:\n  match c:\n    case True{}:\n"
+                f"      True{{}}\n    case False{{}}:\n      w_mul_okx_d(Bool.and(w_hi0(a), w_lt(b, {lim})), a, b)\n")
+    ok = _ext_helper(self, "w_mul_okx", "def w_mul_okx(+a: W, +b: W) -> Bool:\n"
+                     f"  w_mul_okx_c(Bool.and(w_hi0(b), w_lt(a, {lim})), a, b)\n")
+    return mx, ok
+
+
+def _i94_t_mul(self, t, sc):
+    if any(isinstance(x, int) and not isinstance(x, bool) for x in (t[1], t[2])):
+        return Model3.t_mul(self, t, sc)
+    mx, _ok = _i94_mulx(self)
+    return f"{mx}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+def _i94_mul_check(self, inner, a: str, b: str) -> tuple:
+    if any(isinstance(x, int) and not isinstance(x, bool) for x in (inner[1], inner[2])):
+        return Model3.mul_check(self, inner, a, b)
+    mx, ok = _i94_mulx(self)
+    return f"{ok}({a}, {b})", f"{mx}({a}, {b})"
+
+
+# ------------------------------------------------------------------------------------------------ I94 (EXT1 link: shifts)
+def _i94_var_shift(self, d: str, t, sc):
+    """EXT1: a shift by a non-constant amount n (EVM SHL/SHR: n >= 256 gives 0) whose levels match on n's bits, so a
+    run evaluates only the constant shifts of the set bits; 1 << n is the word of bit n itself (w_pow2). Values equal
+    I83's w_shlv / w_shrv."""
+    if d == "l" and t[1] == 1:
+        _ext_helper(self, "w_bitl", "def w_bitl(+i: U32, +v: U32) -> W:\n  W{" + ", ".join(
+            f"ite(U32, U32.is_eq(i, {k}), v, 0)" for k in range(8)) + "}\n")
+        _ext_helper(self, "w_pow2_c", "def w_pow2_c(c: Bool, +k: U32) -> W:\n  match c:\n    case True{}:\n"
+                    "      w_bitl(U32.div(k, 32), U32.shln(1, U32.to_nat(U32.mod(k, 32))))\n    case False{}:\n      w0()\n")
+        f = _ext_helper(self, "w_pow2", f"def w_pow2(+n: W) -> W:\n  w_pow2_c(w_lt(n, {wlit(256)}), w_lo(n))\n")
+        return f"{f}({self.w(t[2], sc)})", "w"
+    name = f"w_sh{d}vm"
+    if name not in _ext_helpers(self):
+        for b in range(8):
+            fn = self.shr(1 << b) if d == "r" else self.shl(1 << b)
+            _ext_helper(self, f"{name}_{b}", f"def {name}_{b}(c: Bool, +a: W) -> W:\n  match c:\n    case True{{}}:\n"
+                        f"      {fn}(a)\n    case False{{}}:\n      a\n")
+        _ext_helper(self, f"{name}_z", f"def {name}_z(c: Bool, +a: W) -> W:\n  match c:\n    case True{{}}:\n      a\n"
+                    "    case False{}:\n      w0()\n")
+        lines = [f"def {name}(+a: W, +n: W) -> W:"]
+        prev = "a"
+        for b in range(8):
+            lines.append(f"  +s{b} = {{{name}_{b}(w_nz(w_and(n, {wlit(1 << b)})), {prev}) : W}}")
+            prev = f"s{b}"
+        lines.append(f"  {name}_z(w_lt(n, {wlit(256)}), {prev})")
+        _ext_helper(self, name, "\n".join(lines) + "\n")
+    return f"{name}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+class Model3XL(Model3X):
+    """Model3X with EXT1's additions for linked calls (I94): an action's return data (_i94_return: a callee's answer
+    is its real return word), products that take a one-limb factor's single limb (_i94_mulx) and shifts by a
+    non-constant amount whose levels match on its bits (_i94_var_shift). Only build_text(ext1=True, ext1_link=True)
+    compiles with it (holon.cutover.model): a model compiled by Model3X alone is the one compiled before I94, byte for
+    byte."""
+
+    EXT1_LINK = True
+    t_mul = _i94_t_mul
+    mul_check = _i94_mul_check
+    var_shift = _i94_var_shift

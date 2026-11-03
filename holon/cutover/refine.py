@@ -208,8 +208,7 @@ class RegistryModel:
         from . import model as MD
         self.ctx, self.name = ctx, MD.registry(ctx)
         self.td = tempfile.TemporaryDirectory(prefix="holon-cutover-m2-")
-        init = {"binding": ctx.out("deployment"), "storage": drec["members"][self.name]["storage"]}
-        text, debt = MD.compile_registry(ctx, self.name, init)
+        text, debt = MD.compile_registry(ctx, self.name, MD.init_of(ctx, self.name))   # M1's model (its init)
         self.debt = {a for a, _e in debt}
         self.rec = {"model": f"{ctx.out('models')}/{self.name}.bend", "steps": 0, "disagreements": 0,
                     "unexplained": 0, "unsupported": 0, "nested_frames": 0, "debt": sorted(self.debt),
