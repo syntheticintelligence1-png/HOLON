@@ -188,6 +188,7 @@ class Loc:
 # ------------------------------------------------------------------------------------------------ the generator
 class Gen:
     EXT1 = False   # the language extension EXT1 (I70; Model3X below): off in every model compiled before it
+    EXT1_LINK = False   # EXT1's additions for linked calls (I94; Model3XL below): off in every other model
 
     def __init__(self, m: ExtractedModel, *, typed: bool, sorts: dict | None = None, seeds: dict | None = None,
                  init_storage: dict | None = None, hashes: list | None = None, basis=None, site: dict | None = None,
@@ -1569,7 +1570,7 @@ class Machine(Gen):
         end = f"sz_{ba}"
         first = self.chain(prog.steps, sc, end)
         self.first[a] = first
-        ret = _i94_return(self, a, sc) if self.EXT1 else None   # EXT1 (I94): the action's return data
+        ret = _i94_return(self, a, sc) if self.EXT1_LINK else None   # EXT1 link (I94): the action's return data
         body = self.defs
         fs = self.ctx_fields[a]
         hs = ", ".join(f"+{'kh' if h == 'keccak256' else 'sh'}: List<&2, HKB>" for h in self.hashes)
@@ -2466,11 +2467,14 @@ def s0_text(init: dict) -> str:
 
 def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init: dict, hashes: list, basis,
                site_rows: list, header: list[str], storage: str = "raw", s0_entries: list | None = None,
-               ext1: bool = False) -> tuple[str, Model3]:
+               ext1: bool = False, ext1_link: bool = False) -> tuple[str, Model3]:
     """The model text and its generator. storage: raw (the default; I28's versioned modules) or structural (I68: the
-    store PRELUDE_SK, s0 from s0_entries, holon.sorts.skeys.s0_entries of the deployment)."""
-    mm = (Model3X if ext1 else Model3)(m, typed=typed, sorts=sorts, seeds=seeds, init_storage=init, hashes=hashes,
-                                      storage=storage)
+    store PRELUDE_SK, s0 from s0_entries, holon.sorts.skeys.s0_entries of the deployment). ext1: EXT1 (Model3X);
+    ext1_link: EXT1 with its additions for linked calls (Model3XL; I94), which require ext1."""
+    if ext1_link and not ext1:
+        raise ValueError("build_text: ext1_link requires ext1")
+    mm = ((Model3XL if ext1_link else Model3X) if ext1 else Model3)(m, typed=typed, sorts=sorts, seeds=seeds,
+                                                                    init_storage=init, hashes=hashes, storage=storage)
     acts = sorted(a for a in m.actions if m.params(a) is not None)
     for a in acts:
         mm.compile_action(a)
@@ -3527,7 +3531,7 @@ def _i94_return(self, a: str, sc) -> str | None:
     return None       # a list, bytes or record return value: not encoded (no return data)
 
 
-# ------------------------------------------------------------------------------------------------ I94 (EXT1 products)
+# ------------------------------------------------------------------------------------------------ I94 (EXT1 link: products)
 def _i94_mulx(self) -> tuple:
     """(w_mulx, w_mul_okx): a product, and its no-overflow test, that take one factor's single limb when it has one
     (w_mul_small: the other factor times a U32, as a literal factor already is), the full product otherwise. The
@@ -3562,11 +3566,7 @@ def _i94_mul_check(self, inner, a: str, b: str) -> tuple:
     return f"{ok}({a}, {b})", f"{mx}({a}, {b})"
 
 
-Model3X.t_mul = _i94_t_mul
-Model3X.mul_check = _i94_mul_check
-
-
-# ------------------------------------------------------------------------------------------------ I94 (EXT1 shifts)
+# ------------------------------------------------------------------------------------------------ I94 (EXT1 link: shifts)
 def _i94_var_shift(self, d: str, t, sc):
     """EXT1: a shift by a non-constant amount n (EVM SHL/SHR: n >= 256 gives 0) whose levels match on n's bits, so a
     run evaluates only the constant shifts of the set bits; 1 << n is the word of bit n itself (w_pow2). Values equal
@@ -3596,4 +3596,14 @@ def _i94_var_shift(self, d: str, t, sc):
     return f"{name}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
 
 
-Model3X.var_shift = _i94_var_shift
+class Model3XL(Model3X):
+    """Model3X with EXT1's additions for linked calls (I94): an action's return data (_i94_return: a callee's answer
+    is its real return word), products that take a one-limb factor's single limb (_i94_mulx) and shifts by a
+    non-constant amount whose levels match on its bits (_i94_var_shift). Only build_text(ext1=True, ext1_link=True)
+    compiles with it (holon.cutover.model): a model compiled by Model3X alone is the one compiled before I94, byte for
+    byte."""
+
+    EXT1_LINK = True
+    t_mul = _i94_t_mul
+    mul_check = _i94_mul_check
+    var_shift = _i94_var_shift

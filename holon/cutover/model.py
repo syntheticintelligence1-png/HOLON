@@ -4,8 +4,9 @@
 its document under inputs.documents) with holon.sorts.model3's untyped compiler, as `holon bundle model` compiles a
 head member, with model3's language extension EXT1 (holon.sorts.model3.Model3X: storage arrays' push, pop and length,
 an element of a dynamic array, a call named by an overload's suffix, a loop's valueless return, memory arrays of value
-types, abi.encodeCall, repeated unnamed parameters). EXT1 is off in every other model, so every model compiled before
-it compiles byte for byte. An action the compiler still refuses is left out as debt, with its error.
+types, abi.encodeCall, repeated unnamed parameters), plus EXT1's additions for linked calls (I94: return data,
+one-limb products, matched shifts; holon.sorts.model3.Model3XL). EXT1 is off in every other model, and the link additions
+are on only here, so every model compiled before them compiles byte for byte. An action the compiler still refuses is left out as debt, with its error.
 
 The initial state is the registry's storage in the cutover harness's deployment (outputs.deployment, written by
 `holon cutover refine` from the real code's run: the deployment's storage writes, each non-zero slot as the harness
@@ -97,8 +98,8 @@ def init_of(ctx: Ctx, name: str) -> dict:
 
 
 def compile_registry(ctx: Ctx, name: str, init: dict) -> tuple:
-    """(model text, debt [(action, error)]): model3's untyped machine with EXT1, an action it cannot compile left out
-    as debt (holon.bundle.model.compile_member's loop)."""
+    """(model text, debt [(action, error)]): model3's untyped machine with EXT1 and its link additions, an action it
+    cannot compile left out as debt (holon.bundle.model.compile_member's loop)."""
     from ..machine import ExtractedModel
     from ..rules.sort import DocBasis, hash_functions
     from ..sorts import model3
@@ -127,7 +128,7 @@ def compile_registry(ctx: Ctx, name: str, init: dict) -> tuple:
             text, _mm = model3.build_text(m, typed=False, sorts={}, seeds=seeds, init=storage,
                                           hashes=hash_functions(d2) or ["keccak256"],
                                           basis=DocBasis(rel, d2, mname, assignment, seeds), site_rows=[],
-                                          header=header, ext1=True)
+                                          header=header, ext1=True, ext1_link=True)
             return text, sorted(debt.items())
         except model3.GenError as e:
             a = str(e).split(":", 1)[0].strip()
