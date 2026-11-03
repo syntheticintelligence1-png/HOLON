@@ -3,6 +3,7 @@ migration map, the members' nominal sorts, and the laws over the members and the
 
     python -m holon symb legacy --milestone M3 [--check]     K1, K3: the sidecar's legacy member at its commit, its
                                                               model, and eta (gen/M3/symb/legacy/, eta_enq.json)
+    python -m holon symb sorts --milestone M3 [--check]      K2: the members' nominal sorts (gen/M3/symb/sorts.json)
 
 The sidecar is spec/<M>/lib/sym_bundle.json; the members' documents and extraction specs are I69's bundle sidecar's
 (spec/<M>/lib/bundle.json, holon.bundle). Nothing here names a target: members, versions and registers come from the
@@ -17,7 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 SYMB_VERSION = "holon-symb/0.1"
-STEPS = ("legacy",)
+STEPS = ("legacy", "sorts")
 
 
 class SymbError(Exception):
@@ -62,6 +63,9 @@ def main(argv=None) -> int:
         if a.step == "legacy":
             from . import legacy
             return legacy.main(ctx, a.check, log)
+        if a.step == "sorts":
+            from . import sorts
+            return sorts.main(ctx, a.check, log)
     except SymbError as e:
         print(f"holon symb {a.step}: refused: {e}", file=sys.stderr)
         return 2
