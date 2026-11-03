@@ -55,6 +55,9 @@ refs is the transitive closure of what the statement names, over the facts def g
                      "holon.rules.slash/slash", "template_version": 1, "subform", "rule", "edge", "op", "sites"},
                      recomputed from the law's versioned document and its per-version documents
                      (holon.rules.slash.slash_ref)
+  gox:ID             a PAR Go term {"gox": ID, "on": [binders]} (I93): sha256 (hex) of canonical {"template":
+                     "holon.rules.gox/<subform>", "template_version": 1, "subform", "basis"}, recomputed from the gox
+                     sidecar and the documents it names (holon.rules.gox.gox_ref)
   symb:ID            a SYM member term {"symb": ID, "on": [binders]} (I92): sha256 (hex) of canonical {"template":
                      "holon.rules.symb/<subform>", "template_version": 1, "subform", "basis"}, recomputed from the
                      SYM-bundle sidecar, the member documents and their sorts (holon.rules.symb.symb_ref)
@@ -455,6 +458,11 @@ class _Closure:
             for a in t["on"]:
                 self.term(a)
             return
+        if isinstance(t.get("gox"), str) and isinstance(t.get("on"), list):   # a PAR Go term (I93)
+            self.gox(t["gox"])
+            for a in t["on"]:
+                self.term(a)
+            return
         if isinstance(t.get("slash"), str) and isinstance(t.get("on"), list):   # a slash term (I70)
             self.slash(t["slash"])
             for a in t["on"]:
@@ -559,6 +567,14 @@ class _Closure:
             return
         from ..rules.symb import symb_ref
         self.out["symb:" + sid] = symb_ref(sid, self.law, self.root)
+
+    def gox(self, gid: str) -> None:
+        """gox:<ID>: the sha256 of the canonical {template, template_version, subform, basis} of the PAR Go basis element
+        whose id is ID (holon.rules.gox.gox_ref), recomputed from the gox sidecar and the documents it names."""
+        if "gox:" + gid in self.out:
+            return
+        from ..rules.gox import gox_ref
+        self.out["gox:" + gid] = gox_ref(gid, self.law, self.root)
 
     def slash(self, sid: str) -> None:
         """slash:<ID>: the sha256 of the canonical {template, template_version, subform, rule, edge, op, sites} of the

@@ -114,7 +114,7 @@ class Analysis:
                  "params": [{"name": n, "type": t} for n, t in fn.params], "results": list(fn.results),
                  "loop_free": self.ctx.loop_free(fid) if fn.has_body else True,
                  "paths": paths, "paths_reason": reason, "sites": self.sites(fid)}
-        if self.ctx.config_version == "holon-go-frontend/0.2":   # I67: additive loop-body paths over the iv
+        if self.ctx.config_version in ("holon-go-frontend/0.2", "holon-go-frontend/0.3"):   # I67: loop-body paths
             lb = self.loop_bodies(fid)
             if lb is not None:
                 entry["loop_bodies"] = lb
@@ -156,8 +156,12 @@ class Analysis:
                     self.ctx.debt_entry(fid, "unsupported", pos, what)
                 if res.unsupported:   # e.g. a defer that may recover: the paths are not the function's behaviour
                     paths = None
-            out.append({"span": L.span, "iv": L.iv, "init": to_json(L.init), "step": L.step, "cmp": L.cmp,
-                        "limit": to_json(L.limit), "fuel": to_json(L.fuel), "exits": list(L.exits), "paths": paths})
+            ent = {"span": L.span, "iv": L.iv, "init": to_json(L.init), "step": L.step, "cmp": L.cmp,
+                   "limit": to_json(L.limit), "fuel": to_json(L.fuel), "exits": list(L.exits), "paths": paths}
+            if self.ctx.v03:   # I93: the carried variables, in header order, with their entry values
+                ent["carried"] = [{"name": n, "init": to_json(t)} for n, t in res.carried.items()] \
+                    if paths is not None else None
+            out.append(ent)
         return out or None
 
     def _loop_fixpoint(self, fn, L):
@@ -187,7 +191,9 @@ class Analysis:
                 kind, bound = extra[sid]
                 block = None
             witness = None
-            if bound is None:
+            if kind == "fill_bytes":   # I93 (0.3): FillBytes' overflow panic, a value the frontend does not bound
+                status = "unknown"
+            elif bound is None:
                 status = "open"
             elif not isinstance(r, str):
                 status = "open" if sid in r.ends else "safe"

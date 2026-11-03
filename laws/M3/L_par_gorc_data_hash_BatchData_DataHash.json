@@ -1,0 +1,64 @@
+{
+  "facts": "spec/M3/facts/morph_go03.go.extracted.json",
+  "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_gorc_data_hash_BatchData_DataHash",
+  "milestone": "M3",
+  "notes": "cross-language recompute (data_hash): every hash (*morph-l2/common/batch.BatchData).DataHash returns is some value commitBatch stores at contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175 (spec/M2/facts/morph_rollup.extracted.json), through the preimage; gox go_recompute:data_hash:BatchData_DataHash",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.15",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "b_cks_blockContexts",
+        "q": "forall",
+        "type": "List<Nat>"
+      },
+      {
+        "name": "b_cks_l1TxHashes",
+        "q": "forall",
+        "type": "List<Nat>"
+      },
+      {
+        "name": "k_cks_blockNum",
+        "q": "forall",
+        "type": "Nat"
+      },
+      {
+        "name": "h_cks_hash",
+        "q": "forall",
+        "type": "Bool"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "gox": "go_recompute:data_hash:BatchData_DataHash",
+          "on": [
+            {
+              "var": "b_cks_blockContexts"
+            },
+            {
+              "var": "b_cks_l1TxHashes"
+            },
+            {
+              "var": "k_cks_blockNum"
+            },
+            {
+              "var": "h_cks_hash"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "go_recompute"
+}

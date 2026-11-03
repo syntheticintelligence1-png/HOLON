@@ -314,6 +314,13 @@ def _symb(law: dict) -> bool:
     return is_symb_law(law)
 
 
+def _gox(law: dict) -> bool:
+    """A PAR Go law (I93): a holon-ir/0.3 law of holon.rules.gox (its claim a gox term). holon.gox.lawrun decides it
+    over its generated module gen/<m>/gox/<law>.bend; the binding is its statement hash, as a slash law's is."""
+    from .rules.gox import is_gox_law
+    return is_gox_law(law)
+
+
 def _symb_files(law: dict, m: str, root: Path) -> tuple:
     """(the member's bundle model, its SYM section, its sections index entry) of a SYM member law."""
     member = Path(law["facts"]).stem
@@ -590,6 +597,8 @@ def _bundle_kernel_text(law: dict, m: str, root: Path) -> str:
 
 def model_path(law: dict, m: str, root: Path) -> Path:
     from .model_eval import model_name
+    if _gox(law):   # I93: the law's generated module gen/<m>/gox/<law>.bend
+        return Path(root) / "gen" / m / "gox" / f"{law['law_id']}.bend"
     if _symb(law):   # I92: the member's bundle model gen/<m>/bundle/models/<member>.bend (its section is U)
         return _symb_files(law, m, root)[0]
     if _slash(law):   # I70: the registry model gen/<m>/cutover/models/<registry>.bend (the cutover's model step)
@@ -636,6 +645,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
     if _width(law):   # no emitter states a width law: its record's cone roots are its entry points' steps
         return None
     if _slash(law):   # I70: no emitter states a slash law until the linked layer is built (holon.cutover.lawrun)
+        return None
+    if _gox(law):   # I93: holon.gox.lawrun writes the law file from the basis; it binds through the statement hash
         return None
     if _symb(law):   # I92: as holon.symb.lawrun writes it; imported by name, so the decider stays out of the closures
         import importlib
@@ -839,7 +850,7 @@ def bind_law(law: dict, m: str, root: Path, cfg: dict | None = None) -> dict:
     """One law's binding on the tree (derive's entry for it)."""
     root = Path(root)
     mp = model_path(law, m, root)
-    if _slash(law):   # I70: no statement over the linked layer yet, so the binding is its statement hash alone
+    if _slash(law) or _gox(law):   # I70, I93: the binding is the statement hash alone (gox: its basis is hashed in)
         return {"statement_hash": statement_hash(law, m, root), "model": mp.relative_to(root).as_posix(),
                 "statement_sha256": None, "counter_sha256": None, "cone": {}}
     if _symb(law):   # I92: the member's model and section as one module; U. roots are the section's (the versioned
