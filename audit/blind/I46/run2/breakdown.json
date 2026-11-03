@@ -1,0 +1,305 @@
+{
+  "agreeing_statuses": {
+    "PROVED": 95,
+    "REFUTED": 5,
+    "UNKNOWN": 60
+  },
+  "causes": {
+    "binding": "The lead's bounded witness search found a witness within the same budget (5 at its first prefix state); the blind search found none. The typed-sorts and FACT sidecars' deployment binding (replay/M2/fragments.json, a record of the deployed system; rule 8, logged not reproducible) is absent, so the blind searches start from an unbound initial state: the blind gen/M3/sorts/models/morph_rollup.extracted.init.json has binding null and empty storage, where the lead's holds the deployed, initialized contract (code, storage, the initialize call, init parameters).",
+    "budget": "DISCH's search budget is the DISCH sidecar's search section (spec/M3/lib/disch.json: prefix_depth 3, max_prefixes 3000; holon/analysis/closure.py reads it), a lead choice the code does not fix, which the session did not author: the brief names only the sidecar's other fields. The blind DISCH search ran to the tooling default (holon/disch/search.py: depth 2, max 1000), reaching 478 states, where the lead's witnesses lie at depth 3 or in S3 neighbourhoods of its 3000-state search.",
+    "budget+clock": "The DISCH search budget, as for 'budget', and the proof route refuses the clock atoms, as for 'clock'.",
+    "clock": "The session's typed sorts write the clock arithmetic of B as fixed-width words (M.w_sub_ok(M.w_add(...))), a form DISCH's time-monotonicity route does not handle; the blind typed model has 358 w_add and 11 w_sub_ok against the lead's 320 and 8. The lead proved the law."
+  },
+  "disagreements": [
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget+clock",
+      "law_id": "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter",
+      "lead": "REFUTED",
+      "rule": "DISCH",
+      "subform": "blocking"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget",
+      "law_id": "L_disch_ext_rollup_132_d953872f_onlyOwner",
+      "lead": "PROVED",
+      "rule": "DISCH",
+      "subform": "external"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget",
+      "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+      "lead": "PROVED",
+      "rule": "DISCH",
+      "subform": "external"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget",
+      "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyOwner",
+      "lead": "PROVED",
+      "rule": "DISCH",
+      "subform": "external"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget",
+      "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+      "lead": "PROVED",
+      "rule": "DISCH",
+      "subform": "external"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget",
+      "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyOwner",
+      "lead": "PROVED",
+      "rule": "DISCH",
+      "subform": "external"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget",
+      "law_id": "L_disch_noext_rollup_132_d953872f_onlyOwner",
+      "lead": "REFUTED",
+      "rule": "DISCH",
+      "subform": "external_none"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget",
+      "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+      "lead": "REFUTED",
+      "rule": "DISCH",
+      "subform": "external_none"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget",
+      "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyOwner",
+      "lead": "REFUTED",
+      "rule": "DISCH",
+      "subform": "external_none"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget+clock",
+      "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+      "lead": "REFUTED",
+      "rule": "DISCH",
+      "subform": "external_none"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "budget+clock",
+      "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyOwner",
+      "lead": "REFUTED",
+      "rule": "DISCH",
+      "subform": "external_none"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "clock",
+      "law_id": "L_disch_rev_rollup_363_e11d8bb2",
+      "lead": "PROVED",
+      "rule": "DISCH",
+      "subform": "revert"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter",
+      "lead": "REFUTED",
+      "rule": "FACT",
+      "subform": "attribution"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter",
+      "lead": "REFUTED",
+      "rule": "FACT",
+      "subform": "attribution"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash",
+      "lead": "REFUTED",
+      "rule": "FACT",
+      "subform": "kernel"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash",
+      "lead": "REFUTED",
+      "rule": "FACT",
+      "subform": "kernel"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_omega_Rollup_challengeState_commitBatchWithProof",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_omega_Rollup_challengeState_revertBatch",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_omega_Rollup_challengeState_updateProofWindow",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_omega_Rollup_commitBatch_updateProofWindow",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_pi_Rollup_commitBatchWithProof_submitter",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "pi"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_pi_Rollup_revertBatch_challenger",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "pi"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_sym_pi_Rollup_setPause_challenger",
+      "lead": "REFUTED",
+      "rule": "SYM",
+      "subform": "pi"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_undo_cancel_Rollup_challengeState_setPause",
+      "lead": "REFUTED",
+      "rule": "UNDO",
+      "subform": "cancel"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_undo_pair_Rollup_commitBatch_revertBatch",
+      "lead": "REFUTED",
+      "rule": "UNDO",
+      "subform": "pair"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes",
+      "lead": "REFUTED",
+      "rule": "UNDO",
+      "subform": "residue"
+    },
+    {
+      "blind": "UNKNOWN",
+      "cause": "binding",
+      "law_id": "L_undo_res_Rollup_revertBatch_batchDataStore",
+      "lead": "REFUTED",
+      "rule": "UNDO",
+      "subform": "residue"
+    }
+  ],
+  "doc": "I46 run 2's comparison of record, broken down (derived from compare.json, the two trees and the records; not a preregistered metric).",
+  "flips_proved_refuted": 0,
+  "per_cause": {
+    "binding": 17,
+    "budget": 8,
+    "budget+clock": 3,
+    "clock": 1
+  },
+  "per_rule": {
+    "DISCH": {
+      "agree": 23,
+      "disagree": 12,
+      "lead_classes": 41,
+      "matched": 35
+    },
+    "FACT": {
+      "agree": 1,
+      "disagree": 4,
+      "lead_classes": 9,
+      "matched": 5
+    },
+    "NAT": {
+      "agree": 0,
+      "disagree": 0,
+      "lead_classes": 9,
+      "matched": 0
+    },
+    "OWN": {
+      "agree": 0,
+      "disagree": 0,
+      "lead_classes": 6,
+      "matched": 0
+    },
+    "PAR": {
+      "agree": 80,
+      "disagree": 0,
+      "lead_classes": 90,
+      "matched": 80
+    },
+    "SORT": {
+      "agree": 0,
+      "disagree": 0,
+      "lead_classes": 15,
+      "matched": 0
+    },
+    "SYM": {
+      "agree": 51,
+      "disagree": 9,
+      "lead_classes": 77,
+      "matched": 60
+    },
+    "UNDO": {
+      "agree": 5,
+      "disagree": 4,
+      "lead_classes": 10,
+      "matched": 9
+    }
+  }
+}
