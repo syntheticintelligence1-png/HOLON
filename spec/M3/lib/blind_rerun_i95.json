@@ -1,0 +1,59 @@
+{
+  "doc": "I95's (= I46b) prereg sidecar. The contract is the docstring of tests_m3/test_blind_rerun_i95.py; see BUILD_PLAN row I95. It fixes the fresh blind rerun's protocol before anything is built or run, and it holds no outcome. It is I46's protocol (spec/M3/lib/blind_rerun.json) with I46's seven disclosed amendments (spec/M3/amendments/I46.jsonl) folded in, plus the lead's four rulings for I95. <P> is the pack commit, <S> a scratch directory outside every checkout, and W the blind session's work directory.",
+  "version": "holon-blind-rerun-i95/1",
+  "key": "I95",
+  "pack": {
+    "commit": "the lead at the commit that lands I95: the oldest commit of `git rev-list --first-parent --reverse <lead_ref>` whose tree holds holon/binding.py",
+    "marker": "holon/binding.py",
+    "command": "python tools/blind_pack.py --commit <P> --out <S>/pack"
+  },
+  "scope": {
+    "base": "python tests_m3/blind_scope.py --commit <P> --out <S>/scope: I46's six extraction-scope files, stripped by I46's rules",
+    "given": [
+      {"path": "spec/ledger/assumptions.json", "tool": "python tests_m3/blind_ledger.py --commit <P> --out <S>/ledger", "why": "holon run's records read the ledger's structure; every doc, text and why string is blanked (I46 amendments 3 and 4)"},
+      {"path": "spec/M3/lib/term_size.json", "tool": "python tests_m3/blind_term_size.py --commit <P> --out <S>/term_size", "why": "FACT's decider reads I30's budget and measure; the five members it reads (I46 amendment 7)"},
+      {"path": "spec/M3/lib/binding.json", "tool": "the file at <P>, unchanged", "why": "the binding spec of holon binding: the harness file list, the project, the target and holonDeploy's parameters as a literal list. It is configuration, not a record"},
+      {"path": "replay/M1/solidity/HolonTraceReplay.t.sol", "tool": "the file at <P>, unchanged", "why": "harness source (code) that the binding spec names"},
+      {"path": "replay/M2/solidity/HolonStepBase.sol", "tool": "the file at <P>, unchanged", "why": "harness source (code) that the binding spec names"},
+      {"path": "replay/M2/solidity/HolonExtractedStep.t.sol", "tool": "the file at <P>, unchanged", "why": "harness source (code) that the binding spec names"}
+    ],
+    "given_rule": "every given file passes the scope's strip rules (blind_scope.strip with the pack protocol's leak classes at <P>) with nothing stripped, and stripped.json lists each with its blanked or dropped key paths",
+    "never_given": "the deployment record (gen/M3/binding/, gen/M3/sorts/models/*.init.json), replay/M2/fragments.json, every other file under replay/, and every result: the session derives the deployment record itself, by forge"
+  },
+  "session": {
+    "brief": "spec/M3/lib/blind_session_i95.md (I95's build). It is I46's corrected brief (spec/M3/lib/blind_session_r2.md) with five changes. (1) The given files are placed from SCOPE at their paths, the harness sources included. (2) The binding step `python -m holon binding --milestone M3` runs before `holon sorts`. (3) The typed-sorts, FACT and DISCH sidecars name spec/M3/lib/binding.json as their binding. (4) DISCH's search section is spec/M3/lib/disch.json's at <P>, so the budget comes from it and not from the tooling default. (5) `python -m holon coverage --milestone M3` runs after derive",
+    "launch": "a fresh agent session that has never seen an outcome, launched by the coordinator with the brief's text and three paths only: <S>/pack/bundle.tar, <S>/scope and W (a new empty directory outside every checkout)",
+    "family": "same",
+    "may_read": "W, which holds only the unpacked bundle, the scope set, the target fetched at the pinned commit, and what the session itself writes",
+    "toolchain_prefixes": ["/usr/", "/bin/", "/etc/", "/opt/node22/", "/root/.bun/", "/root/.holon/bend/", "/root/.holon/bin/", "/root/.holon/tools/", "/root/.holon/lean-4.34.0-linux/", "/root/.holon/solc-0.8.24/", "/root/go/", "/root/.cache/go-build/", "/root/work/foundry/", "/root/work/solc-0.8.24/", "/dev/null"],
+    "env": {"BEND_NO_TELEMETRY": "1", "HOLON_BUILD_DIR": "W/build", "HOLON_CACHE": "W/cache"}
+  },
+  "runners": {
+    "what": "every M3 law of the blind tree that `holon land plan` routes to a job other than par, then the final filter stage",
+    "branch": "an orphan commit whose tree is W at the session's end, less build/, cache/ and pack/ and less the launch inputs, then CI-only commits: config/holon.json's target paths at the pack's, .github/workflows/.gitkeep, no gitlink (I46 amendments 5 and 6). It is pushed by `holon land plan --tag i95-blind-<k> --push`, and its first commit message starts 'CI only (not for merge)'",
+    "apply": "`holon land apply --from claude/ci-i95-blind-<k>-out-<run id>` onto a copy of that tree; nothing of the blind tree is edited by hand",
+    "local": "the blind session runs M3's par job (run, lean, run)",
+    "not_run": {"own": "OWN's laws: their search section is the lead's choice of search space (I46 amendment 7c)", "filter_refute": "the final filter's refute stage: spec/M3/lib/refute.json holds the lead's statuses and is never given; that stage sets no status"}
+  },
+  "comparison": {
+    "trees": "the blind tree's projection (`holon compare --snapshot <blind tree> --into audit/blind/I95/tree --milestone M3`) and the lead's at <P> (`--into audit/blind/I95/lead --milestone M0,M1,M2,M3`)",
+    "metric": "`holon compare --blind audit/blind/I95/tree --lead audit/blind/I95/lead --milestone M3 --out audit/blind/I95/compare.json`: I82's blind_agreement and matched_fraction over the statuses of alpha-equivalent statements",
+    "binding_row": "for each typed document, the sha256 of the blind tree's gen/M3/binding/<document stem>.json against the lead's committed gen/M3/binding/<document stem>.json at <P>. An agreement row, reported beside the classes and not counted in blind_agreement",
+    "per_rule": "agreement per rule over the matched M3 classes (tests_m3/_i95.py per_rule)"
+  },
+  "scorers": {
+    "preregistered": "tests_m3/_i46.py::calls_problems",
+    "amended": "tests_m3/_i46_reads.py::reads_problems, preregistered on this key before the session",
+    "E5": "reported under both scorers"
+  },
+  "exit": {
+    "E1": "the comparison regenerates: `holon report --milestone M3 --check` prints REPORT OK on the final head",
+    "E2": "blind_agreement on M3 >= 0.90 over at least 40 matched M3 classes, in I95's comparison",
+    "E3": "results/M3/audit_status.json at <P> has converged = true (I45's exit)",
+    "E4": "results/M3/backtest.json at <P> lists no exit blocker (I24)",
+    "E5": "the reads check passes, reported under both scorers",
+    "m3_exit": "E1 and E2 and E3 and E4 and E5"
+  },
+  "q9": "same",
+  "fallback": "only if forge cannot run in the blind environment: the deployment record becomes a declared input with its sha256 and its generating command (`python -m holon binding --milestone M3`), disclosed as an unreproduced input and excluded from the agreement count, and E2 is reported both ways"
+}
