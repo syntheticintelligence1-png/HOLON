@@ -1,0 +1,34 @@
+{
+  "binding_version": "holon-binding/1",
+  "doc": "The configuration of a typed milestone's deployment (holon binding): the harness that deploys the target, the project it builds in, the target, and the deployment's parameters as a literal list. It holds no record: holon binding derives the deployment from it by forge.",
+  "harness": {
+    "contract": "HolonExtractedStepTest",
+    "files": [
+      "replay/M2/solidity/HolonStepBase.sol",
+      "replay/M1/solidity/HolonTraceReplay.t.sol",
+      "replay/M2/solidity/HolonExtractedStep.t.sol"
+    ],
+    "last_contract": "HolonExtractedLastTest"
+  },
+  "init": [
+    40,
+    10,
+    20,
+    10,
+    100
+  ],
+  "project": {
+    "doc": "the scratch project mirrors the checkout's contracts/ Foundry tree, so a project path p is the document unit contracts/p",
+    "drop": [
+      "mock",
+      "test"
+    ],
+    "foundry_dir": "contracts",
+    "kind": "checkout",
+    "unit_prefix": "contracts/"
+  },
+  "target": {
+    "contract": "Rollup",
+    "source": "contracts/l1/rollup/Rollup.sol"
+  }
+}
