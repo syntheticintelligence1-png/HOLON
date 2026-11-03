@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -188,11 +189,15 @@ class Decider:
         hits = escape_hatches(lp.read_text(encoding="utf-8") + pp.read_text(encoding="utf-8"))
         r = bend.check(pp)
         chk = {"exit_code": r.code, "marker": "ALL PROOFS CHECK" if r.ok else "SOME PROOFS FAIL", "seconds": r.seconds}
-        verdict = "not_run"
+        verdict, vout = "not_run", ""
         if r.ok and bend.verdict_enabled():
             v = bend.check_verdict(pp)
             verdict = "checked" if v.ok else "failed"
-        self._last = {"checker": chk, "verdict": verdict, "out": (r.out or "")[-1500:], "hits": hits}
+            vout = (v.out or "")[-600:]
+            if not v.ok:
+                vout += "; " + self.kernel_site(pp)
+        self._last = {"checker": chk, "verdict": verdict, "out": (r.out or "")[-1500:], "hits": hits,
+                      "verdict_out": vout, "witness": w, "laws": self.rel(lp), "proof": self.rel(pp)}
         if not r.ok or hits or verdict == "failed":
             return None
         rep = self.replay_status(lid, w)
@@ -226,6 +231,44 @@ class Decider:
         rec["kernels"] = R2.kernels(rec)
         rec["independence_class"] = R2.independence_class(rec)
         rec.update(R2.evidence_fields(law, {"status": "REFUTED"}, self.root))
+        rec["seconds"] = round(time.monotonic() - t0, 3)
+        return rec
+
+    def kernel_site(self, pp: Path) -> str:
+        """The pinned BendTT kernel's own message on the proof's translation (bend2 reports a kernel budget as a
+        mismatch): the definition it stops in."""
+        import subprocess
+        import tempfile as _t
+        from .. import bend
+        try:
+            _, co = bend.resolve_checker()
+            k = bend.verdict_kernel_path(co)
+            with _t.TemporaryDirectory() as td:
+                out = Path(td) / "proof.bendtt"
+                bend.run([pp.name, "-o", str(out)], cwd=pp.parent, timeout=900)
+                r = subprocess.run([str(k), str(out)], capture_output=True, text=True, timeout=1800)
+                return "the pinned kernel: " + " ".join((r.stdout + r.stderr).split())[-200:]
+        except Exception as e:  # noqa: BLE001
+            return f"the pinned kernel could not be run: {type(e).__name__}"
+
+    def unknown_with_evidence(self, law: dict, e: dict, t0: float) -> dict:
+        """UNKNOWN (rule D3: Bend accepts the counter-law and BendTT does not): the witness, Bend's acceptance and the
+        replay kept as evidence, never a verdict; the bound names what is missing."""
+        lid = law["law_id"]
+        la = self._last
+        w = la["witness"]
+        rep = self.replay_status(lid, w)
+        bound = ("not decided: BendTT (--verdict) does not accept the counter-law that Bend accepts at the witness the "
+                 f"search found on the compiled claims module ({la['verdict_out'][-300:]}); the kernels' budget is the "
+                 "pinned config's")
+        wit = {"committer": w["committer"], "k": w["k"], "u": w["mig"]["calldata"],
+               "left": w["left"], "right": w["right"], "link_equations": w.get("link_equations", 0)}
+        attempts = [{"kind": "refute", "engine": "holon.cutover.search", "found": True, "witness": wit,
+                     "candidates": self._tried},
+                    {"kind": "counter", "laws": la["laws"], "proof": la["proof"], "checker": la["checker"],
+                     "verdict": la["verdict"], "detail": la["verdict_out"][-600:]},
+                    {"kind": "replay", "status": rep["status"], "detail": rep["detail"]}]
+        rec = self.record(law, attempts, bound, observation(self.ctx, e))
         rec["seconds"] = round(time.monotonic() - t0, 3)
         return rec
 
@@ -264,6 +307,8 @@ class Decider:
             rec = self.refute(law, t0, observation(self.ctx, e))
             if rec is not None:
                 return rec
+            if getattr(self, "_last", None) and self._last["checker"]["marker"] == "ALL PROOFS CHECK":
+                return self.unknown_with_evidence(law, e, t0)
         debt = debt_of(self.ctx, law, e)
         bound = "not decided: " + "; ".join(f"({i + 1}) {d}" for i, d in enumerate(debt))
         attempts = [{"kind": "refute", "engine": "holon.cutover.lawrun", "found": False,
@@ -470,7 +515,11 @@ def proof_text(ctx, law: dict, w: dict, search, m, d: Path) -> str:
         stated += 1
     w["link_equations"] = stated
     es = [f"e_{x}()" for x in xs]
-    call = f"C.{claim_name(law)}(s_{n}(), {', '.join(f's_{x}()' for x in xs)}, k_w(), u_w(), {', '.join(es)}, t_kh())"
+    sx = [f"s_{x}()" for x in xs]
+    args = f"s_{n}(), {', '.join(sx)}, k_w(), u_w(), {', '.join(es)}, t_kh()"
+    call = f"C.{claim_name(law)}({args})"
+    # the claim false by computation (rule D3): the claim applies its core to the migrated state and the old site's
+    # answer, each evaluated once; the kernels' budget is the pinned config's
     defs.append(f"def cz() -> {{{call} == False{{}} : Bool}}:\n  {{==}}\n")
     defs.append("def is_true(b: Bool) -> Type:\n  match b:\n    case True{}:\n      Unit\n    case False{}:\n      Empty\n")
     defs.append("def true_ne_false(p: {True{} == False{} : Bool}) -> Empty:\n  (%p : is_true(_)\n  Unit{})\n")

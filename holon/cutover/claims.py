@@ -176,17 +176,28 @@ class Claims:
             pre = prem[0]
             for q in prem[1:]:
                 pre = f"Bool.and({pre}, {q})"
-            body = (f"  +s1 = {{{P}.vstep({P}.U_{a}_{b}{{u}}, s, kh) : {P}.VSt}}\n"
-                    f"  +rw = {{{self.caller_word(ca)} : {P}.W}}\n"
-                    f"  +xa = {{site_{a}_{b}_{op}_a(s, s_{xa}, k, e_{xa}, rw, kh) : Ans}}\n"
-                    f"  +xb = {{site_{a}_{b}_{op}_b(s1, s_{xb}, k, e_{xb}, rw, kh) : Ans}}\n")
+            rwc = self.caller_word(ca)
+            prem = [q.replace("rw,", f"{rwc},") if q.startswith(f"{P}.w_eq(rw") else q for q in prem]
+            pre = prem[0]
+            for q in prem[1:]:
+                pre = f"Bool.and({pre}, {q})"
+            mig = f"{P}.vstep({P}.U_{a}_{b}{{u}}, s, kh)"
+            args = f"s, s_{xa}, s_{xb}, k, u, e_{xa}, e_{xb}, kh"
             for rule in self.S.RULES:
                 concl = ("ans_eq(xb, xa)" if rule == "NAT" else
                          f"Bool.or(Bool.not({P}.w_nz(ans_w(xa))), {P}.w_nz(ans_w(xb)))")
                 name = f"slash_{rule.lower()}_{a}_{b}_{op}"
-                self.defs.append(f"# {rule} slash at {p['edge']} {op}: premises -> conclusion (true when a premise "
-                                 f"fails)\ndef {name}({sig}) -> Bool:\n{body}"
+                # the core takes the migrated state and both answers as arguments, so that a proof can give each its
+                # own lemma (the kernel's budget is per definition) and the claim is the core applied to them
+                # the core takes the migrated state and the old site's answer as arguments (each evaluated once:
+                # the migration is not recomputed for the new site, whose answer the core computes from s1)
+                self.defs.append(f"# {rule} slash at {p['edge']} {op}, its core: premises -> conclusion (true when a "
+                                 f"premise fails), over the migrated state s1 and the old site's answer xa (at {a})\n"
+                                 f"def {name}_core({sig}, +s1: {P}.VSt, +xa: Ans) -> Bool:\n"
+                                 f"  +xb = {{site_{a}_{b}_{op}_b(s1, s_{xb}, k, e_{xb}, {rwc}, kh) : Ans}}\n"
                                  f"  Bool.or(Bool.not({pre}), {concl})\n")
+                self.defs.append(f"def {name}({sig}) -> Bool:\n"
+                                 f"  {name}_core({args}, {mig}, site_{a}_{b}_{op}_a(s, s_{xa}, k, e_{xa}, {rwc}, kh))\n")
         return "\n".join(head) + "\n\n" + "\n".join(self.defs)
 
 

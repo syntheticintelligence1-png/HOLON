@@ -972,45 +972,10 @@ def is_true(b: Bool) -> Type:
     case False{}:
       Empty
 
-def w_shl_1(a: W) -> W:
-  match a:
-    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
-      W{U32.shln(a0, 1n), U32.or(U32.shln(a1, 1n), U32.shrn(a0, 31n)), U32.or(U32.shln(a2, 1n), U32.shrn(a1, 31n)), U32.or(U32.shln(a3, 1n), U32.shrn(a2, 31n)), U32.or(U32.shln(a4, 1n), U32.shrn(a3, 31n)), U32.or(U32.shln(a5, 1n), U32.shrn(a4, 31n)), U32.or(U32.shln(a6, 1n), U32.shrn(a5, 31n)), U32.or(U32.shln(a7, 1n), U32.shrn(a6, 31n))}
-
-def w_shl_2(a: W) -> W:
-  match a:
-    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
-      W{U32.shln(a0, 2n), U32.or(U32.shln(a1, 2n), U32.shrn(a0, 30n)), U32.or(U32.shln(a2, 2n), U32.shrn(a1, 30n)), U32.or(U32.shln(a3, 2n), U32.shrn(a2, 30n)), U32.or(U32.shln(a4, 2n), U32.shrn(a3, 30n)), U32.or(U32.shln(a5, 2n), U32.shrn(a4, 30n)), U32.or(U32.shln(a6, 2n), U32.shrn(a5, 30n)), U32.or(U32.shln(a7, 2n), U32.shrn(a6, 30n))}
-
-def w_shl_4(a: W) -> W:
-  match a:
-    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
-      W{U32.shln(a0, 4n), U32.or(U32.shln(a1, 4n), U32.shrn(a0, 28n)), U32.or(U32.shln(a2, 4n), U32.shrn(a1, 28n)), U32.or(U32.shln(a3, 4n), U32.shrn(a2, 28n)), U32.or(U32.shln(a4, 4n), U32.shrn(a3, 28n)), U32.or(U32.shln(a5, 4n), U32.shrn(a4, 28n)), U32.or(U32.shln(a6, 4n), U32.shrn(a5, 28n)), U32.or(U32.shln(a7, 4n), U32.shrn(a6, 28n))}
-
 def w_shl_8(a: W) -> W:
   match a:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{U32.shln(a0, 8n), U32.or(U32.shln(a1, 8n), U32.shrn(a0, 24n)), U32.or(U32.shln(a2, 8n), U32.shrn(a1, 24n)), U32.or(U32.shln(a3, 8n), U32.shrn(a2, 24n)), U32.or(U32.shln(a4, 8n), U32.shrn(a3, 24n)), U32.or(U32.shln(a5, 8n), U32.shrn(a4, 24n)), U32.or(U32.shln(a6, 8n), U32.shrn(a5, 24n)), U32.or(U32.shln(a7, 8n), U32.shrn(a6, 24n))}
-
-def w_shl_16(a: W) -> W:
-  match a:
-    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
-      W{U32.shln(a0, 16n), U32.or(U32.shln(a1, 16n), U32.shrn(a0, 16n)), U32.or(U32.shln(a2, 16n), U32.shrn(a1, 16n)), U32.or(U32.shln(a3, 16n), U32.shrn(a2, 16n)), U32.or(U32.shln(a4, 16n), U32.shrn(a3, 16n)), U32.or(U32.shln(a5, 16n), U32.shrn(a4, 16n)), U32.or(U32.shln(a6, 16n), U32.shrn(a5, 16n)), U32.or(U32.shln(a7, 16n), U32.shrn(a6, 16n))}
-
-def w_shl_32(a: W) -> W:
-  match a:
-    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
-      W{0, a0, a1, a2, a3, a4, a5, a6}
-
-def w_shl_64(a: W) -> W:
-  match a:
-    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
-      W{0, 0, a0, a1, a2, a3, a4, a5}
-
-def w_shl_128(a: W) -> W:
-  match a:
-    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
-      W{0, 0, 0, 0, a0, a1, a2, a3}
 
 def w_shr_1(a: W) -> W:
   match a:
@@ -1065,16 +1030,52 @@ def w_set(xs: List<&2, W>, n: Nat, v: W) -> List<&2, W>:
     case Con{h, t} 1n+p:
       Con{h, w_set(t, p, v)}
 
-def w_shlv(+a: W, +n: W) -> W:
-  +s0 = {ite(W, w_nz(w_and(n, W{1, 0, 0, 0, 0, 0, 0, 0})), w_shl_1(a), a) : W}
-  +s1 = {ite(W, w_nz(w_and(n, W{2, 0, 0, 0, 0, 0, 0, 0})), w_shl_2(s0), s0) : W}
-  +s2 = {ite(W, w_nz(w_and(n, W{4, 0, 0, 0, 0, 0, 0, 0})), w_shl_4(s1), s1) : W}
-  +s3 = {ite(W, w_nz(w_and(n, W{8, 0, 0, 0, 0, 0, 0, 0})), w_shl_8(s2), s2) : W}
-  +s4 = {ite(W, w_nz(w_and(n, W{16, 0, 0, 0, 0, 0, 0, 0})), w_shl_16(s3), s3) : W}
-  +s5 = {ite(W, w_nz(w_and(n, W{32, 0, 0, 0, 0, 0, 0, 0})), w_shl_32(s4), s4) : W}
-  +s6 = {ite(W, w_nz(w_and(n, W{64, 0, 0, 0, 0, 0, 0, 0})), w_shl_64(s5), s5) : W}
-  +s7 = {ite(W, w_nz(w_and(n, W{128, 0, 0, 0, 0, 0, 0, 0})), w_shl_128(s6), s6) : W}
-  ite(W, w_lt(n, W{256, 0, 0, 0, 0, 0, 0, 0}), s7, w0())
+def w_bitl(+i: U32, +v: U32) -> W:
+  W{ite(U32, U32.is_eq(i, 0), v, 0), ite(U32, U32.is_eq(i, 1), v, 0), ite(U32, U32.is_eq(i, 2), v, 0), ite(U32, U32.is_eq(i, 3), v, 0), ite(U32, U32.is_eq(i, 4), v, 0), ite(U32, U32.is_eq(i, 5), v, 0), ite(U32, U32.is_eq(i, 6), v, 0), ite(U32, U32.is_eq(i, 7), v, 0)}
+
+def w_pow2_c(c: Bool, +k: U32) -> W:
+  match c:
+    case True{}:
+      w_bitl(U32.div(k, 32), U32.shln(1, U32.to_nat(U32.mod(k, 32))))
+    case False{}:
+      w0()
+
+def w_pow2(+n: W) -> W:
+  w_pow2_c(w_lt(n, W{256, 0, 0, 0, 0, 0, 0, 0}), w_lo(n))
+
+def w_mulx_d(c: Bool, +a: W, +b: W) -> W:
+  match c:
+    case True{}:
+      w_mul_small(b, w_lo(a))
+    case False{}:
+      w_mul(a, b)
+
+def w_mulx_c(c: Bool, +a: W, +b: W) -> W:
+  match c:
+    case True{}:
+      w_mul_small(a, w_lo(b))
+    case False{}:
+      w_mulx_d(w_hi0(a), a, b)
+
+def w_mulx(+a: W, +b: W) -> W:
+  w_mulx_c(w_hi0(b), a, b)
+
+def w_mul_okx_d(c: Bool, +a: W, +b: W) -> Bool:
+  match c:
+    case True{}:
+      True{}
+    case False{}:
+      w_mul_ok(a, b)
+
+def w_mul_okx_c(c: Bool, +a: W, +b: W) -> Bool:
+  match c:
+    case True{}:
+      True{}
+    case False{}:
+      w_mul_okx_d(Bool.and(w_hi0(a), w_lt(b, W{0, 0, 0, 0, 0, 0, 0, 1})), a, b)
+
+def w_mul_okx(+a: W, +b: W) -> Bool:
+  w_mul_okx_c(Bool.and(w_hi0(b), w_lt(a, W{0, 0, 0, 0, 0, 0, 0, 1})), a, b)
 
 # HEnv.e_block_number: block.number
 # HEnv.e_caller: caller
@@ -3799,7 +3800,7 @@ def xf_getStakerBitmap(x: X_getStakerBitmap, +c: U32, +r: List<&2, U32>) -> X_ge
 def sz_getStakerBitmap(x: X_getStakerBitmap) -> X_getStakerBitmap:
   match x:
     case X_getStakerBitmap{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
-      ite(X_getStakerBitmap, U32.is_eq(x_cd, 0), sx_getStakerBitmap_rv(X_getStakerBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_getStakerBitmap__staker(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0})))), X_getStakerBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+      ite(X_getStakerBitmap, U32.is_eq(x_cd, 0), sx_getStakerBitmap_rv(X_getStakerBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(w_pow2(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_getStakerBitmap__staker(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0})))), X_getStakerBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # getStakerBitmap#contracts/contracts/l1/staking/L1Staking.sol:397#0
 def k_getStakerBitmap_1(c: Bool, x: X_getStakerBitmap) -> X_getStakerBitmap:
@@ -4218,7 +4219,7 @@ def sz_getStakersBitmap(x: X_getStakersBitmap) -> X_getStakersBitmap:
 def ln_getStakersBitmap_5(x: X_getStakersBitmap) -> X_getStakersBitmap:
   match x:
     case X_getStakersBitmap{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw, +x_c5_0, x_c5_1, +x_it5, x_cn5, x_rt5, x_ld5}:
-      +n0 = {w_or(x_c5_0, w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_nth(ga_getStakersBitmap__stakers(x_ar), n_of_w(x_it5)), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0}))) : W}
+      +n0 = {w_or(x_c5_0, w_pow2(w_and(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(w_nth(ga_getStakersBitmap__stakers(x_ar), n_of_w(x_it5)), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 159]))), W{255, 0, 0, 0, 0, 0, 0, 0}))) : W}
       +n1 = {w_add(x_it5, W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
       sx_getStakersBitmap_ld5(sx_getStakersBitmap_it5(sx_getStakersBitmap_c5_1(sx_getStakersBitmap_c5_0(X_getStakersBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c5_0, x_c5_1, x_it5, x_cn5, x_rt5, x_ld5}, n0), n1), w_add(x_it5, w_u(1))), 1n)
 
@@ -4697,8 +4698,8 @@ def ln_getStakersFromBitmap_7(x: X_getStakersFromBitmap) -> X_getStakersFromBitm
   match x:
     case X_getStakersFromBitmap{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, +x_c7_1, +x_c7_2, +x_it7, x_cn7, x_rt7, x_ld7}:
       +n0 = {w_add(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
-      +n1 = {ite(W, w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_add(x_c7_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_c7_1) : W}
-      +n2 = {ite(List<&2, W>, w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_set(x_c7_2, n_of_w(x_c7_1), w_and(sload(x_st, w_add(W{160, 0, 0, 0, 0, 0, 0, 0}, w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), x_c7_2) : List<&2, W>}
+      +n1 = {ite(W, w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_add(x_c7_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_c7_1) : W}
+      +n2 = {ite(List<&2, W>, w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_set(x_c7_2, n_of_w(x_c7_1), w_and(sload(x_st, w_add(W{160, 0, 0, 0, 0, 0, 0, 0}, w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), x_c7_2) : List<&2, W>}
       sx_getStakersFromBitmap_ld7(sx_getStakersFromBitmap_it7(sx_getStakersFromBitmap_c7_2(sx_getStakersFromBitmap_c7_1(sx_getStakersFromBitmap_c7_0(X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7}, n0), n1), n2), w_add(x_it7, w_u(1))), 1n)
 
 def lbk_getStakersFromBitmap_7(x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
@@ -4723,7 +4724,7 @@ def lc_getStakersFromBitmap_7(c: Bool, x: X_getStakersFromBitmap) -> X_getStaker
     case False{}:
       match x:
         case X_getStakersFromBitmap{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, +x_cn6, x_rt6, x_ld6, x_c7_0, +x_c7_1, x_c7_2, +x_it7, x_cn7, x_rt7, x_ld7}:
-          lk_getStakersFromBitmap_7(Bool.and(w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_ge(w_add(x_c7_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_cn6)), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
+          lk_getStakersFromBitmap_7(Bool.and(w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_ge(w_add(x_c7_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_cn6)), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
 
 def lb_getStakersFromBitmap_7(x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
   match x:
@@ -4745,7 +4746,7 @@ def k_getStakersFromBitmap_2(c: Bool, x: X_getStakersFromBitmap) -> X_getStakers
 def s_getStakersFromBitmap_2(x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
   match x:
     case X_getStakersFromBitmap{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, +x_cn6, x_rt6, x_ld6, x_c7_0, +x_c7_1, x_c7_2, +x_it7, x_cn7, x_rt7, x_ld7}:
-      k_getStakersFromBitmap_2(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), Bool.or(Bool.not(w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_ge(w_add(x_c7_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_cn6))))), Bool.and(w_add_ok(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), w_lt(w_add(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), W{256, 0, 0, 0, 0, 0, 0, 0}))), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
+      k_getStakersFromBitmap_2(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), Bool.or(Bool.not(w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_ge(w_add(x_c7_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_cn6))))), Bool.and(w_add_ok(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), w_lt(w_add(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), W{256, 0, 0, 0, 0, 0, 0, 0}))), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
 
 # getStakersFromBitmap#contracts/contracts/l1/staking/L1Staking.sol:429#0
 def k_getStakersFromBitmap_3(c: Bool, x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
@@ -4759,7 +4760,7 @@ def k_getStakersFromBitmap_3(c: Bool, x: X_getStakersFromBitmap) -> X_getStakers
 def s_getStakersFromBitmap_3(x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
   match x:
     case X_getStakersFromBitmap{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, +x_c7_1, x_c7_2, +x_it7, x_cn7, x_rt7, x_ld7}:
-      k_getStakersFromBitmap_3(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_add_ok(x_c7_1, W{1, 0, 0, 0, 0, 0, 0, 0})), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
+      k_getStakersFromBitmap_3(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_add_ok(x_c7_1, W{1, 0, 0, 0, 0, 0, 0, 0})), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
 
 # getStakersFromBitmap#contracts/contracts/l1/staking/L1Staking.sol:428#2
 def k_getStakersFromBitmap_4(c: Bool, x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
@@ -4773,7 +4774,7 @@ def k_getStakersFromBitmap_4(c: Bool, x: X_getStakersFromBitmap) -> X_getStakers
 def s_getStakersFromBitmap_4(x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
   match x:
     case X_getStakersFromBitmap{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, +x_c7_1, +x_c7_2, +x_it7, x_cn7, x_rt7, x_ld7}:
-      k_getStakersFromBitmap_4(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_lt(x_c7_1, w_u(w_len(x_c7_2)))), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
+      k_getStakersFromBitmap_4(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_lt(x_c7_1, w_u(w_len(x_c7_2)))), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
 
 # getStakersFromBitmap#contracts/contracts/l1/staking/L1Staking.sol:428#1
 def k_getStakersFromBitmap_5(c: Bool, x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
@@ -4787,7 +4788,7 @@ def k_getStakersFromBitmap_5(c: Bool, x: X_getStakersFromBitmap) -> X_getStakers
 def s_getStakersFromBitmap_5(x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
   match x:
     case X_getStakersFromBitmap{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, +x_it7, x_cn7, x_rt7, x_ld7}:
-      k_getStakersFromBitmap_5(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_lt(w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
+      k_getStakersFromBitmap_5(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_lt(w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
 
 # getStakersFromBitmap#contracts/contracts/l1/staking/L1Staking.sol:428#0
 def k_getStakersFromBitmap_6(c: Bool, x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
@@ -4801,7 +4802,7 @@ def k_getStakersFromBitmap_6(c: Bool, x: X_getStakersFromBitmap) -> X_getStakers
 def s_getStakersFromBitmap_6(x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
   match x:
     case X_getStakersFromBitmap{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, +x_it7, x_cn7, x_rt7, x_ld7}:
-      k_getStakersFromBitmap_6(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.and(w_sub_ok(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), w_lt(w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), W{256, 0, 0, 0, 0, 0, 0, 0}))), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
+      k_getStakersFromBitmap_6(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_getStakersFromBitmap_bitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7))), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.and(w_sub_ok(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), w_lt(w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it7), W{1, 0, 0, 0, 0, 0, 0, 0}), W{256, 0, 0, 0, 0, 0, 0, 0}))), X_getStakersFromBitmap{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c6_0, x_c6_1, x_it6, x_cn6, x_rt6, x_ld6, x_c7_0, x_c7_1, x_c7_2, x_it7, x_cn7, x_rt7, x_ld7})
 
 def lx_getStakersFromBitmap_7(x: X_getStakersFromBitmap) -> X_getStakersFromBitmap:
   match x:
@@ -7740,7 +7741,7 @@ def xf_slash(x: X_slash, +c: U32, +r: List<&2, U32>) -> X_slash:
 def sz_slash(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw, +x_c9_0, +x_c9_1, +x_it9, +x_cn9, +x_rt9, +x_ld9, +x_c10_0, +x_c10_1, +x_c10_2, +x_it10, +x_cn10, +x_rt10, +x_ld10, +x_c11_0, +x_c11_1, +x_c11_2, +x_c11_3, +x_c11_4, +x_c11_5, +x_c11_6, +x_it11, +x_cn11, +x_rt11, +x_ld11}:
-      ite(X_slash, U32.is_eq(x_cd, 0), sx_slash_rv(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}, b_of_w(w_div_small(w_mul(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      ite(X_slash, U32.is_eq(x_cd, 0), sx_slash_rv(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}, b_of_w(w_div_small(w_mulx(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 def wr_slash_1(x: X_slash) -> X_slash:
   match x:
@@ -7801,14 +7802,14 @@ def k_slash_5(c: Bool, x: X_slash) -> X_slash:
 def s_slash_5(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, x_ar, +x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, +x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_5(Bool.or(Bool.not(w_gt(w_div_small(w_mul(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100), W{0, 0, 0, 0, 0, 0, 0, 0})), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, Nil{}))))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_5(Bool.or(Bool.not(w_gt(w_div_small(w_mulx(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100), W{0, 0, 0, 0, 0, 0, 0, 0})), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, Nil{}))))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 def wr_slash_6(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, +x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, +x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, +x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
       +o0 = x_ov
       +k = {W{157, 0, 0, 0, 0, 0, 0, 0} : W}
-      +v = {w_add(sload(x_st, W{157, 0, 0, 0, 0, 0, 0, 0}), w_sub(x_c11_1, w_div_small(w_mul(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))) : W}
+      +v = {w_add(sload(x_st, W{157, 0, 0, 0, 0, 0, 0, 0}), w_sub(x_c11_1, w_div_small(w_mulx(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))) : W}
       +o1 = {sstore(o0, k, v) : HSt}
       sx_slash_tw(sx_slash_ov(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}, o1), Con{k, x_tw})
 
@@ -7828,7 +7829,7 @@ def k_slash_7(c: Bool, x: X_slash) -> X_slash:
 def s_slash_7(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, +x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_7(w_add_ok(sload(x_st, W{157, 0, 0, 0, 0, 0, 0, 0}), w_sub(x_c11_1, w_div_small(w_mul(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_7(w_add_ok(sload(x_st, W{157, 0, 0, 0, 0, 0, 0, 0}), w_sub(x_c11_1, w_div_small(w_mulx(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 # slash#contracts/contracts/l1/staking/L1Staking.sol:236#0
 def k_slash_8(c: Bool, x: X_slash) -> X_slash:
@@ -7842,7 +7843,7 @@ def k_slash_8(c: Bool, x: X_slash) -> X_slash:
 def s_slash_8(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, +x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_8(w_sub_ok(x_c11_1, w_div_small(w_mul(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_8(w_sub_ok(x_c11_1, w_div_small(w_mulx(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 # slash#contracts/contracts/l1/staking/L1Staking.sol:235#0
 def k_slash_9(c: Bool, x: X_slash) -> X_slash:
@@ -7856,7 +7857,7 @@ def k_slash_9(c: Bool, x: X_slash) -> X_slash:
 def s_slash_9(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, +x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_9(w_mul_ok(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_9(w_mul_okx(x_c11_1, sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 def ln_slash_11(x: X_slash) -> X_slash:
   match x:
@@ -8238,8 +8239,8 @@ def ln_slash_10(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, +x_c10_1, +x_c10_2, +x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
       +n0 = {w_add(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}) : W}
-      +n1 = {ite(W, w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_add(x_c10_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_c10_1) : W}
-      +n2 = {ite(List<&2, W>, w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_set(x_c10_2, n_of_w(x_c10_1), w_and(sload(x_st, w_add(W{160, 0, 0, 0, 0, 0, 0, 0}, w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), x_c10_2) : List<&2, W>}
+      +n1 = {ite(W, w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_add(x_c10_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_c10_1) : W}
+      +n2 = {ite(List<&2, W>, w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_set(x_c10_2, n_of_w(x_c10_1), w_and(sload(x_st, w_add(W{160, 0, 0, 0, 0, 0, 0, 0}, w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}))), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), x_c10_2) : List<&2, W>}
       sx_slash_ld10(sx_slash_it10(sx_slash_c10_2(sx_slash_c10_1(sx_slash_c10_0(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}, n0), n1), n2), w_add(x_it10, w_u(1))), 1n)
 
 def lbk_slash_10(x: X_slash) -> X_slash:
@@ -8264,7 +8265,7 @@ def lc_slash_10(c: Bool, x: X_slash) -> X_slash:
     case False{}:
       match x:
         case X_slash{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, +x_cn9, x_rt9, x_ld9, x_c10_0, +x_c10_1, x_c10_2, +x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-          lk_slash_10(Bool.and(w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_ge(w_add(x_c10_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_cn9)), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+          lk_slash_10(Bool.and(w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}), w_ge(w_add(x_c10_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_cn9)), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 def lb_slash_10(x: X_slash) -> X_slash:
   match x:
@@ -8286,7 +8287,7 @@ def k_slash_28(c: Bool, x: X_slash) -> X_slash:
 def s_slash_28(x: X_slash) -> X_slash:
   match x:
     case X_slash{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, +x_cn9, x_rt9, x_ld9, x_c10_0, +x_c10_1, x_c10_2, +x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_28(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), Bool.or(Bool.not(w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_ge(w_add(x_c10_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_cn9))))), Bool.and(w_add_ok(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), w_lt(w_add(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), W{256, 0, 0, 0, 0, 0, 0, 0}))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_28(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), Bool.or(Bool.not(w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_ge(w_add(x_c10_1, W{1, 0, 0, 0, 0, 0, 0, 0}), x_cn9))))), Bool.and(w_add_ok(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), w_lt(w_add(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), W{256, 0, 0, 0, 0, 0, 0, 0}))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 # slash#contracts/contracts/l1/staking/L1Staking.sol:429#0
 def k_slash_29(c: Bool, x: X_slash) -> X_slash:
@@ -8300,7 +8301,7 @@ def k_slash_29(c: Bool, x: X_slash) -> X_slash:
 def s_slash_29(x: X_slash) -> X_slash:
   match x:
     case X_slash{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, +x_c10_1, x_c10_2, +x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_29(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_add_ok(x_c10_1, W{1, 0, 0, 0, 0, 0, 0, 0})), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_29(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_add_ok(x_c10_1, W{1, 0, 0, 0, 0, 0, 0, 0})), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 # slash#contracts/contracts/l1/staking/L1Staking.sol:428#2
 def k_slash_30(c: Bool, x: X_slash) -> X_slash:
@@ -8314,7 +8315,7 @@ def k_slash_30(c: Bool, x: X_slash) -> X_slash:
 def s_slash_30(x: X_slash) -> X_slash:
   match x:
     case X_slash{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, +x_c10_1, +x_c10_2, +x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_30(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_lt(x_c10_1, w_u(w_len(x_c10_2)))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_30(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_lt(x_c10_1, w_u(w_len(x_c10_2)))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 # slash#contracts/contracts/l1/staking/L1Staking.sol:428#1
 def k_slash_31(c: Bool, x: X_slash) -> X_slash:
@@ -8328,7 +8329,7 @@ def k_slash_31(c: Bool, x: X_slash) -> X_slash:
 def s_slash_31(x: X_slash) -> X_slash:
   match x:
     case X_slash{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, +x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_31(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_lt(w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_31(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}))), w_lt(w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), W{255, 0, 0, 0, 0, 0, 0, 0})), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 # slash#contracts/contracts/l1/staking/L1Staking.sol:428#0
 def k_slash_32(c: Bool, x: X_slash) -> X_slash:
@@ -8342,7 +8343,7 @@ def k_slash_32(c: Bool, x: X_slash) -> X_slash:
 def s_slash_32(x: X_slash) -> X_slash:
   match x:
     case X_slash{x_st, x_ov, +x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, +x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11}:
-      k_slash_32(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_shlv(W{1, 0, 0, 0, 0, 0, 0, 0}, w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.and(w_sub_ok(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), w_lt(w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), W{256, 0, 0, 0, 0, 0, 0, 0}))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
+      k_slash_32(Bool.or(Bool.not(Bool.and(w_le(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{255, 0, 0, 0, 0, 0, 0, 0}), w_gt(w_and(ga_slash_sequencersBitmap(x_ar), w_pow2(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10))), W{0, 0, 0, 0, 0, 0, 0, 0}))), Bool.and(w_sub_ok(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), w_lt(w_sub(w_add(W{1, 0, 0, 0, 0, 0, 0, 0}, x_it10), W{1, 0, 0, 0, 0, 0, 0, 0}), W{256, 0, 0, 0, 0, 0, 0, 0}))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw, x_c9_0, x_c9_1, x_it9, x_cn9, x_rt9, x_ld9, x_c10_0, x_c10_1, x_c10_2, x_it10, x_cn10, x_rt10, x_ld10, x_c11_0, x_c11_1, x_c11_2, x_c11_3, x_c11_4, x_c11_5, x_c11_6, x_it11, x_cn11, x_rt11, x_ld11})
 
 def lx_slash_10(x: X_slash) -> X_slash:
   match x:

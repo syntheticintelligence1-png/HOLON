@@ -3525,3 +3525,75 @@ def _i94_return(self, a: str, sc) -> str | None:
     if k in ("w", "bool") or k.startswith("t:"):
         return f"b_of_w({self.to_w(c, k)})"
     return None       # a list, bytes or record return value: not encoded (no return data)
+
+
+# ------------------------------------------------------------------------------------------------ I94 (EXT1 products)
+def _i94_mulx(self) -> tuple:
+    """(w_mulx, w_mul_okx): a product, and its no-overflow test, that take one factor's single limb when it has one
+    (w_mul_small: the other factor times a U32, as a literal factor already is), the full product otherwise. The
+    branch is a match, so a run evaluates one of them: a kernel then evaluates a small product limb by limb, not as a
+    256 x 256 product. Values equal w_mul's and w_mul_ok's."""
+    lim = wlit(1 << 224)
+    _ext_helper(self, "w_mulx_d", "def w_mulx_d(c: Bool, +a: W, +b: W) -> W:\n  match c:\n    case True{}:\n"
+                "      w_mul_small(b, w_lo(a))\n    case False{}:\n      w_mul(a, b)\n")
+    _ext_helper(self, "w_mulx_c", "def w_mulx_c(c: Bool, +a: W, +b: W) -> W:\n  match c:\n    case True{}:\n"
+                "      w_mul_small(a, w_lo(b))\n    case False{}:\n      w_mulx_d(w_hi0(a), a, b)\n")
+    mx = _ext_helper(self, "w_mulx", "def w_mulx(+a: W, +b: W) -> W:\n  w_mulx_c(w_hi0(b), a, b)\n")
+    _ext_helper(self, "w_mul_okx_d", "def w_mul_okx_d(c: Bool, +a: W, +b: W) -> Bool:\n  match c:\n    case True{}:\n"
+                "      True{}\n    case False{}:\n      w_mul_ok(a, b)\n")
+    _ext_helper(self, "w_mul_okx_c", "def w_mul_okx_c(c: Bool, +a: W, +b: W) -> Bool:\n  match c:\n    case True{}:\n"
+                f"      True{{}}\n    case False{{}}:\n      w_mul_okx_d(Bool.and(w_hi0(a), w_lt(b, {lim})), a, b)\n")
+    ok = _ext_helper(self, "w_mul_okx", "def w_mul_okx(+a: W, +b: W) -> Bool:\n"
+                     f"  w_mul_okx_c(Bool.and(w_hi0(b), w_lt(a, {lim})), a, b)\n")
+    return mx, ok
+
+
+def _i94_t_mul(self, t, sc):
+    if any(isinstance(x, int) and not isinstance(x, bool) for x in (t[1], t[2])):
+        return Model3.t_mul(self, t, sc)
+    mx, _ok = _i94_mulx(self)
+    return f"{mx}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+def _i94_mul_check(self, inner, a: str, b: str) -> tuple:
+    if any(isinstance(x, int) and not isinstance(x, bool) for x in (inner[1], inner[2])):
+        return Model3.mul_check(self, inner, a, b)
+    mx, ok = _i94_mulx(self)
+    return f"{ok}({a}, {b})", f"{mx}({a}, {b})"
+
+
+Model3X.t_mul = _i94_t_mul
+Model3X.mul_check = _i94_mul_check
+
+
+# ------------------------------------------------------------------------------------------------ I94 (EXT1 shifts)
+def _i94_var_shift(self, d: str, t, sc):
+    """EXT1: a shift by a non-constant amount n (EVM SHL/SHR: n >= 256 gives 0) whose levels match on n's bits, so a
+    run evaluates only the constant shifts of the set bits; 1 << n is the word of bit n itself (w_pow2). Values equal
+    I83's w_shlv / w_shrv."""
+    if d == "l" and t[1] == 1:
+        _ext_helper(self, "w_bitl", "def w_bitl(+i: U32, +v: U32) -> W:\n  W{" + ", ".join(
+            f"ite(U32, U32.is_eq(i, {k}), v, 0)" for k in range(8)) + "}\n")
+        _ext_helper(self, "w_pow2_c", "def w_pow2_c(c: Bool, +k: U32) -> W:\n  match c:\n    case True{}:\n"
+                    "      w_bitl(U32.div(k, 32), U32.shln(1, U32.to_nat(U32.mod(k, 32))))\n    case False{}:\n      w0()\n")
+        f = _ext_helper(self, "w_pow2", f"def w_pow2(+n: W) -> W:\n  w_pow2_c(w_lt(n, {wlit(256)}), w_lo(n))\n")
+        return f"{f}({self.w(t[2], sc)})", "w"
+    name = f"w_sh{d}vm"
+    if name not in _ext_helpers(self):
+        for b in range(8):
+            fn = self.shr(1 << b) if d == "r" else self.shl(1 << b)
+            _ext_helper(self, f"{name}_{b}", f"def {name}_{b}(c: Bool, +a: W) -> W:\n  match c:\n    case True{{}}:\n"
+                        f"      {fn}(a)\n    case False{{}}:\n      a\n")
+        _ext_helper(self, f"{name}_z", f"def {name}_z(c: Bool, +a: W) -> W:\n  match c:\n    case True{{}}:\n      a\n"
+                    "    case False{}:\n      w0()\n")
+        lines = [f"def {name}(+a: W, +n: W) -> W:"]
+        prev = "a"
+        for b in range(8):
+            lines.append(f"  +s{b} = {{{name}_{b}(w_nz(w_and(n, {wlit(1 << b)})), {prev}) : W}}")
+            prev = f"s{b}"
+        lines.append(f"  {name}_z(w_lt(n, {wlit(256)}), {prev})")
+        _ext_helper(self, name, "\n".join(lines) + "\n")
+    return f"{name}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+Model3X.var_shift = _i94_var_shift

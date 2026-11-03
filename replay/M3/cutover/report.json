@@ -1,0 +1,181 @@
+{
+ "replay_version": "holon-cutover-replay/0.1",
+ "runs": [
+  {
+   "agree": true,
+   "credited": 1,
+   "deposit": 1,
+   "id": "L_nat_slash_Rollup_V10_V11_proveState:left",
+   "model_reward": 0,
+   "observed_reward": 0,
+   "passed": true,
+   "steps": 11,
+   "trace": "T2_cutover_slash"
+  },
+  {
+   "agree": true,
+   "credited": 200000000000000001,
+   "deposit": 1,
+   "id": "L_nat_slash_Rollup_V10_V11_proveState:right",
+   "model_reward": 200000000000000000,
+   "observed_reward": 200000000000000000,
+   "passed": true,
+   "steps": 8,
+   "trace": "T1_legacy_slash"
+  },
+  {
+   "agree": true,
+   "credited": 1,
+   "deposit": 1,
+   "id": "L_sort_slash_Rollup_V10_V11_proveState:left",
+   "model_reward": 0,
+   "observed_reward": 0,
+   "passed": true,
+   "steps": 11,
+   "trace": "T2_cutover_slash"
+  },
+  {
+   "agree": true,
+   "credited": 200000000000000001,
+   "deposit": 1,
+   "id": "L_sort_slash_Rollup_V10_V11_proveState:right",
+   "model_reward": 200000000000000000,
+   "observed_reward": 200000000000000000,
+   "passed": true,
+   "steps": 8,
+   "trace": "T1_legacy_slash"
+  }
+ ],
+ "traces": {
+  "left": {
+   "agree": true,
+   "credited": 1,
+   "deposit": 1,
+   "steps": [
+    {
+     "agree": true,
+     "index": 0,
+     "label": "l1staking.updateWhitelist(s1,s2) by owner",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 1,
+     "label": "l1staking.register by s1",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 2,
+     "label": "l1staking.register by s2",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 3,
+     "label": "rollup@V10.commitBatch by s1",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 4,
+     "label": "cutover by admin: upgradeToAndCall(V11, initialize4(submitter, lastCommittedBatchIndex))",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 5,
+     "label": "submitter.addSubmitter(p) by owner",
+     "version": "V11"
+    },
+    {
+     "agree": true,
+     "index": 6,
+     "label": "submitter.stake(p) by p",
+     "version": "V11"
+    },
+    {
+     "agree": true,
+     "index": 7,
+     "label": "rollup@V11.challengeState by c",
+     "version": "V11"
+    },
+    {
+     "agree": true,
+     "index": 8,
+     "label": "warp proofWindow",
+     "version": "V11"
+    },
+    {
+     "agree": true,
+     "index": 9,
+     "label": "rollup@V11.proveState by p",
+     "version": "V11"
+    },
+    {
+     "agree": true,
+     "index": 10,
+     "label": "rollup@V11.claimReward by c",
+     "version": "V11"
+    }
+   ],
+   "trace": "T2_cutover_slash"
+  },
+  "right": {
+   "agree": true,
+   "credited": 200000000000000001,
+   "deposit": 1,
+   "steps": [
+    {
+     "agree": true,
+     "index": 0,
+     "label": "l1staking.updateWhitelist(s1,s2) by owner",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 1,
+     "label": "l1staking.register by s1",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 2,
+     "label": "l1staking.register by s2",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 3,
+     "label": "rollup@V10.commitBatch by s1",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 4,
+     "label": "rollup@V10.challengeState by c",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 5,
+     "label": "warp proofWindow",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 6,
+     "label": "rollup@V10.proveState by s2",
+     "version": "V10"
+    },
+    {
+     "agree": true,
+     "index": 7,
+     "label": "rollup@V10.claimReward by c",
+     "version": "V10"
+    }
+   ],
+   "trace": "T1_legacy_slash"
+  }
+ }
+}

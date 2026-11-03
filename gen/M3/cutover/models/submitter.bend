@@ -987,6 +987,40 @@ def w_shr_160(a: W) -> W:
     case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
       W{a5, a6, a7, 0, 0, 0, 0, 0}
 
+def w_mulx_d(c: Bool, +a: W, +b: W) -> W:
+  match c:
+    case True{}:
+      w_mul_small(b, w_lo(a))
+    case False{}:
+      w_mul(a, b)
+
+def w_mulx_c(c: Bool, +a: W, +b: W) -> W:
+  match c:
+    case True{}:
+      w_mul_small(a, w_lo(b))
+    case False{}:
+      w_mulx_d(w_hi0(a), a, b)
+
+def w_mulx(+a: W, +b: W) -> W:
+  w_mulx_c(w_hi0(b), a, b)
+
+def w_mul_okx_d(c: Bool, +a: W, +b: W) -> Bool:
+  match c:
+    case True{}:
+      True{}
+    case False{}:
+      w_mul_ok(a, b)
+
+def w_mul_okx_c(c: Bool, +a: W, +b: W) -> Bool:
+  match c:
+    case True{}:
+      True{}
+    case False{}:
+      w_mul_okx_d(Bool.and(w_hi0(a), w_lt(b, W{0, 0, 0, 0, 0, 0, 0, 1})), a, b)
+
+def w_mul_okx(+a: W, +b: W) -> Bool:
+  w_mul_okx_c(Bool.and(w_hi0(b), w_lt(a, W{0, 0, 0, 0, 0, 0, 0, 1})), a, b)
+
 # HEnv.e_caller: caller
 # HEnv.e_calls: calls
 # HEnv.e_code: code
@@ -3626,7 +3660,7 @@ def xf_slash(x: X_slash, +c: U32, +r: List<&2, U32>) -> X_slash:
 def sz_slash(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, +x_ov, +x_ar, +x_en, +x_kh, +x_cd, +x_rv, +x_lg, +x_tw}:
-      ite(X_slash, U32.is_eq(x_cd, 0), sx_slash_rv(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(ite(W, w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_div_small(w_mul(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+      ite(X_slash, U32.is_eq(x_cd, 0), sx_slash_rv(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, b_of_w(ite(W, w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), W{0, 0, 0, 0, 0, 0, 0, 0}, w_div_small(w_mulx(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 def wr_slash_1(x: X_slash) -> X_slash:
   match x:
@@ -3644,7 +3678,7 @@ def s_slash_1(x: X_slash) -> X_slash:
 def ev_slash_2(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, +x_lg, x_tw}:
-      sx_slash_lg(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, Con{HLog{[W{404895126, 3867332460, 1703983820, 1484368649, 1323046107, 2007174982, 1437626984, 1168339375}, ga_slash_submitter(x_ar)], List.append(&2, U32, b_of_w(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157])))), b_of_w(w_div_small(w_mul(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)))}, x_lg})
+      sx_slash_lg(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, Con{HLog{[W{404895126, 3867332460, 1703983820, 1484368649, 1323046107, 2007174982, 1437626984, 1168339375}, ga_slash_submitter(x_ar)], List.append(&2, U32, b_of_w(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157])))), b_of_w(w_div_small(w_mulx(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)))}, x_lg})
 
 def ec_slash_2(c: Bool, x: X_slash) -> X_slash:
   match c:
@@ -3671,14 +3705,14 @@ def k_slash_3(c: Bool, x: X_slash) -> X_slash:
 def s_slash_3(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, +x_ar, +x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
-      k_slash_3(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_eq(w_div_small(w_mul(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100), W{0, 0, 0, 0, 0, 0, 0, 0})))), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, Nil{}))))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+      k_slash_3(Bool.or(Bool.not(Bool.and(Bool.not(w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0})), Bool.not(w_eq(w_div_small(w_mulx(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100), W{0, 0, 0, 0, 0, 0, 0, 0})))), w_nz(w_b(a_ok(c_find(ge_e_calls(x_en), w_and(sload(x_st, W{151, 0, 0, 0, 0, 0, 0, 0}), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0}), True{}, Nil{}))))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 def wr_slash_4(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, +x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, +x_tw}:
       +o0 = x_ov
       +k = {W{155, 0, 0, 0, 0, 0, 0, 0} : W}
-      +v = {w_add(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), w_sub(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), w_div_small(w_mul(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))) : W}
+      +v = {w_add(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), w_sub(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), w_div_small(w_mulx(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))) : W}
       +o1 = {sstore(o0, k, v) : HSt}
       sx_slash_tw(sx_slash_ov(X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw}, o1), Con{k, x_tw})
 
@@ -3707,7 +3741,7 @@ def k_slash_5(c: Bool, x: X_slash) -> X_slash:
 def s_slash_5(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
-      k_slash_5(Bool.or(w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), w_add_ok(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), w_sub(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), w_div_small(w_mul(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+      k_slash_5(Bool.or(w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), w_add_ok(sload(x_st, W{155, 0, 0, 0, 0, 0, 0, 0}), w_sub(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), w_div_small(w_mulx(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100)))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # slash#contracts/contracts/l1/rollup/Submitter.sol:156#0
 def k_slash_6(c: Bool, x: X_slash) -> X_slash:
@@ -3721,7 +3755,7 @@ def k_slash_6(c: Bool, x: X_slash) -> X_slash:
 def s_slash_6(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
-      k_slash_6(Bool.or(w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), w_sub_ok(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), w_div_small(w_mul(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+      k_slash_6(Bool.or(w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), w_sub_ok(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), w_div_small(w_mulx(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0})), 100))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 # slash#contracts/contracts/l1/rollup/Submitter.sol:155#0
 def k_slash_7(c: Bool, x: X_slash) -> X_slash:
@@ -3735,7 +3769,7 @@ def k_slash_7(c: Bool, x: X_slash) -> X_slash:
 def s_slash_7(x: X_slash) -> X_slash:
   match x:
     case X_slash{+x_st, x_ov, +x_ar, x_en, +x_kh, x_cd, x_rv, x_lg, x_tw}:
-      k_slash_7(Bool.or(w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), w_mul_ok(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0}))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
+      k_slash_7(Bool.or(w_eq(ga_slash_submitter(x_ar), W{0, 0, 0, 0, 0, 0, 0, 0}), w_mul_okx(sload(x_st, h_get(x_kh, List.append(&2, U32, b_of_w(w_and(ga_slash_submitter(x_ar), W{4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 0, 0, 0})), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157]))), sload(x_st, W{154, 0, 0, 0, 0, 0, 0, 0}))), X_slash{x_st, x_ov, x_ar, x_en, x_kh, x_cd, x_rv, x_lg, x_tw})
 
 def wr_slash_8(x: X_slash) -> X_slash:
   match x:
