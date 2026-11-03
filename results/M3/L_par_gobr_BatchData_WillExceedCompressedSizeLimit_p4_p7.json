@@ -1,0 +1,1143 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_par_gobr_batchdata_willexceedcompressedsizelimit_p4_p7",
+    "laws": "gen/M3/laws/L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7/LAWS.bend",
+    "model": "gen/M3/gox/L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7.bend",
+    "proof": "gen/M3/proofs/L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "checker": {
+        "bendtt": {
+          "exit_code": 1,
+          "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
+          "seconds": 14.626
+        },
+        "exit_code": 0,
+        "marker": "ALL PROOFS CHECK",
+        "seconds": 1.392
+      },
+      "kind": "counter_law",
+      "ok": true,
+      "witness": {
+        "enc_length_model": 127474,
+        "function": "(*morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit",
+        "kind": "go_branch",
+        "maxBlobCount": 1,
+        "payload_length": 126976,
+        "payload_operand": "n_newTxPayload",
+        "values": {
+          "e": 127474,
+          "i_maxBlobCount": 1,
+          "n_cks_blockContexts": 0,
+          "n_cks_txsPayload": 0,
+          "n_newBlockContext": 0,
+          "n_newTxPayload": 126976,
+          "ok": true
+        }
+      }
+    },
+    {
+      "detail": "F short-cuts to (False, nil) on |X| = 126976 while |enc(X)| = 126984 exceeds the bound 126976: q's value is True",
+      "kind": "replay",
+      "ok": true
+    }
+  ],
+  "bound": null,
+  "checker": {
+    "bendtt": {
+      "exit_code": 1,
+      "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
+      "seconds": 14.626
+    },
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 1.392
+  },
+  "compiled_sha256": null,
+  "concretization": {
+    "bound": null,
+    "kind": "direct",
+    "length": null,
+    "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+    "result": "path",
+    "sides": {},
+    "target": null,
+    "tests": []
+  },
+  "cone": [],
+  "coverage": null,
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "evidence_levels": [],
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
+  "filter_bin": "pending",
+  "generator_sha256": "10bd17913d12a505e4634337e5a6e3d2ad46c01b81a7ad2eaf02b6d7ec082bc4",
+  "gox": {
+    "basis": {
+      "arg": [
+        "slice",
+        [
+          "alloc",
+          "common/batch/batch_data.go:139:18",
+          [
+            "op",
+            "+",
+            [
+              "op",
+              "+",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "param",
+                    "newBlockContext"
+                  ]
+                ]
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "txsPayload"
+                ]
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "newTxPayload"
+              ]
+            ]
+          ]
+        ],
+        null,
+        [
+          "op",
+          "+",
+          [
+            "op",
+            "+",
+            [
+              "op",
+              "+",
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "blockContexts"
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "newBlockContext"
+                ]
+              ]
+            ],
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ]
+          ],
+          [
+            "len",
+            [
+              "param",
+              "newTxPayload"
+            ]
+          ]
+        ],
+        [
+          "op",
+          "+",
+          [
+            "op",
+            "+",
+            [
+              "op",
+              "+",
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "blockContexts"
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "newBlockContext"
+                ]
+              ]
+            ],
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ]
+          ],
+          [
+            "len",
+            [
+              "param",
+              "newTxPayload"
+            ]
+          ]
+        ]
+      ],
+      "bound": [
+        "op",
+        "*",
+        [
+          "param",
+          "maxBlobCount"
+        ],
+        [
+          "const",
+          126976
+        ]
+      ],
+      "call": "morph-l2/common/codec/zstd.CompressBatchBytes",
+      "extra": [
+        [
+          "!=",
+          [
+            "op",
+            "-",
+            [
+              "op",
+              "+",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "+",
+                  [
+                    "len",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "cks"
+                      ],
+                      "blockContexts"
+                    ]
+                  ],
+                  [
+                    "len",
+                    [
+                      "param",
+                      "newBlockContext"
+                    ]
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "txsPayload"
+                  ]
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "newTxPayload"
+                ]
+              ]
+            ],
+            [
+              "const",
+              0
+            ]
+          ],
+          [
+            "const",
+            0
+          ]
+        ],
+        [
+          "==",
+          [
+            "result",
+            [
+              "call",
+              "morph-l2/common/codec/zstd.CompressBatchBytes",
+              [
+                [
+                  "slice",
+                  [
+                    "alloc",
+                    "common/batch/batch_data.go:139:18",
+                    [
+                      "op",
+                      "+",
+                      [
+                        "op",
+                        "+",
+                        [
+                          "op",
+                          "+",
+                          [
+                            "len",
+                            [
+                              "field",
+                              [
+                                "param",
+                                "cks"
+                              ],
+                              "blockContexts"
+                            ]
+                          ],
+                          [
+                            "len",
+                            [
+                              "param",
+                              "newBlockContext"
+                            ]
+                          ]
+                        ],
+                        [
+                          "len",
+                          [
+                            "field",
+                            [
+                              "param",
+                              "cks"
+                            ],
+                            "txsPayload"
+                          ]
+                        ]
+                      ],
+                      [
+                        "len",
+                        [
+                          "param",
+                          "newTxPayload"
+                        ]
+                      ]
+                    ]
+                  ],
+                  null,
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "+",
+                      [
+                        "op",
+                        "+",
+                        [
+                          "len",
+                          [
+                            "field",
+                            [
+                              "param",
+                              "cks"
+                            ],
+                            "blockContexts"
+                          ]
+                        ],
+                        [
+                          "len",
+                          [
+                            "param",
+                            "newBlockContext"
+                          ]
+                        ]
+                      ],
+                      [
+                        "len",
+                        [
+                          "field",
+                          [
+                            "param",
+                            "cks"
+                          ],
+                          "txsPayload"
+                        ]
+                      ]
+                    ],
+                    [
+                      "len",
+                      [
+                        "param",
+                        "newTxPayload"
+                      ]
+                    ]
+                  ],
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "+",
+                      [
+                        "op",
+                        "+",
+                        [
+                          "len",
+                          [
+                            "field",
+                            [
+                              "param",
+                              "cks"
+                            ],
+                            "blockContexts"
+                          ]
+                        ],
+                        [
+                          "len",
+                          [
+                            "param",
+                            "newBlockContext"
+                          ]
+                        ]
+                      ],
+                      [
+                        "len",
+                        [
+                          "field",
+                          [
+                            "param",
+                            "cks"
+                          ],
+                          "txsPayload"
+                        ]
+                      ]
+                    ],
+                    [
+                      "len",
+                      [
+                        "param",
+                        "newTxPayload"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            1
+          ],
+          [
+            "nil"
+          ]
+        ]
+      ],
+      "function": "(*morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit",
+      "hypz_len": {
+        "cb": [
+          "+",
+          [
+            "+",
+            "n",
+            [
+              ">>",
+              "n",
+              8
+            ]
+          ],
+          [
+            "?",
+            [
+              "<",
+              "n",
+              131072
+            ],
+            [
+              ">>",
+              [
+                "-",
+                131072,
+                "n"
+              ],
+              11
+            ],
+            0
+          ]
+        ],
+        "delegate_conds": [
+          [
+            "!=",
+            [
+              "len",
+              [
+                "param",
+                "batchBytes"
+              ]
+            ],
+            [
+              "const",
+              0
+            ]
+          ],
+          [
+            "==",
+            [
+              "result",
+              [
+                "call",
+                "morph-l2/common/codec/zstd.CompressBatchBytes",
+                [
+                  [
+                    "param",
+                    "batchBytes"
+                  ]
+                ]
+              ],
+              1
+            ],
+            [
+              "nil"
+            ]
+          ]
+        ],
+        "enc": "morph-l2/common/blob.CompressBatchBytes",
+        "from": "spec/M3/lib/compression.json#hypotheses.HypZ_len",
+        "via": "morph-l2/common/codec/zstd.CompressBatchBytes"
+      },
+      "kind": "go_branch",
+      "p": 4,
+      "p_value": [
+        "bool",
+        false
+      ],
+      "params": [
+        {
+          "name": "cks",
+          "type": "*morph-l2/common/batch.BatchData"
+        },
+        {
+          "name": "newBlockContext",
+          "type": "[]byte"
+        },
+        {
+          "name": "newTxPayload",
+          "type": "[]byte"
+        },
+        {
+          "name": "maxBlobCount",
+          "type": "int"
+        }
+      ],
+      "position": 0,
+      "q": 7,
+      "q_value": [
+        ">",
+        [
+          "len",
+          [
+            "result",
+            [
+              "call",
+              "morph-l2/common/codec/zstd.CompressBatchBytes",
+              [
+                [
+                  "slice",
+                  [
+                    "alloc",
+                    "common/batch/batch_data.go:139:18",
+                    [
+                      "op",
+                      "+",
+                      [
+                        "op",
+                        "+",
+                        [
+                          "op",
+                          "+",
+                          [
+                            "len",
+                            [
+                              "field",
+                              [
+                                "param",
+                                "cks"
+                              ],
+                              "blockContexts"
+                            ]
+                          ],
+                          [
+                            "len",
+                            [
+                              "param",
+                              "newBlockContext"
+                            ]
+                          ]
+                        ],
+                        [
+                          "len",
+                          [
+                            "field",
+                            [
+                              "param",
+                              "cks"
+                            ],
+                            "txsPayload"
+                          ]
+                        ]
+                      ],
+                      [
+                        "len",
+                        [
+                          "param",
+                          "newTxPayload"
+                        ]
+                      ]
+                    ]
+                  ],
+                  null,
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "+",
+                      [
+                        "op",
+                        "+",
+                        [
+                          "len",
+                          [
+                            "field",
+                            [
+                              "param",
+                              "cks"
+                            ],
+                            "blockContexts"
+                          ]
+                        ],
+                        [
+                          "len",
+                          [
+                            "param",
+                            "newBlockContext"
+                          ]
+                        ]
+                      ],
+                      [
+                        "len",
+                        [
+                          "field",
+                          [
+                            "param",
+                            "cks"
+                          ],
+                          "txsPayload"
+                        ]
+                      ]
+                    ],
+                    [
+                      "len",
+                      [
+                        "param",
+                        "newTxPayload"
+                      ]
+                    ]
+                  ],
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "+",
+                      [
+                        "op",
+                        "+",
+                        [
+                          "len",
+                          [
+                            "field",
+                            [
+                              "param",
+                              "cks"
+                            ],
+                            "blockContexts"
+                          ]
+                        ],
+                        [
+                          "len",
+                          [
+                            "param",
+                            "newBlockContext"
+                          ]
+                        ]
+                      ],
+                      [
+                        "len",
+                        [
+                          "field",
+                          [
+                            "param",
+                            "cks"
+                          ],
+                          "txsPayload"
+                        ]
+                      ]
+                    ],
+                    [
+                      "len",
+                      [
+                        "param",
+                        "newTxPayload"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            0
+          ]
+        ],
+        [
+          "op",
+          "*",
+          [
+            "param",
+            "maxBlobCount"
+          ],
+          [
+            "const",
+            126976
+          ]
+        ]
+      ],
+      "shared": [
+        [
+          "<=",
+          [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockContexts"
+            ]
+          ],
+          [
+            "op",
+            "-",
+            [
+              "op",
+              "+",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "+",
+                  [
+                    "len",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "cks"
+                      ],
+                      "blockContexts"
+                    ]
+                  ],
+                  [
+                    "len",
+                    [
+                      "param",
+                      "newBlockContext"
+                    ]
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "txsPayload"
+                  ]
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "newTxPayload"
+                ]
+              ]
+            ],
+            [
+              "const",
+              0
+            ]
+          ]
+        ],
+        [
+          "<=",
+          [
+            "const",
+            0
+          ],
+          [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "newBlockContext"
+              ]
+            ]
+          ]
+        ],
+        [
+          "<=",
+          [
+            "op",
+            "+",
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "blockContexts"
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "newBlockContext"
+              ]
+            ]
+          ],
+          [
+            "op",
+            "-",
+            [
+              "op",
+              "+",
+              [
+                "op",
+                "+",
+                [
+                  "op",
+                  "+",
+                  [
+                    "len",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "cks"
+                      ],
+                      "blockContexts"
+                    ]
+                  ],
+                  [
+                    "len",
+                    [
+                      "param",
+                      "newBlockContext"
+                    ]
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "txsPayload"
+                  ]
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "newTxPayload"
+                ]
+              ]
+            ],
+            [
+              "const",
+              0
+            ]
+          ]
+        ],
+        [
+          "<=",
+          [
+            "const",
+            0
+          ],
+          [
+            "op",
+            "+",
+            [
+              "op",
+              "+",
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "blockContexts"
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "newBlockContext"
+                ]
+              ]
+            ],
+            [
+              "len",
+              [
+                "field",
+                [
+                  "param",
+                  "cks"
+                ],
+                "txsPayload"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "test": [
+        "<=",
+        [
+          "op",
+          "-",
+          [
+            "op",
+            "+",
+            [
+              "op",
+              "+",
+              [
+                "op",
+                "+",
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ]
+                ],
+                [
+                  "len",
+                  [
+                    "param",
+                    "newBlockContext"
+                  ]
+                ]
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "txsPayload"
+                ]
+              ]
+            ],
+            [
+              "len",
+              [
+                "param",
+                "newTxPayload"
+              ]
+            ]
+          ],
+          [
+            "const",
+            0
+          ]
+        ],
+        [
+          "op",
+          "*",
+          [
+            "param",
+            "maxBlobCount"
+          ],
+          [
+            "const",
+            126976
+          ]
+        ]
+      ]
+    },
+    "gox_id": "go_branch:BatchData_WillExceedCompressedSizeLimit:p4:p7"
+  },
+  "independence_class": "I1",
+  "kernel": {
+    "name": "bend",
+    "verdict": "failed",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "failed",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7",
+  "ledger_assumptions": [],
+  "ledger_match": "none",
+  "model_assumptions": [],
+  "model_sha256": "06d4f1cf7b5052060b1207217984a952e248784c9545450561d454113b016194",
+  "non_vacuity": {
+    "bound": "the accepted counter-law inhabits the premises",
+    "degenerate": null,
+    "law": "gen/M3/laws/L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7/LAWS.bend",
+    "parent_statement_hash": "sha256:1f8ecc92bf6ef38b031e25e6d245066e2bc86ef57032ba50fedceef993080590",
+    "reachable": true,
+    "status": "counter_witness",
+    "witness": null
+  },
+  "premises": [
+    {
+      "at": "morph-l2/common/codec/zstd.CompressBatchBytes",
+      "from": "spec/M3/lib/compression.json#hypotheses.HypZ_len",
+      "hypothesis": "HypZ_len",
+      "statement": "|g(X)| <= CB(|X|) for a successful call on a non-empty X"
+    }
+  ],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "the real-code replay agrees (replay/M3/gox/L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7.json)",
+    "status": "passed"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "seconds": 16.028,
+  "statement": "size short-cut of (*morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit: where path 4's test holds, path 7's value at position 0 (a size test of morph-l2/common/codec/zstd.CompressBatchBytes's output) equals path 4's; premise HypZ_len at the argument (spec/M3/lib/compression.json#hypotheses.HypZ_len); gox go_branch:BatchData_WillExceedCompressedSizeLimit:p4:p7",
+  "statement_hash": "sha256:1f8ecc92bf6ef38b031e25e6d245066e2bc86ef57032ba50fedceef993080590",
+  "status": "REFUTED",
+  "subform": "go_branch",
+  "triage": "finding",
+  "witness": {
+    "enc_length_model": 127474,
+    "function": "(*morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit",
+    "kind": "go_branch",
+    "maxBlobCount": 1,
+    "payload_length": 126976,
+    "payload_operand": "n_newTxPayload",
+    "values": {
+      "e": 127474,
+      "i_maxBlobCount": 1,
+      "n_cks_blockContexts": 0,
+      "n_cks_txsPayload": 0,
+      "n_newBlockContext": 0,
+      "n_newTxPayload": 126976,
+      "ok": true
+    }
+  },
+  "witness_provenance": {
+    "go": "internal_test"
+  },
+  "witness_sha256": "f15d5c152411a5e4932377187da40ca11a66921bf59bb6b4226426620d15885b"
+}
