@@ -65,7 +65,12 @@ OUTPUTS = ("results/**", "replay/**", "gen/M*/**", "laws/M*/*.json", "laws/M*/de
 # the generators `regen` runs over the merged tree, in dependency order: (command, file that must exist, {m} filled in).
 # `binding` re-derives I95's deployment record from code: it is an output (gen/M*/**), so `merge --key` reverts a
 # branch's record outside the key's outcome paths, and only this step brings it back (#110 lost it without one)
-REGEN = (("binding --milestone {m}", "spec/{m}/lib/binding.json"), ("own --milestone {m}", "holon/own.py"), ("diagram --milestone {m}", None),
+# `disch-r0` (I96a) re-derives the DISCH sidecar's r0 from that record, and `disch` the closure analysis that reads it
+# (gen/M*/disch/, reverted by `merge --key` like the record); `derive` refuses a stale closure
+REGEN = (("binding --milestone {m}", "spec/{m}/lib/binding.json"),
+         ("disch-r0 --milestone {m}", "spec/{m}/lib/disch.json"),   # I96a: r0 from the binding's record, after it,
+         ("disch --milestone {m}", "spec/{m}/lib/disch.json"),      # then the closure analysis that reads r0
+         ("own --milestone {m}", "holon/own.py"), ("diagram --milestone {m}", None),
          ("evidence --milestone {m}", "holon/diagram/evidence.py"), ("lossy --milestone {m}", "holon/rules/par_lossy.py"),
          ("derive --milestone {m}", None), ("metrics --milestone {m}", None), ("rank --milestone {m}", "holon/rank.py"),
          ("report --milestone {m}", "holon/report.py"), ("coordinator status", "holon/coordinator.py"))

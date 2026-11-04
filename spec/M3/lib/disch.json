@@ -1655,7 +1655,14 @@
   ],
   "model_sidecar": "spec/M3/lib/sort_types.json",
   "r0": {
-    "doc": "The abstraction of the binding's deployment, the initial state R0 of the closure (rules D3-D5 of tests_m3/test_disch.py). It is configuration, not a fact of the code: the I20 binding replay/M2/fragments.json deploys the real Rollup through replay/M1/solidity/HolonTraceReplay.t.sol deploy(tid, F, W, D, t0, r0) with the initial values F = 40, W = 10, D = 20, t0 = 10, r0 = 100 that the binding reads from spec/M1/facts/morph_rollup.json (holonDeploy in replay/M2/solidity/HolonExtractedStep.t.sol): vm.warp(1700000010); Rollup.initialize(submitter oracle, queue proxy, verifier oracle, F, W, 70) behind a TransparentUpgradeableProxy (admin 0xAD); updateRollupDelayPeriod(D); addChallenger(0x1004); importGenesisBatch(g), g the 249-byte version-0 header with dataHash 1, blobVersionedHash ZERO_VERSIONED_HASH and postStateRoot 100. Exact words for the values the closure's checks compare; \"T\" for a non-zero word the transcription does not fix (owner and contract addresses); every unlisted path is {0}. keys: the mapping keys the deployment wrote, by family, with the members it made non-zero (a struct family), so that tests_m3/test_disch.py::TestInstruments::test_r0_is_the_binding_deployment can compare this transcription slot by slot with I30's capture of the same deployment (gen/M3/sorts/models/morph_rollup.extracted.init.json). The genesis hash is keccak256(g).",
+    "derived_from": [
+      {
+        "document": "spec/M2/facts/morph_rollup.extracted.json",
+        "path": "gen/M3/binding/morph_rollup.extracted.json",
+        "sha256": "5424af3c794e72ef05a53af1359897dcd6a491457a7ba5d604990a84a83e1b44"
+      }
+    ],
+    "doc": "The deployment's abstraction R0, derived by `python -m holon disch-r0` (holon-disch-r0/1) from the deployment records named in derived_from, through each document's layout. values: a scalar path holds its deployed word (at its offset and width); a mapping family holds 0 plus the deployed words of its written keys (for a struct family, each member path does); a non-zero word whose declared type is an address is \"T\"; a path whose deployed words are all 0 is unlisted, which is {0}. keys: the keys whose entry holds a non-zero word (for a struct family, the members made non-zero), from the record's 64-byte keccak256 preimages. proxy_slots: the written non-zero slots that no layout path holds. Configuration derived from code, never authored.",
     "keys": {
       "batchBlobVersionedHashes": {
         "0": null
@@ -1687,14 +1694,8 @@
       "_initialized": [
         1
       ],
-      "_initializing": [
-        0
-      ],
       "_owner": [
         "T"
-      ],
-      "_paused": [
-        0
       ],
       "batchBlobVersionedHashes": [
         0,
