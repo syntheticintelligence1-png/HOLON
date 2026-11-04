@@ -1,0 +1,46 @@
+{
+ "config_version": "holon-go-frontend/0.3",
+ "doc": "Target sidecar of I93's Go document (I93 = I38d; fixed at the I93 prereg; contract: rule G1 of the docstring of tests_m3/test_go_laws.py). config_version holon-go-frontend/0.3 is 0.2 plus four additive renderings: a comparison used as a value is the Bool term the path conditions use (0.2: [\"unknown\", \"compare\"]); each counted loop body lists its carried variables and each of its continue paths their update; a call's variadic slice built at the call site is [\"varargs\", [terms]]; and the primitive kind fill_bytes. The target, the source tree, the packages, the other primitives and the limits are spec/M3/lib/go_frontend.json's, verbatim; that 0.2 config and its document stay byte for byte. `holon extract go --milestone M3 --config spec/M3/lib/go_frontend_03.json` writes spec/M3/facts/morph_go03.go.extracted.json.",
+ "target": {
+  "repo": "morph-l2/morph",
+  "commit": "3e44e795586af3e11285b603ab642c67823add51"
+ },
+ "source": {
+  "config": "config/holon.json",
+  "key": [
+   "replay",
+   "morph"
+  ]
+ },
+ "documents": {
+  "morph_go03": [
+   "morph-l2/common/batch",
+   "morph-l2/common/blob"
+  ]
+ },
+ "primitives": {
+  "(*math/big.Int).FillBytes": {
+   "kind": "fill_bytes",
+   "text": "x.FillBytes(buf) sets buf to the absolute value of x as a zero-extended big-endian byte slice and returns buf (math/big/int.go: it zeroes buf, then writes x's magnitude right-aligned); it panics when the magnitude needs more than len(buf) bytes. Cell k of the result is byte k of x's len(buf)-byte big-endian form."
+  },
+  "(github.com/morph-l2/go-ethereum/common.Hash).Bytes": {
+   "kind": "array_bytes",
+   "width": 32,
+   "text": "Hash.Bytes() has a value receiver and returns h[:], a 32-byte slice over the receiver's copy: a fresh backing array whose element k is h[k]."
+  },
+  "github.com/morph-l2/go-ethereum/common.BytesToHash": {
+   "kind": "to_array",
+   "width": 32,
+   "text": "BytesToHash(b) is the 32-byte array holding b right-aligned (common/types.go: SetBytes crops b to its last 32 bytes, then copies it to h[32-len(b):]); for len(b) == 32 element k is b[k]."
+  },
+  "github.com/morph-l2/go-ethereum/crypto.Keccak256Hash": {
+   "kind": "hash",
+   "text": "Keccak256Hash(data...) is the keccak-256 digest of the concatenated arguments: an opaque HASH sink; it reads its arguments and retains none of them."
+  }
+ },
+ "limits": {
+  "max_paths": 512,
+  "inline_depth": 4,
+  "flow_depth": 3
+ }
+}

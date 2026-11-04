@@ -1,0 +1,62 @@
+{
+ "gox_version": "holon-gox/0.1",
+ "doc": "I93's sidecar (= I38d; fixed at the I93 prereg; contract: the docstring of tests_m3/test_go_laws.py, rules G1-G12). It names, for the Go part of rule PAR (holon.rules.gox), the Go document the frontend 0.3 config writes, I91's compression sidecar (whose enc and HypZ_len the go_branch premises take), HypZ_len's bound as a term (I91 states it as text; the build checks that both agree), and the recompute roles of go_recompute: per language, which extracted facts play the role. As in spec/M3/lib/link.json, no value is stated here.",
+ "document": "spec/M3/facts/morph_go03.go.extracted.json",
+ "config": "spec/M3/lib/go_frontend_03.json",
+ "compression": "spec/M3/lib/compression.json",
+ "hypz_len": {
+  "from": "spec/M3/lib/compression.json#hypotheses.HypZ_len",
+  "cb": [
+   "+",
+   [
+    "+",
+    "n",
+    [
+     ">>",
+     "n",
+     8
+    ]
+   ],
+   [
+    "?",
+    [
+     "<",
+     "n",
+     131072
+    ],
+    [
+     ">>",
+     [
+      "-",
+      131072,
+      "n"
+     ],
+     11
+    ],
+    0
+   ]
+  ]
+ },
+ "recompute": {
+  "data_hash": {
+   "doc": "The batch's data hash: the Go functions that compute it for the batch header the submitter seals, and the value the Rollup's commit action stores in the header's data hash field (the store site of the header codec).",
+   "go": {
+    "document": "spec/M3/facts/morph_go03.go.extracted.json",
+    "functions": [
+     "(*morph-l2/common/batch.BatchData).DataHash",
+     "(*morph-l2/common/batch.BatchData).DataHashV2"
+    ]
+   },
+   "solidity": {
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "action": "commitBatch",
+    "store": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175"
+   }
+  }
+ },
+ "replay": {
+  "go_package": "morph-l2/common/batch",
+  "payload": "the compression sidecar's sample kind stream (seed and construction from its sample section)",
+  "solidity": "the pinned Rollup's internal data hash through a harness that inherits it (forge, offline)"
+ }
+}

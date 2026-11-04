@@ -27,6 +27,8 @@ class Ctx:
         self.types = prog.types
         self.prims: dict = dict(config.get("primitives") or {})
         self.config_version = config.get("config_version")   # I67: the loop_bodies section is emitted only for 0.2
+        # I93: 0.3 = 0.2 plus compare terms, carried loop variables, varargs and the fill_bytes primitive
+        self.v03 = self.config_version == "holon-go-frontend/0.3"
         lim = config.get("limits") or {}
         self.max_paths = int(lim.get("max_paths", 512))
         self.inline_depth = int(lim.get("inline_depth", 4))
