@@ -1,0 +1,201 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_disch_delay_prove",
+  "milestone": "M1",
+  "rule": "DISCH",
+  "subform": "profile_point",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "statement": {
+    "binders": [
+      {
+        "q": "exists",
+        "name": "st",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "fn": "runs_ok",
+              "args": [
+                {
+                  "var": "st"
+                },
+                {
+                  "run": {
+                    "trace": [
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "who": {
+                            "nat": 5
+                          }
+                        }
+                      },
+                      {
+                        "act": "commitBatch",
+                        "args": {
+                          "who": {
+                            "nat": 2
+                          },
+                          "ver": {
+                            "nat": 1
+                          },
+                          "parent": {
+                            "nat": 0
+                          },
+                          "n": {
+                            "nat": 1
+                          },
+                          "lbn": {
+                            "nat": 1
+                          },
+                          "prev": {
+                            "nat": 100
+                          },
+                          "post": {
+                            "nat": 101
+                          },
+                          "blobs": {
+                            "nats": [
+                              7
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 21
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              ]
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "obsv": "lci_of",
+              "of": {
+                "run": {
+                  "var": "st"
+                },
+                "from": {
+                  "run": {
+                    "trace": [
+                      {
+                        "act": "sendMessage",
+                        "args": {
+                          "who": {
+                            "nat": 5
+                          }
+                        }
+                      },
+                      {
+                        "act": "commitBatch",
+                        "args": {
+                          "who": {
+                            "nat": 2
+                          },
+                          "ver": {
+                            "nat": 1
+                          },
+                          "parent": {
+                            "nat": 0
+                          },
+                          "n": {
+                            "nat": 1
+                          },
+                          "lbn": {
+                            "nat": 1
+                          },
+                          "prev": {
+                            "nat": 100
+                          },
+                          "post": {
+                            "nat": 101
+                          },
+                          "blobs": {
+                            "nats": [
+                              7
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "act": "wait",
+                        "args": {
+                          "dt": {
+                            "nat": 21
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              }
+            },
+            {
+              "nat": 2
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "fn": "cost",
+              "args": [
+                {
+                  "var": "st"
+                }
+              ]
+            },
+            {
+              "nat": 1000
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "fn": "elapsed",
+              "args": [
+                {
+                  "var": "st"
+                }
+              ]
+            },
+            {
+              "nat": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Third profile point (c_proof, 0), found by the mechanized strategy search, not preregistered: at s* the rollup is also delayed, so commitBatchWithProof skips the n > 0 requirement. Dominated by (c_msg, 0) when c_proof > c_msg, so the Pareto frontier is unchanged.",
+  "maps_to": "O33 (F7 reconciled)",
+  "evidence": [
+    "E2"
+  ],
+  "predicted": "PROVED"
+}

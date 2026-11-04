@@ -1,0 +1,88 @@
+{
+  "facts": "spec/M3/facts/morph_go03.go.extracted.json",
+  "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7",
+  "milestone": "M3",
+  "notes": "size short-cut of (*morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit: where path 4's test holds, path 7's value at position 0 (a size test of morph-l2/common/codec/zstd.CompressBatchBytes's output) equals path 4's; premise HypZ_len at the argument (spec/M3/lib/compression.json#hypotheses.HypZ_len); gox go_branch:BatchData_WillExceedCompressedSizeLimit:p4:p7",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.15",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "n_cks_blockContexts",
+        "q": "forall",
+        "type": "Nat"
+      },
+      {
+        "name": "n_newBlockContext",
+        "q": "forall",
+        "type": "Nat"
+      },
+      {
+        "name": "n_cks_txsPayload",
+        "q": "forall",
+        "type": "Nat"
+      },
+      {
+        "name": "n_newTxPayload",
+        "q": "forall",
+        "type": "Nat"
+      },
+      {
+        "name": "i_maxBlobCount",
+        "q": "forall",
+        "type": "Nat"
+      },
+      {
+        "name": "ok",
+        "q": "forall",
+        "type": "Bool"
+      },
+      {
+        "name": "e",
+        "q": "forall",
+        "type": "Nat"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "gox": "go_branch:BatchData_WillExceedCompressedSizeLimit:p4:p7",
+          "on": [
+            {
+              "var": "n_cks_blockContexts"
+            },
+            {
+              "var": "n_newBlockContext"
+            },
+            {
+              "var": "n_cks_txsPayload"
+            },
+            {
+              "var": "n_newTxPayload"
+            },
+            {
+              "var": "i_maxBlobCount"
+            },
+            {
+              "var": "ok"
+            },
+            {
+              "var": "e"
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "go_branch"
+}

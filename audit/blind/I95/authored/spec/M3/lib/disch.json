@@ -1,0 +1,52 @@
+{
+  "disch_version": "holon-disch/0.1",
+  "doc": "The DISCH sidecar of M3 (holon.analysis.closure, rules D1-D10; holon.disch.run), written for the blind rerun from code alone. documents: the Rollup transitions document. r0: the deployment's abstraction, from what the target's constructor and initializer write at deployment (below). hypotheses and hypothesis_verdicts: none, since the target code states no hypothesis about its external components. binding: the configuration-only binding spec, whose deployment record holon binding derives by forge. search: the budget of spec/M3/lib/disch.json at the pack commit, as the blind-rerun brief gives it.",
+  "documents": [
+    "spec/M2/facts/morph_rollup.extracted.json"
+  ],
+  "r0": {
+    "doc": "The Rollup runs behind a proxy, so its constructor (LAYER_2_CHAIN_ID, an immutable, and _disableInitializers on the implementation's own storage) writes none of the proxy's register paths. initialize (modifier initializer) writes _initialized 1 and leaves _initializing false; __Pausable_init writes _paused false; __Ownable_init writes _owner the caller; then submitterContract, messageQueue, verifier, finalizationPeriodSeconds, proofWindow and proofRewardPercent take its arguments. An argument or the caller is any word (T); every other path is 0.",
+    "values": {
+      "_initialized": [
+        1
+      ],
+      "_initializing": [
+        0
+      ],
+      "_owner": [
+        "T"
+      ],
+      "_paused": [
+        0
+      ],
+      "finalizationPeriodSeconds": [
+        "T"
+      ],
+      "messageQueue": [
+        "T"
+      ],
+      "proofRewardPercent": [
+        "T"
+      ],
+      "proofWindow": [
+        "T"
+      ],
+      "submitterContract": [
+        "T"
+      ],
+      "verifier": [
+        "T"
+      ]
+    }
+  },
+  "hypotheses": {},
+  "hypothesis_verdicts": null,
+  "inputs": [],
+  "binding": "spec/M3/lib/binding.json",
+  "search": {
+    "max_prefixes": 3000,
+    "neighbourhood_insertion_length_max": 2,
+    "neighbourhood_prefixes_per_entry_point_max": 20000,
+    "prefix_depth": 3
+  }
+}

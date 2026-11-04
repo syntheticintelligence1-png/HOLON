@@ -1,0 +1,70 @@
+{
+  "ir_version": "holon-ir/0.1",
+  "law_id": "L_par_hdr_v2",
+  "milestone": "M0",
+  "rule": "PAR",
+  "subform": "cross_component_codec",
+  "evidence": [
+    "E1",
+    "E6"
+  ],
+  "facts": "facts/morph_header.json",
+  "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+  "statement": {
+    "forall": [
+      {
+        "name": "h",
+        "type": "Header"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "field": "version",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x02"
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "field": "sequencerSetVerifyHash",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "call": "enc_sol",
+          "args": [
+            {
+              "var": "h"
+            }
+          ]
+        },
+        {
+          "call": "enc_go_v1",
+          "args": [
+            {
+              "var": "h"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "Version 2 'reuses the V1 wire format' (Go comment), and BatchHeaderV1.Bytes is the only 257-byte Go encoder. Domain-coherence instance: does any Go encoder produce the headers Solidity commits at version 2?"
+}
