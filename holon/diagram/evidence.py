@@ -752,6 +752,24 @@ def adopted_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, by
     return out
 
 
+def gox_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, bytes]]:
+    """(path, bytes) of the Go document the milestone's gox sidecar (spec/<gm>/lib/go_laws.json, I93) names, when a law
+    of the milestone's DERIVATION is over it (PAR's Go laws)."""
+    side = root / "spec" / gm / "lib" / "go_laws.json"
+    der = root / "laws" / gm / "DERIVATION.json"
+    if not side.exists() or not der.exists():
+        return []
+    rel = (inp.read_json(side) or {}).get("document")
+    dv = json.loads(der.read_text(encoding="utf-8"))
+    if not isinstance(rel, str) or rel not in {e.get("facts") for e in dv.get("laws") or [] if isinstance(e, dict)}:
+        return []
+    return [(rel, inp.read_bytes(root / rel))]
+
+
+EMPTY_ANCHORS = {"codec": {}, "domains": {}, "actions": {}, "reasons": {}, "permissionless": [], "observers": {},
+                 "migrations": {}, "consumers": {}, "carriers": {}, "trans": [], "sites": {}}
+
+
 def bundle_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, bytes, dict]]:
     """(path, bytes, document) of every transitions document a law of the milestone's bundle laws is over (I86): the
     members of the bundle declaration beside the corpus spec/<gm>/lib/bundle_laws.json names, each document the
@@ -972,6 +990,17 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
             raise EvidenceError(f"{rel}: a construct the evidence pass cannot map ({type(e).__name__}: {e})") from e
         models[key] = {"facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(), "facts_version": FACTS03,
                        "diagram": None, "anchors": an}
+    # I93: the Go document of the milestone's PAR Go laws (gox_documents), no diagram, no anchors (a law over it names no
+    # edge: its claim is a gox term)
+    for rel, raw in (gox_documents(gm, root, inp) if adopted and milestone is not None else []):
+        key = Path(rel).name[:-len(".json")]
+        if any(x.get("facts") == rel for x in models.values()):
+            continue
+        if key in models:
+            raise EvidenceError(f"two documents share the model name {key}")
+        models[key] = {"facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(),
+                       "facts_version": json.loads(raw.decode("utf-8")).get("facts_version"), "diagram": None,
+                       "anchors": json.loads(json.dumps(EMPTY_ANCHORS))}
     # I28: the milestone's versioned document, no diagram, anchors only (versioned_documents)
     for rel, raw, d, an in (versioned_documents(gm, root, inp) if adopted and milestone is not None else []):
         key = Path(rel).name[:-len(".json")]

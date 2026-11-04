@@ -1,0 +1,32 @@
+{
+  "detail": "F short-cuts to (False, nil) on |X| = 126976 while |enc(X)| = 126984 exceeds the bound 126976: q's value is True",
+  "harness_sha256": "770e81c4e6fdfae4b5e02177ec002c054c8a0b2c0334d2d73661bd15dfb7861b",
+  "kind": "go_branch",
+  "law_id": "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3",
+  "observed": {
+    "enc_error": null,
+    "enc_length": 126984,
+    "returns": [
+      false,
+      null
+    ],
+    "x_sha256": "3a8ed804e697e9cd996fedabd0be6760e11885ce5a3169358c36f68b12bfc2a3"
+  },
+  "verdict": "agree",
+  "witness": {
+    "enc_length_model": 127474,
+    "function": "(*morph-l2/common/batch.BatchData).EstimateCompressedSizeWithNewPayload",
+    "kind": "go_branch",
+    "maxBlobCount": 1,
+    "payload_length": 126976,
+    "payload_operand": "n_txPayload",
+    "values": {
+      "e": 127474,
+      "i_maxBlobCount": 1,
+      "n_cks_txsPayload": 0,
+      "n_txPayload": 126976,
+      "ok": true
+    }
+  },
+  "witness_sha256": "47e4625b36429c408fe2a1ef88b25ec4b6a45cb32bb98981bebd3164126f5dfd"
+}

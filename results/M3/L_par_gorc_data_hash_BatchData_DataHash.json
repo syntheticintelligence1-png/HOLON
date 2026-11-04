@@ -1,0 +1,789 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_par_gorc_data_hash_batchdata_datahash",
+    "laws": "gen/M3/laws/L_par_gorc_data_hash_BatchData_DataHash/LAWS.bend",
+    "model": "gen/M3/gox/L_par_gorc_data_hash_BatchData_DataHash.bend",
+    "proof": "gen/M3/proofs/L_par_gorc_data_hash_BatchData_DataHash/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "checker": {
+        "bendtt": {
+          "exit_code": 0,
+          "output_tail": "ALL PROOFS CHECK\n",
+          "seconds": 0.15
+        },
+        "exit_code": 0,
+        "marker": "ALL PROOFS CHECK",
+        "seconds": 0.11
+      },
+      "kind": "counter_law",
+      "ok": true,
+      "witness": {
+        "appends": 1,
+        "function": "(*morph-l2/common/batch.BatchData).DataHash",
+        "go_preimage_length": 58,
+        "kind": "go_recompute",
+        "lists": {
+          "b_cks_blockContexts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "b_cks_l1TxHashes": []
+        },
+        "nats": {
+          "k_cks_blockNum": 1
+        },
+        "rest": [
+          "b_cks_l1TxHashes"
+        ]
+      }
+    },
+    {
+      "detail": "(*morph-l2/common/batch.BatchData).DataHash hashes the witness's 58-byte preimage to 7cdb9d7f02ea58df..; the contract's _commitBatch at {'batchDataInput.lastBlockNumber': '0', 'batchDataInput.numL1Messages': '0', '_totalL1MessagesPoppedOverall': '0'} gives 6bd2dd6bd408cbee..",
+      "kind": "replay",
+      "ok": true
+    }
+  ],
+  "bound": null,
+  "checker": {
+    "bendtt": {
+      "exit_code": 0,
+      "output_tail": "ALL PROOFS CHECK\n",
+      "seconds": 0.15
+    },
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.11
+  },
+  "compiled_sha256": "c6ecf58944b64c407ea0182e981e83653d03acfd317a876d9a076b3f01eceb0b",
+  "concretization": {
+    "bound": null,
+    "kind": "direct",
+    "length": null,
+    "reason": "the witness is a schedule of public calls, but it has no side in the sides format (no I4 side, no emitted test; its own replay report is not read as one): F3 cannot hold",
+    "result": "path",
+    "sides": {},
+    "target": null,
+    "tests": []
+  },
+  "cone": [
+    "app",
+    "drop",
+    "len",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_fold",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_pg",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_prem",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_ps",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_safe",
+    "take"
+  ],
+  "coverage": null,
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "evidence_levels": [],
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
+  "filter_bin": "pending",
+  "generator_sha256": "2d9b3e930b01459ccd58ed99205279f8d462d371d701335952b9700393b0e567",
+  "gox": {
+    "basis": {
+      "exit_cond": [
+        [
+          "==",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "hash"
+          ],
+          [
+            "nil"
+          ]
+        ],
+        [
+          "<=",
+          [
+            "const",
+            0
+          ],
+          [
+            "iv",
+            "i"
+          ]
+        ],
+        [
+          ">=",
+          [
+            "iv",
+            "i"
+          ],
+          [
+            "convert",
+            "int",
+            [
+              "field",
+              [
+                "param",
+                "cks"
+              ],
+              "blockNum"
+            ]
+          ]
+        ]
+      ],
+      "function": "(*morph-l2/common/batch.BatchData).DataHash",
+      "kind": "go_recompute",
+      "loop": {
+        "carried": [
+          {
+            "init": [
+              "nil"
+            ],
+            "name": "bz"
+          }
+        ],
+        "cmp": "<",
+        "continue": [
+          {
+            "cond": [
+              [
+                "==",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "hash"
+                ],
+                [
+                  "nil"
+                ]
+              ],
+              [
+                "<=",
+                [
+                  "const",
+                  0
+                ],
+                [
+                  "iv",
+                  "i"
+                ]
+              ],
+              [
+                "<",
+                [
+                  "iv",
+                  "i"
+                ],
+                [
+                  "convert",
+                  "int",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockNum"
+                  ]
+                ]
+              ],
+              [
+                "<=",
+                [
+                  "op",
+                  "+",
+                  [
+                    "op",
+                    "*",
+                    [
+                      "iv",
+                      "i"
+                    ],
+                    [
+                      "const",
+                      60
+                    ]
+                  ],
+                  [
+                    "const",
+                    58
+                  ]
+                ],
+                [
+                  "cap",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ]
+                ]
+              ]
+            ],
+            "updates": {
+              "bz": [
+                "append",
+                [
+                  "carried",
+                  "bz"
+                ],
+                [
+                  "slice",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ],
+                  [
+                    "op",
+                    "*",
+                    [
+                      "iv",
+                      "i"
+                    ],
+                    [
+                      "const",
+                      60
+                    ]
+                  ],
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "*",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        60
+                      ]
+                    ],
+                    [
+                      "const",
+                      58
+                    ]
+                  ],
+                  null
+                ]
+              ]
+            }
+          }
+        ],
+        "fuel": [
+          "convert",
+          "int",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "blockNum"
+          ]
+        ],
+        "init": [
+          "const",
+          0
+        ],
+        "iv": "i",
+        "limit": [
+          "convert",
+          "int",
+          [
+            "field",
+            [
+              "param",
+              "cks"
+            ],
+            "blockNum"
+          ]
+        ],
+        "panics": [
+          {
+            "cond": [
+              [
+                "==",
+                [
+                  "field",
+                  [
+                    "param",
+                    "cks"
+                  ],
+                  "hash"
+                ],
+                [
+                  "nil"
+                ]
+              ],
+              [
+                "<=",
+                [
+                  "const",
+                  0
+                ],
+                [
+                  "iv",
+                  "i"
+                ]
+              ],
+              [
+                "<",
+                [
+                  "iv",
+                  "i"
+                ],
+                [
+                  "convert",
+                  "int",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockNum"
+                  ]
+                ]
+              ],
+              [
+                ">",
+                [
+                  "op",
+                  "+",
+                  [
+                    "op",
+                    "*",
+                    [
+                      "iv",
+                      "i"
+                    ],
+                    [
+                      "const",
+                      60
+                    ]
+                  ],
+                  [
+                    "const",
+                    58
+                  ]
+                ],
+                [
+                  "cap",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "cks"
+                    ],
+                    "blockContexts"
+                  ]
+                ]
+              ]
+            ],
+            "site": "common/batch/batch_data.go:75:36:slice"
+          }
+        ],
+        "span": "common/batch/batch_data.go:74",
+        "step": 1
+      },
+      "params": [
+        {
+          "name": "cks",
+          "type": "*morph-l2/common/batch.BatchData"
+        }
+      ],
+      "preimage": [
+        "append",
+        [
+          "carried",
+          "bz"
+        ],
+        [
+          "field",
+          [
+            "param",
+            "cks"
+          ],
+          "l1TxHashes"
+        ]
+      ],
+      "role": "data_hash",
+      "solidity": {
+        "action": "commitBatch",
+        "document": "spec/M2/facts/morph_rollup.extracted.json",
+        "store": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175",
+        "value": [
+          "keccak256",
+          [
+            "slice",
+            [
+              "mem",
+              [
+                "mstore",
+                0,
+                [
+                  "<<",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "lastBlockNumber"
+                  ],
+                  192
+                ]
+              ],
+              [
+                "mstore",
+                8,
+                [
+                  "<<",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "numL1Messages"
+                  ],
+                  240
+                ]
+              ],
+              [
+                "when",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "batchDataInput"
+                      ],
+                      "numL1Messages"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "mloop",
+                  "contracts/contracts/l1/rollup/Rollup.sol:936-943",
+                  [
+                    "iter",
+                    "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+                  ],
+                  [
+                    "member",
+                    [
+                      "param",
+                      "batchDataInput"
+                    ],
+                    "numL1Messages"
+                  ],
+                  [
+                    [
+                      "mstore",
+                      [
+                        "+",
+                        10,
+                        [
+                          "*",
+                          32,
+                          [
+                            "iter",
+                            "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+                          ]
+                        ]
+                      ],
+                      [
+                        "call",
+                        "IL1MessageQueue.getCrossDomainMessage",
+                        [
+                          "+",
+                          [
+                            ">>",
+                            [
+                              "word",
+                              [
+                                "member",
+                                [
+                                  "param",
+                                  "batchDataInput"
+                                ],
+                                "parentBatchHeader"
+                              ],
+                              17
+                            ],
+                            192
+                          ],
+                          [
+                            "iter",
+                            "contracts/contracts/l1/rollup/Rollup.sol:936-943"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            0,
+            [
+              "+",
+              10,
+              [
+                "*",
+                32,
+                [
+                  "member",
+                  [
+                    "param",
+                    "batchDataInput"
+                  ],
+                  "numL1Messages"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "widths": {
+          "lastBlockNumber": 64,
+          "numL1Messages": 16,
+          "parentBatchHeader": null,
+          "postStateRoot": 256,
+          "prevStateRoot": 256,
+          "version": 8,
+          "withdrawalRoot": 256
+        }
+      }
+    },
+    "gox_id": "go_recompute:data_hash:BatchData_DataHash"
+  },
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_par_gorc_data_hash_BatchData_DataHash",
+  "ledger_assumptions": [
+    "A-gox-cap-len",
+    "A-gox-cells",
+    "A-gox-sol-cells",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash",
+    "go-prim-math-big-Int-FillBytes"
+  ],
+  "ledger_match": "exact",
+  "model_assumptions": [],
+  "model_sha256": "c6ecf58944b64c407ea0182e981e83653d03acfd317a876d9a076b3f01eceb0b",
+  "non_vacuity": {
+    "bound": "the accepted counter-law inhabits the premises",
+    "degenerate": null,
+    "law": "gen/M3/laws/L_par_gorc_data_hash_BatchData_DataHash/LAWS.bend",
+    "parent_statement_hash": "sha256:f67061779aedf10b654ee5825a3d02cbd3c28faa9c38cbc566b09f6a11dd6f87",
+    "reachable": true,
+    "status": "counter_witness",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "the real-code replay agrees (replay/M3/gox/L_par_gorc_data_hash_BatchData_DataHash.json)",
+    "status": "passed"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "seconds": 1.063,
+  "statement": "cross-language recompute (data_hash): every hash (*morph-l2/common/batch.BatchData).DataHash returns is some value commitBatch stores at contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175 (spec/M2/facts/morph_rollup.extracted.json), through the preimage; gox go_recompute:data_hash:BatchData_DataHash",
+  "statement_hash": "sha256:f67061779aedf10b654ee5825a3d02cbd3c28faa9c38cbc566b09f6a11dd6f87",
+  "status": "REFUTED",
+  "subform": "go_recompute",
+  "triage": "finding",
+  "witness": {
+    "appends": 1,
+    "function": "(*morph-l2/common/batch.BatchData).DataHash",
+    "go_preimage_length": 58,
+    "kind": "go_recompute",
+    "lists": {
+      "b_cks_blockContexts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "b_cks_l1TxHashes": []
+    },
+    "nats": {
+      "k_cks_blockNum": 1
+    },
+    "rest": [
+      "b_cks_l1TxHashes"
+    ]
+  },
+  "witness_provenance": {
+    "go": "internal_harness"
+  },
+  "witness_sha256": "ce5c9ac2d88a011b99ad23661c78ebb4c320c30090d17930f1aa3cbe4a19b3ee"
+}

@@ -443,6 +443,9 @@
     },
     {
      "$ref": "#/$defs/t_symb"
+    },
+    {
+     "$ref": "#/$defs/t_gox"
     }
    ]
   },
@@ -1384,6 +1387,27 @@
     "symb": {
      "type": "string",
      "pattern": "^[A-Za-z0-9_.]+:(member_tau|member_sentinel|sentinel_inv)(:[A-Za-z0-9_.]+)+$"
+    },
+    "on": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/term"
+     }
+    }
+   }
+  },
+  "t_gox": {
+   "type": "object",
+   "required": [
+    "gox",
+    "on"
+   ],
+   "additionalProperties": false,
+   "description": "a PAR Go term (I93, holon.rules.gox): the gox id <go_round_trip|go_branch|go_recompute>:<basis words> applied to the law's binders, in order: the claim that the decoder recovers what the encoder wrote (go_round_trip), that the size short-cut agrees with the compressing path under its premises (go_branch) or that some on-chain preimage equals the Go preimage (go_recompute); rendered gox_ok[ID](args); its statement ref gox:ID hashes the template, version, subform and basis recomputed from the gox sidecar and the documents it names (holon.gen.refs)",
+   "properties": {
+    "gox": {
+     "type": "string",
+     "pattern": "^(go_round_trip|go_branch|go_recompute)(:[A-Za-z0-9_.]+)+$"
     },
     "on": {
      "type": "array",

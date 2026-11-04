@@ -107,15 +107,17 @@ class Frame:
 
 
 class PState:
-    __slots__ = ("frames", "cond", "mem", "_r", "looped")
+    __slots__ = ("frames", "cond", "mem", "_r", "looped", "updates")
 
     def __init__(self, frames, cond, mem):
         self.frames, self.cond, self.mem, self._r = frames, cond, mem, None
         self.looped = False      # loop-body mode (I67): this path has entered the loop header once
+        self.updates = None      # I93 (0.3): the carried variables' values at the back edge of a continue path
 
     def fork(self) -> "PState":
         p = PState([f.copy() for f in self.frames], list(self.cond), dict(self.mem))
         p.looped = self.looped
+        p.updates = self.updates
         return p
 
 
@@ -126,11 +128,13 @@ class Result:
         self.ends: set = set()            # site ids some path ends at
         self.extra_sites: dict = {}       # site id -> (kind, bound) met only on paths
         self.unsupported: list = []
+        self.carried: dict = {}           # I93 (0.3), loop-body mode: carried name -> its entry value (header order)
 
 
 class Enumerator:
     def __init__(self, ctx: Ctx, flows, fn: Func):
         self.ctx = ctx
+        self.varargs: set = set()   # I93 (0.3): the objects of variadic slices built at a call site
         self.flows = flows       # fid -> Flow
         self.fn = fn
         self.ty = ctx.types
@@ -246,8 +250,10 @@ class Enumerator:
             self.res.ends.add(site)
             return
         if end == "continue":                 # I67 loop-body mode: the iteration completed, control goes to the header
-            self.res.paths.append({"cond": list(st.cond), "end": "continue", "returns": None, "site": None,
-                                   "error": None})
+            entry = {"cond": list(st.cond), "end": "continue", "returns": None, "site": None, "error": None}
+            if self.ctx.v03:
+                entry["updates"] = dict(sorted((st.updates or {}).items()))
+            self.res.paths.append(entry)
             self.res.layouts.append([])
             return
         rets = [self.render(st, v) for v in vals]
@@ -313,6 +319,10 @@ class Enumerator:
             return v
         if isinstance(v, (Ptr, LVal)):
             return self.loc_term(st, v.oid, v.path)
+        if isinstance(v, SliceVal) and self.ctx.v03 and v.oid in self.varargs and v.path == () and v.lo == C0:
+            ob = self.objs[v.oid]   # I93: a variadic slice built at the call site, its elements in index order
+            return ("varargs", tuple(self.render(st, self.load(st, Ptr(v.oid, (("index", k),), ob.typ), ob.typ))
+                                     for k in range(ob.n or 0)))
         if isinstance(v, SliceVal):
             base = self.loc_term(st, v.oid, v.path)
             n = self.arr_len(v.oid, v.path)
@@ -320,7 +330,7 @@ class Enumerator:
             return ("slice", base, None if v.lo == C0 else v.lo, None if v.hi == nn else v.hi,
                     None if v.mx == nn else v.mx)
         if isinstance(v, Cmp):
-            return ("unknown", "compare")
+            return v.atom if self.ctx.v03 else ("unknown", "compare")
         if isinstance(v, Tup):
             return ("unknown", "tuple")
         if isinstance(v, Clo):
@@ -536,15 +546,30 @@ class Enumerator:
         if self._loop is not None and fr.depth == 0 and b in self._loop["others"]:
             raise OtherLoop(b)                       # unrolled or forked it might never end: no loop body here
         if self._loop is not None and b == self._loop["header"] and fr.depth == 0:
+            blk = fr.fn.blocks[b]
             if st.looped:
+                if self.ctx.v03:   # I93: each carried variable's value at the back edge
+                    e = blk.preds.index(pred) if pred in blk.preds else -1
+                    st.updates = {self.carried_name(ins): (self.render(st, self.val(fr, ins.operands[e], st))
+                                                           if e >= 0 else ("unknown", "phi"))
+                                  for ins in blk.instrs if ins.op == "Phi" and ins.name != self._loop["phi"]}
                 return "continue"
             st.looped = True
-            blk = fr.fn.blocks[b]
             fr.bidx, fr.pc = b, 0
             while fr.pc < len(blk.instrs) and blk.instrs[fr.pc].op == "Phi":
                 ins = blk.instrs[fr.pc]
-                fr.env[ins.name] = (self._loop["phi_value"] if ins.name == self._loop["phi"]
-                                    else ("unknown", f"loop:{ins.name}"))
+                if ins.name == self._loop["phi"]:
+                    fr.env[ins.name] = self._loop["phi_value"]
+                elif self.ctx.v03:   # I93: a carried variable is ["carried", name] at the iteration's start
+                    name = self.carried_name(ins)
+                    e = blk.preds.index(pred) if pred in blk.preds else -1
+                    init = self.render(st, self.val(fr, ins.operands[e], st)) if e >= 0 else ("unknown", "phi")
+                    if name in self.res.carried and self.res.carried[name] != init:
+                        init = ("unknown", "init")
+                    self.res.carried[name] = init
+                    fr.env[ins.name] = ("carried", name)
+                else:
+                    fr.env[ins.name] = ("unknown", f"loop:{ins.name}")
                 fr.pc += 1
             for oid, ob in self.objs.items():   # memory an iteration writes is unknown in a later one
                 if ob.pos in self._loop["havoc"] and oid in st.mem:
@@ -563,6 +588,11 @@ class Enumerator:
         for name, v in phis:
             fr.env[name] = v
         return None
+
+    @staticmethod
+    def carried_name(ins) -> str:
+        """I93: a carried phi's name, its source variable (go/ssa's phi comment) or else its SSA name."""
+        return ins.get("comment") or ins.name
 
     def narrow(self, t, typ: str):
         """Loop-body mode (I67): symbolic arithmetic of an integer type narrower than 64 bits wraps in Go, so it is
@@ -694,6 +724,8 @@ class Enumerator:
             n = ty.array_len(ins.type)
             root = ("alloc", site_pos(ins), const(n) if n is not None else None)
             oid = self.new_obj(st, fr, ins, typ, n, root)
+            if self.ctx.v03 and ins.get("comment") == "varargs" and n is not None:
+                self.varargs.add(oid)
             env[ins.name] = Ptr(oid, (), typ)
             return None
         if o == "Store":
@@ -960,6 +992,21 @@ class Enumerator:
                     env[name] = ("call", fid, tuple(R(a) for a in args))
                 return None
             prim = self.ctx.prims.get(fid)
+            if prim is not None and prim.get("kind") == "fill_bytes" and self.ctx.v03 and len(args) == 2:
+                # I93: x.FillBytes(buf) writes x's big-endian magnitude into buf (cell k: byte k of x's len(buf)-byte
+                # form) and returns buf; it panics when the magnitude needs more bytes (a site of its own)
+                recv, buf = args
+                n = self.av_len(buf)
+                if isinstance(buf, SliceVal) and is_const(buf.lo) and is_const(n):
+                    for k in range(n[1]):
+                        self.write_cell(st, buf.oid, buf.path, buf.lo[1] + k, ("byte", R(recv), k))
+                else:
+                    self.havoc_value(st, buf)
+                if fr.depth == 0:
+                    self.res.extra_sites.setdefault(f"{site_pos(ins)}:fill_bytes", ("fill_bytes", None))
+                if name:
+                    env[name] = buf
+                return None
             if prim is not None:
                 t = ("call", fid, tuple(R(a) for a in args))
                 if prim.get("kind") in ("to_array", "array_bytes", "hex_to_array") and prim.get("width"):

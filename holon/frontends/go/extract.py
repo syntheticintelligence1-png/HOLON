@@ -30,6 +30,13 @@ tests_m2/test_extract_go.py):
               induction variable ["iv", <iv>] (paths.Enumerator.run_loop), each written as the paths section writes a
               path, a jump back to the header ending it "continue"; null paths and a path_limit debt entry past the
               path limit. extraction.frontend_version is holon-go/0.2; a 0.1 config writes what it wrote before.
+  holon-go-frontend/0.3 (I93; contract: rule G1 of the docstring of tests_m3/test_go_laws.py) is 0.2 plus four renderings,
+              each only under a 0.3 config: a comparison used as a value is [op, l, r] (0.2: ["unknown", "compare"]);
+              a loop_bodies entry lists "carried": [{"name", "init"}] (the header's phis but the induction variable)
+              and each of its continue paths "updates": {name: term}, ["carried", name] the value at the iteration's
+              start; a call's variadic slice built at the call site is ["varargs", [terms]]; primitive kind fill_bytes
+              ((*big.Int).FillBytes(buf): cell k ["byte", receiver, k], a site of kind fill_bytes, status unknown).
+              extraction.frontend_version is holon-go/0.3.
 """
 from __future__ import annotations
 
@@ -52,9 +59,10 @@ FRONTEND_VERSION = "holon-go/0.1"
 # I67: 0.2 is a superset of 0.1 — it adds the additive `loop_bodies` section (loop-free paths over a counted loop's
 # induction variable) and leaves every 0.1 section byte-identical, so a 0.1 config re-extracts unchanged.
 CONFIG_VERSION = "holon-go-frontend/0.1"
-CONFIG_VERSIONS = ("holon-go-frontend/0.1", "holon-go-frontend/0.2")
-FRONTEND_VERSION_OF = {"holon-go-frontend/0.1": "holon-go/0.1", "holon-go-frontend/0.2": "holon-go/0.2"}
-PRIMITIVE_KINDS = ("to_array", "hash", "array_bytes", "hex_to_array")
+CONFIG_VERSIONS = ("holon-go-frontend/0.1", "holon-go-frontend/0.2", "holon-go-frontend/0.3")
+FRONTEND_VERSION_OF = {"holon-go-frontend/0.1": "holon-go/0.1", "holon-go-frontend/0.2": "holon-go/0.2",
+                       "holon-go-frontend/0.3": "holon-go/0.3"}
+PRIMITIVE_KINDS = ("to_array", "hash", "array_bytes", "hex_to_array", "fill_bytes")
 FACTS_VERSION = "holon-facts/0.3"
 HERE = Path(__file__).resolve().parent
 SSADUMP_DIR = HERE / "ssadump"
@@ -108,6 +116,8 @@ def load_config(path: Path) -> dict:
             raise Refused(f"config {path}: primitive {name} needs kind ({' | '.join(PRIMITIVE_KINDS)}) and text")
         if p["kind"] in ("to_array", "array_bytes", "hex_to_array") and not isinstance(p.get("width"), int):
             raise Refused(f"config {path}: primitive {name} needs a width")
+        if p["kind"] == "fill_bytes" and cfg.get("config_version") != "holon-go-frontend/0.3":
+            raise Refused(f"config {path}: primitive {name}: kind fill_bytes needs config holon-go-frontend/0.3")
     lim = cfg.get("limits", {})
     if not isinstance(lim, dict) or not all(isinstance(lim.get(k), int) and lim.get(k) > 0
                                             for k in ("max_paths", "inline_depth", "flow_depth")):

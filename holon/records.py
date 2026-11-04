@@ -222,6 +222,7 @@ def all_bundles(root: Path | str = ROOT, facts_path: Path | str | None = None, m
         out += _window_bundles(Path(root), facts_path)
         out += _versions_bundles(Path(root), facts_path)
         out += _bundle_member_bundles(Path(root), facts_path)
+        out += _gox_bundles(Path(root), facts_path)
     exts = milestone_extensions(root, milestone) if milestone else []
     for i, b in enumerate(out):
         for x in exts:
@@ -295,6 +296,17 @@ def _gocount_bundles(root: Path, facts_path) -> list[dict]:
     rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if p.resolve().is_relative_to(Path(root).resolve()) \
         else str(facts_path)
     return [declared_bundle(doc, rel, hashlib.sha256(raw).hexdigest(), Path(root))]
+
+
+def _gox_bundles(root: Path, facts_path) -> list[dict]:
+    """I93: the bundle of the Go document a gox sidecar names (holon.gox.ledger.declared_bundle): the assumptions the
+    document declares and the gox models' own A-gox-* entries. Never hand-written: the models are generated from the
+    document and the DERIVATION entries, so the bundle follows them. Imported by name, outside the closures."""
+    import importlib
+    try:
+        return importlib.import_module("holon.gox.ledger").bundles(Path(root), facts_path)
+    except (OSError, ValueError, KeyError):
+        return []
 
 
 def _own_bundles(root: Path, facts_path) -> list[dict]:

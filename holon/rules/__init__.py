@@ -190,17 +190,30 @@ CATALOGS[SYMB_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_SYMB_BA
 for _sub in _symb.SUBFORMS:
     CATALOGS[SYMB_CATALOG_VERSION].setdefault(_symb.RULE, {})[_sub] = _symb.PRODUCERS[_sub]
 
+#   holon-rules/1.15 I93's: the rules of the newest catalog version below it (its predecessor in the chain: holon-rules/1.14,
+#                    I92's) unchanged (the same producer objects), plus rule PAR's Go sub-forms go_round_trip, go_branch
+#                    and go_recompute (holon.rules.gox: P1, PAR-branch and a cross-language recompute over the Go document
+#                    of the milestone's gox sidecar spec/<M>/lib/go_laws.json; a milestone without one derives none of
+#                    them), run by derive's gox part (_gox_part); M3 and later. Their names are disjoint from
+#                    holon.rules.par's sub-forms, so the diagram part never runs them.
+from . import gox as _gox  # noqa: E402
+GOX_CATALOG_VERSION = "holon-rules/1.15"
+_GOX_BASE = _newest_catalog(GOX_CATALOG_VERSION)
+CATALOGS[GOX_CATALOG_VERSION] = {r: dict(subs) for r, subs in CATALOGS[_GOX_BASE].items()}
+for _sub in _gox.SUBFORMS:
+    CATALOGS[GOX_CATALOG_VERSION].setdefault(_gox.RULE, {})[_sub] = _gox.PRODUCERS[_sub]
+
 
 def catalog_version(milestone: str) -> str:
-    """The rule-catalog version a milestone derives with: holon-rules/1.14 for the typed target milestones (M3 and
+    """The rule-catalog version a milestone derives with: holon-rules/1.15 for the typed target milestones (M3 and
     later: I27's UNDO, I31's DISCH, I26's FACT, I28's PAR/init_chain, I71's UNDO/cancel, I29's NAT, I35's OWN, I84's
-    and I86's bundle sub-forms, I34's SYM, I70's slash sub-forms, I92's SYM member sub-forms over every version below
-    it); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
+    and I86's bundle sub-forms, I34's SYM, I70's slash sub-forms, I92's SYM member sub-forms, I93's PAR Go sub-forms
+    over every version below it); holon-rules/1.2 for the typed test milestones (T<n> with n >= 30;
     holon.sorts.typed_sidecar.typed); holon-rules/1.0 for M0-M2 and every other test milestone. A test milestone's
     catalog may be replaced with `--catalog`."""
     if not _typed(milestone):
         return RULE_CATALOG_VERSION
-    return SYMB_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
+    return GOX_CATALOG_VERSION if target_milestone(milestone) else TYPED_CATALOG_VERSION
 
 
 def target_milestone(milestone: str) -> bool:
@@ -911,6 +924,36 @@ def _symb_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | N
     return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas}
 
 
+def _gox_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
+    """derive's part for rule PAR's Go sub-forms (I93, holon.rules.gox), when the catalog holds one and the milestone
+    has a gox sidecar: their producers over the sidecar's documents, read through their own input list. Returns the
+    laws, their DERIVATION entries, the inputs read, the documents' sha256 and the basis document, or None."""
+    from ..gen import refs as R
+    prods = [(sub, (CATALOGS[cv].get(_gox.RULE) or {}).get(sub)) for sub in _gox.SUBFORMS]
+    prods = [(sub, pr) for sub, pr in prods if pr is not None]
+    if not prods or not _gox.has_sidecar(root, milestone):
+        return None
+    inputs = Inputs(root)
+    ctx = Context(milestone, root, [], {}, set())
+    ctx.rule_catalog_version = cv
+    ctx.inputs = inputs
+    pairs = []
+    try:
+        for _sub, pr in prods:
+            pairs += pr.produce(ctx)
+        basis = _gox.basis_doc(root, milestone)
+    except (_gox.GoxRuleError, KeyError, ValueError) as e:
+        raise ValueError(f"PAR (Go): {e}") from e
+    laws, entries, shas = {}, [], {}
+    for law, entry in sorted(pairs, key=lambda p: p[0]["law_id"]):
+        facts = json.loads((root / law["facts"]).read_text(encoding="utf-8"))
+        law = ir.with_hash_scheme(law, scheme)
+        entries.append(dict(entry, statement_hash=R.law_hash(law, facts, root=root)))
+        laws[law["law_id"]] = law
+        shas[law["facts"]] = law["facts_sha256"]
+    return {"laws": laws, "entries": entries, "inputs": inputs, "shas": shas, "basis": basis}
+
+
 def _own_part(milestone: str, root: Path, cv: str, scheme: int = 1) -> dict | None:
     """derive's part for rule OWN (I35, holon.rules.own; rule W8 of tests_m3/test_own.py), when the catalog holds it:
     its producers over the milestone's committed carrier documents gen/<M>/own/*.json, read through its own input list
@@ -1075,8 +1118,11 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
     ypart = _symb_part(milestone, root, cv, scheme) if not given else None   # I92: SYM over the bundle's members
     if ypart is not None:
         inputs.files.update(ypart["inputs"].files)
+    gpart = _gox_part(milestone, root, cv, scheme) if not given else None   # I93: PAR's Go sub-forms
+    if gpart is not None:
+        inputs.files.update(gpart["inputs"].files)
     laws, entries, shas = {}, [], {}
-    for part in (par, typed, init, nat, own, ldom, bpart, spart, ypart):
+    for part in (par, typed, init, nat, own, ldom, bpart, spart, ypart, gpart):
         if part is None:
             continue
         for lid, law in part["laws"].items():
@@ -1112,7 +1158,8 @@ def compute_catalog(milestone: str, root: Path, cv: str, facts: list[str] | None
         if ev.exists():   # the milestone's evidence set: its identity is copied, never recomputed here
             registry["evidence_sha256"] = json.loads(ev.read_text(encoding="utf-8")).get("evidence_sha256")
     return {"laws": laws, "derivation": derivation, "derivation_text": dtext, "registry": registry,
-            "obstructions": typed["obstructions"] if typed is not None else None}
+            "obstructions": typed["obstructions"] if typed is not None else None,
+            "gox_basis": gpart["basis"] if gpart is not None else None}
 
 
 def diff(base: dict, new: dict) -> dict:
@@ -1182,6 +1229,10 @@ def derive(milestone: str, root: str | None = None, out: str | None = None, obst
         (laws_dir / f"{lid}.json").write_text(dumps(law), encoding="utf-8")
     (laws_dir / "DERIVATION.json").write_text(res["derivation_text"], encoding="utf-8")
     (laws_dir / "REGISTRY.json").write_text(dumps(res["registry"]), encoding="utf-8")
+    if res.get("gox_basis") is not None and not out:   # I93 (G3): every gox basis element, with its law id or reason
+        gb = root_p / "gen" / milestone / "gox" / "basis.json"
+        gb.parent.mkdir(parents=True, exist_ok=True)
+        gb.write_text(dumps(res["gox_basis"]), encoding="utf-8")
     if res["obstructions"] is not None:   # no obstructions file without a SORT derivation (I24), else the typed part's
         obs_p.parent.mkdir(parents=True, exist_ok=True)
         obs_p.write_text(dumps(res["obstructions"]), encoding="utf-8")
