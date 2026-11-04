@@ -11,11 +11,11 @@
         "bendtt": {
           "exit_code": 1,
           "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
-          "seconds": 14.626
+          "seconds": 9.69
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 1.392
+        "seconds": 1.026
       },
       "kind": "counter_law",
       "ok": true,
@@ -48,13 +48,13 @@
     "bendtt": {
       "exit_code": 1,
       "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
-      "seconds": 14.626
+      "seconds": 9.69
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.392
+    "seconds": 1.026
   },
-  "compiled_sha256": null,
+  "compiled_sha256": "06d4f1cf7b5052060b1207217984a952e248784c9545450561d454113b016194",
   "concretization": {
     "bound": null,
     "kind": "direct",
@@ -65,7 +65,11 @@
     "target": null,
     "tests": []
   },
-  "cone": [],
+  "cone": [
+    "cb",
+    "gb_L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7_ok",
+    "ite_nat"
+  ],
   "coverage": null,
   "difference": {
     "lhs": false,
@@ -76,7 +80,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
   "filter_bin": "pending",
-  "generator_sha256": "10bd17913d12a505e4634337e5a6e3d2ad46c01b81a7ad2eaf02b6d7ec082bc4",
+  "generator_sha256": "2d9b3e930b01459ccd58ed99205279f8d462d371d701335952b9700393b0e567",
   "gox": {
     "basis": {
       "arg": [
@@ -1078,8 +1082,19 @@
     }
   ],
   "law_id": "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7",
-  "ledger_assumptions": [],
-  "ledger_match": "none",
+  "ledger_assumptions": [
+    "A-gox-hypz-len",
+    "A-gox-nat",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash",
+    "go-prim-math-big-Int-FillBytes"
+  ],
+  "ledger_match": "exact",
   "model_assumptions": [],
   "model_sha256": "06d4f1cf7b5052060b1207217984a952e248784c9545450561d454113b016194",
   "non_vacuity": {
@@ -1092,12 +1107,7 @@
     "witness": null
   },
   "premises": [
-    {
-      "at": "morph-l2/common/codec/zstd.CompressBatchBytes",
-      "from": "spec/M3/lib/compression.json#hypotheses.HypZ_len",
-      "hypothesis": "HypZ_len",
-      "statement": "|g(X)| <= CB(|X|) for a successful call on a non-empty X"
-    }
+    "HypZ_len (spec/M3/lib/compression.json#hypotheses.HypZ_len) at morph-l2/common/codec/zstd.CompressBatchBytes: |g(X)| <= CB(|X|) for a successful call on a non-empty X"
   ],
   "prover": "generator",
   "record_version": "holon-record/0.2",
@@ -1113,7 +1123,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 16.028,
+  "seconds": 11.52,
   "statement": "size short-cut of (*morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit: where path 4's test holds, path 7's value at position 0 (a size test of morph-l2/common/codec/zstd.CompressBatchBytes's output) equals path 4's; premise HypZ_len at the argument (spec/M3/lib/compression.json#hypotheses.HypZ_len); gox go_branch:BatchData_WillExceedCompressedSizeLimit:p4:p7",
   "statement_hash": "sha256:1f8ecc92bf6ef38b031e25e6d245066e2bc86ef57032ba50fedceef993080590",
   "status": "REFUTED",
@@ -1137,7 +1147,7 @@
     }
   },
   "witness_provenance": {
-    "go": "internal_test"
+    "go": "internal_harness"
   },
   "witness_sha256": "f15d5c152411a5e4932377187da40ca11a66921bf59bb6b4226426620d15885b"
 }

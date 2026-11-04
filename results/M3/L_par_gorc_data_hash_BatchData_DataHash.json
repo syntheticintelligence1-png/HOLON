@@ -11,11 +11,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 0.172
+          "seconds": 0.15
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 0.146
+        "seconds": 0.11
       },
       "kind": "counter_law",
       "ok": true,
@@ -108,13 +108,13 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 0.172
+      "seconds": 0.15
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.146
+    "seconds": 0.11
   },
-  "compiled_sha256": null,
+  "compiled_sha256": "c6ecf58944b64c407ea0182e981e83653d03acfd317a876d9a076b3f01eceb0b",
   "concretization": {
     "bound": null,
     "kind": "direct",
@@ -125,7 +125,17 @@
     "target": null,
     "tests": []
   },
-  "cone": [],
+  "cone": [
+    "app",
+    "drop",
+    "len",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_fold",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_pg",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_prem",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_ps",
+    "rc_L_par_gorc_data_hash_BatchData_DataHash_safe",
+    "take"
+  ],
   "coverage": null,
   "difference": {
     "lhs": false,
@@ -136,7 +146,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
   "filter_bin": "pending",
-  "generator_sha256": "10bd17913d12a505e4634337e5a6e3d2ad46c01b81a7ad2eaf02b6d7ec082bc4",
+  "generator_sha256": "2d9b3e930b01459ccd58ed99205279f8d462d371d701335952b9700393b0e567",
   "gox": {
     "basis": {
       "exit_cond": [
@@ -649,8 +659,20 @@
     }
   ],
   "law_id": "L_par_gorc_data_hash_BatchData_DataHash",
-  "ledger_assumptions": [],
-  "ledger_match": "none",
+  "ledger_assumptions": [
+    "A-gox-cap-len",
+    "A-gox-cells",
+    "A-gox-sol-cells",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash",
+    "go-prim-math-big-Int-FillBytes"
+  ],
+  "ledger_match": "exact",
   "model_assumptions": [],
   "model_sha256": "c6ecf58944b64c407ea0182e981e83653d03acfd317a876d9a076b3f01eceb0b",
   "non_vacuity": {
@@ -677,7 +699,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 0.327,
+  "seconds": 1.063,
   "statement": "cross-language recompute (data_hash): every hash (*morph-l2/common/batch.BatchData).DataHash returns is some value commitBatch stores at contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175 (spec/M2/facts/morph_rollup.extracted.json), through the preimage; gox go_recompute:data_hash:BatchData_DataHash",
   "statement_hash": "sha256:f67061779aedf10b654ee5825a3d02cbd3c28faa9c38cbc566b09f6a11dd6f87",
   "status": "REFUTED",
@@ -761,7 +783,7 @@
     ]
   },
   "witness_provenance": {
-    "go": "internal_test"
+    "go": "internal_harness"
   },
   "witness_sha256": "ce5c9ac2d88a011b99ad23661c78ebb4c320c30090d17930f1aa3cbe4a19b3ee"
 }

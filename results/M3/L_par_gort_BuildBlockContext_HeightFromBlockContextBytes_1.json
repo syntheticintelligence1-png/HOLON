@@ -11,11 +11,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 0.159
+          "seconds": 0.127
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 0.144
+        "seconds": 0.106
       },
       "class": "reflexivity",
       "kind": "proof",
@@ -27,21 +27,28 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 0.159
+      "seconds": 0.127
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.144
+    "seconds": 0.106
   },
-  "compiled_sha256": null,
-  "cone": [],
+  "compiled_sha256": "3352464e34c740d296ea78364d892f34de681c9b96c1a0611f8fc8c73d73945f",
+  "cone": [
+    "drop",
+    "gr_L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1_dec",
+    "gr_L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1_enc",
+    "gr_L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1_sel",
+    "len",
+    "take"
+  ],
   "coverage": null,
   "evidence_levels": [],
   "evidence_override": null,
   "evidence_triage": "none",
   "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
   "filter_bin": null,
-  "generator_sha256": "10bd17913d12a505e4634337e5a6e3d2ad46c01b81a7ad2eaf02b6d7ec082bc4",
+  "generator_sha256": "2d9b3e930b01459ccd58ed99205279f8d462d371d701335952b9700393b0e567",
   "gox": {
     "basis": {
       "cells": [
@@ -705,8 +712,18 @@
     }
   ],
   "law_id": "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1",
-  "ledger_assumptions": [],
-  "ledger_match": "none",
+  "ledger_assumptions": [
+    "A-gox-cells",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash",
+    "go-prim-math-big-Int-FillBytes"
+  ],
+  "ledger_match": "exact",
   "model_assumptions": [],
   "model_sha256": "3352464e34c740d296ea78364d892f34de681c9b96c1a0611f8fc8c73d73945f",
   "non_vacuity": {
@@ -733,7 +750,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 0.311,
+  "seconds": 1.039,
   "statement": "Go codec round trip: morph-l2/common/batch.HeightFromBlockContextBytes recovers what morph-l2/common/batch.BuildBlockContext (entry 1, length 60) wrote at its reads, for all of the encoder's inputs (P1 over an unversioned Go codec); gox go_round_trip:BuildBlockContext:HeightFromBlockContextBytes:1",
   "statement_hash": "sha256:6702d6a3550967e0283bf586750538fb9dc0a1b071311bb5110df8ea739b9a55",
   "status": "PROVED",
