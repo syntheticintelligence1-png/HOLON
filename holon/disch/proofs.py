@@ -1176,10 +1176,13 @@ class TimeMono:
         A1, A2 = at_time(a, "@T@"), at_time(a, "@T2@")
         c = as_call(a)
         le = "not_t(M.w_lt(@T2@, @T@), hle)"          # {w_lt(t2, t) == False}
-        if c and c[2] == "(" and len(c[1]) == 2 and c[0] in ("M.w_lt", "M.w_gt", "M.w_le", "M.w_ge"):
+        if c and c[2] == "(" and len(c[1]) == 2 and c[0] in ("M.w_lt", "M.w_gt", "M.w_le", "M.w_ge", "M.w_sub_ok"):
             x, y = c[1][0].strip(), c[1][1].strip()
-            if c[0] in ("M.w_gt", "M.w_ge"):
+            if c[0] in ("M.w_gt", "M.w_ge", "M.w_sub_ok"):
                 x, y = y, x                     # w_gt(a, b) is w_lt(b, a); w_ge(a, b) is w_le(b, a)
+                # w_sub_ok(a, b), checked subtraction's guard (I95), is the prelude's w_ge(a, b): the same proofs
+                # apply by unfolding. Its operands may be any word terms free of t (w_add included); an operand
+                # that holds t inside other arithmetic is not monotone in t (words wrap), and stays refused below
             strict = c[0] in ("M.w_lt", "M.w_gt")
             if y == "t" and not _has_t(x):      # x < t, x <= t: rising
                 if strict:
