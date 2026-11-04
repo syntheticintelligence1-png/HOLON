@@ -1,5 +1,5 @@
 {
-  "count": 148,
+  "count": 163,
   "document": "unresolved",
   "inputs": [
     {
@@ -8,11 +8,11 @@
     },
     {
       "path": "spec/M3/lib/sort_seeds.json",
-      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+      "sha256": "f591411ad5c64772c1f94c426b0d84202376fc18d2f49f486cd7c382c52dd872"
     },
     {
       "path": "spec/M3/lib/sort_types.json",
-      "sha256": "9318a9aa27a5e6a8571099f09bd81ab545f87bbd724e1755422df6f771c52150"
+      "sha256": "afafad8ae034f42bc5693fe267d31e1b4680aabec67563d52959ba0783161296"
     }
   ],
   "milestone": "M3",
@@ -45,6 +45,12 @@
     {
       "base_type": "Word",
       "model": "morph_rollup.extracted",
+      "var": "batchBlobVersionedHashes",
+      "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
       "var": "batchChallengeReward",
       "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
@@ -65,6 +71,18 @@
       "model": "morph_rollup.extracted",
       "var": "batchDataStore.blockNumber",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "batchDataStore.finalizeTimestamp",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "batchDataStore.originTimestamp",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Word",
@@ -95,6 +113,12 @@
       "model": "morph_rollup.extracted",
       "var": "call:IL1MessageQueue.getCrossDomainMessage",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Word",
@@ -149,6 +173,12 @@
       "model": "morph_rollup.extracted",
       "var": "challenges.challenger",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "challenges.startTime",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Word",
@@ -417,6 +447,12 @@
     {
       "base_type": "Word",
       "model": "morph_rollup.extracted",
+      "var": "env:block.timestamp",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
       "var": "env:caller",
       "why": "no seed, type or affine constraint reaches its class"
     },
@@ -437,6 +473,12 @@
       "model": "morph_rollup.extracted",
       "var": "env:this",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "finalizationPeriodSeconds",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Bytes",
@@ -526,13 +568,19 @@
       "base_type": "Word",
       "model": "morph_rollup.extracted",
       "var": "importGenesisBatch._batchHeader@57",
-      "why": "its family is Dig, but no seed or flow gives it a member"
+      "why": "no seed, type or affine constraint reaches its class"
     },
     {
       "base_type": "Word",
       "model": "morph_rollup.extracted",
       "var": "importGenesisBatch._batchHeader@9",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "initialize._finalizationPeriodSeconds",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Word",
@@ -545,6 +593,12 @@
       "model": "morph_rollup.extracted",
       "var": "initialize._proofRewardPercent",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "initialize._proofWindow",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Word",
@@ -563,6 +617,12 @@
       "model": "morph_rollup.extracted",
       "var": "initialize2._prevStateRoot",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "initialize3._rollupDelayPeriod",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Word",
@@ -713,6 +773,12 @@
       "model": "morph_rollup.extracted",
       "var": "proofRewardPercent",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "proofWindow",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Bytes",
@@ -879,6 +945,12 @@
     {
       "base_type": "Word",
       "model": "morph_rollup.extracted",
+      "var": "rollupDelayPeriod",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
       "var": "submitterContract",
       "why": "no seed, type or affine constraint reaches its class"
     },
@@ -891,8 +963,26 @@
     {
       "base_type": "Word",
       "model": "morph_rollup.extracted",
+      "var": "updateFinalizePeriodSeconds._newPeriod",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "updateProofWindow._newWindow",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
       "var": "updateRewardPercentage._newProofRewardPercent",
       "why": "no seed, type or affine constraint reaches its class"
+    },
+    {
+      "base_type": "Word",
+      "model": "morph_rollup.extracted",
+      "var": "updateRollupDelayPeriod._newPeriod",
+      "why": "its arithmetic component holds no seeded variable, so no torsor pair is forced"
     },
     {
       "base_type": "Word",

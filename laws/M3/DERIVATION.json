@@ -57,12 +57,8 @@
   },
   "derive_version": "holon-derive/0.1",
   "document": "derivation",
-  "evidence_sha256": "350d4523b74681e4a25764983d19a85edecd715fc4630b4007f10ffff0d83464",
+  "evidence_sha256": "9da4a4f5b5286ae166da99b39ca11a5c985a7673a1a60e4c6ada1cec2627c9e6",
   "inputs": [
-    {
-      "path": "audit/rounds/M2/round2/a4.json",
-      "sha256": "6c0dad33925dd592ed05842ee59ba93b13c67b1fa4174caf4c4778961dd18c13"
-    },
     {
       "path": "gen/M3/bundle/bundle.json",
       "sha256": "e857b0e853b31945ceb8306c1451e43941bdf05aa1a3fb8491ced6423ff0e800"
@@ -105,15 +101,15 @@
     },
     {
       "path": "gen/M3/disch/closure.json",
-      "sha256": "11be07eb75a133b83133751b85e3359912fb1af8fdf6bbd183c2d216e47f5de2"
+      "sha256": "2dadb92308d2605df1104b91d6777f4542263654a362440d5757778ebff9b28d"
     },
     {
       "path": "gen/M3/disch/conjuncts.json",
-      "sha256": "e9cec37071ca25c3c9141c44a3aa39afc078fc0373fbe08ccb03691f9d7fe2bc"
+      "sha256": "a0aa84aa99be31dd5a901196fe51d592e8644a8a87f3a2d9f7529e8daba3954d"
     },
     {
       "path": "gen/M3/evidence.json",
-      "sha256": "443b36e6e7dd248508798231718a13856017255b4e6a454b8a51a5540fbaa2fd"
+      "sha256": "b296e7ded8601c91aa0161fb8c1614661fb6d422af4903ee3b3f15b68d254739"
     },
     {
       "path": "gen/M3/goops/blob_ops.json",
@@ -137,7 +133,7 @@
     },
     {
       "path": "gen/M3/sorts/assignment.json",
-      "sha256": "1fa800ee65969c575b5310b3d9d14913b7f82f3b5e65d5ebc30afe3fb9ea818f"
+      "sha256": "07dba406f7dfe1e755adbed10a230a972a81cd0ea3db77d5e6797875d1d16b84"
     },
     {
       "path": "gen/M3/symb/eta_enq.json",
@@ -336,10 +332,6 @@
       "sha256": "a6a4bff41fa38ffb4e340d7909908a311b41f5f315bac013502192240362d6bb"
     },
     {
-      "path": "replay/M2/fragments.json",
-      "sha256": "ec501c2be31737cb3ceffe910384e316b9ced7f1b2ccc58efb9c57b16fc10c9d"
-    },
-    {
       "path": "spec/M2/facts/morph_batch.go.extracted.json",
       "sha256": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573"
     },
@@ -393,7 +385,7 @@
     },
     {
       "path": "spec/M3/lib/disch.json",
-      "sha256": "240bbcb704e429b3d77994d5e3b32fbba798c43a8c851eb2547b72d1a0998250"
+      "sha256": "5c75c276f08badf28f02bbef91bd80cffb92115cb379a6447aadb1899f6aedde"
     },
     {
       "path": "spec/M3/lib/fact.json",
@@ -437,11 +429,11 @@
     },
     {
       "path": "spec/M3/lib/sort_seeds.json",
-      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+      "sha256": "f591411ad5c64772c1f94c426b0d84202376fc18d2f49f486cd7c382c52dd872"
     },
     {
       "path": "spec/M3/lib/sort_types.json",
-      "sha256": "9318a9aa27a5e6a8571099f09bd81ab545f87bbd724e1755422df6f771c52150"
+      "sha256": "afafad8ae034f42bc5693fe267d31e1b4680aabec67563d52959ba0783161296"
     },
     {
       "path": "spec/M3/lib/sym_bundle.json",
@@ -9470,74 +9462,6 @@
     },
     {
       "basis": {
-        "expr": [
-          "-",
-          [
-            "+",
-            [
-              "storage",
-              "proofWindow"
-            ],
-            [
-              "member",
-              [
-                "map",
-                [
-                  "storage",
-                  "challenges"
-                ],
-                [
-                  "storage",
-                  "batchChallenged"
-                ]
-              ],
-              "startTime"
-            ]
-          ],
-          [
-            "env",
-            "block.timestamp"
-          ]
-        ],
-        "kind": "site",
-        "model": "morph_rollup.extracted",
-        "site_id": "morph_rollup.extracted:contracts/contracts/l1/rollup/Rollup.sol:363:4a64383b",
-        "span": "contracts/contracts/l1/rollup/Rollup.sol:363"
-      },
-      "coercion": {
-        "from": "SDur",
-        "to": "Dur"
-      },
-      "entry_points": [
-        "commitBatch",
-        "commitBatchWithProof",
-        "commitState"
-      ],
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "hits": [
-        {
-          "action": "commitBatch",
-          "at": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:363#1",
-          "kind": "realization_check"
-        },
-        {
-          "action": "commitBatchWithProof",
-          "at": "commitBatchWithProof#contracts/contracts/l1/rollup/Rollup.sol:363#1",
-          "kind": "realization_check"
-        },
-        {
-          "action": "commitState",
-          "at": "commitState#contracts/contracts/l1/rollup/Rollup.sol:363#1",
-          "kind": "realization_check"
-        }
-      ],
-      "law_id": "L_sort_realize_rollup_363_4a64383b",
-      "rule": "SORT",
-      "statement_hash": "sha256:71e35c6192f7fddc082e94b8e3d0016c0de08ed5dfa5342cb7fa4758549fe2d1",
-      "subform": "realize"
-    },
-    {
-      "basis": {
         "a": [
           {
             "credits": [
@@ -9583,178 +9507,6 @@
       "rule": "SORT",
       "statement_hash": "sha256:a09f041d1eb00179fac32ed5935349130ae4e69cb24ed3278f9c0e95b78e1c14",
       "subform": "slash"
-    },
-    {
-      "basis": {
-        "action": "commitState",
-        "at": "writes[2]",
-        "kind": "member_read",
-        "model": "morph_rollup.extracted",
-        "read": [
-          "map",
-          [
-            "storage",
-            "batchBlobVersionedHashes"
-          ],
-          [
-            "+",
-            [
-              ">>",
-              [
-                "word",
-                [
-                  "member",
-                  [
-                    "param",
-                    "batchDataInput"
-                  ],
-                  "parentBatchHeader"
-                ],
-                1
-              ],
-              192
-            ],
-            1
-          ]
-        ],
-        "registers": [
-          "batchBlobVersionedHashes"
-        ],
-        "site": "contracts/contracts/l1/rollup/Rollup.sol:359",
-        "span": "contracts/contracts/l1/rollup/Rollup.sol:279"
-      },
-      "coercion": {
-        "from": "Dig[Agg] + Dig[VH]",
-        "member_fn": [
-          "?",
-          [
-            "==",
-            [
-              "member",
-              [
-                "param",
-                "batchDataInput"
-              ],
-              "version"
-            ],
-            2
-          ],
-          [
-            "sort",
-            "Dig[Agg]"
-          ],
-          [
-            "sort",
-            "Dig[VH]"
-          ]
-        ],
-        "members": [
-          "Dig[Agg]",
-          "Dig[VH]"
-        ],
-        "to": null
-      },
-      "entry_points": [
-        "commitState"
-      ],
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "hits": [
-        {
-          "action": "commitState",
-          "at": "writes[2]",
-          "kind": "copy_write"
-        }
-      ],
-      "law_id": "L_sort_tag_rollup_279_e01ea84a",
-      "rule": "SORT",
-      "statement_hash": "sha256:0009ab2afaa84c42f1cdb51e473ee9b0401471f7cac2b13482bd90a392533ec5",
-      "subform": "as_member"
-    },
-    {
-      "basis": {
-        "action": "commitBatchWithProof",
-        "at": "writes[2]",
-        "kind": "member_read",
-        "model": "morph_rollup.extracted",
-        "read": [
-          "map",
-          [
-            "storage",
-            "batchBlobVersionedHashes"
-          ],
-          [
-            "+",
-            [
-              ">>",
-              [
-                "word",
-                [
-                  "member",
-                  [
-                    "param",
-                    "batchDataInput"
-                  ],
-                  "parentBatchHeader"
-                ],
-                1
-              ],
-              192
-            ],
-            1
-          ]
-        ],
-        "registers": [
-          "batchBlobVersionedHashes"
-        ],
-        "site": "contracts/contracts/l1/rollup/Rollup.sol:359",
-        "span": "contracts/contracts/l1/rollup/Rollup.sol:406"
-      },
-      "coercion": {
-        "from": "Dig[Agg] + Dig[VH]",
-        "member_fn": [
-          "?",
-          [
-            "==",
-            [
-              "member",
-              [
-                "param",
-                "batchDataInput"
-              ],
-              "version"
-            ],
-            2
-          ],
-          [
-            "sort",
-            "Dig[Agg]"
-          ],
-          [
-            "sort",
-            "Dig[VH]"
-          ]
-        ],
-        "members": [
-          "Dig[Agg]",
-          "Dig[VH]"
-        ],
-        "to": null
-      },
-      "entry_points": [
-        "commitBatchWithProof"
-      ],
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "hits": [
-        {
-          "action": "commitBatchWithProof",
-          "at": "writes[2]",
-          "kind": "copy_write"
-        }
-      ],
-      "law_id": "L_sort_tag_rollup_406_e01ea84a",
-      "rule": "SORT",
-      "statement_hash": "sha256:32ee36c9a6d4daffc5a8ccc0b78497e63fc4569cbd09163c4115c93f21ac1711",
-      "subform": "as_member"
     },
     {
       "basis": {
@@ -10774,90 +10526,6 @@
     },
     {
       "basis": {
-        "action": "commitBatchWithProof",
-        "compares": [
-          "batchExist:returns",
-          "challengeState:contracts/contracts/l1/rollup/Rollup.sol:478",
-          "finalizeBatch:contracts/contracts/l1/rollup/Rollup.sol:630"
-        ],
-        "constant": 0,
-        "contract": "Rollup",
-        "kind": "sym_sentinel",
-        "model": "morph_rollup.extracted",
-        "register": "batchDataStore.originTimestamp",
-        "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatchWithProof_366",
-      "rule": "SYM",
-      "statement_hash": "sha256:ef0cf8608f3d4e4d4e5436a2149974c338297587474d6b9438d6ba827649239d",
-      "subform": "sentinel"
-    },
-    {
-      "basis": {
-        "action": "commitBatch",
-        "compares": [
-          "batchExist:returns",
-          "challengeState:contracts/contracts/l1/rollup/Rollup.sol:478",
-          "finalizeBatch:contracts/contracts/l1/rollup/Rollup.sol:630"
-        ],
-        "constant": 0,
-        "contract": "Rollup",
-        "kind": "sym_sentinel",
-        "model": "morph_rollup.extracted",
-        "register": "batchDataStore.originTimestamp",
-        "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366",
-      "rule": "SYM",
-      "statement_hash": "sha256:8bf5b7c6bb3561ec47101e92a9e0c3165d2a7b9a5b04b51f6dd685051e144961",
-      "subform": "sentinel"
-    },
-    {
-      "basis": {
-        "action": "commitState",
-        "compares": [
-          "batchExist:returns",
-          "challengeState:contracts/contracts/l1/rollup/Rollup.sol:478",
-          "finalizeBatch:contracts/contracts/l1/rollup/Rollup.sol:630"
-        ],
-        "constant": 0,
-        "contract": "Rollup",
-        "kind": "sym_sentinel",
-        "model": "morph_rollup.extracted",
-        "register": "batchDataStore.originTimestamp",
-        "src": "contracts/contracts/l1/rollup/Rollup.sol:366-371"
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitState_366",
-      "rule": "SYM",
-      "statement_hash": "sha256:760bf0f119cbd11d009124f4d15ba2fc8c7b59ad39f47969d730a36b172e6d06",
-      "subform": "sentinel"
-    },
-    {
-      "basis": {
-        "action": "importGenesisBatch",
-        "compares": [
-          "batchExist:returns",
-          "challengeState:contracts/contracts/l1/rollup/Rollup.sol:478",
-          "finalizeBatch:contracts/contracts/l1/rollup/Rollup.sol:630"
-        ],
-        "constant": 0,
-        "contract": "Rollup",
-        "kind": "sym_sentinel",
-        "model": "morph_rollup.extracted",
-        "register": "batchDataStore.originTimestamp",
-        "src": "contracts/contracts/l1/rollup/Rollup.sol:242"
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_importGenesisBatch_242",
-      "rule": "SYM",
-      "statement_hash": "sha256:b6ce15d10733527f2b1bd2c95af96a98ca0f038a8ef294b55adedea2416056e7",
-      "subform": "sentinel"
-    },
-    {
-      "basis": {
         "constant": 0,
         "contract": "L1MessageQueueWithGasPriceOracle",
         "kind": "sym_sentinel_inv",
@@ -11075,266 +10743,6 @@
       "rule": "SYM",
       "statement_hash": "sha256:01243bcc7177a06506ff487e8a25ab6cca6ec3260d1c19af4887f1087d3f5693",
       "subform": "member_tau"
-    },
-    {
-      "basis": {
-        "action": "batchChallengedSuccess",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_batchChallengedSuccess",
-      "rule": "SYM",
-      "statement_hash": "sha256:a8b587b44434928e38f678a2bb6b30151ad3661714c756fddb9ed40ee9f8d15b",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "batchExist",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_batchExist",
-      "rule": "SYM",
-      "statement_hash": "sha256:03256b048d25b95bc67217caf57f93f7127c9a9f57a73a396ffc3cf89241d680",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "batchInChallenge",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_batchInChallenge",
-      "rule": "SYM",
-      "statement_hash": "sha256:cc724bf6c80ba1ba2877bdcf3e98752a881f855e9a46d5eb13852d3c76a1f2ce",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "batchInsideChallengeWindow",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_batchInsideChallengeWindow",
-      "rule": "SYM",
-      "statement_hash": "sha256:d9cd38447ab6c9d2f060b9d0be8182fc4b1ea7b200d1824bcb353b88cb320f55",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "challengeState",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_challengeState",
-      "rule": "SYM",
-      "statement_hash": "sha256:8e232bf7465000238a3f17f24e990889b95d40d21714db88f540412576894a58",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "commitBatch",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_commitBatch",
-      "rule": "SYM",
-      "statement_hash": "sha256:b22c3bc1e4a797e6211a27668d3f673babd5a92e30b54f3a850e7b9f4cd57db5",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "commitBatchWithProof",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_commitBatchWithProof",
-      "rule": "SYM",
-      "statement_hash": "sha256:f05c98755ba9ee62974de7df8755c47443a5b8aa01ef921b15ef815da75884e4",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "commitState",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_commitState",
-      "rule": "SYM",
-      "statement_hash": "sha256:ce0946beb6d9d404597c69c2c8289acf2dc78472632f400c4346d759fca2a42d",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "finalizeBatch",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_finalizeBatch",
-      "rule": "SYM",
-      "statement_hash": "sha256:9877de04acbb4b03e55ee22f0a8b46d4d0501148ecef2840542b7cee7d4a78f5",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "importGenesisBatch",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_importGenesisBatch",
-      "rule": "SYM",
-      "statement_hash": "sha256:fc0a975f1259a680bd32eee72bb9af16ecbea4d22f7944505be400bb3f788aae",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "proveState",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_proveState",
-      "rule": "SYM",
-      "statement_hash": "sha256:48da0adc718dd591c5a04ee700a69a8161c5a48211672842013e6017981ab886",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "revertBatch",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_revertBatch",
-      "rule": "SYM",
-      "statement_hash": "sha256:cb78a09abea8a322277fc7f85a69ff5d855d31a8b2d732c96607e842d81522d2",
-      "subform": "tau"
-    },
-    {
-      "basis": {
-        "action": "setPause",
-        "contract": "Rollup",
-        "kind": "sym_tau",
-        "model": "morph_rollup.extracted",
-        "time_words": [
-          "call:IL1MessageQueue.getFirstUnfinalizedMessageEnqueueTime",
-          "env:block.timestamp",
-          "storage:batchDataStore.finalizeTimestamp",
-          "storage:batchDataStore.originTimestamp",
-          "storage:challenges.startTime"
-        ]
-      },
-      "facts": "spec/M2/facts/morph_rollup.extracted.json",
-      "law_id": "L_sym_tau_Rollup_setPause",
-      "rule": "SYM",
-      "statement_hash": "sha256:d536eb405e44d47010da5db78fd1b17091fcf6d21a805e862fae1b0a0b696ac1",
-      "subform": "tau"
     },
     {
       "basis": {
@@ -13248,7 +12656,7 @@
     }
   ],
   "rule_catalog_version": "holon-rules/1.15",
-  "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",
+  "sorts_sha256": "233f63a93e08d96591eb03df324d3ba254b382d3e20fb7b33031cc838c7ca53e",
   "uncovered": [
     {
       "document": "spec/M2/facts/morph_batch.go.extracted.json",
