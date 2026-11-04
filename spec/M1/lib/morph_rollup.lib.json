@@ -1,0 +1,155 @@
+{
+  "lib_version": "holon-lib/0.1",
+  "name": "morph_rollup",
+  "doc": "Morph rollup target library (moved out of holon/gen/machine.py in I6). Builtins are call templates ($0.. are the compiled arguments, ${param:NAME:DEFAULT} a facts parameter); blocks are Bend text emitted in the record-library section when the facts declare the listed types; prelude blocks go into the prelude slot. Applies to every facts file in spec/M1/facts. Untrusted like the facts: G1 regenerates the model from it.",
+  "prelude": [
+    "def b_blob_count(xs: List<&2, Nat>) -> Nat:\n  match xs:\n    case Nil{}:\n      0n\n    case Con{+h, t}:\n      ite(Nat, Nat.is_eq(h, 0n), 0n, 1n+b_blob_count(t))\n\n"
+  ],
+  "builtins": {
+    "win_at": {
+      "arity": 2,
+      "bend": "nth_d(HEntry, $0, $1, empty_entry())",
+      "type": "Entry",
+      "kind": "nth_default",
+      "default": "empty_entry"
+    },
+    "win_last": {
+      "arity": 1,
+      "bend": "last_d(HEntry, $0, empty_entry())",
+      "type": "Entry"
+    },
+    "nth_ch": {
+      "arity": 2,
+      "bend": "nth_d(HCh, $0, $1, empty_ch())",
+      "type": "Ch",
+      "kind": "nth_default",
+      "default": "empty_ch"
+    },
+    "set_ch": {
+      "arity": 3,
+      "bend": "set_d(HCh, $0, $1, $2, empty_ch())",
+      "type": "List<Ch>",
+      "kind": "set_default",
+      "default": "empty_ch"
+    },
+    "empty_entry": {
+      "arity": 0,
+      "bend": "empty_entry()",
+      "type": "Entry",
+      "kind": "default"
+    },
+    "empty_ch": {
+      "arity": 0,
+      "bend": "empty_ch()",
+      "type": "Ch",
+      "kind": "default"
+    },
+    "agg": {
+      "arity": 1,
+      "bend": "Nat.add(${param:AGG_BASE:1000}n, b_enc($0))",
+      "type": "Nat"
+    },
+    "blob_count": {
+      "arity": null,
+      "bend": "b_blob_count($args)",
+      "type": "Nat"
+    },
+    "bump_f": {
+      "arity": null,
+      "bend": "b_bump_f($args)",
+      "type": "List<Entry>"
+    },
+    "any_open": {
+      "arity": null,
+      "bend": "b_any_open($args)",
+      "type": "Bool"
+    },
+    "clear_chs": {
+      "arity": null,
+      "bend": "b_clear_chs($args)",
+      "type": "List<Ch>"
+    },
+    "zero_csr": {
+      "arity": null,
+      "bend": "b_zero_csr($args)",
+      "type": "List<Entry>"
+    },
+    "set_last_csr": {
+      "arity": null,
+      "bend": "b_set_last_csr($args)",
+      "type": "List<Entry>"
+    },
+    "tags_exact": {
+      "arity": null,
+      "bend": "b_tags_exact($args)",
+      "type": "Bool"
+    },
+    "hdr_of": {
+      "arity": null,
+      "bend": "b_hdr_of($args)",
+      "type": "List<Nat>"
+    }
+  },
+  "record_blocks": [
+    {
+      "when_types": [
+        "Entry"
+      ],
+      "bend": "def empty_entry() -> HEntry:\n  empty_Entry()\n"
+    },
+    {
+      "when_types": [
+        "Entry",
+        "Ch"
+      ],
+      "bend": "def empty_ch() -> HCh:\n  empty_Ch()\n"
+    },
+    {
+      "when_types": [
+        "Entry"
+      ],
+      "emit": "shadow_projections",
+      "record": "Entry"
+    },
+    {
+      "when_types": [
+        "Entry"
+      ],
+      "bend": "def b_bump_go(es: List<&2, HEntry>, +pos: Nat, +skip: Nat, +w: Nat) -> List<&2, HEntry>:\n  match es:\n    case Nil{}:\n      Nil{}\n    case Con{e, t}:\n      match e:\n        case HEntry{+ver, +tot, +n, +hb, +prev, +post, +lbn, +csr, +bvh, +tag, +bdo, +bdf, +bdn, +bds}:\n          Con{ite(HEntry, Bool.and(Nat.is_gt(pos, 0n), Bool.not(Nat.is_eq(pos, skip))), HEntry{ver, tot, n, hb, prev, post, lbn, csr, bvh, tag, bdo, Nat.add(bdf, w), bdn, bds}, HEntry{ver, tot, n, hb, prev, post, lbn, csr, bvh, tag, bdo, bdf, bdn, bds}), b_bump_go(t, 1n+pos, skip, w)}\n\ndef b_bump_f(es: List<&2, HEntry>, skip: Nat, w: Nat) -> List<&2, HEntry>:\n  b_bump_go(es, 0n, skip, w)\n"
+    },
+    {
+      "when_types": [
+        "Entry",
+        "Ch"
+      ],
+      "bend": "def b_any_go(cs: List<&2, HCh>, +i: Nat, +lo: Nat, +hi: Nat) -> Bool:\n  match cs:\n    case Nil{}:\n      False{}\n    case Con{c, t}:\n      match c:\n        case HCh{cc, cd, cs0, cw, cf}:\n          Bool.or(Bool.and(Bool.and(Nat.is_ge(i, lo), Nat.is_le(i, hi)), Bool.and(Bool.not(Nat.is_eq(cc, 0n)), Bool.not(cf))), b_any_go(t, 1n+i, lo, hi))\n\ndef b_any_open(cs: List<&2, HCh>, lo: Nat, hi: Nat) -> Bool:\n  b_any_go(cs, 0n, lo, hi)\n\ndef b_clear_go(cs: List<&2, HCh>, +i: Nat, +lo: Nat, +hi: Nat) -> List<&2, HCh>:\n  match cs:\n    case Nil{}:\n      Nil{}\n    case Con{c, t}:\n      Con{ite(HCh, Bool.and(Nat.is_ge(i, lo), Nat.is_le(i, hi)), empty_ch(), c), b_clear_go(t, 1n+i, lo, hi)}\n\ndef b_clear_chs(cs: List<&2, HCh>, lo: Nat, hi: Nat) -> List<&2, HCh>:\n  b_clear_go(cs, 0n, lo, hi)\n"
+    },
+    {
+      "when_types": [
+        "Entry"
+      ],
+      "bend": "def b_zero_csr(es: List<&2, HEntry>) -> List<&2, HEntry>:\n  match es:\n    case Nil{}:\n      Nil{}\n    case Con{e, t}:\n      match e:\n        case HEntry{ver, tot, n, hb, prev, post, lbn, csr, bvh, tag, bdo, bdf, bdn, bds}:\n          Con{HEntry{ver, tot, n, hb, prev, post, lbn, 0n, bvh, tag, bdo, bdf, bdn, bds}, b_zero_csr(t)}\n"
+    },
+    {
+      "when_types": [
+        "Entry"
+      ],
+      "bend": "def b_set_last_csr(es: List<&2, HEntry>, +r: Nat) -> List<&2, HEntry>:\n  match es:\n    case Nil{}:\n      Nil{}\n    case Con{e, t}:\n      match e:\n        case HEntry{ver, tot, n, hb, prev, post, lbn, csr, bvh, tag, bdo, bdf, bdn, bds}:\n          match t:\n            case Nil{}:\n              [HEntry{ver, tot, n, hb, prev, post, lbn, r, bvh, tag, bdo, bdf, bdn, bds}]\n            case Con{e2, t2}:\n              Con{HEntry{ver, tot, n, hb, prev, post, lbn, csr, bvh, tag, bdo, bdf, bdn, bds}, b_set_last_csr(Con{e2, t2}, r)}\n"
+    },
+    {
+      "when_types": [
+        "Entry"
+      ],
+      "bend": "def b_tags_exact(es: List<&2, HEntry>) -> Bool:\n  match es:\n    case Nil{}:\n      True{}\n    case Con{e, t}:\n      match e:\n        case HEntry{ver, tot, n, hb, prev, post, lbn, csr, bvh, tag, bdo, bdf, bdn, bds}:\n          Bool.and(eq_bool(Nat.is_eq(ver, 2n), Nat.is_eq(tag, 2n)), b_tags_exact(t))\n"
+    },
+    {
+      "when_types": [
+        "Entry"
+      ],
+      "bend": "def b_hdr_of(e: HEntry) -> List<&2, Nat>:\n  match e:\n    case HEntry{ver, tot, n, hb, prev, post, lbn, csr, bvh, tag, bdo, bdf, bdn, bds}:\n      [ver, tot, n, hb, prev, post, lbn]\n"
+    }
+  ],
+  "shadow_values": {
+    "bd": "HBD{bdo, bdf, bdn, bds}"
+  }
+}

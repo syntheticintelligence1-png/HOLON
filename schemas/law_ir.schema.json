@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON law IR (holon-ir/0.1)",
+  "type": "object",
+  "required": [
+    "ir_version",
+    "law_id",
+    "milestone",
+    "rule",
+    "facts",
+    "facts_sha256",
+    "statement"
+  ],
+  "properties": {
+    "ir_version": {
+      "const": "holon-ir/0.1"
+    },
+    "law_id": {
+      "type": "string",
+      "pattern": "^L_[a-z0-9_]+$"
+    },
+    "milestone": {
+      "type": "string"
+    },
+    "rule": {
+      "enum": [
+        "PAR",
+        "UNDO",
+        "NAT",
+        "SYM",
+        "FACT",
+        "SORT",
+        "DISCH",
+        "OWN"
+      ]
+    },
+    "subform": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "E1",
+          "E2",
+          "E3",
+          "E4",
+          "E5",
+          "E6"
+        ]
+      }
+    },
+    "facts": {
+      "type": "string"
+    },
+    "facts_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "statement": {
+      "type": "object",
+      "required": [
+        "forall",
+        "claim"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "forall": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "Header",
+                  "Bytes"
+                ]
+              }
+            }
+          }
+        },
+        "assume": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/prop"
+          }
+        },
+        "claim": {
+          "$ref": "#/$defs/prop"
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "term": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "var"
+          ],
+          "properties": {
+            "var": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "bytes"
+          ],
+          "properties": {
+            "bytes": {
+              "type": "string",
+              "pattern": "^0x([0-9a-f]{2})*$"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "field",
+            "of"
+          ],
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "of": {
+              "$ref": "#/$defs/term"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "call",
+            "args"
+          ],
+          "properties": {
+            "call": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/term"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "some"
+          ],
+          "properties": {
+            "some": {
+              "$ref": "#/$defs/term"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "prop": {
+      "type": "object",
+      "required": [
+        "eq"
+      ],
+      "properties": {
+        "eq": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/term"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

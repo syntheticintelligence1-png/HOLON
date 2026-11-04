@@ -1,0 +1,488 @@
+{
+  "ledger_version": "holon-ledger/0.1",
+  "doc": "(withheld from the blind tree: free text; no record field is computed from it)",
+  "bundles": [
+    {
+      "facts": "facts/morph_header.json",
+      "facts_sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80",
+      "model": "morph_header",
+      "entries": [
+        {
+          "id": "A-width",
+          "kind": "abstraction",
+          "source": "facts/morph_header.json#/assumptions/0",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "Hdr"
+          ]
+        },
+        {
+          "id": "A-version",
+          "kind": "abstraction",
+          "source": "facts/morph_header.json#/assumptions/1",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "Hdr"
+          ]
+        },
+        {
+          "id": "A-cache",
+          "kind": "abstraction",
+          "source": "facts/morph_header.json#/assumptions/2",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "enc_go_v0",
+            "enc_go_v1"
+          ]
+        },
+        {
+          "id": "A-dirty",
+          "kind": "abstraction",
+          "source": "facts/morph_header.json#/assumptions/3",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "enc_sol_at"
+          ]
+        },
+        {
+          "id": "A-hash",
+          "kind": "scope_note",
+          "source": "facts/morph_header.json#/assumptions/4",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "*"
+          ]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": [
+            "overlay",
+            "put",
+            "zeros",
+            "slice",
+            "tail_len_ge",
+            "tail_len_eq",
+            "eq_bytes",
+            "eq_fields",
+            "eq_maybe_fields",
+            "eq_bool",
+            "is_true"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "hdr_version",
+            "get_*",
+            "view_at",
+            "view"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "ok_go_at",
+            "ok_go",
+            "dec_go_fields_at",
+            "dec_go_fields",
+            "dec_go_sel",
+            "dec_go",
+            "enc_sol",
+            "ok_sol_at",
+            "ok_sol"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        }
+      ]
+    },
+    {
+      "facts": "spec/M1/facts/morph_rollup.json",
+      "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+      "model": "morph_rollup",
+      "entries": [
+        {
+          "id": "abs-nat-tokens",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/0",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "HSt"
+          ]
+        },
+        {
+          "id": "CF-keccak-headers",
+          "kind": "hash",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/1",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "b_hdr_of",
+            "d_lci"
+          ]
+        },
+        {
+          "id": "abs-window-shadow",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/3",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "HEntry",
+            "b_es_csr",
+            "b_es_bd",
+            "b_es_bvh",
+            "b_es_tag",
+            "d_in_win",
+            "d_w"
+          ]
+        },
+        {
+          "id": "abs-absolute-index-arrays",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/4",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "HCh"
+          ]
+        },
+        {
+          "id": "CF-keccak-blobhashes",
+          "kind": "hash",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/5",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "d_blob_hash",
+            "b_enc",
+            "b_pair"
+          ]
+        },
+        {
+          "id": "Hyp-Z0-kzg",
+          "kind": "hypothesis",
+          "source": "spec/M1/facts/morph_rollup.json#/params/Z",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "d_blob_hash"
+          ]
+        },
+        {
+          "id": "oracle-ISubmitter",
+          "kind": "oracle",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/6",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "decide_commitBatch",
+            "decide_commitState",
+            "decide_proveState",
+            "exec_proveState",
+            "decide_challengeState"
+          ]
+        },
+        {
+          "id": "oracle-verifier",
+          "kind": "oracle",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/6",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "decide_commitBatchWithProof",
+            "decide_proveState"
+          ]
+        },
+        {
+          "id": "oracle-messenger",
+          "kind": "oracle",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/6",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "step_sendMessage"
+          ]
+        },
+        {
+          "id": "scope-rollup-coverage-debt",
+          "kind": "scope_note",
+          "source": "spec/M1/facts/morph_rollup.json#/abstractions/7",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "*"
+          ]
+        },
+        {
+          "id": "abs-post-genesis-initial",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/initial/doc",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "s0"
+          ]
+        },
+        {
+          "id": "abs-legacy-pseudo-migration",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/migrations/legacy",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "mig_legacy"
+          ]
+        },
+        {
+          "id": "abs-disch-cost-units",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/disch",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "cost"
+          ]
+        },
+        {
+          "id": "abs-principal-classes",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_rollup.json#/actions",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "perm"
+          ]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": [
+            "ite",
+            "nth_d",
+            "set_d",
+            "tail0",
+            "last_d",
+            "b_nth",
+            "b_set_nat",
+            "b_mem",
+            "b_remove",
+            "b_blob_count",
+            "b_zeros_like",
+            "eq_bool",
+            "eq_list_nat",
+            "is_true"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "g_*",
+            "with_*",
+            "empty_*",
+            "HBD",
+            "HObs",
+            "HAct",
+            "Dec_*"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "b_bump_go",
+            "b_bump_f",
+            "b_any_go",
+            "b_any_open",
+            "b_clear_go",
+            "b_clear_chs",
+            "b_zero_csr",
+            "b_set_last_csr",
+            "d_enq_first",
+            "d_tag_at",
+            "d_bvh_at",
+            "d_open_ch"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "b_tags_exact"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "dec_*",
+            "decide_*",
+            "exec_*",
+            "step_*",
+            "step",
+            "run"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "mig_eta2"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "clear_log",
+            "log_of",
+            "obs",
+            "ok_head",
+            "last_ok",
+            "all_ok",
+            "runs_ok",
+            "no_code",
+            "eq_obs",
+            "eq_obs_list",
+            "is_commitBatch",
+            "is_commitState",
+            "is_commitBatchWithProof",
+            "is_revertBatch",
+            "is_challengeState",
+            "is_proveState",
+            "is_finalizeBatch",
+            "is_setPause",
+            "is_sendMessage",
+            "is_wait",
+            "elapsed",
+            "blobs_of",
+            "lci_of",
+            "csr_last",
+            "kappa",
+            "tags_ok",
+            "new_hdr"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        }
+      ]
+    },
+    {
+      "facts": "spec/M1/facts/morph_batchdata.json",
+      "facts_sha256": "9657efa3761466a061566167ea4f0f60eac10208b261647a230f3ca59882887d",
+      "model": "morph_batchdata",
+      "entries": [
+        {
+          "id": "abs-go-heap",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_batchdata.json#/abstractions/0",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "HSl",
+            "HArr"
+          ]
+        },
+        {
+          "id": "oracle-go-sizeclass-trunc512",
+          "kind": "oracle",
+          "source": "spec/M1/facts/morph_batchdata.json#/abstractions/1",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "b_go_loop",
+            "b_go_nextcap",
+            "b_first_ge",
+            "s0"
+          ]
+        },
+        {
+          "id": "abs-newbatchdata-cap0",
+          "kind": "abstraction",
+          "source": "spec/M1/facts/morph_batchdata.json#/abstractions/2",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "s0"
+          ]
+        },
+        {
+          "id": "scope-batchdata-unmodelled",
+          "kind": "scope_note",
+          "source": "spec/M1/facts/morph_batchdata.json#/abstractions/3",
+          "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+          "introduced_by": [
+            "*"
+          ]
+        }
+      ],
+      "no_assumption": [
+        {
+          "defs": [
+            "ite",
+            "nth_d",
+            "set_d",
+            "tail0",
+            "last_d",
+            "b_nth",
+            "b_set_nat",
+            "b_mem",
+            "b_remove",
+            "b_blob_count",
+            "b_pair",
+            "b_enc",
+            "b_zeros_like",
+            "eq_bool",
+            "eq_list_nat",
+            "is_true"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "g_*",
+            "empty_*",
+            "HObs",
+            "HSt",
+            "HAct",
+            "Dec_*"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "b_overlay",
+            "b_put",
+            "b_zeros",
+            "b_go_read",
+            "b_go_append_slice",
+            "b_go_append_heap"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "decide_*",
+            "exec_*",
+            "step_*",
+            "step",
+            "run"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        },
+        {
+          "defs": [
+            "clear_log",
+            "log_of",
+            "obs",
+            "ok_head",
+            "last_ok",
+            "all_ok",
+            "runs_ok",
+            "no_code",
+            "eq_obs",
+            "eq_obs_list",
+            "is_append",
+            "is_txsPayloadV2",
+            "cost",
+            "elapsed",
+            "perm",
+            "view_intact"
+          ],
+          "why": "(withheld from the blind tree: free text; no record field is computed from it)"
+        }
+      ]
+    }
+  ],
+  "encodings": [
+    {
+      "id": "oracle-tables",
+      "kind": "abstraction",
+      "applies_to": "M2+ models generated with an oracle sidecar (holon.gen.oracles, holon.gen.machine; I12)",
+      "source": "holon/gen/oracles.py",
+      "text": "(withheld from the blind tree: free text; no record field is computed from it)",
+      "introduced_by": [
+        "HO_*",
+        "ap_*"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3661 @@
+"""The M3 model of a transitions document (BUILD_PLAN I30; whitepaper §7.8, §8.3, Thm 6.18, Prop 6.19; the contract is
+the docstring of tests_m3/test_sort_types.py, rules N1-N10, G1-G4 and the typed model section).
+
+  python -m holon model --milestone M [--root DIR] [--sidecar PATH] [--untyped] --out DIR
+
+writes DIR/<model>.bend and DIR/<model>.init.json for every document of the milestone's typed-sorts sidecar
+(holon.sorts.typed_sidecar). The model is the document's program compiled exactly as holon.extracted_eval runs it
+(the I20 evaluator of record), with what the I20 model left to its environment computed:
+
+  words      W{l0..l7}, eight U32 limbs (holon.sorts.prelude3): Bend's checker and the BendTT kernel evaluate a
+             concrete step in time polynomial in the width (N8)
+  storage    in the structural mode (I68, the Q21 fix; what generate passes: the typed model, its untyped twin and
+             every section built from them) a finite map from structural keys SK{b, o, p} to words: the family's base
+             slot, the offset inside the top-level variable and the hashed steps SP_m{key word, offset}, read and
+             written at the compiler's offsets with its packing; the hash tables never locate storage, and only the
+             evaluator maps a key to its real slot (holon.sorts.skeys). In the raw mode (the default of build_text and
+             Model3, which I28's versioned generator calls) the contract's raw slots, a mapping's slot the keccak256 of
+             the key and the slot through the law's keccak256 table
+  hashes     keccak256 and sha256 are parameters (List<&2, HKB> tables), one table for the whole trace (I12)
+  loops      every loop record runs (structural recursion on a fuel of FUEL iterations): its checks, carried names,
+             writes, events and exits; memory regions and their mloop / when writes are built byte by byte
+  env        only what A-env makes free: msg, block and tx members, blob hashes, the answers of external calls
+             (matched by receiver and calldata), the code and balance of addresses, the deployment's immutables
+  actions    per action a: run_<a> (one evaluation: HOut{code, revert data, post-state, logs, touched slots}),
+             chk_<a> (0 when every check holds, k + 1 when check k, holon.machine's order, is the first to fail),
+             post_<a>, logs_<a>, step_<a> (the post-state when chk_<a> is 0, else the state), and HAct / step
+
+The typed model (N1-N7, the default from M3 on) adds the sort section of the frozen assignment: one nominal type per
+refined sort (T_<sort>{p: W}; a signed sort T_<S>{neg, p}), typed operations only where holon.sorts.grammar.affine
+admits them, realize_<signed>(d) -> Maybe<unsigned> at every sign site (a checked site's realization check reverts with
+Panic 0x11 on None; the real code then uses the machine value), and below GHOST_MARKER the ghost store of the generated
+companions (rule G1-G3: tg of every write of a union family, at the same key, in the action's ghost step), Reach from
+the deployment (R0) by RStep over any action with its arguments and environment, and per I30 law coerce_<x> and
+chit_<x>. --untyped writes the same machine without the sort section (no nominal type, typed operation, coercion,
+companion or ghost store) plus I15's site instrumentation of the term-size ratio site (holon termsize's baseline).
+
+The kernel's evaluation shape (A30, model_version 0.2). The BendTT kernel normalizes every reusable binder's argument
+of a closed term by walking it whole, so the machine binds an action's context affinely and opens it once per leaf
+block with each field at its exact quantity (holon.sorts.affine3), and the prelude recurses on lists affinely and
+builds bytes bit by bit (holon.sorts.prelude3); the bytes of a literal word are written as a literal (fold_bytes). The
+values are the I30 model's: only how the kernel reaches them changed.
+
+Nothing here names a target: every name comes from the document, its compiler information and the assignment.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from .. import extracted_eval as EV
+from ..machine import Check, Event, ExtractedModel, Loop, ModelError, MStore, Write, canonical
+from ..machine_bend import bname, comment
+from . import grammar as G
+from .affine3 import affine
+from . import skeys as SKEYS
+from .prelude3 import FUEL, PRELUDE, SENTINEL, prelude
+
+GHOST_MARKER = "# ---- ghost: SORT coercions (holon.rules.sort)"
+SITE_MARKER = "# ---- ghost: SORT-site instrumentation (holon.sorts.sites)"
+MODEL3_VERSION = "holon-model-m3/0.2"      # the raw mode (I28's versioned modules name it)
+MODEL3_SK_VERSION = "holon-model-m3/0.3"   # the structural mode (I68)
+STORAGE_MODES = ("raw", "structural")
+FUEL_CODE = 4294967295       # a step whose loop ran out of fuel (more than FUEL - 1 iterations): not a check
+MASK = (1 << 256) - 1
+PANIC_SEL = bytes.fromhex("4e487b71")
+
+
+class GenError(ModelError):
+    """A construct the M3 generator cannot compile (named; never left to the environment)."""
+
+
+# ------------------------------------------------------------------------------------------------ literals
+def wlit(x: int) -> str:
+    x &= MASK
+    return "W{" + ", ".join(str((x >> (32 * i)) & 0xFFFFFFFF) for i in range(8)) + "}"
+
+
+def blit(bs) -> str:
+    bs = list(bs)
+    return ("[" + ", ".join(str(int(b)) for b in bs) + "]") if bs else "Nil{}"
+
+
+def natlit(n: int) -> str:
+    return f"{int(n)}n"
+
+
+def tname(sort: str) -> str:
+    return "T_" + (re.sub(r"[^A-Za-z0-9]+", "_", sort).strip("_") or "x")
+
+
+def sname(sort: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]+", "_", sort).strip("_")
+
+
+def to_int(v) -> int:
+    return EV.to_int(v)
+
+
+# ------------------------------------------------------------------------------------------------ the scope
+@dataclass
+class LoopInfo:
+    j: int
+    loop: Loop
+    carried: list            # [(name, label, kind)]
+    exits_extra: list        # [(name, label, kind)] exit names that are not carried
+    returns: int
+
+
+@dataclass
+class Scope:
+    action: str
+    x: str = "x"
+    subst: dict = field(default_factory=dict)     # canonical term -> (code, kind)
+    loops: dict = field(default_factory=dict)     # (span, r) -> LoopInfo
+    src: object = None                            # the src of the record under compilation (error messages)
+
+
+class StoragePath:
+    """A storage location under compilation: the view it reads (HSt code), its family, and the accessors so far."""
+
+    def __init__(self, view: str, family: str, accessors: list, var: str):
+        self.view, self.family, self.accessors, self.var = view, family, list(accessors), var
+
+    def extend(self, kind: str, code, ckind: str, var: str) -> "StoragePath":
+        return StoragePath(self.view, self.family, self.accessors + [(kind, code, ckind)], var)
+
+
+def _off_add(a, b):
+    """The sum of two offsets, each an int or a word code."""
+    if isinstance(a, int) and isinstance(b, int):
+        return (a + b) & MASK
+    if isinstance(a, int) and a == 0:
+        return b
+    if isinstance(b, int) and b == 0:
+        return a
+    return f"w_add({wlit(a) if isinstance(a, int) else a}, {wlit(b) if isinstance(b, int) else b})"
+
+
+def _off_code(o) -> str:
+    return ("w0()" if not o else wlit(o)) if isinstance(o, int) else o
+
+
+class Loc:
+    """A structural storage location under compilation (I68): the base slot b (an int), the offset o inside the
+    top-level variable and the hashed steps [(key word code, offset)], each offset an int or a word code."""
+
+    def __init__(self, b: int, o=0, steps=()):
+        self.b, self.o, self.steps = int(b), o, list(steps)
+
+    def plus(self, n) -> "Loc":
+        """The location n slots further inside the innermost value (a member's or element's slot offset)."""
+        if self.steps:
+            k, o2 = self.steps[-1]
+            return Loc(self.b, self.o, self.steps[:-1] + [(k, _off_add(o2, n))])
+        return Loc(self.b, _off_add(self.o, n))
+
+    def step(self, key: str) -> "Loc":
+        """The location of a mapping value at key word code `key` (offset 0 inside it)."""
+        return Loc(self.b, self.o, self.steps + [(key, 0)])
+
+    def literal(self) -> bool:
+        return not self.steps and isinstance(self.o, int)
+
+    def code(self) -> str:
+        steps = ", ".join(f"SP_m{{{k}, {_off_code(o2)}}}" for k, o2 in self.steps)
+        return f"SK{{{wlit(self.b)}, {_off_code(self.o)}, {('[' + steps + ']') if steps else 'Nil{}'}}}"
+
+    def bound(self, lines: list, prefix: str) -> "Loc":
+        """The same location with every computed key word and offset bound once in lines (+<prefix><i> = {.. : W}),
+        so that the members of one value share the words (A30: no context read repeated per member)."""
+        n = [0]
+
+        def bind(c):
+            if isinstance(c, int) or re.fullmatch(r"[A-Za-z_]\w*|w0\(\)|W\{[\d, ]+\}", c):
+                return c
+            name = f"{prefix}{n[0]}"
+            n[0] += 1
+            lines.append(f"  +{name} = {{{c} : W}}")
+            return name
+        o = bind(self.o)
+        steps = [(bind(k), bind(o2)) for k, o2 in self.steps]
+        return Loc(self.b, o, steps)
+
+
+# ------------------------------------------------------------------------------------------------ the generator
+class Gen:
+    EXT1 = False   # the language extension EXT1 (I70; Model3X below): off in every model compiled before it
+    EXT1_LINK = False   # EXT1's additions for linked calls (I94; Model3XL below): off in every other model
+
+    def __init__(self, m: ExtractedModel, *, typed: bool, sorts: dict | None = None, seeds: dict | None = None,
+                 init_storage: dict | None = None, hashes: list | None = None, basis=None, site: dict | None = None,
+                 binding: str | None = None, storage: str = "raw"):
+        if storage not in STORAGE_MODES:
+            raise GenError(f"storage mode {storage!r} (one of {', '.join(STORAGE_MODES)})")
+        self.m = m
+        self.storage = storage
+        self.sk = storage == "structural"
+        # the literal slots of the layout and their canonical keys (base, offset): a raw slot the layout places is
+        # read at its variable's key, so every real slot has one key (rule S2)
+        self.layout_lits = SKEYS.layout(m.doc)[0] if self.sk else {}
+        self.typed = typed
+        self.sorts = dict(sorts or {})
+        self.seeds = seeds or {}
+        self.init = {int(k, 16) if isinstance(k, str) else int(k): to_int(v) for k, v in (init_storage or {}).items()}
+        self.hashes = list(hashes or ["keccak256"])
+        self.basis = basis
+        self.site = site
+        self.binding = binding
+        self.defs: list[str] = []
+        self.names: set = set()
+        self.records: dict = {}        # struct param record -> [(field, bend type, abi param)]
+        self.env_fields: list = []     # (field, bend type, key)
+        self.shifts: set = set()
+        self.masks: set = set()
+        self.ml_cache: dict = {}
+        self.uid = 0
+        self.types_used: dict = {}     # sort -> Bend type (typed)
+        self.ops: dict = {}            # op name -> {"name", "op", "args", "result"}
+        self.coercions: dict = {}      # name -> {"name", "kind", "from", "to"}
+        self.checks: dict = {}         # action -> [Check] in holon.machine's order
+        self.ctx_fields: dict = {}     # action -> [(field, bend type)]
+        if typed:
+            from .extracted import Walker
+            self.seedw = Walker("_", {"actions": []}, self.seeds)
+        else:
+            self.seedw = None
+
+    # ---------------------------------------------------------- bookkeeping
+    def fresh(self, base: str) -> str:
+        self.uid += 1
+        return f"{base}_{self.uid}"
+
+    def add(self, text: str) -> None:
+        for n in re.findall(r"(?m)^(?:def|type)\s+([\w.]+)", text):
+            if n in self.names:
+                raise GenError(f"the generated model would define {n} twice")
+            self.names.add(n)
+        self.defs.append(text.rstrip("\n") + "\n")
+
+    def env_field(self, key: str, ty: str = "W") -> str:
+        f = "e_" + bname(key)
+        if f not in [x[0] for x in self.env_fields]:
+            self.env_fields.append((f, ty, key))
+        return f
+
+    def ge(self, key: str, sc: Scope, ty: str = "W") -> str:
+        f = self.env_field(key, ty)
+        return f"ge_{f}({self.gx(sc, 'en')})"
+
+    def gx(self, sc: Scope, fld: str) -> str:
+        return f"gx_{bname(sc.action)}_{fld}({sc.x})"
+
+    # ---------------------------------------------------------- shifts and masks (on demand)
+    def shr(self, k: int) -> str:
+        if k >= 256:
+            return None
+        self.shifts.add(("r", k))
+        return f"w_shr_{k}"
+
+    def shl(self, k: int) -> str:
+        if k >= 256:
+            return None
+        self.shifts.add(("l", k))
+        return f"w_shl_{k}"
+
+    def shift_defs(self) -> list[str]:
+        out = []
+        for d, k in sorted(self.shifts):
+            q, r = divmod(k, 32)
+            limbs = []
+            for i in range(8):
+                if d == "r":
+                    src, nxt = i + q, i + q + 1
+                    a = f"a{src}" if src < 8 else None
+                    b = f"a{nxt}" if nxt < 8 else None
+                    if r == 0:
+                        limbs.append(a or "0")
+                    else:
+                        parts = []
+                        if a:
+                            parts.append(f"U32.shrn({a}, {r}n)")
+                        if b:
+                            parts.append(f"U32.shln({b}, {32 - r}n)")
+                        limbs.append(parts[0] if len(parts) == 1 else (f"U32.or({parts[0]}, {parts[1]})" if parts else "0"))
+                else:
+                    src, prv = i - q, i - q - 1
+                    a = f"a{src}" if 0 <= src < 8 else None
+                    b = f"a{prv}" if 0 <= prv < 8 else None
+                    if r == 0:
+                        limbs.append(a or "0")
+                    else:
+                        parts = []
+                        if a:
+                            parts.append(f"U32.shln({a}, {r}n)")
+                        if b:
+                            parts.append(f"U32.shrn({b}, {32 - r}n)")
+                        limbs.append(parts[0] if len(parts) == 1 else (f"U32.or({parts[0]}, {parts[1]})" if parts else "0"))
+            pat = ", ".join(f"+a{i}" for i in range(8))
+            out.append(f"def w_sh{d}_{k}(a: W) -> W:\n  match a:\n    case W{{{pat}}}:\n      W{{{', '.join(limbs)}}}\n")
+        return out
+
+    def mask(self, bits: int) -> str:
+        """A W literal of the low `bits` bits."""
+        return wlit((1 << bits) - 1)
+
+    # ---------------------------------------------------------- types of the document
+    def arg_type(self, p: dict) -> str:
+        t = p.get("type", "")
+        m = re.fullmatch(r"(.*)\[(\d*)\]", t)
+        if m:
+            return f"List<&2, {self.arg_type(dict(p, type=m.group(1)))}>"
+        if t == "tuple":
+            name = "S_" + bname(p.get("struct") or "tuple")
+            if name not in self.records:
+                self.records[name] = []
+                self.records[name] = [(bname(c["name"]), self.arg_type(c), c) for c in p.get("components") or []]
+            return name
+        if t in ("bytes", "string"):
+            return "List<&2, U32>"
+        return "W"
+
+    @staticmethod
+    def kind_of_type(ty: str) -> str:
+        if ty == "W":
+            return "w"
+        if ty == "List<&2, U32>":
+            return "b"
+        if ty.startswith("List<&2, "):
+            return "l:" + ty[len("List<&2, "):-1]
+        return "r:" + ty
+
+    # ---------------------------------------------------------- sorts (typed)
+    def refined(self, sort: str | None) -> bool:
+        if not self.typed or sort is None:
+            return False
+        if sort in ("Nat (unrefined)", "Bool") or sort.startswith("Mach("):
+            return False
+        return True
+
+    def T(self, sort: str) -> str:
+        """The nominal type of a sort (registered)."""
+        n = tname(sort)
+        self.types_used[sort] = n
+        s = G.parse(sort)
+        if s.label:
+            self.T(G.render(G.base(s)))
+            self.coercions[f"erase_{sname(sort)}"] = {"name": f"erase_{sname(sort)}", "kind": "erase",
+                                                      "from": sort, "to": G.render(G.base(s))}
+        if s.head == "Union":
+            for mm in s.members:
+                self.T(G.render(mm))
+        if G.is_signed(s):
+            self.T(G.render(G.unsigned(s)))
+        return n
+
+    def wrap(self, raw: str, sort: str) -> tuple[str, str]:
+        return f"{self.T(sort)}{{{raw}}}" if not G.is_signed(G.parse(sort)) else \
+            f"{self.T(sort)}{{w_lt({raw}, w0()), {raw}}}", "t:" + sort
+
+    def var_sort(self, var: str | None) -> str | None:
+        if var is None:
+            return None
+        return self.sorts.get(var)
+
+    def leaf(self, raw: str, var: str | None, term=None) -> tuple[str, str]:
+        """A word leaf: typed when its variable's frozen sort is refined (or a seed gives the term one member)."""
+        if self.typed:
+            s = self.var_sort(var)
+            if not self.refined(s) and term is not None and self.seedw is not None:
+                ms = sorted({x for _i, x in self.seedw.term_seed(term) + self.seedw.digest_seed(term)})
+                s = ms[0] if len(ms) == 1 else None
+            if self.refined(s):
+                return self.wrap(raw, s)
+        return raw, "w"
+
+    # ---------------------------------------------------------- conversions
+    def to_w(self, code: str, kind: str) -> str:
+        if kind == "w":
+            return code
+        if kind == "bool":
+            return f"w_b({code})"
+        if kind.startswith("t:"):
+            s = kind[2:]
+            if G.is_signed(G.parse(s)):
+                return f"pay_{tname(s)}({code})"
+            return f"pay_{tname(s)}({code})"
+        if kind == "a":
+            return f"b_word(a_ret({code}), 0n)"
+        raise GenError(f"a {kind} value used as a word")
+
+    def to_bool(self, code: str, kind: str) -> str:
+        if kind == "bool":
+            return code
+        return f"w_nz({self.to_w(code, kind)})"
+
+    def to_bytes(self, code: str, kind: str) -> str:
+        if kind == "b":
+            return code
+        return f"b_of_w({self.to_w(code, kind)})"
+
+    def bend_type(self, kind: str) -> str:
+        if kind == "w":
+            return "W"
+        if kind == "bool":
+            return "Bool"
+        if kind == "b":
+            return "List<&2, U32>"
+        if kind.startswith("t:"):
+            return tname(kind[2:])
+        if kind.startswith("v:"):
+            return "HSt"
+        if kind.startswith("r:"):
+            return kind[2:]
+        if kind.startswith("l:"):
+            return f"List<&2, {kind[2:]}>"
+        if kind == "a":
+            return "HAns"
+        raise GenError(f"no Bend type for a {kind} value")
+
+    # ---------------------------------------------------------- terms
+    def nat(self, t, sc: Scope) -> str:
+        """A term used as a count, offset or index (its low 32 bits)."""
+        if isinstance(t, int) and not isinstance(t, bool):
+            return natlit(t)
+        c, k = self.value(t, sc)
+        return f"n_of_w({self.to_w(c, k)})"
+
+    def w(self, t, sc: Scope) -> str:
+        c, k = self.value(t, sc)
+        return self.to_w(c, k)
+
+    def b(self, t, sc: Scope) -> str:
+        c, k = self.value(t, sc)
+        return self.to_bytes(c, k)
+
+    def cond(self, t, sc: Scope) -> str:
+        if t in (1, True):
+            return "True{}"
+        if t in (0, False):
+            return "False{}"
+        c, k = self.value(t, sc)
+        return self.to_bool(c, k)
+
+    def tx(self, t, sc: Scope):
+        """(Bend code, kind) of a term (kinds: w, bool, b, t:<sort>, v:<family> (a storage view), r:<record>,
+        l:<elem>, a (an external call's answer), p (a storage path under compilation: a StoragePath object))."""
+        if isinstance(t, bool):
+            return ("w_u(1)" if t else "w0()"), "w"
+        if isinstance(t, int):
+            return wlit(t), "w"
+        if not isinstance(t, list) or not t or not isinstance(t[0], str):
+            raise GenError(f"{sc.action}: not a term: {str(t)[:120]}")
+        key = canonical(t)
+        if key in sc.subst:
+            return sc.subst[key]
+        h = t[0]
+        f = getattr(self, "t_" + _NAMES.get(h, h.replace(".", "_")), None)
+        if f is None:
+            raise GenError(f"{sc.action}: term {h!r} is outside the M3 generator's language: {key[:160]}")
+        out = f(t, sc)
+        if out[1] == "p":
+            return out
+        return out
+
+    def value(self, t, sc: Scope):
+        """A term's value with a storage path read (an elementary value) or kept as a view (a container)."""
+        c, k = self.tx(t, sc)
+        if k == "p":
+            return self.read_path(c, sc)
+        return c, k
+
+    # leaves
+    def t_param(self, t, sc):
+        ps = {p["name"]: p for p in self.m.params(sc.action) or []}
+        p = ps.get(t[1])
+        if p is None:
+            raise GenError(f"{sc.action}: parameter {t[1]} has no ABI type")
+        ty = self.arg_type(p)
+        code = f"ga_{bname(sc.action)}_{bname(t[1])}({self.gx(sc, 'ar')})"
+        k = self.kind_of_type(ty)
+        if k == "w":
+            return self.leaf(code, f"{sc.action}.{t[1]}", t)
+        return code, k
+
+    def t_env(self, t, sc):
+        return self.leaf(self.ge(t[1], sc), f"env:{t[1]}", t)
+
+    def t_caller(self, t, sc):
+        return self.leaf(self.ge("caller", sc), "env:caller", t)
+
+    def t_this(self, t, sc):
+        return self.leaf(self.ge("this", sc), "env:this", t)
+
+    def t_immutable(self, t, sc):
+        return self.ge(f"immutable.{t[1]}", sc), "w"
+
+    def t_blobhash(self, t, sc):
+        f = self.env_field("blobs", "List<&2, W>")
+        return self.leaf(f"w_nth(ge_{f}({self.gx(sc, 'en')}), {self.nat(t[1], sc)})", None, t)
+
+    def t_code(self, t, sc):
+        f = self.env_field("code", "List<&2, KB>")
+        return f"kb_get(ge_{f}({self.gx(sc, 'en')}), {self.w(t[1], sc)})", "b"
+
+    def t_balance(self, t, sc):
+        f = self.env_field("balance", "List<&2, KW>")
+        return f"kw_get(ge_{f}({self.gx(sc, 'en')}), {self.w(t[1], sc)})", "w"
+
+    def t_str(self, t, sc):
+        return blit(bytes.fromhex(t[1] or "")), "b"
+
+    def t_sload(self, t, sc):
+        if not self.sk:
+            return f"sload({self.gx(sc, 'st')}, {self.w(t[1], sc)})", "w"
+        n = t[1]
+        if isinstance(n, int) and not isinstance(n, bool):
+            b, o = self.layout_lits.get(n & MASK, (n & MASK, 0))
+            key = Loc(b, o).code()
+        else:
+            key = f"SK{{{self.w(n, sc)}, w0(), Nil{{}}}}"      # a raw slot computed by code (rule S3)
+        return f"sload({self.gx(sc, 'st')}, {key})", "w"
+
+    def t_ptr(self, t, sc):
+        return self.w(t[2], sc), "w"     # a memory pointer: its offset (never compared with storage)
+
+    # loops' symbols
+    def loop_of(self, t, sc, tag_len: int) -> LoopInfo:
+        span = t[1]
+        rest = t[tag_len:]
+        r = rest[0] if rest and isinstance(rest[0], int) and not isinstance(rest[0], bool) else 0
+        li = sc.loops.get((span, r))
+        if li is None:
+            raise GenError(f"{sc.action}: {t[0]} of loop {span}#{r} outside the loop's scope")
+        return li
+
+    def t_iter(self, t, sc):
+        li = self.loop_of(t, sc, 2)
+        return self.leaf(self.gx(sc, f"it{li.j}"), f"loop:{li.loop.src}{'#' + str(li.loop.reach) if li.loop.reach else ''}:iter")
+
+    def t_count(self, t, sc):
+        li = self.loop_of(t, sc, 2)
+        return self.gx(sc, f"cn{li.j}"), "w"
+
+    def t_carried(self, t, sc):
+        li = self.loop_of(t, sc, 3)
+        name = t[2]
+        span = f"{li.loop.src}{'#' + str(li.loop.reach) if li.loop.reach else ''}"
+        for i, (n, lab, kind) in enumerate(li.carried):
+            if n == name:
+                code = self.gx(sc, f"c{li.j}_{i}")
+                return self.leaf(code, f"loop:{span}:{lab}") if kind == "w" else (code, kind)
+        for i, (n, lab, kind) in enumerate(li.exits_extra):
+            if n == name:
+                code = self.gx(sc, f"x{li.j}_{i}")
+                return self.leaf(code, f"loop:{span}:{lab}") if kind == "w" else (code, kind)
+        raise GenError(f"{sc.action}: {t[0]} {canonical(name)} is not a name of loop {li.loop.src}")
+
+    t_exit = t_carried
+
+    def t_returned(self, t, sc):
+        li = self.loop_of(t, sc, 3)
+        return f"w_b(w_eq({self.gx(sc, f'rt{li.j}')}, {wlit(int(t[2]) + 1)}))", "w"
+
+    # storage
+    def fam_type(self, family: str) -> tuple[int, int, str]:
+        f = self.m.family(family)
+        return f.slot, f.offset, f.type
+
+    def t_storage(self, t, sc):
+        fam = t[1]
+        self.m.family(fam)
+        return StoragePath(self.gx(sc, "st"), fam, [], fam), "p"
+
+    def path_of(self, t, sc):
+        c, k = self.tx(t, sc)
+        if k == "p":
+            return c
+        if k.startswith("v:"):
+            return StoragePath(c, k[2:], [], k[2:])
+        return None
+
+    def t_map(self, t, sc):
+        base = self.path_of(t[1], sc)
+        if base is None:
+            raise GenError(f"{sc.action}: a map access into a value that is not storage")
+        kc, kk = self.value(t[2], sc)
+        return base.extend("map", kc, kk, base.var), "p"
+
+    def t_index(self, t, sc):
+        c, k = self.tx(t[1], sc)
+        if k == "p" or k.startswith("v:"):
+            base = c if k == "p" else StoragePath(c, k[2:], [], k[2:])
+            ic, ik = self.value(t[2], sc)
+            return base.extend("index", ic, ik, base.var), "p"
+        if k == "b":
+            return f"w_u(b_at({c}, {self.nat(t[2], sc)}))", "w"
+        if k.startswith("l:"):
+            el = k[2:]
+            if el == "W":
+                return f"w_nth({c}, {self.nat(t[2], sc)})", "w"
+            raise GenError(f"{sc.action}: an index into a list of {el}")
+        raise GenError(f"{sc.action}: an index into a {k} value")
+
+    def t_member(self, t, sc):
+        c, k = self.tx(t[1], sc)
+        if k == "p" or k.startswith("v:"):
+            base = c if k == "p" else StoragePath(c, k[2:], [], k[2:])
+            return base.extend("member", t[2], "name", f"{base.var}.{t[2]}"), "p"
+        if k.startswith("r:"):
+            rec = k[2:]
+            fs = {f: (ty, p) for f, ty, p in self.records.get(rec) or []}
+            fld = bname(t[2])
+            if fld not in fs:
+                raise GenError(f"{sc.action}: no member {t[2]} in {rec}")
+            ty = fs[fld][0]
+            code = f"g_{rec}_{fld}({c})"
+            kk = self.kind_of_type(ty)
+            if kk == "w":
+                pv = _param_var(t, sc.action)
+                return self.leaf(code, pv, t)
+            return code, kk
+        raise GenError(f"{sc.action}: member {t[2]} of a {k} value")
+
+    def key_bytes(self, kc: str, kk: str, kt: dict) -> str:
+        """The bytes a mapping key is hashed as (holon.extracted_eval.Eval.locate / word_for_key)."""
+        if kt.get("encoding") == "inplace":
+            v = self.to_w(kc, kk)
+            n = int(kt.get("numberOfBytes", 32))
+            lab = str(kt.get("label", ""))
+            if not EV._BYTESN.match(lab) and n < 32 and not lab.startswith("int"):
+                v = f"w_and({v}, {self.mask(8 * n)})"
+            return f"b_of_w({v})"
+        return self.to_bytes(kc, kk)
+
+    def locate(self, p: StoragePath, sc: Scope) -> tuple[str, int, str, bool]:
+        """(slot code, offset, type id, whether the slot is a literal) of a storage path (Eval.locate); in the
+        structural mode the slot code is the location's SK term."""
+        if self.sk:
+            loc, off, tid = self.locate_loc(p, sc)
+            return loc.code(), off, tid, loc.literal()
+        slot, off, tid = self.fam_type(p.family)
+        code, lit = wlit(slot), slot
+        for kind, x, xk in p.accessors:
+            t = self.m.type_of(tid)
+            enc = t.get("encoding")
+            if kind == "map":
+                if enc != "mapping":
+                    raise GenError(f"{sc.action}: {p.family}: a map access into {t.get('label')}")
+                kt = self.m.type_of(t["key"])
+                kb = self.key_bytes(x, xk, kt)
+                code = f"h_get({self.gx(sc, 'kh')}, List.append(&2, U32, {kb}, b_of_w({code})))"
+                lit = None
+                off, tid = 0, t["value"]
+            elif kind == "member":
+                mm = next((y for y in t.get("members") or [] if y["label"] == x), None)
+                if mm is None:
+                    raise GenError(f"{sc.action}: {p.family}: no member {x} in {t.get('label')}")
+                if lit is not None:
+                    lit = (lit + int(mm["slot"])) & MASK
+                    code = wlit(lit)
+                elif int(mm["slot"]):
+                    code = f"w_add({code}, {wlit(int(mm['slot']))})"
+                off, tid = int(mm["offset"]), mm["type"]
+            elif kind == "index":
+                bt = self.m.type_of(t["base"]) if "base" in t else None
+                el1 = self.EXT1 and bt is not None and _i70_slot_element(bt)   # EXT1: a slot's own element
+                if bt is None or (enc == "dynamic_array" and not el1) or (int(bt["numberOfBytes"]) != 32 and not el1):
+                    raise GenError(f"{sc.action}: {p.family}: an index into {t.get('label')} (only static arrays of "
+                                   "words are compiled)")
+                iv = self.to_w(x, xk)
+                if enc == "dynamic_array":   # EXT1: element i of a dynamic array at keccak256(slot) + i
+                    code = f"w_add(h_get({self.gx(sc, 'kh')}, b_of_w({code})), {iv})"
+                else:
+                    code = f"w_add({code}, {iv})"
+                lit = None
+                off, tid = 0, t["base"]
+        return code, off, tid, lit is not None
+
+    def map_key(self, x, xk: str, kt: dict, sc: Scope) -> str:
+        """The key word of a mapping step (I68): the key cleaned as solc hashes it (key_bytes's rule on the word)."""
+        if kt.get("encoding") != "inplace":
+            raise GenError(f"{sc.action}: a mapping keyed by {kt.get('label')} (a bytes or string key is a step SP_b, "
+                           "not compiled in the structural mode)")
+        v = self.to_w(x, xk)
+        n = int(kt.get("numberOfBytes", 32))
+        lab = str(kt.get("label", ""))
+        if not EV._BYTESN.match(lab) and n < 32 and not lab.startswith("int"):
+            v = f"w_and({v}, {self.mask(8 * n)})"
+        return v
+
+    def locate_loc(self, p: StoragePath, sc: Scope):
+        """(Loc, byte offset, type id) of a storage path in the structural mode (rule S2: one key per real slot)."""
+        slot, off, tid = self.fam_type(p.family)
+        loc = Loc(slot)
+        for kind, x, xk in p.accessors:
+            t = self.m.type_of(tid)
+            enc = t.get("encoding")
+            if kind == "map":
+                if enc != "mapping":
+                    raise GenError(f"{sc.action}: {p.family}: a map access into {t.get('label')}")
+                loc = loc.step(self.map_key(x, xk, self.m.type_of(t["key"]), sc))
+                off, tid = 0, t["value"]
+            elif kind == "member":
+                mm = next((y for y in t.get("members") or [] if y["label"] == x), None)
+                if mm is None:
+                    raise GenError(f"{sc.action}: {p.family}: no member {x} in {t.get('label')}")
+                loc = loc.plus(int(mm["slot"]))
+                off, tid = int(mm["offset"]), mm["type"]
+            elif kind == "index":
+                bt = self.m.type_of(t["base"]) if "base" in t else None
+                if bt is None or enc == "dynamic_array" or int(bt["numberOfBytes"]) != 32:
+                    raise GenError(f"{sc.action}: {p.family}: an index into {t.get('label')} (only static arrays of "
+                                   "words are compiled)")
+                loc = loc.plus(self.to_w(x, xk))
+                off, tid = 0, t["base"]
+        return loc, off, tid
+
+    def read_word(self, view: str, slot: str, off: int, tid: str) -> str:
+        t = self.m.type_of(tid)
+        if t.get("encoding") != "inplace" or "members" in t or "base" in t:
+            raise GenError(f"a value read of a {t.get('label')} (not an elementary value)")
+        n = int(t["numberOfBytes"])
+        wcode = f"sload({view}, {slot})"
+        if off:
+            wcode = f"{self.shr(8 * off)}({wcode})"
+        if n < 32:
+            wcode = f"w_and({wcode}, {self.mask(8 * n)})"
+            if EV._BYTESN.match(str(t.get("label", ""))):
+                wcode = f"{self.shl(256 - 8 * n)}({wcode})"
+        return wcode
+
+    def read_path(self, p: StoragePath, sc: Scope):
+        slot, off, tid, _lit = self.locate(p, sc)
+        t = self.m.type_of(tid)
+        if t.get("encoding") == "inplace" and "members" not in t and "base" not in t:
+            return self.leaf(self.read_word(p.view, slot, off, tid), p.var)
+        if not p.accessors:
+            return p.view, "v:" + p.family
+        raise GenError(f"{sc.action}: {p.family}: a read of a whole {t.get('label')}")
+
+    def write_word(self, view: str, slot: str, off: int, tid: str, v: str) -> str:
+        """sstore of value v at (slot, off) of type tid into view, with the compiler's packing."""
+        t = self.m.type_of(tid)
+        n = int(t["numberOfBytes"])
+        if n == 32 and off == 0:
+            return f"sstore({view}, {slot}, {v})"
+        vv = v
+        if EV._BYTESN.match(str(t.get("label", ""))) and n < 32:
+            vv = f"{self.shr(256 - 8 * n)}({vv})"
+        vv = f"w_and({vv}, {self.mask(8 * n)})"
+        if off:
+            vv = f"{self.shl(8 * off)}({vv})"
+        mk = (((1 << (8 * n)) - 1) << (8 * off)) & MASK
+        keep = f"w_and(sload({view}, {slot}), {wlit(MASK ^ mk)})"
+        return f"sstore({view}, {slot}, w_or({keep}, {vv}))"
+
+    def t_store(self, t, sc):
+        if not t[2]:
+            return self.value(t[3], sc)
+        base = self.path_of(t[1], sc)
+        if base is None:
+            raise GenError(f"{sc.action}: a store into a value that is not storage")
+        p = base
+        for acc in t[2]:
+            kind, x = acc[0], acc[1]
+            if kind == "member":
+                p = p.extend("member", x, "name", f"{p.var}.{x}")
+            else:
+                xc, xk = self.value(x, sc)
+                p = p.extend(kind, xc, xk, p.var)
+        vc, vk = ("", "z0") if t[3] in (0, False) else self.value(t[3], sc)
+        view = self.write_path(p.view, p, vc, vk, sc)
+        return view, "v:" + base.family
+
+    def write_path(self, view: str, p: StoragePath, vc: str, vk: str, sc: Scope, slot_lets: dict | None = None) -> str:
+        slot, off, tid, _lit = self.locate(p, sc)
+        t = self.m.type_of(tid)
+        if t.get("encoding") == "inplace" and "members" in t:
+            # a struct value: a literal (vk "z:<json>") or 0 (delete)
+            if vk == "z0":
+                vals = {}
+            elif vk.startswith("z:"):
+                vals = json.loads(vk[2:])
+            else:
+                raise GenError(f"{sc.action}: a struct write of a {vk} value")
+            out = view
+            loc = self.locate_loc(p, sc)[0] if self.sk else None
+            for mm in t["members"]:
+                if self.sk:
+                    mslot = loc.plus(int(mm["slot"])).code()
+                else:
+                    mslot = f"w_add({slot}, {wlit(int(mm['slot']))})" if int(mm["slot"]) else slot
+                code = vals.get(mm["label"], "w0()")
+                out = self.write_word(out, mslot, int(mm["offset"]), mm["type"], code)
+            return out
+        if vk == "z0":
+            vc, vk = "w0()", "w"
+        return self.write_word(view, slot, off, tid, self.to_w(vc, vk))
+
+    def path_slots(self, p: StoragePath, vk: str, sc: Scope) -> list[str]:
+        slot, off, tid, _lit = self.locate(p, sc)
+        t = self.m.type_of(tid)
+        if t.get("encoding") == "inplace" and "members" in t:
+            if self.sk:
+                loc = self.locate_loc(p, sc)[0]
+                return [loc.plus(int(mm["slot"])).code() for mm in t["members"]]
+            return [f"w_add({slot}, {wlit(int(mm['slot']))})" if int(mm["slot"]) else slot for mm in t["members"]]
+        return [slot]
+
+    # arithmetic
+    def t_add(self, t, sc):
+        if any(self.is_input_bytes(s, sc) for s in _sum_terms(t)):
+            return self.copy_offset(t, sc)        # I83 L3: a pointer into an input bytes value's memory copy
+        return self.arith("+", t, sc)
+
+    def t_sub(self, t, sc):
+        return self.arith("-", t, sc)
+
+    def affine_operands(self, op: str, t, a, b):
+        """(code, sort) of both operands of a typed + or -, or None: a literal operand carries no sort (holon.sorts.
+        extracted: a fresh auxiliary), so it takes the sort of its pair that keeps the other operand's sort (an index
+        plus a count, a time plus a duration), else the first its pair admits."""
+        if not self.typed:
+            return None
+        (ac, ak), (bcode, bk) = a, b
+        ta = self.typed_operand(ac, ak, None, "")
+        tb = self.typed_operand(bcode, bk, None, "")
+        if ta is not None and tb is None and _is_lit(t[2]):
+            tb = self.lit_operand(op, ta[1], t[2], first=False)
+        elif tb is not None and ta is None and _is_lit(t[1]):
+            ta = self.lit_operand(op, tb[1], t[1], first=True)
+        return (ta, tb) if ta is not None and tb is not None else None
+
+    def lit_operand(self, op: str, other: str, lit: int, first: bool):
+        base = self.base_sort(other)
+        try:
+            fam = G.family(G.parse(base))
+        except G.SortError:
+            return None
+        pr = G.pair_role(fam) if fam else None
+        if pr is None:
+            return None
+        roles = ("S",) if pr[0].startswith("S:") else ("G", "P")
+        cands = []
+        for r in roles:
+            c = G.render(G.parse(G.family_of(pr[0], r)))
+            res = G.affine(op, c, base) if first else G.affine(op, base, c)
+            if res is not None:
+                cands.append((res != base, c))
+        if not cands:
+            return None
+        c = sorted(cands)[0][1]
+        return f"{self.T(c)}{{{wlit(lit)}}}", c
+
+    def arith(self, op: str, t, sc):
+        (ac, ak), (bcode, bk) = self.value(t[1], sc), self.value(t[2], sc)
+        tt = self.affine_operands(op, t, (ac, ak), (bcode, bk))
+        if tt is not None:
+            return self.typed_affine(op, tt[0], tt[1], sc)
+        ac2, ak2 = self.unsigned_kind(ac, ak)
+        bcode2, bk2 = self.unsigned_kind(bcode, bk)
+        a, b = self.to_w(ac2, ak2), self.to_w(bcode2, bk2)
+        return (f"w_add({a}, {b})" if op == "+" else f"w_sub({a}, {b})"), "w"
+
+    def unsigned_kind(self, c: str, k: str):
+        """A signed typed value consumed by anything but its realization check: its machine value (R1)."""
+        if k.startswith("t:") and G.is_signed(G.parse(k[2:])):
+            u = G.render(G.unsigned(G.parse(k[2:])))
+            return f"wrap_{tname(k[2:])}({c})", "t:" + u
+        return c, k
+
+    def typed_operand(self, c: str, k: str, term, other_kind: str):
+        """(code, sort) of an operand of a typed operation: typed, or a literal adopting the other's sort."""
+        if not self.typed:
+            return None
+        if k.startswith("t:"):
+            c2, k2 = self.unsigned_kind(c, k)
+            return c2, k2[2:]
+        if isinstance(term, int) and not isinstance(term, bool) and other_kind.startswith("t:"):
+            s = G.render(G.unsigned(G.parse(other_kind[2:])))
+            return f"{self.T(s)}{{{wlit(term)}}}", s
+        return None
+
+    def base_sort(self, s: str) -> str:
+        return G.render(G.base(G.parse(s)))
+
+    def erase(self, c: str, s: str) -> tuple[str, str]:
+        b = self.base_sort(s)
+        if b != s:
+            self.T(s)
+            return f"erase_{sname(s)}({c})", b
+        return c, s
+
+    def typed_affine(self, op: str, a, b, sc):
+        (ac, asort), (bcode, bsort) = a, b
+        ac, asort = self.erase(ac, asort)
+        bcode, bsort = self.erase(bcode, bsort)
+        r = G.affine(op, asort, bsort)
+        if r is None:
+            raise GenError(f"{sc.action}: {asort} {op} {bsort} is ill-sorted (no typed operation)")
+        name = f"{'add' if op == '+' else 'sub'}_{sname(asort)}_{sname(bsort)}"
+        self.ops[name] = {"name": name, "op": op, "args": [asort, bsort], "result": r}
+        self.T(asort), self.T(bsort), self.T(r)
+        return f"{name}({ac}, {bcode})", "t:" + r
+
+    def t_mul(self, t, sc):
+        a, b = self.w(t[1], sc), self.w(t[2], sc)
+        for x, y in ((t[1], b), (t[2], a)):
+            if isinstance(x, int) and not isinstance(x, bool) and 0 < x < (1 << 32):
+                if x & (x - 1) == 0:
+                    return f"{self.shl(x.bit_length() - 1)}({y})", "w"
+                return self.const_mul(y, x), "w"      # I83 L6: a product by a literal, zero limbs skipped
+        return f"w_mul({a}, {b})", "w"
+
+    def t_div(self, t, sc):
+        a = self.w(t[1], sc)
+        d = t[2]
+        if isinstance(d, int) and not isinstance(d, bool) and 0 < d < (1 << 16):
+            return f"w_div_small({a}, {d})", "w"
+        return f"w_div({a}, {self.w(d, sc)})", "w"
+
+    def t_mod(self, t, sc):
+        a = self.w(t[1], sc)
+        d = t[2]
+        if isinstance(d, int) and not isinstance(d, bool) and 0 < d < (1 << 16):
+            return f"w_mod_small({a}, {d})", "w"
+        return f"w_mod({a}, {self.w(d, sc)})", "w"
+
+    def t_and(self, t, sc):
+        return f"w_and({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+    def t_or(self, t, sc):
+        return f"w_or({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+    def t_xor(self, t, sc):
+        return f"w_xor({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+    def t_bnot(self, t, sc):
+        return f"w_not({self.w(t[1], sc)})", "w"
+
+    def t_neg(self, t, sc):
+        return f"w_sub(w0(), {self.w(t[1], sc)})", "w"
+
+    def t_shl(self, t, sc):
+        if not isinstance(t[2], int):
+            return self.var_shift("l", t, sc)       # I83 L5: a shift by a non-constant amount
+        fn = self.shl(int(t[2]))
+        return (f"{fn}({self.w(t[1], sc)})" if fn else "w0()"), "w"
+
+    def t_shr(self, t, sc):
+        if not isinstance(t[2], int):
+            return self.var_shift("r", t, sc)       # I83 L5: a shift by a non-constant amount
+        fn = self.shr(int(t[2]))
+        return (f"{fn}({self.w(t[1], sc)})" if fn else "w0()"), "w"
+
+    def t_trunc(self, t, sc):
+        bits = int(t[1])
+        if bits >= 256:
+            return self.w(t[2], sc), "w"
+        return f"w_and({self.w(t[2], sc)}, {self.mask(bits)})", "w"
+
+    def t_fits(self, t, sc):
+        n = int(t[1])
+        inner = t[2]
+        if not (isinstance(inner, list) and len(inner) == 3 and inner[0] in ("+", "-", "*")):
+            raise GenError(f"{sc.action}: fits over {canonical(inner)[:80]}")
+        op = inner[0]
+        (ac, ak), (bcode, bk) = self.value(inner[1], sc), self.value(inner[2], sc)
+        if self.typed and op == "-" and n == 256:
+            tt = self.affine_operands("-", inner, (ac, ak), (bcode, bk))
+            if tt is not None:
+                dc, dk = self.typed_affine("-", tt[0], tt[1], sc)
+                ds = dk[2:]
+                if G.is_signed(G.parse(ds)):
+                    u = G.render(G.unsigned(G.parse(ds)))
+                    self.coercions[f"realize_{tname(ds)}"] = {"name": f"realize_{tname(ds)}", "kind": "realize",
+                                                             "from": ds, "to": u}
+                    return f"is_some_{tname(u)}(realize_{tname(ds)}({dc}))", "bool"
+        a = self.to_w(*self.unsigned_kind(ac, ak))
+        b = self.to_w(*self.unsigned_kind(bcode, bk))
+        if op == "+":
+            ok, val = f"w_add_ok({a}, {b})", f"w_add({a}, {b})"
+        elif op == "-":
+            ok, val = f"w_sub_ok({a}, {b})", f"w_sub({a}, {b})"
+        else:
+            ok, val = self.mul_check(inner, a, b)       # I83 L6: a checked product by a literal is a comparison
+        if n >= 256:
+            return ok, "bool"
+        return f"Bool.and({ok}, w_lt({val}, {wlit(1 << n)}))", "bool"
+
+    # comparisons and logic
+    def compare(self, op: str, t, sc):
+        (ac, ak), (bcode, bk) = self.value(t[1], sc), self.value(t[2], sc)
+        ta = self.typed_operand(ac, ak, t[1], bk)
+        tb = self.typed_operand(bcode, bk, t[2], ak)
+        if ta is not None and tb is not None:
+            (ac2, asort), (bcode2, bsort) = self.erase(*ta), self.erase(*tb)
+            if asort == bsort:
+                name = f"{_CMP_NAMES[op]}_{sname(asort)}_{sname(bsort)}"
+                self.ops[name] = {"name": name, "op": op, "args": [asort, bsort], "result": "Bool"}
+                self.T(asort)
+                return f"{name}({ac2}, {bcode2})", "bool"
+            raise GenError(f"{sc.action}: a comparison {asort} {op} {bsort} joins two base sorts")
+        a = self.to_w(*self.unsigned_kind(ac, ak))
+        b = self.to_w(*self.unsigned_kind(bcode, bk))
+        return _RAW_CMP[op](a, b), "bool"
+
+    def t_eq(self, t, sc):
+        return self.compare("==", t, sc)
+
+    def t_ne(self, t, sc):
+        return self.compare("!=", t, sc)
+
+    def t_lt(self, t, sc):
+        if isinstance(t[2], int) and t[2] >= (1 << 32) and t[2] & (t[2] - 1) == 0:
+            k = t[2].bit_length() - 1
+            v = self.w(t[1], sc)
+            return f"Bool.not(w_nz({self.shr(k)}({v})))", "bool"
+        return self.compare("<", t, sc)
+
+    def t_le(self, t, sc):
+        return self.compare("<=", t, sc)
+
+    def t_gt(self, t, sc):
+        return self.compare(">", t, sc)
+
+    def t_ge(self, t, sc):
+        return self.compare(">=", t, sc)
+
+    def t_land(self, t, sc):
+        xs = [self.cond(x, sc) for x in t[1:]]
+        if not xs:
+            return "True{}", "bool"
+        out = xs[-1]
+        for x in reversed(xs[:-1]):
+            out = f"Bool.and({x}, {out})"
+        return out, "bool"
+
+    def t_lor(self, t, sc):
+        xs = [self.cond(x, sc) for x in t[1:]]
+        if not xs:
+            return "False{}", "bool"
+        out = xs[-1]
+        for x in reversed(xs[:-1]):
+            out = f"Bool.or({x}, {out})"
+        return out, "bool"
+
+    def t_lnot(self, t, sc):
+        return f"Bool.not({self.cond(t[1], sc)})", "bool"
+
+    def t_ite(self, t, sc):
+        c = self.cond(t[1], sc)
+        (ac, ak), (bcode, bk) = self.value(t[2], sc), self.value(t[3], sc)
+        ac, ak = self.unsigned_kind(ac, ak)
+        bcode, bk = self.unsigned_kind(bcode, bk)
+        if ak != bk:
+            if ak.startswith("t:") and bk == "w" and isinstance(t[3], int):
+                bcode, bk = f"{self.T(ak[2:])}{{{bcode}}}", ak
+            elif bk.startswith("t:") and ak == "w" and isinstance(t[2], int):
+                ac, ak = f"{self.T(bk[2:])}{{{ac}}}", bk
+            elif {ak, bk} <= {"w", "bool"} or (ak.startswith("t:") or bk.startswith("t:")) and \
+                    {ak[:2], bk[:2]} <= {"t:", "w", "bo"}:
+                ac, ak, bcode, bk = self.to_w(ac, ak), "w", self.to_w(bcode, bk), "w"
+            elif {ak, bk} <= {"w", "b"}:
+                ac, ak, bcode, bk = self.to_bytes(ac, ak), "b", self.to_bytes(bcode, bk), "b"
+            elif ak.startswith("v:") and bk.startswith("v:"):
+                pass
+            else:
+                raise GenError(f"{sc.action}: a conditional over {ak} and {bk}")
+        return f"ite({self.bend_type(ak)}, {c}, {ac}, {bcode})", ak
+
+    # bytes, hashes, memory
+    def t_len(self, t, sc):
+        c, k = self.value(t[1], sc)
+        if k == "b":
+            return f"w_u(b_len({c}))", "w"
+        if k.startswith("l:"):
+            el = k[2:]
+            if el == "W":
+                return f"w_u(w_len({c}))", "w"
+            return f"w_u(U32.from_nat(List.length(&2, {el}, {c})))", "w"
+        raise GenError(f"{sc.action}: the length of a {k} value")
+
+    def t_byte(self, t, sc):
+        return f"w_u(b_at({self.b(t[1], sc)}, {self.nat(t[2], sc)}))", "w"
+
+    def t_word(self, t, sc):
+        code = f"b_word({self.b(t[1], sc)}, {self.nat(t[2], sc)})"
+        pv = _param_var(t[1], sc.action)
+        return self.leaf(code, f"{pv}@{t[2]}" if pv and isinstance(t[2], int) else None, t)
+
+    def hash(self, which: str, t, sc):
+        if which not in self.hashes:
+            raise GenError(f"{sc.action}: {which} is not a hash parameter of the model")
+        tab = self.gx(sc, "kh" if which == "keccak256" else "sh")
+        fn = "h_get" if which == "keccak256" else "hs_get"
+        return self.leaf(f"{fn}({tab}, {self.b(t[1], sc)})", None, t)
+
+    def t_keccak256(self, t, sc):
+        return self.hash("keccak256", t, sc)
+
+    def t_sha256(self, t, sc):
+        return self.hash("sha256", t, sc)
+
+    def t_mem(self, t, sc):
+        code = "Nil{}"
+        for wr in t[1:]:
+            code = self.mem_write(code, wr, sc)
+        return code, "b"
+
+    def mem_write(self, mem: str, wr, sc: Scope) -> str:
+        k = wr[0] if isinstance(wr, list) and wr else None
+        if k == "mstore":
+            return f"m_put({self.nat(wr[1], sc)}, {mem}, b_of_w({self.w(wr[2], sc)}))"
+        if k == "mstore8":
+            return f"m_put({self.nat(wr[1], sc)}, {mem}, [U32.and(w_lo({self.w(wr[2], sc)}), 255)])"
+        if k == "calldatacopy":
+            return (f"m_put({self.nat(wr[1], sc)}, {mem}, b_take({self.nat(wr[4], sc)}, "
+                    f"b_drop({self.b(wr[2], sc)}, {self.nat(wr[3], sc)}), 0))")
+        if k == "when":
+            return f"ite(List<&2, U32>, {self.cond(wr[1], sc)}, {self.mem_write(mem, wr[2], sc)}, {mem})"
+        if k in ("loop", "unknown"):
+            return f"m_havoc({mem})"
+        if k == "mloop":
+            return self.mloop(mem, wr, sc)
+        raise GenError(f"{sc.action}: memory write {k}")
+
+    def mloop(self, mem: str, wr, sc: Scope) -> str:
+        key = (sc.action, canonical(wr), tuple(sorted(sc.subst)))
+        name = self.ml_cache.get(key)
+        if name is None:
+            name = self.fresh(f"ml_{bname(sc.action)}")
+            kvar = wr[2]
+            body = wr[4] if isinstance(wr[4], list) and wr[4] and isinstance(wr[4][0], list) else [wr[4]]
+            inner = Scope(sc.action, sc.x, dict(sc.subst), sc.loops)
+            inner.subst[canonical(kvar)] = self.leaf("k", None)
+            code = "mem"
+            for b in body:
+                code = self.mem_write(code, b, inner)
+            xt = f"X_{bname(sc.action)}"
+            self.add(f"def {name}(n: Nat, +k: W, +{sc.x}: {xt}, mem: List<&2, U32>) -> List<&2, U32>:\n"
+                     f"  match n:\n    case 0n:\n      mem\n    case 1n+p:\n"
+                     f"      {name}(p, w_add(k, w_u(1)), {sc.x}, {code})\n")
+            self.ml_cache[key] = name
+        if sc.subst:
+            raise GenError(f"{sc.action}: an mloop inside an mloop")
+        return f"{name}({self.nat(wr[3], sc)}, w0(), {sc.x}, {mem})"
+
+    def t_slice(self, t, sc):
+        return f"m_slice({self.b(t[1], sc)}, {self.w(t[2], sc)}, {self.w(t[3], sc)})", "b"
+
+    def t_mload(self, t, sc):
+        if _is_unknown_memory(t[1]):
+            return self.copy_read(t, sc)          # I83 L3
+        return f"b_word({self.b(t[1], sc)}, {self.nat(t[2], sc)})", "w"
+
+    def t_abi_encode(self, t, sc):
+        heads, tails = [], []
+        for x in t[1:]:
+            c, k = self.value(x, sc)
+            if k == "b":
+                heads.append(None)
+                tails.append(c)
+            else:
+                heads.append(f"b_of_w({self.to_w(c, k)})")
+        return self.abi_concat(heads, tails), "b"
+
+    def abi_concat(self, heads: list, tails: list) -> str:
+        """head . tail encoding: a None head is a dynamic value whose tail is the next of `tails`."""
+        n = len(heads)
+        parts = []
+        off = f"w_u({32 * n})"
+        it = iter(tails)
+        tail_parts = []
+        for h in heads:
+            if h is None:
+                tl = next(it)
+                parts.append(f"b_of_w({off})")
+                enc = f"abi_dyn({tl})"
+                tail_parts.append(enc)
+                off = f"w_add({off}, w_u(b_len({enc})))"
+            else:
+                parts.append(h)
+        out = "Nil{}"
+        for p in reversed(parts + tail_parts):
+            out = f"List.append(&2, U32, {p}, {out})"
+        return out
+
+    def t_abi_encodePacked(self, t, sc):
+        out = "Nil{}"
+        parts = []
+        for x in t[1:]:
+            c, k = self.value(x, sc)
+            if k == "b":
+                parts.append(c)
+                continue
+            ty = self.term_type(x, sc)
+            if ty is None:
+                raise GenError(f"{sc.action}: abi.encodePacked of a word of no known type: {canonical(x)[:100]}")
+            n, left = EV._packed_width(ty)
+            wv = self.to_w(c, k)
+            parts.append(f"b_take({n}n, b_of_w({wv}), 0)" if left else f"b_drop(b_of_w({wv}), {32 - n}n)")
+        for p in reversed(parts):
+            out = f"List.append(&2, U32, {p}, {out})"
+        return out, "b"
+
+    def term_type(self, t, sc) -> str | None:
+        """holon.extracted_eval.Eval.term_type, statically."""
+        if not isinstance(t, list) or not t or not isinstance(t[0], str):
+            return None
+        h = t[0]
+        if h in ("word", "keccak256", "sha256", "blobhash", "blockhash"):
+            return "bytes32"
+        if h in ("caller", "this"):
+            return "address"
+        if h == "env":
+            return "address" if t[1] in ("block.coinbase", "tx.origin") else "uint256"
+        if h == "immutable":
+            return (self.m.immutable_type(t[1]) or {}).get("type")
+        if h == "param":
+            for p in self.m.params(sc.action) or []:
+                if p.get("name") == t[1]:
+                    return p.get("type")
+            return None
+        if h in ("storage", "map", "member", "index"):
+            p = self.path_of(t, sc)
+            if p is None:
+                return None
+            _s, _o, tid, _l = self.locate(p, sc)
+            lab = str(self.m.type_of(tid).get("label", ""))
+            if lab.startswith(("contract ", "address")):
+                return "address"
+            return "uint8" if lab.startswith("enum ") else lab
+        return None
+
+    # external calls
+    def calldata(self, fn: str, args: list, sc: Scope) -> str:
+        sig = self.m.call_signature(fn) or (_i70_overload_signature(self.m, fn) if self.EXT1 else None)
+        if sig is None or not sig.get("selector"):
+            raise GenError(f"{sc.action}: external function {fn} has no single ABI signature")
+        ins = sig.get("inputs") or []
+        if len(ins) != len(args):
+            raise GenError(f"{sc.action}: {fn} takes {len(ins)} arguments, the term gives {len(args)}")
+        heads, tails = [], []
+        for x, p in zip(args, ins):
+            c, k = self.value(x, sc)
+            if EV._is_dynamic(p):
+                if p.get("type") not in ("bytes", "string"):
+                    heads.append(None)
+                    tails.append(self.word_list_arg(fn, p, c, k, sc))      # I83 L2
+                    continue
+                heads.append(None)
+                tails.append(self.to_bytes(c, k))
+            else:
+                if p.get("type") == "tuple":
+                    raise GenError(f"{sc.action}: {fn}: a tuple argument")
+                heads.append(f"b_of_w({self.to_w(c, k)})")
+        sel = bytes.fromhex(sig["selector"][2:])
+        if any(isinstance(x, tuple) for x in tails):
+            return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat_lists(heads, tails)})"   # I83 L2
+        return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat(heads, tails)})"
+
+    def answer(self, fn: str, receiver, args: list, sc: Scope) -> str:
+        cf = self.env_field("calls", "List<&2, HCall>")
+        calls = f"ge_{cf}({self.gx(sc, 'en')})"
+        if fn.startswith("address."):
+            if not args and receiver is None:
+                raise GenError(f"{sc.action}: {fn} without a receiver")
+            to = self.w(receiver if receiver is not None else args[0], sc)
+            rest = args if receiver is not None else args[1:]
+            data = self.b(rest[0], sc) if rest else "Nil{}"
+            return f"c_find({calls}, {to}, True{{}}, {data})"
+        data = self.calldata(fn, args, sc)
+        if receiver is not None:
+            return f"c_find({calls}, {self.w(receiver, sc)}, True{{}}, {data})"
+        return f"c_find({calls}, w0(), False{{}}, {data})"
+
+    @staticmethod
+    def split_value(args: list):
+        """The call's arguments without its ["value", v] annotation."""
+        return [a for a in args if not (isinstance(a, list) and a[:1] == ["value"])]
+
+    def t_call(self, t, sc):
+        fn = t[1]
+        args = self.split_value(t[2:])
+        if fn.startswith("address."):
+            return self.answer(fn, None, args, sc), "a"
+        ans = self.answer(fn, None, args, sc)
+        sig = self.m.call_signature(fn) or (_i70_overload_signature(self.m, fn) if self.EXT1 else None) or {}
+        outs = sig.get("outputs") or []
+        if len(outs) == 1 and not EV._is_dynamic(outs[0]):
+            return self.leaf(f"b_word(a_ret({ans}), 0n)", f"call:{fn}", t)
+        return ans, "a"
+
+    def t_callok(self, t, sc):
+        fn = t[1]
+        receiver = t[2]
+        args = self.split_value(t[3:])
+        return f"a_ok({self.answer(fn, receiver, args, sc)})", "bool"
+
+    def t_at(self, t, sc):
+        if isinstance(t[2], list) and t[2][:1] == ["abi.decode"]:
+            return self.decode_component(t, sc)      # I83 L1
+        c, k = self.tx(t[2], sc)
+        if k != "a":
+            raise GenError(f"{sc.action}: a component of a value that is not a call answer")
+        i = int(t[1])
+        inner = t[2]
+        if isinstance(inner, list) and inner[:1] == ["call"] and str(inner[1]).startswith("address."):
+            if i == 0:
+                return f"w_b(a_ok({c}))", "w"
+            return f"a_ret({c})", "b"
+        return f"b_word(a_ret({c}), {32 * i}n)", "w"
+
+    def t_value(self, t, sc):
+        raise GenError(f"{sc.action}: a call value outside a call")
+
+    def t_struct(self, t, sc):
+        vals = {}
+        for mname, v in t[2]:
+            vals[mname] = self.w(v, sc)
+        return "z:" + json.dumps(vals, sort_keys=True), "z"
+
+    def t_unknown(self, t, sc):
+        raise GenError(f"{sc.action}: an unknown term {canonical(t)[:100]} (its value is no environment member)")
+
+
+def _is_lit(t) -> bool:
+    return isinstance(t, int) and not isinstance(t, bool)
+
+
+def _param_var(t, action: str) -> str | None:
+    if not isinstance(t, list) or not t:
+        return None
+    if t[0] == "param" and isinstance(t[1], str):
+        return f"{action}.{t[1]}"
+    if t[0] == "member" and len(t) >= 3:
+        b = _param_var(t[1], action)
+        return f"{b}.{t[2]}" if b else None
+    return None
+
+
+_NAMES = {"+": "add", "-": "sub", "*": "mul", "/": "div", "%": "mod", "&": "and", "|": "or", "^": "xor",
+          "~": "bnot", "not": "bnot", "<<": "shl", ">>": "shr", "==": "eq", "!=": "ne", "<": "lt", "<=": "le",
+          ">": "gt", ">=": "ge", "&&": "land", "||": "lor", "!": "lnot", "?": "ite", "abi.encode": "abi_encode",
+          "abi.encodePacked": "abi_encodePacked"}
+_CMP_NAMES = {"==": "eq", "!=": "ne", "<": "lt", "<=": "le", ">": "gt", ">=": "ge"}
+_RAW_CMP = {"==": lambda a, b: f"w_eq({a}, {b})", "!=": lambda a, b: f"Bool.not(w_eq({a}, {b}))",
+            "<": lambda a, b: f"w_lt({a}, {b})", "<=": lambda a, b: f"w_le({a}, {b})",
+            ">": lambda a, b: f"w_gt({a}, {b})", ">=": lambda a, b: f"w_ge({a}, {b})"}
+
+
+# ================================================================================================ the machine
+CALL_CODE = 4294967294       # a step whose external call term reverted (its revert data bubbled; no check of the document)
+TOP_CODE = 4026531840        # codes from here up are not checks (call reverts, fuel)
+
+_COMMON = '''\
+def lg_rev(xs: List<&2, HLog>, +acc: List<&2, HLog>) -> List<&2, HLog>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{h, t}:
+      lg_rev(t, Con{h, acc})
+
+def hs_get(xs: List<&2, HKB>, +k: List<&2, U32>) -> W:
+  h_get(xs, k)
+
+def kt_id(+xs: List<&2, HKB>) -> List<&2, HKB>:
+  xs
+
+def st_after(+o: HOut, +st: HSt) -> HSt:
+  ite(HSt, u_nz(o_code(o)), st, o_post(o))
+
+def b_zeros(n: Nat) -> List<&2, U32>:
+  match n:
+    case 0n:
+      Nil{}
+    case 1n+p:
+      Con{0, b_zeros(p)}
+
+def abi_dyn(+bs: List<&2, U32>) -> List<&2, U32>:
+  List.append(&2, U32, b_of_w(w_u(b_len(bs))), List.append(&2, U32, bs, b_zeros(U32.to_nat(U32.and(U32.sub(32, U32.and(b_len(bs), 31)), 31)))))
+
+def abi_words(xs: List<&2, W>) -> List<&2, U32>:
+  match xs:
+    case Nil{}:
+      Nil{}
+    case Con{h, t}:
+      List.append(&2, U32, b_of_w(h), abi_words(t))
+
+def abi_wlist(+xs: List<&2, W>) -> List<&2, U32>:
+  List.append(&2, U32, b_of_w(w_u(w_len(xs))), abi_words(xs))
+
+def eq_bool(a: Bool, b: Bool) -> Bool:
+  match a b:
+    case True{} True{}:
+      True{}
+    case False{} False{}:
+      True{}
+    case True{} False{}:
+      False{}
+    case False{} True{}:
+      False{}
+
+def is_true(b: Bool) -> Type:
+  match b:
+    case True{}:
+      Unit
+    case False{}:
+      Empty
+'''
+
+
+def _getters(prefix: str, rec: str, fs: list) -> list[str]:
+    out = []
+    names = [f for f, _ in fs]
+    for f, ty in fs:
+        pat = ", ".join(names)
+        out.append(f"def {prefix}{f}(e: {rec}) -> {ty}:\n  match e:\n    case {rec}{{{pat}}}:\n      {f}\n")
+    return out
+
+
+def _setters(prefix: str, rec: str, fs: list) -> list[str]:
+    out = []
+    names = [f for f, _ in fs]
+    for f, ty in fs:
+        pat = ", ".join(n if n != f else "_" for n in names)
+        vals = ", ".join(n if n != f else "v" for n in names)
+        out.append(f"def {prefix}{f}(e: {rec}, +v: {ty}) -> {rec}:\n  match e:\n    case {rec}{{{pat}}}:\n"
+                   f"      {rec}{{{vals}}}\n")
+    return out
+
+
+def _record(rec: str, fs: list) -> str:
+    return f"type {rec} is Data:\n  {rec}{{{', '.join(f'{f}: {ty}' for f, ty in fs)}}}\n"
+
+
+def _default(ty: str) -> str:
+    if ty == "W":
+        return "w0()"
+    if ty == "U32":
+        return "0"
+    if ty == "Nat":
+        return "0n"
+    if ty == "Bool":
+        return "False{}"
+    if ty == "HSt":
+        return "st"
+    if ty == "HAns":
+        return "HAns{False{}, False{}, Nil{}}"
+    if ty.startswith("List<"):
+        return "Nil{}"
+    raise GenError(f"no default value of {ty}")
+
+
+def _calls_in(t, pc: list, out: list) -> None:
+    """The call terms a term evaluates (holon.extracted_eval: "?", && and || evaluate lazily), in evaluation order, each
+    with the conditions under which it is evaluated: [(term, [(cond, polarity)])]."""
+    if not isinstance(t, list) or not t or not isinstance(t[0], str):
+        if isinstance(t, list):
+            for x in t:
+                _calls_in(x, pc, out)
+        return
+    h = t[0]
+    if h == "mloop":
+        return      # a memory loop's calls run once per iteration under its own variable: its loop record's call
+        # records check them (a call term outside its iteration has no meaning)
+    if h == "?" and len(t) == 4:
+        _calls_in(t[1], pc, out)
+        _calls_in(t[2], pc + [(t[1], True)], out)
+        _calls_in(t[3], pc + [(t[1], False)], out)
+        return
+    if h in ("&&", "||"):
+        acc = list(pc)
+        for x in t[1:]:
+            _calls_in(x, acc, out)
+            acc = acc + [(x, h == "&&")]
+        return
+    for x in t[1:]:
+        _calls_in(x, pc, out)
+    if h == "call" and not str(t[1]).startswith("address."):
+        key = canonical([t, pc])
+        if key not in [canonical([a, b]) for a, b in out]:
+            out.append((t, pc))
+
+
+def _callok_terms(t, out: list) -> None:
+    if isinstance(t, list):
+        if t and t[0] == "callok":
+            out.append(t)
+        for x in t:
+            _callok_terms(x, out)
+
+
+class Machine(Gen):
+    """The whole model: per-action programs (above the ghost marker), the sort section (typed), the ghost section or
+    the site instrumentation (untyped)."""
+
+    def __init__(self, m: ExtractedModel, **kw):
+        super().__init__(m, **kw)
+        self.action_defs: dict = {}
+        self.stmts: dict = {}          # action -> statement records (holon.sorts.proofs3's coercion_guard mirrors them)
+        self.first: dict = {}          # action -> the first statement def of its program
+        self._cond = None
+        self.action_ctx: dict = {}
+        self.cidx: dict = {}
+        self.nstmt = 0
+        self.nloop = 0
+        self.loops_of: dict = {}
+
+    def cidx_of(self, a: str, cid: str) -> int:
+        for i, c in enumerate(self.checks[a]):
+            if c.id == cid:
+                return i
+        raise GenError(f"{a}: no check {cid}")
+
+    # ---------------------------------------------------------- context records
+    def xt(self, a: str) -> str:
+        return f"X_{bname(a)}"
+
+    def ctx(self, a: str, fld: str, ty: str) -> str:
+        fs = self.ctx_fields.setdefault(a, [])
+        if fld not in [f for f, _ in fs]:
+            fs.append((fld, ty))
+        return fld
+
+    def sx(self, sc: Scope, fld: str, x: str, v: str) -> str:
+        return f"sx_{bname(sc.action)}_{fld}({x}, {v})"
+
+    def field_type(self, kind: str) -> str:
+        if kind in ("w", "bool") or kind.startswith("t:"):
+            return "W"
+        return self.bend_type(kind)
+
+    @staticmethod
+    def store_kind(kind: str) -> str:
+        return "w" if kind in ("w", "bool") or kind.startswith("t:") else kind
+
+    def store_value(self, code: str, kind: str, want: str) -> str:
+        if want == "w":
+            return self.to_w(code, kind)
+        if want == "b":
+            return self.to_bytes(code, kind)
+        if want != kind:
+            raise GenError(f"a loop name of kind {want} takes a {kind} value")
+        return code
+
+    # ---------------------------------------------------------- actions
+    def compile_action(self, a: str) -> None:
+        ba = bname(a)
+        X = self.xt(a)
+        prog = self.m.program(a)
+        self.checks[a] = prog.checks()
+        self.cidx = {c.id: i for i, c in enumerate(self.checks[a])}
+        self.defs = []
+        self.ctx_fields[a] = []
+        for f, ty in (("st", "HSt"), ("ov", "HSt"), ("ar", f"AR_{ba}"), ("en", "HEnv")):
+            self.ctx(a, f, ty)
+        for h in self.hashes:
+            self.ctx(a, "kh" if h == "keccak256" else "sh", "List<&2, HKB>")
+        for f, ty in (("cd", "U32"), ("rv", "List<&2, U32>"), ("lg", "List<&2, HLog>"),
+                      ("tw", "List<&2, SK>" if self.sk else "List<&2, W>")):
+            self.ctx(a, f, ty)
+        sc = Scope(a)
+        self.nstmt = 0
+        self.register_loops(prog.steps, sc)
+        end = f"sz_{ba}"
+        first = self.chain(prog.steps, sc, end)
+        self.first[a] = first
+        ret = _i94_return(self, a, sc) if self.EXT1_LINK else None   # EXT1 link (I94): the action's return data
+        body = self.defs
+        fs = self.ctx_fields[a]
+        hs = ", ".join(f"+{'kh' if h == 'keccak256' else 'sh'}: List<&2, HKB>" for h in self.hashes)
+        hv = ", ".join("kh" if h == "keccak256" else "sh" for h in self.hashes)
+        sig = f"+st: HSt, +ar: AR_{ba}, +en: HEnv{', ' + hs if hs else ''}"
+        args = f"st, ar, en{', ' + hv if hv else ''}"
+        head = [_record(X, fs)] + _getters(f"gx_{ba}_", X, fs) + _setters(f"sx_{ba}_", X, fs)
+        head.append(f"def xf_{ba}(+x: {X}, +c: U32, +r: List<&2, U32>) -> {X}:\n  sx_{ba}_cd(sx_{ba}_rv(x, r), c)\n")
+        head.append(f"def {end}(+x: {X}) -> {X}:\n  x\n" if ret is None else
+                    f"def {end}(+x: {X}) -> {X}:\n  ite({X}, U32.is_eq({self.gx(Scope(a), 'cd')}, 0), "
+                    f"{self.sx(Scope(a), 'rv', 'x', ret)}, x)\n")
+        init = []
+        for f, ty in fs:
+            init.append({"st": "st", "ov": "st", "ar": "ar", "en": "en", "kh": "kh", "sh": "sh"}.get(f) or _default(ty))
+        tail = [f"def x0_{ba}({sig}) -> {X}:\n  {X}{{{', '.join(init)}}}\n",
+                f"# the context after the action's program ran (holon.extracted_eval's order)\n"
+                f"def xr_{ba}({sig}) -> {X}:\n  {first}(x0_{ba}({args}))\n",
+                f"def xo_{ba}(+x: {X}) -> HOut:\n  HOut{{gx_{ba}_cd(x), gx_{ba}_rv(x), gx_{ba}_ov(x), "
+                f"lg_rev(gx_{ba}_lg(x), Nil{{}}), gx_{ba}_tw(x)}}\n",
+                f"def run_{ba}({sig}) -> HOut:\n  xo_{ba}(xr_{ba}({args}))\n",
+                f"# 0 when every check of {a} holds, k + 1 when check k (holon.machine's order) is the first to fail\n"
+                f"def chk_{ba}({sig}) -> U32:\n  o_code(run_{ba}({args}))\n",
+                f"def post_{ba}({sig}) -> HSt:\n  o_post(run_{ba}({args}))\n",
+                f"def logs_{ba}({sig}) -> List<&2, HLog>:\n  o_logs(run_{ba}({args}))\n",
+                f"def step_{ba}({sig}) -> HSt:\n  st_after(run_{ba}({args}), st)\n"]
+        self.action_defs[a] = head + body + tail
+        self.defs = []
+
+    def chain(self, steps, sc: Scope, nxt: str) -> str:
+        for s in reversed(list(steps)):
+            nxt = self.statement(s, sc, nxt)
+        return nxt
+
+    # ---------------------------------------------------------- loops: registration (forward)
+    def register_loops(self, steps, sc: Scope) -> None:
+        for s in steps:
+            if not isinstance(s, Loop):
+                continue
+            self.nloop += 1
+            j = self.nloop
+            a = sc.action
+            li = LoopInfo(j, s, [], [], len(s.returns))
+            sc.src = s.src
+            for n, e, _v in s.carried:
+                c, k = self.value(e, sc)
+                k = self.store_kind(k)
+                li.carried.append((n, _lab(n), k))
+            sc.loops[(s.src, s.reach)] = li
+            for i, (n, lab, k) in enumerate(li.carried):
+                self.ctx(a, f"c{j}_{i}", self.field_type(k))
+            for f, ty in ((f"it{j}", "W"), (f"cn{j}", "W"), (f"rt{j}", "W"), (f"ld{j}", "Nat")):
+                self.ctx(a, f, ty)
+            self.register_loops(s.body, sc)
+            names = [canonical(n) for n, _l, _k in li.carried]
+            for n, e in s.exits:
+                if canonical(n) in names:
+                    continue
+                c, k = self.value(e, sc)
+                li.exits_extra.append((n, _lab(n), self.store_kind(k)))
+                names.append(canonical(n))
+            for m, (_cnd, v) in enumerate(s.returns):
+                c, k = self.value(v if v is not None or not self.EXT1 else 0, sc)   # EXT1: a valueless return
+                li.exits_extra.append((["return", m], f"return{m}", self.store_kind(k)))
+            for i, (n, lab, k) in enumerate(li.exits_extra):
+                self.ctx(a, f"x{j}_{i}", self.field_type(k))
+            self.loops_of[(a, s.seq)] = li
+
+    # ---------------------------------------------------------- statements (reverse)
+    def statement(self, s, sc: Scope, nxt: str) -> str:
+        if isinstance(s, MStore):
+            return nxt                    # memory is not observable; terms carry the regions they read
+        a = sc.action
+        ba = bname(a)
+        X = self.xt(a)
+        self.nstmt += 1
+        i = self.nstmt
+        sc.src = s.src
+        try:
+            pc = [] if getattr(s, "cond", 1) in (1, True) else [(s.cond, True)]
+            if isinstance(s, Check):
+                body = self.st_check(s, sc, nxt, i)
+                terms = [(s.expr, [])]
+            elif isinstance(s, Write):
+                body = self.st_write(s, sc, nxt, i)
+                terms = [(s.cond, []), ([x[1] for x in s.path], pc), (s.value, pc)]
+            elif isinstance(s, Event):
+                body = self.st_event(s, sc, nxt, i)
+                terms = [(s.cond, []), (list(s.topics), pc), (list(s.args), pc)]
+            elif isinstance(s, Loop):
+                body = self.st_loop(s, sc, nxt, i)
+                terms = [(s.cond, []), ([e for _n, e, _v in s.carried], pc)]
+            else:
+                raise GenError(f"{a}: a program record of kind {type(s).__name__}")
+        except GenError as e:
+            msg = str(e)
+            if s.src and str(s.src) not in msg:
+                msg = f"{msg} (at {s.src})"
+            raise GenError(msg) from None
+        if _has_decode(terms):
+            guarded = self.effect_guards(terms, sc, body, i)     # I83 L1: decodes and calls in evaluation order
+        else:
+            guarded = self.call_guards(terms, sc, body, i)
+        name = f"s_{ba}_{i}"
+        info = {"i": i, "name": name, "kind": type(s).__name__.lower(), "calls": guarded != body,
+                "cond": None, "expr": None, "code": None, "next": nxt, "top": not sc.loops or s.entry.get("loop") is None}
+        if isinstance(s, Check):
+            info.update(cond=self._cond, expr=s.expr, code=self.cidx[s.id] + 1, helper=f"k_{ba}_{i}")
+        elif isinstance(s, (Write, Event)):
+            info.update(cond=self._cond, helper=(f"wr_{ba}_{i}" if isinstance(s, Write) else f"ev_{ba}_{i}"))
+        self.stmts.setdefault(a, []).append(info)
+        body = guarded
+        self.add(f"# {comment(f'{type(s).__name__.lower()} {s.src}')}\ndef {name}(+x: {X}) -> {X}:\n  {body}\n")
+        return name
+
+    def call_guards(self, terms: list, sc: Scope, body: str, i: int) -> str:
+        """A call term whose answer is a revert reverts the step with that data (holon.extracted_eval CallReverted),
+        when the evaluation reaches it."""
+        calls: list = []
+        for t, pc in terms:
+            _calls_in(t, list(pc), calls)
+        if not calls:
+            return body
+        a = sc.action
+        ba = bname(a)
+        X = self.xt(a)
+        for n in range(len(calls) - 1, -1, -1):
+            t, pc = calls[n]
+            ans = self.answer(t[1], None, self.split_value(t[2:]), sc)
+            name = f"cq_{ba}_{i}_{n}"
+            self.add(f"def {name}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n"
+                     f"      xf_{ba}(x, {CALL_CODE}, a_ret({ans}))\n    case False{{}}:\n      {body}\n")
+            cond = f"Bool.not(a_ok({ans}))"
+            for ct, pol in reversed(pc):
+                cc = self.cond(ct, sc)
+                cond = f"Bool.and({cc if pol else f'Bool.not({cc})'}, {cond})"
+            body = f"{name}({cond}, x)"
+        return body
+
+    def st_check(self, c: Check, sc: Scope, nxt: str, i: int) -> str:
+        ba = bname(sc.action)
+        X = self.xt(sc.action)
+        k = self.cidx[c.id]
+        cond = self.cond(c.expr, sc)
+        self._cond = cond
+        rv = self.revert_code(c, sc)
+        kn = f"k_{ba}_{i}"
+        self.add(f"# {comment(c.id)}\ndef {kn}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n"
+                 f"      {nxt}(x)\n    case False{{}}:\n      xf_{ba}(x, {k + 1}, {rv})\n")
+        return f"{kn}({cond}, x)"
+
+    def revert_code(self, c: Check, sc: Scope) -> str:
+        if c.kind == "panic" or c.code is not None:
+            return blit(EV.panic(to_int(c.code)))
+        if c.kind in ("call", "uncaught"):
+            oks: list = []
+            _callok_terms(c.expr, oks)
+            code = "Nil{}"
+            for t in oks:
+                ans = self.answer(t[1], t[2], self.split_value(t[3:]), sc)
+                code = f"ite(List<&2, U32>, a_ok({ans}), {code}, a_ret({ans}))"
+            return code
+        if c.kind in ("callvalue", "calldatasize", "abi", "slice"):
+            return "Nil{}"
+        err = c.error if isinstance(c.error, dict) else None
+        if err is None:
+            return "Nil{}"
+        sel = err.get("selector")
+        if not (isinstance(sel, str) and re.fullmatch(r"0x[0-9a-fA-F]{8}", sel)):
+            raise GenError(f"check {c.id}: its error has no selector")
+        head = blit(bytes.fromhex(sel[2:]))
+        ps = EV.signature_types(err.get("signature") or "")
+        args = c.args if isinstance(c.args, list) else []
+        if not ps or len(args) != len(ps):
+            return head
+        return f"List.append(&2, U32, {head}, {self.abi_values(list(zip(args, ps)), sc)})"
+
+    def abi_values(self, pairs: list, sc: Scope) -> str:
+        heads, tails = [], []
+        for t, p in pairs:
+            ty = p.get("type", "")
+            if ty in ("bytes", "string"):
+                heads.append(None)
+                tails.append(self.b(t, sc))
+            elif re.fullmatch(r"(u?int\d*|address|bool|bytes\d+)", ty):
+                heads.append(f"b_of_w({self.w(t, sc)})")
+            elif re.fullmatch(r"(u?int\d*|address|bool|bytes\d+)\[\]", ty):
+                c, k = self.value(t, sc)
+                if k != "l:W":
+                    raise GenError(f"{sc.action}: an ABI {ty} of a {k} value")
+                heads.append(None)
+                tails.append(("w", c))
+            else:
+                raise GenError(f"{sc.action}: ABI encoding of a {ty}")
+        n = len(heads)
+        parts = []
+        off = f"w_u({32 * n})"
+        it = iter(tails)
+        tail_parts = []
+        for h in heads:
+            if h is None:
+                tl = next(it)
+                enc = f"abi_wlist({tl[1]})" if isinstance(tl, tuple) else f"abi_dyn({tl})"
+                parts.append(f"b_of_w({off})")
+                tail_parts.append(enc)
+                off = f"w_add({off}, w_u(b_len({enc})))"
+            else:
+                parts.append(h)
+        out = "Nil{}"
+        for p in reversed(parts + tail_parts):
+            out = f"List.append(&2, U32, {p}, {out})" if out != "Nil{}" else p
+        return out
+
+    # writes
+    def st_write(self, w: Write, sc: Scope, nxt: str, i: int) -> str:
+        a = sc.action
+        ba = bname(a)
+        X = self.xt(a)
+        wn = f"wr_{ba}_{i}"
+        lines = self.write_body(w, sc)
+        self.add(f"def {wn}(+x: {X}) -> {X}:\n" + "\n".join(lines) + "\n")
+        self._cond = None
+        if w.cond in (1, True):
+            return f"{nxt}({wn}(x))"
+        cn = f"wc_{ba}_{i}"
+        self.add(f"def {cn}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      {nxt}({wn}(x))\n"
+                 f"    case False{{}}:\n      {nxt}(x)\n")
+        self._cond = self.cond(w.cond, sc)
+        return f"{cn}({self._cond}, x)"
+
+    def write_body(self, w: Write, sc: Scope) -> list[str]:
+        fam = w.family
+        self.m.family(fam)
+        p = StoragePath("o0", fam, [], fam)
+        for acc in w.path:
+            kind, key = acc[0], acc[1]
+            if kind == "member":
+                p = p.extend("member", key, "name", f"{p.var}.{key}")
+            else:
+                kc, kk = self.value(key, sc)
+                p = p.extend(kind, kc, kk, p.var)
+        slot, off, tid, _lit = self.locate(p, sc)
+        t = self.m.type_of(tid)
+        if self.sk:
+            lines = [f"  +o0 = {self.gx(sc, 'ov')}"]
+            kloc = self.locate_loc(p, sc)[0].bound(lines, "k")
+            kcode = kloc.code()
+        else:
+            lines = [f"  +o0 = {self.gx(sc, 'ov')}", f"  +k = {{{slot} : W}}"]
+            kloc, kcode = None, "k"
+        slots: list = []
+        wraps: list = []   # I94: touched words a member's clearing adds by count (bytes data slots), outermost last
+        if t.get("encoding") == "inplace" and "members" in t:
+            vals = self.struct_value(w.value, sc, lines)
+            cur = "o0"
+            n = 0
+            for mm in t["members"]:
+                mt = self.m.type_of(mm["type"])
+                if mt.get("encoding") != "inplace" or "members" in mt or "base" in mt:
+                    if vals.get(mm["label"], "w0()") != "w0()":
+                        raise GenError(f"{sc.action}: a write of member {mm['label']} ({mt.get('label')}) of {fam}")
+                    if mt.get("encoding") == "bytes":
+                        # I94 (F1): the zero write of a struct clears a bytes or string member as the compiler does:
+                        # its slot, and in the long form (the slot's lowest bit set) its ceil(length / 32) data
+                        # slots from keccak256(slot), each a touched word
+                        if self.sk:
+                            raise GenError(f"{sc.action}: the delete of member {mm['label']} ({mt.get('label')}) "
+                                           f"of {fam} in a structural store")
+                        ms = "k" if not int(mm["slot"]) else f"w_add(k, {wlit(int(mm['slot']))})"
+                        n += 1
+                        lines.append(f"  +o{n} = {{{_i94_bytes_clear(self, f'o{n - 1}', ms, wraps, self.gx(sc, 'kh'))} : HSt}}")
+                        cur = f"o{n}"
+                        if ms not in slots:
+                            slots.append(ms)
+                    continue
+                if self.sk:
+                    ms = kloc.plus(int(mm["slot"])).code()
+                else:
+                    ms = "k" if not int(mm["slot"]) else f"w_add(k, {wlit(int(mm['slot']))})"
+                n += 1
+                lines.append(f"  +o{n} = {{{self.write_word(cur, ms, int(mm['offset']), mm['type'], vals.get(mm['label'], 'w0()'))} : HSt}}")
+                cur = f"o{n}"
+                if ms not in slots:
+                    slots.append(ms)
+        elif t.get("encoding") == "inplace" and "base" not in t:
+            vc, vk = self.value(w.value, sc)
+            lines.append(f"  +v = {{{self.to_w(vc, vk)} : W}}")
+            lines.append(f"  +o1 = {{{self.write_word('o0', kcode, off, tid, 'v')} : HSt}}")
+            cur = "o1"
+            slots = [kcode]
+        else:
+            raise GenError(f"{sc.action}: a write of a whole {t.get('label')} ({fam})")
+        tw = self.gx(sc, "tw")
+        for wrap in wraps:
+            tw = wrap.replace("\x00TW\x00", tw)
+        for s_ in reversed(slots):
+            tw = f"Con{{{s_}, {tw}}}"
+        lines.append(f"  {self.sx(sc, 'tw', self.sx(sc, 'ov', 'x', cur), tw)}")
+        return lines
+
+    def struct_value(self, t, sc: Scope, lines: list) -> dict:
+        if t in (0, False):
+            return {}
+        c, k = self.tx(t, sc)
+        if k == "z":
+            return json.loads(c[2:])
+        if k == "p":
+            slot, off, tid, _l = self.locate(c, sc)
+            st = self.m.type_of(tid)
+            if "members" not in st:
+                raise GenError(f"{sc.action}: a struct write of a {st.get('label')} read")
+            if self.sk:
+                qloc = self.locate_loc(c, sc)[0].bound(lines, "q")
+            else:
+                lines.append(f"  +q = {{{slot} : W}}")
+                qloc = None
+            out = {}
+            for mm in st["members"]:
+                mt = self.m.type_of(mm["type"])
+                if mt.get("encoding") != "inplace" or "members" in mt or "base" in mt:
+                    continue
+                if self.sk:
+                    ms = qloc.plus(int(mm["slot"])).code()
+                else:
+                    ms = "q" if not int(mm["slot"]) else f"w_add(q, {wlit(int(mm['slot']))})"
+                out[mm["label"]] = self.read_word(c.view, ms, int(mm["offset"]), mm["type"])
+            return out
+        raise GenError(f"{sc.action}: a struct write of a {k} value")
+
+    # events
+    def st_event(self, ev: Event, sc: Scope, nxt: str, i: int) -> str:
+        a = sc.action
+        ba = bname(a)
+        X = self.xt(a)
+        if not ev.signature:
+            raise GenError(f"{a}: event {ev.event}: the document gives no signature")
+        ps = EV.signature_types(ev.signature)
+        if len(ev.args) != len(ps) or len(ev.indexed) != len(ps):
+            raise GenError(f"{a}: event {ev.event}: {len(ev.args)} arguments for {len(ps)} parameters")
+        topics = []
+        if not ev.anonymous:
+            if not isinstance(ev.topic0, str):
+                raise GenError(f"{a}: event {ev.event}: no topic0")
+            topics.append(wlit(to_int(ev.topic0)))
+        if len(ev.topics) != sum(1 for x in ev.indexed if x):
+            raise GenError(f"{a}: event {ev.event}: topic terms and indexed arguments differ")
+        topics += [self.w(t, sc) for t in ev.topics]
+        data = self.abi_values([(x, p) for x, p, ix in zip(ev.args, ps, ev.indexed) if not ix], sc)
+        tl = ("[" + ", ".join(topics) + "]") if topics else "Nil{}"
+        en = f"ev_{ba}_{i}"
+        lgc = self.gx(sc, "lg")
+        new = "Con{HLog{" + tl + ", " + data + "}, " + lgc + "}"
+        self.add(f"def {en}(+x: {X}) -> {X}:\n  {self.sx(sc, 'lg', 'x', new)}\n")
+        self._cond = None
+        if ev.cond in (1, True):
+            return f"{nxt}({en}(x))"
+        cn = f"ec_{ba}_{i}"
+        self.add(f"def {cn}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      {nxt}({en}(x))\n"
+                 f"    case False{{}}:\n      {nxt}(x)\n")
+        self._cond = self.cond(ev.cond, sc)
+        return f"{cn}({self._cond}, x)"
+
+    # loops
+    def set_fields(self, sc: Scope, x: str, pairs: list) -> str:
+        out = x
+        for f, v in pairs:
+            out = self.sx(sc, f, out, v)
+        return out
+
+    def st_loop(self, lp: Loop, sc: Scope, nxt: str, i: int) -> str:
+        a = sc.action
+        ba = bname(a)
+        X = self.xt(a)
+        li = self.loops_of[(a, lp.seq)]
+        j = li.j
+        p = f"{ba}_{j}"
+        # the iteration's body, then its decisions (helpers before their users: Bend reads definitions in order)
+        lets, sets = [], []
+        for k_, (n, e) in enumerate(lp.next):
+            idx = next((q for q, (cn_, _l, _k) in enumerate(li.carried) if canonical(cn_) == canonical(n)), None)
+            if idx is None:
+                raise GenError(f"{a}: loop {lp.src}: next value of {canonical(n)}, which is not carried")
+            c, kk = self.value(e, sc)
+            lets.append(f"  +n{k_} = {{{self.store_value(c, kk, li.carried[idx][2])} : {self.field_type(li.carried[idx][2])}}}")
+            sets.append((f"c{j}_{idx}", f"n{k_}"))
+        sets.append((f"it{j}", f"w_add({self.gx(sc, f'it{j}')}, w_u(1))"))
+        sets.append((f"ld{j}", "1n"))
+        self.add(f"def ln_{p}(+x: {X}) -> {X}:\n" + "\n".join(lets + [f"  {self.set_fields(sc, 'x', sets)}"]) + "\n")
+        # break: the at_break values, the count
+        lets, sets = [], []
+        for k_, (n, e) in enumerate(lp.at_break):
+            idx = next((q for q, (cn_, _l, _k) in enumerate(li.carried) if canonical(cn_) == canonical(n)), None)
+            if idx is None:
+                continue
+            c, kk = self.value(e, sc)
+            lets.append(f"  +b{k_} = {{{self.store_value(c, kk, li.carried[idx][2])} : {self.field_type(li.carried[idx][2])}}}")
+            sets.append((f"c{j}_{idx}", f"b{k_}"))
+        sets += [(f"cn{j}", self.gx(sc, f"it{j}")), (f"ld{j}", "3n")]
+        self.add(f"def lbk_{p}(+x: {X}) -> {X}:\n" + "\n".join(lets + [f"  {self.set_fields(sc, 'x', sets)}"]) + "\n")
+        self.add(f"def lk_{p}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      lbk_{p}(x)\n"
+                 f"    case False{{}}:\n      ln_{p}(x)\n")
+        nxt_dec = f"lk_{p}({self.cond(lp.brk, sc)}, x)" if lp.brk not in (0, False) else f"ln_{p}(x)"
+        # return paths, last first
+        for m in range(len(lp.returns) - 1, -1, -1):
+            cnd, val = lp.returns[m]
+            xi = next(q for q, (n, _l, _k) in enumerate(li.exits_extra) if n == ["return", m])
+            c, kk = self.value(val if val is not None or not self.EXT1 else 0, sc)   # EXT1: a valueless return
+            sets = [(f"x{j}_{xi}", "r"), (f"rt{j}", f"w_u({m + 1})"), (f"cn{j}", self.gx(sc, f"it{j}")),
+                    (f"ld{j}", "3n")]
+            self.add(f"def lrr_{p}_{m}(+x: {X}) -> {X}:\n  +r = {{{self.store_value(c, kk, li.exits_extra[xi][2])} : {self.field_type(li.exits_extra[xi][2])}}}\n"
+                     f"  {self.set_fields(sc, 'x', sets)}\n")
+            self.add(f"def lr_{p}_{m}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      lrr_{p}_{m}(x)\n"
+                     f"    case False{{}}:\n      {nxt_dec}\n")
+            nxt_dec = f"lr_{p}_{m}({self.cond(cnd, sc)}, x)"
+        self.add(f"def lc_{p}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      {self.sx(sc, f'ld{j}', 'x', '2n')}\n"
+                 f"    case False{{}}:\n      {nxt_dec}\n")
+        self.add(f"def lb_{p}(+x: {X}) -> {X}:\n  lc_{p}(u_nz({self.gx(sc, 'cd')}), x)\n")
+        # the body's chain ends in lz (the iteration ran to its end); lb decides after it, also when a check of the
+        # body failed and ended the chain early (its code is set: the loop stops)
+        self.add(f"def lz_{p}(+x: {X}) -> {X}:\n  x\n")
+        body_first = self.chain(lp.body, sc, f"lz_{p}")
+        # the normal exit (the head failed): the count, the exit values of the names that are not carried
+        lets, sets = [], []
+        for k_, (n, e) in enumerate(lp.exits):
+            xi = next((q for q, (nn, _l, _k) in enumerate(li.exits_extra) if canonical(nn) == canonical(n)), None)
+            if xi is None:
+                continue
+            c, kk = self.value(e, sc)
+            lets.append(f"  +e{k_} = {{{self.store_value(c, kk, li.exits_extra[xi][2])} : {self.field_type(li.exits_extra[xi][2])}}}")
+            sets.append((f"x{j}_{xi}", f"e{k_}"))
+        sets += [(f"cn{j}", self.gx(sc, f"it{j}")), (f"ld{j}", "0n")]
+        self.add(f"def lx_{p}(+x: {X}) -> {X}:\n" + "\n".join(lets + [f"  {self.set_fields(sc, 'x', sets)}"]) + "\n")
+        self.add(f"def lh_{p}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      lb_{p}({body_first}(x))\n"
+                 f"    case False{{}}:\n      lx_{p}(x)\n")
+        self.add(f"def li_{p}(+x: {X}) -> {X}:\n  lh_{p}({self.cond(lp.head, sc)}, x)\n")
+        self.add(f"def lpz_{p}(d: Nat, +x: {X}) -> {X}:\n  match d:\n    case 0n:\n      x\n    case 1n+q:\n"
+                 f"      match q:\n        case 0n:\n          xf_{ba}(x, {FUEL_CODE}, Nil{{}})\n"
+                 f"        case 1n+s:\n          x\n")
+        self.add(f"# {comment(f'loop {lp.src}: fuel f; d 0 exited (head false), 1 iterate, 2 a check failed, 3 exited (break or return)')}\n"
+                 f"def lp_{p}(f: Nat, d: Nat, +x: {X}) -> {X}:\n  match f:\n    case 0n:\n      lpz_{p}(d, x)\n"
+                 f"    case 1n+r:\n      match d:\n        case 0n:\n          x\n        case 1n+q:\n"
+                 f"          match q:\n            case 0n:\n              +y = li_{p}(x)\n"
+                 f"              lp_{p}(r, {self.gx(Scope(a, 'y'), f'ld{j}')}, y)\n            case 1n+s:\n              x\n")
+        # the start: the carried names' entry values (evaluated before the loop), iteration 0
+        lets, sets = [], []
+        for idx, (n, e, _v) in enumerate(lp.carried):
+            c, kk = self.value(e, sc)
+            lets.append(f"  +v{idx} = {{{self.store_value(c, kk, li.carried[idx][2])} : {self.field_type(li.carried[idx][2])}}}")
+            sets.append((f"c{j}_{idx}", f"v{idx}"))
+        sets += [(f"it{j}", "w0()"), (f"cn{j}", "w0()"), (f"rt{j}", "w0()"), (f"ld{j}", "1n")]
+        self.add(f"def ls_{p}(+x: {X}) -> {X}:\n" + "\n".join(lets + [f"  {self.set_fields(sc, 'x', sets)}"]) + "\n")
+        self.add(f"def la_{ba}_{i}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      x\n"
+                 f"    case False{{}}:\n      {nxt}(x)\n")
+        run = f"la_{ba}_{i}(u_nz({self.gx(Scope(a, 'y'), 'cd')}), y)"
+        self.add(f"def lg_{ba}_{i}(+x: {X}) -> {X}:\n  +y = lp_{p}(U32.to_nat({FUEL}), 1n, ls_{p}(x))\n  {run}\n")
+        if lp.cond in (1, True):
+            return f"lg_{ba}_{i}(x)"
+        self.add(f"def lq_{ba}_{i}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n      lg_{ba}_{i}(x)\n"
+                 f"    case False{{}}:\n      {nxt}(x)\n")
+        return f"lq_{ba}_{i}({self.cond(lp.cond, sc)}, x)"
+
+
+def _lab(n) -> str:
+    if isinstance(n, list) and len(n) == 2 and n[0] == "storage":
+        return f"storage.{n[1]}"
+    return n if isinstance(n, str) else canonical(n)
+
+
+# ================================================================================================ the sort section
+def n1_sorts(sorts: dict, sites: list) -> list[str]:
+    """N1: every family and parameter sort other than Nat (unrefined), Bool and Mach(w), every sign site's sort, every
+    union member (the variables of E2 that are families, family members and parameters)."""
+    out = set()
+    for v, s in sorts.items():
+        if v.startswith(("env:", "call:", "loop:", "$")):
+            continue
+        if s in ("Nat (unrefined)", "Bool") or str(s).startswith("Mach("):
+            continue
+        out.add(s)
+    for s in sites:
+        if s.get("obligation") == "sign":
+            out.add(s["sort"])
+    for s in list(out):
+        p = G.parse(s)
+        if p.head == "Union":
+            out |= {G.render(m) for m in p.members}
+    return sorted(out)
+
+
+class Model3(Machine):
+    def typed_section(self) -> list[str]:
+        out = []
+        sorts = sorted(self.types_used)
+        for s in sorts:
+            n = tname(s)
+            if G.is_signed(G.parse(s)):
+                out.append(f"type {n} is Data:\n  {n}{{ng: Bool, p: W}}\n")
+                out.append(f"def pay_{n}(v: {n}) -> W:\n  match v:\n    case {n}{{ng, p}}:\n      p\n")
+            else:
+                out.append(f"type {n} is Data:\n  {n}{{p: W}}\n")
+                out.append(f"def pay_{n}(v: {n}) -> W:\n  match v:\n    case {n}{{p}}:\n      p\n")
+            out.append(f"def is_some_{n}(m: Maybe<&2, {n}>) -> Bool:\n  match m:\n    case None{{}}:\n      False{{}}\n"
+                       f"    case Some{{v}}:\n      True{{}}\n")
+        for s in sorts:
+            ps = G.parse(s)
+            n = tname(s)
+            if ps.label:
+                b = self.base_sort(s)
+                out.append(f"# erase: the labelled sort {s} as its base {b} (total)\n"
+                           f"def erase_{sname(s)}(+v: {n}) -> {tname(b)}:\n  {tname(b)}{{pay_{n}(v)}}\n")
+            if G.is_signed(ps):
+                u = G.render(G.unsigned(ps))
+                tu = tname(u)
+                out.append(f"def wrap_{n}(+v: {n}) -> {tu}:\n  {tu}{{pay_{n}(v)}}\n")
+                out.append(f"def rzg_{n}(c: Bool, +p: W) -> Maybe<&2, {tu}>:\n  match c:\n    case True{{}}:\n"
+                           f"      None{{}}\n    case False{{}}:\n      Some{{{tu}{{p}}}}\n")
+                out.append(f"# realize (N3): None iff the signed value is negative\n"
+                           f"def realize_{n}(v: {n}) -> Maybe<&2, {tu}>:\n  match v:\n    case {n}{{ng, p}}:\n"
+                           f"      rzg_{n}(ng, p)\n")
+        for name, o in sorted(self.ops.items()):
+            a, b = o["args"]
+            ta, tb, tr = tname(a), tname(b), tname(o["result"])
+            pa, pb = f"pay_{ta}(a)", f"pay_{tb}(b)"
+            if o["op"] in ("+", "-"):
+                fn = "w_add" if o["op"] == "+" else "w_sub"
+                if G.is_signed(G.parse(o["result"])):
+                    if o["op"] != "-":
+                        raise GenError(f"a typed {a} + {b} with a signed result")
+                    body = f"{tr}{{w_lt({pa}, {pb}), {fn}({pa}, {pb})}}"
+                else:
+                    body = f"{tr}{{{fn}({pa}, {pb})}}"
+                out.append(f"def {name}(+a: {ta}, +b: {tb}) -> {tr}:\n  {body}\n")
+            else:
+                out.append(f"def {name}(+a: {ta}, +b: {tb}) -> Bool:\n  {_RAW_CMP[o['op']](pa, pb)}\n")
+        return out
+
+
+# ================================================================================================ the ghost section
+def _branch_cond(v, R) -> list | None:
+    """The conditions under which a write's value is its branch R ([(cond, polarity)]), or None."""
+    if v == R:
+        return []
+    if isinstance(v, list) and len(v) == 4 and v[0] == "?":
+        for pol, br in ((True, v[2]), (False, v[3])):
+            r = _branch_cond(br, R)
+            if r is not None:
+                return [(v[1], pol)] + r
+    return None
+
+
+class Ghost:
+    """Below GHOST_MARKER: the generated companions (G1-G3), the augmented state, Reach, and the coercions of every I30
+    law of the document (coerce_<x>, chit_<x>)."""
+
+    def __init__(self, mm: Model3, basis):
+        self.mm = mm
+        self.b = basis
+        self.out: list = []
+        self.regs = sorted(basis.unions)
+        self.members = sorted({G.render(x) for f in self.regs for x in G.parse(mm.sorts[f]).members})
+
+    def comp(self, f: str) -> str:
+        return "gc_" + bname(f)
+
+    def comp_type(self, f: str) -> tuple[str, bool]:
+        fam = f.partition(".")[0]
+        t = self.mm.m.type_of(self.mm.m.family(fam).type)
+        return ("List<&2, GKT>", True) if t.get("encoding") == "mapping" else ("Tag", False)
+
+    def tag_code(self, tt, sc: Scope, g: str) -> str:
+        from ..rules.sort import BOTTOM
+        if tt == BOTTOM or tt is None:
+            return "TG_bot{}"
+        if isinstance(tt, list) and tt and tt[0] == "sort":
+            if tt[1] not in self.members:
+                return "TG_bot{}"
+            return f"TG_{sname(tt[1])}{{}}"
+        if isinstance(tt, list) and len(tt) == 4 and tt[0] == "?":
+            return f"ite(Tag, {self.mm.cond(tt[1], sc)}, {self.tag_code(tt[2], sc, g)}, {self.tag_code(tt[3], sc, g)})"
+        from .extracted import TAG_HEAD
+        if isinstance(tt, list) and tt and tt[0] == TAG_HEAD:
+            f, key = tt[1], tt[2]
+            _ty, keyed = self.comp_type(f)
+            if keyed:
+                if key is None:
+                    raise GenError(f"the companion of {f} read without a key")
+                return f"gk_get(gh_get_{bname(f)}({g}), {self.mm.w(key, sc)})"
+            return f"gh_get_{bname(f)}({g})"
+        raise GenError(f"a tag term {canonical(tt)[:100]}")
+
+    def effects(self, a: str) -> list:
+        """(write, register, key term) of every write of a union register in a's program (G3)."""
+        out = []
+        for s in self.mm.m.program(a).records(Write):
+            regs = [r for r in self.regs if r.partition(".")[0] == s.family]
+            if not regs:
+                continue
+            for r in regs:
+                mem = r.partition(".")[2]
+                path = list(s.path)
+                if mem:
+                    if not path or path[-1][0] != "member" or path[-1][1] != mem:
+                        if any(p[0] == "member" for p in path):
+                            continue
+                        raise GenError(f"{a}: a write of the whole struct of union member {r} ({s.src})")
+                    path = path[:-1]
+                if s.entry.get("loop") is not None:
+                    raise GenError(f"{a}: a write of union register {r} inside a loop ({s.src}): its ghost effect is "
+                                   "not compiled")
+                if len(path) > 1 or (path and path[0][0] != "map"):
+                    raise GenError(f"{a}: a write of union register {r} at a nested path ({s.src})")
+                out.append((s, r, path[0][1] if path else None))
+        return out
+
+    def section(self, acts: list, elements: list) -> list[str]:
+        mm, out = self.mm, []
+        hs = ", ".join(f"+{'kh' if h == 'keccak256' else 'sh'}: List<&2, HKB>" for h in mm.hashes)
+        hv = ", ".join("kh" if h == "keccak256" else "sh" for h in mm.hashes)
+        out.append("type Tag is Data:\n  TG_bot{}\n" + "".join(f"  TG_{sname(m)}{{}}\n" for m in self.members))
+        cases = []
+        cons = ["TG_bot"] + [f"TG_{sname(m)}" for m in self.members]
+        for x in cons:
+            for y in cons:
+                cases.append(f"    case {x}{{}} {y}{{}}:\n      {'True' if x == y else 'False'}{{}}\n")
+        out.append("def tg_eq(a: Tag, b: Tag) -> Bool:\n  match a b:\n" + "".join(cases))
+        out.append("type GKT is Data:\n  GKT{k: W, t: Tag}\n")
+        # (A30) the companion map is recursed on affinely, as the prelude's slot map (holon.sorts.prelude3)
+        out.append("def gk_get(xs: List<&2, GKT>, +k: W) -> Tag:\n  match xs:\n    case Nil{}:\n      TG_bot{}\n"
+                   "    case Con{h, t}:\n      match h:\n        case GKT{hk, ht}:\n"
+                   "          ite(Tag, w_eq(hk, k), ht, gk_get(t, k))\n")
+        out.append("def gk_put(xs: List<&2, GKT>, +k: W, +v: Tag, +done: Bool) -> List<&2, GKT>:\n  match xs:\n"
+                   "    case Nil{}:\n      ite(List<&2, GKT>, done, Nil{}, [GKT{k, v}])\n    case Con{h, t}:\n"
+                   "      match h:\n        case GKT{+hk, ht}:\n          +eq = w_eq(hk, k)\n"
+                   "          Con{GKT{hk, ite(Tag, Bool.and(eq, Bool.not(done)), v, ht)}, "
+                   "gk_put(t, k, v, Bool.or(done, eq))}\n")
+        out.append("def gk_set(xs: List<&2, GKT>, +k: W, +v: Tag) -> List<&2, GKT>:\n  gk_put(xs, k, v, False{})\n")
+        fs = [("st", "HSt")] + [(self.comp(f), self.comp_type(f)[0]) for f in self.regs]
+        out.append("# the augmented state: the real store and the generated companion of every union register (G1)\n"
+                   + _record("GSt", fs))
+        out += [x.replace("def gh_get_gc_", "def gh_get_", 1) for x in _getters("gh_get_", "GSt", fs)]
+        out += [x.replace("def gh_set_gc_", "def gh_set_", 1) for x in _setters("gh_set_", "GSt", fs)]
+        init = ["s0()"] + ["Nil{}" if self.comp_type(f)[1] else "TG_bot{}" for f in self.regs]
+        out.append(f"def gh_s0() -> GSt:\n  GSt{{{', '.join(init)}}}\n")
+        # ghost steps (G3)
+        for a in acts:
+            ba = bname(a)
+            X = mm.xt(a)
+            eff = self.effects(a)
+            sc = Scope(a)
+            lines = []
+            cur = "g"
+            for n, (w, r, key) in enumerate(eff):
+                tt = self.b.tagger.tg(w.value, a)
+                tag = self.tag_code(tt, sc, "g")
+                if self.comp_type(r)[1]:
+                    newc = f"gk_set(gh_get_{bname(r)}({cur}), {mm.w(key, sc)}, {tag})"
+                else:
+                    newc = tag
+                upd = f"gh_set_{bname(r)}({cur}, {newc})"
+                cond = mm.cond(w.cond, sc) if w.cond not in (1, True) else None
+                lines.append(f"  +g{n + 1} = {{{upd if cond is None else f'ite(GSt, {cond}, {upd}, {cur})'} : GSt}}")
+                cur = f"g{n + 1}"
+            out.append(f"def gh_eff_{ba}(+x: {X}, +g: GSt) -> GSt:\n" + "".join(l + "\n" for l in lines) + f"  {cur}\n")
+            out.append(f"def gh_ok_{ba}(c: Bool, +x: {X}, +g: GSt) -> GSt:\n  match c:\n    case True{{}}:\n      g\n"
+                       f"    case False{{}}:\n      gh_eff_{ba}(x, gh_set_st(g, gx_{ba}_ov(x)))\n")
+            out.append(f"def gh_go_{ba}(+x: {X}, +g: GSt) -> GSt:\n  gh_ok_{ba}(u_nz(gx_{ba}_cd(x)), x, g)\n")
+        cases = "".join(f"    case A_{bname(a)}{{ar, en}}:\n      gh_go_{bname(a)}(xr_{bname(a)}(gh_get_st(g), ar, en"
+                        f"{', ' + hv if hv else ''}), g)\n" for a in acts)
+        out.append(f"# one step of any action from an augmented state: the real step and its ghost effects\n"
+                   f"def gh_step(a: HAct, +g: GSt{', ' + hs if hs else ''}) -> GSt:\n  match a:\n{cases}")
+        idx = ", ".join(f"-{v}: List<&2, HKB>" for v in hv.split(", ")) if hv else ""
+        ix = (hv + ", ") if hv else ""
+        out.append(f"# the reachable augmented states: the deployment (R0) and one step of any action (RStep)\n"
+                   f"type Reach<{idx + ', ' if idx else ''}-s: GSt> is Type:\n  R0{{e: {{s == gh_s0() : GSt}}}}\n"
+                   f"  RStep{{a: HAct, p: GSt, r: Reach<{ix}p>, e: {{s == gh_step(a, p{', ' + hv if hv else ''}) : GSt}}}}\n")
+        out.append(f"def run(tr: List<&2, HAct>, g: GSt{', ' + hs if hs else ''}) -> GSt:\n  match tr:\n    case Nil{{}}:\n"
+                   f"      g\n    case Con{{a, rest}}:\n      run(rest, gh_step(a, g{', ' + hv if hv else ''}){', ' + hv if hv else ''})\n")
+        # coercions
+        made = set()
+        for f in self.regs:
+            u = mm.sorts[f]
+            tu = tname(u)
+            for m_ in G.parse(u).members:
+                ms = G.render(m_)
+                name = f"as_member_{sname(u)}_{sname(ms)}"
+                if name in made:
+                    continue
+                made.add(name)
+                tm = tname(ms)
+                mm.coercions[name] = {"name": name, "kind": "as_member", "from": u, "to": ms}
+                cs = "".join(f"    case {c}{{}}:\n      {'Some{' + tm + '{pay_' + tu + '(x)}}' if c == 'TG_' + sname(ms) else 'None{}'}\n"
+                             for c in cons)
+                out.append(f"# as_member (N4): Some iff the tag is {ms}\n"
+                           f"def {name}(+x: {tu}, t: Tag) -> Maybe<&2, {tm}>:\n  match t:\n{cs}")
+        for e in elements:
+            if e["subform"] == "reinterpret":
+                fr, to = e["basis"]["from"], e["basis"]["to"]
+                name = f"reinterpret_{sname(fr)}_{sname(to)}"
+                if name in made:
+                    continue
+                made.add(name)
+                mm.T(fr), mm.T(to)
+                mm.coercions[name] = {"name": name, "kind": "reinterpret", "from": fr, "to": to}
+                tf, tt_ = tname(fr), tname(to)
+                out.append(f"# reinterpret (N5): Some iff the payloads are equal\n"
+                           f"def {name}(+x: {tf}, +c: {tt_}) -> Maybe<&2, {tt_}>:\n"
+                           f"  ite(Maybe<&2, {tt_}>, w_eq(pay_{tf}(x), pay_{tt_}(c)), Some{{{tt_}{{pay_{tf}(x)}}}}, None{{}})\n")
+        out.append(f"def rz_reached(+c: U32, +k: U32) -> Bool:\n  Bool.or(U32.is_eq(c, 0), Bool.and(U32.is_ge(c, k), "
+                   f"U32.is_lt(c, {TOP_CODE})))\n")
+        for e in elements:
+            out += self.coerce(e, acts, hs, hv)
+        return out
+
+    def coerce(self, e: dict, acts: list, hs: str, hv: str) -> list[str]:
+        from ..rules.sort import ghost_x
+        mm = self.mm
+        x = ghost_x(e["law_id"])
+        out = []
+        per: dict = {}
+        for h in e["hits"]:
+            per.setdefault(h["action"], []).append(h)
+        bodies_c, bodies_h = {}, {}
+        for a, hits in sorted(per.items()):
+            ba = bname(a)
+            X = mm.xt(a)
+            sc = Scope(a)
+            if e["subform"] == "realize":
+                if all(h["kind"] == "realization_check" for h in hits):
+                    ks = [mm.cidx_of(a, h["at"]) + 1 for h in hits]
+                    okc = " ".join(f"Bool.and(Bool.not(U32.is_eq(c, {k})), " for k in ks) + "True{}" + ")" * len(ks)
+                    hit = " ".join(f"Bool.or(rz_reached(c, {k}), " for k in ks) + "False{}" + ")" * len(ks)
+                    out.append(f"def cz_{x}_{ba}(+c: U32) -> Bool:\n  {okc}\n")
+                    out.append(f"def ch_{x}_{ba}(+c: U32) -> Bool:\n  {hit}\n")
+                    bodies_c[a] = f"cz_{x}_{ba}(chk_{ba}(gh_get_st(g), ar, en{', ' + hv if hv else ''}))"
+                    bodies_h[a] = f"ch_{x}_{ba}(chk_{ba}(gh_get_st(g), ar, en{', ' + hv if hv else ''}))"
+                else:
+                    # an unchecked site: its occurrences are reached when the action completes (every record runs)
+                    s = e["site"]
+                    d = mm.tx(s["expr"], sc)
+                    if not d[1].startswith("t:") or not G.is_signed(G.parse(d[1][2:])):
+                        raise GenError(f"{e['law_id']}: the site's difference is not a signed typed value")
+                    ds = d[1][2:]
+                    u = G.render(G.unsigned(G.parse(ds)))
+                    hitc = f"Bool.not(u_nz(gx_{ba}_cd(x)))"
+                    out.append(f"def cz_{x}_{ba}(+x: {X}) -> Bool:\n  Bool.or(Bool.not({hitc}), "
+                               f"is_some_{tname(u)}(realize_{tname(ds)}({d[0]})))\n")
+                    out.append(f"def ch_{x}_{ba}(+x: {X}) -> Bool:\n  {hitc}\n")
+                    xr = f"xr_{ba}(gh_get_st(g), ar, en{', ' + hv if hv else ''})"
+                    bodies_c[a], bodies_h[a] = f"cz_{x}_{ba}({xr})", f"ch_{x}_{ba}({xr})"
+            elif e["subform"] == "as_member":
+                b = e["basis"]
+                w = e["write"]
+                R = b["read"]
+                f = e["family"]
+                bconds = _branch_cond(w["value"], R)
+                if bconds is None:
+                    raise GenError(f"{e['law_id']}: the read is not a branch of the copy write")
+                if w.get("loop") is not None:
+                    raise GenError(f"{e['law_id']}: a copy write inside a loop")
+                conds = [f"Bool.not(u_nz(gx_{ba}_cd(x)))"]
+                if w.get("cond", 1) not in (1, True):
+                    conds.append(mm.cond(w["cond"], sc))
+                for ct, pol in bconds:
+                    cc = mm.cond(ct, sc)
+                    conds.append(cc if pol else f"Bool.not({cc})")
+                hitc = conds[-1]
+                for c_ in reversed(conds[:-1]):
+                    hitc = f"Bool.and({c_}, {hitc})"
+                rv, rk = mm.value(R, sc)
+                u = mm.sorts[f]
+                tu = tname(u)
+                if rk != "t:" + u:
+                    rv = f"{tu}{{{mm.to_w(rv, rk)}}}"
+                tag_r = self.tag_code(self.b.tagger.tg(R, a), sc, "g")
+                member = self.tag_code(e["coercion"]["member_fn"], sc, "g")
+                cases = "    case TG_bot{}:\n      False{}\n"
+                for m_ in G.parse(u).members:
+                    ms = G.render(m_)
+                    cases += (f"    case TG_{sname(ms)}{{}}:\n      is_some_{tname(ms)}(as_member_{sname(u)}_{sname(ms)}"
+                              f"(r, t))\n")
+                out.append(f"def cm_{x}_{ba}(m: Tag, +r: {tu}, +t: Tag) -> Bool:\n  match m:\n{cases}")
+                out.append(f"def cz_{x}_{ba}(+x: {X}, +g: GSt) -> Bool:\n  Bool.or(Bool.not({hitc}), "
+                           f"cm_{x}_{ba}({member}, {rv}, {tag_r}))\n")
+                out.append(f"def ch_{x}_{ba}(+x: {X}, +g: GSt) -> Bool:\n  {hitc}\n")
+                xr = f"xr_{ba}(gh_get_st(g), ar, en{', ' + hv if hv else ''})"
+                bodies_c[a], bodies_h[a] = f"cz_{x}_{ba}({xr}, g)", f"ch_{x}_{ba}({xr}, g)"
+            else:   # reinterpret
+                b = e["basis"]
+                fr, to = b["from"], b["to"]
+                reg = mm.value(["storage", b["register"]], sc)
+                cur = mm.value(b["cursor"][a], sc)
+                regc = reg[0] if reg[1] == "t:" + fr else f"{tname(fr)}{{{mm.to_w(*reg)}}}"
+                curc = cur[0] if cur[1] == "t:" + to else f"{tname(to)}{{{mm.to_w(*cur)}}}"
+                hitc = f"Bool.not(u_nz(gx_{ba}_cd(x)))"
+                out.append(f"def cz_{x}_{ba}(+x: {X}) -> Bool:\n  Bool.or(Bool.not({hitc}), is_some_{tname(to)}"
+                           f"(reinterpret_{sname(fr)}_{sname(to)}({regc}, {curc})))\n")
+                out.append(f"def ch_{x}_{ba}(+x: {X}) -> Bool:\n  {hitc}\n")
+                xr = f"xr_{ba}(gh_get_st(g), ar, en{', ' + hv if hv else ''})"
+                bodies_c[a], bodies_h[a] = f"cz_{x}_{ba}({xr})", f"ch_{x}_{ba}({xr})"
+        for kind, bodies, other in (("coerce", bodies_c, "True{}"), ("chit", bodies_h, "False{}")):
+            cases = ""
+            for a in acts:
+                ba = bname(a)
+                if a in bodies:
+                    cases += f"    case A_{ba}{{ar, en}}:\n      {bodies[a]}\n"
+                else:
+                    cases += f"    case A_{ba}{{_, _}}:\n      {other}\n"
+            doc = ("every hit of coercion " + e["coercion_id"] + " while the action runs from the state is Some (true "
+                   "where the step reaches no hit)") if kind == "coerce" else \
+                  ("the step reaches a hit of coercion " + e["coercion_id"])
+            out.append(f"# {comment(doc)}\ndef {kind}_{x}(a: HAct, +g: GSt{', ' + hs if hs else ''}) -> Bool:\n"
+                       f"  match a:\n{cases}")
+        return out
+
+
+# ================================================================================================ the untyped site form
+def site_section(mm: Machine, acts: list, sites: list) -> list[str]:
+    """I15's site form (holon.sorts.sites: the site's minuend >= subtrahend at every hit) of the given sites over the
+    untyped machine: site_<x>(a, s, kh..) and hit_<x>(a, s, kh..), x from I15's law id rule."""
+    from .sites import ghost_x as site_x, law_id as site_law_id
+    out = []
+    hs = ", ".join(f"+{'kh' if h == 'keccak256' else 'sh'}: List<&2, HKB>" for h in mm.hashes)
+    hv = ", ".join("kh" if h == "keccak256" else "sh" for h in mm.hashes)
+    real = None
+    if sites:
+        out.append(f"def rz_reached(+c: U32, +k: U32) -> Bool:\n  Bool.or(U32.is_eq(c, 0), Bool.and(U32.is_ge(c, k), "
+                   f"U32.is_lt(c, {TOP_CODE})))\n")
+    for s in sites:
+        x = site_x(site_law_id(s["id"]))
+        hits: dict = {}
+        if not s.get("checked"):
+            raise GenError(f"site {s['id']}: an unchecked site has no site form over the untyped machine")
+        from . import extracted as XX
+        real = real or XX.realization_checks(mm.m.doc)
+        for a in s["entry_points"]:
+            p = real.get((a, XX.ckey(s["expr"])))
+            if p is None:
+                continue
+            for i, c in enumerate(mm.checks[a]):
+                if c.section == "panics" and c.seq == p.get("seq"):
+                    hits.setdefault(a, []).append(i + 1)
+        cs, ch = "", ""
+        for a in acts:
+            ba = bname(a)
+            ks = hits.get(a)
+            if not ks:
+                cs += f"    case A_{ba}{{_, _}}:\n      True{{}}\n"
+                ch += f"    case A_{ba}{{_, _}}:\n      False{{}}\n"
+                continue
+            okc = " ".join(f"Bool.and(Bool.not(U32.is_eq(c, {k})), " for k in ks) + "True{}" + ")" * len(ks)
+            hit = " ".join(f"Bool.or(rz_reached(c, {k}), " for k in ks) + "False{}" + ")" * len(ks)
+            out.append(f"def gs_{x}_{ba}(+c: U32) -> Bool:\n  {okc}\n")
+            out.append(f"def gh_{x}_{ba}(+c: U32) -> Bool:\n  {hit}\n")
+            call = f"chk_{ba}(s, ar, en{', ' + hv if hv else ''})"
+            cs += f"    case A_{ba}{{ar, en}}:\n      gs_{x}_{ba}({call})\n"
+            ch += f"    case A_{ba}{{ar, en}}:\n      gh_{x}_{ba}({call})\n"
+        out.append(f"# {comment('nonneg of ' + s['id'] + ': the minuend is at least the subtrahend at every hit')}\n"
+                   f"def site_{x}(a: HAct, +s: HSt{', ' + hs if hs else ''}) -> Bool:\n  match a:\n{cs}")
+        out.append(f"def hit_{x}(a: HAct, +s: HSt{', ' + hs if hs else ''}) -> Bool:\n  match a:\n{ch}")
+    return out
+
+
+# ================================================================================================ the model
+def _env_record(mm: Machine) -> list[str]:
+    fs = sorted({(f, ty) for f, ty, _k in mm.env_fields})
+    keys = {f: k for f, _ty, k in mm.env_fields}
+    if not fs:
+        fs = [("e_none", "W")]
+    doc = "".join(f"# HEnv.{f}: {keys[f]}\n" for f, _ty in fs if f in keys)
+    return [doc + _record("HEnv", fs)] + _getters("ge_", "HEnv", fs)
+
+
+def _arg_records(mm: Machine, acts: list) -> list[str]:
+    out = []
+    for a in acts:
+        for p in mm.m.params(a) or []:
+            mm.arg_type(p)
+    for rec, fs in mm.records.items():     # struct parameters (in the order the ABI introduced them)
+        ff = [(f, ty) for f, ty, _p in fs]
+        out.append(_record(rec, ff))
+        out += _getters(f"g_{rec}_", rec, ff)
+    for a in acts:
+        ba = bname(a)
+        fs = [(bname(p["name"]), mm.arg_type(p)) for p in mm.m.params(a) or []]
+        fs = _i70_unique_fields(fs) if mm.EXT1 else fs
+        out.append(_record(f"AR_{ba}", fs) if fs else f"type AR_{ba} is Data:\n  AR_{ba}{{}}\n")
+        out += _getters(f"ga_{ba}_", f"AR_{ba}", fs)
+    return out
+
+
+def s0_text(init: dict) -> str:
+    items = [f"KW{{{wlit(k)}, {wlit(v)}}}" for k, v in sorted(init.items()) if v]
+    return "def s0() -> HSt:\n  HSt{" + ("[" + ", ".join(items) + "]" if items else "Nil{}") + "}\n"
+
+
+def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init: dict, hashes: list, basis,
+               site_rows: list, header: list[str], storage: str = "raw", s0_entries: list | None = None,
+               ext1: bool = False, ext1_link: bool = False) -> tuple[str, Model3]:
+    """The model text and its generator. storage: raw (the default; I28's versioned modules) or structural (I68: the
+    store PRELUDE_SK, s0 from s0_entries, holon.sorts.skeys.s0_entries of the deployment). ext1: EXT1 (Model3X);
+    ext1_link: EXT1 with its additions for linked calls (Model3XL; I94), which require ext1."""
+    if ext1_link and not ext1:
+        raise ValueError("build_text: ext1_link requires ext1")
+    mm = ((Model3XL if ext1_link else Model3X) if ext1 else Model3)(m, typed=typed, sorts=sorts, seeds=seeds,
+                                                                    init_storage=init, hashes=hashes, storage=storage)
+    acts = sorted(a for a in m.actions if m.params(a) is not None)
+    for a in acts:
+        mm.compile_action(a)
+    elements = basis.elements() if (typed and basis is not None) else []
+    if typed:
+        for s in n1_sorts(sorts, basis.sites if basis is not None else []):
+            mm.T(s)
+    ghost = []
+    if typed:
+        gh = Ghost(mm, basis)
+        ghost = gh.section(acts, elements)       # (registers coercions and types before the sort section is written)
+    parts = ["\n".join(header) + "\nimport Base\n", prelude(storage), _COMMON]
+    parts += mm.shift_defs()
+    if typed:
+        parts += mm.typed_section()
+    parts += _env_record(mm)
+    parts += _arg_records(mm, acts)
+    for a in acts:
+        parts += mm.action_defs[a]
+    hs = ", ".join(f"+{'kh' if h == 'keccak256' else 'sh'}: List<&2, HKB>" for h in hashes)
+    hv = ", ".join("kh" if h == "keccak256" else "sh" for h in hashes)
+    parts.append("# an action with its arguments and its environment (A-env: free per step)\ntype HAct is Data:\n"
+                 + "".join(f"  A_{bname(a)}{{ar: AR_{bname(a)}, en: HEnv}}\n" for a in acts))
+    parts.append(f"def step(a: HAct, +s: HSt{', ' + hs if hs else ''}) -> HSt:\n  match a:\n"
+                 + "".join(f"    case A_{bname(a)}{{ar, en}}:\n      step_{bname(a)}(s, ar, en{', ' + hv if hv else ''})\n"
+                           for a in acts))
+    parts.append("# the initial state: the target's storage after the deployment of the binding (zero without one)\n"
+                 + (SKEYS.s0_text(s0_entries or []) if mm.sk else s0_text(init)))
+    if typed:
+        parts.append(GHOST_MARKER + "\n")
+        parts += ghost
+    else:
+        idx = ", ".join(f"-{v}: List<&2, HKB>" for v in hv.split(", ")) if hv else ""
+        ix = (hv + ", ") if hv else ""
+        parts.append(f"def run(tr: List<&2, HAct>, s: HSt{', ' + hs if hs else ''}) -> HSt:\n  match tr:\n"
+                     f"    case Nil{{}}:\n      s\n    case Con{{a, rest}}:\n"
+                     f"      run(rest, step(a, s{', ' + hv if hv else ''}){', ' + hv if hv else ''})\n")
+        parts.append(f"# the reachable states: the deployment (R0) and one step of any action (RStep)\n"
+                     f"type Reach<{idx + ', ' if idx else ''}-s: HSt> is Type:\n  R0{{e: {{s == s0() : HSt}}}}\n"
+                     f"  RStep{{a: HAct, p: HSt, r: Reach<{ix}p>, e: {{s == step(a, p{', ' + hv if hv else ''}) : HSt}}}}\n")
+        if site_rows:
+            parts.append(SITE_MARKER + "\n")
+            parts += site_section(mm, acts, site_rows)
+    text = "\n".join(p.rstrip("\n") + "\n" for p in parts if p)
+    # (A30) every action context binder affine, every context read through an opened record (holon.sorts.affine3), and
+    # the bytes of a literal word written as their literal
+    return affine(fold_bytes(text)), mm
+
+
+_LIT_WORD_BYTES = re.compile(r"b_of_w\(W\{(\d+), (\d+), (\d+), (\d+), (\d+), (\d+), (\d+), (\d+)\}\)")
+
+
+def fold_bytes(text: str) -> str:
+    """(A30) b_of_w of a literal word -> its 32 bytes as a literal list, b_of_w(w_u(e)) -> b_of_u(e) (28 zero bytes,
+    then the four of e): the same values, without building and splitting words the generator already knows."""
+    def lit(m):
+        v = sum(int(x) << (32 * i) for i, x in enumerate(m.groups()))
+        return blit(v.to_bytes(32, "big"))
+    text = _LIT_WORD_BYTES.sub(lit, text)
+    out, i, key = [], 0, "b_of_w(w_u("
+    while True:
+        j = text.find(key, i)
+        if j < 0:
+            out.append(text[i:])
+            break
+        k, depth = j + len(key), 2
+        while depth:
+            depth += {"(": 1, ")": -1}.get(text[k], 0)
+            k += 1
+        out.append(text[i:j] + "b_of_u(" + text[j + len(key):k - 2] + ")")
+        i = k
+    return "".join(out)
+
+
+# ================================================================================================ generate, CLI
+def model_name(doc_rel: str) -> str:
+    return Path(doc_rel).name[:-len(".json")] if doc_rel.endswith(".json") else Path(doc_rel).stem
+
+
+def load_doc_model(root: Path, doc_rel: str, source: str | None):
+    from ..machine import load_extracted
+    return load_extracted(Path(root) / doc_rel, Path(root), source=(Path(root) / source) if source else None)
+
+
+def ratio_sites(milestone: str, root: Path, assignment: dict, model: str) -> list:
+    """The sites of the milestone's term-size sidecar (its ratio site) of this model: the untyped baseline's I15 site
+    form (holon termsize)."""
+    p = Path(root) / "spec" / milestone / "lib" / "term_size.json"
+    if not p.is_file():
+        return []
+    sid = json.loads(p.read_text(encoding="utf-8")).get("ratio_site")
+    return [s for s in assignment.get("sites") or [] if s.get("id") == sid and s.get("model") == model]
+
+
+def generate(milestone: str, root: Path, doc_rel: str, *, typed: bool = True, sidecar: str | None = None,
+             init: dict | None = None, assignment: dict | None = None) -> tuple[str, "Model3"]:
+    """The typed (or untyped) model text of one document of a typed milestone, and its generator (types, ops,
+    coercions)."""
+    from ..rules.sort import DocBasis, hash_functions
+    from .typed_sidecar import load as load_sidecar
+    root = Path(root)
+    sc = load_sidecar(milestone, root, sidecar)
+    m = load_doc_model(root, doc_rel, sc.source(doc_rel))
+    doc = m.doc
+    model = model_name(doc_rel)
+    if assignment is None:
+        ap = root / "gen" / milestone / "sorts" / "assignment.json"
+        if not ap.is_file():
+            raise GenError(f"{ap.relative_to(root)} is missing: run `holon sorts --milestone {milestone}` first")
+        assignment = json.loads(ap.read_text(encoding="utf-8"))
+    mo = (assignment.get("models") or {}).get(model)
+    if mo is None:
+        raise GenError(f"the assignment has no model {model}")
+    seeds = json.loads(sc.seeds.read_text(encoding="utf-8"))
+    basis = DocBasis(doc_rel, doc, model, assignment, seeds)
+    init = init or {"storage": {}}
+    storage = {int(k, 16) if isinstance(k, str) else int(k): to_int(v) for k, v in (init.get("storage") or {}).items()}
+    hashes = hash_functions(doc) or ["keccak256"]
+    sha = hashlib.sha256((root / doc_rel).read_bytes()).hexdigest()
+    kind = "typed: the sort section and the ghost section" if typed else "untyped: the sort section off"
+    start = f"the deployment of {init.get('binding')}" if init.get("binding") else "the zero storage"
+    try:
+        entries = SKEYS.s0_entries(init, doc)
+    except SKEYS.KeysError as e:
+        raise GenError(f"{doc_rel}: {e}") from e
+    header = [f"# GENERATED by holon.sorts.model3 from {doc_rel}; do not edit (fix the generator instead).",
+              f"# facts_sha256: {sha}",
+              f"# model_version: {MODEL3_SK_VERSION} ({kind})",
+              "# storage: structural keys (A-keccak-structural): SK{base slot, offset, [SP_m{key word, offset}]}; "
+              f"s0 {sum(1 for e in entries if e[2] == 'literal')} literal, "
+              f"{sum(1 for e in entries if e[2] == 'structural')} structural, "
+              f"{sum(1 for e in entries if e[2] == 'raw')} raw",
+              f"# assignment sorts_sha256: {assignment.get('sorts_sha256')}",
+              f"# initial state: {start} ({len([v for v in storage.values() if v])} non-zero slots)",
+              "# chk_<action>(st, ar, en, kh..): 0 when every check holds, k + 1 when check k is the first that fails;",
+              f"#   {CALL_CODE} when an external call term reverted, {FUEL_CODE} when a loop ran past its fuel;",
+              "# post_<action>, logs_<action>: its post-state and logs; step_<action>: the post-state when chk is 0, "
+              "else st."]
+    sites = [] if typed else ratio_sites(milestone, root, assignment, model)
+    text, mm = build_text(m, typed=typed, sorts=mo.get("assignment") or {}, seeds=seeds, init=storage, hashes=hashes,
+                          basis=basis, site_rows=sites, header=header, storage="structural", s0_entries=entries)
+    mm.basis = basis
+    mm.n1 = n1_sorts(mo.get("assignment") or {}, basis.sites)
+    mm.hashes = hashes
+    return text, mm
+
+
+def documents_of(milestone: str, root: Path, sidecar: str | None, facts: list | None = None) -> list[str]:
+    from .typed_sidecar import load as load_sidecar, rel_of
+    root = Path(root)
+    if facts:
+        return [rel_of((root / f) if not Path(f).is_absolute() else Path(f), root) for f in facts]
+    sc = load_sidecar(milestone, root, sidecar)
+    return [rel_of(p, root) for p in sc.documents]
+
+
+def init_of(milestone: str, root: Path, sidecar: str | None, doc_rel: str) -> dict:
+    """The model's initial state: the deployment of the sidecar's binding (holon.sorts.deploy3), else zero."""
+    from .typed_sidecar import load as load_sidecar
+    sc = load_sidecar(milestone, root, sidecar)
+    if not sc.binding:
+        return {"binding": None, "storage": {}, "preimages": []}
+    from . import deploy3
+    return deploy3.deployment(Path(root), sc.binding, doc_rel)
+
+
+def importable(name: str) -> str:
+    """The file name Bend can import a model under: the pinned checker's import paths are plain names (letters,
+    digits, _ and -), so a model named after its document (morph_rollup.extracted) is written as
+    morph_rollup_extracted.bend, and <name>.bend is a symbolic link to it (one file, two names)."""
+    return re.sub(r"[^A-Za-z0-9_-]", "_", name) + ".bend"
+
+
+def write_model_file(out: Path, name: str, text: str) -> Path:
+    """Write the model under its importable name and link <name>.bend to it; returns the <name>.bend path."""
+    import os
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    plain = out / importable(name)
+    if not plain.is_file() or plain.read_text(encoding="utf-8") != text:
+        plain.write_text(text, encoding="utf-8")
+    link = out / f"{name}.bend"
+    if link.name != plain.name:
+        if link.is_symlink() and os.readlink(link) == plain.name:
+            return link
+        if link.exists() or link.is_symlink():
+            link.unlink()
+        os.symlink(plain.name, link)
+    return link
+
+
+def write_models(milestone: str, root: Path, out: Path, *, typed: bool = True, sidecar: str | None = None,
+                 facts: list | None = None) -> list[Path]:
+    root = Path(root)
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    written = []
+    for rel in documents_of(milestone, root, sidecar, facts):
+        init = init_of(milestone, root, sidecar, rel)
+        text, _mm = generate(milestone, root, rel, typed=typed, sidecar=sidecar, init=init)
+        name = model_name(rel)
+        p = write_model_file(out, name, text)
+        (out / f"{name}.init.json").write_text(json.dumps(init, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+                                               encoding="utf-8")
+        written.append(p)
+    return written
+
+
+def main(argv=None) -> int:
+    import argparse
+    import sys
+    ap = argparse.ArgumentParser(prog="holon model", description="the M3 model of a typed milestone's documents")
+    ap.add_argument("--milestone", required=True)
+    ap.add_argument("--root")
+    ap.add_argument("--sidecar")
+    ap.add_argument("--facts", action="append")
+    ap.add_argument("--untyped", action="store_true")
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--check", action="store_true", help="run Bend on each written model")
+    a = ap.parse_args(argv)
+    from .. import machine as _m
+    root = Path(a.root).resolve() if a.root else _m.ROOT
+    out = Path(a.out)
+    out = out if out.is_absolute() else Path.cwd() / out
+    try:
+        ps = write_models(a.milestone, root, out, typed=not a.untyped, sidecar=a.sidecar, facts=a.facts)
+    except (GenError, ModelError, OSError, ValueError) as e:
+        print(f"holon model: {e}", file=sys.stderr)
+        return 2 if isinstance(e, GenError) else 1
+    for p in ps:
+        print(f"wrote {p}")
+    if a.check:
+        from .. import bend
+        for p in ps:
+            r = bend.check(p)
+            print(f"{p.name}: {r.first_line}")
+            if not r.ok:
+                return 1
+    return 0
+
+
+# ================================================================================================ I83: L1-L4
+# Generic language constructs the earlier commit actions of a versioned deployment need (BUILD_PLAN I83; the contract is
+# the docstring of tests_m3/test_versions_debt.py, rules L1-L4). They are methods of the generator attached here, in a
+# block of their own; a model that uses none of them is written byte for byte as before: every Bend helper below is
+# emitted only into a model that uses it (after the shift definitions, above every action), and the hooks above (t_mload,
+# calldata, t_at, statement) take their old path unless the term is one of these.
+#
+#   L1 ["abi.decode", X, ["tuple", T..]] (or one T), each T a value type or a dynamic array of one; ["at", i, D] its
+#      component i: a value type's word at head word i, a dynamic array's words after its length word at the offset head
+#      word i holds. The decoder's checks (solc 0.8.24's tuple decoder over calldata or memory): the head fits in X; a
+#      dynamic component's offset is at most 2^64 - 1 and leaves room for its length word, its length is at most
+#      2^64 - 1 and its elements end within X; every narrow value or element is clean. A statement whose terms evaluate
+#      the decode reverts with empty revert data, code DECODE_CODE, when the decoder rejects X, in the evaluation order
+#      of its terms with their external calls (effect_guards). A-implicit's exception is kept: a length that would raise
+#      solc's Panic 0x41 fails the bounds check here (empty revert data).
+#   L2 a dynamic array of value types as an external call's argument: abi_wlist, its ABI encoding.
+#   L3 ["mload", ["unknown", s, "memory"], P], P the sum of one input bytes value X and word terms O: the word at O of
+#      X's memory copy (its length word, then its bytes), zero-padded; refused in an action with a memory write at an
+#      unresolved address (a write that could alias the copy).
+#   L4 ["calldataload", P], P the sum of ["cdoff", X] (X input bytes) and word terms O: the word at O of X, zero-padded.
+#   L5 [">>" | "<<", a, n] with n not a literal: EVM SHR/SHL (n >= 256 gives 0), by the constant shifts of n's bits. (L1-L4
+#      are the contract's; the build found this fifth construct in the same commit actions: I83's report says so.)
+#   L6 the kernel's evaluation shape of a product by a literal c (A30's rule: the values are the old ones, only how the
+#      BendTT kernel reaches them changes; no model that compiled before has such a product, so none moves): the checked
+#      product's overflow test (["fits", n, ["*", a, c]]) is a <= (2^256 - 1) // c, one comparison, where w_mul_ok
+#      multiplied all 64 limb pairs (the pinned kernel's fuel ran out on a commit action with three of them), and the
+#      product by c < 2^32 skips the zero limbs of a (w_mulc; w_mul_small's value on every input).
+#   A pointer into input bytes' memory copy (X + O in a word context: a loop-carried pointer) is its offset O, as a
+#   pointer into a region is (t_ptr); L3 finds X in the read's own address term.
+
+DECODE_CODE = 4294967293     # a step whose abi.decode term's data the ABI decoder rejects: no check of the document
+_U64 = (1 << 64) - 1
+_VALUE_TYPE = re.compile(r"^(u?int(\d*)|address( payable)?|bool|bytes(\d+))$")
+
+
+def _is_unknown_memory(t) -> bool:
+    return isinstance(t, list) and len(t) == 3 and t[0] == "unknown" and t[2] == "memory"
+
+
+def _input_term(t) -> bool:
+    """An entry parameter, or a member of one (the terms whose value is the action's input)."""
+    if not isinstance(t, list) or len(t) < 2:
+        return False
+    if t[0] == "param" and isinstance(t[1], str):
+        return True
+    return t[0] == "member" and len(t) == 3 and _input_term(t[1])
+
+
+def _sum_terms(t) -> list:
+    if isinstance(t, list) and len(t) == 3 and t[0] == "+":
+        return _sum_terms(t[1]) + _sum_terms(t[2])
+    return [t]
+
+
+def _type_of_spec(x) -> str | None:
+    if isinstance(x, list) and len(x) == 2 and x[0] == "type" and isinstance(x[1], str):
+        m = re.fullmatch(r"type\((.*)\)", x[1].strip())
+        ty = (m.group(1) if m else x[1]).strip()
+        return ty if _VALUE_TYPE.match(ty) else None
+    return None
+
+
+def decode_shape(spec) -> list | None:
+    """[(kind, type)] of an abi.decode's types: ("v", T) a value type, ("a", T) a dynamic array of one; None when a
+    type is anything else."""
+    items = spec[1:] if isinstance(spec, list) and spec[:1] == ["tuple"] else [spec]
+    out = []
+    for x in items:
+        ty = _type_of_spec(x)
+        if ty is not None:
+            out.append(("v", ty))
+            continue
+        if isinstance(x, list) and len(x) == 3 and x[0] == "index" and x[2] is None:
+            el = _type_of_spec(x[1])
+            if el is not None:
+                out.append(("a", el))
+                continue
+        return None
+    return out
+
+
+def _clean_test(ty: str, w: str) -> str | None:
+    """The Bend Bool that a word w is the clean ABI encoding of a value of type ty (None: every word is)."""
+    m = _VALUE_TYPE.match(ty)
+    if ty.startswith("address"):
+        return f"w_lt({w}, {wlit(1 << 160)})"
+    if ty == "bool":
+        return f"w_lt({w}, {wlit(2)})"
+    if m and m.group(4):
+        n = int(m.group(4))
+        if not 0 < n <= 32:
+            raise GenError(f"abi.decode of a {ty}")
+        return None if n == 32 else f"w_eq(w_and({w}, {wlit((1 << (8 * (32 - n))) - 1)}), w0())"
+    bits = int(m.group(2) or 256) if m else 256
+    if not 0 < bits <= 256 or bits % 8:
+        raise GenError(f"abi.decode of a {ty}")
+    if bits == 256:
+        return None
+    if ty.startswith("uint"):
+        return f"w_lt({w}, {wlit(1 << bits)})"
+    return f"Bool.or(w_lt({w}, {wlit(1 << (bits - 1))}), w_ge({w}, {wlit((1 << 256) - (1 << (bits - 1)))}))"
+
+
+def _effects_in(t, pc: list, out: list) -> None:
+    """The external call terms and abi.decode terms a term evaluates, in evaluation order, each with the conditions
+    under which it is evaluated ("?", && and || evaluate lazily, as _calls_in reads them): [(kind, term, [(cond, pol)])]."""
+    if not isinstance(t, list) or not t or not isinstance(t[0], str):
+        if isinstance(t, list):
+            for x in t:
+                _effects_in(x, pc, out)
+        return
+    h = t[0]
+    if h == "mloop":
+        return
+    if h == "?" and len(t) == 4:
+        _effects_in(t[1], pc, out)
+        _effects_in(t[2], pc + [(t[1], True)], out)
+        _effects_in(t[3], pc + [(t[1], False)], out)
+        return
+    if h in ("&&", "||"):
+        acc = list(pc)
+        for x in t[1:]:
+            _effects_in(x, acc, out)
+            acc = acc + [(x, h == "&&")]
+        return
+    if h == "abi.decode":
+        _effects_in(t[1], pc, out)
+        key = canonical(["decode", t, pc])
+        if key not in [canonical([k, a, b]) for k, a, b in out]:
+            out.append(("decode", t, pc))
+        return
+    for x in t[1:]:
+        _effects_in(x, pc, out)
+    if h == "call" and not str(t[1]).startswith("address."):
+        key = canonical(["call", t, pc])
+        if key not in [canonical([k, a, b]) for k, a, b in out]:
+            out.append(("call", t, pc))
+
+
+def _has_decode(t) -> bool:
+    if isinstance(t, list):
+        if t and t[0] == "abi.decode":
+            return True
+        return any(_has_decode(x) for x in t)
+    if isinstance(t, tuple):
+        return any(_has_decode(x) for x in t)
+    return False
+
+
+def _ext_helpers(self) -> dict:
+    h = getattr(self, "_ext_defs", None)
+    if h is None:
+        h = self._ext_defs = {}
+    return h
+
+
+def _ext_helper(self, name: str, text: str) -> str:
+    h = _ext_helpers(self)
+    if name not in h:
+        h[name] = text.rstrip("\n") + "\n"
+    return name
+
+
+def _tag(ty: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]+", "_", ty).strip("_")
+
+
+def _decode_dyn_ok(self, ty: str) -> str:
+    """abi_dok_<tag>(d, off): the decoder's checks of a dynamic array of ty at head offset off of d (L1)."""
+    tag = _tag(ty)
+    name = f"abi_dok_{tag}"
+    if name in _ext_helpers(self):
+        return name
+    test = _clean_test(ty, "b_word(Con{h, t}, 0n)")
+    if test is None:
+        els = "True{}"
+    else:
+        en = _ext_helper(self, f"abi_els_{tag}",
+                         f"def abi_els_{tag}(n: Nat, +xs: List<&2, U32>) -> Bool:\n  match n xs:\n    case 0n _:\n"
+                         f"      True{{}}\n    case 1n+p Nil{{}}:\n      False{{}}\n    case 1n+p Con{{h, t}}:\n"
+                         f"      Bool.and({test}, abi_els_{tag}(p, b_drop(Con{{h, t}}, 32n)))\n")
+        els = f"{en}(n_of_w(n), b_drop(d, n_of_w(w_add(off, w_u(32)))))"
+    _ext_helper(self, f"{name}_c", f"def {name}_c(ok: Bool, +d: List<&2, U32>, +off: W, +n: W) -> Bool:\n  match ok:\n"
+                                   f"    case True{{}}:\n      {els}\n    case False{{}}:\n      False{{}}\n")
+    _ext_helper(self, f"{name}_b", f"def {name}_b(+d: List<&2, U32>, +off: W, +n: W) -> Bool:\n"
+                                   f"  {name}_c(Bool.and(w_le(n, {wlit(_U64)}), w_le(w_add(w_add(off, w_u(32)), "
+                                   f"{self.shl(5)}(n)), w_u(b_len(d)))), d, off, n)\n")
+    _ext_helper(self, f"{name}_a", f"def {name}_a(ok: Bool, +d: List<&2, U32>, +off: W) -> Bool:\n  match ok:\n"
+                                   f"    case True{{}}:\n      {name}_b(d, off, b_word(d, n_of_w(off)))\n"
+                                   f"    case False{{}}:\n      False{{}}\n")
+    _ext_helper(self, name, f"def {name}(+d: List<&2, U32>, +off: W) -> Bool:\n"
+                            f"  {name}_a(Bool.and(w_le(off, {wlit(_U64)}), w_le(w_add(off, w_u(32)), w_u(b_len(d)))), d, "
+                            "off)\n")
+    return name
+
+
+def _decode_ok_fn(self, shape: list) -> str:
+    """abi_ok_<k>(d): the decoder accepts d for this shape (L1); k numbers the shapes in order of first use."""
+    reg = getattr(self, "_ext_shapes", None)
+    if reg is None:
+        reg = self._ext_shapes = {}
+    key = canonical(shape)
+    if key in reg:
+        return reg[key]
+    name = f"abi_ok_{len(reg) + 1}"
+    parts = []
+    for i, (kind, ty) in enumerate(shape):
+        w = f"b_word(d, {natlit(32 * i)})"
+        if kind == "a":
+            parts.append(f"{_decode_dyn_ok(self, ty)}(d, {w})")
+        else:
+            test = _clean_test(ty, w)
+            if test is not None:
+                parts.append(test)
+    body = "True{}"
+    for p in reversed(parts):
+        body = p if body == "True{}" else f"Bool.and({p}, {body})"
+    _ext_helper(self, f"{name}_h", f"def {name}_h(ok: Bool, +d: List<&2, U32>) -> Bool:\n  match ok:\n"
+                                   f"    case True{{}}:\n      {body}\n    case False{{}}:\n      False{{}}\n")
+    _ext_helper(self, name, f"def {name}(+d: List<&2, U32>) -> Bool:\n"
+                            f"  {name}_h(w_le(w_u({32 * len(shape)}), w_u(b_len(d))), d)\n")
+    reg[key] = name
+    return name
+
+
+def _decode_parts(self, t, sc) -> tuple[str, list]:
+    if len(t) != 3:
+        raise GenError(f"{sc.action}: an abi.decode term of {len(t) - 1} operands")
+    shape = decode_shape(t[2])
+    if shape is None:
+        raise GenError(f"{sc.action}: abi.decode into types outside value types and their dynamic arrays: "
+                       f"{canonical(t[2])[:120]}")
+    return self.b(t[1], sc), shape
+
+
+def _t_abi_decode(self, t, sc):
+    """A decode used whole: one value type, its word (a tuple is read through ["at", i, D])."""
+    xc, shape = _decode_parts(self, t, sc)
+    if len(shape) != 1 or shape[0][0] != "v":
+        raise GenError(f"{sc.action}: an abi.decode into a tuple used whole")
+    return f"b_word({xc}, 0n)", "w"
+
+
+def _decode_component(self, t, sc):
+    xc, shape = _decode_parts(self, t[2], sc)
+    if not (isinstance(t[1], int) and not isinstance(t[1], bool) and 0 <= t[1] < len(shape)):
+        raise GenError(f"{sc.action}: component {t[1]} of an abi.decode of {len(shape)} types")
+    kind, _ty = shape[t[1]]
+    w = f"b_word({xc}, {natlit(32 * t[1])})"
+    if kind == "v":
+        return w, "w"
+    _ext_helper(self, "abi_ws", "def abi_ws(n: Nat, +xs: List<&2, U32>) -> List<&2, W>:\n  match n xs:\n    case 0n _:\n"
+                                "      Nil{}\n    case 1n+p Nil{}:\n      Nil{}\n    case 1n+p Con{h, t}:\n"
+                                "      Con{b_word(Con{h, t}, 0n), abi_ws(p, b_drop(Con{h, t}, 32n))}\n")
+    _ext_helper(self, "abi_warr", "def abi_warr(+d: List<&2, U32>, +off: W) -> List<&2, W>:\n"
+                                  "  abi_ws(n_of_w(b_word(d, n_of_w(off))), b_drop(d, n_of_w(w_add(off, w_u(32)))))\n")
+    return f"abi_warr({xc}, {w})", "l:W"
+
+
+def _decode_ok(self, t, sc) -> str:
+    xc, shape = _decode_parts(self, t, sc)
+    return f"{_decode_ok_fn(self, shape)}({xc})"
+
+
+def _effect_guards(self, terms: list, sc: Scope, body: str, i: int) -> str:
+    """call_guards with the decoder's checks: every external call and abi.decode a statement's terms evaluate, in
+    evaluation order, the first to fail reverting the step (a call with its revert data, a decode with none)."""
+    effects: list = []
+    for t, pc in terms:
+        _effects_in(t, list(pc), effects)
+    a = sc.action
+    ba = bname(a)
+    X = self.xt(a)
+    for n in range(len(effects) - 1, -1, -1):
+        kind, t, pc = effects[n]
+        if kind == "call":
+            ans = self.answer(t[1], None, self.split_value(t[2:]), sc)
+            name = f"cq_{ba}_{i}_{n}"
+            self.add(f"def {name}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n"
+                     f"      xf_{ba}(x, {CALL_CODE}, a_ret({ans}))\n    case False{{}}:\n      {body}\n")
+            cond = f"Bool.not(a_ok({ans}))"
+        else:
+            name = f"dq_{ba}_{i}_{n}"
+            self.add(f"def {name}(c: Bool, +x: {X}) -> {X}:\n  match c:\n    case True{{}}:\n"
+                     f"      xf_{ba}(x, {DECODE_CODE}, Nil{{}})\n    case False{{}}:\n      {body}\n")
+            cond = f"Bool.not({_decode_ok(self, t, sc)})"
+        for ct, pol in reversed(pc):
+            cc = self.cond(ct, sc)
+            cond = f"Bool.and({cc if pol else f'Bool.not({cc})'}, {cond})"
+        body = f"{name}({cond}, x)"
+    return body
+
+
+def _word_sum(self, terms: list, sc) -> str:
+    out = None
+    for x in terms:
+        w = self.w(x, sc)
+        out = w if out is None else f"w_add({out}, {w})"
+    return out or "w0()"
+
+
+def _is_input_bytes(self, t, sc) -> bool:
+    """Whether t is an input bytes value: a parameter of ABI type bytes or string, or such a member of a parameter (read
+    from the action's ABI, statically: nothing is compiled)."""
+    if not _input_term(t):
+        return False
+    path = []
+    while t[0] == "member":
+        path.append(t[2])
+        t = t[1]
+    p = next((x for x in self.m.params(sc.action) or [] if x.get("name") == t[1]), None)
+    for name in reversed(path):
+        if p is None or p.get("type") != "tuple":
+            return False
+        p = next((c for c in p.get("components") or [] if c.get("name") == name), None)
+    return p is not None and p.get("type") in ("bytes", "string")
+
+
+def _input_bytes(self, t, sc) -> str | None:
+    """The code of t when it is an input bytes value, else None."""
+    if not _is_input_bytes(self, t, sc):
+        return None
+    c, k = self.value(t, sc)
+    return c if k == "b" else None
+
+
+def _copy_offset(self, t, sc):
+    """L3: a pointer into the memory copy of one input bytes value X (X + O, in a word context) is its offset O from
+    the copy's start, as model3 represents a pointer into a region by its offset (["ptr", region, o]: t_ptr); L3's reads
+    find X in the read's own address term."""
+    summ = _sum_terms(t)
+    xs = [j for j, s in enumerate(summ) if _is_input_bytes(self, s, sc)]
+    if len(xs) != 1:
+        raise GenError(f"{sc.action}: a sum of {len(xs)} input bytes values")
+    return _word_sum(self, [s for k, s in enumerate(summ) if k != xs[0]], sc), "w"
+
+
+def _copy_read(self, t, sc):
+    """L3: the word at offset O of the memory copy of input bytes X (["mload", unknown memory, X + O])."""
+    summ = _sum_terms(t[2])
+    xs = [(j, c) for j, s in enumerate(summ) for c in [_input_bytes(self, s, sc)] if c is not None]
+    if len(xs) != 1:
+        raise GenError(f"{sc.action}: an unknown term {canonical(t[1])[:100]} (its value is no environment member)")
+    unresolved = [r for r in (self.m.actions.get(sc.action) or {}).get("mstores") or [] if r.get("region") is None]
+    if unresolved:
+        raise GenError(f"{sc.action}: an unknown term {canonical(t[1])[:100]} (a memory write at an unresolved address, "
+                       f"{unresolved[0].get('src')}, could alias the copy of input bytes it reads)")
+    j, xc = xs[0]
+    off = _word_sum(self, [s for k, s in enumerate(summ) if k != j], sc)
+    return f"b_word(List.append(&2, U32, b_of_u(b_len({xc})), {xc}), n_of_w({off}))", "w"
+
+
+def _t_calldataload(self, t, sc):
+    """L4: the word at offset O of input bytes X (["calldataload", ["cdoff", X] + O]), zero-padded."""
+    summ = _sum_terms(t[1])
+    cds = [j for j, s in enumerate(summ) if isinstance(s, list) and s[:1] == ["cdoff"] and len(s) == 2]
+    xc = _input_bytes(self, summ[cds[0]][1], sc) if len(cds) == 1 else None
+    if xc is None:
+        raise GenError(f"{sc.action}: term 'calldataload' is outside the M3 generator's language: "
+                       f"{canonical(t)[:160]}")
+    off = _word_sum(self, [s for k, s in enumerate(summ) if k != cds[0]], sc)
+    return f"b_word({xc}, n_of_w({off}))", "w"
+
+
+def _word_list_arg(self, fn: str, p: dict, c: str, k: str, sc):
+    """L2: a dynamic array of value types as an external call's argument (its words, encoded by abi_wlist)."""
+    ty = str(p.get("type", ""))
+    if not re.fullmatch(r"(u?int\d*|address|bool|bytes\d+)\[\]", ty) or k != "l:W":
+        raise GenError(f"{sc.action}: {fn}: a dynamic argument of type {p.get('type')}")
+    return ("w", c)
+
+
+def _abi_concat_lists(self, heads: list, tails: list) -> str:
+    """abi_concat with word-list tails (L2): a ("w", code) tail is encoded by abi_wlist, a bytes tail by abi_dyn."""
+    n = len(heads)
+    parts, tail_parts = [], []
+    off = f"w_u({32 * n})"
+    it = iter(tails)
+    for h in heads:
+        if h is None:
+            tl = next(it)
+            enc = f"abi_wlist({tl[1]})" if isinstance(tl, tuple) else f"abi_dyn({tl})"
+            parts.append(f"b_of_w({off})")
+            tail_parts.append(enc)
+            off = f"w_add({off}, w_u(b_len({enc})))"
+        else:
+            parts.append(h)
+    out = "Nil{}"
+    for x in reversed(parts + tail_parts):
+        out = f"List.append(&2, U32, {x}, {out})"
+    return out
+
+
+def _var_shift(self, d: str, t, sc):
+    """L5: a shift by a non-constant amount n (EVM SHL/SHR: n >= 256 gives 0): the constant shifts by 2^b for every set
+    bit b of n below 256, in order (w_shrv / w_shlv, emitted only into a model that shifts by a non-constant amount)."""
+    name = f"w_sh{d}v"
+    if name not in _ext_helpers(self):
+        lines = [f"def {name}(+a: W, +n: W) -> W:"]
+        prev = "a"
+        for b in range(8):
+            fn = self.shr(1 << b) if d == "r" else self.shl(1 << b)
+            lines.append(f"  +s{b} = {{ite(W, w_nz(w_and(n, {wlit(1 << b)})), {fn}({prev}), {prev}) : W}}")
+            prev = f"s{b}"
+        lines.append(f"  ite(W, w_lt(n, {wlit(256)}), {prev}, w0())")
+        _ext_helper(self, name, "\n".join(lines) + "\n")
+    return f"{name}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+def _const_mul(self, y: str, c: int) -> str:
+    """L6: y * c for a literal 0 < c < 2^32, not a power of two: w_mul_small's value on every input, with the product of
+    a zero limb skipped (mul_k(0, c, k) is 0 and mul_c(0, c, k) is k; a small factor has seven zero limbs)."""
+    _ext_helper(self, "mul_kz", "def mul_kz(+x: U32, +c: U32, +k: U32) -> U32:\n"
+                                "  ite(U32, U32.is_eq(x, 0), 0, mul_k(x, c, k))\n")
+    _ext_helper(self, "mul_cz", "def mul_cz(+x: U32, +c: U32, +k: U32) -> U32:\n"
+                                "  ite(U32, U32.is_eq(x, 0), k, mul_c(x, c, k))\n")
+    lines = ["def w_mulc(a: W, +c: U32) -> W:", "  match a:", "    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:"]
+    for i in range(1, 8):
+        lines.append(f"      +k{i} = mul_kz(a{i - 1}, c, {'0' if i == 1 else f'k{i - 1}'})")
+    lines.append("      W{" + ", ".join(f"mul_cz(a{i}, c, {'0' if i == 0 else f'k{i}'})" for i in range(8)) + "}")
+    _ext_helper(self, "w_mulc", "\n".join(lines) + "\n")
+    return f"w_mulc({y}, {c})"
+
+
+def _mul_check(self, inner, a: str, b: str) -> tuple[str, str]:
+    """L6: (the no-overflow test, the value) of a checked product a * b (inner = ["*", x, y], a and b their word codes):
+    with a literal factor c the test is the other factor <= (2^256 - 1) // c (a * c < 2^256 exactly then; True for c 0)
+    and the value is t_mul's; otherwise w_mul_ok and w_mul, as before."""
+    for k, (x, other) in enumerate(((inner[1], b), (inner[2], a))):
+        if isinstance(x, int) and not isinstance(x, bool) and 0 <= x <= MASK:
+            ok = "True{}" if x == 0 else f"w_le({other}, {wlit(MASK // x)})"
+            if 0 < x < (1 << 32):
+                val = (f"{self.shl(x.bit_length() - 1)}({other})" if x & (x - 1) == 0 else self.const_mul(other, x))
+            else:
+                val = f"w_mul({a}, {b})"
+            return ok, val
+    return f"w_mul_ok({a}, {b})", f"w_mul({a}, {b})"
+
+
+_shift_defs_before_ext = Gen.shift_defs
+
+
+def _shift_defs_and_helpers(self) -> list[str]:
+    return _shift_defs_before_ext(self) + list(_ext_helpers(self).values())
+
+
+Gen.t_abi_decode = _t_abi_decode
+Gen.decode_component = _decode_component
+Gen.effect_guards = _effect_guards
+Gen.copy_read = _copy_read
+Gen.t_calldataload = _t_calldataload
+Gen.word_list_arg = _word_list_arg
+Gen.is_input_bytes = _is_input_bytes
+Gen.var_shift = _var_shift
+Gen.copy_offset = _copy_offset
+Gen.abi_concat_lists = _abi_concat_lists
+Gen.const_mul = _const_mul
+Gen.mul_check = _mul_check
+Gen.shift_defs = _shift_defs_and_helpers
+
+
+# ================================================================================================ I86: DB1
+# The constructs the bundle's messenger needs (BUILD_PLAN I86; the contract is the docstring of
+# tests_m3/test_bundle_laws.py, rule DB1). They are methods of the generator attached here, in a block of their own, as
+# I83's block attaches its own; a model that uses none of them is written byte for byte as before (DB2):
+#   abi.encodeWithSignature(sig, a..)  the first four bytes of keccak256 of the literal signature (a constant the compiler
+#                                      folds), then the ABI head/tail encoding of the arguments by the signature's types
+#                                      (holon.extracted_eval's rule): a bytes or string argument a tail, any other a word
+#   ["update", X, ["member", _, m], v] the struct value X with member m set to v (one member level, the evaluator's rule);
+#                                      a storage struct X is read member by member; a member read of such a value reads
+#                                      it (t_member's hook for an update or struct base)
+#   the packed width of a word        an element of an array input has the element type, a loop-carried name its entry's
+#                                      type when its next value has the same, a conditional of two branches of one type
+#                                      that type (holon.extracted_eval.Eval.term_type; term_type's hook)
+#   a shift by a non-constant amount  I83's L5 (I83's block above; the copy I86 carried until I83 landed wrote the
+#                                      same Bend text, so dropping it moves no model)
+# A storage struct is located by Gen.locate, so in the structural mode (I68) its members are read at their
+# structural keys like any other member read.
+
+def _i86_t_abi_encodeWithSignature(self, t, sc):
+    from ..keccak import keccak256
+    if not (isinstance(t[1], list) and t[1][:1] == ["str"]):
+        raise GenError(f"{sc.action}: abi.encodeWithSignature of a signature that is not a literal")
+    sig = bytes.fromhex(t[1][1]).decode("utf-8")
+    types = [p.get("type") for p in EV.signature_types(sig)]
+    if len(types) != len(t) - 2:
+        raise GenError(f"{sc.action}: abi.encodeWithSignature({sig}) with {len(t) - 2} arguments")
+    heads, tails = [], []
+    for x, ty in zip(t[2:], types):
+        c, k = self.value(x, sc)
+        if ty in ("bytes", "string"):
+            heads.append(None)
+            tails.append(self.to_bytes(c, k))
+        elif EV._is_dynamic({"type": ty}) or ty.startswith("int") or ty == "tuple":
+            raise GenError(f"{sc.action}: abi.encodeWithSignature with an argument of type {ty}")
+        else:
+            heads.append(f"b_of_w({self.to_w(c, k)})")
+    sel = keccak256(sig.encode("utf-8"))[:4]
+    return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat(heads, tails)})", "b"
+
+
+def _i86_struct_members(self, base, sc) -> dict:
+    """{member: word code} of a struct value term: a struct or update term's members, or a storage struct read member
+    by member (as a whole-struct write reads it)."""
+    c, k = self.tx(base, sc)
+    if k == "z":
+        return json.loads(c[2:])
+    if k == "p":
+        _slot, _off, tid, _l = self.locate(c, sc)
+        st = self.m.type_of(tid)
+        if "members" not in st:
+            raise GenError(f"{sc.action}: an update of a {st.get('label')} read")
+        vals = {}
+        for mm in st["members"]:
+            mt = self.m.type_of(mm["type"])
+            if mt.get("encoding") != "inplace" or "members" in mt or "base" in mt:
+                continue
+            vals[mm["label"]] = self.w(["member", base, mm["label"]], sc)
+        return vals
+    raise GenError(f"{sc.action}: an update of a {k} value")
+
+
+def _i86_t_update(self, t, sc):
+    tgt = t[2]
+    if not (isinstance(tgt, list) and len(tgt) == 3 and tgt[0] == "member" and isinstance(tgt[2], str)):
+        raise GenError(f"{sc.action}: an update of a value at a path deeper than one member")
+    vals = _i86_struct_members(self, t[1], sc)
+    if tgt[2] not in vals:
+        raise GenError(f"{sc.action}: an update of no member {tgt[2]}")
+    vals[tgt[2]] = self.w(t[3], sc)
+    return "z:" + json.dumps(vals, sort_keys=True), "z"
+
+
+_i86_t_member_before = Gen.t_member
+
+
+def _i86_t_member(self, t, sc):
+    if isinstance(t[1], list) and t[1][:1] in (["update"], ["struct"]):
+        vals = _i86_struct_members(self, t[1], sc)
+        if t[2] not in vals:
+            raise GenError(f"{sc.action}: no member {t[2]} in a struct value")
+        return vals[t[2]], "w"
+    return _i86_t_member_before(self, t, sc)
+
+
+_i86_term_type_before = Gen.term_type
+
+
+def _i86_term_type(self, t, sc):
+    h = t[0] if isinstance(t, list) and t and isinstance(t[0], str) else None
+    if h == "index" and isinstance(t[1], list) and t[1][:1] == ["param"]:
+        ty = self.term_type(t[1], sc)
+        return re.sub(r"\[\d*\]$", "", ty) if isinstance(ty, str) and ty.endswith("]") else None
+    if h == "carried":
+        span, name = t[1], t[2]
+        r = t[3] if len(t) > 3 and isinstance(t[3], int) else 0
+        loops = [lp for lp in (self.m.actions.get(sc.action) or {}).get("loops") or [] if lp.get("src") == span]
+        if r >= len(loops):
+            return None
+        ent = next((c for c in loops[r].get("carried") or [] if c.get("name") == name), None)
+        nxt = next((c for c in loops[r].get("next") or [] if c.get("name") == name), None)
+        if ent is None:
+            return None
+        a = self.term_type(ent.get("entry"), sc)
+        b = self.term_type(nxt.get("value"), sc) if nxt is not None else a
+        return a if a is not None and a == b else None
+    if h == "?":
+        a, b = self.term_type(t[2], sc), self.term_type(t[3], sc)
+        return a if a is not None and a == b else None
+    return _i86_term_type_before(self, t, sc)
+
+
+Gen.t_abi_encodeWithSignature = _i86_t_abi_encodeWithSignature
+Gen.t_update = _i86_t_update
+Gen.t_member = _i86_t_member
+Gen.term_type = _i86_term_type
+
+
+def _i70_overload_signature(m, fn: str) -> dict | None:
+    """I70: the interface function of a call named by an overload's suffix ("<Contract>.<function>_<selector>",
+    holon.frontends' rule E2): the one overload of <Contract>.<function> whose selector is the suffix."""
+    mt = re.fullmatch(r"(.+)_([0-9a-f]{8})", fn or "")
+    if not mt:
+        return None
+    hits = [h for h in ((m.info.get("members") or {}).get(mt.group(1)) or [])
+            if (h.get("selector") or "").lower() == "0x" + mt.group(2)]
+    return hits[0] if len(hits) == 1 else None
+
+
+def _i70_slot_element(bt: dict) -> bool:
+    """I70: an array element that is a value in a slot of its own (wider than 16 bytes: never packed two to a slot),
+    read and written at its slot's low bytes as every value is."""
+    return bt.get("encoding") == "inplace" and "members" not in bt and "base" not in bt and \
+        16 < int(bt.get("numberOfBytes", 0)) <= 32
+
+
+# ------------------------------------------------------------------------------------------------ I70 (memory arrays)
+#   ["alloc", "<T>[] memory", n]        a memory array of n zero elements of a value type T, as a word list (l:W)
+#   ["update", X, ["index", X, i], v]   the word list X with element i set to v (Solidity's write of a memory array
+#                                       element; an index past the length is the document's panic, never reached here)
+# Each helper is emitted only into a model that uses it, so every model compiled before compiles byte for byte.
+_I70_VALUE_TYPE = re.compile(r"(u?int\d*|address( payable)?|bool|bytes([1-9]|[12]\d|3[0-2]))")
+
+
+def _i70_t_alloc(self, t, sc):
+    ty = str(t[1])
+    base = ty[:-len("[] memory")].strip() if ty.endswith("[] memory") else None
+    if base is None or not _I70_VALUE_TYPE.fullmatch(base):
+        raise GenError(f"{sc.action}: an allocation of {ty}")
+    n = self.nat(t[2], sc)
+    _ext_helper(self, "w_rep", "def w_rep(n: Nat) -> List<&2, W>:\n  match n:\n    case 0n:\n      Nil{}\n"
+                               "    case 1n+p:\n      Con{w0(), w_rep(p)}\n")
+    return f"w_rep({n})", "l:W"
+
+
+_i70_t_update_before = Model3.t_update
+
+
+def _i70_t_update(self, t, sc):
+    tgt = t[2]
+    if isinstance(tgt, list) and len(tgt) == 3 and tgt[0] == "index":
+        c, k = self.value(t[1], sc)
+        if k == "l:W":
+            i = self.nat(tgt[2], sc)
+            vc, vk = self.value(t[3], sc)
+            _ext_helper(self, "w_set", "def w_set(xs: List<&2, W>, n: Nat, v: W) -> List<&2, W>:\n  match xs n:\n"
+                                       "    case Nil{} _:\n      Nil{}\n    case Con{h, t} 0n:\n      Con{v, t}\n"
+                                       "    case Con{h, t} 1n+p:\n      Con{h, w_set(t, p, v)}\n")
+            return f"w_set({c}, {i}, {self.to_w(vc, vk)})", "l:W"
+    return _i70_t_update_before(self, t, sc)
+
+
+
+
+#   ["abi.encodeCall", ["decl", id], args..]   the called function's selector, then its arguments ABI-encoded by its
+#                                             parameters as a call's are (calldata): the function by its declaration id
+#                                             in the compiler information (holon.machine.compiler_info "decls")
+def _i70_t_abi_encodeCall(self, t, sc):
+    ref = t[1]
+    d = ((self.m.info.get("decls") or {}).get(str(ref[1]))
+         if isinstance(ref, list) and len(ref) == 2 and ref[0] == "decl" else None)
+    if not d or not d.get("selector"):
+        raise GenError(f"{sc.action}: abi.encodeCall of a function with no declaration entry: {canonical(ref)[:80]}")
+    ins, args = d.get("inputs") or [], list(t[2:])
+    if len(ins) != len(args):
+        raise GenError(f"{sc.action}: abi.encodeCall with {len(args)} arguments for {len(ins)} parameters")
+    if any(str(p.get("type", "")).startswith("tuple") for p in ins):
+        raise GenError(f"{sc.action}: abi.encodeCall: a tuple argument")
+    heads, tails = [], []
+    for x, p in zip(args, ins):
+        c, k = self.value(x, sc)
+        if EV._is_dynamic(p):
+            if p.get("type") not in ("bytes", "string"):
+                heads.append(None)
+                tails.append(self.word_list_arg("abi.encodeCall", p, c, k, sc))
+                continue
+            heads.append(None)
+            tails.append(self.to_bytes(c, k))
+        else:
+            if p.get("type") == "tuple":
+                raise GenError(f"{sc.action}: abi.encodeCall: a tuple argument")
+            heads.append(f"b_of_w({self.to_w(c, k)})")
+    sel = bytes.fromhex(d["selector"][2:])
+    if any(isinstance(x, tuple) for x in tails):
+        return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat_lists(heads, tails)})", "b"
+    return f"List.append(&2, U32, {blit(sel)}, {self.abi_concat(heads, tails)})", "b"
+
+
+
+
+#   ["push", A, v] / ["pop", A]   the storage array A (a storage path, a view of the state as a store term's) with v
+#                                 appended at keccak256(slot) + length, or its last element zeroed, and its length one
+#                                 more or one less; the raw mode only (an element in a slot of its own)
+def _i70_array_parts(self, t, sc):
+    base = self.path_of(t[1], sc)
+    if base is None or self.sk:
+        raise GenError(f"{sc.action}: {t[0]} on a value that is not a storage array of the raw mode")
+    slot, _off, tid, _lit = self.locate(base, sc)
+    tt = self.m.type_of(tid)
+    bt = self.m.type_of(tt["base"]) if "base" in tt else None
+    if tt.get("encoding") != "dynamic_array" or bt is None or not (_i70_slot_element(bt) or
+                                                                  int(bt.get("numberOfBytes", 0)) == 32):
+        raise GenError(f"{sc.action}: {t[0]} on a {tt.get('label')}")
+    return base, slot, tt["base"]
+
+
+def _i70_t_push(self, t, sc):
+    base, slot, etid = _i70_array_parts(self, t, sc)
+    vc, vk = self.value(t[2], sc)
+    n = f"sload({base.view}, {slot})"
+    el = f"w_add(h_get({self.gx(sc, 'kh')}, b_of_w({slot})), {n})"
+    v1 = self.write_word(base.view, el, 0, etid, self.to_w(vc, vk))
+    return f"sstore({v1}, {slot}, w_add({n}, {wlit(1)}))", "v:" + base.family
+
+
+def _i70_t_pop(self, t, sc):
+    base, slot, etid = _i70_array_parts(self, t, sc)
+    n1 = f"w_sub(sload({base.view}, {slot}), {wlit(1)})"
+    el = f"w_add(h_get({self.gx(sc, 'kh')}, b_of_w({slot})), {n1})"
+    v1 = self.write_word(base.view, el, 0, etid, "w0()")
+    return f"sstore({v1}, {slot}, {n1})", "v:" + base.family
+
+
+
+
+#   a write of a whole storage array whose value is ["push", A, v] or ["pop", A] (A that array, as a loop carries it):
+#   the overlay gets the element's word and the length's word, both touched; the raw mode only
+_i70_write_body = Model3.write_body
+
+
+def _i70_write_body2(self, w, sc):
+    v = w.value
+    if (w.path or self.sk or not isinstance(v, list) or not v or v[0] not in ("push", "pop")
+            or len(v) != (3 if v[0] == "push" else 2)):
+        return _i70_write_body(self, w, sc)
+    fam = w.family
+    slot0, _o, tid, _l = self.locate(StoragePath("o0", fam, [], fam), sc)
+    tt = self.m.type_of(tid)
+    base = self.path_of(v[1], sc)
+    if (base is None or base.accessors or base.family != fam or tt.get("encoding") != "dynamic_array"
+            or "base" not in tt):
+        raise GenError(f"{sc.action}: a write of a whole {tt.get('label')} ({fam}) by {v[0]}")
+    bt = self.m.type_of(tt["base"])
+    if not (_i70_slot_element(bt) or int(bt.get("numberOfBytes", 0)) == 32):
+        raise GenError(f"{sc.action}: {v[0]} on a {tt.get('label')}")
+    lines = [f"  +o0 = {self.gx(sc, 'ov')}", f"  +k = {{{slot0} : W}}"]
+    if v[0] == "push":
+        vc, vk = self.value(v[2], sc)
+        lines.append(f"  +v = {{{self.to_w(vc, vk)} : W}}")
+        lines.append(f"  +n = {{sload({base.view}, k) : W}}")
+        lines.append(f"  +e = {{w_add(h_get({self.gx(sc, 'kh')}, b_of_w(k)), n) : W}}")
+        lines.append(f"  +o1 = {{{self.write_word('o0', 'e', 0, tt['base'], 'v')} : HSt}}")
+        lines.append(f"  +o2 = {{sstore(o1, k, w_add(n, {wlit(1)})) : HSt}}")
+    else:
+        lines.append(f"  +n = {{w_sub(sload({base.view}, k), {wlit(1)}) : W}}")
+        lines.append(f"  +e = {{w_add(h_get({self.gx(sc, 'kh')}, b_of_w(k)), n) : W}}")
+        lines.append(f"  +o1 = {{{self.write_word('o0', 'e', 0, tt['base'], 'w0()')} : HSt}}")
+        lines.append(f"  +o2 = {{sstore(o1, k, n) : HSt}}")
+    tw = f"Con{{k, Con{{e, {self.gx(sc, 'tw')}}}}}"
+    lines.append(f"  {self.sx(sc, 'tw', self.sx(sc, 'ov', 'x', 'o2'), tw)}")
+    return lines
+
+
+def _i70_t_len(self, t, sc):
+    c, k = self.tx(t[1], sc)
+    if k.startswith("v:") and not self.sk:
+        fam = k[2:]
+        slot0, _o, tid, _l = self.locate(StoragePath(c, fam, [], fam), sc)
+        if self.m.type_of(tid).get("encoding") == "dynamic_array":
+            return f"sload({c}, {slot0})", "w"
+    return _i70_t_len0(self, t, sc)
+
+
+_i70_t_len0 = Model3.t_len
+
+
+def _i70_unique_fields(fs: list) -> list:
+    """An argument record's fields with a repeated name (unnamed parameters) made unique by its position; a record
+    with no repeated name is unchanged."""
+    seen, out = set(), []
+    for i, (f, ty) in enumerate(fs):
+        out.append((f if f not in seen else f"{f}_{i}", ty))
+        seen.add(out[-1][0])
+    return out
+
+
+class Model3X(Model3):
+    """model3 with the language extension EXT1 (I70): storage arrays' push, pop and length (a whole-array write by push
+    or pop), an element of a dynamic array or one in a slot of its own, a call named by an overload's suffix, a loop's
+    valueless return, memory arrays of value types (alloc, element update), abi.encodeCall, and argument records whose
+    unnamed parameters repeat a name. Only build_text(ext1=True) compiles with it: a model compiled without it is the
+    model compiled before EXT1 existed, byte for byte."""
+
+    EXT1 = True
+    t_alloc = _i70_t_alloc
+    t_update = _i70_t_update
+    t_abi_encodeCall = _i70_t_abi_encodeCall
+    t_push = _i70_t_push
+    t_pop = _i70_t_pop
+    t_len = _i70_t_len
+    write_body = _i70_write_body2
+
+
+# ------------------------------------------------------------------------------------------- EXT1, I92's additions (K8)
+# Three constructs EXT1 lacked, each a term or write that raised GenError before, so a model that compiled without them
+# is unchanged byte for byte: the length of a storage array read as a storage path (EXT1's length took only a carried
+# view), Yul byte, and a top-level conditional memory write compiled as a helper instead of inlined into both branches.
+
+def _i92_t_len(self, t, sc):
+    """["len", A]: a storage dynamic array's length read as a storage path (kind "p", a path under compilation) is
+    taken as its view first; every other operand is EXT1's length unchanged."""
+    _c, k = self.tx(t[1], sc)
+    if k == "p" and not self.sk:
+        c, k = self.value(t[1], sc)
+        if k.startswith("v:"):
+            fam = k[2:]
+            slot0, _o, tid, _l = self.locate(StoragePath(c, fam, [], fam), sc)
+            if self.m.type_of(tid).get("encoding") == "dynamic_array":
+                return f"sload({c}, {slot0})", "w"
+    return _i70_t_len(self, t, sc)
+
+
+def _i92_t_wbyte(self, t, sc):
+    """["wbyte", x, n]: byte n of the word x, 0 the most significant, 0 past the word (Yul byte(n, x); the frontend's
+    term, holon.extracted_eval's t_wbyte)."""
+    x = self.w(t[1], sc)
+    n = t[2]
+    if isinstance(n, int) and not isinstance(n, bool):
+        return (f"w_u(b_at(b_of_w({x}), {n}n))" if 0 <= n < 32 else "w0()"), "w"
+    nw = self.w(n, sc)
+    return f"ite(W, w_lt({nw}, {wlit(32)}), w_u(b_at(b_of_w({x}), n_of_w({nw}))), w0())", "w"
+
+
+_i92_mem_write0 = Model3.mem_write
+
+
+def _i92_mem_write(self, mem: str, wr, sc) -> str:
+    """A top-level conditional memory write ["when", c, w] (no loop variable in scope) as a helper of the action's input
+    and the memory, as a memory loop is: the memory term appears once, where model3's inline form puts it in both
+    branches of the conditional, so n conditional writes in a row double it n times. Every other write is model3's."""
+    k = wr[0] if isinstance(wr, list) and wr else None
+    if k != "when" or sc.subst:
+        return _i92_mem_write0(self, mem, wr, sc)
+    name = self.fresh(f"mw_{bname(sc.action)}")
+    xt = f"X_{bname(sc.action)}"
+    body = f"ite(List<&2, U32>, {self.cond(wr[1], sc)}, {self.mem_write('mem', wr[2], sc)}, mem)"
+    self.add(f"def {name}(+{sc.x}: {xt}, +mem: List<&2, U32>) -> List<&2, U32>:\n  {body}\n")
+    return f"{name}({sc.x}, {mem})"
+
+
+Model3X.t_len = _i92_t_len
+Model3X.t_wbyte = _i92_t_wbyte
+Model3X.mem_write = _i92_mem_write
+
+
+# ------------------------------------------------------------------------------------------------ I94 (F1)
+def _i94_bytes_clear(self, view: str, ms: str, wraps: list, kh: str) -> str:
+    """The store view with the bytes or string value at slot ms cleared (raw store): the slot, and in the long form its
+    data slots keccak256(ms) + i for i < ceil(length / 32); wraps gets the touched-words wrapper of the data slots."""
+    bclr = _ext_helper(self, "b_clr", "def b_clr(n: Nat, +o: HSt, +s: W) -> HSt:\n  match n:\n    case 0n:\n      o\n"
+                       "    case 1n+m:\n      b_clr(m, sstore(o, s, w0()), w_add(s, w_u(1)))\n")
+    btw = _ext_helper(self, "b_tw", "def b_tw(n: Nat, +t: List<&2, W>, +s: W) -> List<&2, W>:\n  match n:\n"
+                      "    case 0n:\n      t\n    case 1n+m:\n      b_tw(m, Con{s, t}, w_add(s, w_u(1)))\n")
+    cnt = _ext_helper(self, "b_cnt", "def b_cnt(+l: W) -> Nat:\n  ite(Nat, w_nz(w_and(l, w_u(1))), "
+                      f"n_of_w({self.shr(5)}(w_add({self.shr(1)}(l), w_u(31)))), 0n)\n")
+    base = f"h_get({kh}, b_of_w({ms}))"
+    n = f"{cnt}(sload({view}, {ms}))"
+    wraps.append(f"{btw}({n}, \x00TW\x00, {base})")
+    return f"sstore({bclr}({n}, {view}, {base}), {ms}, w0())"
+
+
+def _i94_return(self, a: str, sc) -> str | None:
+    """EXT1 (I94): the ABI encoding of the action's one return value (the document's returns term, a word or a Bool,
+    evaluated over the action's context at its end), the return data of a run whose checks all hold; None when the
+    action returns nothing."""
+    t = (self.m.actions.get(a) or {}).get("returns")
+    if t is None or isinstance(t, list) and t and isinstance(t[0], list):
+        return None
+    try:
+        c, k = self.value(t, sc)
+    except GenError:
+        return None   # a return term the language cannot compile: no return data, as before EXT1's return data
+    if k in ("w", "bool") or k.startswith("t:"):
+        return f"b_of_w({self.to_w(c, k)})"
+    return None       # a list, bytes or record return value: not encoded (no return data)
+
+
+# ------------------------------------------------------------------------------------------------ I94 (EXT1 link: products)
+def _i94_mulx(self) -> tuple:
+    """(w_mulx, w_mul_okx): a product, and its no-overflow test, that take one factor's single limb when it has one
+    (w_mul_small: the other factor times a U32, as a literal factor already is), the full product otherwise. The
+    branch is a match, so a run evaluates one of them: a kernel then evaluates a small product limb by limb, not as a
+    256 x 256 product. Values equal w_mul's and w_mul_ok's."""
+    lim = wlit(1 << 224)
+    _ext_helper(self, "w_mulx_d", "def w_mulx_d(c: Bool, +a: W, +b: W) -> W:\n  match c:\n    case True{}:\n"
+                "      w_mul_small(b, w_lo(a))\n    case False{}:\n      w_mul(a, b)\n")
+    _ext_helper(self, "w_mulx_c", "def w_mulx_c(c: Bool, +a: W, +b: W) -> W:\n  match c:\n    case True{}:\n"
+                "      w_mul_small(a, w_lo(b))\n    case False{}:\n      w_mulx_d(w_hi0(a), a, b)\n")
+    mx = _ext_helper(self, "w_mulx", "def w_mulx(+a: W, +b: W) -> W:\n  w_mulx_c(w_hi0(b), a, b)\n")
+    _ext_helper(self, "w_mul_okx_d", "def w_mul_okx_d(c: Bool, +a: W, +b: W) -> Bool:\n  match c:\n    case True{}:\n"
+                "      True{}\n    case False{}:\n      w_mul_ok(a, b)\n")
+    _ext_helper(self, "w_mul_okx_c", "def w_mul_okx_c(c: Bool, +a: W, +b: W) -> Bool:\n  match c:\n    case True{}:\n"
+                f"      True{{}}\n    case False{{}}:\n      w_mul_okx_d(Bool.and(w_hi0(a), w_lt(b, {lim})), a, b)\n")
+    ok = _ext_helper(self, "w_mul_okx", "def w_mul_okx(+a: W, +b: W) -> Bool:\n"
+                     f"  w_mul_okx_c(Bool.and(w_hi0(b), w_lt(a, {lim})), a, b)\n")
+    return mx, ok
+
+
+def _i94_t_mul(self, t, sc):
+    if any(isinstance(x, int) and not isinstance(x, bool) for x in (t[1], t[2])):
+        return Model3.t_mul(self, t, sc)
+    mx, _ok = _i94_mulx(self)
+    return f"{mx}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+def _i94_mul_check(self, inner, a: str, b: str) -> tuple:
+    if any(isinstance(x, int) and not isinstance(x, bool) for x in (inner[1], inner[2])):
+        return Model3.mul_check(self, inner, a, b)
+    mx, ok = _i94_mulx(self)
+    return f"{ok}({a}, {b})", f"{mx}({a}, {b})"
+
+
+# ------------------------------------------------------------------------------------------------ I94 (EXT1 link: shifts)
+def _i94_var_shift(self, d: str, t, sc):
+    """EXT1: a shift by a non-constant amount n (EVM SHL/SHR: n >= 256 gives 0) whose levels match on n's bits, so a
+    run evaluates only the constant shifts of the set bits; 1 << n is the word of bit n itself (w_pow2). Values equal
+    I83's w_shlv / w_shrv."""
+    if d == "l" and t[1] == 1:
+        _ext_helper(self, "w_bitl", "def w_bitl(+i: U32, +v: U32) -> W:\n  W{" + ", ".join(
+            f"ite(U32, U32.is_eq(i, {k}), v, 0)" for k in range(8)) + "}\n")
+        _ext_helper(self, "w_pow2_c", "def w_pow2_c(c: Bool, +k: U32) -> W:\n  match c:\n    case True{}:\n"
+                    "      w_bitl(U32.div(k, 32), U32.shln(1, U32.to_nat(U32.mod(k, 32))))\n    case False{}:\n      w0()\n")
+        f = _ext_helper(self, "w_pow2", f"def w_pow2(+n: W) -> W:\n  w_pow2_c(w_lt(n, {wlit(256)}), w_lo(n))\n")
+        return f"{f}({self.w(t[2], sc)})", "w"
+    name = f"w_sh{d}vm"
+    if name not in _ext_helpers(self):
+        for b in range(8):
+            fn = self.shr(1 << b) if d == "r" else self.shl(1 << b)
+            _ext_helper(self, f"{name}_{b}", f"def {name}_{b}(c: Bool, +a: W) -> W:\n  match c:\n    case True{{}}:\n"
+                        f"      {fn}(a)\n    case False{{}}:\n      a\n")
+        _ext_helper(self, f"{name}_z", f"def {name}_z(c: Bool, +a: W) -> W:\n  match c:\n    case True{{}}:\n      a\n"
+                    "    case False{}:\n      w0()\n")
+        lines = [f"def {name}(+a: W, +n: W) -> W:"]
+        prev = "a"
+        for b in range(8):
+            lines.append(f"  +s{b} = {{{name}_{b}(w_nz(w_and(n, {wlit(1 << b)})), {prev}) : W}}")
+            prev = f"s{b}"
+        lines.append(f"  {name}_z(w_lt(n, {wlit(256)}), {prev})")
+        _ext_helper(self, name, "\n".join(lines) + "\n")
+    return f"{name}({self.w(t[1], sc)}, {self.w(t[2], sc)})", "w"
+
+
+class Model3XL(Model3X):
+    """Model3X with EXT1's additions for linked calls (I94): an action's return data (_i94_return: a callee's answer
+    is its real return word), products that take a one-limb factor's single limb (_i94_mulx) and shifts by a
+    non-constant amount whose levels match on its bits (_i94_var_shift). Only build_text(ext1=True, ext1_link=True)
+    compiles with it (holon.cutover.model): a model compiled by Model3X alone is the one compiled before I94, byte for
+    byte."""
+
+    EXT1_LINK = True
+    t_mul = _i94_t_mul
+    mul_check = _i94_mul_check
+    var_shift = _i94_var_shift

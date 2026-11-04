@@ -1,0 +1,48 @@
+{
+  "seeds_version": "holon-sort-seeds/0.2",
+  "doc": "Blind rerun (I96): the seeds file of spec/M3/lib/sort_types.json (holon.sorts.extracted, rule E3), written from the pinned checkout's contracts/contracts/l1/rollup/Rollup.sol only. Two term seeds give the EVM environment its sorts (block.timestamp is a time point, msg.value an amount of the native asset); flow and the affine table carry them to the families and parameters that store, add or compare them (startTime, originTimestamp, finalizeTimestamp, finalizationPeriodSeconds, proofWindow, rollupDelayPeriod; challengeDeposit, batchChallengeReward, proveRemaining). The lexical seeds name the families whose declarations say what they hold: the *BatchIndex counters (lastFinalizedBatchIndex, lastCommittedBatchIndex, legacyCutoverBatchIndex) are batch indices, and the bytes32 values of the batchIndex-keyed mappings are named batchHash (committedBatches), stateRoot (finalizedStateRoots, committedStateRoots) and blobVersionedHash (batchBlobVersionedHashes). No writer-label rule: labels take the documented fallback.",
+  "term": [
+    {
+      "id": "block_timestamp",
+      "head": "env",
+      "arg": "block.timestamp",
+      "sort": "Time"
+    },
+    {
+      "id": "msg_value",
+      "head": "env",
+      "arg": "msg.value",
+      "sort": "Amt[eth]"
+    }
+  ],
+  "digest": [],
+  "lexical": [
+    {
+      "id": "batch_index",
+      "match": "family",
+      "pattern": "BatchIndex$",
+      "sort": "Idx[batch]"
+    },
+    {
+      "id": "batch_hash",
+      "match": "family",
+      "pattern": "^committedBatches$",
+      "sort": "Dig[batchHash]"
+    },
+    {
+      "id": "state_root",
+      "match": "family",
+      "pattern": "^(finalized|committed)StateRoots$",
+      "sort": "Dig[stateRoot]"
+    },
+    {
+      "id": "blob_versioned_hash",
+      "match": "family",
+      "pattern": "^batchBlobVersionedHashes$",
+      "sort": "Dig[blobVersionedHash]"
+    }
+  ],
+  "writer_labels": {
+    "rules": []
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "artifacts": {
+    "law_name": "l_par_rt_batchheaderv0_bytes_batchheaderbytes_batchindex_v0",
+    "laws": "gen/M3/laws/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0/LAWS.bend",
+    "model": "gen/M3/model/header_length.bend",
+    "proof": "gen/M3/proofs/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.714
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.015
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.714
+  },
+  "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "cone": [
+    "BatchHeaderBytes_BatchIndex",
+    "BatchHeaderBytes_BatchIndex_ok",
+    "BatchHeaderV0_Bytes",
+    "R_BatchHeaderV0",
+    "byte_at",
+    "get_BatchHeaderV0__BatchIndex",
+    "sel_bytes",
+    "slice"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [
+    "E1",
+    "E2"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "2bd76be960ad2990aab0ac4bf6c33ed9ed5cf9e1d8e185c4e25018a5744136b9",
+  "filter_bin": null,
+  "generator_sha256": "cb4d2500e7ec2a65c8680cd1938d7b3be969eddfa29524bd5cdaa8042442f13b",
+  "independence_class": "I2",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    },
+    {
+      "axioms": [],
+      "name": "lean4",
+      "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M3/lean/L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0.lean",
+      "source_sha256": "b823c6b51eb695de44543a7d4d79baf49391c5ffea8584446f84336c14ec36fe",
+      "theorem": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+      "version": "4.34.0"
+    }
+  ],
+  "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+  "ledger_assumptions": [
+    "A-codec-domain",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "e51f7185bd45915ef752a37e2e3182036724a1ccbda52c1447c19e9a74124b63",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:06eb7cf8f9ac1759d3805e782975c3ad14638890055233e2a30d2cda6f371381",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "codec laws are not replayed in I24",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 h: BatchHeaderV0. BatchHeaderBytes_BatchIndex(BatchHeaderV0_Bytes(h)) == Some(h.BatchIndex)",
+  "statement_hash": "sha256:06eb7cf8f9ac1759d3805e782975c3ad14638890055233e2a30d2cda6f371381",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "PROVED",
+  "subform": "round_trip",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

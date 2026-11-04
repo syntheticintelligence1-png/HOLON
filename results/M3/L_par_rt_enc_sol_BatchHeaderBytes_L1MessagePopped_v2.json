@@ -1,0 +1,157 @@
+{
+  "artifacts": {
+    "law_name": "l_par_rt_enc_sol_batchheaderbytes_l1messagepopped_v2",
+    "laws": "gen/M3/laws/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2/LAWS.bend",
+    "model": "gen/M3/model/header_length.bend",
+    "proof": "gen/M3/proofs/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "exit_code": 0,
+      "generator": "open_refl",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.688
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 1.022
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.688
+  },
+  "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
+  "cone": [
+    "BatchHeaderBytes_L1MessagePopped",
+    "BatchHeaderBytes_L1MessagePopped_ok",
+    "R_Header",
+    "byte_at",
+    "enc_sol",
+    "enc_sol_at",
+    "enc_sol_tag",
+    "get_Header__l1MessagePopped",
+    "sel_bytes",
+    "slice"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": [
+    "E1",
+    "E2"
+  ],
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "2bd76be960ad2990aab0ac4bf6c33ed9ed5cf9e1d8e185c4e25018a5744136b9",
+  "filter_bin": null,
+  "generator_sha256": "cb4d2500e7ec2a65c8680cd1938d7b3be969eddfa29524bd5cdaa8042442f13b",
+  "independence_class": "I2",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    },
+    {
+      "axioms": [
+        "propext"
+      ],
+      "name": "lean4",
+      "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
+      "result": "checked",
+      "role": "second-independent",
+      "source": "gen/M3/lean/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2.lean",
+      "source_sha256": "04913f17efabb279e771cf83695bccb8219884c6e3bb70ab1d8d0d4fb301eb1b",
+      "theorem": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+      "version": "4.34.0"
+    }
+  ],
+  "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+  "ledger_assumptions": [
+    "A-codec-domain",
+    "A-dirty",
+    "A-env",
+    "A-implicit",
+    "A-width-Header",
+    "go-append-growth",
+    "go-errors-nonnil",
+    "go-nil-deref-not-modelled",
+    "go-opaque-calls",
+    "go-prim-github-com-morph-l2-go-ethereum-common-BytesToHash",
+    "go-prim-github-com-morph-l2-go-ethereum-common-Hash-Bytes",
+    "go-prim-github-com-morph-l2-go-ethereum-crypto-Keccak256Hash"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "e51f7185bd45915ef752a37e2e3182036724a1ccbda52c1447c19e9a74124b63",
+  "non_vacuity": {
+    "bound": "the premise classes at zeros (pins and correspondences applied)",
+    "degenerate": null,
+    "law": "gen/M3/L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2/nonvac/LAWS.bend",
+    "parent_statement_hash": "sha256:25e32dfe91f6908edbead1e88ce0b117fbc57fd3c982dec5aaa2550256734741",
+    "reachable": null,
+    "status": "inhabited",
+    "witness": {
+      "h": {
+        "batchIndex": "0x0000000000000000",
+        "blobVersionedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "dataHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "l1MessagePopped": "0x0000000000000000",
+        "lastBlockNumber": "0x0000000000000000",
+        "parentBatchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "postStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "prevStateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "totalL1MessagePopped": "0x0000000000000000",
+        "version": "0x02",
+        "withdrawRootHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  },
+  "premises": [
+    "h.version == 0x02"
+  ],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "codec laws are not replayed in I24",
+    "status": "not_run"
+  },
+  "rule": "PAR",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 h: Header. h.version == 0x02 \u21d2 BatchHeaderBytes_L1MessagePopped(enc_sol(h)) == Some(h.l1MessagePopped)",
+  "statement_hash": "sha256:25e32dfe91f6908edbead1e88ce0b117fbc57fd3c982dec5aaa2550256734741",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "PROVED",
+  "subform": "round_trip",
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

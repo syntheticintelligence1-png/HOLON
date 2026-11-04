@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON facts (holon-facts/0.1, M0 subset)",
+  "type": "object",
+  "required": [
+    "facts_version",
+    "target",
+    "types",
+    "functions",
+    "assumptions"
+  ],
+  "properties": {
+    "facts_version": {
+      "const": "holon-facts/0.1"
+    },
+    "functions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "kind",
+          "from",
+          "to"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "encoder",
+              "predicate",
+              "decoder",
+              "projection"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON result record (M0)",
+  "type": "object",
+  "required": [
+    "law_id",
+    "statement_hash",
+    "facts_sha256",
+    "status",
+    "scope",
+    "premises",
+    "kernel",
+    "artifacts",
+    "checker",
+    "triage",
+    "replay"
+  ],
+  "properties": {
+    "law_id": {
+      "type": "string"
+    },
+    "statement_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "facts_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "status": {
+      "enum": [
+        "PROVED",
+        "REFUTED",
+        "UNKNOWN"
+      ]
+    },
+    "scope": {
+      "enum": [
+        "unbounded",
+        "bounded"
+      ]
+    },
+    "bound": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "required when scope = bounded or status = UNKNOWN: what was searched"
+    },
+    "premises": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "human-readable premises; every assume clause of the law plus any oracle/cryptographic premise"
+    },
+    "kernel": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "const": "bend"
+        },
+        "version": {
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "not_run",
+            "checked",
+            "failed"
+          ],
+          "description": "bend --verdict (BendTT kernel in Lean)"
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "required": [
+        "laws",
+        "proof"
+      ],
+      "properties": {
+        "laws": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "proof": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "type": "string"
+        },
+        "law_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Bend law name inside LAWS.bend (law_id lowercased, 'cl_' prefix for counter-laws)"
+        }
+      }
+    },
+    "checker": {
+      "type": "object",
+      "required": [
+        "exit_code",
+        "marker"
+      ],
+      "properties": {
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "marker": {
+          "enum": [
+            "ALL PROOFS CHECK",
+            "SOME PROOFS FAIL",
+            "not_run"
+          ]
+        },
+        "seconds": {
+          "type": "number"
+        }
+      }
+    },
+    "witness": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "REFUTED only: binder name -> value (Header as field->hex, Bytes as hex)"
+    },
+    "difference": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "REFUTED only: lhs and rhs values at the witness (canonical JSON form)"
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "what was tried, in order (proof generators, refuter budgets)"
+    },
+    "triage": {
+      "enum": [
+        "finding",
+        "intent_question",
+        "model_defect",
+        "none"
+      ]
+    },
+    "replay": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not_run",
+            "passed",
+            "failed",
+            "not_applicable"
+          ]
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "REFUTED"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "witness",
+          "difference"
+        ],
+        "properties": {
+          "witness": {
+            "type": "object"
+          },
+          "difference": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "UNKNOWN"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "bound",
+          "attempts"
+        ]
+      }
+    }
+  ]
+}
