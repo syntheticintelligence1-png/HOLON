@@ -35,8 +35,8 @@ import json
 import sys
 from pathlib import Path
 
-from .. import binding as BD
 from ..analysis import closure as C
+from ..binding import stem as record_stem
 from ..keccak import keccak256
 from ..sorts import typed_sidecar as TS
 
@@ -171,7 +171,7 @@ def derive(doc: dict, record: dict) -> dict:
 
 
 def _record_rel(milestone: str, doc_rel: str) -> str:
-    return f"gen/{milestone}/binding/{BD.stem(doc_rel)}.json"
+    return f"gen/{milestone}/binding/{record_stem(doc_rel)}.json"
 
 
 def build(milestone: str, root: Path, sidecar: str | None, model_sidecar: str | None) -> tuple[Path, str]:

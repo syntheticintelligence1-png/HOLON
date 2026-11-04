@@ -1,0 +1,219 @@
+{
+  "authored": {
+    "doc": "The abstraction of the binding's deployment, the initial state R0 of the closure (rules D3-D5 of tests_m3/test_disch.py). It is configuration, not a fact of the code: the I20 binding replay/M2/fragments.json deploys the real Rollup through replay/M1/solidity/HolonTraceReplay.t.sol deploy(tid, F, W, D, t0, r0) with the initial values F = 40, W = 10, D = 20, t0 = 10, r0 = 100 that the binding reads from spec/M1/facts/morph_rollup.json (holonDeploy in replay/M2/solidity/HolonExtractedStep.t.sol): vm.warp(1700000010); Rollup.initialize(submitter oracle, queue proxy, verifier oracle, F, W, 70) behind a TransparentUpgradeableProxy (admin 0xAD); updateRollupDelayPeriod(D); addChallenger(0x1004); importGenesisBatch(g), g the 249-byte version-0 header with dataHash 1, blobVersionedHash ZERO_VERSIONED_HASH and postStateRoot 100. Exact words for the values the closure's checks compare; \"T\" for a non-zero word the transcription does not fix (owner and contract addresses); every unlisted path is {0}. keys: the mapping keys the deployment wrote, by family, with the members it made non-zero (a struct family), so that tests_m3/test_disch.py::TestInstruments::test_r0_is_the_binding_deployment can compare this transcription slot by slot with I30's capture of the same deployment (gen/M3/sorts/models/morph_rollup.extracted.init.json). The genesis hash is keccak256(g).",
+    "keys": {
+      "batchBlobVersionedHashes": {
+        "0": null
+      },
+      "batchDataStore": {
+        "0": [
+          "originTimestamp",
+          "finalizeTimestamp"
+        ]
+      },
+      "committedBatches": {
+        "0": null
+      },
+      "committedStateRoots": {
+        "0": null
+      },
+      "finalizedStateRoots": {
+        "0": null
+      },
+      "isChallenger": {
+        "0x0000000000000000000000000000000000001004": null
+      }
+    },
+    "proxy_slots": [
+      "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+    ],
+    "values": {
+      "_initialized": [
+        1
+      ],
+      "_initializing": [
+        0
+      ],
+      "_owner": [
+        "T"
+      ],
+      "_paused": [
+        0
+      ],
+      "batchBlobVersionedHashes": [
+        0,
+        463520946527561903920979615716011323696915893422270006750744924475581808660
+      ],
+      "batchDataStore.finalizeTimestamp": [
+        0,
+        1700000010
+      ],
+      "batchDataStore.originTimestamp": [
+        0,
+        1700000010
+      ],
+      "committedBatches": [
+        0,
+        49378197412850287564765311833464212548830103414361668470078570316707767840934
+      ],
+      "committedStateRoots": [
+        0,
+        100
+      ],
+      "finalizationPeriodSeconds": [
+        40
+      ],
+      "finalizedStateRoots": [
+        0,
+        100
+      ],
+      "isChallenger": [
+        0,
+        1
+      ],
+      "messageQueue": [
+        "T"
+      ],
+      "proofRewardPercent": [
+        70
+      ],
+      "proofWindow": [
+        10
+      ],
+      "rollupDelayPeriod": [
+        20
+      ],
+      "submitterContract": [
+        "T"
+      ],
+      "verifier": [
+        "T"
+      ]
+    }
+  },
+  "base": "20c2dc11bc07a8f5669141924045175c758044f8",
+  "build": "c1f63433770b22a850942c573791b6b0c8cfdb80",
+  "closure": {
+    "closure.json": [
+      "sidecar"
+    ],
+    "conjuncts.json": [
+      "sidecar"
+    ]
+  },
+  "derived": {
+    "derived_from": [
+      {
+        "document": "spec/M2/facts/morph_rollup.extracted.json",
+        "path": "gen/M3/binding/morph_rollup.extracted.json",
+        "sha256": "5424af3c794e72ef05a53af1359897dcd6a491457a7ba5d604990a84a83e1b44"
+      }
+    ],
+    "doc": "The deployment's abstraction R0, derived by `python -m holon disch-r0` (holon-disch-r0/1) from the deployment records named in derived_from, through each document's layout. values: a scalar path holds its deployed word (at its offset and width); a mapping family holds 0 plus the deployed words of its written keys (for a struct family, each member path does); a non-zero word whose declared type is an address is \"T\"; a path whose deployed words are all 0 is unlisted, which is {0}. keys: the keys whose entry holds a non-zero word (for a struct family, the members made non-zero), from the record's 64-byte keccak256 preimages. proxy_slots: the written non-zero slots that no layout path holds. Configuration derived from code, never authored.",
+    "keys": {
+      "batchBlobVersionedHashes": {
+        "0": null
+      },
+      "batchDataStore": {
+        "0": [
+          "originTimestamp",
+          "finalizeTimestamp"
+        ]
+      },
+      "committedBatches": {
+        "0": null
+      },
+      "committedStateRoots": {
+        "0": null
+      },
+      "finalizedStateRoots": {
+        "0": null
+      },
+      "isChallenger": {
+        "0x0000000000000000000000000000000000001004": null
+      }
+    },
+    "proxy_slots": [
+      "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+    ],
+    "values": {
+      "_initialized": [
+        1
+      ],
+      "_owner": [
+        "T"
+      ],
+      "batchBlobVersionedHashes": [
+        0,
+        463520946527561903920979615716011323696915893422270006750744924475581808660
+      ],
+      "batchDataStore.finalizeTimestamp": [
+        0,
+        1700000010
+      ],
+      "batchDataStore.originTimestamp": [
+        0,
+        1700000010
+      ],
+      "committedBatches": [
+        0,
+        49378197412850287564765311833464212548830103414361668470078570316707767840934
+      ],
+      "committedStateRoots": [
+        0,
+        100
+      ],
+      "finalizationPeriodSeconds": [
+        40
+      ],
+      "finalizedStateRoots": [
+        0,
+        100
+      ],
+      "isChallenger": [
+        0,
+        1
+      ],
+      "messageQueue": [
+        "T"
+      ],
+      "proofRewardPercent": [
+        70
+      ],
+      "proofWindow": [
+        10
+      ],
+      "rollupDelayPeriod": [
+        20
+      ],
+      "submitterContract": [
+        "T"
+      ],
+      "verifier": [
+        "T"
+      ]
+    }
+  },
+  "diff": [
+    {
+      "authored": [
+        0
+      ],
+      "derived": null,
+      "field": "values",
+      "path": "_initializing"
+    },
+    {
+      "authored": [
+        0
+      ],
+      "derived": null,
+      "field": "values",
+      "path": "_paused"
+    }
+  ],
+  "doc": "I96a P1 (tests_m3/test_r0_i96a.py): the lead's authored r0 at the base and the r0 that `python -m holon disch-r0 --milestone M3` derived at the build commit, with their field diff (tests_m3/_i96a.field_diff). closure: the top-level members of gen/M3/disch/closure.json and conjuncts.json that `holon disch --milestone M3` changes on the derived r0, against the base's.",
+  "r0_sets_equal": true
+}

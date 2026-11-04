@@ -1,0 +1,420 @@
+{
+  "analysis_diff": {},
+  "analysis_other_members": {
+    "closure.json": [
+      "inputs",
+      "sidecar"
+    ],
+    "conjunct_parts": [
+      "external (the hypotheses each sidecar names)"
+    ],
+    "conjuncts.json": [
+      "inputs",
+      "models",
+      "sidecar"
+    ]
+  },
+  "authored_r0_analysis": {
+    "closure": "fixpoint rounds only, in every class: 3 under the session's authored r0 and 2 under the derived r0. The closure sets, classes, permission, dead actions, kinds, checks and basis are equal.",
+    "differs_from_derived_in": [
+      "closure"
+    ]
+  },
+  "binding_record_sha256": "5424af3c794e72ef05a53af1359897dcd6a491457a7ba5d604990a84a83e1b44",
+  "control": {
+    "hints_control": {
+      "branch": "claude/ci-i96a-nohints",
+      "commit": "1004b244ad2ebb8bda994a06b339b55af1dc7c20",
+      "run_id": 41810487243,
+      "status": "pending when this record was written; its result goes into I96b's prereg",
+      "tree": "the P5 sandbox (20511bf4) with only results/M3/sorts/refinement/hints.json removed"
+    },
+    "i95_runner_record": "I95's runner record. holon/ differs between I95's pack commit (9e99ee35) and the build commit in only three places: __main__.py's dispatch of disch-r0, holon/disch/r0.py, and holon/land.py. The DISCH run reads none of them."
+  },
+  "doc": "I96a P3-P5 (tests_m3/test_r0_i96a.py). The pack-like sandbox: the pack of the build commit (tools/blind_pack.py), I95's scope files, I95's committed authored files (audit/blind/I95/authored/) overlaid, and the typed document copied from the build commit, as I95's binding dry check did. In it, `holon binding` (a fresh forge run with an empty HOLON_CACHE), `holon disch-r0` and `holon disch` ran. P5's re-decision ran on CI runners, over the build commit's tree with the session's typing sidecars and its stepped DISCH sidecar swapped in (p5_run).",
+  "finding": "P5 missed: under the session's own typing (its 14446-line model) and the derived r0, on the lead's tree, all 11 laws are decided as the lead decides them, with the lead's exploration (3000 states, B held in 1 of 331). I95's blind run explored 2987 states and decided none. R0 cannot explain the difference (authored_r0_analysis), and neither can typing (this sandbox). The lead's tree holds I30's refinement hints (results/M3/sorts/refinement/hints.json: candidate answers of external calls, read by the DISCH and I30 searches); I95's blind tree did not. hints_control tests that.",
+  "laws": {
+    "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+      "bound": " | S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (proveState, finalizeBatch, initialize2, initialize3) | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "REFUTED",
+      "sandbox": "REFUTED"
+    },
+    "L_disch_ext_rollup_132_d953872f_onlyOwner": {
+      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 0 of 3000 states; 0 last-step syntheses (revertBatch, addChallenger, claimProveRemaining, importGenesisBatch, initialize2, initialize3, removeChallenger, renounceOwnership, setPause, tran | S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: 258 neighbourhood prefixes of the witnesses of L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_ext_rollup | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "PROVED",
+      "sandbox": "PROVED"
+    },
+    "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
+      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (proveState, commitBatch, commitBatchWithProof, commitState, finalizeBatch, initialize2, initialize3) | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "PROVED",
+      "sandbox": "PROVED"
+    },
+    "L_disch_ext_rollup_213_f2e7faf8_onlyOwner": {
+      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (revertBatch, setPause, addChallenger, claimProveRemaining, commitBatchWithProof, finalizeBatch, importGenesisBatch, initialize2, initialize3, remov | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "PROVED",
+      "sandbox": "PROVED"
+    },
+    "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (proveState, finalizeBatch, initialize2, initialize3) | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "PROVED",
+      "sandbox": "PROVED"
+    },
+    "L_disch_ext_rollup_363_e11d8bb2_onlyOwner": {
+      "bound": "S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (revertBatch, setPause, updateProofWindow, addChallenger, claimProveRemaining, finalizeBatch, importGenesisBatch, initialize2, initialize3, removeCh | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "PROVED",
+      "sandbox": "PROVED"
+    },
+    "L_disch_noext_rollup_132_d953872f_onlyOwner": {
+      "bound": " | S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 0 of 3000 states; 0 last-step syntheses (revertBatch, addChallenger, claimProveRemaining, importGenesisBatch, initialize2, initialize3, removeChallenger, renounceOwnership, setPause, tran | S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: 258 neighbourhood prefixes of the witnesses of L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter, L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner, L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter, L_disch_ext_rollup | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "REFUTED",
+      "sandbox": "REFUTED"
+    },
+    "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
+      "bound": " | S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (proveState, commitBatch, commitBatchWithProof, commitState, finalizeBatch, initialize2, initialize3) | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "REFUTED",
+      "sandbox": "REFUTED"
+    },
+    "L_disch_noext_rollup_213_f2e7faf8_onlyOwner": {
+      "bound": " | S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (revertBatch, setPause, addChallenger, claimProveRemaining, commitBatchWithProof, finalizeBatch, importGenesisBatch, initialize2, initialize3, remov | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "REFUTED",
+      "sandbox": "REFUTED"
+    },
+    "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+      "bound": " | S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (proveState, finalizeBatch, initialize2, initialize3) | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "REFUTED",
+      "sandbox": "REFUTED"
+    },
+    "L_disch_noext_rollup_363_e11d8bb2_onlyOwner": {
+      "bound": " | S1+S2: 3000 distinct states of at most 3 successful steps (max 3000); S3: not run; B held at a candidate time in 1 of 331 states; 1 last-step syntheses (revertBatch, setPause, updateProofWindow, addChallenger, claimProveRemaining, finalizeBatch, importGenesisBatch, initialize2, initialize3, removeCh | ",
+      "i95_blind": "UNKNOWN",
+      "lead": "REFUTED",
+      "sandbox": "REFUTED"
+    }
+  },
+  "p5_run": {
+    "branch": "claude/ci-i96a-sbx",
+    "commit": "0f32fecd9e648d2994c5d458496998514f7a3f9a",
+    "outputs": "origin/claude/ci-i96a-sbx-out-41796120670",
+    "run_id": 41796120670,
+    "shards": "3 DISCH shards over the 11 laws, --law-timebox 540 and the 300-minute deadline",
+    "tree": "the build commit with the landing's REGEN outputs (0f3d4851), then I95's authored sort_types.json and sort_seeds.json and the session's DISCH sidecar as the step wrote it in the pack-like sandbox, then holon sorts, disch, diagram, evidence and derive (20511bf4). The 41 DISCH law files are the lead's, unchanged by that derive.",
+    "typed_model_lines": 14446
+  },
+  "pack": {
+    "bundle_sha256": "1a71951f5e35c8a2055b8cb1ba23539f7ffc4c83a3488fba9608c18ce6dad0f3",
+    "commit": "c1f63433770b22a850942c573791b6b0c8cfdb80",
+    "manifest_sha256": "d8253a04265fa76e7a20d9df00ccdc913dee97412e6d03e2991dc372765f6d64",
+    "members": 1512
+  },
+  "r0_row": {
+    "blind": "868c76668d5c00c91417795a96ec1f5bbc08cbf82d713d54b9827d563e46541c",
+    "equal": true,
+    "lead": "868c76668d5c00c91417795a96ec1f5bbc08cbf82d713d54b9827d563e46541c",
+    "model_sidecar": {
+      "blind": "spec/M3/lib/sort_types.json",
+      "equal": true,
+      "lead": "spec/M3/lib/sort_types.json"
+    }
+  },
+  "session_authored_r0_diff": [
+    {
+      "authored": [
+        0
+      ],
+      "derived": null,
+      "field": "values",
+      "path": "_initializing"
+    },
+    {
+      "authored": [
+        0
+      ],
+      "derived": null,
+      "field": "values",
+      "path": "_paused"
+    },
+    {
+      "authored": null,
+      "derived": [
+        0,
+        463520946527561903920979615716011323696915893422270006750744924475581808660
+      ],
+      "field": "values",
+      "path": "batchBlobVersionedHashes"
+    },
+    {
+      "authored": null,
+      "derived": [
+        0,
+        1700000010
+      ],
+      "field": "values",
+      "path": "batchDataStore.finalizeTimestamp"
+    },
+    {
+      "authored": null,
+      "derived": [
+        0,
+        1700000010
+      ],
+      "field": "values",
+      "path": "batchDataStore.originTimestamp"
+    },
+    {
+      "authored": null,
+      "derived": [
+        0,
+        49378197412850287564765311833464212548830103414361668470078570316707767840934
+      ],
+      "field": "values",
+      "path": "committedBatches"
+    },
+    {
+      "authored": null,
+      "derived": [
+        0,
+        100
+      ],
+      "field": "values",
+      "path": "committedStateRoots"
+    },
+    {
+      "authored": [
+        "T"
+      ],
+      "derived": [
+        40
+      ],
+      "field": "values",
+      "path": "finalizationPeriodSeconds"
+    },
+    {
+      "authored": null,
+      "derived": [
+        0,
+        100
+      ],
+      "field": "values",
+      "path": "finalizedStateRoots"
+    },
+    {
+      "authored": null,
+      "derived": [
+        0,
+        1
+      ],
+      "field": "values",
+      "path": "isChallenger"
+    },
+    {
+      "authored": [
+        "T"
+      ],
+      "derived": [
+        70
+      ],
+      "field": "values",
+      "path": "proofRewardPercent"
+    },
+    {
+      "authored": [
+        "T"
+      ],
+      "derived": [
+        10
+      ],
+      "field": "values",
+      "path": "proofWindow"
+    },
+    {
+      "authored": null,
+      "derived": [
+        20
+      ],
+      "field": "values",
+      "path": "rollupDelayPeriod"
+    },
+    {
+      "authored": null,
+      "derived": {
+        "0": null
+      },
+      "field": "keys",
+      "path": "batchBlobVersionedHashes"
+    },
+    {
+      "authored": null,
+      "derived": {
+        "0": [
+          "originTimestamp",
+          "finalizeTimestamp"
+        ]
+      },
+      "field": "keys",
+      "path": "batchDataStore"
+    },
+    {
+      "authored": null,
+      "derived": {
+        "0": null
+      },
+      "field": "keys",
+      "path": "committedBatches"
+    },
+    {
+      "authored": null,
+      "derived": {
+        "0": null
+      },
+      "field": "keys",
+      "path": "committedStateRoots"
+    },
+    {
+      "authored": null,
+      "derived": {
+        "0": null
+      },
+      "field": "keys",
+      "path": "finalizedStateRoots"
+    },
+    {
+      "authored": null,
+      "derived": {
+        "0x0000000000000000000000000000000000001004": null
+      },
+      "field": "keys",
+      "path": "isChallenger"
+    },
+    {
+      "authored": [],
+      "derived": [
+        "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+        "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+      ],
+      "field": "proxy_slots",
+      "path": ""
+    }
+  ],
+  "session_sidecar": {
+    "binding": "spec/M3/lib/binding.json",
+    "disch_version": "holon-disch/0.1",
+    "doc": "The DISCH sidecar of M3 (holon.analysis.closure, rules D1-D10; holon.disch.run), written for the blind rerun from code alone. documents: the Rollup transitions document. r0: the deployment's abstraction, from what the target's constructor and initializer write at deployment (below). hypotheses and hypothesis_verdicts: none, since the target code states no hypothesis about its external components. binding: the configuration-only binding spec, whose deployment record holon binding derives by forge. search: the budget of spec/M3/lib/disch.json at the pack commit, as the blind-rerun brief gives it.",
+    "documents": [
+      "spec/M2/facts/morph_rollup.extracted.json"
+    ],
+    "hypotheses": {},
+    "hypothesis_verdicts": null,
+    "inputs": [],
+    "model_sidecar": "spec/M3/lib/sort_types.json",
+    "r0": {
+      "derived_from": [
+        {
+          "document": "spec/M2/facts/morph_rollup.extracted.json",
+          "path": "gen/M3/binding/morph_rollup.extracted.json",
+          "sha256": "5424af3c794e72ef05a53af1359897dcd6a491457a7ba5d604990a84a83e1b44"
+        }
+      ],
+      "doc": "The deployment's abstraction R0, derived by `python -m holon disch-r0` (holon-disch-r0/1) from the deployment records named in derived_from, through each document's layout. values: a scalar path holds its deployed word (at its offset and width); a mapping family holds 0 plus the deployed words of its written keys (for a struct family, each member path does); a non-zero word whose declared type is an address is \"T\"; a path whose deployed words are all 0 is unlisted, which is {0}. keys: the keys whose entry holds a non-zero word (for a struct family, the members made non-zero), from the record's 64-byte keccak256 preimages. proxy_slots: the written non-zero slots that no layout path holds. Configuration derived from code, never authored.",
+      "keys": {
+        "batchBlobVersionedHashes": {
+          "0": null
+        },
+        "batchDataStore": {
+          "0": [
+            "originTimestamp",
+            "finalizeTimestamp"
+          ]
+        },
+        "committedBatches": {
+          "0": null
+        },
+        "committedStateRoots": {
+          "0": null
+        },
+        "finalizedStateRoots": {
+          "0": null
+        },
+        "isChallenger": {
+          "0x0000000000000000000000000000000000001004": null
+        }
+      },
+      "proxy_slots": [
+        "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+        "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+      ],
+      "values": {
+        "_initialized": [
+          1
+        ],
+        "_owner": [
+          "T"
+        ],
+        "batchBlobVersionedHashes": [
+          0,
+          463520946527561903920979615716011323696915893422270006750744924475581808660
+        ],
+        "batchDataStore.finalizeTimestamp": [
+          0,
+          1700000010
+        ],
+        "batchDataStore.originTimestamp": [
+          0,
+          1700000010
+        ],
+        "committedBatches": [
+          0,
+          49378197412850287564765311833464212548830103414361668470078570316707767840934
+        ],
+        "committedStateRoots": [
+          0,
+          100
+        ],
+        "finalizationPeriodSeconds": [
+          40
+        ],
+        "finalizedStateRoots": [
+          0,
+          100
+        ],
+        "isChallenger": [
+          0,
+          1
+        ],
+        "messageQueue": [
+          "T"
+        ],
+        "proofRewardPercent": [
+          70
+        ],
+        "proofWindow": [
+          10
+        ],
+        "rollupDelayPeriod": [
+          20
+        ],
+        "submitterContract": [
+          "T"
+        ],
+        "verifier": [
+          "T"
+        ]
+      }
+    },
+    "search": {
+      "max_prefixes": 3000,
+      "neighbourhood_insertion_length_max": 2,
+      "neighbourhood_prefixes_per_entry_point_max": 20000,
+      "prefix_depth": 3
+    }
+  }
+}
