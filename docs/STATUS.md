@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 45 | 289 | 224 | 45 |
+| M3 | 46 | 294 | 234 | 45 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -93,6 +93,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I94 | M3 | = I36d: O13 and O20's economic half decided by the checker (I70's two slash laws, statements unchanged), and model3's c… | `prompts/I94_slash_decide.md` | 5 | 4 | 1 | `docs/iterations/I94.md` |
 | I95 | M3 | I95 (= I46b): moving I46's E2 with the lead's rulings: the binding derived from code inside the pack, DISCH's budget in… | `prompts/I95_blind_rerun_b.md` | 7 | 7 | 1 | `docs/iterations/I95.md` |
 | I96a | M3 | I96a (= I46c, first half): DISCH's R0 derived from the binding by a target-agnostic step that also writes the sidecar's… | `prompts/I96a_r0_from_binding.md` | 5 | 7 | 1 | `docs/iterations/I96a.md` |
+| I96b | M3 | I96b (= I46c, second half): the refinement hints derived inside the pack (holon refinement; the fragments binding deriv… | `prompts/I96b_hints_from_code.md` | 5 | 10 | 1 | none |
 
 ## Reports without a predictions key
 
