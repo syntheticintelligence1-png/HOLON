@@ -47,7 +47,8 @@ def gox_entries(m: str, root: Path) -> dict:
 
 def generator_sha256(root: Path) -> str:
     h = hashlib.sha256()
-    for rel in ("holon/gox/model.py", "holon/gox/lawrun.py", "holon/gox/basis.py", "holon/rules/gox.py"):
+    for rel in ("holon/gox/model.py", "holon/gox/lawrun.py", "holon/gox/basis.py", "holon/gox/ledger.py",
+                "holon/rules/gox.py"):
         h.update(rel.encode() + b"\0" + (Path(root) / rel).read_bytes() + b"\0")
     return h.hexdigest()
 
@@ -159,11 +160,11 @@ class Decider:
         p = self.paths(lid)
         mtext = p["module"].read_text(encoding="utf-8") if p["module"].exists() else ""
         ltext = p["laws"].read_text(encoding="utf-8") if p["laws"].exists() else ""
-        roots = "\n".join(ln for ln in ltext.replace("M.", "").splitlines() if not ln.startswith("import "))
+        roots = "\n".join(ln for ln in ltext.splitlines() if not ln.startswith("import "))   # M.-qualified roots
         cone = R.cone(roots, mtext) if mtext else []
         hz = (e["basis"].get("hypz_len") or {}) if e["subform"] == "go_branch" else {}
-        premises = ([{"hypothesis": "HypZ_len", "from": hz.get("from"), "at": hz.get("via"),
-                      "statement": "|g(X)| <= CB(|X|) for a successful call on a non-empty X"}] if hz else [])
+        premises = ([f"HypZ_len ({hz.get('from')}) at {hz.get('via')}: |g(X)| <= CB(|X|) for a successful call on a "
+                     "non-empty X"] if hz else [])
         rec = {"law_id": lid, "statement_hash": sh, "facts_sha256": law["facts_sha256"], "status": status,
                "scope": "unbounded", "premises": premises,
                "kernel": {"name": "bend", "version": bend_version(), "verdict": (prim or {}).get("verdict", "not_run")},
@@ -185,10 +186,15 @@ class Decider:
             rec["witness_sha256"] = witness_sha256(witness)
         if status == "REFUTED":
             rec["difference"] = {"lhs": False, "rhs": True}
-        rec.update({"record_version": R.RECORD_VERSION, "prover": "generator",
-                    "model_sha256": sha256_file(p["module"]) if p["module"].exists() else None,
-                    "compiled_sha256": None, "generator_sha256": generator_sha256(self.root), "cone": cone,
-                    "ledger_match": "none", "model_assumptions": [], "ledger_assumptions": [],
+        try:
+            _b, match = R.resolve_bundle(law["facts_sha256"], law["facts"], self.root, mtext, set(cone), self.m)
+            assumptions = R.model_assumptions(_b["facts_sha256"], set(cone), self.root, law["facts"], self.m)
+        except R.LedgerError:
+            match, assumptions = "none", []
+        msha = sha256_file(p["module"]) if p["module"].exists() else None
+        rec.update({"record_version": R.RECORD_VERSION, "prover": "generator", "model_sha256": msha,
+                    "compiled_sha256": msha, "generator_sha256": generator_sha256(self.root), "cone": cone,
+                    "ledger_match": match, "model_assumptions": [], "ledger_assumptions": sorted(assumptions),
                     "scope_v2": R.scope_v2(law, rec), "kernels": R.kernels(rec),
                     "independence_class": R.independence_class(rec), "refinement_refs": [], "coverage": None,
                     "non_vacuity": {
@@ -199,7 +205,7 @@ class Decider:
                         "bound": ("the accepted counter-law inhabits the premises" if status == "REFUTED"
                                   else ("no premise: the law is unconditional" if status == "PROVED" and not premises
                                         else "no proof"))},
-                    "witness_provenance": {"go": "internal_test"} if status == "REFUTED" else None,
+                    "witness_provenance": {"go": "internal_harness"} if status == "REFUTED" else None,
                     "filter_bin": "finding" if status == "REFUTED" else None,
                     **R.evidence_fields(law, {"status": status}, self.root)})
         rec["statement"] = law.get("notes", "")

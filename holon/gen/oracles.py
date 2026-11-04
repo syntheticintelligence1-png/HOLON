@@ -271,8 +271,10 @@ def ledger_problems(milestone: str, root: Path, laws: list[dict], records: dict)
         meets = sorted(e["id"] for e in R.bundle_entries(b, root, milestone)
                        if R._meets(e, set(rec.get("cone") or [])))
         from ..codecrun import codec_kind
-        if _transitions(fp) or codec_kind(law, root):   # an extracted model (I20), a codec model (I24): no oracle
-            want = meets                                 # parameter replaces a ledger entry
+        from ..rules.gox import is_gox_law
+        if _transitions(fp) or codec_kind(law, root) or is_gox_law(law):   # an extracted model (I20), a codec model
+            want = meets                                 # (I24), a Go law's model (I93): no oracle parameter replaces a
+                                                         # ledger entry
         else:
             if fp not in machines:
                 orc = Oracles.for_milestone(milestone, fp, root)
