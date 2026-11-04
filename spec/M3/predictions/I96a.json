@@ -1,0 +1,290 @@
+{
+  "title": "I96a (= I46c, first half): DISCH's R0 derived from the binding by a target-agnostic step that also writes the sidecar's model_sidecar; the lead takes the same step; I95's 11 DISCH disagreements re-decided under the session's own typing",
+  "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I96a)",
+  "prompt": "prompts/I96a_r0_from_binding.md",
+  "tests": [
+    "tests_m3/test_r0_i96a.py"
+  ],
+  "outcome_paths": [
+    "audit/i96a/",
+    "docs/iterations/I96a.md"
+  ],
+  "thresholds": {
+    "base": "20c2dc11 (the lead at the commit that merges #113, I95's report), with BUILD_PLAN's row I96a (3ea51bb1)",
+    "base_commit": "20c2dc11bc07a8f5669141924045175c758044f8",
+    "contract_docstring_sha256": "71c299171a03c5921d03a77bf2707bbe773547b593934d50029b9e6587a473af",
+    "pins": {
+      "instrument": {
+        "path": "tests_m3/_i96a.py",
+        "sha256": "ba43c364e71356ec1c867534891c3d9638e7de8be4850464916ae34aadf7c120"
+      },
+      "i31_instrument": {
+        "path": "tests_m3/_i31.py",
+        "sha256": "580fbf6e95f79ad945b9aaa15288fba3c2969eeb2ed6aa9cc979dc334ba0ff02"
+      },
+      "i46_instrument": {
+        "path": "tests_m3/_i46.py",
+        "sha256": "9b2cc698226460d0eeeeee03386d6e12ae678e4d7cde3ee2c40730e714014d72"
+      }
+    },
+    "step": {
+      "command": "python -m holon disch-r0 --milestone M3 [--check]",
+      "module": "holon/disch/r0.py",
+      "writes": [
+        "r0",
+        "model_sidecar"
+      ],
+      "model_sidecar": "spec/M3/lib/sort_types.json",
+      "never_writes": [
+        "expected"
+      ]
+    },
+    "r0_rule": "R  The rule. `python -m holon disch-r0 --milestone M3` reads S's documents and, for each, the deployment record\n   gen/M3/binding/<stem>.json that `holon binding` writes. It writes S's \"r0\" and \"model_sidecar\" and nothing else.\n   Paths are the layout's: the document's storage and inherited_storage declarations, with __gap skipped.\n     values        A scalar path holds its deployed word, at its offset and width. A mapping family holds 0 plus the\n                   deployed words of its written keys; for a struct family, each member path does, at the member's\n                   slot, offset and width. A non-zero word whose declared type is an address (address, address\n                   payable, or a contract or interface type) is \"T\". A path whose deployed words are all 0 is\n                   unlisted ({0}). Lists are sorted, ints first.\n     keys          {family: {key: null, or for a struct family its members made non-zero, in declaration order}}, for\n                   each key whose entry holds a non-zero word, found through the record's 64-byte keccak256 preimages\n                   (key . slot). Integer keys are decimal; address keys are 0x plus 40 lowercase hex digits; other keys\n                   are 0x plus 64 lowercase hex digits.\n     proxy_slots   The written non-zero slots that no layout path holds, as 0x plus 64 lowercase hex digits, sorted.\n     derived_from  [{\"document\", \"path\", \"sha256\"}] of the deployment records, by document. \"doc\" states this rule.\n   model_sidecar is the milestone's typing sidecar, spec/M3/lib/sort_types.json, written explicitly.\n   holon/analysis/closure.py is unchanged and gets no default for it. \"expected\" is never written. S is written as\n   JSON with indent 2, sorted keys and ASCII escapes, plus a newline. The step refuses with exit 2 when S, a\n   deployment record or the typing sidecar is missing; when the documents' derivations disagree; or when a written\n   slot lies in a region the rule does not read (an array family, or a nested mapping).",
+    "lead_authored_r0_sha256": "cd90157f6a638306034a9567e24962b46bf1e481e71a841c0d175e9b2ee8a27d",
+    "lead_disch_at_base": {
+      "counts": {
+        "PROVED": 28,
+        "REFUTED": 8,
+        "UNKNOWN": 5
+      },
+      "laws": {
+        "L_disch_blk_initializable_120_b8d46c45_anyone": "PROVED",
+        "L_disch_blk_initializable_120_b95c70f1_anyone": "PROVED",
+        "L_disch_blk_initializable_120_d9a34b48_caller_rollup_210": "PROVED",
+        "L_disch_blk_pausableupgradeable_77_ed0ce816_anyone": "PROVED",
+        "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyActiveSubmitter": "PROVED",
+        "L_disch_blk_pausableupgradeable_77_ed0ce816_onlyChallenger": "PROVED",
+        "L_disch_blk_rollup_132_d953872f_anyone": "PROVED",
+        "L_disch_blk_rollup_132_d953872f_caller_rollup_210": "PROVED",
+        "L_disch_blk_rollup_132_d953872f_onlyActiveSubmitter": "PROVED",
+        "L_disch_blk_rollup_132_d953872f_onlyChallenger": "PROVED",
+        "L_disch_blk_rollup_213_f2e7faf8_caller_rollup_210": "PROVED",
+        "L_disch_blk_rollup_213_f2e7faf8_onlyChallenger": "PROVED",
+        "L_disch_blk_rollup_228_79cc3e9a_onlyOwner": "PROVED",
+        "L_disch_blk_rollup_363_e11d8bb2_anyone": "UNKNOWN",
+        "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": "REFUTED",
+        "L_disch_ext_pausableupgradeable_77_ed0ce816_onlyOwner": "PROVED",
+        "L_disch_ext_rollup_132_d953872f_onlyOwner": "PROVED",
+        "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter": "PROVED",
+        "L_disch_ext_rollup_213_f2e7faf8_onlyOwner": "PROVED",
+        "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter": "PROVED",
+        "L_disch_ext_rollup_363_e11d8bb2_onlyOwner": "PROVED",
+        "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone": "UNKNOWN",
+        "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_onlyOwner": "UNKNOWN",
+        "L_disch_kblk_l1crossdomainmessenger_226_18a62741_anyone": "UNKNOWN",
+        "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner": "PROVED",
+        "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner": "REFUTED",
+        "L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": "REFUTED",
+        "L_disch_noext_rollup_132_d953872f_onlyOwner": "REFUTED",
+        "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": "REFUTED",
+        "L_disch_noext_rollup_213_f2e7faf8_onlyOwner": "REFUTED",
+        "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": "REFUTED",
+        "L_disch_noext_rollup_363_e11d8bb2_onlyOwner": "REFUTED",
+        "L_disch_rev_initializable_120_b8d46c45": "PROVED",
+        "L_disch_rev_initializable_120_b95c70f1": "PROVED",
+        "L_disch_rev_initializable_120_d9a34b48": "PROVED",
+        "L_disch_rev_pausableupgradeable_77_ed0ce816": "PROVED",
+        "L_disch_rev_rollup_132_d953872f": "PROVED",
+        "L_disch_rev_rollup_213_f2e7faf8": "PROVED",
+        "L_disch_rev_rollup_228_79cc3e9a": "PROVED",
+        "L_disch_rev_rollup_363_e11d8bb2": "PROVED",
+        "L_disch_self_Rollup_challengeState_489_493": "UNKNOWN"
+      },
+      "time_boxed": [
+        "L_disch_blk_rollup_363_e11d8bb2_anyone"
+      ]
+    },
+    "i95_disch_disagreements": [
+      {
+        "law_id": "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter",
+        "subform": "blocking",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_132_d953872f_onlyOwner",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyOwner",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyOwner",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_132_d953872f_onlyOwner",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyOwner",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyOwner",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN",
+        "i95_cause": "dischsidecar"
+      }
+    ],
+    "predicted": {
+      "P1_diff": [
+        [
+          "values",
+          "_initializing",
+          [
+            0
+          ],
+          null
+        ],
+        [
+          "values",
+          "_paused",
+          [
+            0
+          ],
+          null
+        ]
+      ],
+      "P2_moved": [],
+      "P3_r0_row_equal": true,
+      "P4_analysis_diff": {},
+      "P5_moved_into_agreement": [],
+      "P5_confidence": "moderate (about 0.65)"
+    },
+    "sandbox": {
+      "pack": "tools/blind_pack.py --commit <the I96a build commit>, verified with I82's instrument",
+      "overlay": "audit/blind/I95/authored/ (I95's committed records of the session's authored files)",
+      "commands": "the I95 brief's command list, with `python -m holon disch-r0 --milestone M3` after `python -m holon binding --milestone M3`",
+      "control": "I95's runner record, when holon/ is unchanged between I95's pack commit and the build commit except for the step (holon/disch/r0.py and its dispatch); otherwise a control run of the same sandbox without the step, disclosed"
+    },
+    "disclosures": {
+      "not_run_before_prereg": "No derivation, R0 step, closure analysis or re-make was run for I96a before C_K. The instrument's identifiers() and literals() were evaluated on the base to check that they run (72 identifiers, 36 literals); they compute no derivation.",
+      "read_since_I95": [
+        "the I96 brief and the lead's rulings (07:08)",
+        "the lead (48d2ad9b, then 20c2dc11, which adds only I95's stage-2 records): spec/M3/lib/disch.json (members, r0, hypotheses, inputs; json.dumps with indent 2, sorted keys and ASCII escapes reproduces its bytes), spec/M3/lib/sort_seeds.json, spec/M3/lib/sort_types.json",
+        "holon/analysis/closure.py (Layout, _store, deployment_values, Sidecar, files), holon/disch/run.py (how the typed model is loaded), holon/disch/search.py (Explorer: the action order from the basis, s0), holon/refute3.py:188, holon/sorts/run3.py (Ctx), holon/audit/prereg.py (rules 1-6), holon/aggregate.py (the index order)",
+        "tests_m3/test_disch.py (test_r0_is_the_binding_deployment, test_disch_sidecar_is_the_computation, the model_sidecar assertion at line 474), tests_m3/_i31.py (r0_sets), spec/M3/predictions/I31.json and I95.json, tests_m3/test_blind_rerun_i95.py",
+        "the lead's 41 DISCH records results/M3/L_disch_*.json (status, subform, attempts' stages and bounds, witnesses' stages)",
+        "spec/M2/facts/morph_rollup.extracted.json's storage declarations (names, kinds, types, slots, offsets, widths) and its contract and target members",
+        "gen/M3/binding/morph_rollup.extracted.json's shape: member names, 18 storage slots, 7 preimages (6 of 64 bytes); its contents were already known from I95",
+        "I95's committed records: audit/blind/I95/authored/spec/M3/lib/{disch,sort_seeds,sort_types}.json, audit/blind/I95/breakdown.json, docs/iterations/I95.md"
+      ],
+      "not_read": "/home/user/blind-i46*, /home/user/blind-i95 beyond audit/blind/I95/, and the runner output branches since I95",
+      "model_sidecar_has_no_reader": "At the base, nothing reads the DISCH sidecar's model_sidecar. closure.py:770 stores it on Sidecar, and no module reads that attribute. holon disch run takes its typed model from --sidecar, whose default is the milestone's typing sidecar (holon.sorts.run3.Ctx). refute3.py:188 reads the refute sidecar's own member. So writing it moves no decision, and its absence caused none of I95's 11.",
+      "r0_reader": "The decisions read r0 only through closure.py's _store: r0['values'], with {0} for an unlisted path. keys and proxy_slots are read only by I31's yardstick. The search starts from the typed model's s0, the binding's deployment. It reads the analysis for two things: its action order (the families that the basis' blocked conditions read) and each law's last-step candidates.",
+      "i95_cause_correction": "I95's breakdown text says that DISCH searches from its sidecar's R0. It searches from the typed model's s0, the binding's deployment, which I95 found equal. The sidecar's R0 enters through the closure analysis: the basis, the exploration order and the last-step candidate sets.",
+      "frozen_at_i31": "The lead's sidecar doc and I31's contract call the sidecar's r0 fixed at I31's prereg. The prereg audit treats the sidecar as an input whose changes are noted, not failed. The lead's ruling 3 orders the same step on the lead. The change is disclosed here and in the report."
+    }
+  },
+  "predictions": [
+    {
+      "id": "I96a-P1",
+      "claim": "The lead's field diff. On the lead, the step's r0 differs from the authored r0 by exactly two raw entries: values._initializing and values._paused, authored [0] and unlisted in the derivation. Unlisted means {0} to closure.py and to I31's instrument. keys and proxy_slots are equal, and _i31.r0_sets of the document is the same under both, so there is no semantic change. Why: I31's yardstick passes at the base, so every non-zero scalar of the binding's deployment is listed, exactly or as T, and T sits on exactly the four address-typed scalars. The 18 written slots are the 16 that r0 names plus the two proxy slots. The family words were transcribed from I30's capture of the same deployment.",
+      "check": "tests_m3/test_r0_i96a.py::TestOutcome::test_p1_the_lead_field_diff"
+    },
+    {
+      "id": "I96a-P2",
+      "claim": "The lead re-make moves no decision. Re-made with the derived r0, the lead's 41 DISCH laws keep their base decisions law for law (28 PROVED, 8 REFUTED, 5 UNKNOWN). closure.json and conjuncts.json change only in their sidecar stamp. Why: the analysis reads values only, and those are the same under P1. The one time-boxed UNKNOWN, L_disch_blk_rollup_363_e11d8bb2_anyone, is the only law that could move without R0. If it moves, the move is reported with the time box as its reason.",
+      "check": "tests_m3/test_r0_i96a.py::TestOutcome::test_p2_the_lead_remake_moves_no_decision"
+    },
+    {
+      "id": "I96a-P3",
+      "claim": "The session's r0 row. In the pack-like sandbox, the step writes the session's r0 equal to the lead's derived r0 (the scorer row: blind = lead). It names model_sidecar spec/M3/lib/sort_types.json. Why: the session's binding record equalled the lead's in I95 (5424af3c), and the document is the same.",
+      "check": "tests_m3/test_r0_i96a.py::TestOutcome::test_p3_the_session_r0_row"
+    },
+    {
+      "id": "I96a-P4",
+      "claim": "With the derived r0, the session's closure analysis equals the lead's on the r0 listing, classes, permission, dead, closure, kinds, checks and basis. Why: these are functions of the document and of r0's values. The hypotheses, which differ, only annotate the external components.",
+      "check": "tests_m3/test_r0_i96a.py::TestOutcome::test_p4_the_session_analysis_equals_the_lead"
+    },
+    {
+      "id": "I96a-P5",
+      "claim": "The 11 under the session's own typing. In the sandbox, none of I95's 11 DISCH disagreements moves into agreement with the lead: each stays UNKNOWN. Why: the lead decides all 11 from one cluster of witnesses. The S1+S2 witness of L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter seeds the S3 neighbourhoods behind the 132 and 213 laws, and the search finds it over the typed model's successors from s0. The derived R0 changes the analysis (the order and the last-step candidates), but not the typed model. I95's exploration over the session's model exhausted depth 3 at 2987 distinct states, while the lead's reached the cap of 3000. I attribute the fewer successful steps to the typed model's synthesis, not to the order: the session's sort seeds have no term, digest or writer_labels entries. Confidence is moderate (about 0.65). If a law moves, R0 was sufficient for it, and the record names it.",
+      "check": "tests_m3/test_r0_i96a.py::TestOutcome::test_p5_the_eleven_under_the_session_typing"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I96a-R0",
+      "claim": "The contract docstring and the instruments keep the sha256 pinned in thresholds.",
+      "check": "tests_m3/test_r0_i96a.py::TestPrereg::test_r0_the_prereg_pins_hold"
+    },
+    {
+      "id": "I96a-R1",
+      "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+      "check": "tests_m3/test_r0_i96a.py::TestPrereg::test_r1_the_prereg_audit_passes"
+    },
+    {
+      "id": "I96a-R2",
+      "claim": "The instrument imports nothing from holon/ or tools/.",
+      "check": "tests_m3/test_r0_i96a.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+    },
+    {
+      "id": "I96a-R3",
+      "claim": "B1: the step names no target. holon/disch/r0.py holds no identifier of the base's documents and no literal of its deployment record.",
+      "check": "tests_m3/test_r0_i96a.py::TestBuild::test_r3_b1_the_step_names_no_target"
+    },
+    {
+      "id": "I96a-R4",
+      "claim": "B2: `holon disch-r0 --milestone M3 --check` exits 0. Two runs are byte-identical, and only r0 and model_sidecar are written. --check exits 1 after one byte of r0 changes, and 2 without the deployment record.",
+      "check": "tests_m3/test_r0_i96a.py::TestBuild::test_r4_b2_the_step_reproduces"
+    },
+    {
+      "id": "I96a-R5",
+      "claim": "B3: I31's yardstick holds on the derived r0.",
+      "check": "tests_m3/test_r0_i96a.py::TestBuild::test_r5_b3_the_yardstick_holds_on_the_derived_r0"
+    },
+    {
+      "id": "I96a-R6",
+      "claim": "B4: the I96 brief holds no outcome, and names the step after the binding step.",
+      "check": "tests_m3/test_r0_i96a.py::TestBuild::test_r6_b4_the_brief_names_the_step"
+    }
+  ]
+}
