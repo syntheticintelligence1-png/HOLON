@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 44 | 284 | 217 | 43 |
+| M3 | 44 | 284 | 217 | 44 |
 | M4 | 1 | 4 | 6 | 1 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -91,7 +91,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I92 | M3 | = I34b: rule SYM over Bundle I (O21 and the messenger's sentinels). | `prompts/I92_sym_bundle.md` | 6 | 4 | 1 | `docs/iterations/I92.md` |
 | I93 | M3 | = I38d: O5, O6 and D3 as laws over a Go part of rule PAR (holon-rules/1.15) with the frontend 0.3 config: D3 as two PRO… | `prompts/I93_go_laws.md` | 5 | 4 | 1 | `docs/iterations/I93.md` |
 | I94 | M3 | = I36d: O13 and O20's economic half decided by the checker (I70's two slash laws, statements unchanged), and model3's c… | `prompts/I94_slash_decide.md` | 5 | 4 | 1 | `docs/iterations/I94.md` |
-| I95 | M3 | I95 (= I46b): moving I46's E2 with the lead's rulings: the binding derived from code inside the pack, DISCH's budget in… | `prompts/I95_blind_rerun_b.md` | 7 | 7 | 1 | none |
+| I95 | M3 | I95 (= I46b): moving I46's E2 with the lead's rulings: the binding derived from code inside the pack, DISCH's budget in… | `prompts/I95_blind_rerun_b.md` | 7 | 7 | 1 | `docs/iterations/I95.md` |
 
 ## Reports without a predictions key
 
