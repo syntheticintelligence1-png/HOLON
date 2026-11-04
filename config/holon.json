@@ -1,0 +1,75 @@
+{
+  "bend": {
+    "cmd": [
+      "bend"
+    ],
+    "pinned_version": "2.0.36",
+    "pinned_fingerprint": "sha256:50c0675b0aa1f22c2db9f45610155ce4e5357b716bcfd3db2c861a6e082d9af9",
+    "pinned_kernel_sha256": "3cedffa1a1eabeb7473c89ce98c8d86e8380c2375de27d8bac13c6c379a114f7",
+    "budget_s_per_file": 120,
+    "timeout_s": 180,
+    "js_stack_mb": 1024,
+    "js_stack_doc": "F38 (lead): the checker's JavaScript stack, in MB. bun's JavaScriptCore caps a thread's stack at about 5 MB unless BUN_JSC_maxPerThreadStackUsage raises it, and the OS stack limit (RLIMIT_STACK) caps it too; holon sets both to this for every checker run, in the checker's process only (holon.bend._env, _spawn_argv; GENV reports it). It is meant only to turn 'the machine stack overflowed' crashes on deep or large files (no verdict) into verdicts.",
+    "verdict": "auto"
+  },
+  "equivalence": {
+    "doc": "Q34: the time bound of the final whole-proof check of a binding_change's equivalence proof (holon.gen.equivalence.prove) and of G2's re-check of a committed line's proof artifacts (holon.statement_diff.recheck_artifacts), in each kernel. It limits resources only: a check that hits it is UNKNOWN, and acceptance is still the two kernels'. bend.timeout_s and bend.budget_s_per_file still govern law proofs, the lemma search's batch checks and G5. crash_tries: how many runs a final check or a re-check gets in each kernel when bend2 crashes ('the machine stack overflowed', no verdict either way); each crash is logged.",
+    "timeout_s": 900,
+    "crash_tries": 5
+  },
+  "lean": {
+    "toolchain": "leanprover/lean4:v4.34.0",
+    "pinned_version": "4.34.0",
+    "pinned_fingerprint": "sha256:01f7cb356f975fddb682edbdcad59f1dfd14a7acce12ca9b76e1fa35c8f345e0",
+    "budget_s_per_file": 120,
+    "timeout_s": 300,
+    "jobs": 4
+  },
+  "extract": {
+    "sources": {
+      "morph-l2/morph": "/home/user/blind-i95/target"
+    }
+  },
+  "node": "node",
+  "replay": {
+    "forge": "/root/work/foundry/forge",
+    "solc": "/root/work/solc-0.8.24",
+    "sol_deps": "/root/.holon/tools/sol_deps",
+    "morph": "/home/user/blind-i95/target",
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "go_version": "go version go1.24.7 linux/amd64"
+  },
+  "hevm": {
+    "doc": "I20 (Q16 allows the install): the optional hevm equivalence (holon.hevm_equiv) runs only these binaries; a binary whose sha256 differs is not run (status not_run, with the reason). Each sha256 is the installed binary's (for cvc5, the binary inside the release zip at url). G1 regenerates results/M2/hevm.json when both are installed as pinned.",
+    "version": "0.55.1",
+    "url": "https://github.com/argotorg/hevm/releases/download/release/0.55.1/hevm-x86_64-linux",
+    "sha256": "a99e85014c3d0925cbe26efd16279926db13ba8682b50c885fda4cffab704248",
+    "path": "/root/.holon/tools/hevm-0.55.1/hevm",
+    "solver": {
+      "name": "cvc5",
+      "version": "1.2.0",
+      "url": "https://github.com/cvc5/cvc5/releases/download/cvc5-1.2.0/cvc5-Linux-x86_64-static.zip",
+      "sha256": "fae0038f9cbd1be5f5b32ff74a016b202fb6a2253374fc2e84451f9aa1af6261",
+      "path": "/root/.holon/tools/cvc5-1.2.0/cvc5"
+    }
+  },
+  "z3": {
+    "doc": "I40 (Q16): the pinned z3 of spec/M3/lib/refute.json solver, installed by tools/setup_env.sh --extract; holon.smt.run checks the binary's and the library's sha256 before every run; random_seed 0, one thread, z3's deterministic rlimit per query.",
+    "version": "4.16.0",
+    "requirement": "z3-solver==4.16.0.0",
+    "binary": "/root/.holon/tools/extract/bin/z3",
+    "binary_sha256": "a06c2a851d58c5f5a7c1e5de188fd0e1b1135e778112aee83ffd1a433685516b",
+    "library": "/root/.holon/tools/extract/lib/python3.13/site-packages/z3/lib/libz3.so",
+    "library_sha256": "7d8507589c3f5cd194c156d70bfcdc935a713784f7df36553c8f0b8d22347fc8",
+    "random_seed": 0,
+    "rlimit_per_query": 200000000,
+    "memory_max_size_mb": 4096,
+    "glibc": "glibc 2.39",
+    "watchdog_s": 14400,
+    "e1_rounds_max": 64,
+    "hash_rounds_max": 32,
+    "limits_doc": "I40 round 2 (lead ruling, docs/HUMAN_ANSWERS.md): the only search budget is the sidecar's rlimit per query, counted cumulatively over every check-sat of the query's session from the first check-sat on (holon.smt.run.Session). Registered beside it: memory_max_size_mb, z3's own accounting of the bytes it has allocated, which z3 reads from glibc's malloc (malloc_usable_size), so it is deterministic for this pinned single-threaded binary on the registered glibc, with z3 run in a fixed environment (no malloc tunables or preloads) and with no address-space or data rlimit and no strict overcommit (holon.smt.run.environment_check refuses to run otherwise); an overrun ends the query unknown, named in its reason. e1_rounds_max and hash_rounds_max, BMC's deterministic round caps for lazy E1 and hash concretization (a cap reached ends the query unknown, named in its reason); watchdog_s, a crash guard only: when it fires the run aborts, nothing is recorded and the question stays not run. A solver that ends without an answer is a crash too. No answer depends on wall-clock time, load or an environment variable."
+  }
+}

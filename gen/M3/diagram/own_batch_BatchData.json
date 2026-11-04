@@ -1,0 +1,175 @@
+{
+  "carriers": [
+    {
+      "base_type": "blockContexts",
+      "cls": "rep",
+      "id": "blockContexts",
+      "interface": false,
+      "key_space": null,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "l1TxHashes",
+      "cls": "rep",
+      "id": "l1TxHashes",
+      "interface": false,
+      "key_space": null,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "txsPayload",
+      "cls": "rep",
+      "id": "txsPayload",
+      "interface": false,
+      "key_space": null,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "blockContexts",
+            "*"
+          ],
+          [
+            "l1TxHashes",
+            "*"
+          ],
+          [
+            "txsPayload",
+            "*"
+          ]
+        ]
+      },
+      "component": "spec/M3/facts/morph_blob.go.extracted.json",
+      "domain": null,
+      "env": false,
+      "fn_kind": "method",
+      "id": "OWN.Append",
+      "kind": "OWN",
+      "model_fn": "Append",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*morph-l2/common/batch.BatchData).Append"
+        }
+      ],
+      "src": null,
+      "tgt": null,
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "txsPayload",
+            "*"
+          ]
+        ]
+      },
+      "component": "spec/M3/facts/morph_blob.go.extracted.json",
+      "domain": null,
+      "env": false,
+      "fn_kind": "method",
+      "id": "OWN.EstimateCompressedSizeWithNewPayload",
+      "kind": "OWN",
+      "model_fn": "EstimateCompressedSizeWithNewPayload",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*morph-l2/common/batch.BatchData).EstimateCompressedSizeWithNewPayload"
+        }
+      ],
+      "src": null,
+      "tgt": null,
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "txsPayload",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "spec/M3/facts/morph_blob.go.extracted.json",
+      "domain": null,
+      "env": false,
+      "fn_kind": "method",
+      "id": "OWN.TxsPayload",
+      "kind": "OWN",
+      "model_fn": "TxsPayload",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*morph-l2/common/batch.BatchData).TxsPayload"
+        }
+      ],
+      "src": null,
+      "tgt": null,
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "blockContexts",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "blockContexts",
+            "*"
+          ]
+        ]
+      },
+      "component": "spec/M3/facts/morph_blob.go.extracted.json",
+      "domain": null,
+      "env": false,
+      "fn_kind": "method",
+      "id": "OWN.TxsPayloadV2",
+      "kind": "OWN",
+      "model_fn": "TxsPayloadV2",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*morph-l2/common/batch.BatchData).TxsPayloadV2"
+        }
+      ],
+      "src": null,
+      "tgt": null,
+      "version": null
+    }
+  ],
+  "facts": "gen/M3/own/batch_BatchData.json",
+  "facts_sha256": "18ea631f461b970bad739ac9c606dd97ee1a70f6d72949f90b3033c34624b0bc",
+  "facts_version": "holon-own/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "methods": "OWN edges with the fields each reads and writes (rule W7)"
+  },
+  "model": "own_batch_BatchData",
+  "principal_classes": [],
+  "provenance": {}
+}
