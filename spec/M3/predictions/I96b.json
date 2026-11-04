@@ -1,0 +1,353 @@
+{
+  "title": "I96b (= I46c, second half): the refinement hints derived inside the pack (holon refinement; the fragments binding derived from a declared spec), refusal caching in statement_diff, then the one blind rerun on the session's own typing",
+  "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I96b)",
+  "prompt": "prompts/I96b_hints_from_code.md",
+  "tests": [
+    "tests_m3/test_hints_i96b.py"
+  ],
+  "outcome_paths": [
+    "audit/blind/I96/",
+    "docs/iterations/I96b.md"
+  ],
+  "thresholds": {
+    "base": "4a41fd50 (I96a's PR head, #114; the lead's I96a landing is merged in later with I96b as the first parent), with BUILD_PLAN's row I96b (4e41c6f6)",
+    "base_commit": "4a41fd509a9b05775920f5b1cd5d9edb891f7c65",
+    "contract_docstring_sha256": "d3d8d91d66e2f73201a32019f0c32f461dae2d6b4ca93aa6e2e3bdfad09960c0",
+    "pins": {
+      "instrument": {
+        "path": "tests_m3/_i96b.py",
+        "sha256": "545dbe4f3bd1ef1abe8be590d1c05f9d0fd775db2b445cc77d50a8a925972327"
+      },
+      "protocol": {
+        "path": "spec/M3/lib/blind_rerun_i96.json",
+        "sha256": "501ee9b6ecb0f875e25cbbc0f7dabe1f00eb7c5881cddca403972b9be6edf6dd"
+      },
+      "i96a_instrument": {
+        "path": "tests_m3/_i96a.py",
+        "sha256": "ba43c364e71356ec1c867534891c3d9638e7de8be4850464916ae34aadf7c120"
+      },
+      "i46_instrument": {
+        "path": "tests_m3/_i46.py",
+        "sha256": "9b2cc698226460d0eeeeee03386d6e12ae678e4d7cde3ee2c40730e714014d72"
+      }
+    },
+    "lead_refinement_sha256": {
+      "results/M3/sorts/refinement/hints.json": "ea0368f58efe44c7251da2b4706cf24ab0cfd509f9c92f6f78661202e9bc1962",
+      "results/M3/sorts/refinement/keys.json": "3010d851f810d18dc85ecdd5f6470b2c780fb7e2fcf269999cb20f3c9464a41f"
+    },
+    "i95_disagreements": [
+      {
+        "law_id": "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter",
+        "rule": "DISCH",
+        "subform": "blocking",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_132_d953872f_onlyOwner",
+        "rule": "DISCH",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+        "rule": "DISCH",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyOwner",
+        "rule": "DISCH",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+        "rule": "DISCH",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyOwner",
+        "rule": "DISCH",
+        "subform": "external",
+        "lead": "PROVED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_132_d953872f_onlyOwner",
+        "rule": "DISCH",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+        "rule": "DISCH",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyOwner",
+        "rule": "DISCH",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+        "rule": "DISCH",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyOwner",
+        "rule": "DISCH",
+        "subform": "external_none",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter",
+        "rule": "FACT",
+        "subform": "attribution",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter",
+        "rule": "FACT",
+        "subform": "attribution",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash",
+        "rule": "FACT",
+        "subform": "kernel",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash",
+        "rule": "FACT",
+        "subform": "kernel",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_omega_Rollup_challengeState_commitBatchWithProof",
+        "rule": "SYM",
+        "subform": "omega",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_omega_Rollup_challengeState_revertBatch",
+        "rule": "SYM",
+        "subform": "omega",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_omega_Rollup_challengeState_updateProofWindow",
+        "rule": "SYM",
+        "subform": "omega",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds",
+        "rule": "SYM",
+        "subform": "omega",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_omega_Rollup_commitBatch_updateProofWindow",
+        "rule": "SYM",
+        "subform": "omega",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds",
+        "rule": "SYM",
+        "subform": "omega",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_pi_Rollup_commitBatchWithProof_submitter",
+        "rule": "SYM",
+        "subform": "pi",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_pi_Rollup_revertBatch_challenger",
+        "rule": "SYM",
+        "subform": "pi",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_sym_pi_Rollup_setPause_challenger",
+        "rule": "SYM",
+        "subform": "pi",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_undo_cancel_Rollup_challengeState_setPause",
+        "rule": "UNDO",
+        "subform": "cancel",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_undo_pair_Rollup_commitBatch_revertBatch",
+        "rule": "UNDO",
+        "subform": "pair",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes",
+        "rule": "UNDO",
+        "subform": "residue",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      },
+      {
+        "law_id": "L_undo_res_Rollup_revertBatch_batchDataStore",
+        "rule": "UNDO",
+        "subform": "residue",
+        "lead": "REFUTED",
+        "i95_blind": "UNKNOWN"
+      }
+    ],
+    "predicted": {
+      "P1_hints_equal": true,
+      "P2_keys_equal": false,
+      "P3_disch_moved": 11,
+      "P4_moved": {
+        "SYM": 9,
+        "UNDO": 4,
+        "FACT": 2
+      },
+      "P4_unknown": [
+        "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash",
+        "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash"
+      ],
+      "P5": {
+        "agreement_min": 0.9,
+        "matched_min": 185,
+        "expected": "about 187/189 if every prediction holds"
+      },
+      "confidence": {
+        "P1": "high: the hints are the real target's calls; the corpus does not read the typed model",
+        "P2": "moderate: keys.json is the typed model's keys on the corpus",
+        "P3": "high: I96a's sandbox (the session's typing with hints) agrees on all 11, and its control without hints reproduces I95's UNKNOWNs",
+        "P4": "low to moderate: every one of the 17 needs a committed batch, which needs the hints' external answers; FACT's kernel search over blobhash reads the sorts, and the session's seeds have no blobhash term",
+        "P5": "moderate: a new session authors its sidecars afresh"
+      }
+    },
+    "disclosures": {
+      "measured_before_prereg": [
+        "I96a's control (run 41810487243): without hints.json the 11 fall back to I95's blind result (2987 states, B never held); with it they agree with the lead (run 41796120670).",
+        "holon fragments in a pack-like sandbox (fresh HOLON_CACHE, the lead's typing sidecars): with the M1 facts, the M1 lib (.lib.json, .lean.json) and policy_hints.mjs, it reproduces hints.json and keys.json byte for byte. Without the M1 lib the M1 model does not build (win_at). Without policy_hints.mjs commitBatch never succeeds in the corpus (0 of 720) and both files differ. go_slices.lib.json alone does not reproduce; policy_hints.mjs alone does.",
+        "Dropping the results/M2 witness source (4 traces) changes neither file, on the lead tree or in the sandbox. The lead tree reproduces both files with all sources too.",
+        "H1-style check of policy_hints.mjs against 972 JSON files under results/ (30795 words, 366 law ids): no hit; a planted hints.json address (0x2e234dae...) is caught.",
+        "replay/M2/fragments.json has no generating step: it was hand-written in I20-B (27c3aec2), and 61d4e5a0 added window. Its harness, project and target equal spec/M3/lib/binding.json's; its init reads the M1 facts that binding_facts.json copies; abstract, window, doc and facts are declarations without values. The lead ruled Option A (11:55).",
+        "#114's G2 diagnosis (run 41815248532): derived_under cached only successes, so the refused M3 derive re-ran for each of 1063 catalog_rederivation entries."
+      ],
+      "not_probed": "typing: the session's own typed model was never run with fragments, and no blind step was run, before C_K (the lead's ruling 5)."
+    }
+  },
+  "predictions": [
+    {
+      "id": "I96b-P1",
+      "claim": "The hints row: the blind tree's results/M3/sorts/refinement/hints.json, derived by holon refinement on the session's own typing, is byte-identical to the lead's at <P>.",
+      "check": "tests_m3/test_hints_i96b.py::TestRun::test_p1_the_hints_row"
+    },
+    {
+      "id": "I96b-P2",
+      "claim": "The keys row: the blind keys.json differs from the lead's (the session's typed model takes other keys); its field diff is recorded.",
+      "check": "tests_m3/test_hints_i96b.py::TestRun::test_p2_the_keys_row"
+    },
+    {
+      "id": "I96b-P3",
+      "claim": "All 11 of I95's DISCH disagreements are decided as the lead decides them.",
+      "check": "tests_m3/test_hints_i96b.py::TestRun::test_p3_the_eleven_disch_laws"
+    },
+    {
+      "id": "I96b-P4",
+      "claim": "Of I95's 17 SYM, UNDO and FACT disagreements, 15 are decided as the lead decides them (SYM 9, UNDO 4, FACT attribution 2); the two FACT kernel laws over blobhash stay UNKNOWN.",
+      "check": "tests_m3/test_hints_i96b.py::TestRun::test_p4_the_seventeen"
+    },
+    {
+      "id": "I96b-P5",
+      "claim": "E2: M3 agreement >= 0.90 over at least 185 matched classes in I96's comparison, and every disagreement is one of I95's 28 (about 187/189 if P3 and P4 hold).",
+      "check": "tests_m3/test_hints_i96b.py::TestRun::test_p5_the_exit_e2"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I96b-R0",
+      "claim": "The contract docstring, the instruments and the protocol keep the sha256 pinned in thresholds.",
+      "check": "tests_m3/test_hints_i96b.py::TestPrereg::test_r0_the_prereg_pins_hold"
+    },
+    {
+      "id": "I96b-R1",
+      "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+      "check": "tests_m3/test_hints_i96b.py::TestPrereg::test_r1_the_prereg_audit_passes"
+    },
+    {
+      "id": "I96b-R2",
+      "claim": "The instrument imports nothing from holon/ or tools/.",
+      "check": "tests_m3/test_hints_i96b.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+    },
+    {
+      "id": "I96b-R3",
+      "claim": "B1: holon/refinement.py names no target.",
+      "check": "tests_m3/test_hints_i96b.py::TestBuild::test_r3_b1_the_step_names_no_target"
+    },
+    {
+      "id": "I96b-R4",
+      "claim": "B2: holon binding --fragments-out --check exits 0, and the fragments spec holds no member of the binding spec.",
+      "check": "tests_m3/test_hints_i96b.py::TestBuild::test_r4_b2_the_fragments_binding_is_derived"
+    },
+    {
+      "id": "I96b-R5",
+      "claim": "B3: holon refinement --check exits 0: the lead reproduces hints.json and keys.json.",
+      "check": "tests_m3/test_hints_i96b.py::TestBuild::test_r5_b3_the_lead_reproduces_the_refinement"
+    },
+    {
+      "id": "I96b-R6",
+      "claim": "B4: H1 for policy_hints.mjs and the fragments spec, and the plant is caught.",
+      "check": "tests_m3/test_hints_i96b.py::TestBuild::test_r6_b4_the_declared_configuration_holds_no_outcome"
+    },
+    {
+      "id": "I96b-R7",
+      "claim": "B5: derived_under caches refusals.",
+      "check": "tests_m3/test_hints_i96b.py::TestBuild::test_r7_b5_derived_under_caches_refusals"
+    },
+    {
+      "id": "I96b-R8",
+      "claim": "B6: the I96 brief names the two steps in order and holds no outcome.",
+      "check": "tests_m3/test_hints_i96b.py::TestBuild::test_r8_b6_the_brief"
+    },
+    {
+      "id": "I96b-R9",
+      "claim": "B7: the protocol's declared inputs hold their sha256.",
+      "check": "tests_m3/test_hints_i96b.py::TestBuild::test_r9_b7_the_declared_inputs_hold_their_pins"
+    }
+  ]
+}
