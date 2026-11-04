@@ -10641,6 +10641,401 @@
           "spec/M3/lib/cutover_slash.json": "84ee8684897e7c5b3d2aa570b551f06774bafe7827218be5315b4a2f0c82b850"
         }
       }
+    },
+    "I95": {
+      "title": "I95 (= I46b): moving I46's E2 with the lead's rulings: the binding derived from code inside the pack, DISCH's budget in the brief, a generic clock-atom route, a fresh blind run",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I95)",
+      "prompt": "prompts/I95_blind_rerun_b.md",
+      "predictions": [
+        {
+          "id": "I95-P1",
+          "claim": "The binding row. A fresh run of `python -m holon binding --milestone M3` in the pack-only blind tree re-derives, by forge on the pinned checkout, a deployment record with the sha256 of the lead's committed gen/M3/binding/<stem>.json at <P>. There is one typed document (morph_rollup.extracted), and the row is reported beside the classes, not counted in blind_agreement.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestRun::test_p1_the_binding_row"
+        },
+        {
+          "id": "I95-P2",
+          "claim": "E5 under both scorers. The preregistered scorer (_i46.calls_problems) flags at least one textual item, as in I46 (the brief's own config rewrite of the target path), so E5 is false under it. The amended reads scorer (_i46_reads.reads_problems, preregistered here) finds no problem, so E5 is true under it.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestRun::test_p2_the_reads_check_under_both_scorers"
+        },
+        {
+          "id": "I95-P3",
+          "claim": "Matched classes under I82's metric: at least 189 M3 classes are matched (I46 matched 189; the binding may let the session derive more, such as SORT). M0, M1 and M2 match none (hand-written facts).",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestRun::test_p3_matched_classes"
+        },
+        {
+          "id": "I95-P4",
+          "claim": "Agreement over the matched M3 classes. Per rule: PAR >= 0.99, SYM >= 0.95, DISCH >= 0.90, UNDO >= 0.85, FACT >= 0.80. Overall (I82's blind_agreement on M3) >= 0.95, so E2 holds. No class flips between PROVED and REFUTED.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestRun::test_p4_agreement_per_rule_and_overall"
+        },
+        {
+          "id": "I95-P5",
+          "claim": "The named laws. Of I46's 29 disagreements (thresholds.i46_disagreements, all lead-decided and blind UNKNOWN), at least 26 come into agreement: the 17 binding laws (SYM 9, UNDO 4, FACT 4: the searches start from the deployed contract, as the lead's do), the 8 search-budget DISCH laws (the brief's budget, depth 3 and 3000 prefixes), the 3 budget-and-clock DISCH laws (their witnesses come from the search), and L_disch_rev_rollup_363_e11d8bb2 (the route proves it over word clock arithmetic). The ones that may stay, and why, are in thresholds.may_stay. Of I46's 160 agreeing classes, at least 157 still agree.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestRun::test_p5_the_named_laws"
+        },
+        {
+          "id": "I95-P6",
+          "claim": "The clock-atom route moves no lead verdict. At the base no lead M3 record carries the route's refusal, and the extension only handles forms the route refused. So every lead M3 DISCH record at the base keeps its status at <P>; the landing re-stamps M1/M2/T32 for the closure file, and the M3 DISCH records' generator stamps trail.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestRun::test_p6_the_route_moves_no_lead_disch_status"
+        },
+        {
+          "id": "I95-P7",
+          "claim": "The exit, on I95's comparison: E1 true, E2 true, E3 false (convergence awaits external rounds), E4 false (the back-test gaps await a second finding and the human's L7 signature), and E5 false under the preregistered scorer but true under the amended one. The M3 exit is not met; I95's own clause (E2) is met.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestRun::test_p7_the_exit"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I95-R0",
+          "claim": "The contract docstring, the instruments, the protocol and the scope tools keep the sha256 pinned in thresholds.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestPrereg::test_r0_the_prereg_pins_hold"
+        },
+        {
+          "id": "I95-R1",
+          "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestPrereg::test_r1_the_prereg_audit_passes"
+        },
+        {
+          "id": "I95-R2",
+          "claim": "The instrument imports nothing from holon/ or tools/.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+        },
+        {
+          "id": "I95-R3",
+          "claim": "B1: holon binding --milestone M3 --check reproduces the committed record from a fresh forge run.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestBuild::test_r3_b1_the_binding_step_reproduces"
+        },
+        {
+          "id": "I95-R4",
+          "claim": "B2: the binding spec holds configuration only, and the strip rules strip nothing from it.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestBuild::test_r4_b2_the_binding_spec_is_configuration"
+        },
+        {
+          "id": "I95-R5",
+          "claim": "B3: the brief holds no outcome, and names the binding step, the coverage step and DISCH's search section.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestBuild::test_r5_b3_the_brief"
+        },
+        {
+          "id": "I95-R6",
+          "claim": "B4: no lead M3 record at the base carries the clock-atom refusal.",
+          "check": "tests_m3/test_blind_rerun_i95.py::TestBuild::test_r6_b4_no_lead_record_carries_the_clock_atom_refusal"
+        }
+      ],
+      "outcome_paths": [
+        "audit/blind/I95/",
+        "docs/iterations/I95.md"
+      ],
+      "tests": [
+        "tests_m3/test_blind_rerun_i95.py"
+      ],
+      "thresholds": {
+        "base": "a182c552 (the lead after I94's landing, PR #105: 270 recorded M3 classes), with BUILD_PLAN's row I95 (31e819e3)",
+        "base_commit": "a182c55267b6af94180043072693e7671be23973",
+        "pack_commit_rule": "the oldest commit of `git rev-list --first-parent origin/claude/holon-v2-bend2-c6z3cd` whose tree holds holon/binding.py",
+        "contract_docstring_sha256": "b54dd7bc582905576f31e0a9e6f637542a69e4d2fed775c0f3d02c2186ff68ae",
+        "pins": {
+          "instrument": {
+            "path": "tests_m3/_i95.py",
+            "sha256": "fac3bb02791df796fbbcef91fef6c7b26220432ab775c6f0ad5fe33dbc84ebbb"
+          },
+          "i46_instrument": {
+            "path": "tests_m3/_i46.py",
+            "sha256": "9b2cc698226460d0eeeeee03386d6e12ae678e4d7cde3ee2c40730e714014d72"
+          },
+          "i82_instrument": {
+            "path": "tests_m3/_i82.py",
+            "sha256": "3d446a12056fb1203cba3086e2d4f43e0385e003a5a27e394dba20bc1ae4e2c9"
+          },
+          "reads_scorer": {
+            "path": "tests_m3/_i46_reads.py",
+            "sha256": "12500f6dee8e531a2e8fc4a4a5e710a6cfbcbf445e974467f329265f53e5cc90"
+          },
+          "sidecar": {
+            "path": "spec/M3/lib/blind_rerun_i95.json",
+            "sha256": "361e35ea8967c2ffae8af7d85d47316e2e0a7c8298970038c76bddf65c2d30a0"
+          },
+          "scope_tool": {
+            "path": "tests_m3/blind_scope.py",
+            "sha256": "2f040f69db8c4014824c2110fefa553f053d12be2f929137fa0230bd6960909e"
+          },
+          "ledger_tool": {
+            "path": "tests_m3/blind_ledger.py",
+            "sha256": "4565b30f982636a9fd56760cef37768bc42be6c487709dd55b6405cf1830dd6a"
+          },
+          "term_size_tool": {
+            "path": "tests_m3/blind_term_size.py",
+            "sha256": "807f25c671a4a714d31869d4d402fc33d51585559d4cb6b63f15eb774e60dee8"
+          }
+        },
+        "q9": "same",
+        "blind_agreement_min": 0.9,
+        "min_matched_m3": 40,
+        "matched_m3_min": 189,
+        "per_rule_min": {
+          "PAR": 0.99,
+          "SYM": 0.95,
+          "DISCH": 0.9,
+          "UNDO": 0.85,
+          "FACT": 0.8
+        },
+        "overall_min": 0.95,
+        "i46_disagreements": [
+          {
+            "law_id": "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter",
+            "rule": "DISCH",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget+clock"
+          },
+          {
+            "law_id": "L_disch_ext_rollup_132_d953872f_onlyOwner",
+            "rule": "DISCH",
+            "lead": "PROVED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget"
+          },
+          {
+            "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+            "rule": "DISCH",
+            "lead": "PROVED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget"
+          },
+          {
+            "law_id": "L_disch_ext_rollup_213_f2e7faf8_onlyOwner",
+            "rule": "DISCH",
+            "lead": "PROVED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget"
+          },
+          {
+            "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+            "rule": "DISCH",
+            "lead": "PROVED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget"
+          },
+          {
+            "law_id": "L_disch_ext_rollup_363_e11d8bb2_onlyOwner",
+            "rule": "DISCH",
+            "lead": "PROVED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget"
+          },
+          {
+            "law_id": "L_disch_noext_rollup_132_d953872f_onlyOwner",
+            "rule": "DISCH",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget"
+          },
+          {
+            "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter",
+            "rule": "DISCH",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget"
+          },
+          {
+            "law_id": "L_disch_noext_rollup_213_f2e7faf8_onlyOwner",
+            "rule": "DISCH",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget"
+          },
+          {
+            "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter",
+            "rule": "DISCH",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget+clock"
+          },
+          {
+            "law_id": "L_disch_noext_rollup_363_e11d8bb2_onlyOwner",
+            "rule": "DISCH",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "budget+clock"
+          },
+          {
+            "law_id": "L_disch_rev_rollup_363_e11d8bb2",
+            "rule": "DISCH",
+            "lead": "PROVED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "clock"
+          },
+          {
+            "law_id": "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter",
+            "rule": "FACT",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter",
+            "rule": "FACT",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash",
+            "rule": "FACT",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash",
+            "rule": "FACT",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_omega_Rollup_challengeState_commitBatchWithProof",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_omega_Rollup_challengeState_revertBatch",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_omega_Rollup_challengeState_updateProofWindow",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_omega_Rollup_commitBatch_updateProofWindow",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_pi_Rollup_commitBatchWithProof_submitter",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_pi_Rollup_revertBatch_challenger",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_sym_pi_Rollup_setPause_challenger",
+            "rule": "SYM",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_undo_cancel_Rollup_challengeState_setPause",
+            "rule": "UNDO",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_undo_pair_Rollup_commitBatch_revertBatch",
+            "rule": "UNDO",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes",
+            "rule": "UNDO",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          },
+          {
+            "law_id": "L_undo_res_Rollup_revertBatch_batchDataStore",
+            "rule": "UNDO",
+            "lead": "REFUTED",
+            "i46_blind": "UNKNOWN",
+            "i46_cause": "binding"
+          }
+        ],
+        "now_agree_min": 26,
+        "kept_min": 157,
+        "may_stay": "L_disch_rev_rollup_363_e11d8bb2 stays UNKNOWN if the generic route cannot close its proof over word clock arithmetic. A SORT class the binding now lets the session derive follows the session's own typing (I46's blind typed model has more word arithmetic than the lead's), so it may not match, or may decide differently. OWN's 6 laws are not run.",
+        "clock_route_on_lead": "0 lead M3 records carry the refusal at the base, and the extension is additive, so no lead verdict can move. The landing re-stamps M1/M2/T32 (holon/disch is a closure file), and the M3 DISCH records' generator stamps trail; there is no M3 re-make.",
+        "binding": {
+          "spec": "spec/M3/lib/binding.json",
+          "record_dir": "gen/M3/binding/",
+          "documents": [
+            "morph_rollup.extracted"
+          ],
+          "command": "python -m holon binding --milestone M3 [--check]"
+        },
+        "disch_search": {
+          "max_prefixes": 3000,
+          "neighbourhood_insertion_length_max": 2,
+          "neighbourhood_prefixes_per_entry_point_max": 20000,
+          "prefix_depth": 3
+        },
+        "exit_predicted": {
+          "E1": true,
+          "E2": true,
+          "E3": false,
+          "E4": false,
+          "E5": false,
+          "E5_pre": false,
+          "E5_amended": true,
+          "m3_exit": false,
+          "i95_clause": true
+        },
+        "lead_at_base": {
+          "M3_classes": 270,
+          "by_rule": {
+            "DISCH": 41,
+            "FACT": 9,
+            "NAT": 9,
+            "OWN": 6,
+            "PAR": 90,
+            "SORT": 15,
+            "SYM": 90,
+            "UNDO": 10
+          }
+        },
+        "counted_predictions": [
+          "I95-P1",
+          "I95-P2",
+          "I95-P3",
+          "I95-P4",
+          "I95-P5",
+          "I95-P6",
+          "I95-P7"
+        ],
+        "read_before_prereg": "Since I46's report (003d721b), read before this commit: the I95 brief and the lane rules; holon/sorts/deploy3.py, holon/replay_fragments.py (load_binding), holon/fragments_corpus.py (binding_init) and holon/bundle/harness.py's docstring and deployment(); replay/M2/fragments.json's keys and its harness, project, target and init members; a leak-class scan of the three harness sources (no match); spec/M3/lib/blind_pack.json's exclusions; holon/disch's binding use; a grep of the lead's results/M3 for DISCH's clock-atom refusal (0 records); the lead's sort_types, fact and disch sidecars' binding member and disch.json's search; the lead's M3 class counts per rule; I46's committed breakdown and comparison. From I46, I know every lead M3 status and I46's blind statuses and causes (I46's report). No blind directory was read."
+      }
     }
   }
 }

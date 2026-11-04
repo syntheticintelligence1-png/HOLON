@@ -384,6 +384,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["termsize"]:  # likewise for holon.sorts.termsize (I30)
         from .sorts import termsize
         return termsize.main(argv[1:])
+    if argv[:1] == ["binding"]:  # likewise for holon.binding (I95: the deployment record of a typed binding)
+        from . import binding
+        return binding.main(argv[1:])
     if argv[:1] == ["keys"]:  # likewise for holon.sorts.keys3 (I68: the keys check of the structural store)
         from .sorts import keys3
         return keys3.main(argv[1:])
