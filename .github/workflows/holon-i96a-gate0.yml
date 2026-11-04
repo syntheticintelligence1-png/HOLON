@@ -1,0 +1,83 @@
+# CI only (not for merge): I96a's diagnosis of #114's frozen-suite failure. tests/test_40_gate.py runs
+# `HOLON_REPLAY=1 python -m holon gate --milestone M0 --root <copy>` on copy_repo()'s git-less copy; this job makes that
+# copy of 4a41fd50 (tests/_util.py's _IGNORE) and runs the same command, each output line time-stamped.
+name: holon-i96a-gate0
+
+on:
+  push:
+    branches: ['claude/ci-i96a-gate0']
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.13.16'
+  NODE_VERSION: '22.22.0'
+  GO_VERSION: '1.24.7'
+  BEND_NO_TELEMETRY: '1'
+
+jobs:
+  gate0:
+    name: gate-M0 on the git-less copy of 4a41fd50
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python requirements
+        run: python -m pip install -q --require-hashes --no-deps -r .github/ci/requirements-ci.txt
+      - name: Cache key from the pins
+        id: key
+        run: echo "key=holon-toolchain-v1-${{ hashFiles('config/holon.json', 'tools/install_bend.sh', '.github/ci/install_toolchain.sh') }}" >> "$GITHUB_OUTPUT"
+      - name: Link the config's absolute paths
+        run: bash .github/ci/link_paths.sh
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: restore
+        with:
+          key: ${{ steps.key.outputs.key }}
+          path: |
+            ~/.bun
+            ~/.holon
+            ~/.elan
+            ~/.bend
+            ~/holon-work
+      - name: Install the pinned toolchain
+        if: steps.restore.outputs.cache-hit != 'true'
+        run: bash .github/ci/install_toolchain.sh
+      - name: Verify the pins
+        run: python .github/ci/verify_toolchain.py
+      - name: gate M0 on the git-less copy of 4a41fd50 (a)
+        run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/ci-out" "$RUNNER_TEMP/src"
+          git archive 4a41fd509a9b05775920f5b1cd5d9edb891f7c65 | tar -x -C "$RUNNER_TEMP/src"
+          COPY=$(python -c 'import shutil, sys, tempfile; from pathlib import Path; sys.path.insert(0, "."); from tests._util import _IGNORE; d = Path(tempfile.mkdtemp(prefix="holon-test-")) / "repo"; shutil.copytree(sys.argv[1], d, ignore=_IGNORE); print(d)' "$RUNNER_TEMP/src")
+          echo "copy: $COPY"
+          cd "$COPY"
+          export PYTHONPATH="$COPY:$PYTHONPATH" HOLON_REPLAY=1
+          date -u +%T
+          python -m holon gate --milestone M0 --root "$COPY" --report "$COPY/gate_report_test.json" 2>&1 \
+            | while IFS= read -r l; do printf '%s %s\n' "$(date -u +%T)" "$l"; done | tee "$RUNNER_TEMP/ci-out/gate-M0-copy.log" || echo "gate exit: nonzero"
+          date -u +%T
+          cp "$COPY/gate_report_test.json" "$RUNNER_TEMP/ci-out/" || true
+          python "$GITHUB_WORKSPACE/.github/ci/gate_summary.py" "$RUNNER_TEMP/ci-out/gate_report_test.json" || true
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        if: always()
+        with:
+          name: gate-M0-copy
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/ci-out/
