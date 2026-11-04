@@ -28,6 +28,11 @@ source's, wherever the source is present. In a pack the source may be absent, an
              spec and its facts copy from the source binding (when the typed sidecar names another binding). It
              exits 1 unless each equals the committed bytes.
   --spec-out writes the configuration-only spec and its facts copy instead.
+  --fragments-out (I96b) writes the fragments binding of holon fragments instead, at the path that the declared
+             spec spec/<M>/lib/fragments.json names ("out"): abstract, doc, facts and window from that spec's
+             "binding"; harness, project and target from the binding spec; init from the binding spec's keys,
+             its facts copy's copy_of and the spec's init_doc. JSON with indent 1, sorted keys and a final
+             newline. With --check it exits 1 unless the file's bytes are what a run writes.
 
 Exit 0: written, or reproduced. Exit 1: a record or a spec file differs or is missing (--check). Exit 2: refused (no
 typed sidecar, no binding, or a facts copy that differs from its source). The module is target-agnostic: the binding
@@ -201,16 +206,57 @@ def _fresh(root: Path, milestone: str) -> dict[str, str]:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def fragments_rel(milestone: str) -> str:
+    return f"spec/{milestone}/lib/fragments.json"
+
+
+def fragments_binding(root: Path, milestone: str) -> tuple[str, str]:
+    """(the path the fragments spec names, the bytes of the fragments binding derived from it and the binding spec)."""
+    root = Path(root)
+    fp, bp = root / fragments_rel(milestone), root / spec_rel(milestone)
+    for p in (fp, bp):
+        if not p.is_file():
+            raise BindingError(f"{p.relative_to(root).as_posix()} is missing")
+    fs = json.loads(fp.read_text(encoding="utf-8"))
+    spec = json.loads(bp.read_text(encoding="utf-8"))
+    decl = fs.get("binding") or {}
+    clash = sorted(set(decl) & {"harness", "project", "target", "init"})
+    if clash:
+        raise BindingError(f"{fragments_rel(milestone)} declares members the binding spec holds: {clash}")
+    init = spec.get("init")
+    if not isinstance(init, dict) or "facts" not in init:
+        raise BindingError(f"{spec_rel(milestone)}: its init reads no facts document")
+    copy = json.loads((root / init["facts"]).read_text(encoding="utf-8"))
+    out = {"abstract": decl["abstract"], "doc": decl["doc"], "facts": decl["facts"], "window": decl["window"],
+           "harness": spec["harness"], "project": spec["project"], "target": spec["target"],
+           "init": {"doc": decl["init_doc"], "facts": copy.get("copy_of", init["facts"]), "keys": list(init["keys"])}}
+    return fs["out"], json.dumps(out, indent=1, sort_keys=True, ensure_ascii=False) + "\n"
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m holon binding")
     ap.add_argument("--milestone", required=True)
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--fragments-out", action="store_true",
+                    help="write the fragments binding that spec/<M>/lib/fragments.json and the binding spec give (I96b)")
     ap.add_argument("--spec-out", action="store_true",
                     help="write the configuration-only spec and its facts copy (spec/<M>/lib/binding*.json) instead")
     a = ap.parse_args(argv)
     root, m = Path(a.root), a.milestone
     try:
+        if a.fragments_out:
+            rel, text = fragments_binding(root, m)
+            if a.check:
+                ok = (root / rel).is_file() and (root / rel).read_text(encoding="utf-8") == text
+                print(f"holon binding: {rel} " + ("reproduced (the fragments binding from its declared spec)" if ok
+                                                  else "differs from the derivation" if (root / rel).is_file()
+                                                  else "missing"))
+                return 0 if ok else 1
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text(text, encoding="utf-8")
+            print(f"holon binding: wrote {rel}")
+            return 0
         if a.spec_out:
             for p, b in sorted(spec_files(root, m).items()):
                 (root / p).parent.mkdir(parents=True, exist_ok=True)

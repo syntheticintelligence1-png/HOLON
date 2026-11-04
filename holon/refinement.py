@@ -619,3 +619,107 @@ def main_refine(args) -> int:
     except RefineError as e:
         print(f"refine: {e}", file=sys.stderr)
         return 2
+
+
+# ============================================================================== I96b: the refinement hints, derived
+# `python -m holon refinement --milestone <M> [--root DIR] [--jobs N] [--check]` (BUILD_PLAN I96b; the contract is the
+# docstring of tests_m3/test_hints_i96b.py, S2). It runs I30's R5, the step refinement of the milestone's document
+# against the real contract (holon fragments), and writes the two files the searches read,
+# results/<M>/sorts/refinement/hints.json (every external call the real target made, with its answer and its step's
+# environment: candidate answers, never evidence) and keys.json (the keys the typed model took on the corpus), and
+# nothing else:
+#   binding    the fragments binding at the path spec/<M>/lib/fragments.json names ("out"), which `holon binding
+#              --fragments-out` derives; it is never shipped
+#   sources    m1, boundary and target. The witness source is dropped: it reads REFUTED records under results/, which
+#              are outcomes, and the two files do not depend on it
+#   evaluator  the typed model of the binding's document, generated here from the milestone's typing sidecar into a
+#              scratch directory (`holon model --milestone <M> --out <scratch>`), never read from gen/
+# Every run is fresh: scratch work, details and record, and the disagreements file untouched (--no-file). --check runs
+# it into the scratch directory and exits 0 iff each file's sha256 equals the committed file's (a missing file is a
+# difference). Deterministic: the corpus has fixed seeds, and the outputs are canonical JSON. Exit 2 when the fragments
+# spec, its binding or the typing sidecar is missing, or a run fails. Nothing here names a target.
+HINT_FILES = ("hints.json", "keys.json")
+HINT_SOURCES = "m1,boundary,target"
+
+
+def hints_dir(milestone: str) -> str:
+    return f"results/{milestone}/sorts/refinement"
+
+
+def _file_sha(p: Path) -> str | None:
+    return hashlib.sha256(p.read_bytes()).hexdigest() if p.is_file() else None
+
+
+def _holon_cmd(root: Path, args: list[str]) -> subprocess.CompletedProcess:
+    env = {**os.environ, "BEND_NO_TELEMETRY": "1",
+           "PYTHONPATH": str(root) + os.pathsep + os.environ.get("PYTHONPATH", "")}
+    return subprocess.run([sys.executable, "-m", "holon", *args], cwd=root, env=env, capture_output=True, text=True)
+
+
+def derive_hints(root: Path, milestone: str, scratch: Path, jobs: int) -> dict[str, Path]:
+    """{file name: its path under scratch} after one fresh run (RefineError on a refusal)."""
+    from .sorts import typed_sidecar as TS
+    root = Path(root).resolve()
+    fp = root / "spec" / milestone / "lib" / "fragments.json"
+    if not fp.is_file():
+        raise RefineError(f"spec/{milestone}/lib/fragments.json is missing")
+    spec = json.loads(fp.read_text(encoding="utf-8"))
+    if not (root / spec["out"]).is_file():
+        raise RefineError(f"{spec['out']} is missing: run `python -m holon binding --fragments-out --milestone "
+                          f"{milestone}` first")
+    if not TS.default_path(milestone, root).is_file():
+        raise RefineError(f"the typing sidecar of {milestone} is missing")
+    doc = spec["binding"]["facts"]
+    models = scratch / "models"
+    r = _holon_cmd(root, ["model", "--milestone", milestone, "--out", str(models)])
+    if r.returncode != 0:
+        raise RefineError(f"holon model failed (exit {r.returncode}): {(r.stdout + r.stderr)[-800:]}")
+    name = Path(doc).name[: -len(".json")] if doc.endswith(".json") else Path(doc).name
+    evaluator = models / f"{name}.bend"
+    if not evaluator.exists():
+        raise RefineError(f"holon model wrote no {evaluator.name}")
+    r = _holon_cmd(root, ["fragments", "--binding", spec["out"], "--facts", doc, "--sources", HINT_SOURCES,
+                          "--evaluator", str(evaluator), "--out", str(scratch / "refinement.json"),
+                          "--hints", str(scratch / "refinement" / "hints.json"), "--work", str(scratch / "work"),
+                          "--details", str(scratch / "details.json"), "--no-file", "--jobs", str(jobs)])
+    if r.returncode != 0:
+        raise RefineError(f"holon fragments failed (exit {r.returncode}): {(r.stdout + r.stderr)[-800:]}")
+    got = {f: scratch / "refinement" / f for f in HINT_FILES}
+    missing = [f for f, p in got.items() if not p.is_file()]
+    if missing:
+        raise RefineError(f"holon fragments wrote no {missing}")
+    return got
+
+
+def main_hints(argv=None) -> int:
+    ap = argparse.ArgumentParser(prog="python -m holon refinement")
+    ap.add_argument("--milestone", required=True)
+    ap.add_argument("--root", default=str(ROOT))
+    ap.add_argument("--jobs", type=int, default=3)
+    ap.add_argument("--check", action="store_true")
+    a = ap.parse_args(argv)
+    root, m = Path(a.root).resolve(), a.milestone
+    scratch = Path(tempfile.mkdtemp(prefix="holon-refinement-"))
+    try:
+        try:
+            got = derive_hints(root, m, scratch, a.jobs)
+        except (RefineError, OSError, ValueError, KeyError) as e:
+            print(f"holon refinement: refused: {e}", file=sys.stderr)
+            return 2
+        dest = root / hints_dir(m)
+        if a.check:
+            bad = 0
+            for f in HINT_FILES:
+                want, have = _file_sha(got[f]), _file_sha(dest / f)
+                bad += want != have
+                print(f"holon refinement: {hints_dir(m)}/{f} "
+                      f"{'reproduced' if want == have else 'differs' if have else 'missing'} "
+                      f"(derived {want[:16]}, committed {(have or 'none')[:16]})")
+            return 1 if bad else 0
+        dest.mkdir(parents=True, exist_ok=True)
+        for f in HINT_FILES:
+            shutil.copyfile(got[f], dest / f)
+            print(f"holon refinement: wrote {hints_dir(m)}/{f}")
+        return 0
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)

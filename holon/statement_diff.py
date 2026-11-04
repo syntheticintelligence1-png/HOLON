@@ -590,10 +590,31 @@ def derived_under(milestone: str, root: Path, catalog: str, scheme: int | None =
     key = (str(root.resolve()), milestone, catalog, scheme)
     hit = _CATALOG_DERIVED.get(key)
     if hit is not None and _inputs_fresh(hit[0], root):
+        if isinstance(hit[1], Exception):     # I96b: a refusal is cached as a success is, so a tree that refuses is
+            raise hit[1]                      # derived once per process, not once per catalog_rederivation entry
         return hit[1]
-    der = rules.compute(milestone, root, catalog=catalog, hash_scheme=scheme)
+    try:
+        der = rules.compute(milestone, root, catalog=catalog, hash_scheme=scheme)
+    except Exception as e:  # noqa: BLE001  (re-raised; the callers report a refusal as their check's failure)
+        _CATALOG_DERIVED[key] = (_refusal_inputs(root, milestone), e)
+        raise
     _CATALOG_DERIVED[key] = (der["derivation"].get("inputs") or [{"path": "<outside>/"}], der)
     return der
+
+
+def _refusal_inputs(root: Path, milestone: str) -> list[dict]:
+    """The freshness listing of a cached refusal: the committed derivation's inputs (laws/<M>/DERIVATION.json
+    "inputs", by sha256) and that file itself, so regenerating a stale input (a closure, an evidence file) drops the
+    refusal. A tree with no committed derivation keeps its refusal for the process."""
+    dp = Path(root) / "laws" / milestone / "DERIVATION.json"
+    if not dp.is_file():
+        return []
+    raw = dp.read_bytes()
+    try:
+        listed = [x for x in json.loads(raw).get("inputs") or [] if isinstance(x, dict) and x.get("path")]
+    except ValueError:
+        listed = []
+    return listed + [{"path": f"laws/{milestone}/DERIVATION.json", "sha256": hashlib.sha256(raw).hexdigest()}]
 
 
 def _derivation_entry(der: dict, lid: str) -> dict | None:

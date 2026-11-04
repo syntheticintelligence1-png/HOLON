@@ -142,6 +142,13 @@ jobs:
             # target-agnostic check, I31's yardstick and the brief run here.
             timeout: 30
             run: python -m unittest tests_m3.test_r0_i96a.TestBuild -v
+          - name: tests-m3-refinement
+            # I96b: the refinement hints and keys (results/M3/sorts/refinement/) and the fragments binding
+            # (replay/M2/fragments.json) are derived from declared inputs, outside gen/M*/, so `holon land check` does not
+            # see a stale or dropped copy. TestBuild runs `holon refinement --check` (about 9 minutes: a fresh R5 run
+            # compared by sha256), `holon binding --fragments-out --check`, the leak check with its plant and the rest.
+            timeout: 60
+            run: python -m unittest tests_m3.test_hints_i96b.TestBuild -v
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
