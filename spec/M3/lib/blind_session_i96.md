@@ -17,6 +17,12 @@ The target is the repository `morph-l2/morph` at commit `3e44e795586af3e11285b60
   target and parameters);
 - `spec/M3/lib/binding_facts.json`: a copy of the M1 facts' initial members that the binding's parameters read (facts);
 - the three harness sources that `spec/M3/lib/binding.json` names, under `replay/M1/solidity/` and `replay/M2/solidity/`.
+- `spec/M3/lib/fragments.json`: the fragments binding's declarations (its abstract facts, its window encodings and its
+  document), from which `holon binding --fragments-out` derives the fragments binding;
+- `spec/M1/facts/morph_rollup.json`, `spec/M1/lib/morph_rollup.lib.json` and `spec/M1/lib/morph_rollup.lean.json`: the
+  M1 facts and the M1 model's definitions, which the step refinement's abstract rows and corpus read (facts and model
+  definitions);
+- `spec/M1/policy_hints.mjs`: the M1 corpus's search configuration (candidate actions from a decoded state).
 
 They are given, not authored: never edit them, and log no `authored` line for them. Step 0 places them.
 
@@ -122,7 +128,14 @@ them, and rule 6 forbids writing them.
    - In the typed-sorts sidecar `spec/M3/lib/sort_types.json`, set `binding` to `spec/M3/lib/binding.json`.
    - Run `python -m holon binding --milestone M3`. It re-runs the binding's deployment, by forge on the pinned
      checkout, and writes `gen/M3/binding/`. Never write that record by hand.
+   - Run `python -m holon binding --fragments-out --milestone M3`. It derives the fragments binding
+     (`replay/M2/fragments.json`) from the declared `spec/M3/lib/fragments.json` and the binding spec. Never write that
+     binding by hand.
    - Run `python -m holon sorts --milestone M3`. It reads the typed-sorts sidecar and the seeds that sidecar names.
+   - Run `python -m holon refinement --milestone M3`. It runs the step refinement against the real contract, by forge,
+     with the typed model as its evaluator, and writes `results/M3/sorts/refinement/hints.json` and `keys.json`: the
+     real target's external-call answers and the keys the model took. The searches of `holon run` read them. Never
+     write either file by hand.
 2. `python -m holon diagram --milestone M3`.
 3. `python -m holon evidence --milestone M3`.
 4. **DISCH.**

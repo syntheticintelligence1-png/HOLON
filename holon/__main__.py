@@ -387,6 +387,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["binding"]:  # likewise for holon.binding (I95: the deployment record of a typed binding)
         from . import binding
         return binding.main(argv[1:])
+    if argv[:1] == ["refinement"]:  # likewise for holon.refinement's I96b step (the refinement hints, derived)
+        from . import refinement
+        return refinement.main_hints(argv[1:])
     if argv[:1] == ["disch-r0"]:  # likewise for holon.disch.r0 (I96a: DISCH's R0 derived from the binding)
         from .disch import r0
         return r0.main(argv[1:])
