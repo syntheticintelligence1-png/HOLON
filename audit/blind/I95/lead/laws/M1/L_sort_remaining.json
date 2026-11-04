@@ -1,0 +1,48 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_sort_remaining",
+  "milestone": "M1",
+  "rule": "SORT",
+  "subform": "realize",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      }
+    ],
+    "assume": [],
+    "claim": {
+      "eq": [
+        {
+          "fn": "no_code",
+          "args": [
+            {
+              "obs": {
+                "var": "p"
+              },
+              "from": {
+                "s0": {}
+              }
+            },
+            {
+              "nat": 16
+            }
+          ]
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "notes": "Sign obligation at Rollup.sol:363: realize(W + startTime - t) must be provable wherever the commit site runs, i.e. no reachable trace reverts there with Panic(0x11) (reason code 16).",
+  "maps_to": "O27 (F4)",
+  "evidence": [
+    "E5"
+  ],
+  "predicted": "REFUTED"
+}
