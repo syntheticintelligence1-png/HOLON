@@ -52,7 +52,8 @@ JSON3 = ("spec/*/predictions.json", "spec/*/predictions/*.json", "spec/schemas/*
 GENERATED = ("laws/M*/*.json", "docs/M*_COMPARISON.md", "spec/M*/appendixA_map.json", "docs/STATUS.md",
              "results/M*/ranking.json", "results/M*/metrics.json", "results/M*/metrics_timing.json",
              "gen/M*/evidence.json", "gen/M*/coverage.json", "gen/M*/diagram/**", "gen/M*/own/**",
-             "gen/M*/par_lossy/**", "spec/M*/evidence_review.jsonl", "replay/M*/**", "results/M*/refute/**")
+             "gen/M*/par_lossy/**", "gen/M*/binding/**", "spec/M*/evidence_review.jsonl", "replay/M*/**",
+             "results/M*/refute/**")
 AGGREGATE = re.compile(r"spec/(M\d+)/(?:predictions\.json|amendments\.jsonl)")   # generated from per-key sources (A)
 LAW_OUTPUTS = (re.compile(r"results/[MT]\d+/(L_[^/]+)\.json"), re.compile(r"gen/M\d+/(?:laws|proofs)/(L_[^/]+)/.+"))
 # what a run, derive or bind writes: with `merge --key K`, a branch's change to one of these outside K's outcome paths is
@@ -61,8 +62,10 @@ LAW_OUTPUTS = (re.compile(r"results/[MT]\d+/(L_[^/]+)\.json"), re.compile(r"gen/
 OUTPUTS = ("results/**", "replay/**", "gen/M*/**", "laws/M*/*.json", "laws/M*/derivation/**", "spec/bindings/M*.json",
            "spec/M*/appendixA_map.json", "docs/M*_COMPARISON.md", "docs/STATUS.md", "traces/**")
 
-# the generators `regen` runs over the merged tree, in dependency order: (command, module that must exist)
-REGEN = (("own --milestone {m}", "holon/own.py"), ("diagram --milestone {m}", None),
+# the generators `regen` runs over the merged tree, in dependency order: (command, file that must exist, {m} filled in).
+# `binding` re-derives I95's deployment record from code: it is an output (gen/M*/**), so `merge --key` reverts a
+# branch's record outside the key's outcome paths, and only this step brings it back (#110 lost it without one)
+REGEN = (("binding --milestone {m}", "spec/{m}/lib/binding.json"), ("own --milestone {m}", "holon/own.py"), ("diagram --milestone {m}", None),
          ("evidence --milestone {m}", "holon/diagram/evidence.py"), ("lossy --milestone {m}", "holon/rules/par_lossy.py"),
          ("derive --milestone {m}", None), ("metrics --milestone {m}", None), ("rank --milestone {m}", "holon/rank.py"),
          ("report --milestone {m}", "holon/report.py"), ("coordinator status", "holon/coordinator.py"))
@@ -124,6 +127,24 @@ def revert_outputs(base: str, head: str, lead: str, own: list[str]) -> list[str]
         else:
             git("rm", "-q", "-f", "--ignore-unmatch", "--", path)
         out.append(path)
+    return out
+
+
+def dropped(st: dict, root: Path) -> list[str]:
+    """The branch's outputs that `merge --key` reverted (revert_outputs) and nothing brought back: each reverted path
+    under gen/M*/ that no regen step writes (GENERATED) and no law owns (LAW_OUTPUTS), whose bytes in the worktree
+    differ from the branch head's. Such a path holds the lead's version, or none, where the branch had its own; I94's
+    cutover files and I95's binding record were lost this way. A re-make (apply) or a re-derivation that restores the
+    branch's bytes clears it."""
+    out, head = [], st.get("head")
+    for path in st.get("reverted") or []:
+        if not head or not matches("gen/M*/**", path) or any(matches(p, path) for p in GENERATED) \
+                or any(rx.fullmatch(path) for rx in LAW_OUTPUTS):
+            continue
+        r = subprocess.run(["git", "cat-file", "blob", f"{head}:{path}"], capture_output=True)
+        f = root / path
+        if (f.read_bytes() if f.is_file() else None) != (r.stdout if r.returncode == 0 else None):
+            out.append(path)
     return out
 
 
@@ -411,7 +432,7 @@ def step_regen(a) -> int:
     moved = [p for p in git("diff", "--name-only", base, "--", f"results/{a.milestone}").splitlines()
              if re.fullmatch(rf"results/{a.milestone}/L_[^/]+\.json", p)]
     for cmd, need in REGEN:
-        if need and not (root / need).is_file():
+        if need and not (root / need.format(m=a.milestone)).is_file():
             continue
         if cmd.startswith("metrics") and not moved:
             # metrics are computed from the records (and its timing file is wall-clock): only when records moved
@@ -730,6 +751,13 @@ def step_check(a) -> int:
         print(f"  holon {cmd}: {'ok' if ok else 'FAILED'}")
         if not ok:
             print("    " + "\n    ".join(out.strip().splitlines()[-6:]))
+    lost = dropped(load_state(), root)
+    if lost:
+        bad += 1
+        print(f"  {len(lost)} outputs the branch changed were reverted by the merge (outside its key's outcome paths) "
+              "and nothing re-derived them: run each one's generator, or name it in the key's outcome_paths:")
+        for p in lost:
+            print(f"    {p}")
     return 1 if bad else 0
 
 
@@ -809,6 +837,19 @@ def selftest() -> int:
             assert (git("rev-parse", "HEAD^1"), git("rev-parse", "HEAD^2")) == (lead, own), "the lead is not first"
             assert git("rev-parse", "br") == git("rev-parse", "HEAD") and not merging() and not git("status", "--porcelain")
             assert git("show", "HEAD:log.jsonl").startswith(git("show", f"{lead}:log.jsonl"))
+            # an output the merge reverted counts as dropped until its branch bytes are back (#110's binding record)
+            Path("gen/M3/cutover").mkdir(parents=True)
+            Path("gen/M3/cutover/m.bend").write_text("branch\n")
+            git("add", "-A")
+            git("commit", "-q", "-m", "a branch output")
+            st = {"head": git("rev-parse", "HEAD"), "reverted": ["gen/M3/cutover/m.bend", "gen/M3/evidence.json",
+                                                                 "gen/M3/laws/L_a/LAWS.bend", "results/M3/L_a.json"]}
+            Path("gen/M3/cutover/m.bend").unlink()
+            assert dropped(st, Path(t)) == ["gen/M3/cutover/m.bend"]
+            Path("gen/M3/cutover/m.bend").write_text("lead\n")
+            assert dropped(st, Path(t)) == ["gen/M3/cutover/m.bend"]
+            Path("gen/M3/cutover/m.bend").write_text("branch\n")
+            assert dropped(st, Path(t)) == [] and dropped({}, Path(t)) == []
         finally:
             os.chdir(cwd)
     print("holon land selftest: ok")
