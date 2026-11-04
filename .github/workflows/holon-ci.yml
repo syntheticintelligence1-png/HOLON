@@ -136,6 +136,12 @@ jobs:
             timeout: 120
             kcache: true
             run: python -m holon.kcache --dir ~/.cache/holon-kcache -m unittest tests_m3.test_catalog_rederivation -v
+          - name: tests-m3-disch-r0
+            # I96a: DISCH's R0 is derived from the binding's deployment record into spec/M3/lib/disch.json, outside
+            # gen/M*/, so `holon land check` does not see a stale copy. The step's --check, its byte-identity, the
+            # target-agnostic check, I31's yardstick and the brief run here.
+            timeout: 30
+            run: python -m unittest tests_m3.test_r0_i96a.TestBuild -v
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:

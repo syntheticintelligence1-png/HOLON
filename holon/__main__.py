@@ -387,6 +387,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["binding"]:  # likewise for holon.binding (I95: the deployment record of a typed binding)
         from . import binding
         return binding.main(argv[1:])
+    if argv[:1] == ["disch-r0"]:  # likewise for holon.disch.r0 (I96a: DISCH's R0 derived from the binding)
+        from .disch import r0
+        return r0.main(argv[1:])
     if argv[:1] == ["keys"]:  # likewise for holon.sorts.keys3 (I68: the keys check of the structural store)
         from .sorts import keys3
         return keys3.main(argv[1:])
