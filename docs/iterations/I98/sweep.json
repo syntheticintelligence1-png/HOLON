@@ -1,0 +1,172 @@
+{
+  "after_widening": {
+    "examined": 64,
+    "not_examined": [],
+    "refuted": 64,
+    "unbound": {}
+  },
+  "doc": "I98 S4 and P6: the REFUTED M3 records no G6 clause judged before I98's widening (the clauses at the base: I30, UNDO, NAT, DISCH, FACT, contract, bundle, bundle2, derivation; PAR-init is in the base G6, which M3 did not run), with their replay status at the base; and after the widening and the re-make, the REFUTED records no clause judges.",
+  "not_examined": {
+    "L_own_alias_batch_BatchData_TxsPayloadV2_Append": {
+      "replay": "passed",
+      "rule": "OWN",
+      "subform": "alias"
+    },
+    "L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes": {
+      "replay": "passed",
+      "rule": "OWN",
+      "subform": "lost_write"
+    },
+    "L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes": {
+      "replay": "passed",
+      "rule": "OWN",
+      "subform": "lost_write"
+    },
+    "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum": {
+      "replay": "passed",
+      "rule": "PAR",
+      "subform": "branch"
+    },
+    "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": {
+      "replay": "not_run",
+      "rule": "PAR",
+      "subform": "cross_component_codec"
+    },
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": {
+      "replay": "not_run",
+      "rule": "PAR",
+      "subform": "cross_component_codec"
+    },
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": {
+      "replay": "not_run",
+      "rule": "PAR",
+      "subform": "cross_component_codec"
+    },
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": {
+      "replay": "not_run",
+      "rule": "PAR",
+      "subform": "domain_coherence"
+    },
+    "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": {
+      "replay": "passed",
+      "rule": "PAR",
+      "subform": "domain_coherence"
+    },
+    "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3": {
+      "replay": "passed",
+      "rule": "PAR",
+      "subform": "go_branch"
+    },
+    "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7": {
+      "replay": "passed",
+      "rule": "PAR",
+      "subform": "go_branch"
+    },
+    "L_par_gorc_data_hash_BatchData_DataHash": {
+      "replay": "passed",
+      "rule": "PAR",
+      "subform": "go_recompute"
+    },
+    "L_par_tot_batch_RetrieveBlobBytes": {
+      "replay": "passed",
+      "rule": "PAR",
+      "subform": "totality"
+    },
+    "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": {
+      "replay": "passed",
+      "rule": "PAR",
+      "subform": "weak"
+    },
+    "L_pinit_Rollup_importGenesisBatch_committedBatches_17_9": {
+      "replay": "passed",
+      "rule": "PAR",
+      "subform": "init_chain"
+    },
+    "L_sym_omega_Rollup_challengeState_commitBatchWithProof": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    "L_sym_omega_Rollup_challengeState_revertBatch": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    "L_sym_omega_Rollup_challengeState_updateProofWindow": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    "L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    "L_sym_omega_Rollup_commitBatch_updateProofWindow": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    "L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "omega"
+    },
+    "L_sym_pi_Rollup_commitBatchWithProof_submitter": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "pi"
+    },
+    "L_sym_pi_Rollup_revertBatch_challenger": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "pi"
+    },
+    "L_sym_pi_Rollup_setPause_challenger": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "pi"
+    },
+    "L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "sentinel_inv"
+    },
+    "L_sym_tau_L1CrossDomainMessenger_replayMessage": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "member_tau"
+    },
+    "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "member_tau"
+    },
+    "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "member_tau"
+    },
+    "L_sym_tau_Rollup_batchExist": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "tau"
+    },
+    "L_sym_tau_Rollup_finalizeBatch": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "tau"
+    },
+    "L_sym_tau_Rollup_revertBatch": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "tau"
+    },
+    "L_sym_tau_Rollup_setPause": {
+      "replay": "passed",
+      "rule": "SYM",
+      "subform": "tau"
+    }
+  },
+  "refuted_at_base": 65
+}
