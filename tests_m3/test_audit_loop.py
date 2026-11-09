@@ -391,11 +391,14 @@ class TestConverge(unittest.TestCase):
         reading (CV1-CV4, tests_m3/_i87.py, never holon's converge) of the committed rounds and findings, whatever
         rounds exist; round 1, the same-family dry run, is never counted; `holon audit converge --milestone M3
         --check` passes. (Amended, spec/M3/amendments/I87.jsonl: this pinned streak 0 and counted 0, which held only
-        while no different-family round existed.)"""
+        while no different-family round existed. Amended again for HUMAN_ANSWERS Q9b: the reading is
+        tests_m3/_q9b.py, this instrument on the rounds with each same-family round that cites the ruling of
+        spec/M3/lib/audit_rulings.json read as a round of the counted family.)"""
+        from tests_m3 import _q9b as Q
         st = load(STATUS)
         self.assertEqual(validate(st, SCHEMAS / "audit_status.schema.json"), [])
         rounds = [load(p) for p in sorted((ROOT / "audit" / "rounds" / M).glob("round*.json"))]
-        want = I.converge(rounds, jsonl(FINDINGS), I.policy())
+        want = Q.converge(rounds, jsonl(FINDINGS), I.policy(), Q.rulings())
         self.assertTrue(want["valid"], want["problems"])
         self.assertEqual((st["converged"], st["k"], st["streak"], st["counted"]),
                          (want["converged"], 3, want["streak"], want["counted"]))
