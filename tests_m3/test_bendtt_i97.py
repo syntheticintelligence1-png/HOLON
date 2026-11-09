@@ -178,5 +178,144 @@ class TestOutcome(unittest.TestCase):
         self.assertTrue(set(I.SIX) <= set(f["named"]), f["named"])
 
 
+class TestAmendF14(unittest.TestCase):
+    """Added after C_K (950ccd38) by the disclosed prereg amendment for audit M3/4 F-M3-14, under the lead's ruling of
+    2026-11-09 04:35 (spec/M3/amendments/I97.jsonl; its line for this class pins this docstring's sha256). Nothing
+    above changes: R0-R7 and P1-P5 stand as preregistered. These are build checks, not counted predictions.
+
+    F-M3-14 (round 4, PR #121 head abc1cbb9; high, gate_evasion). A committed .env.local that sets BENDTT to a fake
+    kernel makes holon.bend.check_verdict print ALL PROOFS CHECK on a counter-law the pinned BendTT rejects. GENV's
+    unsafe_env_files refused only bunfig.toml and .env, but bun also loads .env.local and .env.<NODE_ENV> from the
+    checker's working directory.
+
+    A1  GENV refuses bunfig.toml and every name that starts with ".env", at any depth of the tree outside .git:
+        holon.bend.unsafe_env_files(root) lists each such path (relative to root, sorted), and holon.gate.Gate.genv
+        fails on a root where it lists one, naming it.
+    A2  holon.bend runs bun (bend2) with an allowlisted environment, holon.bend.checker_env(cfg): from the caller's
+        environment only the names in holon.bend.ENV_ALLOW, plus what holon.bend sets itself (BEND_NO_TELEMETRY, the
+        JavaScriptCore stack and, once it is built, BENDTT as the pinned toolchain's --verdict kernel:
+        holon.bend.verdict_kernel_path of the resolved checkout). check and check_verdict run in a fresh empty working
+        directory, the file by its absolute path; every other run refuses a working directory that holds a name A1
+        refuses. An inherited BENDTT never reaches the checker: one that differs from the pinned path raises
+        holon.bend.EnvRefused, whose message names BENDTT; it is never silently used.
+    A3  The tests plant .env.local, .env.production and a nested bunfig.toml. Each is refused (A1), and so is a run in a
+        working directory that holds one (A2). The round-4 repro (abc1cbb9:audit/rounds/M3/round4/a7/repro.sh, its
+        steps on a scratch copy) no longer flips the verdict: with .env.local beside the proof setting BENDTT to a fake
+        kernel, check_verdict still gives the pinned kernel's rejection, and the fake never runs.
+    """
+    TEST_ID = "tests_m3/test_bendtt_i97.py::TestAmendF14"
+    PLANTS = (".env.local", "a/b/.env.production", "c/d/bunfig.toml")
+    REPRO_LAW = "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp"
+    REPRO_FILES = ("gen/M3/proofs/{law}/PROOF.bend", "gen/M3/laws/{law}/LAWS.bend", "gen/M3/symb/sections/queue.bend",
+                   "gen/M3/bundle/models/queue.bend")
+
+    @staticmethod
+    def _root(tmp) -> Path:
+        """A scratch root that holds only the checker config (holon.gate.Gate reads config/holon.json)."""
+        r = Path(tmp) / "root"
+        (r / "config").mkdir(parents=True)
+        for f in ("holon.json", "holon.example.json"):
+            if (ROOT / "config" / f).is_file():
+                shutil.copy2(ROOT / "config" / f, r / "config" / f)
+        return r
+
+    @staticmethod
+    def _plant(r, rel: str) -> Path:
+        p = Path(r) / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("BENDTT=/nonexistent/fake-bendtt\n", encoding="utf-8")
+        return p
+
+    def test_a0_the_amendment_is_disclosed_and_pins_this_contract(self):
+        src = (ROOT / "spec" / "M3" / "amendments" / "I97.jsonl").read_text(encoding="utf-8")
+        mine = [a for a in (json.loads(ln) for ln in src.splitlines() if ln.strip()) if a.get("test") == self.TEST_ID]
+        self.assertEqual(len(mine), 1, mine)
+        self.assertEqual(mine[0]["iteration"], "I97")
+        self.assertEqual(mine[0]["contract_sha256"], hashlib.sha256(type(self).__doc__.encode("utf-8")).hexdigest())
+        agg = (ROOT / "spec" / "M3" / "amendments.jsonl").read_text(encoding="utf-8").splitlines()
+        self.assertEqual(sum(1 for ln in agg if ln.strip() and json.loads(ln) == mine[0]), 1)
+
+    def test_a1_env_files_are_refused_anywhere_in_the_tree(self):
+        from holon import bend
+        with tempfile.TemporaryDirectory() as tmp:
+            r = self._root(tmp)
+            for f in ("x.env", "env", "docs/dotenv.md", "bunfig.toml.bak", ".git/.env.local"):
+                self._plant(r, f)
+            self.assertEqual(bend.unsafe_env_files(r), [])
+            for p in self.PLANTS:
+                self._plant(r, p)
+                self.assertIn(p, bend.unsafe_env_files(r))
+            self.assertEqual(bend.unsafe_env_files(r), sorted(self.PLANTS))
+
+    def test_a1_genv_fails_on_each_plant(self):
+        from holon.gate import Gate
+        for p in self.PLANTS:
+            with tempfile.TemporaryDirectory() as tmp:
+                r = self._root(tmp)
+                self._plant(r, p)
+                g = Gate("M3", r)
+                self.assertFalse(g.genv(), p)
+                self.assertIn(p, g.checks["GENV"]["detail"])
+
+    def test_a2_the_checker_environment_is_allowlisted(self):
+        from unittest import mock
+        from holon import bend
+        cfg = bend.config(ROOT)
+        planted = {"HOLON_I97_PROBE": "1", "NODE_OPTIONS": "--require /nonexistent.js", "BUN_OPTIONS": "--preload x",
+                   "NODE_ENV": "production", "BEND_LIB": "/nonexistent", "BEND_HUB": "http://127.0.0.1:9"}
+        with mock.patch.dict(os.environ, planted):
+            os.environ.pop("BENDTT", None)
+            env = bend.checker_env(cfg)
+        own = {"BEND_NO_TELEMETRY", "BUN_JSC_maxPerThreadStackUsage", "BENDTT"}
+        self.assertEqual(sorted(set(env) - set(bend.ENV_ALLOW) - own), [])
+        self.assertEqual(sorted(set(planted) & set(env)), [])
+        if "BENDTT" in env:
+            self.assertEqual(env["BENDTT"], str(bend.verdict_kernel_path(bend.resolve_checker(cfg)[1])))
+
+    def test_a2_a_foreign_bendtt_is_refused_by_name(self):
+        from unittest import mock
+        from holon import bend
+        cfg = bend.config(ROOT)
+        rp = ROOT / _registry()["constructs"][0]["repro"] / "PROOF.bend"
+        with mock.patch.dict(os.environ, {"BENDTT": "/nonexistent/fake-bendtt"}):
+            for f in (bend.check_verdict, bend.check):
+                with self.assertRaises(bend.EnvRefused) as cm:
+                    f(rp, cfg)
+                self.assertIn("BENDTT", str(cm.exception))
+
+    def test_a3_a_run_in_a_directory_that_holds_one_is_refused(self):
+        from holon import bend
+        cfg = bend.config(ROOT)
+        for p in self.PLANTS:
+            with tempfile.TemporaryDirectory() as tmp:
+                f = self._plant(tmp, p)
+                with self.assertRaises(bend.EnvRefused) as cm:
+                    bend.run(["version"], cwd=f.parent, cfg=cfg)
+                self.assertIn(f.name, str(cm.exception))
+
+    def test_a3_the_round4_repro_no_longer_flips_the_verdict(self):
+        from holon import bend
+        cfg = bend.config(ROOT)
+        law = self.REPRO_LAW
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp) / "w"
+            for f in self.REPRO_FILES:
+                dst = work / f.format(law=law)
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(ROOT / f.format(law=law), dst)
+            marker, fake = Path(tmp) / "fake-ran", Path(tmp) / "fake-bendtt"
+            fake.write_text(f"#!/bin/sh\ntouch '{marker}'\necho ALL PROOFS CHECK\nexit 0\n", encoding="utf-8")
+            fake.chmod(0o755)
+            proof = work / "gen" / "M3" / "proofs" / law / "PROOF.bend"
+            before = bend.check_verdict(proof, cfg)
+            self.assertFalse(before.ok, before.out[-300:])
+            (proof.parent / ".env.local").write_text(f"BENDTT={fake}\n", encoding="utf-8")
+            self.assertEqual(bend.unsafe_env_files(work), [f"gen/M3/proofs/{law}/.env.local"])
+            after = bend.check_verdict(proof, cfg)
+            self.assertFalse(after.ok, after.out[-300:])
+            self.assertEqual(after.first_line, before.first_line)
+            self.assertFalse(marker.exists())
+
+
 if __name__ == "__main__":
     unittest.main()
