@@ -10,13 +10,13 @@
       "checker": {
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 3.106
+        "seconds": 3.277
       },
       "generator": "residue_bound",
       "kind": "proof",
       "marker": "ALL PROOFS CHECK",
       "note": "conjunct 0: kept by setPause, bounded by challengeState's accumulating loop; conjunct 1: kept by setPause and challengeState; conjunct 2: bounded by setPause's split store, its bound transported through challengeState",
-      "seconds": 11.2,
+      "seconds": 10.8,
       "verdict": "checked"
     },
     {
@@ -44,7 +44,7 @@
   "checker": {
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 3.106
+    "seconds": 3.277
   },
   "compiled_sha256": "f838c64a012f2b3c50f0a10a19dd21af80aa24664dca21312acf7a2153a89c3a",
   "cone": [
@@ -1933,7 +1933,7 @@
   "evidence_triage": "none",
   "facts_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
   "filter_bin": null,
-  "generator_sha256": "7d60361ccb40eeddc7dc20e3da2359e4984b3c4e69d4818dcb4ce3b014b0f7d2",
+  "generator_sha256": "9c00a41e76b8c6af2373e1d12a0a0ea37b71a5ccbc3a69c74f0d6cd64c0941e1",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -2078,7 +2078,12 @@
       }
     }
   },
-  "premises": [],
+  "premises": [
+    "is[challengeState](x) == true",
+    "ok(x, s) == true",
+    "is[setPause](y) == true",
+    "ok(y, step(x, s)) == true"
+  ],
   "prover": "generator",
   "record_version": "holon-record/0.2",
   "refinement_refs": [],

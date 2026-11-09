@@ -19,11 +19,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 1.062
+          "seconds": 0.948
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 0.521
+        "seconds": 0.455
       },
       "escape_hatches": [],
       "generator": "caller_key",
@@ -35,11 +35,11 @@
         "bendtt": {
           "exit_code": 0,
           "output_tail": "ALL PROOFS CHECK\n",
-          "seconds": 3.472
+          "seconds": 2.845
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 1.32
+        "seconds": 1.154
       },
       "kind": "inhabitant",
       "law": "gen/M3/L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291/nonvac/LAWS.bend",
@@ -55,11 +55,11 @@
     "bendtt": {
       "exit_code": 0,
       "output_tail": "ALL PROOFS CHECK\n",
-      "seconds": 1.062
+      "seconds": 0.948
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 0.521
+    "seconds": 0.455
   },
   "claims_sha256": "dc4c08199d0de78027a71ced273f30e4c248d6cccd9da499e8546402417f6212",
   "compiled_sha256": "0a098a01b537a1ad4b20a09f4b7a7c4883609ea2f0d6085478a73cafd6b70eea",
@@ -808,7 +808,7 @@
   "evidence_triage": "none",
   "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
   "filter_bin": null,
-  "generator_sha256": "e452575cb9ee2ea8432a9ea27a3924d599b8040718ae8cf4993817f0f0969760",
+  "generator_sha256": "9c00a41e76b8c6af2373e1d12a0a0ea37b71a5ccbc3a69c74f0d6cd64c0941e1",
   "independence_class": "I1-shared",
   "kernel": {
     "name": "bend",
@@ -857,7 +857,9 @@
       "value": "1000000012"
     }
   },
-  "premises": [],
+  "premises": [
+    "bundle_ok[messenger:payer:sendMessage_5f7b1577:291](x, s, e) == true"
+  ],
   "prover": "generator",
   "record_version": "holon-record/0.2",
   "refinement_refs": [],
@@ -872,7 +874,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 9.261,
+  "seconds": 7.369,
   "statement": "§7.5 payer: in every reachable state where the action succeeds, every principal argument of its price call is the payer, the step's caller; messenger:payer:sendMessage_5f7b1577:291",
   "statement_hash": "sha256:0b08b5b252d0a7e331ef9d03de880815739bf680dcd5ee51191fca3b2e85f776",
   "status": "PROVED",
