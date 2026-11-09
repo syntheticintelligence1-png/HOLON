@@ -1004,8 +1004,11 @@ class Decider:
             cone = R.cone(re.sub(r"(?<![\w.])C\.", "M.", lp.read_text(encoding="utf-8")), mtext)
         else:   # a claim the M3 model cannot express (CS3's outflow class): the cone of the law's premise ok
             cone = R.cone(f"M.chk_{bname(site['action'])}(s, ar, en, kh)", mtext)
+        from .. import ir
+        # I99 (audit M3/5 F-M3-19): one readable premise per assume clause of the law, hypotheses included, rendered as
+        # every writer renders them (holon.ir.premises)
         rec = {"law_id": lid, "statement_hash": sh, "facts_sha256": law["facts_sha256"], "status": status,
-               "scope": "unbounded", "premises": [],
+               "scope": "unbounded", "premises": ir.premises(law),
                "kernel": {"name": "bend", "version": bend_version(), "verdict": (prim or {}).get("verdict", "not_run")},
                "artifacts": {"laws": self.rel(lp) if lp else None, "proof": (prim or {}).get("proof"),
                              "model": self.rel(lctx.model_path(mname)), "claims": self.rel(lctx.claims_path(mname)),

@@ -1,0 +1,195 @@
+{
+  "doc": "I99 P1: the 13 records the finding names: their law's clauses, their premises at the base and at HEAD, and the clauses' rendering (holon.ir.premises).",
+  "records": {
+    "L_contract_C_o12_m3": {
+      "clauses": 4,
+      "premises_base": [],
+      "premises_head": [
+        "is[challengeState](x) == true",
+        "ok(x, s) == true",
+        "is[setPause](y) == true",
+        "ok(y, step(x, s)) == true"
+      ],
+      "rendered": [
+        "is[challengeState](x) == true",
+        "ok(x, s) == true",
+        "is[setPause](y) == true",
+        "ok(y, step(x, s)) == true"
+      ],
+      "rule": "UNDO",
+      "status_base": "PROVED",
+      "status_head": "PROVED",
+      "subform": "intended_weak"
+    },
+    "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154": {
+      "clauses": 2,
+      "premises_base": [],
+      "premises_head": [
+        "CF(keccak256, {bundle_enc[messenger:push:proveAndRelayMessage:154](x1), bundle_enc[messenger:push:proveAndRelayMessage:154](x2)})",
+        "bundle_leaf[messenger:push:proveAndRelayMessage:154](x1) == bundle_leaf[messenger:push:proveAndRelayMessage:154](x2)"
+      ],
+      "rendered": [
+        "CF(keccak256, {bundle_enc[messenger:push:proveAndRelayMessage:154](x1), bundle_enc[messenger:push:proveAndRelayMessage:154](x2)})",
+        "bundle_leaf[messenger:push:proveAndRelayMessage:154](x1) == bundle_leaf[messenger:push:proveAndRelayMessage:154](x2)"
+      ],
+      "rule": "PAR",
+      "status_base": "PROVED",
+      "status_head": "PROVED",
+      "subform": "push"
+    },
+    "L_sort_cons_L1CrossDomainMessenger_receive": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[messenger:conservation:receive](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[messenger:conservation:receive](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "REFUTED",
+      "status_head": "REFUTED",
+      "subform": "conservation"
+    },
+    "L_sort_cons_L1CrossDomainMessenger_replayMessage": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[messenger:conservation:replayMessage](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[messenger:conservation:replayMessage](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "UNKNOWN",
+      "status_head": "UNKNOWN",
+      "subform": "conservation"
+    },
+    "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[messenger:conservation:sendMessage_5f7b1577](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[messenger:conservation:sendMessage_5f7b1577](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "UNKNOWN",
+      "status_head": "UNKNOWN",
+      "subform": "conservation"
+    },
+    "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[messenger:conservation:sendMessage_b2267a7b](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[messenger:conservation:sendMessage_b2267a7b](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "UNKNOWN",
+      "status_head": "UNKNOWN",
+      "subform": "conservation"
+    },
+    "L_sort_cons_Rollup_challengeState": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[rollup:conservation:challengeState](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[rollup:conservation:challengeState](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "UNKNOWN",
+      "status_head": "UNKNOWN",
+      "subform": "conservation"
+    },
+    "L_sort_cons_Rollup_commitBatch": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[rollup:conservation:commitBatch](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[rollup:conservation:commitBatch](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "REFUTED",
+      "status_head": "REFUTED",
+      "subform": "conservation"
+    },
+    "L_sort_cons_Rollup_receive": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[rollup:conservation:receive](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[rollup:conservation:receive](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "REFUTED",
+      "status_head": "REFUTED",
+      "subform": "conservation"
+    },
+    "L_sort_cons_Submitter_stake": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[submitter:conservation:stake](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[submitter:conservation:stake](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "UNKNOWN",
+      "status_head": "UNKNOWN",
+      "subform": "conservation"
+    },
+    "L_sort_payer_L1CrossDomainMessenger_replayMessage_201": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[messenger:payer:replayMessage:201](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[messenger:payer:replayMessage:201](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "REFUTED",
+      "status_head": "REFUTED",
+      "subform": "payer"
+    },
+    "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[messenger:payer:sendMessage_5f7b1577:291](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[messenger:payer:sendMessage_5f7b1577:291](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "PROVED",
+      "status_head": "PROVED",
+      "subform": "payer"
+    },
+    "L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291": {
+      "clauses": 1,
+      "premises_base": [],
+      "premises_head": [
+        "bundle_ok[messenger:payer:sendMessage_b2267a7b:291](x, s, e) == true"
+      ],
+      "rendered": [
+        "bundle_ok[messenger:payer:sendMessage_b2267a7b:291](x, s, e) == true"
+      ],
+      "rule": "SORT",
+      "status_base": "PROVED",
+      "status_head": "PROVED",
+      "subform": "payer"
+    }
+  }
+}
