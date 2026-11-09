@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "G7",
+    "G4",
+    "G6"
+  ],
+  "doc": "I98 P4: CI's M3 job gate-M3-G7 runs `holon gate --milestone M3 --checks G7,G4,G6`, and the tests-m3-g6 job runs tests_m3.test_g6_i98's TestBuild and TestAmendAll A1. passed_on_lead: each check on the merged lead after I98's re-make (g6.json's run). G1 stays out (its regeneration exceeds a job's budget, I97).",
+  "job": "gate-M3-G7",
+  "left_out": {
+    "G1": "beyond a job's budget (I97)"
+  },
+  "passed_on_lead": {
+    "G4": true,
+    "G6": true,
+    "G7": true
+  }
+}

@@ -345,6 +345,27 @@ NODE_363 = ["-", ["+", ["storage", "proofWindow"],
 # the I30 laws over the rollup document (P1, P2, P4, R2, R3)
 LAW_TAG_STATE = "L_sort_tag_rollup_279_e01ea84a"         # commitState: first read at :279 (require != 0), used at :285
 LAW_TAG_CWP = "L_sort_tag_rollup_406_e01ea84a"           # commitBatchWithProof: first read at :406 (if :405), used :407
+# I98 (the lead's ruling; spec/M3/amendments/I98.jsonl, tests_m3/test_g6_i98.py::TestAmendGhost): the records
+# I98's G6 moved from REFUTED to UNKNOWN because their replay does not observe the obstruction on the
+# deployment, each with I98_REASON first in its bound and its counter-law kept in a replay_binding attempt;
+# their laws are kept
+I98_REASON = "model-level counter-law accepted; obstruction not observed on the deployment"
+I98_MOVED = frozenset({
+    "L_sort_tag_rollup_279_e01ea84a",
+    "L_sym_omega_Rollup_challengeState_commitBatchWithProof",
+    "L_sym_omega_Rollup_challengeState_revertBatch",
+    "L_sym_omega_Rollup_challengeState_updateProofWindow",
+    "L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds",
+    "L_sym_omega_Rollup_commitBatch_updateProofWindow",
+    "L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds",
+    "L_sym_pi_Rollup_commitBatchWithProof_submitter",
+    "L_sym_pi_Rollup_revertBatch_challenger",
+    "L_sym_pi_Rollup_setPause_challenger",
+    "L_sym_tau_Rollup_batchExist",
+    "L_sym_tau_Rollup_finalizeBatch",
+    "L_sym_tau_Rollup_revertBatch",
+    "L_sym_tau_Rollup_setPause",
+})
 LAW_REALIZE_363 = "L_sort_realize_rollup_363_4a64383b"  # proofWindow + startTime - block.timestamp (checked)
 I30_LAWS = (LAW_TAG_STATE, LAW_TAG_CWP, LAW_REALIZE_363)
 BASELINE_363 = "L_sort_site_rollup_363_4a64383b"         # I15's site form of the same site, over the untyped model (P8)
@@ -1472,7 +1493,12 @@ class TestPredictedOutcomes(unittest.TestCase):
         external call answered as its environment says; holon's replay report agrees. The fresh commit may or may not
         carry a blob (App. F2: the zero versioned hash Z is reused like a blob's hash; both are the Dig[VH] member)."""
         r = rec(LAW_TAG_STATE)
-        self.assertEqual(r["status"], "REFUTED", r.get("attempts"))
+        if LAW_TAG_STATE in I98_MOVED:   # I98 (spec/M3/amendments/I30.jsonl): the entry Bend accepted is kept in the attempt
+            self.assertEqual(r["status"], "UNKNOWN", r.get("bound"))
+            self.assertTrue(r["bound"].startswith(I98_REASON), r["bound"])
+            r = [a for a in r["attempts"] if a.get("kind") == "replay_binding"][-1]
+        else:
+            self.assertEqual(r["status"], "REFUTED", r.get("attempts"))
         self.assertEqual(sorted(r["witnesses"]), ["commitState"])
         st = self._witness_steps(r, "commitState")
         self.assertTrue(o26_path(st), st)

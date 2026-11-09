@@ -266,34 +266,6 @@ class Gate3:
         from ..rules import undo as U
         return U.warnings(self.m, self.root)
 
-    def g6_undo(self) -> tuple[list, int]:
-        """G6 for the UNDO laws (I27): every REFUTED UNDO record is a passed entry of replay/<M>/undo/report.json with
-        its witness's two runs."""
-        rp = self.root / "replay" / self.m / "undo" / "report.json"
-        rep = json.loads(rp.read_text()) if rp.is_file() else {"laws": {}}
-        bad, n = [], 0
-        for lid in sorted(self.undo_entries):
-            p = self.results / f"{lid}.json"
-            r = json.loads(p.read_text()) if p.is_file() else None
-            if not r or r.get("status") != "REFUTED":
-                continue
-            n += 1
-            x = (rep.get("laws") or {}).get(lid)
-            w = r.get("witness") or {}
-            pre = list(w.get("prefix") or [])
-            # the run without x: prefix + t, or prefix + [y] + t for a cancel law (I71: y alone)
-            alone = [w.get("y")] if self.undo_entries[lid].get("subform") == "cancel" else []
-            if x is None:
-                bad.append(f"{lid}: not replayed")
-            elif x.get("status") != "passed" or not x.get("calls_agree"):
-                bad.append(f"{lid}: replay {x.get('status')}")
-            elif (x.get("with") or {}).get("trace") != pre + [w.get("x"), w.get("y")] + list(w.get("t") or []) or \
-                    (x.get("without") or {}).get("trace") != pre + alone + list(w.get("t") or []):
-                bad.append(f"{lid}: the replayed runs are not the record's witness")
-            elif (r.get("replay") or {}).get("status") != "passed":
-                bad.append(f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}")
-        return bad, n
-
     def g3(self):
         from ..gate import laws_in_proofs
         bad = [str(p.relative_to(self.root)) for p in laws_in_proofs(self.gen)]
@@ -443,40 +415,12 @@ class Gate3:
                                    else "; ".join(bad))
 
     def g6(self):
-        rp = self.root / "replay" / self.m / "sorts" / "report.json"
-        rep = json.loads(rp.read_text()) if rp.is_file() else {"laws": {}}
-        bad, n = [], 0
-        for lid, r in self.records().items():
-            if not r or r.get("status") != "REFUTED":
-                continue
-            # (A30 review) a REFUTED record stands on its kernels (AGENTS rule 6); a replay on the real contract that
-            # disagrees with its witness is a model/contract disagreement, flagged here, never absorbed into the status
-            if (r.get("replay") or {}).get("status") not in ("passed", "not_applicable"):
-                bad.append(f"{lid}: REFUTED, but its replay on the real contract is "
-                           f"{(r.get('replay') or {}).get('status')}: {(r.get('replay') or {}).get('detail', '')[:200]}")
-            for e, w in sorted((r.get("witnesses") or {}).items()):
-                if w.get("status") != "REFUTED":
-                    continue
-                n += 1
-                x = ((rep["laws"].get(lid) or {}).get("entries") or {}).get(e)
-                if x is None:
-                    bad.append(f"{lid}/{e}: not replayed")
-                elif x.get("status") != "passed" or x.get("trace") != w["witness"]["steps"]:
-                    bad.append(f"{lid}/{e}: replay {x.get('status')}")
-                elif (w.get("replay") or {}).get("status") != "passed":
-                    bad.append(f"{lid}/{e}: the record's replay is {(w.get('replay') or {}).get('status')}")
-        ub, un = self.g6_undo()
-        bad += ub
-        self.checks["G6"] = _res(not bad, f"{n} REFUTED entry points and {un} REFUTED UNDO laws replayed and passed on "
-                                          "the real contract" if not bad else "; ".join(bad[:8]))
-        try:      # I29 (N9): the REFUTED NAT records are bound to their runs of the NAT replay report
-            from ..rules.nat_replay import g6 as nat_g6
-            nat = nat_g6(self.m, self.root)
-        except Exception as e:  # noqa: BLE001  (a crash is a failed clause)
-            nat = (False, f"NAT laws: the binding could not be checked: {type(e).__name__}: {e}")
-        if nat is not None:
-            c = self.checks["G6"]
-            self.checks["G6"] = _res(c["passed"] and nat[0], f"{c['detail']}; {nat[1]}")
+        """G6 is holon.replay_bind's judgement (I98: one rule for G6 and the final filter, in a module that imports
+        no gate): the typed I30 entries, UNDO, every other REFUTED law with the PAR-init laws, and NAT, each bound to a
+        passed replay that observes its obstruction, and GHOST_ONLY's count. The families' gates join their own
+        clauses."""
+        from .. import replay_bind as RB
+        self.checks["G6"] = RB.core(self.m, self.root)
 
     def g9(self):
         bad = []

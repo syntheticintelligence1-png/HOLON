@@ -402,19 +402,121 @@ def write_record(p: Path, rec: dict) -> None:
     p.write_text(json.dumps(rec, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def demoted(rec: dict, why: list, law: dict, root: Path) -> tuple[dict, dict]:
+    """I98, the final filter's one rule (holon.replay_bind): a REFUTED record that G6 does not bind leaves REFUTED for
+    UNKNOWN, through code, recorded with what was tried, and its law is kept. (the UNKNOWN record, {path: text or None}:
+    the files the demotion writes, or removes when None.)
+      - The bound names G6's refusal. A record whose replay passes without observing its obstruction has
+        holon.replay_bind.UNOBSERVED first, verbatim (the lead's ruling: a later key re-binds such records on it).
+      - A replay_binding attempt keeps what Bend accepted: the witness (and a typed record's entries), the replay, the
+        kernels and kernel block, and the counter-law: its LAWS.bend's text_sha256 (holon.bindings), the sha256 of
+        each file of its proof directory, its law name and checker block.
+      - The status-dependent fields become what the record-making code writes for an UNKNOWN record: kernel verdict
+        not_run, kernels and independence_class from holon.records (bend2 not_run, class none), and the evidence fields
+        from holon.diagram.evidence. triage, witness_provenance, filter_bin and witness are none, there is no
+        concretization. Without a statement scope, scope_v2 is holon.records.scope_v2's for UNKNOWN, bounded by
+        the bound; a statement scope keeps the scope fields (holon.mpipeline.scope_fields). (G6's base clause, G7's
+        Lean coverage, G9's v2 schema, GEVID.)
+      - Its checked LAWS.bend becomes its statement's emission (holon.bindings.statement_text, F39: the bound emission of
+        an UNKNOWN record), with the statement's law name, no proof artifact (its proof directory is removed) and the
+        checker not run; a typed record's REFUTED entries become UNKNOWN entries, as holon.sorts.run3 writes them."""
+    import hashlib
+    from . import bindings as B
+    from . import records as R
+    from .diagram import evidence as EV
+    from .replay_bind import UNOBSERVED
+    lid = rec.get("law_id") or law.get("law_id")
+    m = str(law.get("milestone") or "M3")
+    seen = any(UNOBSERVED in w for w in why)
+    art = dict(rec.get("artifacts") or {})
+    counter: dict = {"law_name": art.get("law_name"), "checker": rec.get("checker")}
+    ops: dict = {}
+    lp = root / art["laws"] if art.get("laws") else None
+    if lp is not None and lp.is_file():
+        text = lp.read_text(encoding="utf-8")
+        counter.update(laws=art["laws"], laws_sha256=B.text_sha256(text))
+        stmt = B.statement_text(law, m, root)
+        if stmt != text:
+            ops[art["laws"]] = stmt
+        name = next((ln[4:].strip().rstrip(":") for ln in stmt.splitlines() if ln.startswith("law ")), None)
+        if name:
+            art["law_name"] = name
+    pdir = root / "gen" / m / "proofs" / str(lid)
+    if pdir.is_dir():
+        counter["proofs_sha256"] = {f.relative_to(root).as_posix(): hashlib.sha256(f.read_bytes()).hexdigest()
+                                    for f in sorted(pdir.rglob("*")) if f.is_file()}
+        ops[pdir.relative_to(root).as_posix()] = None
+    if art.get("proof"):
+        counter["proof"] = art["proof"]
+    art["proof"] = None
+    out = {k: v for k, v in rec.items() if k != "concretization"}
+    attempt = {"kind": "replay_binding", "found": True, "bound": False,
+               "reason": UNOBSERVED if seen else "not bound by G6 to a passed replay on the real code",
+               "why": list(why), "witness": rec.get("witness"), "replay": rec.get("replay"),
+               "kernels": rec.get("kernels"), "kernel": rec.get("kernel"), "counter_law": counter}
+    if isinstance(rec.get("witnesses"), dict):
+        attempt["witnesses"] = rec["witnesses"]
+        out["witnesses"] = {e: (dict({k: v for k, v in w.items() if k not in ("bound", "diagnosis")},
+                                     status="UNKNOWN", witness=None, laws=None, proof=None, checker=None,
+                                     verdict="not_run", bound=UNOBSERVED if seen else "not bound by G6")
+                                if isinstance(w, dict) and w.get("status") == "REFUTED" else w)
+                            for e, w in sorted(rec["witnesses"].items())}
+    out.update(status="UNKNOWN", witness=None, witness_provenance=None, filter_bin=None, triage="none",
+               artifacts=art, checker={"exit_code": None, "marker": "not_run"},
+               kernel={k: v for k, v in (rec.get("kernel") or {}).items() if k != "verdict_reason"} | {"verdict": "not_run"},
+               bound=((f"{UNOBSERVED} (G6, holon.replay_bind: " + "; ".join(why) + ")") if seen else
+                      ("a model witness whose counter-law Bend accepts, not bound by G6 to a passed replay on the real "
+                       "code (holon.replay_bind): " + "; ".join(why)))[:2000],
+               attempts=list(rec.get("attempts") or []) + [attempt])
+    out["kernels"] = R.kernels(out)
+    out["independence_class"] = R.independence_class(out)
+    if "scope_v2" in rec and rec.get("statement_scope") is None:
+        # without a statement scope, an UNKNOWN record's scope is bounded by its bound (holon.records.scope_v2; G9's
+        # v2). With one, the scope is the statement's whatever the status (holon.mpipeline.scope_fields), so it stays
+        out["scope_v2"] = R.scope_v2(law, out)
+    out.update(EV.record_fields(law, "UNKNOWN", root))
+    return out, ops
+
+
 def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
     """Q4 and the final filter: every REFUTED record at HEAD gets its concretization (K1-K4) and its final bin
-    (holon.filter.final_bin over its I4 sides, each side an emitted test replaced taking the test's result)."""
+    (holon.filter.final_bin over its I4 sides, each side an emitted test replaced taking the test's result).
+    I98: the one rule first. Every M3 record G6 does not bind to a passed replay (holon.replay_bind.binding) leaves
+    REFUTED for UNKNOWN (demoted) and gets no bin; the filter document lists it under "unbound". An M3 record that no
+    replay of its family names and whose I40 sides here all passed observing the obstruction gets those sides as its
+    replay field (G6's I40 binding reads the sides themselves)."""
     from . import filter as FL
+    from . import replay_bind as RB
+    try:
+        ub, _examined, _g6 = RB.binding("M3", root)
+    except RuntimeError as e:
+        raise SystemExit(f"holon refute: the final filter's one rule needs G6's judgment of M3: {e}") from None
+    unbound = {f"M3/{law}": why for law, why in ub.items()}
     recs = records(root)
     sides = i4_sides(root)
     rep_p = root / "replay" / "M3" / "refute" / "report.json"
     rep = load(rep_p) if rep_p.is_file() else {"records": {}}
     H, rl = int(side["bmc"]["H"]), int(side["solver"]["rlimit_per_query"])
     cc_version = {pl["record"]: pl["version"] for pl in cc_plans(root, env)}
-    out, filt, stale = {}, {}, []
+    out, filt, stale, unb = {}, {}, [], {}
     for key, rec in sorted(recs.items()):
         if rec.get("status") != "REFUTED":
+            continue
+        if key in unbound:      # I98: the one rule
+            unb[key] = unbound[key]
+            new, ops = demoted(rec, unbound[key], law_of(root, key), root)
+            if new != rec or ops:
+                stale.append(key)
+                if write:
+                    import shutil
+                    for rel, text in sorted(ops.items()):
+                        if text is None:
+                            shutil.rmtree(root / rel, ignore_errors=True)
+                        else:
+                            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                            (root / rel).write_text(text, encoding="utf-8")
+                    d, _, lid = key.rpartition("/")
+                    write_record(root / "results" / d / f"{lid}.json", new)
             continue
         law = law_of(root, key)
         ss = dict(sides.get(key) or {})
@@ -506,13 +608,21 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             new = dict(rec, sym=dict(rec["sym"], replaces=fb), concretization=conc)
         else:
             new = dict(rec, filter_bin=fb, concretization=conc)
+        own = rec.get("replay") or {}
+        if key.startswith("M3/") and gen and own.get("status") in (None, "not_run"):
+            # I98: no replay of its family names it, and I40's sides replayed it: they are its replay
+            good = all(v.get("status") == "passed" and v.get("obstruction_observed") is True for v in gen.values())
+            new = dict(new, replay={"status": "passed" if good else "failed",
+                                    "detail": "I40's sides (replay/M3/refute/report.json): " + "; ".join(
+                                        f"{k} {v.get('status')} ({v.get('provenance')})" for k, v in sorted(gen.items()))})
         if new != rec:
             stale.append(key)
             if write:
                 d, _, lid = key.rpartition("/")
                 write_record(root / "results" / d / f"{lid}.json", new)
     return {"concretization": {"document": "concretization", "H": H, "records": out},
-            "filter": {"document": "filter", "rule": FL.FINAL_RULE, "records": filt}, "stale": stale}
+            "filter": {"document": "filter", "rule": FL.FINAL_RULE, "records": filt, **({"unbound": unb} if unb else {})},
+            "stale": stale}
 
 
 def with_calls(root: Path, kind: str, ident: str, path):

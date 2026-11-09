@@ -4,11 +4,11 @@ import Base
 import ../../sorts/models/morph_rollup_extracted.bend as M
 import ../../sym/models/morph_rollup_extracted.bend as U
 
-law cl_l_sym_pi_rollup_commitbatchwithproof_submitter:
-  exs kh: List<&2, M.HKB>
-  exs s: M.GSt
-  exs r_s: M.Reach<kh, s>
-  exs x: M.HAct
-  exs a: M.W
-  exs b: M.W
-  {U.sy_ok_51(s, x, a, b, kh) != True{} : Bool}
+law l_sym_pi_rollup_commitbatchwithproof_submitter:
+  for +kh: List<&2, M.HKB>
+  for +s: M.GSt
+  for r_s: M.Reach<kh, s>
+  for +x: M.HAct
+  for +a: M.W
+  for +b: M.W
+  {U.sy_ok_51(s, x, a, b, kh) == True{} : Bool}
