@@ -59,14 +59,18 @@ def load_rulings(root: Path, milestone: str) -> dict:
     return doc if isinstance(doc, dict) else {}
 
 
-def admitted_same_family(a: dict, rulings: dict | None) -> str | None:
+def admitted_same_family(r: dict, rulings: dict | None) -> str | None:
     """The ruling that admits a same-family round toward convergence, or None: the round's auditor.family is "same"
-    and its auditor.ruling is exactly the milestone's same_family_admitted.ruling (HUMAN_ANSWERS Q9b). The round keeps
-    its family; every other CV1 condition still applies."""
-    want = ((rulings or {}).get("same_family_admitted") or {}).get("ruling")
-    if isinstance(want, str) and want and a.get("family") == "same" and a.get("ruling") == want:
-        return want
-    return None
+    and either its auditor.ruling is exactly the milestone's same_family_admitted.ruling (HUMAN_ANSWERS Q9b), or the
+    round's number is in same_family_admitted.rounds_before_field (rounds the ruling covers that were written before
+    auditor.ruling existed; their files stay as their auditors wrote them). The round keeps its family; every other
+    CV1 condition still applies."""
+    adm = (rulings or {}).get("same_family_admitted") or {}
+    want, a = adm.get("ruling"), r.get("auditor") or {}
+    if not (isinstance(want, str) and want and a.get("family") == "same"):
+        return None
+    listed = adm.get("rounds_before_field") or []
+    return want if a.get("ruling") == want or (isinstance(r.get("round"), int) and r["round"] in listed) else None
 
 
 def policy_path(root: Path, milestone: str) -> Path:
@@ -163,7 +167,7 @@ def qualifies(r: dict, earlier_sessions: set, policy: dict, rulings: dict | None
     admitting ruling (admitted_same_family; HUMAN_ANSWERS Q9b) passes the family condition, and only that one."""
     cv = policy["convergence"]
     a = r.get("auditor") or {}
-    if a.get("family") != cv["counted_family"] and not admitted_same_family(a, rulings):
+    if a.get("family") != cv["counted_family"] and not admitted_same_family(r, rulings):
         return False, f"family {a.get('family')!r}: only a {cv['counted_family']!r}-family round counts (Q9)"
     if r.get("dry_run") is True:
         return False, "a dry run"
@@ -256,7 +260,7 @@ def check(root: Path, milestone: str) -> dict:
         if a.get("family") not in ("same", "different"):
             problems.append(f"RD1: {name}: auditor.family {a.get('family')!r} is neither 'same' nor 'different'")
         if claims and (r.get("dry_run") is True or (a.get("family") == "same"
-                                                    and not admitted_same_family(a, rulings))):
+                                                    and not admitted_same_family(r, rulings))):
             problems.append(f"RD1: {name}: a {'dry run' if r.get('dry_run') is True else 'same-family round'} "
                             "never counts toward convergence (Q9), unless a same-family round cites the milestone's "
                             "admitting ruling in auditor.ruling (Q9b)")

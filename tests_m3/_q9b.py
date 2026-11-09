@@ -3,7 +3,8 @@ tests_m3/test_audit_loop.py (spec/M3/amendments/I87.jsonl). Written without holo
 
 I87's instrument (tests_m3/_i87.py, byte-identical to its prereg) read on rounds in which every same-family round
 whose auditor.ruling is exactly the admitting ruling of the milestone's spec/<M>/lib/audit_rulings.json
-(same_family_admitted.ruling) reads as a round of the counted family. Nothing else about the round changes, so every
+(same_family_admitted.ruling), or whose number that sidecar lists in same_family_admitted.rounds_before_field, reads
+as a round of the counted family. Nothing else about the round changes, so every
 other CV1 condition (not a dry run, A1-A4 each ran, a fresh session) and RD1-RD3, CV2-CV4 are I87's own.
 """
 from __future__ import annotations
@@ -24,9 +25,11 @@ def rulings(root: Path = ROOT, m: str = "M3") -> dict:
 
 
 def admitted(rnd: dict, rul: dict) -> bool:
-    want = ((rul or {}).get("same_family_admitted") or {}).get("ruling")
-    a = rnd.get("auditor") or {}
-    return bool(want) and a.get("family") == "same" and a.get("ruling") == want
+    adm = (rul or {}).get("same_family_admitted") or {}
+    want, a = adm.get("ruling"), rnd.get("auditor") or {}
+    if not want or a.get("family") != "same":
+        return False
+    return a.get("ruling") == want or rnd.get("round") in (adm.get("rounds_before_field") or [])
 
 
 def converge(rounds: list, findings: list, pol: dict, rul: dict) -> dict:

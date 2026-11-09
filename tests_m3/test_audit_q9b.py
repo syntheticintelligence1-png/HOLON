@@ -24,13 +24,20 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS = ROOT / "spec" / "schemas"
 
 
-def holon_status(rounds: list, findings: list, *, with_rulings: bool = True) -> dict:
+def fixture_rulings() -> dict:
+    """M3's sidecar without its rounds_before_field list (that list names M3's own rounds 3-5)."""
+    rul = json.loads(json.dumps(Q.rulings()))
+    rul["same_family_admitted"].pop("rounds_before_field", None)
+    return rul
+
+
+def holon_status(rounds: list, findings: list, *, rulings: dict | None = None, with_rulings: bool = True) -> dict:
     root = scratch_root()
     try:
         write_scratch(root, "M9", rounds, findings)
         if with_rulings:
-            shutil.copy(ROOT / "spec" / "M3" / "lib" / "audit_rulings.json",
-                        root / "spec" / "M9" / "lib" / "audit_rulings.json")
+            (root / "spec" / "M9" / "lib" / "audit_rulings.json").write_text(
+                json.dumps(rulings if rulings is not None else fixture_rulings(), indent=1) + "\n")
         out = root / "status.json"
         p = run_holon(["audit", "converge", "--milestone", "M9", "--root", str(root), "--out", str(out)])
         if p.returncode != 0:
@@ -43,7 +50,7 @@ def holon_status(rounds: list, findings: list, *, with_rulings: bool = True) -> 
 class TestQ9b(unittest.TestCase):
     def test_q1_rule_on_fixtures(self):
         """Q1: holon agrees with the reading on every Q9b scenario; a counted Q9b row keeps family "same"."""
-        pol, rul = I.policy(), Q.rulings()
+        pol, rul = I.policy(), fixture_rulings()
         for name, rounds, findings in Q.fixtures():
             with self.subTest(scenario=name):
                 want = Q.converge(rounds, findings, pol, rul)
@@ -61,6 +68,20 @@ class TestQ9b(unittest.TestCase):
         verdicts = [Q.converge(r, f, pol, rul) for _n, r, f in Q.fixtures()]
         self.assertEqual(sum(v["converged"] for v in verdicts), 2)
         self.assertEqual(sum(not v["valid"] for v in verdicts), 5)
+
+    def test_q2b_rounds_before_the_field(self):
+        """Q2b: a round listed in rounds_before_field counts without auditor.ruling (as M3's rounds 3-5 do); an
+        unlisted same-family round without the field, claiming to count, stays invalid (RD1)."""
+        rul = fixture_rulings()
+        rul["same_family_admitted"]["rounds_before_field"] = [1, 2]
+        rounds = [Q.q9b_round(1, "M9", "s1", ruling=None), Q.q9b_round(2, "M9", "s2", ruling=None),
+                  Q.q9b_round(3, "M9", "s3")]
+        got, want = holon_status(rounds, [], rulings=rul), Q.converge(rounds, [], I.policy(), rul)
+        self.assertEqual((not got["problems"], got["converged"], got["counted"]), (True, True, 3))
+        self.assertEqual((want["valid"], want["converged"], want["counted"]), (True, True, 3))
+        rul["same_family_admitted"]["rounds_before_field"] = [1]
+        got = holon_status(rounds, [], rulings=rul)
+        self.assertTrue(any(p.startswith("RD1: round2:") for p in got["problems"]), got["problems"])
 
     def test_q2_no_sidecar_no_admission(self):
         """Q2: without spec/<M>/lib/audit_rulings.json, three clean same-family rounds citing the ruling are invalid

@@ -75,7 +75,7 @@ def compute(root: Path, milestone: str) -> dict:
             streak += 1
         counted += int(is_counted)
         if is_counted:
-            ruling = admitted_same_family(a, rulings)
+            ruling = admitted_same_family(r, rulings)
             why = f"counted: a same-family round admitted by {ruling}" if ruling else "counted"
         elif not ok:
             why = f"not counted: {why_not}"
