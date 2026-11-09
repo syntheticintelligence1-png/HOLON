@@ -119,6 +119,22 @@ jobs:
             timeout: 120
             run: python -m holon gate --milestone M3 --checks G3,G5,G8,G9,G10,G11,G11V,GEVID --report "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
             report: "$RUNNER_TEMP/ci-out/gate_report_M3_partial.json"
+          - name: gate-M3-G7
+            # I97 (F-M3-13): the second kernel on M3. G7 re-checks every decided M3 proof with BendTT (--verdict): the
+            # I30 laws, every other decided law (PAR, Go, member laws) and the DISCH, FACT, contract and bundle laws, and
+            # accepts a rejection only by a registered reason (spec/M3/lib/bendtt_constructs.json, with its repro). A
+            # forged dual-kernel claim fails here. G4 (canaries) runs beside it. Left out, with the reasons in
+            # docs/iterations/I97.md: G6, which fails on the lead on two replay gaps it reports (a separate finding),
+            # and G1, which regenerates every M3 output (models, corpora, refinement, derivation) beyond a job's budget.
+            timeout: 120
+            run: python -m holon gate --milestone M3 --checks G7,G4 --report "$RUNNER_TEMP/ci-out/gate_report_M3_G7.json"
+            report: "$RUNNER_TEMP/ci-out/gate_report_M3_G7.json"
+          - name: tests-m3-bendtt
+            # I97: the classifier's registry and repro (B1-B3, B5) and F-M3-14's checks (TestAmendF14: no bunfig.toml or
+            # .env* at any depth, the allowlisted checker environment, a foreign BENDTT refused by name, and round 4's
+            # .env.local repro no longer flipping the verdict). The forged-tree check (B4) is gate-M3-G7's refusal path.
+            timeout: 30
+            run: python -m unittest tests_m3.test_bendtt_i97.TestAmendF14 tests_m3.test_bendtt_i97.TestBuild.test_r3_b1_the_repros_reproduce tests_m3.test_bendtt_i97.TestBuild.test_r4_b2_the_registry_and_classifier_name_no_target tests_m3.test_bendtt_i97.TestBuild.test_r5_b3_the_six_are_classified tests_m3.test_bendtt_i97.TestBuild.test_r7_b5_ci_runs_g7_on_m3 -v
           - name: gate-M3-G2
             # F38: each gate re-runs only its own milestone's binding_change proofs in the two kernels, so M3's are
             # re-run here, once per CI run, in a job of their own (gate-M3-partial is red until G11V passes, Q36).

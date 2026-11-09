@@ -1,0 +1,174 @@
+{
+  "title": "I97: the F-M3-13 fix, BendTT (G7) on M3 in CI and the six BendTT rejections classified by the lead's ruling",
+  "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I97)",
+  "prompt": "prompts/I97_bendtt_g7_m3.md",
+  "tests": [
+    "tests_m3/test_bendtt_i97.py"
+  ],
+  "outcome_paths": [
+    "docs/iterations/I97/",
+    "docs/iterations/I97.md"
+  ],
+  "thresholds": {
+    "base": "e8b15ee8 (the lead after #119, I96's stage 2), with BUILD_PLAN's row I97 (5c7a5447)",
+    "base_commit": "e8b15ee86aa987dc979307224dfcefc4966984d1",
+    "contract_docstring_sha256": "a219d74656e4aabd265f4de24037a19babec1f412ea4629bb58d2c77acdd04e8",
+    "pins": {
+      "instrument": {
+        "path": "tests_m3/_i97.py",
+        "sha256": "4bf3923aadddd52f59c9ac3d22062fb2bd89a0b9bfa9f61a28f20d900f2d2528"
+      }
+    },
+    "finding": {
+      "id": "F-M3-13",
+      "round": "M3 audit round 3 (PR #120, not landed; head ea2118c7)",
+      "severity": "high (Q8), the lead's ruling",
+      "evidence": [
+        "audit/rounds/M3/round3/a7_g7_six.py and a7_g7_six.json at ea2118c7 (the BendTT rejections)",
+        "audit/rounds/M3/round3/a7_forge.py at ea2118c7 (the forged-claim pass)"
+      ]
+    },
+    "six": [
+      "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3",
+      "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7",
+      "L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime",
+      "L_sym_tau_L1CrossDomainMessenger_replayMessage",
+      "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime",
+      "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp"
+    ],
+    "lead_at_base": {
+      "statuses": {
+        "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3": "REFUTED",
+        "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7": "REFUTED",
+        "L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime": "REFUTED",
+        "L_sym_tau_L1CrossDomainMessenger_replayMessage": "REFUTED",
+        "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime": "REFUTED",
+        "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp": "REFUTED"
+      },
+      "bendtt": {
+        "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3": "failed",
+        "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7": "failed",
+        "L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime": "failed",
+        "L_sym_tau_L1CrossDomainMessenger_replayMessage": "failed",
+        "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime": "failed",
+        "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp": "failed"
+      },
+      "independence_class": {
+        "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3": "I1",
+        "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7": "I1",
+        "L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime": "I1",
+        "L_sym_tau_L1CrossDomainMessenger_replayMessage": "I1",
+        "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime": "I1",
+        "L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp": "I1"
+      },
+      "ci_m3_checks": "gate-M3-partial: G3,G5,G8,G9,G10,G11,G11V,GEVID; gate-M3-G2: G2; tests-m3-catalog"
+    },
+    "predicted": {
+      "P1": {
+        "class": "unsupported for all six",
+        "constructs": "one for the two Go laws, one for the four member laws"
+      },
+      "P2": "the six keep REFUTED, single-kernel I1 with their reason; no other status changes",
+      "P3": "G7 passes on M3 after the re-make",
+      "P4": {
+        "added": [
+          "G7",
+          "G4",
+          "G6"
+        ],
+        "left_out": {
+          "G1": "its regeneration of M3's outputs exceeds a job's budget"
+        }
+      },
+      "P5": "the forged tree fails G7, which names all six",
+      "confidence": {
+        "P1": "moderate (about 0.6): bend2 accepts all six by evaluation, and other proofs over the same models pass BendTT (Go 3, messenger 9, queue 2), so a kernel limit or an unimplemented form on these evaluation paths is likelier than an invalid proof; the two families are kept apart because their models share nothing",
+        "P2": "follows P1",
+        "P3": "follows P1 and the re-make",
+        "P4": "low to moderate: CI has never run G4, G6 or G1 on M3",
+        "P5": "high"
+      }
+    },
+    "disclosures": {
+      "read_before_prereg": [
+        "the I97 brief and the lead's ruling",
+        "round 3's a7_g7_six.json and a7_forge.py at ea2118c7",
+        "the six records (status, kernels, checker, artifacts) and three of their PROOF.bend files",
+        "holon/gate.py (G7 and its docstring), holon/records.py (kernels, independence_class), holon/intake.py (check_kernels), holon/bundle/lawrun.py (check), the callers of bend.check_verdict",
+        "the BendTT results of the other records over the same models (Go: 2 PROVED and 1 REFUTED checked; messenger: 6 PROVED and 3 REFUTED checked; queue: 2 PROVED checked)",
+        "tests_m3/test_bundle_laws.py's D4 rule (BendTT's verdict is recorded and never changes a status)"
+      ],
+      "not_run_before_prereg": "No BendTT or bend2 run, minimization or gate run for I97 before C_K; the local toolchain's pins were verified (13/13).",
+      "d4": "I86's D4 (BendTT never changes a status) yields to the lead's ruling for a real disagreement; if P1 holds, no status changes and D4's text stands for the unsupported constructs"
+    }
+  },
+  "predictions": [
+    {
+      "id": "I97-P1",
+      "claim": "All six BendTT rejections are unsupported constructs, none a real disagreement: each minimized repro is a form BendTT does not implement or cannot normalize, which bend2 accepts. They fall into at most two constructs: one shared by the two Go laws and one shared by the four member laws.",
+      "check": "tests_m3/test_bendtt_i97.py::TestOutcome::test_p1_the_six_are_unsupported_constructs"
+    },
+    {
+      "id": "I97-P2",
+      "claim": "The six keep REFUTED, recorded single-kernel I1 with their construct as the bendtt reason; no other M3 record changes status.",
+      "check": "tests_m3/test_bendtt_i97.py::TestOutcome::test_p2_the_six_keep_refuted_as_single_kernel"
+    },
+    {
+      "id": "I97-P3",
+      "claim": "G7 passes on M3 at HEAD after the re-make.",
+      "check": "tests_m3/test_bendtt_i97.py::TestOutcome::test_p3_g7_passes_on_m3"
+    },
+    {
+      "id": "I97-P4",
+      "claim": "CI's M3 check set gains G7, G4 and G6, and each passes on the lead; G1 is left out, with its reason (its regeneration of M3's outputs exceeds a job's budget).",
+      "check": "tests_m3/test_bendtt_i97.py::TestOutcome::test_p4_the_ci_check_set"
+    },
+    {
+      "id": "I97-P5",
+      "claim": "Round 3's forged tree is refused by CI's M3 check set: G7 fails and names all six.",
+      "check": "tests_m3/test_bendtt_i97.py::TestOutcome::test_p5_the_forge_is_refused"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I97-R0",
+      "claim": "The contract docstring and the instrument keep the sha256 pinned in thresholds.",
+      "check": "tests_m3/test_bendtt_i97.py::TestPrereg::test_r0_the_prereg_pins_hold"
+    },
+    {
+      "id": "I97-R1",
+      "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+      "check": "tests_m3/test_bendtt_i97.py::TestPrereg::test_r1_the_prereg_audit_passes"
+    },
+    {
+      "id": "I97-R2",
+      "claim": "The instrument imports nothing from holon/ or tools/.",
+      "check": "tests_m3/test_bendtt_i97.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+    },
+    {
+      "id": "I97-R3",
+      "claim": "B1: each registered repro has bend2 accept and BendTT reject.",
+      "check": "tests_m3/test_bendtt_i97.py::TestBuild::test_r3_b1_the_repros_reproduce"
+    },
+    {
+      "id": "I97-R4",
+      "claim": "B2: the registry names no law and the classifier names no target.",
+      "check": "tests_m3/test_bendtt_i97.py::TestBuild::test_r4_b2_the_registry_and_classifier_name_no_target"
+    },
+    {
+      "id": "I97-R5",
+      "claim": "B3: the classifier's verdict on each of the six is OUT/classification.json's.",
+      "check": "tests_m3/test_bendtt_i97.py::TestBuild::test_r5_b3_the_six_are_classified"
+    },
+    {
+      "id": "I97-R6",
+      "claim": "B4: the forged tree fails G7, naming every forged law.",
+      "check": "tests_m3/test_bendtt_i97.py::TestBuild::test_r6_b4_the_forged_tree_is_refused"
+    },
+    {
+      "id": "I97-R7",
+      "claim": "B5: CI runs holon gate --milestone M3 with G7.",
+      "check": "tests_m3/test_bendtt_i97.py::TestBuild::test_r7_b5_ci_runs_g7_on_m3"
+    }
+  ]
+}

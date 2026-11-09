@@ -12,6 +12,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import tempfile
 import sys
 import time
 from dataclasses import dataclass, field
@@ -20,7 +21,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MARK_OK = "ALL PROOFS CHECK"
 MARK_FAIL = "SOME PROOFS FAIL"
-UNSAFE_ENV_FILES = ("bunfig.toml", ".env")
+# Bun reads bunfig.toml and .env, .env.local and .env.<NODE_ENV>[.local] from its working directory (I97, F-M3-14): a
+# preload there runs inside the checker, and a variable there (BENDTT) reaches it. bunfig.toml and every name that
+# starts with ".env" are refused (AGENTS.md rule 8, as holon/consumers.py reads it)
+UNSAFE_ENV_FILES = ("bunfig.toml", ".env*")
+
+
+def unsafe_env_name(name: str) -> bool:
+    return name == "bunfig.toml" or name.startswith(".env")
 
 
 def build_dir(root: Path | None = None) -> Path:
@@ -45,28 +53,79 @@ def bend_cmd(cfg: dict | None = None) -> list[str]:
     return list((cfg or config())["bend"]["cmd"])
 
 
-def _env(cfg: dict | None = None) -> dict:
-    env = dict(os.environ)
+# I97 (F-M3-14): the checker's environment is an allowlist. Of the caller's environment only these names reach bun, and
+# through it bend2, the Lean build of the kernel and the kernel itself. Everything else never does: BENDTT, BUN_OPTIONS
+# and every BUN_* (extra flags such as --preload), NODE_* (NODE_ENV picks a .env.<NODE_ENV> file), BEND_LIB, BEND_HUB
+# and BEND_ORIGIN (where bend2 resolves packages and its version check), CC, LD_*, and the rest
+ENV_ALLOW = ("PATH", "HOME", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE")
+
+
+class EnvRefused(RuntimeError):
+    """An environment or a working directory the checker must not run in (I97, F-M3-14). The message names why. It is
+    never a verdict, and what it names is never silently used."""
+
+
+_KERNEL_PATHS: dict = {}
+
+
+def pinned_kernel_path(cfg: dict | None = None) -> Path | None:
+    """The pinned toolchain's --verdict kernel: verdict_kernel_path of the resolved checkout (resolve_checker, the
+    checkout fingerprint() hashes), or None when the checker cannot be resolved. Memoized by $HOME and the stat of
+    the two source files the path is derived from."""
+    try:
+        _bun, checkout = resolve_checker(cfg)
+        srcs = (checkout / "bend2" / "safe.ts", checkout / "bend2" / "bendtt.lean")
+        key = (os.path.expanduser("~"),) + tuple((str(f), f.stat().st_mtime_ns, f.stat().st_size) for f in srcs)
+        if key not in _KERNEL_PATHS:
+            _KERNEL_PATHS[key] = verdict_kernel_path(checkout)
+        return _KERNEL_PATHS[key]
+    except (FingerprintError, OSError):
+        return None
+
+
+def checker_env(cfg: dict | None = None) -> dict:
+    """The environment of every checker run (run, run_budgeted, fingerprint's `bun --version`, the classifier's kernel
+    run): ENV_ALLOW from the caller's environment, then what HOLON sets itself.
+      - PATH gains ~/.elan/bin: `--verdict` builds the BendTT kernel with Lean. Appended, never prepended: nothing in
+        ~/.elan/bin may shadow a command (the checker itself always runs by absolute path, see checker_cmd).
+      - BEND_NO_TELEMETRY=1: main.ts skips its daily version check (a network GET).
+      - BUN_JSC_maxPerThreadStackUsage from the registered config (F38): the stack, so a deep or large file gets a
+        verdict instead of "the machine stack overflowed" (the launcher raises the checker's RLIMIT_STACK to match, see
+        _spawn_argv). No other JavaScriptCore option reaches the checker.
+      - BENDTT = the pinned toolchain's kernel (pinned_kernel_path), once it is built. Until then bend2 builds it at that
+        same path (safe.ts kernel_bin). A BENDTT inherited from the caller is never passed on: one that names another
+        path raises EnvRefused, so an override is never silently used. GENV refuses any inherited BENDTT."""
+    src = os.environ
+    env = {k: src[k] for k in ENV_ALLOW if src.get(k)}
     elan = Path.home() / ".elan" / "bin"
     if elan.is_dir():
-        # `--verdict` builds the BendTT kernel with Lean. Appended, never prepended: nothing in
-        # ~/.elan/bin may shadow a command (the checker itself always runs by absolute path, see
-        # checker_cmd)
         env["PATH"] = os.pathsep.join(x for x in (env.get("PATH", ""), str(elan)) if x)
-    env["BEND_NO_TELEMETRY"] = "1"  # main.ts skips its daily version check (a network GET)
-    # bun reads BUN_OPTIONS as extra command-line flags (e.g. --preload ./x.ts, which would run code
-    # inside the checker): the checker never inherits it
-    for k in [k for k in env if k == "BUN_OPTIONS" or k.startswith("BUN_CONFIG_") or k.startswith("BUN_JSC_")]:
-        env.pop(k)
-    # F38: JavaScriptCore options reach the checker only from the registered config: the stack, so a deep or large
-    # file gets a verdict instead of "the machine stack overflowed" (the launcher raises the checker's RLIMIT_STACK to
-    # match, see _spawn_argv)
+    env["BEND_NO_TELEMETRY"] = "1"
     env["BUN_JSC_maxPerThreadStackUsage"] = str(js_stack_bytes(cfg))
-    # bend2/bend.ts resolves package imports through BEND_LIB / BEND_HUB: never let the environment
-    # redirect them (HOLON's files import only Base and relative paths)
-    for k in ("BEND_LIB", "BEND_HUB"):
-        env.pop(k, None)
+    kp = pinned_kernel_path(cfg)
+    got = src.get("BENDTT")
+    if got and (kp is None or os.path.realpath(got) != os.path.realpath(kp)):
+        raise EnvRefused(f"BENDTT is set to {got!r}, not the pinned toolchain's --verdict kernel "
+                         f"{str(kp) if kp is not None else '(unresolved)'}: an inherited kernel override is refused, "
+                         "never used (unset BENDTT)")
+    if kp is not None and kp.is_file():
+        env["BENDTT"] = str(kp)
     return env
+
+
+def _env(cfg: dict | None = None) -> dict:
+    return checker_env(cfg)
+
+
+def refuse_unsafe_cwd(cwd=None) -> None:
+    """Raise EnvRefused when the working directory a checker run would get (cwd, else this process's) holds a name bun
+    reads there (unsafe_env_name). Bun reads them from its working directory only, not from the file's directory or
+    from a parent (I97's probe of bun 1.4.2)."""
+    d = Path(cwd) if cwd is not None else Path.cwd()
+    bad = sorted(p.name for p in d.iterdir() if unsafe_env_name(p.name))
+    if bad:
+        raise EnvRefused(f"the checker's working directory {d} holds {', '.join(bad)}, which bun would read: the run "
+                         "is refused (AGENTS.md rule 8; I97, F-M3-14)")
 
 
 # ------------------------------------------------------------------ checker fingerprint (I3, §8.8)
@@ -211,8 +270,9 @@ def fingerprint(cfg: dict | None = None) -> dict:
             **core, "fingerprint": "sha256:" + digest}
 
 
-# bend2/safe.ts kernel_bin(): with $BENDTT unset (GENV refuses it), --verdict runs the kernel built
-# from bendtt.lean and cached at ~/.bend/bendtt/<sha256(LEAN_VERSION "\0" bendtt.lean)[:16]>/bendtt.
+# bend2/safe.ts kernel_bin(): with $BENDTT unset, --verdict runs the kernel built from bendtt.lean and cached at
+# ~/.bend/bendtt/<sha256(LEAN_VERSION "\0" bendtt.lean)[:16]>/bendtt. GENV refuses an inherited $BENDTT, and
+# checker_env passes exactly this path once the kernel is built (I97, F-M3-14).
 # These are the source lines that derivation is read from; if they change, the path is unknown.
 _KERNEL_HASH_SRC = ('const hash = crypto.createHash("sha256").update(LEAN_VERSION).update("\\0").update(text)'
                     '.digest("hex").slice(0, 16);')
@@ -315,11 +375,13 @@ def run(args: list, cwd=None, timeout: int | None = None, cfg: dict | None = Non
     except FingerprintError as e:
         raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
     cmd = prefix + [str(a) for a in args]
+    env = checker_env(cfg)
+    refuse_unsafe_cwd(cwd)
     t0 = time.monotonic()
     # its own process group, so a timeout stops everything the checker started (BendTT's Lean kernel is a child
     # of bun), not only bun (F35 review m4: the bound must bound the resources too)
     p = subprocess.Popen(_spawn_argv(cmd, cfg), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-                         env=_env(cfg), start_new_session=True)
+                         env=env, start_new_session=True)
     try:
         out, err = p.communicate(timeout=timeout or int(cfg["bend"].get("timeout_s", 180)))
         return Run(p.returncode, out + err, round(time.monotonic() - t0, 3), cmd)
@@ -352,17 +414,27 @@ def version(cfg: dict | None = None) -> str:
     return parse_version(run(["version"], cfg=cfg))
 
 
+def _in_clean_dir(proof_file: Path, extra: list, cfg: dict | None, timeout: int | None) -> Run:
+    """I97 (F-M3-14): a check runs in a fresh empty working directory, the file by its absolute path (bend2 resolves
+    its imports relative to the file, and prints no path in its verdict), so nothing beside the file configures bun."""
+    proof_file = Path(proof_file).resolve()
+    with tempfile.TemporaryDirectory(prefix="holon-bend-") as d:
+        return run([str(proof_file), *extra], cwd=d, cfg=cfg, timeout=timeout)
+
+
 def check(proof_file: Path, cfg: dict | None = None, timeout: int | None = None) -> Run:
-    """Check a PROOF.bend in its own directory (Bend resolves imports relative to it). timeout: seconds (default
-    bend.timeout_s)."""
-    proof_file = Path(proof_file)
-    return run([proof_file.name], cwd=proof_file.parent, cfg=cfg, timeout=timeout)
+    """Check a PROOF.bend (Bend resolves its imports relative to it), in a fresh empty working directory. timeout:
+    seconds (default bend.timeout_s)."""
+    return _in_clean_dir(proof_file, [], cfg, timeout)
 
 
 def verdict_available() -> bool:
-    if os.environ.get("BENDTT"):
+    """--verdict can run: the pinned kernel is built, or Lean is on the PATH to build it. An inherited BENDTT does not
+    count (checker_env refuses one that names another kernel)."""
+    env = _env()
+    if env.get("BENDTT"):
         return True
-    return shutil.which("lean", path=_env()["PATH"]) is not None
+    return shutil.which("lean", path=env["PATH"]) is not None
 
 
 def verdict_enabled(cfg: dict | None = None) -> bool:
@@ -372,10 +444,9 @@ def verdict_enabled(cfg: dict | None = None) -> bool:
 
 def check_verdict(proof_file: Path, cfg: dict | None = None, timeout: int | None = None) -> Run:
     """Second kernel (whitepaper §8.8): BendTT, whose soundness is proved in Lean. Runs through run(),
-    so the same resolved checker; the kernel binary it executes is pinned by GENV
-    (verdict_kernel_path, bend.pinned_kernel_sha256)."""
-    proof_file = Path(proof_file)
-    return run([proof_file.name, "--verdict"], cwd=proof_file.parent, cfg=cfg, timeout=timeout or 1800)
+    so the same resolved checker, in a fresh empty working directory; the kernel binary it executes is the pinned
+    toolchain's (checker_env passes it as BENDTT once built; GENV pins its sha256, bend.pinned_kernel_sha256)."""
+    return _in_clean_dir(proof_file, ["--verdict"], cfg, timeout or 1800)
 
 
 def equivalence_timeout(cfg: dict | None = None) -> int:
@@ -413,10 +484,12 @@ def check_equivalence(proof_file: Path, cfg: dict | None = None, verdict: bool =
 
 
 def unsafe_env_files(root: Path) -> list[str]:
-    """Bun reads bunfig.toml/.env from the working directory; a preload there patches the checker."""
+    """Every bunfig.toml and every name that starts with ".env" under root, at any depth outside .git (GENV; I97,
+    F-M3-14): bun reads them from its working directory, where a preload patches the checker and a variable (BENDTT)
+    redirects it. Relative to root, sorted."""
     root = Path(root)
     return sorted(str(p.relative_to(root)) for p in root.rglob("*")
-                  if p.name in UNSAFE_ENV_FILES and ".git" not in p.relative_to(root).parts)
+                  if unsafe_env_name(p.name) and ".git" not in p.relative_to(root).parts)
 
 
 # Escape hatches (BEND_PRIMER §3.2), scanned textually in addition to the checker's verdict.
@@ -483,9 +556,11 @@ def run_budgeted(args: list, cwd, budget_s: float, cfg: dict | None = None) -> R
     except FingerprintError as e:
         raise FileNotFoundError(f"cannot resolve the bend checker: {e} (see tools/install_bend.sh)") from None
     cmd = prefix + [str(a) for a in args]
+    env = checker_env(cfg)
+    refuse_unsafe_cwd(cwd)
     t0 = time.monotonic()
     p = subprocess.Popen(_spawn_argv(cmd, cfg), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                         env=_env(cfg), start_new_session=True)
+                         env=env, start_new_session=True)
     try:
         out, _ = p.communicate(timeout=budget_s)
         return Run(p.returncode, out or "", round(time.monotonic() - t0, 3), cmd)
@@ -497,3 +572,78 @@ def run_budgeted(args: list, cwd, budget_s: float, cfg: dict | None = None) -> R
             p.kill()
         out, _ = p.communicate()
         return Run(None, (out or "") + "\n[timeout]", secs, cmd)
+
+
+# ================================================================== I97: classifying a BendTT rejection (F-M3-13)
+# A rejection by BendTT (--verdict) of a file bend2 accepts is a cross-kernel disagreement (the lead's ruling on
+# F-M3-13), unless the kernel itself says it cannot decide the file: the emitted translation (`bend F -o F.bendtt`)
+# names a definition outside the kernel's scope, or the kernel binary stops with "In <def>: out of fuel" (the
+# evaluation exceeds its pinned budget, bend2/bendtt.lean FUEL). bend2's --verdict reports either as the generic
+# mismatch text, so the classifier reads the kernel's own message. A construct counts only when the registry
+# (spec/<M>/lib/bendtt_constructs.json) declares it with a minimized repro that bend2 accepts and BendTT rejects.
+# Nothing here names a target.
+CONSTRUCTS_REL = "spec/{m}/lib/bendtt_constructs.json"
+_FUEL = re.compile(r"(?m)^In ([^\s:]+):\s*\n\s*out of fuel\s*$")
+
+
+def constructs(root: Path | str | None = None, milestone: str = "M3") -> list[dict]:
+    p = Path(root or Path(__file__).resolve().parents[1]) / CONSTRUCTS_REL.format(m=milestone)
+    if not p.is_file():
+        return []
+    return list(json.loads(p.read_text(encoding="utf-8")).get("constructs") or [])
+
+
+def kernel_message(proof_file: Path, cfg: dict | None = None, timeout: int = 1800) -> tuple[list[str], int | None, str]:
+    """(out-of-scope lines, kernel exit code, kernel output) of a file bend2 accepts: its BendTT translation in a fresh
+    directory, then the pinned kernel binary on it, with the stack bend2's own kernel_check gives it."""
+    proof_file = Path(proof_file).resolve()
+    cfg = cfg or config()
+    tmp = Path(tempfile.mkdtemp(prefix="holon-bendtt-"))
+    try:
+        out = tmp / "in.bendtt"
+        e = run([str(proof_file), "-o", str(out)], cwd=tmp, cfg=cfg, timeout=timeout)
+        oos = [ln[2:].strip() for ln in (e.out or "").splitlines() if ln.startswith("- ")]
+        kp = pinned_kernel_path(cfg)
+        if not out.is_file() or kp is None or not kp.is_file():
+            return oos, None, (e.out or "")[-800:]
+        k = subprocess.run([str(kp), str(out)], capture_output=True, text=True, timeout=timeout, cwd=str(tmp),
+                           env={**checker_env(cfg), "LEAN_STACK_SIZE_KB": "4194304"})
+        return oos, k.returncode, (k.stdout + k.stderr)[-800:]
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def construct_of(proof_file: Path, cfg: dict | None = None) -> dict | None:
+    """The kernel's own reason for not checking a file: {"kind": "out_of_scope", "detail"} or {"kind": "kernel_fuel",
+    "def"}, or None when the kernel checks it or rejects it for another reason."""
+    oos, code, msg = kernel_message(proof_file, cfg)
+    if oos:
+        return {"kind": "out_of_scope", "detail": oos[0]}
+    if code not in (None, 0):
+        m = _FUEL.search(msg.replace("\r", ""))
+        if m:
+            return {"kind": "kernel_fuel", "def": m.group(1)}
+    return None
+
+
+def classify_rejection(proof_file: Path, cfg: dict | None = None, root: Path | str | None = None,
+                       milestone: str = "M3", verdict: "Run | None" = None) -> dict | None:
+    """None when BendTT accepts the file; {"class": "unsupported", "construct", "def", "repro"} when the kernel's own
+    reason is a registered construct; {"class": "disagreement", "detail"} otherwise. verdict: a check_verdict result
+    of the same file already in hand."""
+    v = verdict if verdict is not None else check_verdict(proof_file, cfg)
+    if v.ok:
+        return None
+    got = construct_of(proof_file, cfg)
+    reg = {c["kind"]: c for c in constructs(root, milestone)}
+    if got and got["kind"] in reg:
+        c = reg[got["kind"]]
+        return {"class": "unsupported", "construct": c["name"], "def": got.get("def") or got.get("detail"),
+                "repro": c["repro"]}
+    return {"class": "disagreement", "detail": (v.out or "")[-300:].strip()}
+
+
+def unsupported_reason(c: dict) -> str:
+    """The bendtt reason a record carries for an unsupported rejection (holon.records.kernels, G7): "<construct>:
+    <repro>". The definition the kernel stopped in is the record's checker.bendtt.construct.def."""
+    return f"{c['construct']}: {c['repro']}"

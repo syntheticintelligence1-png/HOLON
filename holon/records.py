@@ -627,6 +627,13 @@ def scope_v2(law: dict, rec: dict) -> dict:
     return {"kind": "unbounded", "horizon": None, "at_state": at}
 
 
+# I97 (F-M3-13): the v2 schema's reason for a bendtt entry not_run because the kernel cannot decide the file within its
+# fuel (a construct of spec/<M>/lib/bendtt_constructs.json, named in the entry's note as "<construct>: <repro> (def
+# <d>)"). heartbeats is the enum's evaluation-budget reason (Lean's heartbeat limit), the analogue of BendTT's FUEL;
+# neither record schema is extended (the landing #123's G9).
+BENDTT_UNDECIDED_REASON = "heartbeats"
+
+
 def kernels(rec: dict, lean_entry: dict | None = None) -> list[dict]:
     """bend2 (primary), BendTT (second, shares bend2's front end) and, for the laws the Lean emitters cover,
     lean4 (second-independent: its own emitters, elaborator and kernel; holon.lean.kernel_entry)."""
@@ -634,10 +641,17 @@ def kernels(rec: dict, lean_entry: dict | None = None) -> list[dict]:
     checked = rec["status"] in ("PROVED", "REFUTED")
     out = [{"name": "bend2", "version": ver, "role": "primary", "result": "checked" if checked else "not_run"}]
     v = rec["kernel"].get("verdict", "not_run")
-    if checked and v != "not_run":
-        out.append({"name": "bendtt", "version": ver, "role": "second", "result": v, "shares_frontend_with": "bend2",
-                    "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, "
-                            "so agreement is not independent evidence (class I1-shared, not I2)"})
+    vr = rec["kernel"].get("verdict_reason")
+    if checked and (v != "not_run" or vr):
+        e = {"name": "bendtt", "version": ver, "role": "second", "result": v, "shares_frontend_with": "bend2",
+             "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, "
+                     "so agreement is not independent evidence (class I1-shared, not I2)"}
+        if vr:    # I97 (F-M3-13): BendTT ran, and its kernel cannot decide the file: single-kernel I1
+            con = ((rec.get("checker") or {}).get("bendtt") or {}).get("construct") or {}
+            e["result"] = "not_run"
+            e["reason"] = BENDTT_UNDECIDED_REASON
+            e["note"] = f"{vr} (def {con['def']})" if con.get("def") else str(vr)
+        out.append(e)
     if lean_entry is not None:
         out.append(dict(lean_entry))
     return out

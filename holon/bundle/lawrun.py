@@ -703,19 +703,34 @@ def bend_version() -> str:
 
 
 def check(p: Path) -> dict:
-    """bend2's check of a file, then BendTT's re-check where the environment provides it (D4: recorded, never a
-    status)."""
+    """bend2's check of a file, then BendTT's re-check where the environment provides it (D4: recorded). I97
+    (F-M3-13, the lead's ruling): a rejection whose kernel reason is a registered construct (holon.bend.
+    classify_rejection: the kernel cannot decide the file) changes no status. The kernel did not decide the file, so
+    its verdict is not_run (the v1 record schema's enum), with the construct as verdict_reason and in
+    checker.bendtt.construct (holon.records.kernels writes the bendtt entry from them). Any other rejection is a
+    cross-kernel disagreement, and the file decides nothing (ok False) until both kernels agree."""
     from .. import bend
     r = bend.check(p)
     out = {"exit_code": r.code, "marker": "ALL PROOFS CHECK" if r.ok else "SOME PROOFS FAIL", "seconds": r.seconds}
-    verdict = "not_run"
+    verdict, reason, ok = "not_run", None, bool(r.ok)
     if r.ok and bend.verdict_enabled():
         v = bend.check_verdict(p)
         verdict = "checked" if v.ok else ("budget_exhausted" if v.code is None else "failed")
         out["bendtt"] = {"exit_code": v.code, "seconds": v.seconds, "output_tail": (v.out or "")[-800:]}
+        if verdict == "failed":
+            c = bend.classify_rejection(p, verdict=v)
+            if c and c["class"] == "unsupported":
+                verdict, reason = "not_run", bend.unsupported_reason(c)
+                out["bendtt"]["construct"] = {"name": c["construct"], "def": c["def"], "repro": c["repro"]}
+            else:
+                ok = False
+                out["bendtt"]["disagreement"] = (c or {}).get("detail") or "BendTT rejects what bend2 accepts"
     if not r.ok:
         out["failing"] = (r.out or "")[-1500:]
-    return {"checker": out, "ok": bool(r.ok), "verdict": verdict}
+    got = {"checker": out, "ok": ok, "verdict": verdict}
+    if reason:
+        got["verdict_reason"] = reason
+    return got
 
 
 class Decider:

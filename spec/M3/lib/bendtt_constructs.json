@@ -1,0 +1,12 @@
+{
+  "bendtt_constructs_version": "holon-bendtt-constructs/1",
+  "constructs": [
+    {
+      "doc": "A definition whose evaluation the BendTT kernel cannot finish within its pinned fuel (bend2/bendtt.lean FUEL): the kernel binary stops with 'In <def>: out of fuel', which bend2's --verdict reports as the mismatch text. bend2 decides the same claim natively. It is a limit of the kernel's evaluation, not a rejection of the proof, the I94 precedent (BendTT out of fuel on cz).",
+      "kind": "kernel_fuel",
+      "name": "kernel_fuel",
+      "repro": "tests_m3/fixtures/bendtt_i97/kernel_fuel"
+    }
+  ],
+  "doc": "I97 (F-M3-13): the forms the BendTT kernel cannot decide, each with its detection kind (holon.bend.construct_of) and a minimized repro that bend2 accepts and BendTT rejects. A rejection whose kernel reason is not listed here is a cross-kernel disagreement. It names no law."
+}

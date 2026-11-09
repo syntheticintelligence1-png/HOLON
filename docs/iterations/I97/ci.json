@@ -1,0 +1,24 @@
+{
+  "added": [
+    "G4",
+    "G7"
+  ],
+  "details": {
+    "G4": "2 canaries rejected (subforms ['as_member', 'realize']); DISCH laws: 9 disch_writer canaries rejected",
+    "G6": "L_sort_tag_rollup_279_e01ea84a/commitState: not replayed; 6 REFUTED NAT records bound to passed runs of replay/M3/nat/report.json; DISCH laws: 13 DISCH witnesses replayed and passed on the real contract; FACT laws: L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter: replay failed; derivation laws: 4 REFUTED derivation laws replayed and passed on the real consumer; bundle laws: 5 REFUTED bundle laws replayed and passed on the real code; bundle laws: 6 bundle witnesses replayed and passed on the real bundle"
+  },
+  "doc": "I97 P4 (tests_m3/test_bendtt_i97.py): the M3 checks CI gains (.github/workflows/holon-ci.yml, gate-M3-G7) and each check's local result on the lead with the six re-made (the pinned toolchain, 13/13 pins).",
+  "left_out": {
+    "G1": "it regenerates every M3 output (models, corpora, refinement, derivation), beyond a job's budget",
+    "G6": "it fails on the lead on two replay gaps (L_sort_tag_rollup_279_e01ea84a/commitState not replayed; L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter's replay failed), a separate finding for the lead; adding it would hold CI red"
+  },
+  "passed_on_lead": {
+    "G4": true,
+    "G6": false,
+    "G7": true
+  },
+  "timings_local": {
+    "G4+G6": "18 s",
+    "G7": "24.6 min (202 proof files)"
+  }
+}
