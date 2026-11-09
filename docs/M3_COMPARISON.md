@@ -10,10 +10,10 @@ Bases. **hand**: the record sets M0, M1, T32 (laws over hand-written facts). **c
 
 | Verdict | F ids, hand | F ids, code |
 |---|---|---|
-| reproduced | F4, F6 | F3, F4, F6 |
+| reproduced | F4, F6 | F3, F4 |
 | partly reproduced | F2, F5, F7, F9, F12 | F2, F5, F7, F12 |
 | contradicted | — | — |
-| open | — | — |
+| open | — | F6 |
 | not mechanized | F1, F3, F8, F10, F11, F13, F14 | F1, F8, F9, F10, F11, F13, F14 |
 
 | Items | Basis | reproduced | partly reproduced | held | certified | contradicted | missed | open | not mechanized |
@@ -21,7 +21,7 @@ Bases. **hand**: the record sets M0, M1, T32 (laws over hand-written facts). **c
 | section 11.8 rows | hand | 0 | 0 | 13 | 0 | 0 | 1 | 0 | 0 |
 | section 11.8 rows | code | 0 | 0 | 8 | 0 | 0 | 2 | 2 | 2 |
 | obstructions (11.3) | hand | 12 | 0 | 0 | 0 | 0 | 0 | 1 | 24 |
-| obstructions (11.3) | code | 13 | 0 | 0 | 0 | 0 | 0 | 3 | 21 |
+| obstructions (11.3) | code | 12 | 0 | 0 | 0 | 0 | 0 | 4 | 21 |
 | discharged (11.6) | hand | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 7 |
 | discharged (11.6) | code | 0 | 0 | 0 | 1 | 2 | 0 | 0 | 6 |
 | new findings (11.4) | hand | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 2 |
@@ -39,7 +39,7 @@ Bases. **hand**: the record sets M0, M1, T32 (laws over hand-written facts). **c
 | R6 | L_undo_BVH | UNDO | REFUTED | L_undo_BVH (M1) REFUTED | held | L_undo_BVH (M2/view) REFUTED; L_undo_pair_Rollup_commitBatch_revertBatch (M3) REFUTED | held |
 | R7 | L_undo_cancel | UNDO | REFUTED | L_undo_cancel (M1) REFUTED | held | L_undo_cancel (M2/view) REFUTED; L_undo_cancel_Rollup_challengeState_setPause (M3) REFUTED | held |
 | R8 | L_sort_remaining | SORT | REFUTED | L_sort_remaining (M1) REFUTED | held | L_sort_remaining (M2/view) REFUTED; L_sort_site_rollup_363_1fc7f88a (M2) REFUTED; L_sort_realize_rollup_363_4a64383b (M3) REFUTED | held |
-| R9 | L_tag_BVH | SORT | REFUTED | L_tag_BVH (M1) REFUTED | held | L_tag_BVH (M2/view) UNKNOWN; L_sort_tag_rollup_279_e01ea84a (M3) REFUTED | open |
+| R9 | L_tag_BVH | SORT | REFUTED | L_tag_BVH (M1) REFUTED | held | L_tag_BVH (M2/view) UNKNOWN; L_sort_tag_rollup_279_e01ea84a (M3) UNKNOWN | open |
 | R10 | L_disch_delay | DISCH | Profile {(c_msg, 0), (0, Δ_fin)} | L_disch_delay_nofree (M1) PROVED; L_disch_delay_pay (M1) PROVED; L_disch_delay_prove (M1) PROVED (context); L_disch_delay_wait (M1) PROVED; L_dp_delay_dominance (T32) PROVED; L_dp_delay_point_0_19 (T32) PROVED; L_dp_delay_point_1_0 (T32) REFUTED | missed | L_disch_delay_nofree (M2/view) REFUTED; L_disch_delay_pay (M2/view) PROVED; L_disch_delay_prove (M2/view) PROVED (context); L_disch_delay_wait (M2/view) PROVED | missed |
 | R11 | L_disch_stale | DISCH | Blocked for permissionless committers | L_disch_stale (M1) PROVED; L_disch_stale_commit (M1) PROVED | held | L_disch_stale (M2/view) PROVED; L_disch_stale_commit (M2/view) PROVED; L_disch_blk_rollup_363_e11d8bb2_anyone (M3) UNKNOWN; L_disch_rev_rollup_363_e11d8bb2 (M3) PROVED | open |
 | R12 | L_fact_Z | FACT | REFUTED | L_fact_Z (M1) REFUTED | held | L_fact_Z (M2/view) REFUTED; L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash (M3) REFUTED | held |
@@ -55,7 +55,7 @@ Bases. **hand**: the record sets M0, M1, T32 (laws over hand-written facts). **c
 | F3 | The Go blob-retrieval error path indexes out of bounds for non-canonical elements at index ≥ 3968. | O4 (F3) | not mechanized | reproduced |
 | F4 | Unsigned underflow in challenge arithmetic disables all commits once a challenge is stale. | O27 (F4), O31 (F4) | reproduced | reproduced |
 | F5 | A challenge on any batch reopens a proof-backed batch's window. | O19 (F5), O20 (F5) | partly reproduced | partly reproduced |
-| F6 | A recommit can change the version while reusing a blob hash of different meaning. | O26 (F6) | reproduced | reproduced |
+| F6 | A recommit can change the version while reusing a blob hash of different meaning. | O26 (F6) | reproduced | open |
 | F7 | The delay guard reads the finalization cursor instead of the inclusion cursor (reconciled as a profile). | O16 (F7), O21 (F7), O33 (F7) | partly reproduced | partly reproduced |
 | F8 | Third parties can exhaust the replay budget; the fee waiver is keyed on the original sender. | O29 (F8), O34 (F8) | not mechanized | not mechanized |
 | F9 | Estimators assume compression never expands; one omits contexts; slice aliasing. | O5 (F9), O36 (F9) | partly reproduced | not mechanized |
@@ -94,7 +94,7 @@ Bases. **hand**: the record sets M0, M1, T32 (laws over hand-written facts). **c
 | O23 | FACT | F11d | — | not mechanized | — | not mechanized | I37 |
 | O24 | FACT | F11f | — | not mechanized | — | not mechanized | I39 |
 | O25 | FACT/SORT | N3 | — | not mechanized | L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter (M3) REFUTED | reproduced | I26, I56 |
-| O26 | SORT×UNDO | F6 | L_tag_BVH (M1) REFUTED | reproduced | L_tag_BVH (M2/view) UNKNOWN; L_sort_tag_rollup_279_e01ea84a (M3) REFUTED; L_sort_tag_rollup_406_e01ea84a (M3) UNKNOWN | reproduced | I30 |
+| O26 | SORT×UNDO | F6 | L_tag_BVH (M1) REFUTED | reproduced | L_tag_BVH (M2/view) UNKNOWN; L_sort_tag_rollup_279_e01ea84a (M3) UNKNOWN; L_sort_tag_rollup_406_e01ea84a (M3) UNKNOWN | open | I30 |
 | O27 | SORT-sign | F4 | L_sort_remaining (M1) REFUTED | reproduced | L_sort_remaining (M2/view) REFUTED; L_sort_site_rollup_363_1fc7f88a (M2) REFUTED; L_sort_realize_rollup_363_4a64383b (M3) REFUTED | reproduced | — |
 | O28 | SORT-width | F12.7 | — | not mechanized | — | not mechanized | I38 |
 | O29 | SORT-payer | F8 | — | not mechanized | — | not mechanized | I36 |
