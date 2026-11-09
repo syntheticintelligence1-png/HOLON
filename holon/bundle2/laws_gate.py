@@ -176,7 +176,9 @@ class BundleLawsGate:
                 errs = S.errors(r, sch)
                 if errs:
                     bad.append(f"{lid}: {name} {errs[:2]}")
-        self.checks["G9"] = _res(not bad, f"{n} bundle-law records (of {len(self.entries)} laws) valid under v1 and v2"
+        from .. import records as R   # I99 (audit M3/5 F-M3-19): premises hold the law's assume clauses
+        bad = R.premise_problems_of(self.root, self.m, {k: v for k, v in self.records().items() if v}) + bad
+        self.checks["G9"] = _res(not bad, f"{n} bundle-law records (of {len(self.entries)} laws) valid under v1 and v2, their premises holding every assume clause"
                                  if not bad else "; ".join(bad[:6]))
 
     def run(self, only: list | None) -> None:

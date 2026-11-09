@@ -806,8 +806,11 @@ class Run:
             replay = {"status": "not_applicable", "detail": "no binding: the milestone has no real side"}
         else:
             replay = {"status": "not_applicable", "detail": f"{status}: no witness to replay"}
+        from .. import ir
+        # I99 (audit M3/5 F-M3-19): one readable premise per assume clause of the law, rendered as every writer renders
+        # them (holon.ir.premises)
         rec = {"law_id": lid, "statement_hash": sh, "facts_sha256": law["facts_sha256"], "status": status,
-               "scope": "unbounded", "premises": [],
+               "scope": "unbounded", "premises": ir.premises(law),
                "kernel": {"name": "bend", "version": run3.bend_version(),
                           "verdict": (prim or {}).get("verdict", "not_run")},
                "artifacts": {"laws": rel(lp, self.root), "proof": (prim or {}).get("proof"),

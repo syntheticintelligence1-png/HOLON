@@ -613,6 +613,52 @@ def _mentions(obj, key: str) -> bool:
     return False
 
 
+def premise_gap(law: dict, rec: dict, render=None) -> tuple[int, int] | None:
+    """I99 (audit M3/5 F-M3-19): G9's premises check of one record. A record's premises hold every assume clause of its
+    law, one readable string per clause, the clause's rendering (holon.ir.premises, which every writer uses; a law set
+    with its own vocabulary passes its renderer), and oracle or cryptographic premises may follow (the frozen v1 schema:
+    "every assume clause of the law plus any oracle/cryptographic premise"). None when they do, else (clauses the
+    premises hold, clauses the law has): a count and a content check in one."""
+    from collections import Counter
+    from . import ir
+    want = list((render or ir.premises)(law))
+    have = rec.get("premises") if isinstance(rec.get("premises"), list) else []
+    missing = Counter(want) - Counter(x for x in have if isinstance(x, str))
+    if not missing:
+        return None
+    return len(want) - sum(missing.values()), len(want)
+
+
+def premise_problems(pairs, render=None) -> list[str]:
+    """G9's premises check over [(law id, law, record)]: [] when every record's premises hold its law's assume clauses,
+    else one problem that names every law whose record does not, with the clauses each one holds (G9's detail keeps
+    it whole, so no law id is cut off)."""
+    gaps = []
+    for lid, law, rec in pairs:
+        if not isinstance(law, dict) or not isinstance(rec, dict):
+            continue
+        g = premise_gap(law, rec, render)
+        if g is not None:
+            gaps.append(f"{lid} ({g[0]} of {g[1]})")
+    if not gaps:
+        return []
+    return [f"premises do not hold their law's assume clauses, one readable string per clause ({len(gaps)} records: "
+            + ", ".join(sorted(gaps)) + ")"]
+
+
+def premise_problems_of(root, milestone: str, recs: dict, law_dir=None, render=None) -> list[str]:
+    """premise_problems over {law id: record}, each law read from laws/<milestone>/<law id>.json (or law_dir)."""
+    d = Path(law_dir) if law_dir is not None else Path(root) / "laws" / str(milestone)
+    pairs = []
+    for lid, rec in sorted(recs.items()):
+        p = d / f"{lid}.json"
+        try:
+            pairs.append((lid, json.loads(p.read_text(encoding="utf-8")) if p.is_file() else None, rec))
+        except (OSError, ValueError):
+            pairs.append((lid, None, rec))
+    return premise_problems(pairs, render)
+
+
 def scope_v2(law: dict, rec: dict) -> dict:
     st = law["statement"]
     binders = st.get("binders", [])

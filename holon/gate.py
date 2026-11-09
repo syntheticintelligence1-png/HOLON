@@ -1044,6 +1044,10 @@ class Gate:
                 errs = schema.errors(rec, sch)
                 if errs:
                     bad.append(f"{lid}: {name}: {errs[:3]}")
+        # I99 (audit M3/5 F-M3-19): a record's premises hold its law's assume clauses, one string per clause
+        from . import records as R
+        by_id = {law["law_id"]: law for law in self.laws()}
+        bad = R.premise_problems([(lid, by_id.get(lid), rec) for lid, rec in sorted(self.records().items())]) + bad
         from .mpipeline import m2plus
         if m2plus(self.m):   # F-M2-12: an M2+ record keeps its ledger cone (holon.gen.oracles.ledger_problems)
             from .gen.oracles import ledger_problems
@@ -1054,6 +1058,7 @@ class Gate:
             bad += ledger_problems(self.m, self.root, [law for law in laws if law["law_id"] not in versioned], recs)
             bad += versioned_ledger_problems(self.root, [law for law in laws if law["law_id"] in versioned], recs)
         self.checks["G9"] = _res(not bad and n > 0, f"{n} records valid against v1 and v2"
+                                 + "; premises hold every law's assume clauses"
                                  + ("; ledger_assumptions recomputed" if m2plus(self.m) else "") if not bad and n
                                  else "; ".join(bad) or "no records")
 
