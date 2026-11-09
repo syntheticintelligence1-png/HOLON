@@ -1691,18 +1691,20 @@ class Gate:
         self.checks["G7"] = _res(ok and lean_ok, f"{detail}; {lean_detail}")
 
     def g7_unsupported(self, lid: str, rec: dict, proof: Path) -> str | None:
-        """None when a BendTT rejection is accepted by reason (I97, F-M3-13): the record's bendtt entry is
-        "unsupported" with a reason that names a registered construct, the kernel's own reason for this proof is that
-        construct (holon.bend.construct_of), and the construct's repro still has bend2 accept and BendTT reject.
-        Otherwise why it is not: a record that claims bendtt "checked", or carries no registered reason, fails G7."""
+        """None when a BendTT rejection is accepted by reason (I97, F-M3-13): the record's bendtt entry is not_run
+        (holon.records.kernels, the record schemas' enums) with a note that names a registered construct, the kernel's
+        own reason for this proof is that construct (holon.bend.construct_of), and the construct's repro still has
+        bend2 accept and BendTT reject. Otherwise why it is not: a record that claims bendtt "checked", or a not_run
+        entry whose note names no registered construct, fails G7."""
         ent = next((k for k in rec.get("kernels") or [] if k.get("name") == "bendtt"), None)
-        if ent is None or ent.get("result") != "unsupported":
+        if ent is None or ent.get("result") != "not_run":
             return f"BendTT rejects it, and the record says bendtt {(ent or {}).get('result')!r}"
         reg = {c["name"]: c for c in bend.constructs(self.root, self.m)}
-        reason = str(ent.get("reason") or "")
-        c = reg.get(reason.split(":", 1)[0])
+        note = str(ent.get("note") or "")
+        c = reg.get(note.split(":", 1)[0])
         if c is None:
-            return f"the bendtt reason {reason[:80]!r} names no construct of spec/{self.m}/lib/bendtt_constructs.json"
+            return (f"BendTT rejects it, and the record's bendtt not_run ({ent.get('reason')}) names no construct of "
+                    f"spec/{self.m}/lib/bendtt_constructs.json")
         got = bend.construct_of(proof, self.cfg)
         if not got or got["kind"] != c["kind"]:
             return f"the kernel's reason for this proof is {got!r}, not the record's {c['name']}"
