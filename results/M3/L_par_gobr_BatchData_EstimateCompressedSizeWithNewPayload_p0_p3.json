@@ -16,11 +16,11 @@
           },
           "exit_code": 1,
           "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
-          "seconds": 19.233
+          "seconds": 14.32
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 1.64
+        "seconds": 1.625
       },
       "kind": "counter_law",
       "ok": true,
@@ -56,11 +56,11 @@
       },
       "exit_code": 1,
       "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
-      "seconds": 19.233
+      "seconds": 14.32
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.64
+    "seconds": 1.625
   },
   "compiled_sha256": "0c876b64f0227a4060bcf1920f46b098be804532c5b795247b71419225805d64",
   "concretization": {
@@ -354,7 +354,7 @@
   "independence_class": "I1",
   "kernel": {
     "name": "bend",
-    "verdict": "unsupported",
+    "verdict": "not_run",
     "verdict_reason": "kernel_fuel: tests_m3/fixtures/bendtt_i97/kernel_fuel",
     "version": "2.0.36"
   },
@@ -367,9 +367,9 @@
     },
     {
       "name": "bendtt",
-      "note": "BendTT's kernel cannot decide this file (a construct of spec/<M>/lib/bendtt_constructs.json, with its repro): the record is single-kernel (I1), and G7 accepts it by that reason",
-      "reason": "kernel_fuel: tests_m3/fixtures/bendtt_i97/kernel_fuel",
-      "result": "unsupported",
+      "note": "kernel_fuel: tests_m3/fixtures/bendtt_i97/kernel_fuel (def cz)",
+      "reason": "heartbeats",
+      "result": "not_run",
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
@@ -417,7 +417,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 40.648,
+  "seconds": 32.518,
   "statement": "size short-cut of (*morph-l2/common/batch.BatchData).EstimateCompressedSizeWithNewPayload: where path 0's test holds, path 3's value at position 0 (a size test of morph-l2/common/codec/zstd.CompressBatchBytes's output) equals path 0's; premise HypZ_len at the argument (spec/M3/lib/compression.json#hypotheses.HypZ_len); gox go_branch:BatchData_EstimateCompressedSizeWithNewPayload:p0:p3",
   "statement_hash": "sha256:c293b70ca75cc896112e7ca7d5ba2407510ca65885dc6e13ae95d132ad709ec0",
   "status": "REFUTED",
