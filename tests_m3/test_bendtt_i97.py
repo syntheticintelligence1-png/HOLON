@@ -158,8 +158,11 @@ class TestOutcome(unittest.TestCase):
     def test_p2_the_six_keep_refuted_as_single_kernel(self):
         rec = _load("records.json")
         for lid in I.SIX:
+            # amended (spec/M3/amendments/I97.jsonl, TestAmendG9's G1): the schema-valid encoding of an unsupported
+            # construct is the bendtt entry not_run, its note naming the construct
             self.assertEqual((rec[lid]["status"], rec[lid]["bendtt"], rec[lid]["independence_class"]),
-                             ("REFUTED", "unsupported", "I1"), lid)
+                             ("REFUTED", "not_run", "I1"), lid)
+            self.assertTrue(str(rec[lid].get("note") or "").startswith("kernel_fuel: "), lid)
         self.assertEqual(rec["other_status_changes"], [])
 
     def test_p3_g7_passes_on_m3(self):
@@ -315,6 +318,52 @@ class TestAmendF14(unittest.TestCase):
             self.assertFalse(after.ok, after.out[-300:])
             self.assertEqual(after.first_line, before.first_line)
             self.assertFalse(marker.exists())
+
+
+
+class TestAmendG9(unittest.TestCase):
+    """Added after C_K (950ccd38) by the disclosed prereg amendment for the schema conformance of I97's records: the lead's
+    landing of I97 (#123) failed G9 on the six re-made records (spec/M3/amendments/I97.jsonl; its line for this class
+    pins this docstring's sha256). Nothing else above changes, except P2's test, which the same amendment licenses.
+
+    G1  The encoding. A rejection by a registered construct is recorded within the record schemas' enums. The v1
+        kernel.verdict is not_run (schemas/result_record.schema.json admits not_run, checked and failed). The v2 bendtt
+        entry is {"result": "not_run", "reason": "heartbeats", "note": "<construct>: <repro> (def <d>)"}: heartbeats is
+        the v2 enum's evaluation-budget reason (Lean's heartbeat limit), the analogue of BendTT's fuel. The construct
+        also stays in the record's checker.bendtt.construct. This supersedes S3's {"result": "unsupported", "reason":
+        "<construct>: <repro>"}, which neither schema admits. Neither the frozen v1 schema nor v2's enum is extended. G7
+        accepts a BendTT rejection only from a bendtt entry not_run whose note names a registered construct that G7
+        re-detects in the proof and whose repro still reproduces; a not_run entry with any other note is refused.
+    G2  G9 accepts a re-made kernel_fuel record: one of SIX, re-made by `holon run` into a scratch directory, validates
+        under both record schemas as holon.sorts.gate3.Gate3.g9 validates every record, and its bendtt entry is G1's.
+    """
+    TEST_ID = "tests_m3/test_bendtt_i97.py::TestAmendG9"
+    LAW = "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3"
+
+    def test_a0_the_amendment_is_disclosed_and_pins_this_contract(self):
+        src = (ROOT / "spec" / "M3" / "amendments" / "I97.jsonl").read_text(encoding="utf-8")
+        mine = [a for a in (json.loads(ln) for ln in src.splitlines() if ln.strip()) if a.get("test") == self.TEST_ID]
+        self.assertEqual(len(mine), 1, mine)
+        self.assertEqual(mine[0]["contract_sha256"], hashlib.sha256(type(self).__doc__.encode("utf-8")).hexdigest())
+        agg = (ROOT / "spec" / "M3" / "amendments.jsonl").read_text(encoding="utf-8").splitlines()
+        self.assertEqual(sum(1 for ln in agg if ln.strip() and json.loads(ln) == mine[0]), 1)
+
+    def test_g2_g9_accepts_a_remade_kernel_fuel_record(self):
+        sys.path.insert(0, str(ROOT))
+        from holon import schema as S
+        with tempfile.TemporaryDirectory() as tmp:
+            r = _holon("run", "--milestone", "M3", "--laws", self.LAW, "--out", str(Path(tmp) / "results"),
+                       "--gen-dir", str(Path(tmp) / "gen"), timeout=3600)
+            self.assertEqual(r.returncode, 0, (r.stdout + r.stderr)[-1500:])
+            rec = json.loads((Path(tmp) / "results" / f"{self.LAW}.json").read_text(encoding="utf-8"))
+        v1 = json.loads((ROOT / "schemas" / "result_record.schema.json").read_text(encoding="utf-8"))
+        v2 = json.loads((ROOT / "spec" / "schemas" / "result_record_v2.schema.json").read_text(encoding="utf-8"))
+        self.assertEqual((S.errors(rec, v1), S.errors(rec, v2)), ([], []))
+        self.assertEqual(rec["status"], "REFUTED")
+        bt = next(k for k in rec["kernels"] if k["name"] == "bendtt")
+        self.assertEqual((bt["result"], bt.get("reason")), ("not_run", "heartbeats"))
+        self.assertTrue(bt["note"].startswith("kernel_fuel: "), bt["note"])
+        self.assertEqual(rec["checker"]["bendtt"]["construct"]["name"], "kernel_fuel")
 
 
 if __name__ == "__main__":

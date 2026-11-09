@@ -705,9 +705,10 @@ def bend_version() -> str:
 def check(p: Path) -> dict:
     """bend2's check of a file, then BendTT's re-check where the environment provides it (D4: recorded). I97
     (F-M3-13, the lead's ruling): a rejection whose kernel reason is a registered construct (holon.bend.
-    classify_rejection: the kernel cannot decide the file) is recorded as "unsupported" with that reason and changes
-    no status; any other rejection is a cross-kernel disagreement, and the file decides nothing (ok False) until both
-    kernels agree."""
+    classify_rejection: the kernel cannot decide the file) changes no status. The kernel did not decide the file, so
+    its verdict is not_run (the v1 record schema's enum), with the construct as verdict_reason and in
+    checker.bendtt.construct (holon.records.kernels writes the bendtt entry from them). Any other rejection is a
+    cross-kernel disagreement, and the file decides nothing (ok False) until both kernels agree."""
     from .. import bend
     r = bend.check(p)
     out = {"exit_code": r.code, "marker": "ALL PROOFS CHECK" if r.ok else "SOME PROOFS FAIL", "seconds": r.seconds}
@@ -719,7 +720,7 @@ def check(p: Path) -> dict:
         if verdict == "failed":
             c = bend.classify_rejection(p, verdict=v)
             if c and c["class"] == "unsupported":
-                verdict, reason = "unsupported", bend.unsupported_reason(c)
+                verdict, reason = "not_run", bend.unsupported_reason(c)
                 out["bendtt"]["construct"] = {"name": c["construct"], "def": c["def"], "repro": c["repro"]}
             else:
                 ok = False
