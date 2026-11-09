@@ -123,17 +123,13 @@ class ContractGate:
                                    if not bad else "; ".join(bad[:8]))
 
     def g6(self):
-        want = {lid: r for lid, r in self.records().items() if r and r.get("status") == "REFUTED"}
-        if not want:
-            self.na["G6"] = "no contract law is REFUTED"
+        """G6 is holon.replay_bind.contract's judgement (I98: one rule for G6 and the final filter)."""
+        from .. import replay_bind as RB
+        r = RB.contract(self.m, self.root)
+        if "na" in r:
+            self.na["G6"] = r["na"]
             return
-        from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
-        for lid in want:
-            RB.judged(lid)
-        bad = [RB.refuse(lid, f"{lid}: replay {(r.get('replay') or {}).get('status')}") for lid, r in sorted(want.items())
-               if (r.get("replay") or {}).get("status") != "passed"]
-        self.checks["G6"] = _res(not bad, f"{len(want)} REFUTED contract laws replayed and passed on the real contract"
-                                 if not bad else "; ".join(bad[:8]))
+        self.checks["G6"] = r
 
     def g9(self):
         from .. import schema as S

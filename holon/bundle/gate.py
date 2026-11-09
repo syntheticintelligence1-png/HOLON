@@ -141,25 +141,13 @@ class BundleGate:
                                    "; ".join(bad[:6]))
 
     def g6(self) -> None:
-        rp = self.root / "replay" / self.m / "bundle_laws" / "report.json"
-        rep = json.loads(rp.read_text()) if rp.is_file() else {"laws": {}}
-        bad, n = [], 0
-        for lid, rec in self.records().items():
-            if not rec:
-                continue
-            sub = self.entries[lid].get("subform")
-            if not (rec.get("status") == "REFUTED" or (rec.get("status") == "PROVED" and sub == "keyed_external")):
-                continue
-            n += 1
-            from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
-            RB.judged(lid)
-            x = (rep.get("laws") or {}).get(lid)
-            if x is None or x.get("status") != "passed":
-                bad.append(RB.refuse(lid, f"{lid}: replay {None if x is None else x.get('status')}"))
-            elif (rec.get("replay") or {}).get("status") != "passed":
-                bad.append(RB.refuse(lid, f"{lid}: the record's replay is {(rec.get('replay') or {}).get('status')}"))
-        self.checks["G6"] = _res(not bad, f"{n} bundle witnesses replayed and passed on the real bundle" if not bad
-                                 else "; ".join(bad[:6]))
+        """G6 is holon.replay_bind.bundle's judgement (I98: one rule for G6 and the final filter)."""
+        from .. import replay_bind as RB
+        r = RB.bundle(self.m, self.root)
+        if "na" in r:
+            self.na["G6"] = r["na"]
+            return
+        self.checks["G6"] = r
 
     def g9(self) -> None:
         from .. import schema

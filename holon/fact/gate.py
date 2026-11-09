@@ -282,31 +282,13 @@ class FactGate:
                                    else "; ".join(bad[:8]))
 
     def g6(self):
-        want = {lid: r for lid, r in self.records().items() if r and r.get("status") == "REFUTED"}
-        if not RF.load_sidecar(self.m, self.root).doc.get("binding"):
-            self.na["G6"] = "the FACT sidecar names no binding: no real side to replay on"
+        """G6 is holon.replay_bind.fact's judgement (I98: one rule for G6 and the final filter)."""
+        from .. import replay_bind as RB
+        r = RB.fact(self.m, self.root)
+        if "na" in r:
+            self.na["G6"] = r["na"]
             return
-        from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
-        rp = self.root / "replay" / self.m / "fact" / "report.json"
-        rep = json.loads(rp.read_text()) if rp.is_file() else {"laws": {}}
-        bad = []
-        for lid, r in sorted(want.items()):
-            RB.judged(lid)
-            x = (rep.get("laws") or {}).get(lid)
-            w = r.get("witness") or {}
-            if x is None:
-                bad.append(RB.refuse(lid, f"{lid}: not replayed"))
-            elif x.get("status") != "passed" or not x.get("calls_agree"):
-                bad.append(RB.refuse(lid, f"{lid}: replay {x.get('status')}"))
-            elif "runs" in w and [y.get("trace") for y in x.get("runs") or []] != \
-                    [list(q["prefix"]) + [q["x"]] for q in w["runs"]]:
-                bad.append(RB.refuse(lid, f"{lid}: the replayed runs are not the record's witness"))
-            elif "runs" not in w and x.get("trace") != list(w.get("prefix") or []) + [w.get("y")] + list(w.get("t") or []):
-                bad.append(RB.refuse(lid, f"{lid}: the replayed trace is not the record's witness"))
-            elif (r.get("replay") or {}).get("status") != "passed":
-                bad.append(RB.refuse(lid, f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}"))
-        self.checks["G6"] = _res(not bad, f"{len(want)} REFUTED FACT laws replayed and passed on the real contract"
-                                 if not bad else "; ".join(bad[:8]))
+        self.checks["G6"] = r
 
     def g9(self):
         from .. import schema as S

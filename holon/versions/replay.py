@@ -563,17 +563,19 @@ def side(root, milestone: str, lid: str, witness: dict | None) -> dict | None:
                      "model's"}
 
 
-def g6(milestone: str, root) -> tuple[bool, str] | None:
+def g6(milestone: str, root, ctx=None) -> tuple[bool, str] | None:
     """G6 over the PAR-init laws of a milestone with a versions sidecar (None without one): every REFUTED PAR-init
-    record is bound to a passed run of the replay report (its witness's sha256), and its replay field says so."""
+    record is bound to a passed run of the replay report (its witness's sha256), and its replay field says so. I98: and
+    the run observes the obstruction (side's obstruction_observed), or the record is GHOST_ONLY's (holon.replay_bind;
+    ctx, a holon.replay_bind.Ctx, counts it)."""
     from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
     from .run import init_entries
     root = Path(root)
     rel = f"spec/{milestone}/lib/versions.json"
     if not (root / rel).is_file():
         return None
-    ctx = Ctx(root, rel)
-    rep = load(ctx)
+    vctx = Ctx(root, rel)
+    rep = load(vctx)
     bad, n = [], 0
     for lid in sorted(init_entries(milestone, root)):
         p = root / "results" / milestone / f"{lid}.json"
@@ -586,14 +588,20 @@ def g6(milestone: str, root) -> tuple[bool, str] | None:
             continue
         n += 1
         RB.judged(lid)
-        st = replay_status(ctx, rep, lid, rec.get("witness"))
+        st = replay_status(vctx, rep, lid, rec.get("witness"))
         if st["status"] != "passed":
             bad.append(RB.refuse(lid, f"{lid}: {st['detail']}"))
         elif rec.get("replay") != st:
             bad.append(RB.refuse(lid, f"{lid}: the record's replay field is not the report's "
                                       f"({(rec.get('replay') or {}).get('status')})"))
-    return not bad, (f"{n} REFUTED PAR-init records bound to passed runs of {ctx.out('replay')}" if not bad
-                     else "; ".join(bad))
+        elif not (side(root, milestone, lid, rec.get("witness")) or {}).get("obstruction_observed"):
+            ctx = ctx or RB.Ctx(milestone, root)
+            why = ctx.unobserved(lid, f"{lid}: run {lid} of {vctx.out('replay')} agrees with the model, and the real "
+                                      "root step does not write the commitment the counter-law's claim is false of")
+            if why:
+                bad.append(RB.refuse(lid, why))
+    return not bad, (f"{n} REFUTED PAR-init records bound to passed runs of {vctx.out('replay')}, each observing the "
+                     "obstruction" if not bad else "; ".join(bad))
 
 
 def stamp(ctx: Ctx, rep: dict) -> list:
