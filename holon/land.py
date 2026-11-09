@@ -691,6 +691,22 @@ def step_plan(a) -> int:
     return 0
 
 
+def filter_deletions(status: str) -> list[str]:
+    """The paths a re-make's final filter deleted: the " D <path>" lines of the filter job's status.txt (git status
+    --porcelain), kept only when the path is an output (OUTPUTS) inside the tree. Only the filter job's are trusted: its
+    workspace holds every job's files, so a deletion there is the filter's own (I98: an UNKNOWN law's proof directory);
+    a job's archive carries changed and added files only, so a job-level deletion never reaches it."""
+    out = []
+    for ln in status.splitlines():
+        if ln[:3] != " D ":
+            continue
+        path = ln[3:].strip()
+        if path and not path.startswith(("/", ".")) and ".." not in Path(path).parts \
+                and any(matches(pat, path) for pat in OUTPUTS):
+            out.append(path)
+    return out
+
+
 def step_apply(a) -> int:
     root = top()
     ref = a.source
@@ -725,7 +741,16 @@ def step_apply(a) -> int:
                     dest.unlink()
                 os.symlink(x.linkname, dest)
             n += len(ms) + len(ls)
-            print(f"  {job}: {len(ms)} files" + (f", {len(ls)} links" if ls else ""))
+            gone = []
+            if job == "filter-out":
+                st = subprocess.run(["git", "show", f"{ref}:{job}/status.txt"], capture_output=True, text=True)
+                for path in filter_deletions(st.stdout if st.returncode == 0 else ""):
+                    dest = root / path
+                    if dest.is_symlink() or dest.is_file():
+                        dest.unlink()
+                        gone.append(path)
+            print(f"  {job}: {len(ms)} files" + (f", {len(ls)} links" if ls else "")
+                  + (f", {len(gone)} deleted" if gone else ""))
     git("add", "-A")
     print(f"holon land: applied {n} files from {ref}")
     return 0
@@ -807,6 +832,8 @@ def selftest() -> int:
     assert matches("gen/M*/diagram/**", "gen/M3/diagram/a/b.json") and not matches("laws/M*/*.json", "laws/M3/d/x.json")
     assert kind_of("results/M3/L_x_y.json") == ("law", "L_x_y") and kind_of("docs/STATUS.md")[0] == "generated"
     assert union_lines("a\n", "a\nb\nc\n", "a\nd\n") == ("a\nd\nb\nc\n", 2)
+    assert filter_deletions(" M results/M3/L_a.json\n D gen/M3/proofs/L_a/PROOF.bend\n D docs/README.md\n"
+                            " D ../x\n D .github/x.yml\n?? results/M3/L_b.json\n") == ["gen/M3/proofs/L_a/PROOF.bend"]
     t = "x\n<<<<<<< ours\n| I2 | b |\n=======\n| I1 | a |\n>>>>>>> lead\ny\n"
     assert union_rows(t) == "x\n| I1 | a |\n| I2 | b |\ny\n"
     assert union_rows("<<<<<<< o\nprose\n=======\n| r |\n>>>>>>> t\n") is None
