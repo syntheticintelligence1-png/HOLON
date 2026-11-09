@@ -141,7 +141,10 @@ jobs:
             # entries fails G6 naming both, and the final filter takes both to UNKNOWN (TestBuild B1, B2); the
             # workflow runs G6 on M3 (B3); holon/replay_bind.py names no target (B4); at HEAD G6 passes exactly when
             # nothing is unbound (B5); every REFUTED M3 record is judged by a G6 clause (TestAmendAll A1).
+            # The final filter is `holon refute --only filter`, which checks the pinned solver before any stage runs
+            # (spec/M3/lib/refute.json solver); without it the command exits 2 and B2 fails (run 42607037319).
             timeout: 60
+            extract: true
             run: python -m unittest tests_m3.test_g6_i98.TestBuild tests_m3.test_g6_i98.TestAmendAll.test_a1_every_refuted_record_is_judged -v
           - name: gate-M3-G2
             # F38: each gate re-runs only its own milestone's binding_change proofs in the two kernels, so M3's are
@@ -212,6 +215,11 @@ jobs:
           key: holon-kcache-v1-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.name }}
           restore-keys: holon-kcache-v1-
           path: ~/.cache/holon-kcache
+      # the pinned z3 (hash-pinned wheels, tools/extract-requirements.txt) for a job that runs `holon refute`, which
+      # refuses to run without it: installed as the re-make's apply job installs it (.github/ci/remake.template.yml)
+      - name: The pinned z3
+        if: matrix.extract
+        run: bash tools/setup_env.sh --extract
       - name: ${{ matrix.name }}
         run: |
           mkdir -p "$RUNNER_TEMP/ci-out"
