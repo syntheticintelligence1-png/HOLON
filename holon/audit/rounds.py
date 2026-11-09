@@ -46,6 +46,29 @@ class RoundError(RuntimeError):
     pass
 
 
+def load_rulings(root: Path, milestone: str) -> dict:
+    """The milestone's audit rulings, spec/<M>/lib/audit_rulings.json of the root, or {} without one. Its
+    same_family_admitted.ruling names the human's ruling (HUMAN_ANSWERS Q9b) under which a same-family round may count."""
+    p = Path(root) / "spec" / milestone / "lib" / "audit_rulings.json"
+    if not p.is_file():
+        return {}
+    try:
+        doc = json.loads(p.read_text(encoding="utf-8"))
+    except ValueError as e:
+        raise RoundError(f"{rel_or_abs(p, Path(root))}: {e}") from None
+    return doc if isinstance(doc, dict) else {}
+
+
+def admitted_same_family(a: dict, rulings: dict | None) -> str | None:
+    """The ruling that admits a same-family round toward convergence, or None: the round's auditor.family is "same"
+    and its auditor.ruling is exactly the milestone's same_family_admitted.ruling (HUMAN_ANSWERS Q9b). The round keeps
+    its family; every other CV1 condition still applies."""
+    want = ((rulings or {}).get("same_family_admitted") or {}).get("ruling")
+    if isinstance(want, str) and want and a.get("family") == "same" and a.get("ruling") == want:
+        return want
+    return None
+
+
 def policy_path(root: Path, milestone: str) -> Path:
     """The milestone's policy file: spec/<M>/lib/audit_loop.json of the root, else I87's (root's, else ours)."""
     root = Path(root)
@@ -135,11 +158,12 @@ def round_types(r: dict) -> set:
             if isinstance(a, dict) and a.get("auditor_type") and a.get("run", True) is not False}
 
 
-def qualifies(r: dict, earlier_sessions: set, policy: dict) -> tuple[bool, str]:
-    """CV1 without the round's own claim: (qualifies, why not)."""
+def qualifies(r: dict, earlier_sessions: set, policy: dict, rulings: dict | None = None) -> tuple[bool, str]:
+    """CV1 without the round's own claim: (qualifies, why not). A same-family round that cites the milestone's
+    admitting ruling (admitted_same_family; HUMAN_ANSWERS Q9b) passes the family condition, and only that one."""
     cv = policy["convergence"]
     a = r.get("auditor") or {}
-    if a.get("family") != cv["counted_family"]:
+    if a.get("family") != cv["counted_family"] and not admitted_same_family(a, rulings):
         return False, f"family {a.get('family')!r}: only a {cv['counted_family']!r}-family round counts (Q9)"
     if r.get("dry_run") is True:
         return False, "a dry run"
@@ -210,6 +234,10 @@ def check(root: Path, milestone: str) -> dict:
     policy, pp = load_policy(root, milestone)
     problems: list[str] = [f"RD4: {b}" for b in load_findings(root, milestone, policy)[1]]
     try:
+        rulings = load_rulings(root, milestone)
+    except RoundError as e:
+        rulings, problems = {}, problems + [str(e)]
+    try:
         rounds = load_rounds(root, milestone)
     except RoundError as e:
         return {"milestone": milestone, "rounds": 0, "problems": problems + [str(e)], "policy": rel_or_abs(pp, root)}
@@ -227,10 +255,12 @@ def check(root: Path, milestone: str) -> dict:
         claims = a.get("counts_toward_convergence") is True
         if a.get("family") not in ("same", "different"):
             problems.append(f"RD1: {name}: auditor.family {a.get('family')!r} is neither 'same' nor 'different'")
-        if claims and (a.get("family") == "same" or r.get("dry_run") is True):
+        if claims and (r.get("dry_run") is True or (a.get("family") == "same"
+                                                    and not admitted_same_family(a, rulings))):
             problems.append(f"RD1: {name}: a {'dry run' if r.get('dry_run') is True else 'same-family round'} "
-                            "never counts toward convergence (Q9)")
-        ok, why = qualifies(r, seen, policy)
+                            "never counts toward convergence (Q9), unless a same-family round cites the milestone's "
+                            "admitting ruling in auditor.ruling (Q9b)")
+        ok, why = qualifies(r, seen, policy, rulings)
         if claims and not ok:
             problems.append(f"RD2: {name} claims to count toward convergence but does not qualify: {why}")
         problems += [f"RD5: {name}: {x}" for x in driver_problems(root, milestone, n, r)]

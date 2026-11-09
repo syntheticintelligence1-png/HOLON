@@ -1,0 +1,9 @@
+{
+ "doc": "The human's rulings on which M3 audit rounds count toward convergence, read by holon/audit/rounds.py (qualifies, RD1) and holon/audit/converge.py, beside I87's policy spec/M3/lib/audit_loop.json, which stays byte-identical to its prereg. same_family_admitted: a round whose auditor.family is \"same\" and whose auditor.ruling is exactly the ruling below passes CV1's family condition, and only that condition: it is still not counted if it is a dry run, if one of A1-A4 did not run, or if its auditor.session is an earlier M3 round's (L19). It keeps family \"same\" in the round file and in results/M3/audit_status.json, whose row reads why \"counted: a same-family round admitted by HUMAN_ANSWERS Q9b\". A high-priority finding of any round still resets the streak (CV3), and an open one still blocks convergence (CV4).",
+ "rulings_version": "holon-audit-rulings/0.1",
+ "same_family_admitted": {
+  "disclosure": "A round counted under this ruling was audited by a model of the builders' own family (a fresh Claude agent session with no prior context, launched by HOLON's coordinator), not by another family: every report of M3's E3 states this as a limitation.",
+  "ruling": "HUMAN_ANSWERS Q9b",
+  "source": "docs/HUMAN_ANSWERS.md, row Q9b (the human, 2026-11-09, relayed by the coordinator session)"
+ }
+}
