@@ -9,13 +9,18 @@
     {
       "checker": {
         "bendtt": {
+          "construct": {
+            "def": "cz",
+            "name": "kernel_fuel",
+            "repro": "tests_m3/fixtures/bendtt_i97/kernel_fuel"
+          },
           "exit_code": 1,
           "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
-          "seconds": 9.69
+          "seconds": 14.48
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 1.026
+        "seconds": 1.61
       },
       "kind": "counter_law",
       "ok": true,
@@ -46,13 +51,18 @@
   "bound": null,
   "checker": {
     "bendtt": {
+      "construct": {
+        "def": "cz",
+        "name": "kernel_fuel",
+        "repro": "tests_m3/fixtures/bendtt_i97/kernel_fuel"
+      },
       "exit_code": 1,
       "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
-      "seconds": 9.69
+      "seconds": 14.48
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 1.026
+    "seconds": 1.61
   },
   "compiled_sha256": "06d4f1cf7b5052060b1207217984a952e248784c9545450561d454113b016194",
   "concretization": {
@@ -80,7 +90,7 @@
   "evidence_triage": "finding",
   "facts_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
   "filter_bin": "pending",
-  "generator_sha256": "2d9b3e930b01459ccd58ed99205279f8d462d371d701335952b9700393b0e567",
+  "generator_sha256": "19ec0c88a73f4d1e36369166a5403646d1a6daea16ff7781ff96ee2f20748eca",
   "gox": {
     "basis": {
       "arg": [
@@ -1062,7 +1072,8 @@
   "independence_class": "I1",
   "kernel": {
     "name": "bend",
-    "verdict": "failed",
+    "verdict": "not_run",
+    "verdict_reason": "kernel_fuel: tests_m3/fixtures/bendtt_i97/kernel_fuel",
     "version": "2.0.36"
   },
   "kernels": [
@@ -1074,8 +1085,9 @@
     },
     {
       "name": "bendtt",
-      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
-      "result": "failed",
+      "note": "kernel_fuel: tests_m3/fixtures/bendtt_i97/kernel_fuel (def cz)",
+      "reason": "heartbeats",
+      "result": "not_run",
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
@@ -1123,7 +1135,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 11.52,
+  "seconds": 31.422,
   "statement": "size short-cut of (*morph-l2/common/batch.BatchData).WillExceedCompressedSizeLimit: where path 4's test holds, path 7's value at position 0 (a size test of morph-l2/common/codec/zstd.CompressBatchBytes's output) equals path 4's; premise HypZ_len at the argument (spec/M3/lib/compression.json#hypotheses.HypZ_len); gox go_branch:BatchData_WillExceedCompressedSizeLimit:p4:p7",
   "statement_hash": "sha256:1f8ecc92bf6ef38b031e25e6d245066e2bc86ef57032ba50fedceef993080590",
   "status": "REFUTED",

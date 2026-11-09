@@ -16,17 +16,22 @@
     {
       "checker": {
         "bendtt": {
+          "construct": {
+            "def": "w_r0",
+            "name": "kernel_fuel",
+            "repro": "tests_m3/fixtures/bendtt_i97/kernel_fuel"
+          },
           "exit_code": 1,
           "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
-          "seconds": 18.096
+          "seconds": 22.484
         },
         "exit_code": 0,
         "marker": "ALL PROOFS CHECK",
-        "seconds": 5.086
+        "seconds": 5.694
       },
       "escape_hatches": [],
       "kind": "counter",
-      "verdict": "failed"
+      "verdict": "not_run"
     },
     {
       "agree": true,
@@ -38,13 +43,18 @@
   "bound": null,
   "checker": {
     "bendtt": {
+      "construct": {
+        "def": "w_r0",
+        "name": "kernel_fuel",
+        "repro": "tests_m3/fixtures/bendtt_i97/kernel_fuel"
+      },
       "exit_code": 1,
       "output_tail": "SOME PROOFS FAIL\nSorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.\n",
-      "seconds": 18.096
+      "seconds": 22.484
     },
     "exit_code": 0,
     "marker": "ALL PROOFS CHECK",
-    "seconds": 5.086
+    "seconds": 5.694
   },
   "compiled_sha256": "f82f716a10385d6a6d8db9a672733f84a040f29b8e0691838ba51fe18e1e5a2c",
   "concretization": {
@@ -1500,11 +1510,12 @@
   "evidence_triage": "finding",
   "facts_sha256": "32786cbfecfc119492d4b12e1d29c02201c3b34d3adebeb6bd0553b118112d8c",
   "filter_bin": "pending",
-  "generator_sha256": "9a8c0a2c70e0d5e7f162c4d25e4fbcd647eef23158955894638fe1d9be8146b7",
+  "generator_sha256": "e1f0222d4f26c13d4fc48b599961e28024d848ac1b931cec257aff20fe567049",
   "independence_class": "I1",
   "kernel": {
     "name": "bend",
-    "verdict": "failed",
+    "verdict": "not_run",
+    "verdict_reason": "kernel_fuel: tests_m3/fixtures/bendtt_i97/kernel_fuel",
     "version": "2.0.36"
   },
   "kernels": [
@@ -1516,8 +1527,9 @@
     },
     {
       "name": "bendtt",
-      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
-      "result": "failed",
+      "note": "kernel_fuel: tests_m3/fixtures/bendtt_i97/kernel_fuel (def w_r0)",
+      "reason": "heartbeats",
+      "result": "not_run",
       "role": "second",
       "shares_frontend_with": "bend2",
       "version": "2.0.36"
@@ -1557,7 +1569,7 @@
     "horizon": null,
     "kind": "unbounded"
   },
-  "seconds": 26.081,
+  "seconds": 53.841,
   "section_sha256": "07fe7c26e9ae5d46478042b1f715dee48c5420df62f4e2eb9e65f7920ec8252c",
   "statement": "time translation over the member queue: for every d, from a reachable s, an act x of getFirstUnfinalizedMessageEnqueueTime run on τ_d s and τ_d x gives τ_d of its run on s and x (storage, outcome, Time words of the logs; a key the store does not hold is not translated); the view's Time-sorted return word is translated in the first run's observation (K5); symb queue:member_tau:getFirstUnfinalizedMessageEnqueueTime",
   "statement_hash": "sha256:a85354f40f01bb3e8dffc4dea603fa685fef263b81586e3a2ad4e9c6116019f7",
