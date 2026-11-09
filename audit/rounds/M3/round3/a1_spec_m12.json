@@ -1,0 +1,25 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 0
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 657,
+    "new": "batchDataStore[_batchIndex]",
+    "old": "batchDataStore[_batchIndex - 1]"
+   },
+   "expect": "wrong index in a clear: finalizeBatch deletes the just-finalized batch's batchDataStore entry instead of its predecessor's, so batchDataStore[lastCommittedBatchIndex].originTimestamp reads 0 after the tip is finalized and commitBatchWithProof's rollupDelay check passes at once; not equivalent. Expect the batchDataStore sentinel or SYM laws to move.",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "id": "m12",
+   "laws": [
+    "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatchWithProof_366",
+    "L_sym_tau_Rollup_finalizeBatch"
+   ]
+  }
+ ],
+ "note": "M3 round 3, one mutant per invocation. Law re-runs not budgeted (max_law_runs 0): the mutated file is an extraction input of the rollup or header document, so the mutant touches 141+ laws, and one touched FACT law's baseline run alone took over 11 minutes; the verdict rests on the extraction and the re-derivation. Equivalence judged from the diff before the run.",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}

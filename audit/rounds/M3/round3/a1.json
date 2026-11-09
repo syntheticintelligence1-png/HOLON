@@ -1,0 +1,260 @@
+{
+ "a1_version": "holon-audit-a1/0.1",
+ "attack": {
+  "auditor_type": "A1",
+  "category": "mutation_adequacy",
+  "evidence": [
+   "audit/rounds/M3/round3/a1.json",
+   "audit/rounds/M3/round3/a1_spec.json"
+  ],
+  "findings": [],
+  "id": "A1",
+  "result": "finding",
+  "run": true,
+  "tried": "`python -m holon audit mutation --milestone M3 --round 3 --spec audit/rounds/M3/round3/a1_spec.json`: 4 mutant(s) of the auditor's choosing on morph-l2/morph@3e44e795586a; 0 detected, 4 missed, 0 incomplete, 0 refused; caps 600 s per law run, 80 runs per round (0 used). Each missed mutant is an extraction or rule gap unless the auditor judged it equivalent from its diff before the run; file the misses as findings and list their ids."
+ },
+ "baseline": {
+  "documents": {
+   "gen/M3/bundle/documents/messenger.json": {
+    "error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/target/gen/M3/bundle/sidecars/messenger.json: malformed: output is not a repo-relative path ending .extracted.json",
+    "reproduces": false
+   },
+   "gen/M3/bundle/documents/queue.json": {
+    "error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/target/gen/M3/bundle/sidecars/queue.json: malformed: output is not a repo-relative path ending .extracted.json",
+    "reproduces": false
+   }
+  },
+  "runs": {}
+ },
+ "budget": {
+  "law_timeout_s": 600,
+  "max_law_runs": 80
+ },
+ "checkout": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph"
+ },
+ "law_runs": 0,
+ "milestone": "M3",
+ "mutations": [
+  {
+   "derivation": null,
+   "diff": "--- a/contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol\n+++ b/contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol\n@@ -260,5 +260,5 @@\n \n     function getFirstUnfinalizedMessageEnqueueTime() external view returns (uint256 timestamp) {\n-        if (pendingQueueIndex < messageQueue.length && messageEnqueueTime[pendingQueueIndex] != 0) {\n+        if (pendingQueueIndex < messageQueue.length) {\n             // has pending messages and return enqueue time\n                 return messageEnqueueTime[pendingQueueIndex];\n",
+   "documents": {
+    "gen/M3/bundle/documents/queue.json": {
+     "baseline_error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/target/gen/M3/bundle/sidecars/queue.json: malformed: output is not a repo-relative path ending .extracted.json",
+     "baseline_reproduces": false,
+     "error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/m/m01/tree/gen/M3/bundle/sidecars/queue.json: malformed: output is not a repo-relative path ending .extracted.json",
+     "status": "error"
+    }
+   },
+   "expect": "dropped sentinel guard: getFirstUnfinalizedMessageEnqueueTime returns a pending message's enqueue time even when it is the unset sentinel 0 (a message queued before the time field existed), so the rollup's delay checks read 0 + rollupDelayPeriod; not equivalent on states with a legacy (time-0) pending message. Expect the sentinel_inv law or the derivation to move.",
+   "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+   "id": "m01",
+   "not_run": {},
+   "obstructions": [],
+   "runs": {},
+   "spec_sha256": "f2f65a7efbdeb5e72cd22a8123aa9aea831587af9f026d9f60d16d260401e08e",
+   "verdict": "missed",
+   "why": "the frontends extract the same content from the mutant (only the input files' hashes differ): no law can see it"
+  },
+  {
+   "derivation": null,
+   "diff": "--- a/contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol\n+++ b/contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol\n@@ -375,5 +375,5 @@\n         bytes32 _hash = computeTransactionHash(_sender, _queueIndex, _value, _target, _gasLimit, _data);\n         messageQueue.push(_hash);\n-        messageEnqueueTime[_queueIndex] = block.timestamp;\n+        messageEnqueueTime[_queueIndex] = block.number;\n \n         // emit event\n",
+   "documents": {
+    "gen/M3/bundle/documents/queue.json": {
+     "baseline_error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/target/gen/M3/bundle/sidecars/queue.json: malformed: output is not a repo-relative path ending .extracted.json",
+     "baseline_reproduces": false,
+     "error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/m/m02/tree/gen/M3/bundle/sidecars/queue.json: malformed: output is not a repo-relative path ending .extracted.json",
+     "status": "error"
+    }
+   },
+   "expect": "wrong unit (sort confusion): the Time-sorted register messageEnqueueTime is written with a block number; not equivalent. Expect the sentinel or tau laws over the 377 site, or the derivation (SORT/SYM), to move.",
+   "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+   "id": "m02",
+   "not_run": {},
+   "obstructions": [],
+   "runs": {},
+   "spec_sha256": "1f64254867be45081f1354d8292f929c729a87198e572f70cce3f16507947462",
+   "verdict": "missed",
+   "why": "the frontends extract the same content from the mutant (only the input files' hashes differ): no law can see it"
+  },
+  {
+   "derivation": null,
+   "diff": "--- a/contracts/contracts/l1/L1CrossDomainMessenger.sol\n+++ b/contracts/contracts/l1/L1CrossDomainMessenger.sol\n@@ -165,5 +165,5 @@\n         if (success) {\n             // Mark the withdrawal as finalized so it can't be replayed.\n-            finalizedWithdrawals[_xDomainCalldataHash] = true;\n+            \n             emit RelayedMessage(_xDomainCalldataHash);\n         } else {\n",
+   "documents": {
+    "gen/M3/bundle/documents/messenger.json": {
+     "baseline_error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/target/gen/M3/bundle/sidecars/messenger.json: malformed: output is not a repo-relative path ending .extracted.json",
+     "baseline_reproduces": false,
+     "error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/m/m03/tree/gen/M3/bundle/sidecars/messenger.json: malformed: output is not a repo-relative path ending .extracted.json",
+     "status": "error"
+    }
+   },
+   "expect": "missing write: a successful relay no longer marks the withdrawal finalized, so the replay guard at line 141 never blocks a second relay; not equivalent. Expect the keyed DISCH laws over the 141 guard or the derivation to move.",
+   "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+   "id": "m03",
+   "not_run": {},
+   "obstructions": [],
+   "runs": {},
+   "spec_sha256": "39340f1c0005f8df5e0c240595f098326636ced18fe74bf0dd21a95c3371532c",
+   "verdict": "missed",
+   "why": "the frontends extract the same content from the mutant (only the input files' hashes differ): no law can see it"
+  },
+  {
+   "derivation": null,
+   "diff": "--- a/contracts/contracts/l1/L1CrossDomainMessenger.sol\n+++ b/contracts/contracts/l1/L1CrossDomainMessenger.sol\n@@ -224,5 +224,5 @@\n \n             // update replay times\n-            require(_replayState.times < maxReplayTimes, \"Exceed maximum replay times\");\n+            require(_replayState.times <= maxReplayTimes, \"Exceed maximum replay times\");\n             unchecked {\n                 _replayState.times += 1;\n",
+   "documents": {
+    "gen/M3/bundle/documents/messenger.json": {
+     "baseline_error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/target/gen/M3/bundle/sidecars/messenger.json: malformed: output is not a repo-relative path ending .extracted.json",
+     "baseline_reproduces": false,
+     "error": "holon extract solidity (exit 2): holon extract solidity: refused: sidecar <work>/m/m04/tree/gen/M3/bundle/sidecars/messenger.json: malformed: output is not a repo-relative path ending .extracted.json",
+     "status": "error"
+    }
+   },
+   "expect": "off-by-one bound: one replay more than maxReplayTimes is allowed; not equivalent (the (maxReplayTimes+1)-th replay succeeds). Expect the keyed DISCH laws over the 226 guard or the derivation to move.",
+   "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+   "id": "m04",
+   "not_run": {},
+   "obstructions": [],
+   "runs": {},
+   "spec_sha256": "572ecfa7b9a41f2dc78d7dcf10e30aaa1605350182ec494b8dcc207169b6b2cb",
+   "verdict": "missed",
+   "why": "the frontends extract the same content from the mutant (only the input files' hashes differ): no law can see it"
+  }
+ ],
+ "round": 3,
+ "scope": {
+  "documents": [
+   "gen/M3/bundle/documents/messenger.json",
+   "gen/M3/bundle/documents/queue.json",
+   "gen/M3/bundle/documents/submitter.json",
+   "gen/M3/codec/header_length.json",
+   "gen/M3/goops/blob_ops.json",
+   "gen/M3/goops/l1_counts.json",
+   "gen/M3/own/batch_BatchData.json",
+   "gen/M3/own/batch_BatchHeaderV0.json",
+   "gen/M3/own/batch_BatchHeaderV1.json",
+   "gen/M3/versions/documents/V10.json",
+   "gen/M3/versions/documents/V11.json",
+   "gen/M3/versions/documents/V3.json",
+   "gen/M3/versions/documents/V4.json",
+   "gen/M3/versions/documents/V5.json",
+   "gen/M3/versions/documents/V6.json",
+   "gen/M3/versions/documents/V7.json",
+   "gen/M3/versions/documents/V8.json",
+   "gen/M3/versions/documents/V9.json",
+   "gen/M3/versions/morph_rollup.versions.json",
+   "spec/M2/facts/morph_batch.go.extracted.json",
+   "spec/M2/facts/morph_header.extracted.json",
+   "spec/M2/facts/morph_rollup.extracted.json",
+   "spec/M3/facts/morph_blob.go.extracted.json",
+   "spec/M3/facts/morph_go03.go.extracted.json",
+   "spec/M3/lib/derive_extracted.json",
+   "spec/M3/lib/link.json"
+  ],
+  "out_of_reach": [
+   "gen/M3/versions/documents/V10.json",
+   "gen/M3/versions/documents/V11.json",
+   "gen/M3/versions/documents/V3.json",
+   "gen/M3/versions/documents/V4.json",
+   "gen/M3/versions/documents/V5.json",
+   "gen/M3/versions/documents/V6.json",
+   "gen/M3/versions/documents/V7.json",
+   "gen/M3/versions/documents/V8.json",
+   "gen/M3/versions/documents/V9.json"
+  ],
+  "reachable": [
+   "gen/M3/bundle/documents/messenger.json",
+   "gen/M3/bundle/documents/queue.json",
+   "gen/M3/bundle/documents/submitter.json",
+   "spec/M2/facts/morph_batch.go.extracted.json",
+   "spec/M2/facts/morph_header.extracted.json",
+   "spec/M2/facts/morph_rollup.extracted.json",
+   "spec/M3/facts/morph_blob.go.extracted.json",
+   "spec/M3/facts/morph_go03.go.extracted.json"
+  ]
+ },
+ "spec": {
+  "body": {
+   "budget": {
+    "law_timeout_s": 600,
+    "max_law_runs": 80
+   },
+   "milestone": "M3",
+   "mutations": [
+    {
+     "edit": {
+      "line": 262,
+      "new": "",
+      "old": " && messageEnqueueTime[pendingQueueIndex] != 0"
+     },
+     "expect": "dropped sentinel guard: getFirstUnfinalizedMessageEnqueueTime returns a pending message's enqueue time even when it is the unset sentinel 0 (a message queued before the time field existed), so the rollup's delay checks read 0 + rollupDelayPeriod; not equivalent on states with a legacy (time-0) pending message. Expect the sentinel_inv law or the derivation to move.",
+     "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+     "id": "m01",
+     "laws": [
+      "L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime",
+      "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime"
+     ]
+    },
+    {
+     "edit": {
+      "line": 377,
+      "new": "block.number",
+      "old": "block.timestamp"
+     },
+     "expect": "wrong unit (sort confusion): the Time-sorted register messageEnqueueTime is written with a block number; not equivalent. Expect the sentinel or tau laws over the 377 site, or the derivation (SORT/SYM), to move.",
+     "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+     "id": "m02",
+     "laws": [
+      "L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendCrossDomainMessage_377",
+      "L_sym_tau_L1MessageQueueWithGasPriceOracle_appendCrossDomainMessage"
+     ]
+    },
+    {
+     "edit": {
+      "line": 167,
+      "new": "",
+      "old": "finalizedWithdrawals[_xDomainCalldataHash] = true;"
+     },
+     "expect": "missing write: a successful relay no longer marks the withdrawal finalized, so the replay guard at line 141 never blocks a second relay; not equivalent. Expect the keyed DISCH laws over the 141 guard or the derivation to move.",
+     "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+     "id": "m03",
+     "laws": [
+      "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone",
+      "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154"
+     ]
+    },
+    {
+     "edit": {
+      "line": 226,
+      "new": "_replayState.times <= maxReplayTimes",
+      "old": "_replayState.times < maxReplayTimes"
+     },
+     "expect": "off-by-one bound: one replay more than maxReplayTimes is allowed; not equivalent (the (maxReplayTimes+1)-th replay succeeds). Expect the keyed DISCH laws over the 226 guard or the derivation to move.",
+     "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+     "id": "m04",
+     "laws": [
+      "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner",
+      "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner"
+     ]
+    }
+   ],
+   "note": "M3 round 3, auditor-chosen mutants of the bundle members (queue, messenger). Equivalence judged from each diff before the run: none of the four is equivalent (see each expect).",
+   "spec_version": "holon-audit-a1-spec/0.1"
+  },
+  "path": "audit/rounds/M3/round3/a1_spec.json",
+  "sha256": "2e5c421237e0f911b2925acf77440c3a71fe9d3d6609fe9788aa8a2d57934a6e"
+ },
+ "summary": {
+  "detected": [],
+  "incomplete": [],
+  "missed": [
+   "m01",
+   "m02",
+   "m03",
+   "m04"
+  ],
+  "refused": []
+ },
+ "target_commit": "5e2436f9808d4c08a45de8c26ae1dcf9b2fde1dc"
+}
