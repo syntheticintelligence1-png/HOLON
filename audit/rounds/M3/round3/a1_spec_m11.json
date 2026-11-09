@@ -1,0 +1,25 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 0
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 447,
+    "new": "",
+    "old": "committedBatches[_batchIndex] = bytes32(0);"
+   },
+   "expect": "missing clear: revertBatch no longer clears the reverted batch's hash, so a reverted batch stays committed; not equivalent. Expect an UNDO residue on committedBatches (a derivation change) or the UNDO laws to move.",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "id": "m11",
+   "laws": [
+    "L_undo_pair_Rollup_commitBatch_revertBatch",
+    "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes"
+   ]
+  }
+ ],
+ "note": "M3 round 3, one mutant per invocation. Law re-runs not budgeted (max_law_runs 0): the mutated file is an extraction input of the rollup or header document, so the mutant touches 141+ laws, and one touched FACT law's baseline run alone took over 11 minutes; the verdict rests on the extraction and the re-derivation. Equivalence judged from the diff before the run.",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}

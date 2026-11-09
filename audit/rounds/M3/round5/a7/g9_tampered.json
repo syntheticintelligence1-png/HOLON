@@ -1,0 +1,42 @@
+{
+  "bend_version": "2.0.36",
+  "canaries": [],
+  "checks": {
+    "G9": {
+      "detail": "I30 laws: 3 records valid under v1 and v2; DISCH laws: 35 DISCH records valid under v1 and v2; FACT laws: 5 FACT records valid under v1 and v2; contract laws: 1 contract law records valid under v1 and v2; derivation laws: 5 derivation records valid under v1 and v2; bundle laws: 8 bundle-law records (of 8 laws) valid under v1 and v2; bundle laws: 17 bundle records valid against v1 and v2; the 207 other laws: 207 records valid against v1 and v2; ledger_assumptions recomputed",
+      "passed": true
+    },
+    "GENV": {
+      "detail": "bend 2.0.36, pinned 2.0.36; fingerprint sha256:50c0675b0aa1f22c2db9f45610155ce4e5357b716bcfd3db2c861a6e082d9af9 pinned (checkout /root/.holon/bend at 2343aec043b7, bun 1.4.2, bun sha256 a83d263767d8); executes /root/.bun/bin/bun /root/.holon/bend/bend2/main.ts; checker stack: JavaScript 1024 MB, RLIMIT_STACK 1024 MB (hard unlimited), set in its process by the launcher; kernel /root/.bend/bendtt/b9f3e0253abffb11/bendtt sha256 3cedffa1a1ea pinned; no global bunfig; not quarantined (results/quarantine.json is agent-writable: self-certified until Q1)",
+      "passed": true
+    }
+  },
+  "milestone": "M3",
+  "not_applicable": {
+    "GREF": "the disagreements of the typed model's refinement are filed in results/M3/sorts/disagreements.json (R5), not spec/M2/disagreements.json"
+  },
+  "partial": true,
+  "passed": true,
+  "warnings": [
+    {
+      "check": "GUNDO",
+      "law": "L_undo_pair_Rollup_addChallenger_removeChallenger"
+    },
+    {
+      "check": "GUNDO",
+      "law": "L_undo_pair_Rollup_commitBatchWithProof_revertBatch"
+    },
+    {
+      "check": "GUNDO",
+      "law": "L_undo_pair_Rollup_commitState_revertBatch"
+    },
+    {
+      "check": "GUNDO",
+      "law": "L_undo_pair_Rollup_removeChallenger_addChallenger"
+    },
+    {
+      "check": "GUNDO",
+      "law": "L_undo_res_Rollup_revertBatch_committedStateRoots"
+    }
+  ]
+}

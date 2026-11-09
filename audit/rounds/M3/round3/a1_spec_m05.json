@@ -1,0 +1,25 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 4
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 24,
+    "new": "blockContextBytes[1:9]",
+    "old": "blockContextBytes[:8]"
+   },
+   "expect": "off-by-one offset: HeightFromBlockContextBytes reads the height from bytes 1..8 instead of 0..7, so it no longer inverts BuildBlockContext's Number field; not equivalent. Expect the go_round_trip laws (PROVED) to flip.",
+   "file": "common/batch/encoding.go",
+   "id": "m05",
+   "laws": [
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_0",
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1"
+   ]
+  }
+ ],
+ "note": "M3 round 3, one mutant per invocation (the driver's law-run cap is shared by the mutants of a spec, in order, so each mutant gets its own); equivalence judged from the diff before the run",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}

@@ -1,10 +1,12 @@
 {
  "converged": false,
- "counted": 0,
+ "counted": 3,
  "findings_file": "audit/M3_findings.jsonl",
  "k": 3,
  "milestone": "M3",
- "open_high": [],
+ "open_high": [
+  "F-M3-19"
+ ],
  "policy": {
   "path": "spec/M3/lib/audit_loop.json",
   "sha256": "5bebc1affd4605469a0ac22e0b916e44991875c0f59372718b2addcad5761b47"
@@ -26,9 +28,33 @@
    "family": "same",
    "round": 2,
    "why": "not counted: family 'same': only a 'different'-family round counts (Q9)"
+  },
+  {
+   "clean": false,
+   "counted": true,
+   "dry_run": false,
+   "family": "same",
+   "round": 3,
+   "why": "counted: a same-family round admitted by HUMAN_ANSWERS Q9b; not clean: high-priority finding(s) F-M3-13; the streak resets"
+  },
+  {
+   "clean": false,
+   "counted": true,
+   "dry_run": false,
+   "family": "same",
+   "round": 4,
+   "why": "counted: a same-family round admitted by HUMAN_ANSWERS Q9b; not clean: high-priority finding(s) F-M3-14; the streak resets"
+  },
+  {
+   "clean": false,
+   "counted": true,
+   "dry_run": false,
+   "family": "same",
+   "round": 5,
+   "why": "counted: a same-family round admitted by HUMAN_ANSWERS Q9b; not clean: high-priority finding(s) F-M3-19; the streak resets"
   }
  ],
  "status_version": "holon-audit-status/0.1",
  "streak": 0,
- "why": "not converged: the streak is 0 counted clean round(s), k is 3; no round counts: none is a qualifying round from another model family (Q9: same-family and dry-run rounds are labelled and never counted)"
+ "why": "not converged: the streak is 0 counted clean round(s), k is 3; open high-priority finding(s): F-M3-19"
 }

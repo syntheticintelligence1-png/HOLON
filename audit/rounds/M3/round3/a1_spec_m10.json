@@ -1,0 +1,25 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 0
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 441,
+    "new": "",
+    "old": "require(_batchIndex > lastFinalizedBatchIndex, \"can only revert unFinalized batch\");"
+   },
+   "expect": "dropped guard: the owner can revert finalized batches (committedBatches cleared while finalizedStateRoots and lastFinalizedBatchIndex stay); not equivalent. Expect a law over revertBatch, a SORT obligation at the subtraction on line 443, or the derivation to move.",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "id": "m10",
+   "laws": [
+    "L_undo_pair_Rollup_commitBatch_revertBatch",
+    "L_sym_tau_Rollup_revertBatch"
+   ]
+  }
+ ],
+ "note": "M3 round 3, one mutant per invocation. Law re-runs not budgeted (max_law_runs 0): the mutated file is an extraction input of the rollup or header document, so the mutant touches 141+ laws, and one touched FACT law's baseline run alone took over 11 minutes; the verdict rests on the extraction and the re-derivation. Equivalence judged from the diff before the run.",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}
