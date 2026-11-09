@@ -235,8 +235,13 @@ class DerivationGate:
                 errs = S.errors(r, sch)
                 if errs:
                     bad.append(f"{lid}: {name} {errs[:2]}")
-        self.checks["G9"] = _res(not bad, f"{len(self.ids)} derivation records valid under v1 and v2" if not bad
-                                 else "; ".join(bad[:6]))
+        from .. import records as R   # I99 (audit M3/5 F-M3-19): premises hold the law's assume clauses
+        from .decide import render_premise
+        recs = {lid: r for lid in self.ids for r in [self.record(lid)] if r}
+        bad = R.premise_problems_of(self.root, self.m, recs, law_dir=self.law_dir,
+                                    render=lambda law: [render_premise(p) for p in law["statement"].get("assume", [])]) + bad
+        self.checks["G9"] = _res(not bad, f"{len(self.ids)} derivation records valid under v1 and v2, their premises "
+                                 "holding every assume clause" if not bad else "; ".join(bad[:6]))
 
     def run(self, only: list | None) -> None:
         for k in CHECKS:

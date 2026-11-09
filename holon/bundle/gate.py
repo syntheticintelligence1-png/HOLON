@@ -168,7 +168,9 @@ class BundleGate:
                 bad.append(f"{lid}: the record's rule and sub-form are not its law's")
             if not isinstance(rec.get("dependencies"), list):
                 bad.append(f"{lid}: no dependencies list")
-        self.checks["G9"] = _res(not bad and n > 0, f"{n} bundle records valid against v1 and v2" if not bad and n
+        from .. import records as R   # I99 (audit M3/5 F-M3-19): premises hold the law's assume clauses
+        bad = R.premise_problems_of(self.root, self.m, {k: v for k, v in self.records().items() if v}) + bad
+        self.checks["G9"] = _res(not bad and n > 0, f"{n} bundle records valid against v1 and v2, their premises holding every assume clause" if not bad and n
                                  else "; ".join(bad[:6]) or "no records")
 
 
