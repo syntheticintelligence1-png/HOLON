@@ -339,6 +339,14 @@ def _main(argv: list) -> int:
     if argv[:1] == ["replay-go"]:  # likewise for holon.goreplay (the Go-op laws' replay on the real code, I67)
         from . import goreplay
         return goreplay.main(argv[1:])
+    if argv[:1] == ["replay-par"]:  # I98: the M3 PAR laws' library-level replays (holon.replay.main_replay_par)
+        import argparse as _ap
+        from . import replay as _replay
+        p = _ap.ArgumentParser(prog="holon replay-par")
+        p.add_argument("--milestone", default="M3")
+        for f in ("--morph", "--forge", "--solc", "--work"):
+            p.add_argument(f)
+        return _replay.main_replay_par(p.parse_args(argv[1:]))
     if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
         from . import profile
         return profile.main(argv[1:])

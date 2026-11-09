@@ -1,9 +1,9 @@
 {
   "artifacts": {
-    "law_name": "cl_l_par_cc_batchcache_createbatchheaderwithsequencersethash_enc_sol_v2",
+    "law_name": "l_par_cc_batchcache_createbatchheaderwithsequencersethash_enc_sol_v2",
     "laws": "gen/M3/laws/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2/LAWS.bend",
     "model": "gen/M3/model/header_length.bend",
-    "proof": "gen/M3/proofs/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2/PROOF.bend"
+    "proof": null
   },
   "attempts": [
     {
@@ -34,27 +34,101 @@
       "kind": "verdict",
       "marker": "ALL PROOFS CHECK",
       "seconds": 1.001
+    },
+    {
+      "bound": false,
+      "counter_law": {
+        "checker": {
+          "exit_code": 0,
+          "marker": "ALL PROOFS CHECK",
+          "seconds": 0.614
+        },
+        "law_name": "cl_l_par_cc_batchcache_createbatchheaderwithsequencersethash_enc_sol_v2",
+        "laws": "gen/M3/laws/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2/LAWS.bend",
+        "laws_sha256": "2e88b226a0b173fb33b920efe0bcbc9c7c130b4a5cb9d9d2f8b3d1576b42a6be",
+        "proof": "gen/M3/proofs/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2/PROOF.bend",
+        "proofs_sha256": {
+          "gen/M3/proofs/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2/PROOF.bend": "636f958ac3f2b7c42a6bffd8b41103d60c65da11a9364122f57c2745e8b2b3a0"
+        }
+      },
+      "found": true,
+      "kernel": {
+        "name": "bend",
+        "verdict": "checked",
+        "version": "2.0.36"
+      },
+      "kernels": [
+        {
+          "name": "bend2",
+          "result": "checked",
+          "role": "primary",
+          "version": "2.0.36"
+        },
+        {
+          "name": "bendtt",
+          "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+          "result": "checked",
+          "role": "second",
+          "shares_frontend_with": "bend2",
+          "version": "2.0.36"
+        },
+        {
+          "axioms": [],
+          "name": "lean4",
+          "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
+          "result": "checked",
+          "role": "second-independent",
+          "source": "gen/M3/lean/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.lean",
+          "source_sha256": "a19ea39f179e10d3ca5dc26183c5c9bfc4cf59ff447f72c40283c019dd97393f",
+          "theorem": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_counter",
+          "version": "4.34.0"
+        }
+      ],
+      "kind": "replay_binding",
+      "reason": "not bound by G6 to a passed replay on the real code",
+      "replay": {
+        "detail": "no replay report entry",
+        "status": "not_run"
+      },
+      "why": [
+        "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2: not replayed (no replay of its family names it: I40, go, gox, sym, symb)"
+      ],
+      "witness": {
+        "h": {
+          "BatchHeaderV0.BatchIndex": "0x0101010101010101",
+          "BatchHeaderV0.BlobVersionedHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "BatchHeaderV0.DataHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "BatchHeaderV0.L1MessagePopped": "0x0101010101010101",
+          "BatchHeaderV0.ParentBatchHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "BatchHeaderV0.PostStateRoot": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "BatchHeaderV0.PrevStateRoot": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "BatchHeaderV0.SequencerSetVerifyHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "BatchHeaderV0.TotalL1MessagePopped": "0x0101010101010101",
+          "BatchHeaderV0.WithdrawalRoot": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "LastBlockNumber": "0x0101010101010101"
+        },
+        "k": {
+          "batchIndex": "0x0101010101010101",
+          "blobVersionedHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "dataHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "l1MessagePopped": "0x0101010101010101",
+          "lastBlockNumber": "0x0101010101010101",
+          "parentBatchHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "postStateHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "prevStateHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "totalL1MessagePopped": "0x0101010101010101",
+          "version": "0x02",
+          "withdrawRootHash": "0x0101010101010101010101010101010101010101010101010101010101010101"
+        }
+      }
     }
   ],
+  "bound": "a model witness whose counter-law Bend accepts, not bound by G6 to a passed replay on the real code (holon.replay_bind): L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2: not replayed (no replay of its family names it: I40, go, gox, sym, symb)",
   "checker": {
-    "exit_code": 0,
-    "marker": "ALL PROOFS CHECK",
-    "seconds": 0.614
+    "exit_code": null,
+    "marker": "not_run"
   },
   "compiled_sha256": "7cf49fbddf3777be0849a6f2b2c814d5bb341455800e7f7fa2867be00a986003",
-  "concretization": {
-    "bound": {
-      "H": 8,
-      "rlimit": 200000000
-    },
-    "kind": "commit_class",
-    "length": null,
-    "reason": "a commit at version 2 from R0 (rule K3, the M0 commit-path rule): solver unknown at k = 1 (rlimit 200000000 spent (cumulative over the query's check-sats)); rlimit 200000000",
-    "result": "unknown",
-    "sides": {},
-    "target": null,
-    "tests": []
-  },
   "cone": [
     "BatchCache_createBatchHeaderWithSequencerSetHash",
     "R_BatchHeaderV1",
@@ -72,41 +146,22 @@
     "E1"
   ],
   "evidence_override": null,
-  "evidence_triage": "finding",
+  "evidence_triage": "none",
   "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
-  "filter_bin": "pending",
+  "filter_bin": null,
   "generator_sha256": "0a9ee632cc8a68f4f95675afc9a0c8baa832fb7157c4ca50bc1d78265da7c832",
-  "independence_class": "I2",
+  "independence_class": "none",
   "kernel": {
     "name": "bend",
-    "verdict": "checked",
+    "verdict": "not_run",
     "version": "2.0.36"
   },
   "kernels": [
     {
       "name": "bend2",
-      "result": "checked",
+      "result": "not_run",
       "role": "primary",
       "version": "2.0.36"
-    },
-    {
-      "name": "bendtt",
-      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
-      "result": "checked",
-      "role": "second",
-      "shares_frontend_with": "bend2",
-      "version": "2.0.36"
-    },
-    {
-      "axioms": [],
-      "name": "lean4",
-      "reading": "Lean cells are Option (BitVec 8): a record's byte is a BitVec 8 where Bend's is a U32, so Lean's theorems cover byte-valued records only (a narrower domain than Bend's, I9 Surprise 5); an undefined cell (Bend 57005) is none, and the decoders' orderings compare it as 57005; every premise is a hypothesis where Bend pins a field to a constant or to another record's field (an equivalent statement)",
-      "result": "checked",
-      "role": "second-independent",
-      "source": "gen/M3/lean/L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.lean",
-      "source_sha256": "a19ea39f179e10d3ca5dc26183c5c9bfc4cf59ff447f72c40283c019dd97393f",
-      "theorem": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_counter",
-      "version": "4.34.0"
     }
   ],
   "law_id": "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
@@ -169,36 +224,9 @@
   "statement_scope": {
     "kind": "unbounded"
   },
-  "status": "REFUTED",
+  "status": "UNKNOWN",
   "subform": "cross_component_codec",
-  "triage": "finding",
-  "witness": {
-    "h": {
-      "BatchHeaderV0.BatchIndex": "0x0101010101010101",
-      "BatchHeaderV0.BlobVersionedHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "BatchHeaderV0.DataHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "BatchHeaderV0.L1MessagePopped": "0x0101010101010101",
-      "BatchHeaderV0.ParentBatchHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "BatchHeaderV0.PostStateRoot": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "BatchHeaderV0.PrevStateRoot": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "BatchHeaderV0.SequencerSetVerifyHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "BatchHeaderV0.TotalL1MessagePopped": "0x0101010101010101",
-      "BatchHeaderV0.WithdrawalRoot": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "LastBlockNumber": "0x0101010101010101"
-    },
-    "k": {
-      "batchIndex": "0x0101010101010101",
-      "blobVersionedHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "dataHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "l1MessagePopped": "0x0101010101010101",
-      "lastBlockNumber": "0x0101010101010101",
-      "parentBatchHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "postStateHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "prevStateHash": "0x0101010101010101010101010101010101010101010101010101010101010101",
-      "totalL1MessagePopped": "0x0101010101010101",
-      "version": "0x02",
-      "withdrawRootHash": "0x0101010101010101010101010101010101010101010101010101010101010101"
-    }
-  },
-  "witness_provenance": {}
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
 }

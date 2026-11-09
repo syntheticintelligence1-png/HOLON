@@ -154,9 +154,12 @@ def _nctx(milestone: str, root):
     return NatCtx(root, milestone)
 
 
-def g6(milestone: str, root) -> tuple[bool, str] | None:
+def g6(milestone: str, root, ctx=None) -> tuple[bool, str] | None:
     """G6 over the NAT laws of a milestone with a NAT sidecar (None without one): every REFUTED NAT record is bound to
-    its two passed runs of the NAT replay report (its witness's sha256), and its replay field says so."""
+    its two passed runs of the NAT replay report (its witness's sha256), and its replay field says so. I98: and the runs
+    observe the obstruction (side's obstruction_observed), or the record is GHOST_ONLY's (holon.replay_bind; ctx, a
+    holon.replay_bind.Ctx, counts it)."""
+    from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
     from .nat_run import nat_entries
     nctx = _nctx(milestone, root)
     if nctx is None:
@@ -173,13 +176,21 @@ def g6(milestone: str, root) -> tuple[bool, str] | None:
         if not isinstance(rec, dict) or rec.get("status") != "REFUTED":
             continue
         n += 1
+        RB.judged(lid)
         st = replay_status(nctx, rep, lid, rec.get("witness"))
         if st["status"] != "passed":
-            bad.append(f"{lid}: {st['detail']}")
+            bad.append(RB.refuse(lid, f"{lid}: {st['detail']}"))
         elif rec.get("replay") != st:
-            bad.append(f"{lid}: the record's replay field is not the report's ({(rec.get('replay') or {}).get('status')})")
-    return not bad, (f"{n} REFUTED NAT records bound to passed runs of {nctx.out('replay')}" if not bad
-                     else "; ".join(bad))
+            bad.append(RB.refuse(lid, f"{lid}: the record's replay field is not the report's "
+                                      f"({(rec.get('replay') or {}).get('status')})"))
+        elif not (side(nctx.root, milestone, lid, rec.get("witness")) or {}).get("obstruction_observed"):
+            ctx = ctx or RB.Ctx(milestone, nctx.root)
+            why = ctx.unobserved(lid, f"{lid}: runs {lid}:left and {lid}:right of {nctx.out('replay')} agree with the "
+                                      "model, and the real op's outcome does not differ between the two orders")
+            if why:
+                bad.append(RB.refuse(lid, why))
+    return not bad, (f"{n} REFUTED NAT records bound to passed runs of {nctx.out('replay')}, each observing the "
+                     "obstruction" if not bad else "; ".join(bad))
 
 
 def side(root, milestone: str, lid: str, witness: dict | None) -> dict | None:

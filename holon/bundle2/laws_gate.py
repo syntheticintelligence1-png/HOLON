@@ -155,24 +155,13 @@ class BundleLawsGate:
         self.checks["G11V"] = _res(False, f"PROVED bundle laws without a checked reachable inhabitant: {proved[:6]}")
 
     def g6(self):
-        want = {lid: r for lid, r in self.records().items() if r and r.get("status") == "REFUTED"}
-        from .laws import LawsCtx
-        L = LawsCtx(self.root, self.m)
-        rep = json.loads(L.replay_path.read_text()) if L.replay_path.is_file() else {"laws": {}}
-        bad = []
-        for lid, r in sorted(want.items()):
-            x = (rep.get("laws") or {}).get(lid)
-            if x is None:
-                bad.append(f"{lid}: not replayed")
-            elif x.get("status") != "passed":
-                bad.append(f"{lid}: replay {x.get('status')}")
-            elif (r.get("replay") or {}).get("status") != "passed":
-                bad.append(f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}")
-        if not want:
-            self.na["G6"] = "no bundle law is REFUTED"
+        """G6 is holon.replay_bind.bundle2's judgement (I98: one rule for G6 and the final filter)."""
+        from .. import replay_bind as RB
+        r = RB.bundle2(self.m, self.root)
+        if "na" in r:
+            self.na["G6"] = r["na"]
             return
-        self.checks["G6"] = _res(not bad, f"{len(want)} REFUTED bundle laws replayed and passed on the real code"
-                                 if not bad else "; ".join(bad[:8]))
+        self.checks["G6"] = r
 
     def g9(self):
         from .. import schema as S

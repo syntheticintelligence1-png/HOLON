@@ -202,18 +202,20 @@ class DerivationGate:
             if d["status"] != "REFUTED":
                 continue
             n += 1
+            from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
+            RB.judged(lid)
             x = (rep.get("laws") or {}).get(lid)
             obs = d.get("observation") or {}
             if x is None:
-                bad.append(f"{lid}: not replayed")
+                bad.append(RB.refuse(lid, f"{lid}: not replayed"))
             elif x.get("status") != "passed":
-                bad.append(f"{lid}: replay {x.get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: replay {x.get('status')}"))
             elif x.get("model") != [obs.get("lhs"), obs.get("rhs")] or x.get("real") != x.get("model"):
-                bad.append(f"{lid}: the replayed observation is not the decision's")
+                bad.append(RB.refuse(lid, f"{lid}: the replayed observation is not the decision's"))
             elif (r.get("difference") or {}) != {"lhs": obs.get("lhs"), "rhs": obs.get("rhs")}:
-                bad.append(f"{lid}: the record's difference is not the decision's observation")
+                bad.append(RB.refuse(lid, f"{lid}: the record's difference is not the decision's observation"))
             elif (r.get("replay") or {}).get("status") != "passed":
-                bad.append(f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}"))
         if n == 0:
             self.na["G6"] = "no derivation law is REFUTED"
             return

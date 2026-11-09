@@ -224,7 +224,7 @@ def bend_context():
             fp = memo[cmd]
         ctx = {"fingerprint": fp["fingerprint"], "timeout_s": B.equivalence_timeout(cfg), "bend_py": bend_py}
         if verdict:
-            kb = Path(os.environ["BENDTT"]) if os.environ.get("BENDTT") else B.verdict_kernel_path(Path(fp["checkout"]))
+            kb = B.verdict_kernel_path(Path(fp["checkout"]))   # I97 (F-M3-14): an inherited BENDTT is never used
             ctx["kernel_sha256"] = B.file_sha256(kb) if kb.is_file() else None
         return ctx
     return context

@@ -731,9 +731,11 @@ def field(word: int, offset: int, size: int) -> int:
 
 
 def model_obs(tc: FactCtx, steps_json: list) -> tuple[list, list, object]:
-    """A trace on the model from Reach's initial state: (observations, the state handles after each step, the model)."""
+    """A trace on the model from Reach's initial state: (observations, the state handles after each step, the model).
+    The steps' environments are the witness's own: no call answer is added (I98, US.Obs answer=False), so the
+    observation lists the calls the witness answers and its evaluation looks up, not a skipped operand's lookup."""
     m = tc.factory()
-    o = US.Obs(m)
+    o = US.Obs(m, answer=False)
     obs, gs = o.run(m.s0(), [US.fresh_step(run3.step_of_json(s)) for s in steps_json])
     return [{k: x[k] for k in ("status", "ret", "logs", "calls")} for x in obs], gs, m
 

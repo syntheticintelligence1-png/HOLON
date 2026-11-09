@@ -843,9 +843,17 @@ def run_main(a) -> int:
             (ctx.out / f"{lid}.json").write_text(dumps(rec), encoding="utf-8")
             if rep is not None:
                 report["laws"][lid] = rep
-        if report["laws"]:
-            rp = ctx.root / "replay" / ctx.m / "sorts" / "report.json"
-            if ctx.out.resolve() == (ctx.root / "results" / ctx.m).resolve():
+        rp = ctx.root / "replay" / ctx.m / "sorts" / "report.json"
+        if ctx.out.resolve() == (ctx.root / "results" / ctx.m).resolve():
+            # I98: a run of some laws (--laws) keeps the entries of the laws it did not decide. Writing only its own
+            # laws dropped every other REFUTED law's entry (I68's re-make of one law left the report without another),
+            # and G6 binds each REFUTED entry point to an entry here. A law this run decided keeps an entry only when it
+            # is REFUTED now.
+            old = json.loads(rp.read_text(encoding="utf-8")) if rp.is_file() else {}
+            keep = {lid: e for lid, e in (old.get("laws") or {}).items() if lid not in ids}
+            merged = dict(sorted({**keep, **report["laws"]}.items()))
+            if merged or old.get("laws"):
+                report["laws"] = merged
                 rp.parent.mkdir(parents=True, exist_ok=True)
                 rp.write_text(dumps(report), encoding="utf-8")
     finally:
