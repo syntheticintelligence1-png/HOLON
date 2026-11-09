@@ -660,7 +660,9 @@ def step_plan(a) -> int:
     if (root / "replay" / a.milestone / "par").is_dir():   # I98: the PAR laws' library-level replays (holon replay-par)
         filt.append('python -u -m holon replay-par --milestone {m} 2>&1 | tee -a "$RUNNER_TEMP/run.log"')
     filt.append('python -u -m holon refute --milestone {m} --only filter 2>&1 | tee -a "$RUNNER_TEMP/run.log"')
-    if "SYM" in rules and (root / "holon" / "sym.py").is_file():
+    # the aggregate whenever the milestone has SYM replays: since I98 the filter (G6) can move SYM records that no job
+    # re-made, so whether a SYM law is dirty no longer decides it
+    if (root / "holon" / "sym.py").is_file() and ("SYM" in rules or (root / "replay" / a.milestone / "sym").is_dir()):
         filt.append('python -u -m holon sym --milestone {m} --aggregate 2>&1 | tee -a "$RUNNER_TEMP/run.log"')
     y = (tpl.replace("@HEADER@", f"CI only ({a.tag}), not for merge: holon land plan's re-make of {len(d)} dirty "
                      f"{a.milestone} laws, then the final filter; the publish job pushes every job's files to "
