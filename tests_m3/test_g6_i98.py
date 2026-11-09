@@ -268,5 +268,178 @@ class TestAmendAll(unittest.TestCase):
                 self.assertTrue((ROOT / "laws" / "M3" / f"{law}.json").is_file(), law)
 
 
+
+class TestAmendGhost(unittest.TestCase):
+    """Added after C_K (15650253) by the disclosed prereg amendment of the lead's calls on I98 (2026-11-09, after the
+    outcome 40ce4b05 and before any build result for them; spec/M3/amendments/I98.jsonl, whose line for this class pins
+    this docstring's sha256). Nothing above changes: R0-R6, P1-P6 and A0-A3 stand as preregistered. Where this ruling
+    makes their outcome differ (P1's "it stays REFUTED", P3, A2), the report says so, and their checks are not edited.
+    OUT/ghost.json and OUT/closure.json are written after the build.
+
+    G  The ruling. G6 binds a REFUTED record only when its replay observes the obstruction on the real code. The one
+       exception, GHOST_ONLY, is family-level and mechanical: a record whose obstruction is stated over ghost state
+       alone binds on calls agreeing (a passed replay). G6's detail names GHOST_ONLY with the number of records it
+       binds. holon.replay_bind.ghost_only(law, entry) -> (bool, [term]) decides it from the law's IR alone: the law's
+       claim (laws/<M>/<law>.json), with the definition it applies expanded to that definition's terms in its
+       laws/<M>/DERIVATION.json entry (a coercion: its member function and its read). The violated predicate names
+       only generated ghost fields when none of those terms reads the code's state or inputs (storage, map, index,
+       param, caller, env, call, outflow); the list is the code-observable terms it names. A claim applying any other
+       definition (sym, disch, undo, fact, bundle, symb, square, wnat, own, gox, init) compares the code's state by its
+       family's definition, so it is not ghost-only. Nothing names a law.
+    G1 What each clause's replay observes (a record judged by several clauses is observed by each, or not bound):
+       - typed (I30): the entry's obstruction_observed (holon.sorts.run3.replay_entry: a realize entry observes the
+         real panic in its span; an as_member or a reinterpret entry observes nothing);
+       - UNDO: the real runs with and without x;y diverge at t[diverges_at], where the model's do;
+       - DISCH: blocked_before and discharged_after, on the real storage;
+       - FACT, bundle (I86) and bundle2: the replay's pass rule reads the obstruction on the real code (holon.fact.run:
+         a kernel law's commitments equal across runs whose consumers differ, an attr or pi law's bonded field the
+         model's; holon.bundle.replay_laws and holon.bundle2.laws_replay: the frame's outcome, fee or field);
+       - contract: the record's replay passed (no M3 contract law is REFUTED);
+       - NAT and PAR-init: the side's obstruction_observed (holon.rules.nat_replay.side, holon.versions.replay.side);
+       - go (own, gocount, goops, par): every side's obstruction_observed; gox: verdict agree; symb: agree; I40: every
+         side passed with obstruction_observed;
+       - sym (I34, replay/<M>/sym/report.json): nothing. Its replay compares the deployment's outcomes with the
+         model's and evaluates the claim on the model with the deployment's call answers (holon.symd.run). It reads no
+         word of the real state, so it does not observe the obstruction.
+    G2 Predicted on M3 after the re-make (the typed replay, the FACT law re-made, the PAR library replay and the final
+       filter, as in the outcome 40ce4b05), counted:
+       - L_sort_tag_rollup_279_e01ea84a moves to UNKNOWN. Its typed entry passes with calls agreeing and
+         obstruction_observed false. GHOST_ONLY does not apply: its predicate names the parameter batchDataInput (the
+         member function reads its version) and the register batchBlobVersionedHashes (the read). Its law is kept.
+       - The 13 SYM records bound to replay/M3/sym/report.json move to UNKNOWN: omega 6, pi 3, tau 4. GHOST_ONLY
+         applies to none: their claims apply sym definitions (sink-reaching keys, outcomes, the Time words of logs).
+       - No other record moves for this ruling, and GHOST_ONLY binds 0 records. With I98's earlier move (the version 2
+         codec law), REFUTED M3 goes from 65 at the base (5b1fe820) to 50.
+       - G6 passes after the re-make: all 50 REFUTED M3 records are judged and bound, each by a replay that observes
+         its obstruction.
+       OUT/ghost.json: {"refuted_base", "refuted_after", "moved": {law: {"rule", "subform", "clause", "why",
+       "status", "bound", "witness_kept"}}, "ghost_only": {law: [term]}, "g6_after": {"passed", "detail",
+       "unbound"}}, from the build's own runs.
+    G3 The closure, counted. holon/replay_bind.py holds G6's judgement of every REFUTED record of the milestone's
+       results (each clause above). The gates call it, and so does the final filter. It imports no gate: no
+       holon/gate.py, holon/sorts/gate3.py or family gate is in its imports or theirs. The generator closure of
+       holon-ir/0.2 and 0.3 is then the lead's (2b44372f, 217 files) plus holon/replay_bind.py, holon/gox/lawrun.py,
+       holon/sorts/contract3_run.py and its imports holon/sorts/contract3.py, holon/sorts/residue.py and
+       holon/sorts/residue_lemmas.py: 223 files, against 292 at 40ce4b05. OUT/closure.json: {"lead", "head",
+       "added": [path]}.
+    G4 A moved record is UNKNOWN as A3 states: a bound that names G6, the witness kept in its replay_binding attempt,
+       its law file kept. Its checked LAWS.bend becomes its statement's emission, the bound emission of an UNKNOWN
+       record (F39), with no proof artifact. The counter-law that Bend accepted stays in that attempt by sha256 (its
+       LAWS.bend and its PROOF.bend), with its checker block, the replay and the kernels.
+    G5 Knock-on, recorded, not counted.
+       - E4 does not change: no moved law is in a row of results/M3/backtest.json, so the 4 exit blockers stay.
+       - E2, from I96b's audit/blind/I96/compare.json read through git show. The tag law is lead_only. The 13 SYM
+         classes are matched and agreeing, so each disagrees after the move. 204 of 207 (0.986) becomes 191 of 207
+         (0.923), which is still at least I96b's agreement_min of 0.9.
+       - Earlier contract checks that the ruling makes false are not edited. They are
+         tests_m3/test_sort_types.py::TestPredictedOutcomes.test_commit_state_recommit_read_is_refuted_on_an_o26_path
+         (I30-P1), and tests_m3/test_sym.py::TestPredictions.test_p1_o20_the_pi_split_over_the_submitter_role and
+         test_p2_o19_analogue_reorder_refuted (I34-P1, I34-P2). None of them runs in CI.
+    G6 A30's note at G6's typed clause ("flagged here, never absorbed into the status") is superseded by the lead's I98
+       ruling: G6's refusal moves the status through the final filter.
+    """
+    TEST_ID = "tests_m3/test_g6_i98.py::TestAmendGhost"
+    A30_ID = "tests_m3/test_g6_i98.py::TestAmendGhost.test_g6_a30_is_superseded"
+    TAG = "L_sort_tag_rollup_279_e01ea84a"
+    CLOSURE_ADDED = ["holon/gox/lawrun.py", "holon/replay_bind.py", "holon/sorts/contract3.py",
+                     "holon/sorts/contract3_run.py", "holon/sorts/residue.py", "holon/sorts/residue_lemmas.py"]
+
+    def _lines(self) -> list:
+        src = (ROOT / "spec" / "M3" / "amendments" / "I98.jsonl").read_text(encoding="utf-8")
+        return [json.loads(ln) for ln in src.splitlines() if ln.strip()]
+
+    def test_g0_the_amendment_is_disclosed_and_pins_this_contract(self):
+        lines = self._lines()
+        mine = [a for a in lines if a.get("test") == self.TEST_ID]
+        self.assertEqual(len(mine), 1, mine)
+        self.assertEqual(mine[0]["contract_sha256"], hashlib.sha256(type(self).__doc__.encode("utf-8")).hexdigest())
+        agg = (ROOT / "spec" / "M3" / "amendments.jsonl").read_text(encoding="utf-8").splitlines()
+        for a in mine + [a for a in lines if a.get("test") == self.A30_ID]:
+            self.assertEqual(sum(1 for ln in agg if ln.strip() and json.loads(ln) == a), 1, a.get("test"))
+
+    def test_g1_ghost_only_is_decided_from_the_ir(self):
+        sys.path.insert(0, str(ROOT))
+        from holon import replay_bind as RB
+        law = json.loads((ROOT / "laws" / "M3" / f"{self.TAG}.json").read_text(encoding="utf-8"))
+        dv = json.loads((ROOT / "laws" / "M3" / "DERIVATION.json").read_text(encoding="utf-8"))
+        entry = next(e for e in dv["laws"] if e.get("law_id") == self.TAG)
+        ok, terms = RB.ghost_only(law, entry)
+        self.assertFalse(ok)
+        self.assertIn("param batchDataInput", terms)
+        self.assertIn("storage batchBlobVersionedHashes", terms)
+        # the rule itself, on IR built here
+        claim = {"eq": [{"coerce": "m:as_member:site:h", "from": {"var": "s"}, "on": {"var": "a"}}, {"bool": True}]}
+        coerce = {"statement": {"claim": claim}}
+        ghost = {"coercion": {"from": "A + B", "members": ["A", "B"], "member_fn": ["sort", "A"], "to": None},
+                 "basis": {}}
+        self.assertEqual(RB.ghost_only(coerce, ghost), (True, []))
+        by_param = {"coercion": dict(ghost["coercion"], member_fn=["?", ["==", ["param", "p"], 2], ["sort", "A"],
+                                                                  ["sort", "B"]]), "basis": {}}
+        self.assertEqual(RB.ghost_only(coerce, by_param), (False, ["param p"]))
+        by_read = dict(ghost, basis={"read": ["map", ["storage", "f"], ["param", "k"]]})
+        self.assertEqual(RB.ghost_only(coerce, by_read), (False, ["param k", "storage f"]))
+        sym = {"statement": {"claim": {"eq": [{"on": [{"var": "s"}], "sym": "m:omega:a:b"}, {"bool": True}]}}}
+        self.assertFalse(RB.ghost_only(sym, None)[0])
+
+    def test_g2_the_moves(self):
+        g = _load("ghost.json")
+        moved = g["moved"]
+        self.assertIn(self.TAG, moved)
+        self.assertEqual(Counter((v["rule"], v["subform"]) for v in moved.values()),
+                         Counter({("SORT", "as_member"): 1, ("SYM", "omega"): 6, ("SYM", "pi"): 3, ("SYM", "tau"): 4}))
+        self.assertEqual(g["ghost_only"], {})
+        self.assertEqual((g["refuted_base"], g["refuted_after"]), (65, 50))
+        for law, v in moved.items():
+            self.assertEqual(v["status"], "UNKNOWN", law)
+            self.assertIn("G6", v["bound"], law)
+            self.assertTrue(v["witness_kept"], law)
+            self.assertTrue((ROOT / "laws" / "M3" / f"{law}.json").is_file(), law)
+
+    def test_g3_g6_names_the_rule_and_binds_every_record(self):
+        g = _load("ghost.json")["g6_after"]
+        self.assertTrue(g["passed"], g["detail"])
+        self.assertEqual(g["unbound"], {})
+        self.assertRegex(g["detail"], r"GHOST_ONLY[^;]*: 0 records")
+        sys.path.insert(0, str(ROOT))
+        from holon import replay_bind as RB
+        _u, _e, g6 = RB.binding("M3", ROOT)
+        self.assertRegex(g6["detail"], r"GHOST_ONLY[^;]*: \d+ records?")
+
+    def test_g4_the_closure(self):
+        src = (ROOT / "holon" / "replay_bind.py").read_text(encoding="utf-8")
+        mods = re.findall(r"(?m)^\s*(?:from\s+(\S+)\s+import|import\s+(\S+))", src)
+        self.assertFalse([m for m in mods if "gate" in "".join(m)], mods)
+        c = _load("closure.json")
+        self.assertEqual((c["lead"], c["head"]), (217, 223))
+        self.assertEqual(sorted(c["added"]), self.CLOSURE_ADDED)
+        sys.path.insert(0, str(ROOT))
+        from holon import records as R
+        files = set(R.generator_files("holon-ir/0.2", ROOT)) | set(R.generator_files("holon-ir/0.3", ROOT))
+        self.assertEqual(sorted(f for f in files if "gate" in f.rsplit("/", 1)[-1]), [])
+
+    def test_g5_a_moved_record_binds_its_statement(self):
+        sys.path.insert(0, str(ROOT))
+        from holon import bindings as B
+        bound = json.loads((ROOT / "spec" / "bindings" / "M3.json").read_text(encoding="utf-8"))["laws"]
+        for law in _load("ghost.json")["moved"]:
+            rec = json.loads((ROOT / "results" / "M3" / f"{law}.json").read_text(encoding="utf-8"))
+            if rec.get("status") != "UNKNOWN":
+                continue    # not re-made here: G2 checks the outcome
+            with self.subTest(law=law):
+                text = (ROOT / rec["artifacts"]["laws"]).read_text(encoding="utf-8")
+                self.assertEqual(B.text_sha256(text), bound[law]["statement_sha256"])
+                self.assertIsNone(rec["artifacts"].get("proof"))
+                att = [a for a in rec["attempts"] if a.get("kind") == "replay_binding"][-1]
+                want = bound[law].get("counter_sha256")
+                self.assertIn(att["counter_law"]["laws_sha256"], want if isinstance(want, list) else [want])
+
+    def test_g6_a30_is_superseded(self):
+        mine = [a for a in self._lines() if a.get("test") == self.A30_ID]
+        self.assertEqual(len(mine), 1, mine)
+        self.assertIn("never absorbed into the status", mine[0]["why"])
+        self.assertNotIn("never absorbed into the status", (ROOT / "holon" / "sorts" / "gate3.py").read_text())
+        self.assertIn("A30", (ROOT / "holon" / "replay_bind.py").read_text(encoding="utf-8"))
+
+
 if __name__ == "__main__":
     unittest.main()
