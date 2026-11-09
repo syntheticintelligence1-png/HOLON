@@ -5,7 +5,8 @@ spec/M3/lib/audit_rulings.json; the reading is tests_m3/_q9b.py, which applies I
   Q1 on every Q9b scenario, holon's validity, convergence, streak, counted rounds and per-round verdicts are the
      reading's, and holon's row for a counted Q9b round keeps family "same" and names the ruling in its why;
   Q2 without the sidecar, a same-family round citing the ruling is not admitted: I87's rule stands;
-  Q3 the sidecar names the ruling HUMAN_ANSWERS Q9b and docs/HUMAN_ANSWERS.md holds its row, with the disclosure;
+  Q3 the sidecar names the ruling HUMAN_ANSWERS Q9b, docs/HUMAN_ANSWERS.md holds its row, and the paper discloses it
+     (whitepaper.md 9.5 and L19);
   Q4 every committed round of M3 is valid against the schema, and the committed status is the reading's.
 """
 from __future__ import annotations
@@ -80,7 +81,12 @@ class TestQ9b(unittest.TestCase):
         row = next((ln for ln in text.splitlines() if ln.startswith("| **Q9b**")), None)
         self.assertIsNotNone(row, "docs/HUMAN_ANSWERS.md has no Q9b row")
         for needed in ("`same`", "limitation", "fresh"):
-            self.assertIn(needed, row)
+            self.assertIn(needed, row.lower() if needed == "limitation" else row)
+        paper = (ROOT / "whitepaper.md").read_text(encoding="utf-8")
+        sec = paper[paper.index("### 9.5 Auditing protocol"):paper.index("### 9.6")]
+        self.assertIn("Q9b", sec, "the paper's auditing protocol (9.5) does not disclose Q9b")
+        l19 = next(ln for ln in paper.splitlines() if ln.startswith("| L19 |"))
+        self.assertIn("Q9b", l19, "the paper's L19 row does not disclose Q9b")
 
     def test_q4_committed_rounds(self):
         """Q4: the committed M3 rounds are valid against the schema, and results/M3/audit_status.json is the

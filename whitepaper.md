@@ -872,7 +872,7 @@ Provers have no write access to LAWS/.
 
 ### 9.5 Auditing protocol
 
-Each round uses a fresh auditor from a model family different from the provers'. Four auditor types:
+Each round uses a fresh auditor from a model family different from the provers'. **Disclosed deviation (M3, `docs/HUMAN_ANSWERS.md` Q9b).** By the human's ruling, M3's counted rounds may be run by fresh agent sessions of the builders' own model family, launched by HOLON's coordinator, one per round with no prior context. Such a round records its family as `same` and cites the ruling, and `results/M3/audit_status.json` marks it so. Its independence comes from a fresh context only, not from another model family (L19). Four auditor types:
 - **A1, mutation.** Plant realistic misimplementations in the *real code*: off-by-one offsets, missing clears, wrong masks, swapped cursors. Re-extract, and confirm the corresponding obstruction appears. A miss is an extraction gap or a rule gap.
 - **A2, hostile input.** Attack R^ext at every interface carrier through public entry points. This finds totality and panic defects such as O4, and checks that the model's partiality matches the code's.
 - **A3, regression.** Compare law sets, premises and proof strengths across commits. It catches dropped laws, strengthened hypotheses and drifted constants.
@@ -1185,7 +1185,7 @@ Every REFUTED witness must replay on the pinned real code (G6).
 | L16 | Young kernel | Checker not independently reviewed | Canaries; dual kernel; kernel-independent witness replay; pinning | Common-mode bugs across kernels | Canary acceptance: 0; cross-kernel agreement |
 | L17 | Termination in a total language | Bend requires termination | Fuel; well-founded measures; invariants and bisimulations for unbounded claims; scope labels | Bounded results misread as global | Scope-label completeness |
 | L18 | Generator mismodeling | Generators untrusted | G1 regeneration; replay; A1 | — | Model-defect rate |
-| L19 | Shared AI blind spots | Same model family everywhere | Auditors from another model family, fresh context per round | — | Yield per audit round |
+| L19 | Shared AI blind spots | Same model family everywhere | Auditors from another model family, fresh context per round | M3's rounds counted under HUMAN_ANSWERS Q9b share the builders' model family: their independence is a fresh context only | Yield per audit round |
 | L20 | Cost and scale | Thousands of laws | Basis theorems; per-file budgets; performance loop with veto; parallel checking; GPU refutation | — | From-scratch gate time |
 | L21 | Vacuous laws | Unsatisfiable premises prove anything | Non-vacuity inhabitants for every premise (G11): `Reach` nonempty, CF satisfiable, in-flight sets nonempty | — | Non-vacuity coverage: 100% |
 | L22 | Drift | Code and configuration change | Content-addressed dependencies; stale propagation; re-extraction on version change | — | Stale-closure latency |
