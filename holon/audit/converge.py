@@ -11,14 +11,17 @@ regeneration is byte-identical to the file.
 With the policy's k, auditor types, counted family and high-priority severities (holon.audit.rounds.load_policy) and
 the milestone's findings file (audit/<M>_findings.jsonl; M0 and M1: audit/findings.jsonl):
   CV1  a round is counted iff counts_toward_convergence is true and it qualifies (holon.audit.rounds.qualifies: the
-       counted family, not a dry run, every auditor type ran, a session no earlier round of M had)
+       counted family, or a same-family round whose auditor.ruling is the admitting ruling of the milestone's
+       spec/<M>/lib/audit_rulings.json (HUMAN_ANSWERS Q9b); not a dry run, every auditor type ran, a session no
+       earlier round of M had)
   CV2  a round is clean iff every finding it lists is in the findings file with a severity that is not high-priority
   CV3  walking the rounds in order, a round that is not clean resets the streak to 0, whatever its family; a counted
        clean round adds 1; any other round leaves it unchanged
   CV4  converged iff the rounds are valid (RD1-RD4, holon.audit.rounds.check), the streak is at least k, and no
        high-priority finding of M is open
-A same-family round never counts, so with no round from another family the loop cannot converge. Nothing here names a
-law or a target.
+A same-family round counts only under such a ruling, and keeps its family: its row in the document reads family
+"same" and why "counted: a same-family round admitted by <ruling>", so a report of E3 shows which rounds share the
+builders' model family. Without the ruling, a same-family round never counts. Nothing here names a law or a target.
 """
 from __future__ import annotations
 
@@ -27,8 +30,8 @@ import json
 import sys
 from pathlib import Path
 
-from .rounds import (ROOT, RoundError, check, file_sha256, findings_rel, load_findings, load_policy, load_rounds,
-                     qualifies, rel_or_abs)
+from .rounds import (ROOT, RoundError, admitted_same_family, check, file_sha256, findings_rel, load_findings,
+                     load_policy, load_rounds, load_rulings, qualifies, rel_or_abs)
 
 STATUS_VERSION = "holon-audit-status/0.1"
 
@@ -48,6 +51,10 @@ def compute(root: Path, milestone: str) -> dict:
     except RoundError as e:
         rounds, problems = [], problems + [str(e)]
     findings, _bad = load_findings(root, milestone, policy)    # its bad lines are check()'s RD4 problems already
+    try:
+        rulings = load_rulings(root, milestone)
+    except RoundError:
+        rulings = {}                                            # check() reports the unreadable file already
     sev = {f["id"]: f.get("severity") for f in findings}
     seen: set = set()
     streak = counted = 0
@@ -55,7 +62,7 @@ def compute(root: Path, milestone: str) -> dict:
     for n, _p, r in rounds:
         a = r.get("auditor") or {}
         claims = a.get("counts_toward_convergence") is True
-        ok, why_not = qualifies(r, seen, policy)
+        ok, why_not = qualifies(r, seen, policy, rulings)
         is_counted = claims and ok
         listed = list(r.get("findings") or [])
         unknown = sorted(f for f in listed if f not in sev)
@@ -68,7 +75,8 @@ def compute(root: Path, milestone: str) -> dict:
             streak += 1
         counted += int(is_counted)
         if is_counted:
-            why = "counted"
+            ruling = admitted_same_family(r, rulings)
+            why = f"counted: a same-family round admitted by {ruling}" if ruling else "counted"
         elif not ok:
             why = f"not counted: {why_not}"
         else:

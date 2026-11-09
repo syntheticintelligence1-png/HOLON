@@ -8,6 +8,8 @@ For each later round, the human pastes the same line with the next number.
 
 You are the auditor: an external agent the human runs, GPT-6 Astra working through Codex or Devin (Cognition AI). The human ruled that such a round is a different-family round (`docs/HUMAN_ANSWERS.md` Q9a). Your model family is different from the family of HOLON's builders. HOLON's builders want their laws, proofs, models and gates to look right. Your job is to find where they are wrong, and to record what you find in the form described below. You report; you never fix.
 
+**A fresh agent session that HOLON's coordinator launched (`docs/HUMAN_ANSWERS.md` Q9b).** If HOLON's coordinator launched you as a fresh agent session with no prior context, rather than the human in Codex or Devin, you are a same-family auditor: your model family is the builders'. The human ruled that such a round counts toward convergence when it says so honestly. Record `auditor.family` `"same"` and `auditor.ruling` `"HUMAN_ANSWERS Q9b"` (§5). Everything else in this brief applies to you unchanged: the same attacks, the same evidence, the same fresh-session rule. Do not read any earlier session's transcript, notes or reasoning about this round.
+
 No outcome is expected of you. A round with no finding and a round with many are equally acceptable. Only reproducible evidence counts.
 
 ## 0. What a round is and when it counts
@@ -18,7 +20,7 @@ These are the rules of `spec/M3/lib/audit_loop.json` (the policy) and `holon/aud
 - **Its findings** are lines appended to `audit/M3_findings.jsonl`.
 - **Counted (CV1).** A round counts toward convergence iff all of these hold:
   - `auditor.counts_toward_convergence` is true;
-  - `auditor.family` is `"different"`;
+  - `auditor.family` is `"different"` (Q9a), or `"same"` with `auditor.ruling` `"HUMAN_ANSWERS Q9b"` (a fresh agent session launched by HOLON's coordinator, Q9b);
   - it is not a dry run;
   - each of the auditor types A1, A2, A3 and A4 has an attack that ran;
   - its `auditor.session` differs from the session of every earlier M3 round.
@@ -367,6 +369,7 @@ Record this examination as an attack of its own: the next free id, the category 
     "session": "<agent: Codex or Devin>, model <underlying model, or unknown>, <YYYY-MM-DD>, task <task id or URL>",
     "family": "different",
     "counts_toward_convergence": <true|false>
+    (a fresh agent session under Q9b: "family": "same", "ruling": "HUMAN_ANSWERS Q9b", and the same two fields)
   },
   "attacks": [
     {"id": "A1", "category": "mutation_adequacy", "auditor_type": "A1", "run": <true|false>,
@@ -387,6 +390,7 @@ Record this examination as an attack of its own: the next free id, the category 
 (The `"...": "..."` entries stand for the same fields as A1. The schema allows no other field.)
 
 - **`auditor.family`.** Set it to `"different"`. The human ruled that a round an external agent runs at the human's request (Devin, or Codex with GPT-6 Astra) is a different-family round (`docs/HUMAN_ANSWERS.md` Q9a); cite Q9a in `notes`. HOLON's tools read only this field.
+  - **Under Q9b** (a fresh agent session launched by HOLON's coordinator): set it to `"same"`, set `auditor.ruling` to exactly `"HUMAN_ANSWERS Q9b"`, and cite Q9b in `notes`. Without that exact `ruling`, a same-family round that claims to count is invalid (RD1).
 - **`auditor.session`.** Name the agent, then your underlying model if you know it, else "unknown", then the date and the task. Every round runs in a fresh session: a session string that an earlier M3 round already used does not count (CV1, L19).
 - **`run`.** Set it to true when you ran the attack, even partly, and say in `tried` what was not covered. Set it to false when you did not run the attack at all, and give the reason in `tried`.
 - **`counts_toward_convergence`.** Set it to true only if A1, A2, A3 and A4 each have an attack with `run` true. Otherwise set it to false.
