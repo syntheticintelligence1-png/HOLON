@@ -70,6 +70,28 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / I.OUT
 KEYFILE = ROOT / "spec" / "M3" / "predictions" / "I98.json"
 SKIP = {".git", "cache", "build", "node_modules"}
+# I98 (the lead's ruling; spec/M3/amendments/I98.jsonl, tests_m3/test_g6_i98.py::TestAmendGhost): the records
+# I98's G6 moved from REFUTED to UNKNOWN because their replay does not observe the obstruction on the
+# deployment, each with I98_REASON first in its bound and its counter-law kept in a replay_binding attempt;
+# their laws are kept
+I98_REASON = "model-level counter-law accepted; obstruction not observed on the deployment"
+I98_MOVED = frozenset({
+    "L_sort_tag_rollup_279_e01ea84a",
+    "L_sym_omega_Rollup_challengeState_commitBatchWithProof",
+    "L_sym_omega_Rollup_challengeState_revertBatch",
+    "L_sym_omega_Rollup_challengeState_updateProofWindow",
+    "L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds",
+    "L_sym_omega_Rollup_commitBatch_updateProofWindow",
+    "L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds",
+    "L_sym_pi_Rollup_commitBatchWithProof_submitter",
+    "L_sym_pi_Rollup_revertBatch_challenger",
+    "L_sym_pi_Rollup_setPause_challenger",
+    "L_sym_tau_Rollup_batchExist",
+    "L_sym_tau_Rollup_finalizeBatch",
+    "L_sym_tau_Rollup_revertBatch",
+    "L_sym_tau_Rollup_setPause",
+})
+I98_CODEC = "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2"   # moved by I98 before the ruling
 
 
 def _th() -> dict:
@@ -163,9 +185,11 @@ class TestOutcome(unittest.TestCase):
         self.assertTrue(g6["passed"], g6.get("detail"))
         self.assertEqual(g6["unbound"], {})
         rec = _load("records.json")
-        for law in I.TWO:
-            self.assertEqual(rec[law]["status"], "REFUTED", law)
-        self.assertEqual(rec["other_status_changes"], [])
+        for law in I.TWO:   # I98 (spec/M3/amendments/I98.jsonl): the moved set, explicitly; P1 and P3 stay recorded misses
+            self.assertEqual(rec[law]["status"], "UNKNOWN" if law in I98_MOVED else "REFUTED", law)
+        self.assertEqual(sorted(c["law"] for c in rec["other_status_changes"]),
+                         sorted((I98_MOVED - set(I.TWO)) | {I98_CODEC}))
+        self.assertTrue(all((c["from"], c["to"]) == ("REFUTED", "UNKNOWN") for c in rec["other_status_changes"]))
 
     def test_p4_ci_runs_g6(self):
         ci = _load("ci.json")
@@ -250,12 +274,15 @@ class TestAmendAll(unittest.TestCase):
             self.assertEqual(v.get("exempt") or {}, {}, f)
             total["bound"] += v["bound"]
             total["moved"] += len(v["moved"])
-        self.assertEqual((total["bound"], total["moved"]), (30, 2))
+        # I98 (spec/M3/amendments/I98.jsonl): the outcome, with the moved set explicitly; A2 stays a recorded miss
+        self.assertEqual((total["bound"], total["moved"]), (18, 14))
         moved = Counter()
         for f, v in fam.items():
             for law in v["moved"]:
                 moved[(v["rule"], v["subform"])] += 1
-        self.assertEqual(moved, Counter({("PAR", "cross_component_codec"): 1, ("PAR", "domain_coherence"): 1}))
+                self.assertIn(law, I98_MOVED | {I98_CODEC}, law)
+        self.assertEqual(moved, Counter({("PAR", "cross_component_codec"): 1, ("SYM", "omega"): 6, ("SYM", "pi"): 3,
+                                         ("SYM", "tau"): 4}))
 
     def test_a3_the_moved_records(self):
         fam = _load("families.json")
