@@ -1,0 +1,52 @@
+{
+  "W": "/home/user/blind-i96",
+  "brief": {
+    "path": "spec/M3/lib/blind_session_i96.md",
+    "placed_as": "W/README.md",
+    "readme_sha256": "5780eea0af241e1ec4dcb40dbb65b892a1840f041df2a8a6739217c07aef620f",
+    "sha256": "5780eea0af241e1ec4dcb40dbb65b892a1840f041df2a8a6739217c07aef620f"
+  },
+  "bundle_sha256": "817bb6d907e580b77c5ef4500c1ae4522708117253f84281aa4a6e706ea211d1",
+  "family": "same",
+  "launch": "a fresh subagent launched by the coordinator with the I96 launch prompt (W, PACK, SCOPE, the README as the only instruction source, reads only inside W, a one-line reply)",
+  "leak_checks": {
+    "calls_problems": [
+      "call 14 (Bash): names a checkout of HOLON or of the target outside W",
+      "call 14 (Bash): the path /root/work/morph is outside W and the toolchain",
+      "call 16 (Edit): names a checkout of HOLON or of the target outside W",
+      "call 17 (Edit): names a checkout of HOLON or of the target outside W",
+      "call 66 (Bash): the path /lib/[A-Za-z0-9_ is outside W and the toolchain",
+      "call 67 (Bash): the path /facts/ is outside W and the toolchain",
+      "call 77 (Bash): the path /codec/ is outside W and the toolchain",
+      "call 77 (Bash): the path /codec is outside W and the toolchain",
+      "call 170 (Bash): the path /facts/*.go.extracted.json is outside W and the toolchain",
+      "call 172 (Bash): the path /work is outside W and the toolchain",
+      "call 174 (Bash): does not begin with `cd W && `",
+      "call 174 (Bash): the path /work is outside W and the toolchain",
+      "call 179 (Bash): the path /work/* is outside W and the toolchain",
+      "call 183 (Bash): the path /work/test is outside W and the toolchain",
+      "call 191 (Bash): the path /models is outside W and the toolchain",
+      "call 192 (Bash): does not begin with `cd W && `",
+      "call 195 (Bash): does not begin with `cd W && `",
+      "call 214 (Bash): the path // is outside W and the toolchain",
+      "call 230 (Bash): the path /lib/par_lossy.json is outside W and the toolchain"
+    ],
+    "reads_problems": [
+      "call 174 (Bash): does not begin with `cd W && `",
+      "call 192 (Bash): does not begin with `cd W && `",
+      "call 195 (Bash): does not begin with `cd W && `"
+    ]
+  },
+  "manifest_sha256": "5ad02b94dfdfde829ae5769284b8005a314d0046d5a37d0968fcc821fbeee800",
+  "pack": "/home/user/blind-i96/bundle.tar",
+  "pack_commit": "5e2436f9808d4c08a45de8c26ae1dcf9b2fde1dc",
+  "reply": "done: 1 steps failed, 10 not reproducible, 9 files authored",
+  "scope": "/home/user/blind-i96/scope",
+  "scorers": {
+    "amended": "tests_m3/_i46_reads.py::reads_problems",
+    "preregistered": "tests_m3/_i46.py::calls_problems"
+  },
+  "tool_calls": 235,
+  "transcript": "the coordinator's subagent transcript agent-aecaf83215240379e.jsonl, not committed; tool_calls.jsonl is its projection by python -m tests_m3._i46 calls",
+  "transcript_sha256": "2f4231c9c9a9a9c3628cebb33da43a77e60cde8f1dc2cf0c13ca136984c55767"
+}

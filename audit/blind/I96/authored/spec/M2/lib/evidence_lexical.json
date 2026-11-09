@@ -1,0 +1,14 @@
+{
+  "doc": "Blind rerun (I96): the E6 vocabulary holon.diagram.evidence reads (Lexicon: names, tokenize, stopwords), written from the tooling's code and the target's own names only. names: every edge kind the pass can read (CODEC, TRANS); tokenize: the identifier syntax of Solidity and Go, lower case (the one case the pass reads), every token kept whatever its length; no stopwords. It adds no vocabulary of its own: an E6 atom is a token the target code's names share.",
+  "names": [
+    "CODEC",
+    "TRANS"
+  ],
+  "tokenize": {
+    "identifier": "[A-Za-z_][A-Za-z0-9_]*",
+    "min_length": 1,
+    "case": "lower"
+  },
+  "stopwords": [],
+  "rule": "E6: the shared name tokens of two distinct parallel edges (a CODEC edge's source functions, a TRANS edge's action), each identifier split at underscores and camel-case boundaries and lower-cased"
+}

@@ -1,0 +1,34 @@
+{
+  "W": "/home/user/blind-i96",
+  "brief": "spec/M3/lib/blind_session_i96.md at the pack commit",
+  "bundle_sha256": "817bb6d907e580b77c5ef4500c1ae4522708117253f84281aa4a6e706ea211d1",
+  "doc": "I96b stage 2, part 1: the pack and the scope of the one blind rerun. The pack is `python tools/blind_pack.py --commit <P> --out <S>/pack`, verified with I82's instrument (tests_m3/_i82.py, as tests_m3/test_blind.py TestPack applies it) and re-cut elsewhere under another TZ and locale with identical bytes. The scope is tests_m3/blind_scope.py's six files, the blanked ledger (tests_m3/blind_ledger.py), the cut term_size (tests_m3/blind_term_size.py) and the protocol's given files (scope/given.json); scope.json is blind_scope's record and is not given to the session.",
+  "leaks_sha256": "73580778965b80051adaa68b887a2367063c621eb6cd750a82fc10798a11381b",
+  "manifest_sha256": "5ad02b94dfdfde829ae5769284b8005a314d0046d5a37d0968fcc821fbeee800",
+  "members": 1512,
+  "pack": "/home/user/blind-i96/bundle.tar",
+  "pack_commit": "5e2436f9808d4c08a45de8c26ae1dcf9b2fde1dc",
+  "scope": "/home/user/blind-i96/scope",
+  "scope_checks": {
+    "leak_classes": "no match in any given file or in the brief",
+    "m1_facts_redaction": "117 code-site references redacted; hints.json and keys.json still reproduce byte for byte in a pack-like sandbox",
+    "record_words": "no H1 word or law id in policy_hints.mjs, fragments.json, the M1 facts (redacted) and the M1 lib",
+    "strip_rules_strip_nothing": "every given JSON file after the M1 facts' redaction"
+  },
+  "verification": {
+    "forbidden_members": [],
+    "leak_prediction_problems": [
+      "no code_site match in holon/ (as I95's pack)"
+    ],
+    "leak_scan_equals_instrument": true,
+    "manifest_problems": [],
+    "members_equal_expected": true,
+    "recut_byte_identical": [
+      "bundle.tar",
+      "manifest.json",
+      "leaks.json"
+    ],
+    "tar_format_problems": [],
+    "whitepaper_redaction_equal": true
+  }
+}

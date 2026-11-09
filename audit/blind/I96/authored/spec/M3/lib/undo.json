@@ -1,0 +1,8 @@
+{
+  "undo_version": "holon-undo/0.1",
+  "doc": "Blind rerun (I96): the UNDO sidecar of M3 (holon.rules.undo.Sidecar). It reads the transitions documents of the typed-sorts sidecar spec/M3/lib/sort_types.json, whose binding is the deployment the witnesses replay on. The observation and the premise are the ones holon.undo.trace states; the search section is empty, so holon.undo.search keeps the tooling's budget. No back-test map: the M1 UNDO laws are another milestone's.",
+  "sort_types": "spec/M3/lib/sort_types.json",
+  "observation": "obs(t, s): one observation per step of the trace t run from the state s: success, the return data or the revert data, and the target's logs; a reverted step shows no logs and leaves the state unchanged (holon.undo.trace).",
+  "premise": "NZ: no hash value the steps compute is the zero word, stated over the law's hash tables (holon.undo.trace).",
+  "search": {}
+}
