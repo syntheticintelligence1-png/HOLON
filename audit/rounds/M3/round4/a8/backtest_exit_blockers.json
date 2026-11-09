@@ -1,0 +1,89 @@
+{
+ "complete": true,
+ "exit_blockers": [
+  "gap:M0:L_par_hdr_v2",
+  "gap:M0:L_rt_go_v0",
+  "gap:M0:L_rt_go_v1",
+  "gap:M0:L_rt_go_v2"
+ ],
+ "gaps": [
+  {
+   "candidates": [
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1",
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+   ],
+   "id": "gap:M0:L_par_hdr_v2",
+   "kind": "rule",
+   "law": "L_par_hdr_v2",
+   "milestone": "M0",
+   "reason": "no M3 law of sub-form cross_component_codec naming BatchHeaderV1_Bytes, enc_sol is at version 2: the candidates are at version(s) [1] (rule B2 finds no alpha-equivalent collapse); a missed M0 law is a rule gap, never added by hand (rule admission and closing it are I45's)",
+   "status": "open"
+  },
+  {
+   "candidates": [
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0"
+   ],
+   "id": "gap:M0:L_rt_go_v0",
+   "kind": "rule",
+   "law": "L_rt_go_v0",
+   "milestone": "M0",
+   "reason": "dec_go, view have no image under the name map, so no M3 law's collapse can be alpha-equivalent to it (rule B2); a missed M0 law is a rule gap, never added by hand (rule admission and closing it are I45's)",
+   "status": "open"
+  },
+  {
+   "candidates": [
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1"
+   ],
+   "id": "gap:M0:L_rt_go_v1",
+   "kind": "rule",
+   "law": "L_rt_go_v1",
+   "milestone": "M0",
+   "reason": "dec_go, view have no image under the name map, so no M3 law's collapse can be alpha-equivalent to it (rule B2); a missed M0 law is a rule gap, never added by hand (rule admission and closing it are I45's)",
+   "status": "open"
+  },
+  {
+   "candidates": [
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2"
+   ],
+   "id": "gap:M0:L_rt_go_v2",
+   "kind": "rule",
+   "law": "L_rt_go_v2",
+   "milestone": "M0",
+   "reason": "dec_go, view have no image under the name map, so no M3 law's collapse can be alpha-equivalent to it (rule B2); a missed M0 law is a rule gap, never added by hand (rule admission and closing it are I45's)",
+   "status": "open"
+  }
+ ],
+ "source": "results/M3/backtest.json at C"
+}

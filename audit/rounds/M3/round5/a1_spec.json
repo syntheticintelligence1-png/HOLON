@@ -1,0 +1,167 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 2
+ },
+ "note": "round 5's A1 mutants, chosen by the auditor; each names the decided law it expects to move first",
+ "mutations": [
+  {
+   "id": "m01_go_getter_offset",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 90,
+    "old": "b[9:17]",
+    "new": "b[10:18]"
+   },
+   "laws": [
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1"
+   ],
+   "expect": "off-by-one offset in the Go getter L1MessagePopped: the getter round trips over that field go PROVED -> REFUTED"
+  },
+  {
+   "id": "m02_go_dropped_write",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 256,
+    "old": "binary.BigEndian.PutUint64(batchBytes[249:], b.LastBlockNumber)",
+    "new": "_ = b.LastBlockNumber"
+   },
+   "laws": [
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+   ],
+   "expect": "the V1 Go encoder drops its LastBlockNumber write: the pinned cross-component codec law goes PROVED -> REFUTED"
+  },
+  {
+   "id": "m03_go_swapped_cursor",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 223,
+    "old": "copy(batchBytes[89:], b.PrevStateRoot[:])",
+    "new": "copy(batchBytes[121:], b.PrevStateRoot[:])"
+   },
+   "laws": [
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0"
+   ],
+   "expect": "the V0 Go encoder writes PrevStateRoot at PostStateRoot's cursor: the V0 PrevStateRoot round trip goes PROVED -> REFUTED"
+  },
+  {
+   "id": "m04_go_buffer_reuse_alias",
+   "file": "common/batch/batch_data.go",
+   "edit": {
+    "line": 36,
+    "old": "append(cks.txsPayload, txsPayload...)",
+    "new": "append(cks.txsPayload[:0], txsPayload...)"
+   },
+   "laws": [
+    "L_own_alias_batch_BatchData_TxsPayload_Append"
+   ],
+   "expect": "Append reuses the payload buffer from index 0, overwriting a live TxsPayload view: the OWN alias law goes PROVED -> REFUTED"
+  },
+  {
+   "id": "m05_go_drifted_length",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 23,
+    "old": "expectedLengthV2 = 257",
+    "new": "expectedLengthV2 = 249"
+   },
+   "laws": [
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2"
+   ],
+   "expect": "the V2 length constant drifts to the V0 length: Go rejects every 257-byte V2 header, the V2 round trips go PROVED -> REFUTED"
+  },
+  {
+   "id": "m06_sol_wrong_shift",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "edit": {
+    "line": 155,
+    "old": "shl(192, _l1MessagePopped)",
+    "new": "shl(184, _l1MessagePopped)"
+   },
+   "laws": [
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1"
+   ],
+   "expect": "wrong shift in the Solidity encoder's storeL1MessagePopped: the enc_sol round trip over L1MessagePopped goes PROVED -> REFUTED"
+  },
+  {
+   "id": "m07_sol_dropped_blob_guard",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 276,
+    "old": "require(blobhash(0) == bytes32(0), ",
+    "new": "require(true, "
+   },
+   "laws": [
+    "L_fact_kernel_Rollup_commitState_committedBatches_blobhash"
+   ],
+   "expect": "commitState no longer refuses a call carrying blobs: two calls committing the same stored blob hash deliver different blobhash lists, the FACT kernel law goes PROVED -> REFUTED"
+  },
+  {
+   "id": "m08_sol_missing_clear_committed",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 447,
+    "old": "committedBatches[_batchIndex] = bytes32(0);",
+    "new": ""
+   },
+   "laws": [
+    "L_undo_pair_Rollup_commitBatch_revertBatch"
+   ],
+   "expect": "revertBatch no longer clears committedBatches: a new UNDO residue register (a derivation change), or a moved UNDO law"
+  },
+  {
+   "id": "m09_sol_missing_clear_revertreq",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 456,
+    "old": "revertReqIndex = 0;",
+    "new": "revertReqIndex = revertReqIndex;"
+   },
+   "laws": [
+    "L_disch_ext_rollup_132_d953872f_onlyOwner"
+   ],
+   "expect": "revertBatch no longer resets revertReqIndex: the nonReqRevert guard becomes non-dischargeable by the owner, the DISCH laws of rollup_132 move"
+  },
+  {
+   "id": "m10_sol_off_by_one_origin",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 367,
+    "old": "block.timestamp,",
+    "new": "block.timestamp - 1,"
+   },
+   "laws": [
+    "L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366"
+   ],
+   "expect": "originTimestamp is written one second early: at block.timestamp 1 commitBatch writes the sentinel 0, the SYM sentinel law goes PROVED -> REFUTED"
+  },
+  {
+   "id": "m11_sol_swapped_payer",
+   "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+   "edit": {
+    "line": 290,
+    "old": "estimateCrossDomainMessageFee(_msgSender(), _gasLimit)",
+    "new": "estimateCrossDomainMessageFee(_to, _gasLimit)"
+   },
+   "laws": [
+    "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291"
+   ],
+   "expect": "the fee is priced for the recipient, not the payer: the SORT payer law goes PROVED -> REFUTED"
+  },
+  {
+   "id": "m12_go_height_offset",
+   "file": "common/batch/encoding.go",
+   "edit": {
+    "line": 24,
+    "old": "blockContextBytes[:8]",
+    "new": "blockContextBytes[1:9]"
+   },
+   "laws": [
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_0"
+   ],
+   "expect": "off-by-one offset in HeightFromBlockContextBytes: the Go round trip with BuildBlockContext goes PROVED -> REFUTED"
+  }
+ ]
+}
