@@ -1,0 +1,48 @@
+{
+  "facts": "gen/M3/bundle/documents/messenger.json",
+  "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sym_sentinel_L1CrossDomainMessenger_messageSendTimestamp_sendMessage_5f7b1577_305",
+  "milestone": "M3",
+  "notes": "sentinel messageSendTimestamp vs 0 on the member messenger: from a reachable s, a successful act x of sendMessage_5f7b1577 (with block.timestamp >= 1 (a nonzero word) where the site reads it) writes a value other than 0 at contracts/contracts/l1/L1CrossDomainMessenger.sol:305; symb messenger:member_sentinel:messageSendTimestamp:sendMessage_5f7b1577:305",
+  "rule": "SYM",
+  "rule_catalog_version": "holon-rules/1.15",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            }
+          ],
+          "symb": "messenger:member_sentinel:messageSendTimestamp:sendMessage_5f7b1577:305"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "member_sentinel"
+}

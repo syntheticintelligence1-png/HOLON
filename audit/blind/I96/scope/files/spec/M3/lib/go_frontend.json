@@ -1,0 +1,42 @@
+{
+  "config_version": "holon-go-frontend/0.2",
+  "doc": "Target sidecar of the M3 Go extraction (I67 = I38a; fixed at the I67 prereg; contract: rules Y1 and Y2 of the docstring of tests_m3/test_go_loop.py). config_version holon-go-frontend/0.2 is 0.1 plus the additive loop_bodies section (one iteration of each counted loop as loop-free paths over its symbolic induction variable). One document, morph_blob, holds common/batch and common/blob together, so that the clones of one function in the two packages are ops of one Go-op component (spec/M3/lib/go_ops.json). The source tree, the primitives and the limits are spec/M2/lib/go_frontend.json's, verbatim. `holon extract go --milestone M3` writes spec/M3/facts/morph_blob.go.extracted.json from this file; G1 re-extracts and compares it, since spec/M3/lib/link.json exists (holon.gate).",
+  "target": {
+    "repo": "morph-l2/morph",
+    "commit": "3e44e795586af3e11285b603ab642c67823add51"
+  },
+  "source": {
+    "config": "config/holon.json",
+    "key": [
+      "replay",
+      "morph"
+    ]
+  },
+  "documents": {
+    "morph_blob": [
+      "morph-l2/common/batch",
+      "morph-l2/common/blob"
+    ]
+  },
+  "primitives": {
+    "github.com/morph-l2/go-ethereum/common.BytesToHash": {
+      "kind": "to_array",
+      "width": 32,
+      "text": "BytesToHash(b) is the 32-byte array holding b right-aligned (common/types.go: SetBytes crops b to its last 32 bytes, then copies it to h[32-len(b):]); for len(b) == 32 element k is b[k]."
+    },
+    "github.com/morph-l2/go-ethereum/crypto.Keccak256Hash": {
+      "kind": "hash",
+      "text": "Keccak256Hash(data...) is the keccak-256 digest of the concatenated arguments: an opaque HASH sink; it reads its arguments and retains none of them."
+    },
+    "(github.com/morph-l2/go-ethereum/common.Hash).Bytes": {
+      "kind": "array_bytes",
+      "width": 32,
+      "text": "Hash.Bytes() has a value receiver and returns h[:], a 32-byte slice over the receiver's copy: a fresh backing array whose element k is h[k]."
+    }
+  },
+  "limits": {
+    "max_paths": 512,
+    "inline_depth": 4,
+    "flow_depth": 3
+  }
+}
