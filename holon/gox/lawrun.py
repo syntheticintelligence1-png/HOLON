@@ -167,7 +167,8 @@ class Decider:
                      "non-empty X"] if hz else [])
         rec = {"law_id": lid, "statement_hash": sh, "facts_sha256": law["facts_sha256"], "status": status,
                "scope": "unbounded", "premises": premises,
-               "kernel": {"name": "bend", "version": bend_version(), "verdict": (prim or {}).get("verdict", "not_run")},
+               "kernel": {"name": "bend", "version": bend_version(), "verdict": (prim or {}).get("verdict", "not_run"),
+                          **({"verdict_reason": prim["verdict_reason"]} if (prim or {}).get("verdict_reason") else {})},
                "artifacts": {"laws": self.rel(p["laws"]) if p["laws"].exists() else None,
                              "proof": (prim or {}).get("proof"),
                              "model": self.rel(p["module"]) if p["module"].exists() else None,

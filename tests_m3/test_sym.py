@@ -133,6 +133,27 @@ LAW_IR = ROOT / "spec" / "schemas" / "law_ir_0_3.schema.json"
 O20 = "L_sym_pi_Rollup_commitBatchWithProof_submitter"
 O20_EQ = ("L_sym_pi_Rollup_commitBatch_submitter", "L_sym_pi_Rollup_commitState_submitter")
 O19 = "L_sym_omega_Rollup_challengeState_commitBatchWithProof"
+# I98 (the lead's ruling; spec/M3/amendments/I98.jsonl, tests_m3/test_g6_i98.py::TestAmendGhost): the records
+# I98's G6 moved from REFUTED to UNKNOWN because their replay does not observe the obstruction on the
+# deployment, each with I98_REASON first in its bound and its counter-law kept in a replay_binding attempt;
+# their laws are kept
+I98_REASON = "model-level counter-law accepted; obstruction not observed on the deployment"
+I98_MOVED = frozenset({
+    "L_sort_tag_rollup_279_e01ea84a",
+    "L_sym_omega_Rollup_challengeState_commitBatchWithProof",
+    "L_sym_omega_Rollup_challengeState_revertBatch",
+    "L_sym_omega_Rollup_challengeState_updateProofWindow",
+    "L_sym_omega_Rollup_commitBatch_updateFinalizePeriodSeconds",
+    "L_sym_omega_Rollup_commitBatch_updateProofWindow",
+    "L_sym_omega_Rollup_commitState_updateFinalizePeriodSeconds",
+    "L_sym_pi_Rollup_commitBatchWithProof_submitter",
+    "L_sym_pi_Rollup_revertBatch_challenger",
+    "L_sym_pi_Rollup_setPause_challenger",
+    "L_sym_tau_Rollup_batchExist",
+    "L_sym_tau_Rollup_finalizeBatch",
+    "L_sym_tau_Rollup_revertBatch",
+    "L_sym_tau_Rollup_setPause",
+})
 OUTCOME_PATHS = ("laws/M3/L_sym_", "results/M3/L_sym_", "results/M3/sym/", "gen/M3/sym/", "gen/M3/laws/L_sym_",
                  "gen/M3/proofs/L_sym_", "audit/sym_adjudications/", "docs/iterations/I34.md")
 
@@ -158,6 +179,14 @@ def decided_by(rec: dict) -> list:
         return a["exit_code"] if "exit_code" in a else (a.get("checker") or {}).get("exit_code")
     return [a for a in rec.get("attempts") or [] if a.get("kind") in ("proof", "counter-law", "counter")
             and "error" not in a and code(a) == 0]
+
+
+def i98_moved(test: unittest.TestCase, r: dict) -> None:
+    """I98 (spec/M3/amendments/I34.jsonl): a record of I98_MOVED is UNKNOWN with I98_REASON first in its bound, and its
+    replay_binding attempt keeps the witness Bend accepted."""
+    test.assertEqual(r["status"], "UNKNOWN", r.get("bound"))
+    test.assertTrue(r["bound"].startswith(I98_REASON), r["bound"])
+    test.assertTrue([a for a in r["attempts"] if a.get("kind") == "replay_binding"][-1]["witness"])
 
 
 class TestInstrument(unittest.TestCase):
@@ -229,7 +258,10 @@ class TestPredictions(unittest.TestCase):
         two worlds on the real Rollup; commitBatch's and commitState's submitter laws are PROVED; results/M3/sym/pi.json
         reports the submitter split with break exactly [commitBatchWithProof] and commitBatch and commitState in eq."""
         r = record(O20)
-        self.assertEqual(r["status"], "REFUTED", r.get("attempts"))
+        if O20 in I98_MOVED:
+            i98_moved(self, r)
+        else:
+            self.assertEqual(r["status"], "REFUTED", r.get("attempts"))
         self.assertTrue(decided_by(r))
         self.assertEqual((r.get("replay") or {}).get("status"), "passed")
         for lid in O20_EQ:
@@ -243,7 +275,10 @@ class TestPredictions(unittest.TestCase):
         L_sym_omega_Rollup_challengeState_commitBatchWithProof is REFUTED, both orders executed from a reachable prefix
         and replayed on the real Rollup."""
         r = record(O19)
-        self.assertEqual(r["status"], "REFUTED", r.get("attempts"))
+        if O19 in I98_MOVED:
+            i98_moved(self, r)
+        else:
+            self.assertEqual(r["status"], "REFUTED", r.get("attempts"))
         self.assertTrue(decided_by(r))
         self.assertEqual((r.get("replay") or {}).get("status"), "passed")
 

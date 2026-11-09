@@ -192,26 +192,13 @@ class DischGate:
                                    else "; ".join(bad[:8]))
 
     def g6(self):
-        from ..analysis import closure as C
-        sc = C.Sidecar(self.m, self.root, None)
-        want = {lid: r for lid, r in self.records().items()
-                if r and (r.get("status") == "REFUTED" or (r.get("status") == "PROVED" and r.get("witness")))}
-        if not sc.binding:
-            self.na["G6"] = "the DISCH sidecar names no binding: no real side to replay on"
+        """G6 is holon.replay_bind.disch's judgement (I98: one rule for G6 and the final filter)."""
+        from .. import replay_bind as RB
+        r = RB.disch(self.m, self.root)
+        if "na" in r:
+            self.na["G6"] = r["na"]
             return
-        rp = self.root / "replay" / self.m / "disch" / "report.json"
-        rep = json.loads(rp.read_text()) if rp.is_file() else {"laws": {}}
-        bad = []
-        for lid, r in sorted(want.items()):
-            x = (rep.get("laws") or {}).get(lid)
-            if x is None:
-                bad.append(f"{lid}: not replayed")
-            elif x.get("status") != "passed" or x.get("trace") != r["witness"]["steps"]:
-                bad.append(f"{lid}: replay {x.get('status')}")
-            elif (r.get("replay") or {}).get("status") != "passed":
-                bad.append(f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}")
-        self.checks["G6"] = _res(not bad, f"{len(want)} DISCH witnesses replayed and passed on the real contract"
-                                 if not bad else "; ".join(bad[:8]))
+        self.checks["G6"] = r
 
     def g9(self):
         from .. import schema as S

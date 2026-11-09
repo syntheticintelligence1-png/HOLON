@@ -1,0 +1,32 @@
+{
+  "go_version": "go version go1.24.7 linux/amd64",
+  "laws": {
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": {
+      "go": {
+        "command": "(cd common && HOLON_RESULTS=\u2026 go test ./batch -run TestHolonPar -v -count=1)  # exit 0",
+        "observed": "len=250; validate()=invalid BatchHeaderBytes length",
+        "obstruction_observed": true,
+        "provenance": "library_api",
+        "status": "passed"
+      },
+      "solidity": {
+        "command": "HOLON_RESULTS=holon_results forge test --match-contract HolonPar -vv --offline --use <solc 0.8.24>  # exit 0",
+        "observed": "len=250 _loadBatchHeader accepted=true batchHash=0x7ad9cbacac46d20729e756be7e89e726bf03e9c4af61a46b3d3b30767d7fc15c",
+        "obstruction_observed": true,
+        "provenance": "internal_harness",
+        "status": "passed"
+      }
+    }
+  },
+  "milestone": "M3",
+  "morph_commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "toolchain": {
+    "forge_sha256": "53fdff34c3ed4d825a00a93f24b387a5891c634000d5611efbed24f77c14b0cc",
+    "go_version": "go version go1.24.7 linux/amd64",
+    "sol_deps_sha256": "57ff084f19237666b07d6bd4890d0b6c67ae1b0ba763dd286847d418d4452ddb",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  },
+  "witness_sha256": {
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": "4906245ec0b44ca2fcff26dede9d5107ce01f31da1435a0d69d546e7402e0fda"
+  }
+}

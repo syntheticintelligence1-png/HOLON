@@ -1,0 +1,56 @@
+{
+  "facts": "gen/M3/bundle/documents/messenger.json",
+  "facts_sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_sym_tau_L1CrossDomainMessenger_sendMessage_5f7b1577",
+  "milestone": "M3",
+  "notes": "time translation over the member messenger: for every d, from a reachable s, an act x of sendMessage_5f7b1577 run on \u03c4_d s and \u03c4_d x gives \u03c4_d of its run on s and x (storage, outcome, Time words of the logs; a key the store does not hold is not translated); symb messenger:member_tau:sendMessage_5f7b1577",
+  "rule": "SYM",
+  "rule_catalog_version": "holon-rules/1.15",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "s",
+        "q": "forall",
+        "type": "Reach"
+      },
+      {
+        "name": "x",
+        "q": "forall",
+        "type": "Act"
+      },
+      {
+        "name": "d",
+        "q": "forall",
+        "type": "Nat"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "on": [
+            {
+              "var": "s"
+            },
+            {
+              "var": "x"
+            },
+            {
+              "var": "d"
+            }
+          ],
+          "symb": "messenger:member_tau:sendMessage_5f7b1577"
+        },
+        {
+          "bool": true
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "member_tau"
+}

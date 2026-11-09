@@ -1,0 +1,71 @@
+{
+  "doc": "I98 S1 (tests_m3/test_g6_i98.py): each record G6 refused at the base, its class and the evidence.",
+  "laws": {
+    "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter": {
+      "class": "harness",
+      "defect": "the replay's model run (holon/fact/run.py model_obs) let settle answer, from the refinement hints, the lookup of the skipped || operand (verifyAggregateProof at proveState), so the model's observation listed a call the deployment does not make (I26's diagnosis)",
+      "evidence": {
+        "base": {
+          "model_calls_step4": [
+            "0x9f8a13d7",
+            "0xc96be4cb",
+            "0x2c09a848"
+          ],
+          "real_calls_step4": [
+            "0x9f8a13d7",
+            "0xc96be4cb"
+          ],
+          "status": "failed"
+        },
+        "fixed": {
+          "model_calls_step4": [
+            "0x9f8a13d7",
+            "0xc96be4cb"
+          ],
+          "real_calls_step4": [
+            "0x9f8a13d7",
+            "0xc96be4cb"
+          ],
+          "status": "passed"
+        },
+        "other_fact_entries_unchanged": true
+      },
+      "fix": "the replay evaluates the witness's steps on the environment the witness states (holon.undo.search.Obs answer=False)"
+    },
+    "L_sort_tag_rollup_279_e01ea84a": {
+      "class": "harness",
+      "defect": "holon run's SORT path (holon/sorts/run3.py run_main) rewrote replay/M3/sorts/report.json with only the laws of its own run",
+      "evidence": {
+        "entry": {
+          "calls_agree": true,
+          "model": [
+            "ok",
+            "ok",
+            "ok"
+          ],
+          "obstruction_observed": false,
+          "real": [
+            "ok",
+            "ok",
+            "ok"
+          ],
+          "status": "passed"
+        },
+        "replayed_entry_equals_6df08eb6": true,
+        "report_laws_by_commit": {
+          "6df08eb6": [
+            "L_sort_tag_rollup_279_e01ea84a"
+          ],
+          "7198eb50": [
+            "L_sort_realize_rollup_363_4a64383b",
+            "L_sort_tag_rollup_279_e01ea84a"
+          ],
+          "c8f646b7": [
+            "L_sort_realize_rollup_363_4a64383b"
+          ]
+        }
+      },
+      "fix": "run_main keeps the entries of the laws a run did not decide (merged); `holon replay --milestone M3` writes the entry again"
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "title": "I98: G6 on M3, the two REFUTED records G6 refuses diagnosed and fixed, one rule for the final filter and G6, and G6 in CI",
+  "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I98)",
+  "prompt": "prompts/I98_g6_m3.md",
+  "tests": [
+    "tests_m3/test_g6_i98.py"
+  ],
+  "outcome_paths": [
+    "docs/iterations/I98/",
+    "docs/iterations/I98.md"
+  ],
+  "thresholds": {
+    "base": "5b1fe820 (I97's head, #122), with BUILD_PLAN's row I98 (0b2e9950)",
+    "base_commit": "5b1fe8207f72ef9efe6ab42dec0601fb2d3da5db",
+    "contract_docstring_sha256": "0391d3a8c3f8c372488d876cc90e07586d3b63c7ea0a2903aeeaa2b93b08c7ba",
+    "pins": {
+      "instrument": {
+        "path": "tests_m3/_i98.py",
+        "sha256": "0441e6795b0df2cee430e69509900bdbd2f9a51e1ab08fc19c565d385224a273"
+      }
+    },
+    "two": {
+      "L_sort_tag_rollup_279_e01ea84a": "commitState: not replayed (no entry in replay/M3/sorts/report.json)",
+      "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter": "replay failed (replay/M3/fact/report.json)"
+    },
+    "planted": {
+      "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash": "replay/M3/fact/report.json",
+      "L_sort_realize_rollup_363_4a64383b": "replay/M3/sorts/report.json"
+    },
+    "predicted": {
+      "P1": {
+        "law": "L_sort_tag_rollup_279_e01ea84a",
+        "class": "harness",
+        "defect": "holon run rewrites replay/M3/sorts/report.json with only its own run's laws",
+        "status": "REFUTED"
+      },
+      "P2": {
+        "law": "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter",
+        "class": "harness",
+        "defect": "the replay's model run answers the lookup of the skipped || operand from the hints",
+        "status": "REFUTED"
+      },
+      "P3": "G6 passes on M3 after the re-make; unbound(M3) is empty; no M3 record changes status",
+      "P4": "CI's M3 job runs G7, G4 and G6; G6 passes on the lead after the re-make",
+      "P5": "the planted tree fails G6 naming both planted laws; the final filter takes both to UNKNOWN with a bound naming G6",
+      "P6": {
+        "not_examined": 34,
+        "by_rule": {
+          "PAR": 14,
+          "SYM": 17,
+          "OWN": 3
+        },
+        "replay": {
+          "passed": 30,
+          "not_run": 4
+        },
+        "not_run": {
+          "cross_component_codec": 3,
+          "domain_coherence": 1
+        }
+      }
+    },
+    "disclosures": {
+      "read_before_prereg": [
+        "the I98 brief",
+        "I97's own G6 runs (950ccd38 and its build): G6 fails on the two, nothing else",
+        "holon/sorts/gate3.py (g6, g6_undo, run, other_laws, OTHER), holon/fact/gate.py (g6, join), holon/gate.py (g6's head)",
+        "holon/refute_m3.py (records, concretize) and holon/filter.py (bins, FINAL_RULE)",
+        "holon/sorts/run3.py (run_main, replay_main) and the history of replay/M3/sorts/report.json (7198eb50, 6df08eb6, c8f646b7)",
+        "holon/fact/run.py (model_obs, replay_entry), holon/undo/search.py (Obs, settle, ob_json), holon/sorts/search3.py (answer_calls), holon/js/eval3.mjs (the c_find hook)",
+        "the two records, their entries in replay/M3/refute/report.json, replay/M3/fact/report.json and results/M3/refute/filter.json, and the history of replay/M3/fact/report.json (e122e7ae, 4784042b)",
+        "docs/iterations/I26.md's replay section (the verifier call the model's observation lists)",
+        "Rollup.sol's proveState in the replay checkout, and the generated model's proveState guard",
+        "the REFUTED M3 records' rule, subform and replay status (65)"
+      ],
+      "not_run_before_prereg": "No replay, gate, filter or record run for I98 before C_K; the counts of P6 are read from the committed records, not from G6."
+    }
+  },
+  "predictions": [
+    {
+      "id": "I98-P1",
+      "claim": "L_sort_tag_rollup_279_e01ea84a is a harness defect: holon run rewrites replay/M3/sorts/report.json with only its own run's laws, which dropped the law's entry. Replayed again, its entry passes with the record's trace, and it stays REFUTED.",
+      "check": "tests_m3/test_g6_i98.py::TestOutcome::test_p1_p2_the_two_are_harness_defects"
+    },
+    {
+      "id": "I98-P2",
+      "claim": "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter is a harness defect: the replay's model run answers, from the refinement hints, the call lookup of an || operand the real code skips. Evaluated on the environment the witness states, its replay passes, and it stays REFUTED.",
+      "check": "tests_m3/test_g6_i98.py::TestOutcome::test_p1_p2_the_two_are_harness_defects"
+    },
+    {
+      "id": "I98-P3",
+      "claim": "G6 passes on M3 after the re-make, unbound(M3) is empty, and no M3 record changes status.",
+      "check": "tests_m3/test_g6_i98.py::TestOutcome::test_p3_g6_passes_after_the_remake"
+    },
+    {
+      "id": "I98-P4",
+      "claim": "CI's M3 job runs G6 beside G7 and G4, and G6 passes on the lead after the re-make.",
+      "check": "tests_m3/test_g6_i98.py::TestOutcome::test_p4_ci_runs_g6"
+    },
+    {
+      "id": "I98-P5",
+      "claim": "The planted tree fails G6 naming every planted law, and the final filter takes each to UNKNOWN with a bound naming G6.",
+      "check": "tests_m3/test_g6_i98.py::TestOutcome::test_p5_the_planted_tree"
+    },
+    {
+      "id": "I98-P6",
+      "claim": "34 REFUTED M3 records are judged by no G6 clause (PAR 14, SYM 17, OWN 3); 30 name a passed replay of their own family and 4 (PAR cross_component_codec 3, domain_coherence 1) name none.",
+      "check": "tests_m3/test_g6_i98.py::TestOutcome::test_p6_the_sweep"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I98-R0",
+      "claim": "The contract docstring and the instrument keep the sha256 pinned in thresholds.",
+      "check": "tests_m3/test_g6_i98.py::TestPrereg::test_r0_the_prereg_pins_hold"
+    },
+    {
+      "id": "I98-R1",
+      "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+      "check": "tests_m3/test_g6_i98.py::TestPrereg::test_r1_the_prereg_audit_passes"
+    },
+    {
+      "id": "I98-R2",
+      "claim": "The instrument imports nothing from holon/ or tools/.",
+      "check": "tests_m3/test_g6_i98.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+    },
+    {
+      "id": "I98-R3",
+      "claim": "B1 and B2: the planted tree fails G6 naming every planted law; the final filter takes each to UNKNOWN with a bound naming G6.",
+      "check": "tests_m3/test_g6_i98.py::TestBuild::test_r3_b1_b2_the_planted_tree"
+    },
+    {
+      "id": "I98-R4",
+      "claim": "B3: CI runs holon gate --milestone M3 with G6.",
+      "check": "tests_m3/test_g6_i98.py::TestBuild::test_r4_b3_ci_runs_g6_on_m3"
+    },
+    {
+      "id": "I98-R5",
+      "claim": "B4: holon/replay_bind.py names no target.",
+      "check": "tests_m3/test_g6_i98.py::TestBuild::test_r5_b4_replay_bind_names_no_target"
+    },
+    {
+      "id": "I98-R6",
+      "claim": "B5: at HEAD, G6 passes exactly when unbound(M3) is empty, and its detail names every law unbound holds.",
+      "check": "tests_m3/test_g6_i98.py::TestBuild::test_r6_b5_one_rule_at_head"
+    }
+  ]
+}
