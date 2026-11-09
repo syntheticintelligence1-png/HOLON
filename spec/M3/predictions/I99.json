@@ -1,0 +1,133 @@
+{
+  "title": "I99: G9 checks every result record's premises against its law's assume clauses (audit M3/5 F-M3-19, high, gate_evasion)",
+  "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I99)",
+  "prompt": "prompts/I99_g9_premises.md",
+  "tests": [
+    "tests_m3/test_g9_i99.py"
+  ],
+  "outcome_paths": [
+    "docs/iterations/I99/",
+    "docs/iterations/I99.md"
+  ],
+  "thresholds": {
+    "base": "b4664e4c (the lead after I98's landing, #125), with BUILD_PLAN's row I99 (e0308350)",
+    "base_commit": "b4664e4ce25d810fbe0cbfb63c1131a7ca8d21ef",
+    "contract_docstring_sha256": "2a276894cff5ef070b456a987f2ba879f21cf4da297006d68602038a0df540a4",
+    "pins": {
+      "instrument": {
+        "path": "tests_m3/_i99.py",
+        "sha256": "91cc5419cc050175657bee212e73505fa24e5a4f1c7f7a7a7848fa85213f02ae"
+      }
+    },
+    "thirteen": {
+      "L_contract_C_o12_m3": 4,
+      "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154": 2,
+      "L_sort_cons_L1CrossDomainMessenger_receive": 1,
+      "L_sort_cons_L1CrossDomainMessenger_replayMessage": 1,
+      "L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577": 1,
+      "L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b": 1,
+      "L_sort_cons_Rollup_challengeState": 1,
+      "L_sort_cons_Rollup_commitBatch": 1,
+      "L_sort_cons_Rollup_receive": 1,
+      "L_sort_cons_Submitter_stake": 1,
+      "L_sort_payer_L1CrossDomainMessenger_replayMessage_201": 1,
+      "L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291": 1,
+      "L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291": 1
+    },
+    "planted": {
+      "empty": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+      "missing": "L_contract_C_o12_m3"
+    },
+    "predicted": {
+      "status_moves": 0,
+      "law_hash_changes": 0,
+      "records_gaining_premises": 13,
+      "g9_before": {
+        "M0": true,
+        "M1": true,
+        "M2": true,
+        "M3": false
+      },
+      "g9_after": {
+        "M0": true,
+        "M1": true,
+        "M2": true,
+        "M3": true
+      }
+    }
+  },
+  "predictions": [
+    {
+      "id": "I99-P1",
+      "claim": "The 13 records gain premises through their generators: each one's premises are exactly its law's assume clauses rendered by holon.ir.premises, in order (L_contract_C_o12_m3 4, the push law 2, the other 11 1 each); none of the 13 has an oracle or cryptographic premise beyond its clauses.",
+      "check": "tests_m3/test_g9_i99.py::TestOutcome::test_p1_the_thirteen_gain_exactly_their_clauses"
+    },
+    {
+      "id": "I99-P2",
+      "claim": "No status moves: every M3 record's status at HEAD is its status at the base.",
+      "check": "tests_m3/test_g9_i99.py::TestOutcome::test_p2_no_status_moves"
+    },
+    {
+      "id": "I99-P3",
+      "claim": "No law hash changes: every file of laws/M0 to laws/M3 (the law files and REGISTRY.json) is byte-identical at HEAD and at the base.",
+      "check": "tests_m3/test_g9_i99.py::TestOutcome::test_p3_no_law_hash_changes"
+    },
+    {
+      "id": "I99-P4",
+      "claim": "The new G9 fails on the old records: with I99's gate over the base's records, G9 on M3 fails and names exactly the 13; G9 on M0, M1 and M2 passes.",
+      "check": "tests_m3/test_g9_i99.py::TestOutcome::test_p4_the_new_g9_fails_on_the_old_records"
+    },
+    {
+      "id": "I99-P5",
+      "claim": "The new G9 passes on the new records: at HEAD, G9 passes on M0, M1, M2 and M3.",
+      "check": "tests_m3/test_g9_i99.py::TestOutcome::test_p5_the_new_g9_passes_on_the_new_records"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I99-R0",
+      "claim": "The contract docstring and the instrument keep the sha256 pinned in thresholds.",
+      "check": "tests_m3/test_g9_i99.py::TestPrereg::test_r0_the_prereg_pins_hold"
+    },
+    {
+      "id": "I99-R1",
+      "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+      "check": "tests_m3/test_g9_i99.py::TestPrereg::test_r1_the_prereg_audit_passes"
+    },
+    {
+      "id": "I99-R2",
+      "claim": "The instrument imports nothing from holon/ or tools/.",
+      "check": "tests_m3/test_g9_i99.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+    },
+    {
+      "id": "I99-R3",
+      "claim": "spec/M3/amendments/I99.jsonl holds one line for this module, pinning its contract docstring.",
+      "check": "tests_m3/test_g9_i99.py::TestPrereg::test_r3_the_amendment_line_pins_this_docstring"
+    },
+    {
+      "id": "I99-R4",
+      "claim": "B1: at HEAD, holon gate --milestone M3 --checks G9 passes.",
+      "check": "tests_m3/test_g9_i99.py::TestBuild::test_b1_head_passes_g9"
+    },
+    {
+      "id": "I99-R5",
+      "claim": "B2: premises [] planted on a PROVED record whose law has 12 clauses fails G9 on M3, naming the law.",
+      "check": "tests_m3/test_g9_i99.py::TestBuild::test_b2_planted_empty_premises_fail_g9"
+    },
+    {
+      "id": "I99-R6",
+      "claim": "B3: a missing clause planted on a PROVED record whose law has 4 clauses fails G9 on M3, naming the law.",
+      "check": "tests_m3/test_g9_i99.py::TestBuild::test_b3_a_planted_missing_clause_fails_g9"
+    },
+    {
+      "id": "I99-R7",
+      "claim": "B4: each of the 13 records has one premise per assume clause, in order, each the clause's rendering.",
+      "check": "tests_m3/test_g9_i99.py::TestBuild::test_b4_the_thirteen_have_their_premises"
+    },
+    {
+      "id": "I99-R8",
+      "claim": "B5: the workflow holds a job that runs this module.",
+      "check": "tests_m3/test_g9_i99.py::TestBuild::test_b5_ci_runs_this_module"
+    }
+  ]
+}
