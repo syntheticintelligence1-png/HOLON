@@ -1,0 +1,24 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 2
+ },
+ "note": "round 5's A1 mutants, chosen by the auditor; each names the decided law it expects to move first",
+ "mutations": [
+  {
+   "id": "m01_go_getter_offset",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 90,
+    "old": "b[9:17]",
+    "new": "b[10:18]"
+   },
+   "laws": [
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1"
+   ],
+   "expect": "off-by-one offset in the Go getter L1MessagePopped: the getter round trips over that field go PROVED -> REFUTED"
+  }
+ ]
+}
