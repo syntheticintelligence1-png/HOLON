@@ -1,0 +1,49 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "2bd76be960ad2990aab0ac4bf6c33ed9ed5cf9e1d8e185c4e25018a5744136b9",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+  "milestone": "M3",
+  "notes": "PAR round trip (holon.rules.par): BatchHeaderBytes_PrevStateRoot inverts BatchHeaderV1_Bytes at version 1 (E1 atom header_length:E1:CODEC.BatchHeaderV1_Bytes:CODEC.BatchHeaderBytes_PrevStateRoot:c16b5209)",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.15",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "h",
+        "q": "forall",
+        "type": "BatchHeaderV1"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "var": "h"
+                }
+              ],
+              "call": "BatchHeaderV1_Bytes"
+            }
+          ],
+          "call": "BatchHeaderBytes_PrevStateRoot"
+        },
+        {
+          "some": {
+            "field": "BatchHeaderV0.PrevStateRoot",
+            "of": {
+              "var": "h"
+            }
+          }
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "round_trip"
+}

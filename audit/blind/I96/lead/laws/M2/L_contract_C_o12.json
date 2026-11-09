@@ -1,0 +1,175 @@
+{
+  "evidence": [
+    "E2"
+  ],
+  "facts": "gen/M2/extracted/m1_view.json",
+  "facts_sha256": "2de8ab0d421dfb9d2fbcf027d5fb3d3b7f69df84580b4d0e8bb289a062d94b9d",
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_contract_C_o12",
+  "maps_to": "O12 (N2)",
+  "milestone": "M2",
+  "notes": "L_weak of intent contract C_o12 (laws/CONTRACTS/C_o12.json), derived by holon contracts",
+  "rule": "UNDO",
+  "rule_catalog_version": "holon-rules/0.1",
+  "statement": {
+    "binders": [
+      {
+        "name": "p",
+        "q": "forall",
+        "type": "Trace"
+      },
+      {
+        "name": "k",
+        "q": "forall",
+        "type": "Nat"
+      }
+    ],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "bind": {
+                "g": {
+                  "add": "W",
+                  "from": {
+                    "s0": {}
+                  },
+                  "ghost": "challengeState",
+                  "over": {
+                    "var": "p"
+                  }
+                },
+                "k": {
+                  "var": "k"
+                }
+              },
+              "expr": [
+                "<=",
+                [
+                  "get",
+                  [
+                    "call",
+                    "win_at",
+                    "win",
+                    "k"
+                  ],
+                  "bdf"
+                ],
+                [
+                  "+",
+                  [
+                    "+",
+                    [
+                      "get",
+                      [
+                        "call",
+                        "win_at",
+                        "win",
+                        "k"
+                      ],
+                      "bdo"
+                    ],
+                    "F"
+                  ],
+                  "g"
+                ]
+              ],
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "var": "p"
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "bind": {
+                "g": {
+                  "add": "W",
+                  "from": {
+                    "s0": {}
+                  },
+                  "ghost": "challengeState",
+                  "over": {
+                    "var": "p"
+                  }
+                }
+              },
+              "expr": [
+                "||",
+                [
+                  "!",
+                  "inch"
+                ],
+                [
+                  "<=",
+                  "W",
+                  "g"
+                ]
+              ],
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "var": "p"
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  "inch"
+                ],
+                [
+                  "<=",
+                  [
+                    "get",
+                    [
+                      "call",
+                      "nth_ch",
+                      "chs",
+                      "bc"
+                    ],
+                    "s"
+                  ],
+                  "t"
+                ]
+              ],
+              "from": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "var": "p"
+                }
+              }
+            },
+            {
+              "bool": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "subform": "intended_weak"
+}

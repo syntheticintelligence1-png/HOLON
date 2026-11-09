@@ -1,0 +1,112 @@
+{
+  "binding": "spec/M3/lib/binding.json",
+  "disch_version": "holon-disch/0.1",
+  "doc": "Blind rerun (I96): the DISCH sidecar of M3 (holon.analysis.closure.Sidecar; holon.disch). Its one document is the Rollup transitions document of the typed-sorts sidecar; its binding the binding spec spec/M3/lib/binding.json; its search the budget the brief states (spec/M3/lib/disch.json's at the pack commit). No hypothesis names an external component and no verdicts file is read: the hypotheses and their I21 verdicts are oracle records, not code. r0 and model_sidecar are written by python -m holon disch-r0, from the deployment record python -m holon binding writes, never by hand.",
+  "documents": [
+    "spec/M2/facts/morph_rollup.extracted.json"
+  ],
+  "hypotheses": {},
+  "hypothesis_verdicts": null,
+  "inputs": [],
+  "model_sidecar": "spec/M3/lib/sort_types.json",
+  "r0": {
+    "derived_from": [
+      {
+        "document": "spec/M2/facts/morph_rollup.extracted.json",
+        "path": "gen/M3/binding/morph_rollup.extracted.json",
+        "sha256": "5424af3c794e72ef05a53af1359897dcd6a491457a7ba5d604990a84a83e1b44"
+      }
+    ],
+    "doc": "The deployment's abstraction R0, derived by `python -m holon disch-r0` (holon-disch-r0/1) from the deployment records named in derived_from, through each document's layout. values: a scalar path holds its deployed word (at its offset and width); a mapping family holds 0 plus the deployed words of its written keys (for a struct family, each member path does); a non-zero word whose declared type is an address is \"T\"; a path whose deployed words are all 0 is unlisted, which is {0}. keys: the keys whose entry holds a non-zero word (for a struct family, the members made non-zero), from the record's 64-byte keccak256 preimages. proxy_slots: the written non-zero slots that no layout path holds. Configuration derived from code, never authored.",
+    "keys": {
+      "batchBlobVersionedHashes": {
+        "0": null
+      },
+      "batchDataStore": {
+        "0": [
+          "originTimestamp",
+          "finalizeTimestamp"
+        ]
+      },
+      "committedBatches": {
+        "0": null
+      },
+      "committedStateRoots": {
+        "0": null
+      },
+      "finalizedStateRoots": {
+        "0": null
+      },
+      "isChallenger": {
+        "0x0000000000000000000000000000000000001004": null
+      }
+    },
+    "proxy_slots": [
+      "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+      "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103"
+    ],
+    "values": {
+      "_initialized": [
+        1
+      ],
+      "_owner": [
+        "T"
+      ],
+      "batchBlobVersionedHashes": [
+        0,
+        463520946527561903920979615716011323696915893422270006750744924475581808660
+      ],
+      "batchDataStore.finalizeTimestamp": [
+        0,
+        1700000010
+      ],
+      "batchDataStore.originTimestamp": [
+        0,
+        1700000010
+      ],
+      "committedBatches": [
+        0,
+        49378197412850287564765311833464212548830103414361668470078570316707767840934
+      ],
+      "committedStateRoots": [
+        0,
+        100
+      ],
+      "finalizationPeriodSeconds": [
+        40
+      ],
+      "finalizedStateRoots": [
+        0,
+        100
+      ],
+      "isChallenger": [
+        0,
+        1
+      ],
+      "messageQueue": [
+        "T"
+      ],
+      "proofRewardPercent": [
+        70
+      ],
+      "proofWindow": [
+        10
+      ],
+      "rollupDelayPeriod": [
+        20
+      ],
+      "submitterContract": [
+        "T"
+      ],
+      "verifier": [
+        "T"
+      ]
+    }
+  },
+  "search": {
+    "max_prefixes": 3000,
+    "neighbourhood_insertion_length_max": 2,
+    "neighbourhood_prefixes_per_entry_point_max": 20000,
+    "prefix_depth": 3
+  }
+}

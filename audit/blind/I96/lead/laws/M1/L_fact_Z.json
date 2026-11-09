@@ -1,0 +1,172 @@
+{
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_fact_Z",
+  "milestone": "M1",
+  "rule": "FACT",
+  "subform": "kernel_containment",
+  "facts": "spec/M1/facts/morph_rollup.json",
+  "facts_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+  "statement": {
+    "binders": [
+      {
+        "q": "forall",
+        "name": "p",
+        "type": "Trace"
+      },
+      {
+        "q": "forall",
+        "name": "c1",
+        "type": "Act"
+      },
+      {
+        "q": "forall",
+        "name": "c2",
+        "type": "Act"
+      }
+    ],
+    "assume": [
+      {
+        "eq": [
+          {
+            "fn": "is_commitBatch",
+            "args": [
+              {
+                "var": "c1"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "is_commitBatch",
+            "args": [
+              {
+                "var": "c2"
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "last_ok",
+            "args": [
+              {
+                "step": {
+                  "var": "c1"
+                },
+                "from": {
+                  "run": {
+                    "var": "p"
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "fn": "last_ok",
+            "args": [
+              {
+                "step": {
+                  "var": "c2"
+                },
+                "from": {
+                  "run": {
+                    "var": "p"
+                  },
+                  "from": {
+                    "s0": {}
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "bool": true
+          }
+        ]
+      },
+      {
+        "eq": [
+          {
+            "obsv": "new_hdr",
+            "of": {
+              "step": {
+                "var": "c1"
+              },
+              "from": {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            }
+          },
+          {
+            "obsv": "new_hdr",
+            "of": {
+              "step": {
+                "var": "c2"
+              },
+              "from": {
+                "run": {
+                  "var": "p"
+                },
+                "from": {
+                  "s0": {}
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "fn": "blobs_of",
+          "args": [
+            {
+              "var": "c1"
+            }
+          ]
+        },
+        {
+          "fn": "blobs_of",
+          "args": [
+            {
+              "var": "c2"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": "ker(committedBatches) within ker(derivation input): two successful commits that commit the same header must carry the same blob sidecar. Premises: CF(keccak256, headers) (header equality stands for hash equality) and HypZ (the zero blob's versioned hash is ZERO_VERSIONED_HASH, oracle-checked).",
+  "maps_to": "O22 (F2)",
+  "evidence": [
+    "E4"
+  ],
+  "predicted": "REFUTED"
+}
