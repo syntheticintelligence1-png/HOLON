@@ -191,5 +191,82 @@ class TestOutcome(unittest.TestCase):
                          Counter({"cross_component_codec": 3, "domain_coherence": 1}))
 
 
+class TestAmendAll(unittest.TestCase):
+    """Added after C_K (15650253) by the disclosed prereg amendment of the lead's ruling of 2026-11-09, which widens I98
+    (spec/M3/amendments/I98.jsonl; its line for this class pins this docstring's sha256). Nothing above changes: R0-R6
+    and P1-P6 stand as preregistered. These checks are the amendment's, not counted predictions of the key.
+
+    W  The widening. G6 judges every REFUTED M3 record. A record of a family that no clause judged before (the PAR, SYM
+       and OWN laws outside the bundle laws) is judged in one of two ways. Either it is bound to its family's passed
+       replay, like the other clauses: the witness identity the replay names (its sha256, or its trace), strict sides
+       (every side passed) and the sides' provenance. Or it is exempt by a spec rule over a family or a witness kind,
+       which G6 names in its detail with a count per rule, applied uniformly; never a per-law exemption or a list of law
+       ids (AGENTS rule 2). A record that must replay and has none gets a replay through its generator or runner. When
+       none can be made, or its witness does not reproduce on the real target, it leaves REFUTED for UNKNOWN through
+       code (the final filter's one rule, S2), disclosed, and its law is kept.
+    A1 The clauses. holon.replay_bind.examined("M3", root) holds every REFUTED M3 record, at HEAD and after the re-make,
+       and G6's detail names each clause with the number of records it judges, and each exemption rule with its count.
+    A2 Each family after the re-make (OUT/families.json: {family: {"rule", "subform", "records", "bound", "exempt":
+       {rule: n}, "moved": [law]}}), as predicted:
+       - OWN alias and lost_write (3): bound to replay/M3/own/report.json;
+       - PAR branch (1): bound to replay/M3/gocount/report.json; PAR totality (1), weak (1) and the Go domain_coherence
+         law (1): bound to replay/M3/goops/report.json;
+       - PAR init_chain (1): bound to replay/M3/versions/report.json;
+       - PAR go_branch (2) and go_recompute (1): bound to replay/M3/gox/<law>.json;
+       - SYM member_tau (3) and sentinel_inv (1): bound to replay/M3/symb/<law>.json;
+       - SYM omega (6), pi (3) and tau (4): bound to replay/M3/sym/report.json;
+       - PAR cross_component_codec: the version 0 and version 1 laws (2) bound to their I40 sides in
+         replay/M3/refute/report.json (go and solidity, each passed and observing its part), the version 2 law (1) moved
+         to UNKNOWN;
+       - the Solidity domain_coherence law (1): moved to UNKNOWN;
+       - PAR link_domain (2): judged by the bundle2 clause, as before.
+       No family is exempt: no spec rule exempts any of them. So 30 bind, 0 are exempt and 2 move.
+    A3 The moved records are UNKNOWN after the re-make, each with a bound that names G6 and an attempt that keeps its
+       witness, and their law files stay.
+    """
+    TEST_ID = "tests_m3/test_g6_i98.py::TestAmendAll"
+
+    def test_a0_the_amendment_is_disclosed_and_pins_this_contract(self):
+        src = (ROOT / "spec" / "M3" / "amendments" / "I98.jsonl").read_text(encoding="utf-8")
+        mine = [a for a in (json.loads(ln) for ln in src.splitlines() if ln.strip()) if a.get("test") == self.TEST_ID]
+        self.assertEqual(len(mine), 1, mine)
+        self.assertEqual(mine[0]["contract_sha256"], hashlib.sha256(type(self).__doc__.encode("utf-8")).hexdigest())
+        agg = (ROOT / "spec" / "M3" / "amendments.jsonl").read_text(encoding="utf-8").splitlines()
+        self.assertEqual(sum(1 for ln in agg if ln.strip() and json.loads(ln) == mine[0]), 1)
+
+    def test_a1_every_refuted_record_is_judged(self):
+        sys.path.insert(0, str(ROOT))
+        from holon import replay_bind
+        refuted = set()
+        for p in (ROOT / "results" / "M3").glob("L*.json"):
+            if json.loads(p.read_text(encoding="utf-8")).get("status") == "REFUTED":
+                refuted.add(p.stem)
+        self.assertEqual(sorted(refuted - set(replay_bind.examined("M3", ROOT))), [])
+
+    def test_a2_the_families(self):
+        fam = _load("families.json")
+        total = Counter()
+        for f, v in fam.items():
+            self.assertEqual(v.get("exempt") or {}, {}, f)
+            total["bound"] += v["bound"]
+            total["moved"] += len(v["moved"])
+        self.assertEqual((total["bound"], total["moved"]), (30, 2))
+        moved = Counter()
+        for f, v in fam.items():
+            for law in v["moved"]:
+                moved[(v["rule"], v["subform"])] += 1
+        self.assertEqual(moved, Counter({("PAR", "cross_component_codec"): 1, ("PAR", "domain_coherence"): 1}))
+
+    def test_a3_the_moved_records(self):
+        fam = _load("families.json")
+        rec = _load("records.json")
+        for v in fam.values():
+            for law in v["moved"]:
+                self.assertEqual(rec[law]["status"], "UNKNOWN", law)
+                self.assertIn("G6", rec[law]["bound"], law)
+                self.assertTrue(rec[law]["witness_kept"], law)
+                self.assertTrue((ROOT / "laws" / "M3" / f"{law}.json").is_file(), law)
+
+
 if __name__ == "__main__":
     unittest.main()
