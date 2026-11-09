@@ -1,0 +1,252 @@
+{
+ "cases": [
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_allzero_batch",
+   "input": {
+    "set": []
+   }
+  },
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_allzero_blob",
+   "input": {
+    "set": []
+   }
+  },
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_high_fe0_batch",
+   "input": {
+    "set": [
+     [
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_high_fe0_blob",
+   "input": {
+    "set": [
+     [
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_high_fe124_batch",
+   "input": {
+    "set": [
+     [
+      3968,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_panic_fe3968_batch",
+   "input": {
+    "set": [
+     [
+      126976,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_err_fe3968_blob",
+   "input": {
+    "set": [
+     [
+      126976,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_data_byte_batch",
+   "input": {
+    "set": [
+     [
+      1,
+      255
+     ]
+    ]
+   }
+  },
+  {
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "g_last_fe4095_blob",
+   "input": {
+    "set": [
+     [
+      131040,
+      1
+     ]
+    ]
+   }
+  },
+  {
+   "call": {
+    "args": {
+     "_batchHeader": "0x"
+    },
+    "caller": "0x0000000000000000000000000000000000000001"
+   },
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "a_finalize_empty"
+  },
+  {
+   "call": {
+    "args": {
+     "_batchHeader": "0x00112233445566"
+    },
+    "caller": "0x0000000000000000000000000000000000000001"
+   },
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "a_finalize_shorthdr"
+  },
+  {
+   "call": {
+    "args": {
+     "_batchHeader": "0x050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "caller": "0x0000000000000000000000000000000000000001"
+   },
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "a_finalize_badversion"
+  },
+  {
+   "call": {
+    "args": {
+     "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+     "_count": 0
+    },
+    "caller": "0x0000000000000000000000000000000000000001"
+   },
+   "entry": {
+    "action": "revertBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "a_revert_zero_count"
+  },
+  {
+   "call": {
+    "args": {
+     "_status": true
+    },
+    "caller": "0x00000000000000000000000000000000000000aa"
+   },
+   "entry": {
+    "action": "setPause",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "a_setpause_nonowner"
+  },
+  {
+   "call": {
+    "args": {
+     "_batchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+     "batchIndex": 1
+    },
+    "caller": "0x00000000000000000000000000000000000000aa"
+   },
+   "entry": {
+    "action": "challengeState",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "a_challenge_zerohash"
+  },
+  {
+   "call": {
+    "args": {
+     "_newWindow": 5
+    },
+    "caller": "0x00000000000000000000000000000000000000aa"
+   },
+   "entry": {
+    "action": "updateProofWindow",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "a_updateproofwindow_anyone"
+  },
+  {
+   "call": {
+    "calldata": "0xdeadbeef",
+    "caller": "0x0000000000000000000000000000000000000001"
+   },
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "a_raw_unknown_selector"
+  }
+ ],
+ "milestone": "M3",
+ "spec_version": "holon-audit-a2-spec/0.1"
+}

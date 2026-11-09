@@ -1,0 +1,58 @@
+{
+ "baseline": {
+  "messenger": {
+   "document": "gen/M3/bundle/documents/messenger.json",
+   "reproduces_committed_bytes": true,
+   "same_content_as_committed": true
+  },
+  "queue": {
+   "document": "gen/M3/bundle/documents/queue.json",
+   "reproduces_committed_bytes": true,
+   "same_content_as_committed": true
+  }
+ },
+ "mutants": {
+  "m01": {
+   "content_changed": true,
+   "member": "queue",
+   "n_paths": 3,
+   "paths": [
+    "/actions/6/returns/1/0",
+    "/actions/6/returns/1/1[len 3 -> 2]",
+    "/actions/6/returns/1/2[len 3 -> 2]"
+   ]
+  },
+  "m02": {
+   "content_changed": true,
+   "member": "queue",
+   "n_paths": 4,
+   "paths": [
+    "/actions/0/post/messageEnqueueTime/3/1",
+    "/actions/0/writes/1/value/1",
+    "/actions/1/post/messageEnqueueTime/3/1",
+    "/actions/1/writes/1/value/1"
+   ]
+  },
+  "m03": {
+   "content_changed": true,
+   "member": "messenger",
+   "n_paths": 5,
+   "paths": [
+    "/actions/4/effects[len 3 -> 2]",
+    "/actions/4/events/0/seq",
+    "/actions/4/events/1/seq",
+    "/actions/4/post/finalizedWithdrawals",
+    "/actions/4/writes[len 3 -> 2]"
+   ]
+  },
+  "m04": {
+   "content_changed": true,
+   "member": "messenger",
+   "n_paths": 2,
+   "paths": [
+    "/actions/7/guards/6/expr/0",
+    "/actions/7/guards/6/reaches/0/expr/0"
+   ]
+  }
+ }
+}

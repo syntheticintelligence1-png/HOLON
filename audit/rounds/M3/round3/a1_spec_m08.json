@@ -1,0 +1,25 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 0
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 229,
+    "new": "add(batchPtr, 216)",
+    "old": "add(batchPtr, 217)"
+   },
+   "expect": "off-by-one offset: the commit path's storeParentBatchHash writes at 216, clobbering the last byte of sequencerSetVerifyHash and leaving byte 248 dirty; not equivalent. Expect the enc_sol ParentBatchHash round trip and the v0 codec law (PROVED) to flip.",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "id": "m08",
+   "laws": [
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+   ]
+  }
+ ],
+ "note": "M3 round 3, one mutant per invocation. Law re-runs not budgeted (max_law_runs 0): the mutated file is an extraction input of the rollup or header document, so the mutant touches 141+ laws, and one touched FACT law's baseline run alone took over 11 minutes; the verdict rests on the extraction and the re-derivation. Equivalence judged from the diff before the run.",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}

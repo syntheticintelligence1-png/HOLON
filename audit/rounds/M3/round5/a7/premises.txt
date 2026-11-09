@@ -1,0 +1,20 @@
+$ python3 -c '<below>'   (at C, repository root)
+import json,glob
+for f in sorted(glob.glob("laws/M3/L_*.json")):
+    law=json.load(open(f)); lid=law["law_id"]; r=json.load(open("results/M3/"+lid+".json"))
+    na=len(law["statement"].get("assume") or []); npm=len(r.get("premises") or [])
+    if na>npm: print(lid, r["status"], "assume", na, "premises", npm)
+--- output:
+L_contract_C_o12_m3 PROVED assume 4 premises 0
+L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154 PROVED assume 2 premises 0
+L_sort_cons_L1CrossDomainMessenger_receive REFUTED assume 1 premises 0
+L_sort_cons_L1CrossDomainMessenger_replayMessage UNKNOWN assume 1 premises 0
+L_sort_cons_L1CrossDomainMessenger_sendMessage_5f7b1577 UNKNOWN assume 1 premises 0
+L_sort_cons_L1CrossDomainMessenger_sendMessage_b2267a7b UNKNOWN assume 1 premises 0
+L_sort_cons_Rollup_challengeState UNKNOWN assume 1 premises 0
+L_sort_cons_Rollup_commitBatch REFUTED assume 1 premises 0
+L_sort_cons_Rollup_receive REFUTED assume 1 premises 0
+L_sort_cons_Submitter_stake UNKNOWN assume 1 premises 0
+L_sort_payer_L1CrossDomainMessenger_replayMessage_201 REFUTED assume 1 premises 0
+L_sort_payer_L1CrossDomainMessenger_sendMessage_5f7b1577_291 PROVED assume 1 premises 0
+L_sort_payer_L1CrossDomainMessenger_sendMessage_b2267a7b_291 PROVED assume 1 premises 0

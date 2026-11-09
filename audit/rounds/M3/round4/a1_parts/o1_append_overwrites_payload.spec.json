@@ -1,0 +1,24 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 4
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 36,
+    "new": "append(cks.txsPayload[:0], txsPayload...)",
+    "old": "append(cks.txsPayload, txsPayload...)"
+   },
+   "expect": "in-place reset overwrites a live TxsPayload view's backing region; the OWN alias law must move",
+   "file": "common/batch/batch_data.go",
+   "id": "o1_append_overwrites_payload",
+   "laws": [
+    "L_own_alias_batch_BatchData_TxsPayload_Append"
+   ]
+  }
+ ],
+ "note": "M3 audit round 4, A1 supplement: o1_append_overwrites_payload run alone so its target law runs within the cap",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}

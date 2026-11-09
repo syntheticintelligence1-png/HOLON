@@ -1,0 +1,67 @@
+{
+ "budget": {
+  "law_timeout_s": 600,
+  "max_law_runs": 80
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 262,
+    "new": "",
+    "old": " && messageEnqueueTime[pendingQueueIndex] != 0"
+   },
+   "expect": "dropped sentinel guard: getFirstUnfinalizedMessageEnqueueTime returns a pending message's enqueue time even when it is the unset sentinel 0 (a message queued before the time field existed), so the rollup's delay checks read 0 + rollupDelayPeriod; not equivalent on states with a legacy (time-0) pending message. Expect the sentinel_inv law or the derivation to move.",
+   "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+   "id": "m01",
+   "laws": [
+    "L_sym_sentinel_inv_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_getFirstUnfinalizedMessageEnqueueTime",
+    "L_sym_tau_L1MessageQueueWithGasPriceOracle_getFirstUnfinalizedMessageEnqueueTime"
+   ]
+  },
+  {
+   "edit": {
+    "line": 377,
+    "new": "block.number",
+    "old": "block.timestamp"
+   },
+   "expect": "wrong unit (sort confusion): the Time-sorted register messageEnqueueTime is written with a block number; not equivalent. Expect the sentinel or tau laws over the 377 site, or the derivation (SORT/SYM), to move.",
+   "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+   "id": "m02",
+   "laws": [
+    "L_sym_sentinel_L1MessageQueueWithGasPriceOracle_messageEnqueueTime_appendCrossDomainMessage_377",
+    "L_sym_tau_L1MessageQueueWithGasPriceOracle_appendCrossDomainMessage"
+   ]
+  },
+  {
+   "edit": {
+    "line": 167,
+    "new": "",
+    "old": "finalizedWithdrawals[_xDomainCalldataHash] = true;"
+   },
+   "expect": "missing write: a successful relay no longer marks the withdrawal finalized, so the replay guard at line 141 never blocks a second relay; not equivalent. Expect the keyed DISCH laws over the 141 guard or the derivation to move.",
+   "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+   "id": "m03",
+   "laws": [
+    "L_disch_kblk_l1crossdomainmessenger_141_f6e3bd5c_anyone",
+    "L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154"
+   ]
+  },
+  {
+   "edit": {
+    "line": 226,
+    "new": "_replayState.times <= maxReplayTimes",
+    "old": "_replayState.times < maxReplayTimes"
+   },
+   "expect": "off-by-one bound: one replay more than maxReplayTimes is allowed; not equivalent (the (maxReplayTimes+1)-th replay succeeds). Expect the keyed DISCH laws over the 226 guard or the derivation to move.",
+   "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+   "id": "m04",
+   "laws": [
+    "L_disch_kext_l1crossdomainmessenger_226_18a62741_onlyOwner",
+    "L_disch_knoext_l1crossdomainmessenger_226_18a62741_onlyOwner"
+   ]
+  }
+ ],
+ "note": "M3 round 3, auditor-chosen mutants of the bundle members (queue, messenger). Equivalence judged from each diff before the run: none of the four is equivalent (see each expect).",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}

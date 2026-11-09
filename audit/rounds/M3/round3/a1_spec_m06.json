@@ -1,0 +1,25 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 4
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 189,
+    "new": "version < 2",
+    "old": "version < 1"
+   },
+   "expect": "wrong version guard: BatchHeaderBytes.LastBlockNumber errors on every version-1 header; not equivalent. Expect the version-1 LastBlockNumber round trips (PROVED) to flip.",
+   "file": "common/batch/batch_header.go",
+   "id": "m06",
+   "laws": [
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1"
+   ]
+  }
+ ],
+ "note": "M3 round 3, one mutant per invocation (the driver's law-run cap is shared by the mutants of a spec, in order, so each mutant gets its own); equivalence judged from the diff before the run",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}
