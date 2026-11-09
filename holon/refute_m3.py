@@ -414,8 +414,9 @@ def demoted(rec: dict, why: list, law: dict, root: Path) -> tuple[dict, dict]:
       - The status-dependent fields become what the record-making code writes for an UNKNOWN record: kernel verdict
         not_run, kernels and independence_class from holon.records (bend2 not_run, class none), and the evidence fields
         from holon.diagram.evidence. triage, witness_provenance, filter_bin and witness are none, there is no
-        concretization, and scope_v2 is holon.records.scope_v2's for UNKNOWN, bounded by the bound (G6's base clause,
-        G7's Lean coverage, G9's v2 schema, GEVID).
+        concretization. Without a statement scope, scope_v2 is holon.records.scope_v2's for UNKNOWN, bounded by
+        the bound; a statement scope keeps the scope fields (holon.mpipeline.scope_fields). (G6's base clause, G7's
+        Lean coverage, G9's v2 schema, GEVID.)
       - Its checked LAWS.bend becomes its statement's emission (holon.bindings.statement_text, F39: the bound emission of
         an UNKNOWN record), with the statement's law name, no proof artifact (its proof directory is removed) and the
         checker not run; a typed record's REFUTED entries become UNKNOWN entries, as holon.sorts.run3 writes them."""
@@ -469,7 +470,9 @@ def demoted(rec: dict, why: list, law: dict, root: Path) -> tuple[dict, dict]:
                attempts=list(rec.get("attempts") or []) + [attempt])
     out["kernels"] = R.kernels(out)
     out["independence_class"] = R.independence_class(out)
-    if "scope_v2" in rec:      # an UNKNOWN record's scope is bounded, by its bound (holon.records.scope_v2; G9's v2)
+    if "scope_v2" in rec and rec.get("statement_scope") is None:
+        # without a statement scope, an UNKNOWN record's scope is bounded by its bound (holon.records.scope_v2; G9's
+        # v2). With one, the scope is the statement's whatever the status (holon.mpipeline.scope_fields), so it stays
         out["scope_v2"] = R.scope_v2(law, out)
     out.update(EV.record_fields(law, "UNKNOWN", root))
     return out, ops
