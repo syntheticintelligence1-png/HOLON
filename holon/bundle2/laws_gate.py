@@ -159,15 +159,17 @@ class BundleLawsGate:
         from .laws import LawsCtx
         L = LawsCtx(self.root, self.m)
         rep = json.loads(L.replay_path.read_text()) if L.replay_path.is_file() else {"laws": {}}
+        from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
         bad = []
         for lid, r in sorted(want.items()):
+            RB.judged(lid)
             x = (rep.get("laws") or {}).get(lid)
             if x is None:
-                bad.append(f"{lid}: not replayed")
+                bad.append(RB.refuse(lid, f"{lid}: not replayed"))
             elif x.get("status") != "passed":
-                bad.append(f"{lid}: replay {x.get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: replay {x.get('status')}"))
             elif (r.get("replay") or {}).get("status") != "passed":
-                bad.append(f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}"))
         if not want:
             self.na["G6"] = "no bundle law is REFUTED"
             return

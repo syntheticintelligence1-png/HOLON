@@ -109,16 +109,19 @@ def check_checkout(morph: Path, commit: str) -> str:
     return sha
 
 
-def replay_go(morph: Path, work: Path, results: Path) -> tuple[dict, str]:
+def replay_go(morph: Path, work: Path, results: Path, harness: Path | None = None,
+              test: str = "TestHolonReplay") -> tuple[dict, str]:
+    """The Go side: harness (default M0's replay/M0/go/holon_replay_test.go) beside the real common/batch code, its
+    test run on the witnesses in results."""
     ws = work / "go"
     shutil.rmtree(ws, ignore_errors=True)
     ws.mkdir(parents=True)
     for d in ("bindings", "common"):
         shutil.copytree(morph / d, ws / d, symlinks=True)
     (ws / "go.work").write_text("go 1.24.0\n\nuse (\n\t./bindings\n\t./common\n)\n")
-    shutil.copy(ROOT / "replay" / "M0" / "go" / "holon_replay_test.go", ws / "common" / "batch")
+    shutil.copy(harness or ROOT / "replay" / "M0" / "go" / "holon_replay_test.go", ws / "common" / "batch")
     shutil.copytree(results, ws / "holon_results")
-    cmd = ["go", "test", "./batch", "-run", "TestHolonReplay", "-v", "-count=1"]
+    cmd = ["go", "test", "./batch", "-run", test, "-v", "-count=1"]
     code, out = _run(cmd, ws / "common", {"HOLON_RESULTS": str(ws / "holon_results")})
     return _holon_lines(out), f"(cd common && HOLON_RESULTS=… {' '.join(cmd)})  # exit {code}"
 
@@ -217,7 +220,10 @@ def morph_path(args, root: Path | None = None) -> Path:
     return Path(m).resolve()
 
 
-def replay_solidity(morph: Path, work: Path, results: Path, forge: str, solc: str | None) -> tuple[dict, str]:
+def replay_solidity(morph: Path, work: Path, results: Path, forge: str, solc: str | None, harness: Path | None = None,
+                    contract: str = "HolonReplay") -> tuple[dict, str]:
+    """The Solidity side: harness (default M0's replay/M0/solidity/HolonReplay.t.sol) in a scratch copy of the real
+    contracts, its contract's tests run on the witnesses in results."""
     proj = work / "solidity"
     proj.mkdir(parents=True, exist_ok=True)
     shutil.rmtree(proj / "contracts", ignore_errors=True)
@@ -229,10 +235,10 @@ def replay_solidity(morph: Path, work: Path, results: Path, forge: str, solc: st
         shutil.copy(morph / "contracts" / f, proj / f)
     _sol_deps(proj)
     (proj / "test").mkdir(exist_ok=True)
-    shutil.copy(ROOT / "replay" / "M0" / "solidity" / "HolonReplay.t.sol", proj / "test")
+    shutil.copy(harness or ROOT / "replay" / "M0" / "solidity" / "HolonReplay.t.sol", proj / "test")
     shutil.rmtree(proj / "holon_results", ignore_errors=True)
     shutil.copytree(results, proj / "holon_results")  # forge may only read inside the project
-    cmd = [forge, "test", "--match-contract", "HolonReplay", "-vv", "--offline"] + (["--use", solc] if solc else [])
+    cmd = [forge, "test", "--match-contract", contract, "-vv", "--offline"] + (["--use", solc] if solc else [])
     code, out = _run(cmd, proj, {"HOLON_RESULTS": "holon_results"})
     lines = _holon_lines(out)
     # forge reports per-test pass/fail; the harness logs a HOLON line on success
@@ -375,3 +381,93 @@ def main_replay(args) -> int:
     if unseen:
         print(f"NOT REPRODUCED: the obstruction did not show on every side: {unseen}")
     return 1 if bad or unseen else 0
+
+
+# ================================================================== I98: the M3 PAR laws' library-level replays
+# A REFUTED M3 PAR law whose claim compares a Go library call with a Solidity internal function that no public schedule
+# reaches (I40's BMC found no path) is replayed as the M0 laws are: replay/M3/par/'s harnesses (a Go test beside the real
+# code, a Foundry harness inheriting the real Rollup) on the checkout at the commit of the documents the law was
+# compiled from. The report replay/M3/par/report.json has the base format (laws: {law: {go, solidity}}, witness_sha256,
+# morph_commit), which G6 binds (holon.sorts.gate3.Gate3.g6_other) and the records' replay fields are stamped from.
+# The plan names each law's two tests, as M0's PLAN does.
+PLAN_M3 = {
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": {
+        "go": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol",
+        "solidity": "test_L_par_dom_BatchHeaderBytes_validate_ok_load_sol"},
+}
+PAR_HARNESS = {"go": ("replay/M3/par/go/holon_par_test.go", "TestHolonPar"),
+               "solidity": ("replay/M3/par/solidity/HolonPar.t.sol", "HolonPar")}
+
+
+def par_commit(milestone: str, laws: dict, root: Path | None = None) -> str:
+    """The one target commit of the documents the laws' facts were compiled from."""
+    root = Path(root or ROOT)
+    commits = set()
+    for law in laws.values():
+        doc = json.loads((root / law["facts"]).read_text())
+        for d in doc.get("documents") or [law["facts"]]:
+            t = json.loads((root / d).read_text()).get("target") or {}
+            if t.get("commit"):
+                commits.add(t["commit"])
+    if len(commits) != 1:
+        raise SystemExit(f"{milestone}'s PAR library laws name {len(commits)} target commits ({sorted(commits)}); "
+                         "replaying them needs exactly one")
+    return commits.pop()
+
+
+def main_replay_par(args) -> int:
+    """`holon replay-par --milestone M3` (I98): PLAN_M3's REFUTED records on the real code, into
+    replay/<M>/par/report.json; then each record's replay field (replay_status) and witness_provenance from it."""
+    from .filter import record_fields
+    from .refute_m3 import write_record
+    m = args.milestone
+    results = ROOT / "results" / m
+    laws = {lid: json.loads((ROOT / "laws" / m / f"{lid}.json").read_text()) for lid in sorted(PLAN_M3)
+            if (ROOT / "laws" / m / f"{lid}.json").is_file()}
+    records = {lid: json.loads((results / f"{lid}.json").read_text()) for lid in laws if (results / f"{lid}.json").is_file()}
+    todo = sorted(lid for lid, r in records.items() if r.get("status") == "REFUTED")
+    rp = ROOT / "replay" / m / "par" / "report.json"
+    if not todo:
+        print(f"holon replay-par: no REFUTED record of the plan in {m}")
+        return 0
+    morph = morph_path(args)
+    sha = check_checkout(morph, par_commit(m, {lid: laws[lid] for lid in todo}))
+    tc = toolchain(args)
+    work = Path(getattr(args, "work", None) or ROOT / "build" / "replay-par").resolve()
+    gh, gt = PAR_HARNESS["go"]
+    sh, sc = PAR_HARNESS["solidity"]
+    go = replay_go(morph, work, results, ROOT / gh, gt) if shutil.which("go") else None
+    sol = replay_solidity(morph, work, results, tc["forge"], tc["solc"], ROOT / sh, sc)
+    out, shas = {}, {}
+    for lid in todo:
+        plan = PLAN_M3[lid]
+        shas[lid] = witness_sha256(records[lid].get("witness"))
+        entry = {}
+        if go is None:
+            entry["go"] = _side("not_run", "toolchain not provided", "", "library_api")
+        else:
+            lines, command = go
+            st, obs = (lines or {}).get(plan["go"], ("failed", f"no result for {gt}/{plan['go']}"))
+            entry["go"] = _side(st, obs, command, "library_api")
+        lines, command = sol
+        st, obs = (lines or {}).get(plan["solidity"], ("failed", f"no result for {plan['solidity']}"))
+        entry["solidity"] = _side(st, obs, command, "internal_harness")
+        out[lid] = entry
+    report = {"milestone": m, "morph_commit": sha, "go_version": tc[GO_PIN], "laws": out, "witness_sha256": shas,
+              "toolchain": {k: tc[k] for k in (*PIN_KEYS, GO_PIN)}}
+    rp.parent.mkdir(parents=True, exist_ok=True)
+    rp.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    changed = []
+    for lid in todo:
+        p = results / f"{lid}.json"
+        rec = json.loads(p.read_text())
+        wp, _ = record_fields(report, lid, rec.get("witness"), witness_sha256)
+        new = dict(rec, replay=replay_status(report, lid, rec.get("witness")), witness_provenance=wp)
+        if new != rec:
+            write_record(p, new)
+            changed.append(lid)
+    for lid, e in out.items():
+        print(f"{lid}: " + "  ".join(f"{k}={v['status']}/observed={v['obstruction_observed']}/{v['provenance']}"
+                                     for k, v in sorted(e.items())))
+    print(f"holon replay-par: wrote {rp.relative_to(ROOT)}; updated records: {changed or 'none'}")
+    return 1 if any(v["status"] != "passed" for e in out.values() for v in e.values()) else 0

@@ -43,6 +43,7 @@ typed milestone is gated as on any other.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -51,6 +52,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections import Counter
 from pathlib import Path
 
 from .. import bend
@@ -269,6 +271,7 @@ class Gate3:
     def g6_undo(self) -> tuple[list, int]:
         """G6 for the UNDO laws (I27): every REFUTED UNDO record is a passed entry of replay/<M>/undo/report.json with
         its witness's two runs."""
+        from .. import replay_bind as RB
         rp = self.root / "replay" / self.m / "undo" / "report.json"
         rep = json.loads(rp.read_text()) if rp.is_file() else {"laws": {}}
         bad, n = [], 0
@@ -278,20 +281,21 @@ class Gate3:
             if not r or r.get("status") != "REFUTED":
                 continue
             n += 1
+            RB.judged(lid)
             x = (rep.get("laws") or {}).get(lid)
             w = r.get("witness") or {}
             pre = list(w.get("prefix") or [])
             # the run without x: prefix + t, or prefix + [y] + t for a cancel law (I71: y alone)
             alone = [w.get("y")] if self.undo_entries[lid].get("subform") == "cancel" else []
             if x is None:
-                bad.append(f"{lid}: not replayed")
+                bad.append(RB.refuse(lid, f"{lid}: not replayed"))
             elif x.get("status") != "passed" or not x.get("calls_agree"):
-                bad.append(f"{lid}: replay {x.get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: replay {x.get('status')}"))
             elif (x.get("with") or {}).get("trace") != pre + [w.get("x"), w.get("y")] + list(w.get("t") or []) or \
                     (x.get("without") or {}).get("trace") != pre + alone + list(w.get("t") or []):
-                bad.append(f"{lid}: the replayed runs are not the record's witness")
+                bad.append(RB.refuse(lid, f"{lid}: the replayed runs are not the record's witness"))
             elif (r.get("replay") or {}).get("status") != "passed":
-                bad.append(f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}"))
         return bad, n
 
     def g3(self):
@@ -443,32 +447,39 @@ class Gate3:
                                    else "; ".join(bad))
 
     def g6(self):
+        from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
         rp = self.root / "replay" / self.m / "sorts" / "report.json"
         rep = json.loads(rp.read_text()) if rp.is_file() else {"laws": {}}
         bad, n = [], 0
         for lid, r in self.records().items():
             if not r or r.get("status") != "REFUTED":
                 continue
+            RB.judged(lid)
             # (A30 review) a REFUTED record stands on its kernels (AGENTS rule 6); a replay on the real contract that
-            # disagrees with its witness is a model/contract disagreement, flagged here, never absorbed into the status
+            # disagrees with its witness is a model/contract disagreement, flagged here. I98: the final filter's one
+            # rule (holon.replay_bind) takes a record this clause refuses out of REFUTED, through code
             if (r.get("replay") or {}).get("status") not in ("passed", "not_applicable"):
-                bad.append(f"{lid}: REFUTED, but its replay on the real contract is "
-                           f"{(r.get('replay') or {}).get('status')}: {(r.get('replay') or {}).get('detail', '')[:200]}")
+                bad.append(RB.refuse(lid, f"{lid}: REFUTED, but its replay on the real contract is "
+                                          f"{(r.get('replay') or {}).get('status')}: "
+                                          f"{(r.get('replay') or {}).get('detail', '')[:200]}"))
             for e, w in sorted((r.get("witnesses") or {}).items()):
                 if w.get("status") != "REFUTED":
                     continue
                 n += 1
                 x = ((rep["laws"].get(lid) or {}).get("entries") or {}).get(e)
                 if x is None:
-                    bad.append(f"{lid}/{e}: not replayed")
+                    bad.append(RB.refuse(lid, f"{lid}/{e}: not replayed"))
                 elif x.get("status") != "passed" or x.get("trace") != w["witness"]["steps"]:
-                    bad.append(f"{lid}/{e}: replay {x.get('status')}")
+                    bad.append(RB.refuse(lid, f"{lid}/{e}: replay {x.get('status')}"))
                 elif (w.get("replay") or {}).get("status") != "passed":
-                    bad.append(f"{lid}/{e}: the record's replay is {(w.get('replay') or {}).get('status')}")
+                    bad.append(RB.refuse(lid, f"{lid}/{e}: the record's replay is "
+                                              f"{(w.get('replay') or {}).get('status')}"))
         ub, un = self.g6_undo()
         bad += ub
-        self.checks["G6"] = _res(not bad, f"{n} REFUTED entry points and {un} REFUTED UNDO laws replayed and passed on "
-                                          "the real contract" if not bad else "; ".join(bad[:8]))
+        ob, other = self.g6_other()     # I98: every other REFUTED record of the milestone
+        self.checks["G6"] = _res(not bad and not ob,
+                                 (f"{n} REFUTED entry points and {un} REFUTED UNDO laws replayed and passed on the real "
+                                  "contract" if not bad else "; ".join(bad[:8])) + (f"; {other}" if other else ""))
         try:      # I29 (N9): the REFUTED NAT records are bound to their runs of the NAT replay report
             from ..rules.nat_replay import g6 as nat_g6
             nat = nat_g6(self.m, self.root)
@@ -477,6 +488,168 @@ class Gate3:
         if nat is not None:
             c = self.checks["G6"]
             self.checks["G6"] = _res(c["passed"] and nat[0], f"{c['detail']}; {nat[1]}")
+
+    # I98: the replays of the laws no other clause judges, in the order g6_other tries them: (kind, the report path
+    # under replay/<M>/, the report's layout). A law is judged by the first that names it.
+    OTHER_REPLAYS = (("go", "own/report.json", "laws"), ("go", "gocount/report.json", "laws"),
+                     ("go", "goops/report.json", "laws"), ("go", "par/report.json", "laws"),
+                     ("gox", "gox/{law}.json", "file"),
+                     ("symb", "symb/{law}.json", "file"), ("sym", "sym/report.json", "laws"),
+                     ("I40", "refute/report.json", "records"))
+
+    def g6_judged_elsewhere(self) -> set:
+        """The laws another G6 clause judges: I30's entries, UNDO, NAT, the PAR-init laws, DISCH and FACT, the bundle
+        laws (I84, I86), the contract laws and I88's derivation law set."""
+        from .contract3_run import contract_ids
+        mine = set(self.entries) | set(self.undo_entries) | set(contract_ids(self.m, self.root))
+        try:
+            dv = json.loads((self.root / "laws" / self.m / "DERIVATION.json").read_text())
+            mine |= {e["law_id"] for e in dv["laws"] if e.get("rule") in ("DISCH", "FACT")}
+        except (OSError, ValueError, KeyError):
+            pass
+        for get in (lambda: __import__("holon.bundle.lawrun", fromlist=["x"]).bundle_entries(self.m, self.root),
+                    lambda: __import__("holon.bundle2.laws_decide", fromlist=["x"]).bundle_entries(self.m, self.root),
+                    lambda: __import__("holon.rules.nat_run", fromlist=["x"]).nat_entries(self.m, self.root),
+                    lambda: __import__("holon.versions.run", fromlist=["x"]).init_entries(self.m, self.root)):
+            try:
+                mine |= set(get())
+            except Exception:  # noqa: BLE001  (a family the milestone does not have)
+                pass
+        try:
+            from ..derivation.bendgate import DerivationGate
+            dg = DerivationGate(self)
+            if dg.applies():
+                mine |= set(dg.ids)
+        except Exception:  # noqa: BLE001  (no derivation law set)
+            pass
+        return mine
+
+    def g6_other(self) -> tuple[list, str]:
+        """I98: G6 over every other REFUTED record of the milestone, the laws no other clause judges (on M3 the PAR,
+        SYM and OWN laws outside the bundle laws). Each is judged by the first replay of OTHER_REPLAYS that names it:
+          go     replay/<M>/{own,gocount,goops}/report.json (holon.goreplay) and replay/<M>/par/report.json (I98:
+                 holon.replay.main_replay_par, the PAR laws' library-level replays), the base replay format: the
+                 record's replay field is holon.replay.replay_status of that report: its witness's sha256, every side
+                 passed;
+          gox    replay/<M>/gox/<law>.json (holon.gox): verdict agree, and its witness_sha256 the record witness's;
+          symb   replay/<M>/symb/<law>.json (holon.symb): agree, and its witness_sha256 the record witness's;
+          sym    replay/<M>/sym/report.json (I34): passed, and the record's sym.replay is the report's entry;
+          I40    replay/<M>/refute/report.json's sides (I40's emitted tests, run on the real code): every side passed
+                 and observed its part of the obstruction, each side's test emitted for this law. Those sides are the
+                 record's replay, so the record's own replay field is not read (the final filter writes it from them).
+        Every binding but I40's also needs the record's own replay to have passed. A record no replay names is refused.
+        The PAR-init laws are holon.versions.replay.g6's, joined here. No family is exempt: no spec rule exempts one.
+        (bad, detail); the detail counts the records each kind binds, and each side provenance."""
+        from .. import replay_bind as RB
+        from ..replay import replay_status
+        from ..gox.lawrun import witness_sha256 as gox_sha
+        from ..symb.lawrun import canon
+        mine = self.g6_judged_elsewhere()
+        base = self.root / "replay" / self.m
+        docs: dict = {}
+
+        def doc(rel: str):
+            if rel not in docs:
+                p = base / rel
+                try:
+                    docs[rel] = json.loads(p.read_text(encoding="utf-8")) if p.is_file() else None
+                except (OSError, ValueError):
+                    docs[rel] = None
+            return docs[rel]
+
+        bad, bound, prov = [], Counter(), Counter()
+        for p in sorted(self.results.glob("L*.json")):
+            lid = p.stem
+            if lid in mine:
+                continue
+            try:
+                r = json.loads(p.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if not isinstance(r, dict) or r.get("status") != "REFUTED":
+                continue
+            RB.judged(lid)
+            w, own = r.get("witness"), r.get("replay") or {}
+            found = None
+            for kind, rel, layout in self.OTHER_REPLAYS:
+                rel = rel.format(law=lid)
+                d = doc(rel)
+                if d is None:
+                    continue
+                if layout == "file" or (layout == "laws" and lid in (d.get("laws") or {})) or \
+                        (layout == "records" and f"{self.m}/{lid}" in (d.get("records") or {})):
+                    found = (kind, rel, d)
+                    break
+            if found is None:
+                bad.append(RB.refuse(lid, f"{lid}: not replayed (no replay of its family names it: "
+                                          f"{', '.join(sorted({k for k, _r, _l in self.OTHER_REPLAYS}))})"))
+                continue
+            kind, rel, d = found
+            why = None
+            if kind == "go":
+                st = replay_status(d, lid, w)
+                for side in (d["laws"][lid] or {}).values():
+                    if isinstance(side, dict) and side.get("provenance"):
+                        prov[side["provenance"]] += 1
+                if st["status"] != "passed":
+                    why = f"replay/{self.m}/{rel}: {st['detail']}"
+                elif own != st:
+                    why = f"the record's replay is not replay/{self.m}/{rel}'s ({own.get('status')})"
+            elif kind == "gox":
+                if d.get("witness_sha256") != gox_sha(w):
+                    why = f"replay/{self.m}/{rel} replays another witness"
+                elif d.get("verdict") != "agree":
+                    why = f"replay/{self.m}/{rel}: verdict {d.get('verdict')}"
+            elif kind == "symb":
+                if d.get("witness_sha256") != hashlib.sha256(canon(w).encode()).hexdigest():
+                    why = f"replay/{self.m}/{rel} replays another witness"
+                elif d.get("agree") is not True:
+                    why = f"replay/{self.m}/{rel}: the worlds do not differ as the counter-law states"
+            elif kind == "sym":
+                e = d["laws"][lid]
+                if e.get("status") != "passed":
+                    why = f"replay/{self.m}/{rel}: {e.get('status')}"
+                elif ((r.get("sym") or {}).get("replay") or {}) != e:
+                    why = f"the record's sym.replay is not replay/{self.m}/{rel}'s entry"
+            else:   # I40
+                sides = (d["records"][f"{self.m}/{lid}"] or {}).get("sides") or {}
+                for side in sides.values():
+                    if isinstance(side, dict) and side.get("provenance"):
+                        prov[side["provenance"]] += 1
+                bads = [k for k, v in sorted(sides.items()) if not (isinstance(v, dict) and v.get("status") == "passed"
+                                                                    and v.get("obstruction_observed") is True)]
+                named = all(lid in str(v.get("test") or v.get("command") or "") for v in sides.values()
+                            if isinstance(v, dict))
+                if not sides:
+                    why = f"replay/{self.m}/{rel} holds no side for it"
+                elif bads:
+                    why = f"replay/{self.m}/{rel}: the {', '.join(bads)} side(s) did not pass observing the obstruction"
+                elif not named:
+                    why = f"replay/{self.m}/{rel}: a side's test is not the one emitted for this law"
+            if why is None and kind != "I40" and own.get("status") != "passed":
+                why = f"the record's replay is {own.get('status')}"
+            if why is not None:
+                bad.append(RB.refuse(lid, f"{lid}: {why}"))
+            else:
+                bound[kind] += 1
+        try:      # I28 (V9): the REFUTED PAR-init records, bound to the versions replay report
+            from ..versions.replay import g6 as versions_g6
+            pinit = versions_g6(self.m, self.root)
+        except Exception as e:  # noqa: BLE001  (a crash is a failed clause)
+            pinit = (False, f"PAR-init laws: the binding could not be checked: {type(e).__name__}: {e}")
+        n = sum(bound.values())
+        parts = []
+        if n or bad:
+            parts.append(f"the other laws: {n} REFUTED records bound to passed replays of their family ("
+                         + ", ".join(f"{k} {v}" for k, v in sorted(bound.items())) + ")"
+                         + (f", sides' provenance {', '.join(f'{k} {v}' for k, v in sorted(prov.items()))}" if prov else "")
+                         + "; no exemption rule applies"
+                         + (f"; refused: {'; '.join(bad[:8])}" if bad else ""))
+        if pinit is not None:
+            parts.append(pinit[1])
+            if not pinit[0]:
+                bad.append(pinit[1])
+        return bad, "; ".join(parts)
 
     def g9(self):
         bad = []

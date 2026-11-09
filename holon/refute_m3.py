@@ -402,19 +402,64 @@ def write_record(p: Path, rec: dict) -> None:
     p.write_text(json.dumps(rec, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def demoted(rec: dict, why: list, law: dict, root: Path) -> dict:
+    """I98, the final filter's one rule (holon.replay_bind): a REFUTED record that G6 does not bind to a passed replay
+    leaves REFUTED for UNKNOWN, through code, recorded with what was tried, and its law is kept.
+      - The bound names G6's refusal. A replay_binding attempt keeps the witness, the replay, and the kernels and
+        kernel block of the counter-law Bend accepted.
+      - The status-dependent fields become what the record-making code writes for an UNKNOWN record: kernel verdict
+        not_run, kernels and independence_class from holon.records (bend2 not_run, class none), and the evidence fields
+        from holon.diagram.evidence. triage, witness_provenance, filter_bin and witness are none, and there is no
+        concretization (G6's base clause, G7's Lean coverage, G9's v2 schema, GEVID)."""
+    from . import records as R
+    from .diagram import evidence as EV
+    out = {k: v for k, v in rec.items() if k != "concretization"}
+    out.update(status="UNKNOWN", witness=None, witness_provenance=None, filter_bin=None, triage="none",
+               kernel={k: v for k, v in (rec.get("kernel") or {}).items() if k != "verdict_reason"} | {"verdict": "not_run"},
+               bound=("a model witness whose counter-law Bend accepts, not bound by G6 to a passed replay on the real "
+                      "code (holon.replay_bind): " + "; ".join(why))[:2000],
+               attempts=list(rec.get("attempts") or []) + [{"kind": "replay_binding", "found": True, "bound": False,
+                                                            "why": list(why), "witness": rec.get("witness"),
+                                                            "replay": rec.get("replay"), "kernels": rec.get("kernels"),
+                                                            "kernel": rec.get("kernel")}])
+    out["kernels"] = R.kernels(out)
+    out["independence_class"] = R.independence_class(out)
+    out.update(EV.record_fields(law, "UNKNOWN", root))
+    return out
+
+
 def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
     """Q4 and the final filter: every REFUTED record at HEAD gets its concretization (K1-K4) and its final bin
-    (holon.filter.final_bin over its I4 sides, each side an emitted test replaced taking the test's result)."""
+    (holon.filter.final_bin over its I4 sides, each side an emitted test replaced taking the test's result).
+    I98: the one rule first. Every M3 record G6 does not bind to a passed replay (holon.replay_bind.binding) leaves
+    REFUTED for UNKNOWN (demoted) and gets no bin; the filter document lists it under "unbound". An M3 record that no
+    replay of its family names and whose I40 sides here all passed observing the obstruction gets those sides as its
+    replay field (G6's I40 binding reads the sides themselves)."""
     from . import filter as FL
+    from . import replay_bind as RB
+    try:
+        ub, _examined, _g6 = RB.binding("M3", root)
+    except RuntimeError as e:
+        raise SystemExit(f"holon refute: the final filter's one rule needs G6's judgment of M3: {e}") from None
+    unbound = {f"M3/{law}": why for law, why in ub.items()}
     recs = records(root)
     sides = i4_sides(root)
     rep_p = root / "replay" / "M3" / "refute" / "report.json"
     rep = load(rep_p) if rep_p.is_file() else {"records": {}}
     H, rl = int(side["bmc"]["H"]), int(side["solver"]["rlimit_per_query"])
     cc_version = {pl["record"]: pl["version"] for pl in cc_plans(root, env)}
-    out, filt, stale = {}, {}, []
+    out, filt, stale, unb = {}, {}, [], {}
     for key, rec in sorted(recs.items()):
         if rec.get("status") != "REFUTED":
+            continue
+        if key in unbound:      # I98: the one rule
+            unb[key] = unbound[key]
+            new = demoted(rec, unbound[key], law_of(root, key), root)
+            if new != rec:
+                stale.append(key)
+                if write:
+                    d, _, lid = key.rpartition("/")
+                    write_record(root / "results" / d / f"{lid}.json", new)
             continue
         law = law_of(root, key)
         ss = dict(sides.get(key) or {})
@@ -506,13 +551,21 @@ def concretize(root: Path, side: dict, env: dict, write: bool = True) -> dict:
             new = dict(rec, sym=dict(rec["sym"], replaces=fb), concretization=conc)
         else:
             new = dict(rec, filter_bin=fb, concretization=conc)
+        own = rec.get("replay") or {}
+        if key.startswith("M3/") and gen and own.get("status") in (None, "not_run"):
+            # I98: no replay of its family names it, and I40's sides replayed it: they are its replay
+            good = all(v.get("status") == "passed" and v.get("obstruction_observed") is True for v in gen.values())
+            new = dict(new, replay={"status": "passed" if good else "failed",
+                                    "detail": "I40's sides (replay/M3/refute/report.json): " + "; ".join(
+                                        f"{k} {v.get('status')} ({v.get('provenance')})" for k, v in sorted(gen.items()))})
         if new != rec:
             stale.append(key)
             if write:
                 d, _, lid = key.rpartition("/")
                 write_record(root / "results" / d / f"{lid}.json", new)
     return {"concretization": {"document": "concretization", "H": H, "records": out},
-            "filter": {"document": "filter", "rule": FL.FINAL_RULE, "records": filt}, "stale": stale}
+            "filter": {"document": "filter", "rule": FL.FINAL_RULE, "records": filt, **({"unbound": unb} if unb else {})},
+            "stale": stale}
 
 
 def with_calls(root: Path, kind: str, ident: str, path):

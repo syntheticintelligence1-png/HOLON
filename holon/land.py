@@ -657,6 +657,8 @@ def step_plan(a) -> int:
     filt = []
     if (root / "holon" / "goreplay.py").is_file():   # every Go replay (I67's go-op, I90's count, I35's OWN laws)
         filt.append('python -u -m holon replay-go --milestone {m} 2>&1 | tee -a "$RUNNER_TEMP/run.log"')
+    if (root / "replay" / a.milestone / "par").is_dir():   # I98: the PAR laws' library-level replays (holon replay-par)
+        filt.append('python -u -m holon replay-par --milestone {m} 2>&1 | tee -a "$RUNNER_TEMP/run.log"')
     filt.append('python -u -m holon refute --milestone {m} --only filter 2>&1 | tee -a "$RUNNER_TEMP/run.log"')
     if "SYM" in rules and (root / "holon" / "sym.py").is_file():
         filt.append('python -u -m holon sym --milestone {m} --aggregate 2>&1 | tee -a "$RUNNER_TEMP/run.log"')

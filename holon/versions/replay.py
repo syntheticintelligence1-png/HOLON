@@ -566,6 +566,7 @@ def side(root, milestone: str, lid: str, witness: dict | None) -> dict | None:
 def g6(milestone: str, root) -> tuple[bool, str] | None:
     """G6 over the PAR-init laws of a milestone with a versions sidecar (None without one): every REFUTED PAR-init
     record is bound to a passed run of the replay report (its witness's sha256), and its replay field says so."""
+    from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
     from .run import init_entries
     root = Path(root)
     rel = f"spec/{milestone}/lib/versions.json"
@@ -584,11 +585,13 @@ def g6(milestone: str, root) -> tuple[bool, str] | None:
         if not isinstance(rec, dict) or rec.get("status") != "REFUTED":
             continue
         n += 1
+        RB.judged(lid)
         st = replay_status(ctx, rep, lid, rec.get("witness"))
         if st["status"] != "passed":
-            bad.append(f"{lid}: {st['detail']}")
+            bad.append(RB.refuse(lid, f"{lid}: {st['detail']}"))
         elif rec.get("replay") != st:
-            bad.append(f"{lid}: the record's replay field is not the report's ({(rec.get('replay') or {}).get('status')})")
+            bad.append(RB.refuse(lid, f"{lid}: the record's replay field is not the report's "
+                                      f"({(rec.get('replay') or {}).get('status')})"))
     return not bad, (f"{n} REFUTED PAR-init records bound to passed runs of {ctx.out('replay')}" if not bad
                      else "; ".join(bad))
 

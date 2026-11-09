@@ -127,7 +127,10 @@ class ContractGate:
         if not want:
             self.na["G6"] = "no contract law is REFUTED"
             return
-        bad = [f"{lid}: replay {(r.get('replay') or {}).get('status')}" for lid, r in sorted(want.items())
+        from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
+        for lid in want:
+            RB.judged(lid)
+        bad = [RB.refuse(lid, f"{lid}: replay {(r.get('replay') or {}).get('status')}") for lid, r in sorted(want.items())
                if (r.get("replay") or {}).get("status") != "passed"]
         self.checks["G6"] = _res(not bad, f"{len(want)} REFUTED contract laws replayed and passed on the real contract"
                                  if not bad else "; ".join(bad[:8]))

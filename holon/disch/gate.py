@@ -201,15 +201,17 @@ class DischGate:
             return
         rp = self.root / "replay" / self.m / "disch" / "report.json"
         rep = json.loads(rp.read_text()) if rp.is_file() else {"laws": {}}
+        from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
         bad = []
         for lid, r in sorted(want.items()):
+            RB.judged(lid)
             x = (rep.get("laws") or {}).get(lid)
             if x is None:
-                bad.append(f"{lid}: not replayed")
+                bad.append(RB.refuse(lid, f"{lid}: not replayed"))
             elif x.get("status") != "passed" or x.get("trace") != r["witness"]["steps"]:
-                bad.append(f"{lid}: replay {x.get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: replay {x.get('status')}"))
             elif (r.get("replay") or {}).get("status") != "passed":
-                bad.append(f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: the record's replay is {(r.get('replay') or {}).get('status')}"))
         self.checks["G6"] = _res(not bad, f"{len(want)} DISCH witnesses replayed and passed on the real contract"
                                  if not bad else "; ".join(bad[:8]))
 

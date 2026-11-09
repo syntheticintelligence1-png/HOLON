@@ -97,8 +97,13 @@ def bend_view(o: dict) -> dict:
 class Obs:
     """UNDO evaluations on one combined-module model (an S3.Model)."""
 
-    def __init__(self, m: S3.Model):
+    def __init__(self, m: S3.Model, answer: bool = True):
+        """answer: settle answers the calls an evaluation looks up from the model's hints (a search builds a step's
+        environment so). A replay evaluates a witness on the environment the witness states, so it passes False (I98):
+        an answer added there puts into the observation a call whose lookup the evaluation makes but the real code
+        skips (both operands of an `||` are evaluated; I26)."""
         self.m = m
+        self.answer = answer
 
     def settle(self, req: dict, st: S3.Step | None, save: str | None = None) -> dict:
         """An evaluation with the hash keys it looks up learned and the calls it looks up answered (on st's env).
@@ -110,7 +115,7 @@ class Obs:
             args = req["args"]() if callable(req["args"]) else list(req["args"])
             r = m.mreq(dict(req, args=list(args) + tabs, **({"save": save, "quiet": True} if save else {})))
             new = m.learn(r)
-            changed = m.answer_calls(st, r.get("calls") or []) if st is not None else False
+            changed = m.answer_calls(st, r.get("calls") or []) if st is not None and self.answer else False
             if not (new or changed):
                 return r
         raise RuntimeError(f"{req.get('fn')}: the hash keys and call answers did not settle")

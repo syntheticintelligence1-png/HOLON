@@ -151,11 +151,13 @@ class BundleGate:
             if not (rec.get("status") == "REFUTED" or (rec.get("status") == "PROVED" and sub == "keyed_external")):
                 continue
             n += 1
+            from .. import replay_bind as RB   # I98: each judgment, for the final filter's one rule
+            RB.judged(lid)
             x = (rep.get("laws") or {}).get(lid)
             if x is None or x.get("status") != "passed":
-                bad.append(f"{lid}: replay {None if x is None else x.get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: replay {None if x is None else x.get('status')}"))
             elif (rec.get("replay") or {}).get("status") != "passed":
-                bad.append(f"{lid}: the record's replay is {(rec.get('replay') or {}).get('status')}")
+                bad.append(RB.refuse(lid, f"{lid}: the record's replay is {(rec.get('replay') or {}).get('status')}"))
         self.checks["G6"] = _res(not bad, f"{n} bundle witnesses replayed and passed on the real bundle" if not bad
                                  else "; ".join(bad[:6]))
 
