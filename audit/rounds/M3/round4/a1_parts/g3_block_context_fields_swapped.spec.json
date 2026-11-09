@@ -1,0 +1,21 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 4
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "expect": "swapped Number/Timestamp in the Go block-context encoder",
+   "file": "common/batch/batch_cache.go",
+   "id": "g3_block_context_fields_swapped",
+   "laws": [
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_0",
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1"
+   ],
+   "patch": "--- a/common/batch/batch_cache.go\n+++ b/common/batch/batch_cache.go\n@@ -1827,10 +1827,10 @@\n \tblsBytes := make([]byte, 60)\n \n \t// Number (8 bytes)\n-\tbinary.BigEndian.PutUint64(blsBytes[:8], header.Number.Uint64())\n+\tbinary.BigEndian.PutUint64(blsBytes[:8], header.Time)\n \n \t// Timestamp (8 bytes)\n-\tbinary.BigEndian.PutUint64(blsBytes[8:16], header.Time)\n+\tbinary.BigEndian.PutUint64(blsBytes[8:16], header.Number.Uint64())\n \n \t// BaseFee (32 bytes)\n \tif header.BaseFee != nil {\n"
+  }
+ ],
+ "note": "M3 audit round 4, A1 supplement: g3_block_context_fields_swapped run alone so its target law runs within the cap",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}

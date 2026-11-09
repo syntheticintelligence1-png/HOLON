@@ -1,0 +1,58 @@
+{
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 16
+ },
+ "milestone": "M3",
+ "mutations": [
+  {
+   "edit": {
+    "line": 24,
+    "new": "blockContextBytes[1:9]",
+    "old": "blockContextBytes[:8]"
+   },
+   "expect": "off-by-one in the Go block-context height decoder: the Go round trip BuildBlockContext -> HeightFromBlockContextBytes must be refuted",
+   "file": "common/batch/encoding.go",
+   "id": "g1_height_offset",
+   "laws": [
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_0",
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1"
+   ]
+  },
+  {
+   "expect": "swapped Number/Timestamp fields in the Go block-context encoder: HeightFromBlockContextBytes reads [0:8] which now holds the timestamp; the round trip of the height must be refuted",
+   "file": "common/batch/batch_cache.go",
+   "id": "g3_block_context_fields_swapped",
+   "laws": [
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_0",
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1"
+   ],
+   "patch": "--- a/common/batch/batch_cache.go\n+++ b/common/batch/batch_cache.go\n@@ -1827,10 +1827,10 @@\n \tblsBytes := make([]byte, 60)\n \n \t// Number (8 bytes)\n-\tbinary.BigEndian.PutUint64(blsBytes[:8], header.Number.Uint64())\n+\tbinary.BigEndian.PutUint64(blsBytes[:8], header.Time)\n \n \t// Timestamp (8 bytes)\n-\tbinary.BigEndian.PutUint64(blsBytes[8:16], header.Time)\n+\tbinary.BigEndian.PutUint64(blsBytes[8:16], header.Number.Uint64())\n \n \t// BaseFee (32 bytes)\n \tif header.BaseFee != nil {\n"
+  },
+  {
+   "expect": "swapped cursors in the Go header getters (PrevStateRoot reads [121:153], PostStateRoot reads [89:121]): the enc_sol round trips of PrevStateRoot/PostStateRoot must be refuted",
+   "file": "common/batch/batch_header.go",
+   "id": "g2_state_root_getters_swapped",
+   "laws": [
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0"
+   ],
+   "patch": "--- a/common/batch/batch_header.go\n+++ b/common/batch/batch_header.go\n@@ -150,14 +150,14 @@\n \tif err := b.validate(); err != nil {\n \t\treturn common.Hash{}, err\n \t}\n-\treturn common.BytesToHash(b[89:121]), nil\n+\treturn common.BytesToHash(b[121:153]), nil\n }\n \n func (b BatchHeaderBytes) PostStateRoot() (common.Hash, error) {\n \tif err := b.validate(); err != nil {\n \t\treturn common.Hash{}, err\n \t}\n-\treturn common.BytesToHash(b[121:153]), nil\n+\treturn common.BytesToHash(b[89:121]), nil\n }\n \n func (b BatchHeaderBytes) WithdrawalRoot() (common.Hash, error) {\n"
+  },
+  {
+   "edit": {
+    "line": 36,
+    "new": "append(cks.txsPayload[:0], txsPayload...)",
+    "old": "append(cks.txsPayload, txsPayload...)"
+   },
+   "expect": "a wrong in-place reset in Append overwrites the backing region of a live TxsPayload view; the OWN alias law must move",
+   "file": "common/batch/batch_data.go",
+   "id": "o1_append_overwrites_payload",
+   "laws": [
+    "L_own_alias_batch_BatchData_TxsPayload_Append"
+   ]
+  }
+ ],
+ "note": "M3 audit round 4, A1. Four redundancy mutants in common/batch Go files (no Solidity law reruns), each breaking a redundant path a cheap law must catch: three PAR round trips and one OWN alias. max_law_runs 16 covers each target law on mutant and baseline.",
+ "spec_version": "holon-audit-a1-spec/0.1"
+}

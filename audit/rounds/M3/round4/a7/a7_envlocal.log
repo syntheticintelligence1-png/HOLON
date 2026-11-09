@@ -1,0 +1,13 @@
+BENDTT in this process env: None
+holon.bend.UNSAFE_ENV_FILES = ('bunfig.toml', '.env')
+[no .env.local] holon.bend.check_verdict ok=False code=1 first_line='SOME PROOFS FAIL'
+[no .env.local]   output tail: ['SOME PROOFS FAIL', 'Sorry - this is a mismatch between the TypeScript implementation, and the formalized BendTT kernel. Your proofs may or may not be correct, and we cannot validate them yet. This will be addressed in a future update. Meanwhile, feel free to open an issue to report this bug.']
+wrote gen/M3/proofs/L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp/.env.local = BENDTT=/tmp/audit-m3-r4/a7min/fake-bendtt
+holon.bend.unsafe_env_files(root) with .env.local present: []
+[with .env.local] holon.bend.check_verdict ok=True code=0 first_line='ALL PROOFS CHECK'
+[with .env.local]   output tail: ['ALL PROOFS CHECK']
+fake kernel log: fake-bendtt ran on /tmp/audit-m3-r4/tmp/bendtt-NchEq7/in.bendtt
+holon.bend.unsafe_env_files(root) with .env.development present: []
+[with .env.development] holon.bend.check_verdict ok=True code=0 first_line='ALL PROOFS CHECK'
+[with .env.development]   output tail: ['ALL PROOFS CHECK']
+holon.bend.unsafe_env_files(root) with .env present: ['gen/M3/proofs/L_sym_tau_L1MessageQueueWithGasPriceOracle_getMessageEnqueueTimestamp/.env']

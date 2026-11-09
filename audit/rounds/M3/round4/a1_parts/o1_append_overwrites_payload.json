@@ -1,0 +1,385 @@
+{
+ "a1_version": "holon-audit-a1/0.1",
+ "attack": {
+  "auditor_type": "A1",
+  "category": "mutation_adequacy",
+  "evidence": [
+   "audit/rounds/M3/round4/a1.json",
+   "audit/rounds/M3/round4/a1_parts/o1_append_overwrites_payload.spec.json"
+  ],
+  "findings": [],
+  "id": "A1",
+  "result": "no_finding",
+  "run": true,
+  "tried": "`python -m holon audit mutation --milestone M3 --round 4 --spec audit/rounds/M3/round4/a1_parts/o1_append_overwrites_payload.spec.json`: 1 mutant(s) of the auditor's choosing on morph-l2/morph@3e44e795586a; 1 detected, 0 missed, 0 incomplete, 0 refused; caps 900 s per law run, 4 runs per round (4 used)."
+ },
+ "baseline": {
+  "documents": {
+   "spec/M2/facts/morph_batch.go.extracted.json": {
+    "error": null,
+    "reproduces": true
+   },
+   "spec/M3/facts/morph_blob.go.extracted.json": {
+    "error": null,
+    "reproduces": true
+   },
+   "spec/M3/facts/morph_go03.go.extracted.json": {
+    "error": null,
+    "reproduces": true
+   }
+  },
+  "runs": {
+   "L_own_alias_batch_BatchData_TxsPayloadV2_Append": {
+    "statement_hash": "sha256:59c5b5b3788f684bf09c32008d3979b90892f9d20b863137a7dd04a1b314b8c2",
+    "status": "REFUTED",
+    "witness_sha256": "85bb9e73cddd15bf56b131b147535227345479068ed21995a72b0f1f56a4ce27"
+   },
+   "L_own_alias_batch_BatchData_TxsPayload_Append": {
+    "statement_hash": "sha256:f842f5bd0e5fc2419bae76b6a0f3324e73607fd8841abece9e6c5948f4d77855",
+    "status": "PROVED",
+    "witness_sha256": null
+   }
+  }
+ },
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 4
+ },
+ "checkout": {
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "repo": "morph-l2/morph"
+ },
+ "law_runs": 4,
+ "milestone": "M3",
+ "mutations": [
+  {
+   "derivation": {
+    "added": [],
+    "derived_documents": {
+     "gen/M3/codec/header_length.json": "changed",
+     "gen/M3/goops/blob_ops.json": "changed",
+     "gen/M3/goops/l1_counts.json": "changed",
+     "gen/M3/own/batch_BatchData.json": "changed",
+     "gen/M3/own/batch_BatchHeaderV0.json": "changed",
+     "gen/M3/own/batch_BatchHeaderV1.json": "changed"
+    },
+    "dropped": [],
+    "facts_changed": 96,
+    "repinned": [
+     "spec/M2/lib/audit_round2.json",
+     "spec/M2/lib/mutation_catalog_i60.json",
+     "spec/M2/lib/mutation_catalog_i61.json",
+     "spec/M2/lib/mutation_catalog_i62.json",
+     "spec/M3/lib/backtest_map.json",
+     "spec/M3/lib/bundle2_laws_basis.json",
+     "spec/M3/lib/lean_promoted.json",
+     "spec/M3/lib/par_basis.json",
+     "spec/M3/lib/par_lossy.json",
+     "spec/M3/lib/theory_core.json"
+    ],
+    "statement_changed": [],
+    "steps": {
+     "codecs": "ok",
+     "derive": "ok",
+     "diagram": "ok",
+     "disch": "ok",
+     "evidence": "ok",
+     "own": "ok",
+     "sorts": "ok"
+    }
+   },
+   "diff": "--- a/common/batch/batch_data.go\n+++ b/common/batch/batch_data.go\n@@ -34,5 +34,5 @@\n \t}\n \tcks.blockContexts = append(cks.blockContexts, blockContext...)\n-\tcks.txsPayload = append(cks.txsPayload, txsPayload...)\n+\tcks.txsPayload = append(cks.txsPayload[:0], txsPayload...)\n \tcks.blockNum++\n \tfor _, txHash := range l1TxHashes {\n",
+   "documents": {
+    "spec/M2/facts/morph_batch.go.extracted.json": {
+     "baseline_reproduces": true,
+     "names": [
+      "(*morph-l2/common/batch.BatchData).Append"
+     ],
+     "paths": [
+      "/go/functions/(*morph-l2/common/batch.BatchData).Append/sites/0/bound/0/2/2/1",
+      "/go/functions/(*morph-l2/common/batch.BatchData).Append/sites/0/bound/1/1/2/1",
+      "/go/slices/stores/56/value/1[len 3 -> 5]",
+      "/go/slices/stores/56/value/1/0",
+      "/go/slices/stores/56/value/1/1[len 2 -> 3]",
+      "/go/slices/stores/56/value/1/1/0",
+      "/go/slices/stores/56/value/1/1/1",
+      "/go/slices/stores/56/value/1/2",
+      "/go/slices/stores/58/value/2/2/0/2/2/1",
+      "/go/slices/writes/1/cond/1/1/2/0",
+      "/go/slices/writes/1/cond/1/1/2/1",
+      "/go/slices/writes/1/cond/1/2/1[len 3 -> 5]"
+     ],
+     "status": "changed"
+    },
+    "spec/M3/facts/morph_blob.go.extracted.json": {
+     "baseline_reproduces": true,
+     "names": [
+      "(*morph-l2/common/batch.BatchData).Append"
+     ],
+     "paths": [
+      "/go/functions/(*morph-l2/common/batch.BatchData).Append/sites/0/bound/0/2/2/1",
+      "/go/functions/(*morph-l2/common/batch.BatchData).Append/sites/0/bound/1/1/2/1",
+      "/go/slices/stores/56/value/1[len 3 -> 5]",
+      "/go/slices/stores/56/value/1/0",
+      "/go/slices/stores/56/value/1/1[len 2 -> 3]",
+      "/go/slices/stores/56/value/1/1/0",
+      "/go/slices/stores/56/value/1/1/1",
+      "/go/slices/stores/56/value/1/2",
+      "/go/slices/stores/58/value/2/2/0/2/2/1",
+      "/go/slices/writes/1/cond/1/1/2/0",
+      "/go/slices/writes/1/cond/1/1/2/1",
+      "/go/slices/writes/1/cond/1/2/1[len 3 -> 5]"
+     ],
+     "status": "changed"
+    },
+    "spec/M3/facts/morph_go03.go.extracted.json": {
+     "baseline_reproduces": true,
+     "names": [
+      "(*morph-l2/common/batch.BatchData).Append"
+     ],
+     "paths": [
+      "/go/functions/(*morph-l2/common/batch.BatchData).Append/sites/0/bound/0/2/2/1",
+      "/go/functions/(*morph-l2/common/batch.BatchData).Append/sites/0/bound/1/1/2/1",
+      "/go/slices/stores/56/value/1[len 3 -> 5]",
+      "/go/slices/stores/56/value/1/0",
+      "/go/slices/stores/56/value/1/1[len 2 -> 3]",
+      "/go/slices/stores/56/value/1/1/0",
+      "/go/slices/stores/56/value/1/1/1",
+      "/go/slices/stores/56/value/1/2",
+      "/go/slices/stores/58/value/2/2/0/2/2/1",
+      "/go/slices/writes/1/cond/1/1/2/0",
+      "/go/slices/writes/1/cond/1/1/2/1",
+      "/go/slices/writes/1/cond/1/2/1[len 3 -> 5]"
+     ],
+     "status": "changed"
+    }
+   },
+   "expect": "in-place reset overwrites a live TxsPayload view's backing region; the OWN alias law must move",
+   "file": "common/batch/batch_data.go",
+   "id": "o1_append_overwrites_payload",
+   "not_run": {
+    "L_own_alias_batch_BatchData_TxsPayloadV2_TxsPayloadV2": "the round's cap of 4 law runs is reached",
+    "L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload": "the round's cap of 4 law runs is reached",
+    "L_own_lost_batch_BatchHeaderV0_Bytes_EncodedBytes": "the round's cap of 4 law runs is reached",
+    "L_own_lost_batch_BatchHeaderV1_Bytes_EncodedBytes": "the round's cap of 4 law runs is reached",
+    "L_par_br_batch_BatchData_Append_l1TxHashes_batch_BatchData_Append_l1TxNum": "the round's cap of 4 law runs is reached",
+    "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": "the round's cap of 4 law runs is reached",
+    "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned": "the round's cap of 4 law runs is reached",
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": "the round's cap of 4 law runs is reached",
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned": "the round's cap of 4 law runs is reached",
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": "the round's cap of 4 law runs is reached",
+    "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned": "the round's cap of 4 law runs is reached",
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol": "the round's cap of 4 law runs is reached",
+    "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": "the round's cap of 4 law runs is reached",
+    "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3": "the round's cap of 4 law runs is reached",
+    "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7": "the round's cap of 4 law runs is reached",
+    "L_par_gorc_data_hash_BatchData_DataHash": "the round's cap of 4 law runs is reached",
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_0": "the round's cap of 4 law runs is reached",
+    "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1": "the round's cap of 4 law runs is reached",
+    "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2": "the round's cap of 4 law runs is reached",
+    "L_par_tot_batch_RetrieveBlobBytes": "the round's cap of 4 law runs is reached",
+    "L_par_tot_blob_RetrieveBlobBytes": "the round's cap of 4 law runs is reached",
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2": "the round's cap of 4 law runs is reached",
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0": "the round's cap of 4 law runs is reached",
+    "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1": "the round's cap of 4 law runs is reached",
+    "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes": "the round's cap of 4 law runs is reached"
+   },
+   "obstructions": [
+    "law runs refused on the mutant only: L_own_alias_batch_BatchData_TxsPayload_Append, L_own_alias_batch_BatchData_TxsPayloadV2_Append"
+   ],
+   "runs": {
+    "L_own_alias_batch_BatchData_TxsPayloadV2_Append": {
+     "baseline": {
+      "statement_hash": "sha256:59c5b5b3788f684bf09c32008d3979b90892f9d20b863137a7dd04a1b314b8c2",
+      "status": "REFUTED",
+      "witness_sha256": "85bb9e73cddd15bf56b131b147535227345479068ed21995a72b0f1f56a4ce27"
+     },
+     "committed": "REFUTED",
+     "flip": false,
+     "mutant": {
+      "detail": "holon run (exit 1): Traceback (most recent call last):\nholon.bindings.BindingError: M.oa_post_TxsPayloadV2_Append in the statement resolves to no kernel entry: it would be unbound",
+      "status": "error"
+     },
+     "refusal": true,
+     "selected": "rest"
+    },
+    "L_own_alias_batch_BatchData_TxsPayload_Append": {
+     "baseline": {
+      "statement_hash": "sha256:f842f5bd0e5fc2419bae76b6a0f3324e73607fd8841abece9e6c5948f4d77855",
+      "status": "PROVED",
+      "witness_sha256": null
+     },
+     "committed": "PROVED",
+     "flip": false,
+     "mutant": {
+      "detail": "holon run (exit 1): Traceback (most recent call last):\nholon.bindings.BindingError: M.oa_post_TxsPayload_Append in the statement resolves to no kernel entry: it would be unbound",
+      "status": "error"
+     },
+     "refusal": true,
+     "selected": "spec"
+    }
+   },
+   "spec_sha256": "e76c48ad3f3a25b817f5e548e66d645c6be60b4ff21f483957c0ce597b4e1c34",
+   "verdict": "detected",
+   "why": null
+  }
+ ],
+ "round": 4,
+ "scope": {
+  "documents": [
+   "gen/M3/bundle/documents/messenger.json",
+   "gen/M3/bundle/documents/queue.json",
+   "gen/M3/bundle/documents/submitter.json",
+   "gen/M3/codec/header_length.json",
+   "gen/M3/goops/blob_ops.json",
+   "gen/M3/goops/l1_counts.json",
+   "gen/M3/own/batch_BatchData.json",
+   "gen/M3/own/batch_BatchHeaderV0.json",
+   "gen/M3/own/batch_BatchHeaderV1.json",
+   "gen/M3/versions/documents/V10.json",
+   "gen/M3/versions/documents/V11.json",
+   "gen/M3/versions/documents/V3.json",
+   "gen/M3/versions/documents/V4.json",
+   "gen/M3/versions/documents/V5.json",
+   "gen/M3/versions/documents/V6.json",
+   "gen/M3/versions/documents/V7.json",
+   "gen/M3/versions/documents/V8.json",
+   "gen/M3/versions/documents/V9.json",
+   "gen/M3/versions/morph_rollup.versions.json",
+   "spec/M2/facts/morph_batch.go.extracted.json",
+   "spec/M2/facts/morph_header.extracted.json",
+   "spec/M2/facts/morph_rollup.extracted.json",
+   "spec/M3/facts/morph_blob.go.extracted.json",
+   "spec/M3/facts/morph_go03.go.extracted.json",
+   "spec/M3/lib/derive_extracted.json",
+   "spec/M3/lib/link.json"
+  ],
+  "out_of_reach": [
+   "gen/M3/versions/documents/V10.json",
+   "gen/M3/versions/documents/V11.json",
+   "gen/M3/versions/documents/V3.json",
+   "gen/M3/versions/documents/V4.json",
+   "gen/M3/versions/documents/V5.json",
+   "gen/M3/versions/documents/V6.json",
+   "gen/M3/versions/documents/V7.json",
+   "gen/M3/versions/documents/V8.json",
+   "gen/M3/versions/documents/V9.json"
+  ],
+  "reachable": [
+   "gen/M3/bundle/documents/messenger.json",
+   "gen/M3/bundle/documents/queue.json",
+   "gen/M3/bundle/documents/submitter.json",
+   "spec/M2/facts/morph_batch.go.extracted.json",
+   "spec/M2/facts/morph_header.extracted.json",
+   "spec/M2/facts/morph_rollup.extracted.json",
+   "spec/M3/facts/morph_blob.go.extracted.json",
+   "spec/M3/facts/morph_go03.go.extracted.json"
+  ]
+ },
+ "spec": {
+  "body": {
+   "budget": {
+    "law_timeout_s": 900,
+    "max_law_runs": 4
+   },
+   "milestone": "M3",
+   "mutations": [
+    {
+     "edit": {
+      "line": 36,
+      "new": "append(cks.txsPayload[:0], txsPayload...)",
+      "old": "append(cks.txsPayload, txsPayload...)"
+     },
+     "expect": "in-place reset overwrites a live TxsPayload view's backing region; the OWN alias law must move",
+     "file": "common/batch/batch_data.go",
+     "id": "o1_append_overwrites_payload",
+     "laws": [
+      "L_own_alias_batch_BatchData_TxsPayload_Append"
+     ]
+    }
+   ],
+   "note": "M3 audit round 4, A1 supplement: o1_append_overwrites_payload run alone so its target law runs within the cap",
+   "spec_version": "holon-audit-a1-spec/0.1"
+  },
+  "path": "audit/rounds/M3/round4/a1_parts/o1_append_overwrites_payload.spec.json",
+  "sha256": "4aa9b08512cd2a0fa7a8d95fec1a412d5ea2ff678317f82c85d05477a81a2241"
+ },
+ "summary": {
+  "detected": [
+   "o1_append_overwrites_payload"
+  ],
+  "incomplete": [],
+  "missed": [],
+  "refused": []
+ },
+ "target_commit": "4dada37b5a1cb84a3b4faccc333e7e8467d116d5"
+}
