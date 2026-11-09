@@ -635,9 +635,14 @@ def kernels(rec: dict, lean_entry: dict | None = None) -> list[dict]:
     out = [{"name": "bend2", "version": ver, "role": "primary", "result": "checked" if checked else "not_run"}]
     v = rec["kernel"].get("verdict", "not_run")
     if checked and v != "not_run":
-        out.append({"name": "bendtt", "version": ver, "role": "second", "result": v, "shares_frontend_with": "bend2",
-                    "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, "
-                            "so agreement is not independent evidence (class I1-shared, not I2)"})
+        e = {"name": "bendtt", "version": ver, "role": "second", "result": v, "shares_frontend_with": "bend2",
+             "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, "
+                     "so agreement is not independent evidence (class I1-shared, not I2)"}
+        if v == "unsupported":    # I97 (F-M3-13): the kernel cannot decide the file; single-kernel I1, with the reason
+            e["reason"] = rec["kernel"].get("verdict_reason")
+            e["note"] = ("BendTT's kernel cannot decide this file (a construct of spec/<M>/lib/bendtt_constructs.json, "
+                         "with its repro): the record is single-kernel (I1), and G7 accepts it by that reason")
+        out.append(e)
     if lean_entry is not None:
         out.append(dict(lean_entry))
     return out

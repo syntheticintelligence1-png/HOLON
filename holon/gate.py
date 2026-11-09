@@ -6,8 +6,8 @@ G10 on M0, M1).
 A full run records its wall time as from_scratch_gate_s in results/<m>/metrics_timing.json (I16).
 `--checks G6,G9` runs a subset (after GENV) and marks the report partial.
 
-  GENV  no bunfig.toml / .env under root, no BENDTT override and no global bunfig ($XDG_CONFIG_HOME,
-        $HOME) (else Bend is never invoked); the command resolves to an absolute bun +
+  GENV  no bunfig.toml / .env* at any depth under root (I97, F-M3-14), no BENDTT override and no global
+        bunfig ($XDG_CONFIG_HOME, $HOME) (else Bend is never invoked); the command resolves to an absolute bun +
         bend2/main.ts pair whose fingerprint (checkout HEAD, bend2 sources, bun version, bun
         executable sha256) equals bend.pinned_fingerprint; that fingerprint is not in
         results/quarantine.json (agent-writable: self-certified until Q1); with --verdict enabled,
@@ -1663,12 +1663,16 @@ class Gate:
         if not bend.verdict_enabled(self.cfg):
             ok, detail = True, "single-kernel: BendTT/Lean unavailable, certificates labelled single-kernel"
         else:
-            bad, n = [], 0
+            bad, n, by_reason = [], 0, []
             for lid, rec, d in self.checked_dirs():
                 n += 1
                 v = bend.check_verdict(d / "PROOF.bend", self.cfg)
                 if not v.ok:
-                    bad.append(f"{lid}: {v.first_line or v.out[:200]}")
+                    why = self.g7_unsupported(lid, rec, d / "PROOF.bend")
+                    if why is None:
+                        by_reason.append(lid)
+                    else:
+                        bad.append(f"{lid}: {why} ({v.first_line or v.out[:200]})")
             ne = 0
             for lid, e, w, proof, _ in self.entry_proofs():   # SORT-site per-entry counter-laws (I15)
                 ne += 1
@@ -1679,9 +1683,36 @@ class Gate:
                     bad.append(f"{lid} entry {e}: the record says verdict {w.get('verdict')!r}, BendTT checked it")
             ok = not bad
             detail = (f"dual-kernel: {n} proofs" + (f" and {ne} per-entry counter-laws" if ne else "")
-                      + " re-checked by BendTT (--verdict)") if not bad else "; ".join(bad)
+                      + " re-checked by BendTT (--verdict)"
+                      + (f"; {len(by_reason)} single-kernel by a registered reason (spec/{self.m}/lib/"
+                         f"bendtt_constructs.json): {', '.join(sorted(by_reason))}" if by_reason else "")
+                      ) if not bad else "; ".join(bad)
         lean_ok, lean_detail = self.g7_lean()
         self.checks["G7"] = _res(ok and lean_ok, f"{detail}; {lean_detail}")
+
+    def g7_unsupported(self, lid: str, rec: dict, proof: Path) -> str | None:
+        """None when a BendTT rejection is accepted by reason (I97, F-M3-13): the record's bendtt entry is
+        "unsupported" with a reason that names a registered construct, the kernel's own reason for this proof is that
+        construct (holon.bend.construct_of), and the construct's repro still has bend2 accept and BendTT reject.
+        Otherwise why it is not: a record that claims bendtt "checked", or carries no registered reason, fails G7."""
+        ent = next((k for k in rec.get("kernels") or [] if k.get("name") == "bendtt"), None)
+        if ent is None or ent.get("result") != "unsupported":
+            return f"BendTT rejects it, and the record says bendtt {(ent or {}).get('result')!r}"
+        reg = {c["name"]: c for c in bend.constructs(self.root, self.m)}
+        reason = str(ent.get("reason") or "")
+        c = reg.get(reason.split(":", 1)[0])
+        if c is None:
+            return f"the bendtt reason {reason[:80]!r} names no construct of spec/{self.m}/lib/bendtt_constructs.json"
+        got = bend.construct_of(proof, self.cfg)
+        if not got or got["kind"] != c["kind"]:
+            return f"the kernel's reason for this proof is {got!r}, not the record's {c['name']}"
+        cache = self.__dict__.setdefault("_g7_repros", {})
+        if c["name"] not in cache:
+            rp = self.root / c["repro"] / "PROOF.bend"
+            cache[c["name"]] = rp.is_file() and bend.check(rp, self.cfg).ok and not bend.check_verdict(rp, self.cfg).ok
+        if not cache[c["name"]]:
+            return f"the repro of {c['name']} ({c['repro']}) no longer has bend2 accept and BendTT reject"
+        return None
 
     def g7_lean(self) -> tuple[bool, str]:
         """The Lean 4 second-independent kernel (I9). For a holon-ir/0.1 milestone: every record's lean4 entry is

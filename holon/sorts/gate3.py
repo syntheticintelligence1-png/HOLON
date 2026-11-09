@@ -333,6 +333,52 @@ class Gate3:
         self.checks["G5"] = _res(not bad and n > 0, f"{n} proof files re-checked by Bend (slowest {round(slow, 1)} s)"
                                  if not bad else "; ".join(bad[:8]))
 
+    def g7_other_laws(self) -> tuple[bool, str]:
+        """I97 (F-M3-13): BendTT over the primary proof of every other decided law of the milestone (the PAR, Go,
+        member and other laws outside I30's subforms that no rule gate of its own re-checks: DISCH, FACT, the contract
+        and the bundle laws keep theirs). A rejection passes only by a registered reason (holon.gate.Gate.
+        g7_unsupported, spec/<M>/lib/bendtt_constructs.json); a record that claims BendTT checked it fails. (ok,
+        detail); detail is "" when there is no such law."""
+        from .. import ir
+        from ..gate import Gate
+        mine = set(self.entries)
+        try:
+            dv = json.loads((self.root / "laws" / self.m / "DERIVATION.json").read_text())
+            mine |= {e["law_id"] for e in dv["laws"] if e.get("rule") in ("DISCH", "FACT")}
+            from ..bundle.lawrun import bundle_entries
+            mine |= set(bundle_entries(self.m, self.root))
+        except (OSError, ValueError, KeyError):
+            pass
+        from .contract3_run import contract_ids
+        mine |= set(contract_ids(self.m, self.root))
+        g = Gate(self.m, self.root)
+        bad, n, by_reason = [], 0, []
+        for law in ir.load_laws_any(self.m, self.root):
+            lid = law["law_id"]
+            rp = self.root / "results" / self.m / f"{lid}.json"
+            if lid in mine or not rp.is_file():
+                continue
+            rec = json.loads(rp.read_text())
+            proof = (rec.get("artifacts") or {}).get("proof")
+            if rec.get("status") not in ("PROVED", "REFUTED") or not proof or not (self.root / proof).is_file():
+                continue
+            n += 1
+            r = bend.check_verdict(self.root / proof)
+            if r.ok:
+                continue
+            why = g.g7_unsupported(lid, rec, self.root / proof)
+            if why is None:
+                by_reason.append(lid)
+            else:
+                bad.append(f"{lid}: {why}")
+        if not n:
+            return True, ""
+        if bad:
+            return False, f"other laws: {len(bad)} of {n} proofs fail BendTT: " + "; ".join(bad)
+        return True, (f"other laws: {n} proof files re-checked by BendTT (--verdict)"
+                      + (f", {len(by_reason)} single-kernel by a registered reason (spec/{self.m}/lib/"
+                         f"bendtt_constructs.json): {', '.join(sorted(by_reason))}" if by_reason else ""))
+
     def g7(self):
         """BendTT over the I30 laws' proofs, joined (I43) with holon.gate's Lean G7 over the milestone's Lean
         directories (on M3, the PAR laws: the typed and UNDO laws are over no covered model kind). Without a decided
@@ -345,15 +391,20 @@ class Gate3:
             if not r.ok:
                 bad.append(f"{lid} {label}: BendTT {r.first_line}")
         bendtt = (f"{n} proof files re-checked by BendTT (--verdict)" if not bad else "; ".join(bad[:8]))
+        rest_ok, rest = self.g7_other_laws()
+        if rest:      # I97: the other decided laws' part, passed or failed, after the I30 laws' part
+            bendtt += f"; {rest}"
+        if not rest_ok:
+            bad.append(rest)
         if not lean.lean_dirs(self.m, self.root):
-            if n == 0:
+            if n == 0 and not rest:
                 self.na["G7"] = "no I30 law of this milestone is decided: no proof file to re-check"
                 return
             self.checks["G7"] = _res(not bad, bendtt)
             return
         from ..gate import Gate
         lean_ok, lean_detail = Gate(self.m, self.root).g7_lean()
-        if n == 0:
+        if n == 0 and not rest:
             self.checks["G7"] = _res(lean_ok, f"I30 laws: none decided, no proof file to re-check; {lean_detail}")
             return
         self.checks["G7"] = _res(not bad and lean_ok, f"I30 laws: {bendtt}; {lean_detail}")

@@ -667,7 +667,8 @@ class Decider:
                     witness = w.json()
                     if agree:
                         status = "REFUTED"
-                        prim = {"proof": self.rel(p["proof"]), "checker": chk["checker"], "verdict": chk["verdict"]}
+                        prim = {"proof": self.rel(p["proof"]), "checker": chk["checker"], "verdict": chk["verdict"],
+                            **({"verdict_reason": chk["verdict_reason"]} if chk.get("verdict_reason") else {})}
                         symb["replay"] = self.rel(rpath)
                     else:
                         bound = (f"a model witness whose counter-law Bend accepts, not replayed on the real code as "
@@ -695,7 +696,8 @@ class Decider:
                                      "checker": nonvac.pop("_checker", None)})
                     if nonvac.get("status") == "inhabited":
                         status = "PROVED"
-                        prim = {"proof": self.rel(p["proof"]), "checker": chk["checker"], "verdict": chk["verdict"]}
+                        prim = {"proof": self.rel(p["proof"]), "checker": chk["checker"], "verdict": chk["verdict"],
+                            **({"verdict_reason": chk["verdict_reason"]} if chk.get("verdict_reason") else {})}
                     else:
                         bound = f"the proof checks, but its premises have no checked inhabitant: {nonvac.get('bound')}"
                 else:
@@ -889,7 +891,8 @@ class Decider:
         cone = R.cone(roots, mtext)
         rec = {"law_id": lid, "statement_hash": sh, "facts_sha256": law["facts_sha256"], "status": status,
                "scope": "unbounded", "premises": [],
-               "kernel": {"name": "bend", "version": bend_version(), "verdict": (prim or {}).get("verdict", "not_run")},
+               "kernel": {"name": "bend", "version": bend_version(), "verdict": (prim or {}).get("verdict", "not_run"),
+                          **({"verdict_reason": prim["verdict_reason"]} if (prim or {}).get("verdict_reason") else {})},
                "artifacts": {"laws": self.rel(lp) if lp.exists() else None, "proof": (prim or {}).get("proof"),
                              "model": self.rel(self.model_path(mem)), "section": self.rel(self.section_path(mem)),
                              "module": e.get("module"), "law_name": law_name(lid, status == "REFUTED")},
