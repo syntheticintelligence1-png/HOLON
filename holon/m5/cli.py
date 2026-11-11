@@ -6,6 +6,9 @@
   metrics  --base [--root DIR] [--check]          results/M5/definitions_base.json: L6 and L9 over the base commit's
                                                   records with no game, module or intent record, and L10's census size
   metrics  --inputs FILE [--out FILE]             {"L6", "L9", "L10"} of an inputs document (holon.m5.metrics)
+  env      [--root DIR] [--check]   I57: gen/M5/env/, laws/M5/ENV.json, results/M5/L_env_*.json and
+                                    results/M5/env/sensitivity.json (holon.m5.env)
+  l9       [--root DIR] [--check]   I57: results/M5/l9_I57.json, L9 by I54's definition (holon.m5.env)
 
 Exit 0 written or unchanged, 1 a --check difference, 2 a usage error or a missing input.
 """
@@ -16,7 +19,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import census, controls, definitions, metrics
+from . import census, controls, definitions, env, metrics
 from .common import ROOT, dumps
 
 
@@ -48,7 +51,7 @@ def _report(probs_or_done: list[str], check: bool, what: str) -> int:
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="holon m5", description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    ap.add_argument("command", choices=["prereg", "controls", "census", "metrics"])
+    ap.add_argument("command", choices=["prereg", "controls", "census", "metrics", "env", "l9"])
     ap.add_argument("--root", type=Path, default=ROOT)
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--base", action="store_true")
@@ -63,6 +66,8 @@ def main(argv: list[str]) -> int:
             return _report(controls.write(root, a.check), a.check, "controls")
         if a.command == "census":
             return _report(census.write(root, a.check), a.check, "census")
+        if a.command in ("env", "l9"):
+            return _report(env.write(root, a.check, a.command), a.check, a.command)
         if a.base:
             p = root / "results" / "M5" / "definitions_base.json"
             text = dumps(base_metrics(root))
