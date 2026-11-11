@@ -487,10 +487,17 @@ class TestGaps(unittest.TestCase):
         """R7: the committed audit/rule_gaps.jsonl is valid and admits nothing. On the synthetic fixtures, holon's
         verdicts are the instrument's: one instance, two instances on one finding, instances on findings no findings
         file holds, an empty basis, no approval and an unverifiable signature are refused; a candidate signed by the
-        human's frozen key is refused where no key is frozen and admitted where it is."""
+        human's frozen key is refused where no key is frozen and admitted where it is. (Amended,
+        spec/M3/amendments/I87.jsonl, for HUMAN_ANSWERS Q42: on the committed file holon admits exactly what
+        tests_m3/_q42.py's reading admits, this instrument with (c) also met by the human's recorded plain-language
+        approval of the line. No fixture root holds that record, so the fixture half is unchanged.)"""
+        from tests_m3 import _q42 as Q
         rep = self.run_gaps(ROOT)
         self.assertTrue(rep["valid"], rep)
-        self.assertFalse(any(c["admitted"] for c in rep["candidates"].values()))
+        committed = jsonl(GAPS)
+        want = Q.admission(committed, Q.findings_by_milestone(ROOT, committed, I.policy()), Q.frozen_key(ROOT), ROOT)
+        self.assertEqual({k: (v["admitted"], v["fails"]) for k, v in rep["candidates"].items()},
+                         {k: (v["admitted"], v["fails"]) for k, v in want.items()})
         for x in jsonl(GAPS):
             self.assertEqual(validate(x, SCHEMAS / "rule_gap.schema.json"), [], x)
         lines, findings = I.gap_fixtures()
