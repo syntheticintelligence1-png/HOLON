@@ -1,0 +1,82 @@
+{
+ "added": [
+  "L_undo_res_Rollup_revertBatch_committedBatches.json"
+ ],
+ "added_laws": {
+  "L_undo_res_Rollup_revertBatch_committedBatches.json": {
+   "facts": "spec/M2/facts/morph_rollup.extracted.json",
+   "facts_sha256": "f498783a8421d1cd2521df70b2984e655ea7434d26fa9b59faed14d19c8b010d",
+   "hash_scheme": 2,
+   "ir_version": "holon-ir/0.3",
+   "law_id": "L_undo_res_Rollup_revertBatch_committedBatches",
+   "milestone": "M3",
+   "notes": "with the context of the residue committedBatches after revertBatch at key k (every cursor below k, every cleared marker zero at k), setting the register to any value v changes no observation of any trace t (Thm 6.9(i): index-relative noninterference); undo morph_rollup.extracted:residue:revertBatch:committedBatches",
+   "rule": "UNDO",
+   "rule_catalog_version": "holon-rules/1.15",
+   "statement": {
+    "assume": [],
+    "binders": [
+     {
+      "name": "s",
+      "q": "forall",
+      "type": "Reach"
+     },
+     {
+      "name": "k",
+      "q": "forall",
+      "type": "Word"
+     },
+     {
+      "name": "v",
+      "q": "forall",
+      "type": "Val[committedBatches]"
+     },
+     {
+      "name": "t",
+      "q": "forall",
+      "type": "Trace"
+     },
+     {
+      "name": "keccak256",
+      "q": "forall",
+      "type": "Fn<Bytes,Word>"
+     }
+    ],
+    "claim": {
+     "eq": [
+      {
+       "on": [
+        {
+         "var": "s"
+        },
+        {
+         "var": "k"
+        },
+        {
+         "var": "v"
+        },
+        {
+         "var": "t"
+        },
+        {
+         "var": "keccak256"
+        }
+       ],
+       "undo": "morph_rollup.extracted:residue:revertBatch:committedBatches"
+      },
+      {
+       "bool": true
+      }
+     ]
+    },
+    "scope": {
+     "kind": "unbounded"
+    }
+   },
+   "subform": "residue"
+  }
+ },
+ "dropped": [],
+ "mutant": "rollup_revert_noclear",
+ "statement_changed": {}
+}
