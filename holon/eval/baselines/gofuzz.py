@@ -361,6 +361,15 @@ def _crash_loc(src: Path, text: str, scope: set, fallback: dict | None):
 
 
 def _prepare(system: str, target: str, kind: str) -> dict:
+    """Both kinds' harnesses of a target are written together, under the target's lock, so a running baseline's
+    package never sees the other kind's harness file half-written or not yet compile-checked."""
+    core.checkout(system, target)
+    with core.target_lock(system, target):
+        out = {k: _prepare1(system, target, k) for k in ("fuzz", "cycle")}
+    return out[kind]
+
+
+def _prepare1(system: str, target: str, kind: str) -> dict:
     """Per (target, kind in fuzz|cycle): the packages, harness units and the setup compile (cached)."""
     src = core.checkout(system, target)
     state = core.WORK / system / target / f"go-{kind}.json"

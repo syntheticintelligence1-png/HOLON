@@ -156,6 +156,14 @@ def scope_files(src: Path, system: str, target: str, ext: str | None = None) -> 
 
 # ------------------------------------------------------------------------------------------------- checkouts
 _LOCK = threading.Lock()
+_TARGET_LOCKS: dict = {}
+
+
+def target_lock(system: str, target: str) -> threading.RLock:
+    """One re-entrant lock per target: the setup steps that write into a target's shared trees (the unit projects, the
+    Go harness files) run one at a time, while the baselines' bounded runs stay concurrent."""
+    with _LOCK:
+        return _TARGET_LOCKS.setdefault((system, target), threading.RLock())
 
 
 def commit_of(system: str, target: str) -> str:
@@ -171,6 +179,8 @@ def checkout(system: str, target: str) -> Path:
     if (dest / ".holon-ready").exists():
         return dest
     with _LOCK:
+        if (dest / ".holon-ready").exists():  # made by another thread while this one waited
+            return dest
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.rmtree(dest, ignore_errors=True)
         sha = commit_of(system, target)

@@ -60,6 +60,12 @@ def _pragma(text: str) -> str | None:
 def build(system: str, target: str) -> dict:
     """The unit project (cached): {"ok", "unit", "proj", "src", "log", "setup_s", "submodules", "scope", "reason"}."""
     src = core.checkout(system, target)
+    with core.target_lock(system, target):
+        return _build(system, target)
+
+
+def _build(system: str, target: str) -> dict:
+    src = core.checkout(system, target)
     unit = core.WORK / system / target / "sol"
     state = unit / "holon-build.json"
     if state.is_file():
@@ -339,6 +345,12 @@ def harnesses(b: dict, deps: list[dict]) -> dict:
 def build_harnesses(system: str, target: str) -> dict:
     """The harness build (cached), in its own unit project beside the scope-only one (so slither and the miner read a
     build without generated contracts): returns {"ok", "reason", "info", "deployables", "setup_s", "unit"}."""
+    core.checkout(system, target)
+    with core.target_lock(system, target):
+        return _build_harnesses(system, target)
+
+
+def _build_harnesses(system: str, target: str) -> dict:
     b = build(system, target)
     hunit = core.WORK / system / target / "solh"
     state = hunit / "holon-harness.json"
