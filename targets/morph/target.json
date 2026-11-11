@@ -1,0 +1,104 @@
+{
+  "checkout": {
+    "config": [
+      "replay",
+      "morph"
+    ],
+    "development": true,
+    "doc": "config/holon.json's key of the checkout at the pinned commit, the replay adapters' command-line flag for another checkout, and (vocab) the names the development target's milestones over that checkout use, read by holon/ modules that serve them (holon.targets.vocab). development: the target the pinned milestones M0-M3 check.",
+    "flag": "--morph",
+    "vocab": {
+      "adapters": {
+        "checkout_path": "replay:morph_path"
+      },
+      "commit_key": "morph_commit",
+      "doc": "names the development target's milestones use, read by holon/ modules that serve them (holon.targets.vocab)",
+      "go_eth_module": "github.com/morph-l2/go-ethereum",
+      "header_extracted": "morph_header.extracted.json",
+      "header_facts": "facts/morph_header.json",
+      "m0_model_name": "morph_header",
+      "rollup_extracted": "morph_rollup.extracted.json",
+      "rollup_model": "morph_rollup"
+    }
+  },
+  "doc": "The development target: the Morph L2 rollup (morph-l2/morph) at the pinned commit, whose header codec (M0), hand-written state machines (M1), extracted Solidity and Go documents (M2) and full bundle (M3) the milestones check. Its facts, laws and outcomes stay where the milestones put them (facts/, spec/M*/facts, laws/M*, results/M*); this file holds what holon/ needs to know about the target itself.",
+  "drift": {
+    "out": "results/targets/morph/drift.json",
+    "timing": "results/targets/morph/drift_timing.json"
+  },
+  "extract": {
+    "commands": [
+      [
+        "{python}",
+        "-m",
+        "holon",
+        "extract",
+        "solidity",
+        "--milestone",
+        "M2",
+        "--source",
+        "{checkout}",
+        "--out",
+        "{out}/morph_rollup.extracted.json"
+      ]
+    ],
+    "doc": "re-extraction at a new ref: the Solidity frontend over the new checkout (the Go documents and the hand-written M0/M1 facts are not re-extracted by drift; I47 Not done)",
+    "documents": {
+      "morph_rollup.extracted.json": "spec/M2/facts/morph_rollup.extracted.json"
+    },
+    "method": "commands"
+  },
+  "index": {
+    "deps": [
+      "results/M2/deps.json"
+    ],
+    "models": {
+      "spec/M2/facts/morph_rollup.extracted.json": "gen/M2/model/morph_rollup.defs.json"
+    }
+  },
+  "name": "morph",
+  "names": [
+    "morph",
+    "morph-l2",
+    "morphl2"
+  ],
+  "run": null,
+  "target_version": "holon-target/0.1",
+  "upstream": {
+    "pinned_commit": "3e44e795586af3e11285b603ab642c67823add51",
+    "pinned_refs": {
+      "refs/tags/v0.1.0-beta": "70318a3fd23cb5829932bef21306b0954a9372f3",
+      "refs/tags/v0.2.0-beta": "c648a45542dca038fe4df83287c21c3c67f717cb",
+      "refs/tags/v0.2.1": "7ea5bea884f416ef861fa467e4bc9e68edfa73a9",
+      "refs/tags/v0.4.0": "24b616b9943a9754b1ae25a8a7a127d0247f84ab",
+      "refs/tags/v0.4.1": "e608d89e45b8ea31d98eaa4c5425d75c42874d2f",
+      "refs/tags/v0.4.10": "3f2350b340c432de5d6331a8866578173e16e18f",
+      "refs/tags/v0.4.11": "128d56920ef83c05b9c03d1a3446d772c2853e4f",
+      "refs/tags/v0.4.2": "af4158b30577833649d9466dbc40ed77d12db579",
+      "refs/tags/v0.4.3": "a1e77833a79c02927519c23f2397adacf870964a",
+      "refs/tags/v0.4.4": "9ee2c201469c73a778e0d0f8881710d567a10279",
+      "refs/tags/v0.4.5": "2223d9836827b3c13ec0fbd7f769fed4b5235a9a",
+      "refs/tags/v0.4.6": "de901b6acfcc8af1c5578cc7ff3f16269b2f58b6",
+      "refs/tags/v0.4.7": "3cb4687bca674b093a715fc7d328327c35b6e99c",
+      "refs/tags/v0.4.8": "9392ad97225dc0760edb24d95db98b92cef2a6d6",
+      "refs/tags/v0.4.9": "1f4e42cf4c0e6680285770885477bc7450e5e900",
+      "refs/tags/v0.5.0": "86cd1bb84f95e7606d93f45c6f5087a36548f559",
+      "refs/tags/v0.5.1": "1d16588e4aad0cbe2845e487388f30514bc28655",
+      "refs/tags/v0.5.2": "83e4e8ba44cd30e1b54f6b3a7a4fec449ce2c970",
+      "refs/tags/v0.5.3": "a20bbfa25014a20ba229ca0c9621001d6b334b44",
+      "refs/tags/v0.5.4": "fef33f9df2052522bec93ae6733651e2e7b5193b",
+      "refs/tags/v0.5.5": "4fb95dc92911e80806c9a01e9a1335bde716375b",
+      "refs/tags/v0.5.6": "cafa07d19de8a5a36c8510890a72533c8e0e52e5",
+      "refs/tags/v0.5.7": "55272a512fb0f0c378e78852b0cfbd92c6a02826",
+      "refs/tags/v0.6.0": "0b3f19eed0ea9d5216272b71ed1276aa2eb2e687",
+      "refs/tags/v0.6.1": "4a1607dbe3288643827154738e28e5ef0734dccf",
+      "refs/tags/v0.6.3": "5edbc693d4edc72597b444a9b75424661fd536cf",
+      "refs/tags/v0.6.4": "1cee926534d031fd9f41d6b3cf3edda6da467f57",
+      "refs/tags/v0.6.5": "c6f1e14f242b006996223d9b957a37493b995eab"
+    },
+    "pinned_refs_doc": "the upstream's tags (each at its peeled commit) as git ls-remote listed them when this file was written (I47, 2026-11-11). The pinned commit is not a tag; a tag added or moved after this snapshot is drift.",
+    "repo": "morph-l2/morph",
+    "url": "https://github.com/morph-l2/morph",
+    "watch": "refs/tags/"
+  }
+}

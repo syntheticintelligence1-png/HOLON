@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON diagram sizes and obligation counts across targets (results/targets/sizes.json, holon-sizes/0.1; I49)",
+  "description": "BUILD_PLAN I49/I50 exit: obligation counts against |E| and |V| across the four diagrams (toy, Morph M2, Morph M3, held-out), with no linearity claim from one target. The rows are the ones spec/M4/lib/heldout_protocol.json sizes.rows fixes, in that order. There is deliberately no field for a ratio, a slope, a fit or any other relation between the counts and the sizes: the form reports points, never a law over them.",
+  "type": "object",
+  "required": ["sizes_version", "doc", "linearity", "rows"],
+  "additionalProperties": false,
+  "properties": {
+    "sizes_version": {"const": "holon-sizes/0.1"},
+    "doc": {"type": "string"},
+    "linearity": {"const": "not claimed: four diagrams and one held-out target support no claim about how obligation counts grow with |E| or |V|"},
+    "rows": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "#/$defs/row"}}
+  },
+  "$defs": {
+    "row": {
+      "type": "object",
+      "required": ["id", "target", "document", "document_sha256", "diagram", "diagram_sha256", "adapter", "V", "E", "carriers_by_kind", "edges_by_kind", "obligations"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"enum": ["toy", "morph_m2", "morph_m3", "heldout"]},
+        "target": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "document": {"type": "string", "pattern": "^[^/].*\\.json$"},
+        "document_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "diagram": {"type": "string", "pattern": "^[^/].*\\.json$"},
+        "diagram_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "adapter": {"type": "string"},
+        "V": {"type": "integer"},
+        "E": {"type": "integer"},
+        "carriers_by_kind": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "edges_by_kind": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "obligations": {"$ref": "#/$defs/obligations"}
+      }
+    },
+    "obligations": {
+      "type": "object",
+      "required": ["source", "pending", "total", "by_rule", "by_rule_subform", "law_set_total"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {"type": "string"},
+        "pending": {"type": ["string", "null"], "description": "null when counted; else the key that will count them (I50 for the held-out row at I49)"},
+        "total": {"type": ["integer", "null"], "description": "laws of the law set whose facts document is the row's document"},
+        "by_rule": {"type": ["object", "null"], "additionalProperties": {"type": "integer"}},
+        "by_rule_subform": {"type": ["object", "null"], "additionalProperties": {"type": "integer"}},
+        "law_set_total": {"type": ["integer", "null"], "description": "every law of the law set, over all its documents (context only)"}
+      }
+    }
+  }
+}

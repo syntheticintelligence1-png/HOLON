@@ -2434,7 +2434,8 @@ def checkout_flags() -> list[str]:
     cfg = replay_config(ROOT)
     path = None
     try:
-        from ..replay import morph_path as _checkout_path   # noqa: N813 (the adapter's name for it)
+        from .. import targets as _targets   # the development target's checkout (I47)
+        _checkout_path = _targets.adapter("checkout_path")
         path = str(_checkout_path(argparse.Namespace(), ROOT))
     except Exception:  # noqa: BLE001
         pass
@@ -2444,7 +2445,8 @@ def checkout_flags() -> list[str]:
 
 
 def default_checkout() -> Path:
-    from ..replay import morph_path as _checkout_path   # noqa: N813
+    from .. import targets as _targets   # the development target's checkout (I47)
+    _checkout_path = _targets.adapter("checkout_path")
     return Path(_checkout_path(argparse.Namespace(), ROOT))
 
 

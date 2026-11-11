@@ -15,6 +15,7 @@ import tarfile
 import time
 from pathlib import Path
 
+from .. import targets as _targets
 from . import common as C
 
 SOL_SIDECARS = ("spec/M2/lib/extract_solidity.json", "spec/M2/lib/extract_rollup.json")
@@ -76,7 +77,7 @@ def holon_tree(root: Path, commit: str, dest: Path, tree: Path, nm: Path) -> Pat
         sp.write_text(json.dumps(side, indent=2, sort_keys=True) + "\n")
     cfg.setdefault("extract", {}).setdefault("sources", {})[repo] = str(tree)
     rp = cfg.setdefault("replay", {})
-    rp["morph"] = str(tree)
+    rp[_targets.checkout_key()[-1]] = str(tree)   # the development target's checkout key (targets/, I47)
     if Path(nm).resolve() != Path(C.sol_deps(root)).resolve():
         from ..replay import tree_sha256
         rp["sol_deps"] = str(_sol_deps_root(nm))

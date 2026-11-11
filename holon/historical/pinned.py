@@ -35,8 +35,9 @@ def _config(root: Path) -> dict:
 
 def checkout(cfg: dict, commit: str, root: Path = ROOT) -> Path:
     import types
-    from ..replay import morph_path
-    for p in list(((cfg.get("extract") or {}).get("sources") or {}).values()) + [str(morph_path(types.SimpleNamespace(), root))]:
+    from .. import targets as _targets   # the development target's checkout (I47)
+    checkout_path_of = _targets.adapter("checkout_path")
+    for p in list(((cfg.get("extract") or {}).get("sources") or {}).values()) + [str(checkout_path_of(types.SimpleNamespace(), root))]:
         if not p or not Path(p).is_dir():
             continue
         head = subprocess.run(["git", "-C", str(p), "rev-parse", "HEAD"], capture_output=True, text=True, timeout=60)
