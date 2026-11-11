@@ -1,0 +1,82 @@
+{
+  "outcome_paths": [
+    "results/M5/intent/corpus/",
+    "laws/INTENT/corpus/",
+    "gen/M5/intent/corpus/"
+  ],
+  "plan": "docs/BUILD_PLAN.md#i55-intent-lane-about-3-days",
+  "predictions": [
+    {
+      "check": "tests_m5/test_m5_intent_corpus.py::TestPredictions::test_p1_atoms",
+      "claim": "c17's file (src/osp/OneStepProverHostIo.sol at its prefix_commit) yields at least one atom.",
+      "expected": 1,
+      "id": "I55b-P1"
+    },
+    {
+      "check": "tests_m5/test_m5_intent_corpus.py::TestPredictions::test_p2_none_compiles",
+      "claim": "None of the corpus atoms compiles to an intent law.",
+      "expected": 0,
+      "id": "I55b-P2"
+    },
+    {
+      "check": "tests_m5/test_m5_intent_corpus.py::TestPredictions::test_p3_recall",
+      "claim": "corpus_recall is 0 of 1, labelled insufficient_n (never judged).",
+      "expected": [
+        0,
+        1
+      ],
+      "id": "I55b-P3"
+    }
+  ],
+  "prompt": "prompts/I55b_intent_corpus.md",
+  "regressions": [
+    {
+      "check": "tests_m5/test_m5_intent_corpus.py::TestRegressions::test_i55_outputs",
+      "claim": "I55's outputs do not move.",
+      "expected": {
+        "laws/INTENT/REGISTRY.json": "5d1e6602ddffdce81bcf6742cdac49f2527ba16cdc133cd11d298683cde02549",
+        "results/M5/intent/atoms.json": "fe35f20ed0d91d2eca236d583e00bd1b5be102bc2a992f0eccf85ca794e4055a",
+        "results/M5/intent/compile.json": "cc16dbebc924dbdf347552e34ecc2ed178d1c292d34434c3486c6e8c5c099b7f",
+        "results/M5/intent/l10.json": "1f8be648be5d3c1555d91cb1141eb60dac8a0af8dfc9d2967a91ca854d01f101",
+        "results/M5/intent/l10_inputs.json": "7b651489fe121a3f56dcf8583aa3cbf6c84fb46b88b23e2f210e0f48db2c3dde",
+        "results/M5/intent/obstructions.json": "ab1bd07cb7567ecc38a6d301657ddae6e71679edb85fd84f071a383af70e208a"
+      },
+      "id": "I55b-R1"
+    },
+    {
+      "check": "tests_m5/test_m5_intent_corpus.py::TestPreregistration::test_pins",
+      "claim": "The scored population is the truth's: c17 (yes) alone; the 18 other undocumented entries and the excluded c13 are not scored. The builder read the truth's l10 field before this prereg to list it.",
+      "expected": [
+        "c17"
+      ],
+      "id": "I55b-R2"
+    }
+  ],
+  "tests": [
+    "tests_m5/test_m5_intent_corpus.py"
+  ],
+  "thresholds": {
+    "base_commit": "c5cbd28e7138f3b253be0b235e5561e7b3133ca3",
+    "corpus_sha256": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+    "design": {
+      "C0_population": "the scored entries are those of spec/M5/truth/corpus.json (at truth_sha256) whose l10 is yes or no, less spec/M5/lib/truth_protocol.json known_exclusions (c13): listed in scored. An undocumented entry (no truth item, a disagreement included: Q3 of the protocol) is never scored, never adjudicated and never re-labelled",
+      "C1_scope": "an entry's scope is its files (spec/eval/corpus.json entries[].files) at its prefix_commit, read through git in the checkout spec/M5/lib/intent_corpus_sources.json names for its repo; a missing checkout or file fails, never skips",
+      "C2_lane": "I55's lane, unchanged: holon.intent.atomize.atoms_of (repo = the entry's repo URL, commit = prefix_commit), holon.intent.compile's templates and binding, holon.intent.model and holon.intent.run. Extraction checks the checkout out at prefix_commit (outside this repository) only when an atom matches a template. Laws compiled from corpus atoms go to laws/INTENT/corpus/ and their generated files to gen/M5/intent/corpus/, never into I55's laws/INTENT/ set",
+      "C3_review": "a compiled corpus law can be an obstruction only after a review under I55's design V (one fresh reviewer, recorded verbatim under spec/M5/intent/); with no compiled law there is no review",
+      "C4_truth_blind": "`python -m holon intent corpus [--check]` reads the key, spec/eval/corpus.json, the sources sidecar and the checkouts; never spec/M5/truth/ or the census. Only `python -m holon intent corpus-score [--check]` reads the truth file, at its pinned sha256",
+      "C5_score": "an entry is obstructed iff one of its laws is REFUTED and passes W1 and W2. corpus_recall = proportion(obstructed scored yes entries, scored yes entries) (I54 common.proportion), labelled by min_n (I54 common.labels): a measure with denominator 1..4 is insufficient_n and is never judged meets. results/M5/intent/corpus/l10_corpus.json: {truth_sha256, corpus_sha256, entries: {id: {l10, atoms, compiled, obstructions}}, corpus_recall, label}",
+      "doc": "How I55's lane runs on the corpus and how corpus_recall is scored. Fixed before any corpus record; tests_m5/test_m5_intent_corpus.py checks each rule.",
+      "outputs": "results/M5/intent/corpus/atoms.json ({entries: {id: {repo, prefix_commit, files, atoms}}}), compile.json ({entries: [compile_entry]}) and l10_corpus.json; json.dumps(obj, indent=2, sort_keys=True) + newline"
+    },
+    "instruments": {
+      "prompts/I55b_intent_corpus.md": "353cc2479d34055e8ff4c65e7dce4fec35163ac5b0698c8dd80e65e769235bcf",
+      "spec/M5/lib/intent_corpus_sources.json": "aada973431046581799ee2d6ffbec4645c4dbbf1580729a7527d561ed905d1ad"
+    },
+    "measured_by": "spec/M5/preregistration.json definitions.L10.measures.corpus_recall (key I54); I55's lane (key I55 design)",
+    "scored": [
+      "c17"
+    ],
+    "truth_sha256": "12df4efaf1a8575d37e6f13a3d04c281c361922cb5d578c40fdbcf18f1cc09cb"
+  },
+  "title": "I55b: the intent lane on the corpus: L10's corpus_recall over the corpus-truth key I54b's scored entries (c17), the truth pinned before any corpus record"
+}
