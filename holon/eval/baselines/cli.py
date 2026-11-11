@@ -54,6 +54,12 @@ def cmd_budget(a) -> int:
         if failed != sorted(a.failed_checks.split(",")):
             raise common.Refused(f"the gate's failing checks are {failed}, not {a.failed_checks}")
         details = {k: rep["checks"][k]["detail"] for k in failed}
+    if a.report:
+        rep = core.load(a.report)
+        checks = {k: bool(v["passed"]) for k, v in sorted(rep["checks"].items())}
+        not_applicable = sorted(rep.get("not_applicable") or {})
+    else:
+        checks, not_applicable = None, None
     base = {}
     for i in range(3):
         p = subprocess.run(["git", "-C", str(core.ROOT), "show", f"4fd64a52:results/M{i}/metrics_timing.json"],
@@ -71,7 +77,8 @@ def cmd_budget(a) -> int:
            f"{s}_wall_s": core.rule_wall_s(h),
            "m3_measurement": {"argv": ["python", "-m", "holon", "gate", "--milestone", "M3", "--root", "<scratch copy>"],
                               "exit": m["exit"], "wall_s": m["wall_s"], "cpu_s": m["cpu_s"],
-                              "failed_checks": failed, "failed_details": details}}
+                              "failed_checks": failed, "failed_details": details, "checks": checks,
+                              "not_applicable": not_applicable}}
     p = core.holon_budget_path()
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(common.dumps(doc))
