@@ -1,0 +1,218 @@
+{
+  "document": "i100_mutations_round6",
+  "key": "I100",
+  "mutants": {
+    "go_getter_batchindex": {
+      "backtest": {
+        "exit": 0,
+        "exit_blockers": [
+          "gap:M0:L_par_hdr_v2",
+          "gap:M0:L_rt_go_v0",
+          "gap:M0:L_rt_go_v1",
+          "gap:M0:L_rt_go_v2"
+        ],
+        "rows": {
+          "L_dom_hdr": {
+            "acceptance": "witness",
+            "bridges": [
+              [
+                "ok_go",
+                "UNKNOWN"
+              ],
+              [
+                "ok_sol",
+                "UNKNOWN"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+          },
+          "L_par_hdr_ssvh": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v1",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+          },
+          "L_par_hdr_v0": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v0",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+          },
+          "L_par_hdr_v1": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v1",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+          },
+          "L_par_hdr_v2": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_par_hdr_v2",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v0": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_rt_go_v0",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v1": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_rt_go_v1",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v2": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_rt_go_v2",
+            "implication": null,
+            "new": null
+          }
+        }
+      },
+      "caught": true,
+      "changed": [
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2",
+        "BatchHeaderV0_Bytes|BatchHeaderBytes|v0",
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1",
+        "enc_sol|BatchHeaderBytes|v0",
+        "enc_sol|BatchHeaderBytes|v1",
+        "enc_sol|BatchHeaderBytes|v2"
+      ],
+      "driver": {
+        "added": [],
+        "dropped": [
+          "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2",
+          "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0",
+          "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1",
+          "L_par_rec_enc_sol_BatchHeaderBytes_v0",
+          "L_par_rec_enc_sol_BatchHeaderBytes_v1",
+          "L_par_rec_enc_sol_BatchHeaderBytes_v2",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2"
+        ],
+        "exit": 0,
+        "statement_changed": [
+          "L_fact_pi_Rollup_commitBatchWithProof_BatchIndex",
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+        ],
+        "verdict": "detected",
+        "why": null
+      },
+      "dropped": [],
+      "instances": {
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2": {
+          "conjuncts": 12,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_BatchIndex"
+          ]
+        },
+        "BatchHeaderV0_Bytes|BatchHeaderBytes|v0": {
+          "conjuncts": 11,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_BatchIndex"
+          ]
+        },
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1": {
+          "conjuncts": 12,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_BatchIndex"
+          ]
+        },
+        "enc_sol|BatchHeaderBytes|v0": {
+          "conjuncts": 11,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_BatchIndex"
+          ]
+        },
+        "enc_sol|BatchHeaderBytes|v1": {
+          "conjuncts": 12,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_BatchIndex"
+          ]
+        },
+        "enc_sol|BatchHeaderBytes|v2": {
+          "conjuncts": 12,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_BatchIndex"
+          ]
+        }
+      },
+      "model_refresh": {
+        "exit": 0,
+        "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2"
+      },
+      "mutant": "go_getter_batchindex",
+      "mutant_sha256": "43283661a4840d99ebd335a1304d2bfe07242289230de8a90825db76b96f7095",
+      "obstructed": [
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2",
+        "BatchHeaderV0_Bytes|BatchHeaderBytes|v0",
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1",
+        "enc_sol|BatchHeaderBytes|v0",
+        "enc_sol|BatchHeaderBytes|v1",
+        "enc_sol|BatchHeaderBytes|v2"
+      ],
+      "record_runs": {
+        "exit": null,
+        "laws": {}
+      },
+      "source": "audit/rounds/M3/round6/a1_spec.json",
+      "source_commit": "ef39bed5897aa7e8a0a147cb369f190a9e6e3fcc",
+      "target": "dbecea26818288d61e342c9c4c4a3f699ab30f8c",
+      "verdict": [
+        "obstructed"
+      ]
+    }
+  }
+}

@@ -7976,6 +7976,108 @@
     {
       "basis": {
         "key": {
+          "encoder": "BatchCache_createBatchHeaderWithSequencerSetHash",
+          "family": "BatchHeaderBytes"
+        },
+        "model": "header_length",
+        "subform": "record_round_trip",
+        "version": 2
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2",
+      "rule": "PAR",
+      "statement_hash": "sha256:4292ea315820e4ed2ac01f4047964992adde730ca9695e2ffe8c17438f7d4733",
+      "subform": "record_round_trip"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "BatchHeaderV0_Bytes",
+          "family": "BatchHeaderBytes"
+        },
+        "model": "header_length",
+        "subform": "record_round_trip",
+        "version": 0
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0",
+      "rule": "PAR",
+      "statement_hash": "sha256:92d32c817c698ae462e0f27e1ec51cfab550c54f200fcbb1451892862920ec0f",
+      "subform": "record_round_trip"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "BatchHeaderV1_Bytes",
+          "family": "BatchHeaderBytes"
+        },
+        "model": "header_length",
+        "subform": "record_round_trip",
+        "version": 1
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1",
+      "rule": "PAR",
+      "statement_hash": "sha256:c87586ae20d705b1c741759d4185c0674c802f3ab3af949f640164dc9f8573fd",
+      "subform": "record_round_trip"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "enc_sol",
+          "family": "BatchHeaderBytes"
+        },
+        "model": "header_length",
+        "subform": "record_round_trip",
+        "version": 0
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rec_enc_sol_BatchHeaderBytes_v0",
+      "rule": "PAR",
+      "statement_hash": "sha256:be1186d5d36a905fa2ff5c1ff918198d2ae1219a514b6b2507fbd977732db8ed",
+      "subform": "record_round_trip"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "enc_sol",
+          "family": "BatchHeaderBytes"
+        },
+        "model": "header_length",
+        "subform": "record_round_trip",
+        "version": 1
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rec_enc_sol_BatchHeaderBytes_v1",
+      "rule": "PAR",
+      "statement_hash": "sha256:9cd56baafbbad76646b251ef9f195967aa6f700184ce4427a928ae3dd1c9c09c",
+      "subform": "record_round_trip"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "enc_sol",
+          "family": "BatchHeaderBytes"
+        },
+        "model": "header_length",
+        "subform": "record_round_trip",
+        "version": 2
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rec_enc_sol_BatchHeaderBytes_v2",
+      "rule": "PAR",
+      "statement_hash": "sha256:0e86ac100d5dd47bb631899032762a25060001b796f2aa071f4f499c12715820",
+      "subform": "record_round_trip"
+    },
+    {
+      "basis": {
+        "key": {
           "atom": "header_length:E1:CODEC.BatchCache_createBatchHeaderWithSequencerSetHash:CODEC.BatchHeaderBytes_BatchIndex:b02939d5"
         },
         "model": "header_length",
@@ -8152,6 +8254,23 @@
     {
       "basis": {
         "key": {
+          "encoder": "BatchCache_createBatchHeaderWithSequencerSetHash",
+          "getter": "BatchHeaderBytes_Version"
+        },
+        "model": "header_length",
+        "subform": "constant_read",
+        "version": 2
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_Version_v2",
+      "rule": "PAR",
+      "statement_hash": "sha256:232d538bf6c5c9eafd0299ee597c6fc16700445757438b6a1422eeee17b1dcc7",
+      "subform": "constant_read"
+    },
+    {
+      "basis": {
+        "key": {
           "atom": "header_length:E1:CODEC.BatchCache_createBatchHeaderWithSequencerSetHash:CODEC.BatchHeaderBytes_WithdrawalRoot:9b59f958"
         },
         "model": "header_length",
@@ -8324,6 +8443,23 @@
       "rule": "PAR",
       "statement_hash": "sha256:c64c5a91c8c656f571de7bfc0cdb4195a307c3915b269c733c2c9b36a89f144b",
       "subform": "round_trip"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "BatchHeaderV0_Bytes",
+          "getter": "BatchHeaderBytes_Version"
+        },
+        "model": "header_length",
+        "subform": "constant_read",
+        "version": 0
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_Version_v0",
+      "rule": "PAR",
+      "statement_hash": "sha256:78e580f0ca11e549eae483cc7b486cc9c82f87db9555975bdb41b451830f0513",
+      "subform": "constant_read"
     },
     {
       "basis": {
@@ -8516,6 +8652,23 @@
       "rule": "PAR",
       "statement_hash": "sha256:84ec17a6adf69c81b44a696afcab2ef74a829ca4ab52cc2a918a445dbdf69882",
       "subform": "round_trip"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "BatchHeaderV1_Bytes",
+          "getter": "BatchHeaderBytes_Version"
+        },
+        "model": "header_length",
+        "subform": "constant_read",
+        "version": 1
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_Version_v1",
+      "rule": "PAR",
+      "statement_hash": "sha256:0d420450a7ddfbf86acbe6aa9f0b3544ea023519f5ff94344346f52fcdeae05d",
+      "subform": "constant_read"
     },
     {
       "basis": {
@@ -8948,6 +9101,57 @@
       "rule": "PAR",
       "statement_hash": "sha256:401dee5a84f8b17ed0ad318fa6de4fbd1ed68b5ac5026fc7075aaa95236d1175",
       "subform": "round_trip"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "enc_sol",
+          "getter": "BatchHeaderBytes_SequencerSetVerifyHash"
+        },
+        "model": "header_length",
+        "subform": "constant_read",
+        "version": 0
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+      "rule": "PAR",
+      "statement_hash": "sha256:fc1cf13f753b269801a9e7272114af2bda1241a8118cd7f89274d01ad3d96bdd",
+      "subform": "constant_read"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "enc_sol",
+          "getter": "BatchHeaderBytes_SequencerSetVerifyHash"
+        },
+        "model": "header_length",
+        "subform": "constant_read",
+        "version": 1
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+      "rule": "PAR",
+      "statement_hash": "sha256:bde9131f2a9f4dc5476f8f39b9aed29a2186204caa614ddc312b6b35c530e0b4",
+      "subform": "constant_read"
+    },
+    {
+      "basis": {
+        "key": {
+          "encoder": "enc_sol",
+          "getter": "BatchHeaderBytes_SequencerSetVerifyHash"
+        },
+        "model": "header_length",
+        "subform": "constant_read",
+        "version": 2
+      },
+      "entry_points": [],
+      "facts": "gen/M3/codec/header_length.json",
+      "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+      "rule": "PAR",
+      "statement_hash": "sha256:ed0c4366953488894c67f9cee8d49a5aab9899b65f697cea1047ab6773c7391a",
+      "subform": "constant_read"
     },
     {
       "basis": {
@@ -13247,7 +13451,7 @@
       "version": null
     }
   ],
-  "rule_catalog_version": "holon-rules/1.15",
+  "rule_catalog_version": "holon-rules/1.16",
   "sorts_sha256": "4339b456dcbb49009b33661375e62ed8216ec0798c5dfc9434808561d93ea874",
   "uncovered": [
     {
