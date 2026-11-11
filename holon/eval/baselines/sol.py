@@ -11,6 +11,7 @@ HS_<C> for halmos) are added to holon_src/ after slither has run on the scope-on
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -544,11 +545,24 @@ def _harness_units(system, target):
     return b, h, None
 
 
+def tool_dir(system: str, target: str, h: dict, tool: str) -> Path:
+    """A tool's own copy of the harness project (its crytic-export, build cache and logs are its own), so tools running
+    at once on one target never share a working directory."""
+    d = core.WORK / system / target / f"solh-{tool}"
+    with core.target_lock(system, target):
+        if not (d / ".holon-ready").exists():
+            shutil.rmtree(d, ignore_errors=True)
+            shutil.copytree(h["unit"], d,
+                            ignore=shutil.ignore_patterns("crytic-export", "*.log", "medusa_*.json", "holon-harness.json"))
+            (d / ".holon-ready").write_text("ok\n")
+    return d
+
+
 def _fuzz(system, target, wall, cpu, tool):
     b, h, err = _harness_units(system, target)
     if err:
         return err
-    unit = Path(h["unit"])
+    unit = tool_dir(system, target, h, tool)
     arts = {a["name"]: a for a in artifacts(b)}
     names = [c for c in h["deployables"] if h["info"][c]["fuzz"]]
     u = core.Units(wall, len(names))
@@ -556,7 +570,10 @@ def _fuzz(system, target, wall, cpu, tool):
     for c in names:
         if tool == "echidna":
             argv = [str(core.TOOLS / "echidna-2.4.0" / "echidna"), ".", "--contract", f"H_{c}", "--test-mode",
-                    "assertion", "--workers", "1", "--timeout", str(int(u.share())), "--format", "text",
+                    "assertion", "--workers", "1", "--timeout", str(int(u.share())),
+                    # the budget is the only stop (as medusa's testLimit 0): echidna's default 50000-call limit ends a
+                    # unit long before its share of the wall clock
+                    "--test-limit", "1000000000000", "--format", "text",
                     "--crytic-args", "--ignore-compile"]
             cfgp = None
         else:
@@ -631,7 +648,7 @@ def run_halmos(system, target, wall, cpu):
     b, h, err = _harness_units(system, target)
     if err:
         return err
-    unit = Path(h["unit"])
+    unit = tool_dir(system, target, h, "halmos")
     arts = {a["name"]: a for a in artifacts(b)}
     names = [c for c in h["deployables"] if h["info"][c]["halmos"]]
     u = core.Units(wall, len(names))
