@@ -1,0 +1,150 @@
+{
+  "artifacts": {
+    "law_name": "l_i48_constant_3",
+    "laws": ".ablate/cal/constant_3_gen/laws/L_i48_constant_3/LAWS.bend",
+    "model": ".ablate/cal/constant_3_gen/model/constant_3_facts.bend",
+    "proof": ".ablate/cal/constant_3_gen/proofs/L_i48_constant_3/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : Cmp.is_eq(Nat.cmp(y_1, 0n))\n- observed : True{}\nContext:\n- x   : Nat\n- y_1 : Nat\n- y_2 : Nat\n- y_3 : Nat\n- log : List<&2, M.HObs>\n- h0  : {Cmp.is_eq(Nat.cmp(x, 0n)) == True{} : Bool}\nLocation: l_i48_constant_3_ri_exec_copy\n21 |     case M.D_copy_Ok{}:\n22>|       {==}",
+      "exit_code": 1,
+      "generator": "reach_invariant",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "mode": "plain",
+      "strengthening": [],
+      "tries": 2
+    },
+    {
+      "exit_code": 0,
+      "generator": "reach_invariant",
+      "houdini": {
+        "bound": "BFS depth 3 over policy actions from s0 (<= 3000 states)",
+        "states": 1
+      },
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "mode": "strengthened",
+      "strengthening": [
+        "x == 0",
+        "y_1 == 0",
+        "y_2 == 0",
+        "y_3 == 0"
+      ],
+      "tries": 1
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK"
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK"
+  },
+  "compiled_sha256": "6bd997cd448017c358959f521e9190d4c0b2837a8fa95fef2cd83518394e0764",
+  "cone": [
+    "Dec_clear",
+    "Dec_copy",
+    "Dec_shift_1",
+    "Dec_shift_2",
+    "HAct",
+    "HObs",
+    "HSt",
+    "Reach",
+    "decide_clear",
+    "decide_copy",
+    "decide_shift_1",
+    "decide_shift_2",
+    "exec_clear",
+    "exec_copy",
+    "exec_shift_1",
+    "exec_shift_2",
+    "s0",
+    "step",
+    "step_clear",
+    "step_copy",
+    "step_shift_1",
+    "step_shift_2",
+    "x_zero"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": null,
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "06af3c3bd4657683cf914ebb61e1ec11cfac7e83a9c8a081be16434e5e628621",
+  "filter_bin": null,
+  "generator_sha256": "f35aa2fce433af0f1aaff61d6e969a70600ae6fb9a627991acee2f02a6cec59c",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_i48_constant_3",
+  "ledger_assumptions": [
+    "abs-constant-3-control"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "3edbe6cc4761eedf0fa9eb295ef9fcce9bb79d51d873fbb8157de40ec4652c63",
+  "non_vacuity": {
+    "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+    "degenerate": null,
+    "law": ".ablate/cal/constant_3_gen/L_i48_constant_3/nonvac/LAWS.bend",
+    "parent_statement_hash": "sha256:5aefdb966c370889ea212a130c46376d9f08ce388d061d3827169d72da69c0c1",
+    "reachable": true,
+    "status": "inhabited",
+    "witness": {
+      "s": {
+        "run": []
+      }
+    }
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "∀ s: Reach. x_zero(s) == true",
+  "statement_hash": "sha256:5aefdb966c370889ea212a130c46376d9f08ce388d061d3827169d72da69c0c1",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "PROVED",
+  "subform": null,
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

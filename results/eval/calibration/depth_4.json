@@ -1,0 +1,131 @@
+{
+  "artifacts": {
+    "law_name": null,
+    "laws": null,
+    "model": ".ablate/cal/depth_4_gen/model/depth_4_facts.bend",
+    "proof": null
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : False{}\n- observed : True{}\nContext:\n- c    : Nat\n- flag : Bool\n- log  : List<&2, M.HObs>\n- h0   : {Bool.not(flag) == True{} : Bool}\nLocation: l_i48_depth_4_ri_exec_fire\n28 |     case M.D_fire_Ok{}:\n29>|       {==}\n   |       ^^^^\n30 |",
+      "exit_code": 1,
+      "generator": "reach_invariant",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "mode": "plain",
+      "strengthening": [],
+      "tries": 2
+    },
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : False{}\n- observed : True{}\nContext:\n- c   : Nat\n- log : List<&2, M.HObs>\n- h0  : {True{} == True{} : Bool}\nLocation: l_i48_depth_4_ri_exec_fire\n42 |     case M.D_fire_Ok{}:\n43>|       ({==},\n   |        ^^^^\n44 |       {==})",
+      "exit_code": 1,
+      "generator": "reach_invariant",
+      "houdini": {
+        "bound": "BFS depth 3 over policy actions from s0 (<= 3000 states)",
+        "states": 4
+      },
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "mode": "strengthened",
+      "strengthening": [
+        "flag == false"
+      ],
+      "tries": 2
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": false,
+      "kind": "refute",
+      "tried": 10
+    }
+  ],
+  "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+  "checker": {
+    "exit_code": null,
+    "marker": "not_run"
+  },
+  "compiled_sha256": "3fc565fc3d2f83936f12aef6232ed26e3a0e53050eb657ae4d417a7ea2c9e3b6",
+  "cone": [
+    "Dec_fire",
+    "Dec_inc",
+    "HAct",
+    "HObs",
+    "HSt",
+    "Reach",
+    "dec_fire_0",
+    "decide_fire",
+    "decide_inc",
+    "exec_fire",
+    "exec_inc",
+    "flag_down",
+    "s0",
+    "step",
+    "step_fire",
+    "step_inc"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": null,
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "a03c92d0271acd35ff22eea97e63b6fb1f91ab43f0d00e1a362ddb8c63e6f7af",
+  "filter_bin": null,
+  "generator_sha256": "f35aa2fce433af0f1aaff61d6e969a70600ae6fb9a627991acee2f02a6cec59c",
+  "independence_class": "none",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "not_run",
+      "role": "primary",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_i48_depth_4",
+  "ledger_assumptions": [
+    "abs-depth-4-control"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "9c690fd04c85df8e46ea8105a77eac0a56e7391d9e7c219c00ce94a60a6e81ae",
+  "non_vacuity": {
+    "bound": "not attempted: the law is not PROVED",
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:15dc125f7b60befb1e441b2ff65bdf48100ae6ba3fd9d7e30e757b55d32ee847",
+    "reachable": null,
+    "status": "unknown",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "∀ s: Reach. flag_down(s) == true",
+  "statement_hash": "sha256:15dc125f7b60befb1e441b2ff65bdf48100ae6ba3fd9d7e30e757b55d32ee847",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "UNKNOWN",
+  "subform": null,
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}
