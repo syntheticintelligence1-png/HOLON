@@ -84,9 +84,12 @@ RESIDUE = sorted([
     "holon/replay.py", "holon/replay_fragments.py", "holon/sorts/deploy3.py", "holon/sorts/run3.py",
 ])
 # R2: committed outcomes of M0-M3 that I47 must not change
+# Amended (spec/M4/amendments/I47.jsonl): spec/M0/-spec/M3/ as a whole also covered the append-only amendment logs,
+# which the preregistered M2 amendment (spec/M2/amendments/I47.jsonl) appends to; the outcomes under spec/<M>/ are the
+# fact documents and BUILD_PLAN §0.1's default outcome files
 OUTCOMES = ["facts/", "laws/", "results/M0/", "results/M1/", "results/M2/", "results/M3/", "gen/M0/", "gen/M1/",
-            "gen/M2/", "gen/M3/", "replay/", "spec/bindings/", "spec/M0/", "spec/M1/", "spec/M2/", "spec/M3/",
-            "audit/"]
+            "gen/M2/", "gen/M3/", "replay/", "spec/bindings/", "audit/"] + [
+    f"spec/{m}/{x}" for m in ("M0", "M1", "M2", "M3") for x in ("facts/", "disagreements.json", "equivalent_mutants.json")]
 
 
 def env() -> dict:
@@ -222,7 +225,10 @@ class TestToyTarget(unittest.TestCase):
         c = adds[0]
         parent = H.git(ROOT, "rev-parse", f"{c}^")
         self.assertEqual([f for f in H.changed_files(c, parent) if f.startswith("holon/")], [])
-        tree = H.export_tree(parent, ["holon", "config"])
+        # amended (spec/M4/amendments/I47.jsonl): a run also reads the ledger and the shared libraries under spec/
+        # (holon.records, the generator closures' globs), taken from the same parent commit; spec/heldout/ is not read
+        tree = H.export_tree(parent, ["holon", "config", "spec/ledger", "spec/lib", "spec/schemas", ":(glob)spec/M*/lib/**",
+                                      ":(glob)spec/M*/policy_hints.mjs"])
         try:
             self.assertFalse((tree / "targets").exists())
             dst = tree / "targets" / "abacus"
