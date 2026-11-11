@@ -221,6 +221,69 @@ class TestAdversarial(unittest.TestCase):
                 self.assertEqual(block["L6"]["value"]["decided"]["numerator"], 0)
 
 
+class TestAdversarialBuild(unittest.TestCase):
+    """Probes added after the prereg (the adversarial phase on the build): each must be refused."""
+
+    _tree = TestAdversarial._tree
+
+    def _refused(self, edit) -> str:
+        R = holon_module("holon.m5.report")
+        with tempfile.TemporaryDirectory(prefix="holon-i58-") as t:
+            root = self._tree(Path(t))
+            edit(root)
+            with self.assertRaises(R.ReportError) as cm:
+                R.metrics_block(root)
+            return str(cm.exception)
+
+    def test_a2_forged_game_record_with_its_output_regenerated(self):
+        """A target record forged to rational (V1-V8 still pass) with I56b's output regenerated to match: the record's
+        class verdicts are not the vector its committed Bend module states, so the report refuses."""
+        def edit(root):
+            p = sorted((root / "results/M5/games/records").glob("L_*.json"))[0]
+            r = json.loads(p.read_text(encoding="utf-8"))
+            for c in r["classes"]:
+                if not c["trusted"]:
+                    c.update(verdict="rational", payoff="nonneg", strategy_length=r["witness_length"])
+                    break
+            r["verdict"] = "rational"
+            p.write_text(json.dumps(r, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            G = holon_module("holon.games.cli")
+            out = G.Out(root)
+            G.corpus_files(root, out)
+            out.write(())
+        self.assertIn("not the vector its committed module states", self._refused(edit))
+
+    def test_a3_evidence_naming_no_committed_law(self):
+        def edit(root):
+            p = sorted((root / "results/M5/intent/records").glob("L_intent_*.json"))[0]
+            r = json.loads(p.read_text(encoding="utf-8"))
+            r["evidence"] = {"law": "l_forged", "marker": "ALL PROOFS CHECK", "law_present": True}
+            p.write_text(json.dumps(r, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self.assertIn("stated by no LAWS.bend", self._refused(edit))
+
+    def test_a4_doctored_definitions(self):
+        def edit(root):
+            p = root / "spec/M5/preregistration.json"
+            d = json.loads(p.read_text(encoding="utf-8"))
+            d["definitions"]["L9"]["thresholds"]["coverage"]["value"] = 0.001
+            p.write_text(json.dumps(d, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self.assertIn("preregistration.json", self._refused(edit))
+
+    def test_a5_threshold_flipped_against_its_number(self):
+        R = holon_module("holon.m5.report")
+        block = R.metrics_block(ROOT)
+        for n, t in (("L9", "coverage"), ("L6", "decided"), ("L10", "coverage"), ("L9", "validated_categories")):
+            bad = copy.deepcopy(block)
+            for d in (bad[n]["thresholds"], bad[n]["value"]["thresholds"]):
+                d[t] = "meets"
+            probs = R.validate(bad, ROOT)
+            self.assertTrue(any(f"{n}.{t}: reported meets" in x for x in probs), (n, t, probs))
+        with self.assertRaises(R.ReportError):
+            bad = copy.deepcopy(block)
+            bad["L6"]["thresholds"]["decided"] = bad["L6"]["value"]["thresholds"]["decided"] = "meets"
+            R.render(ROOT, bad)
+
+
 class TestPredictions(unittest.TestCase):
     def _expect(self, pid: str):
         return next(p for p in predictions("I58")["predictions"] if p["id"] == pid)["expected"]
