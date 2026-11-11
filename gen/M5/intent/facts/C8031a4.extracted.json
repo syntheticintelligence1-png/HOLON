@@ -1,0 +1,192 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "spec/M5/controls/intent/i_access_right_2.sol:13-16",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "C8031a4",
+      "edges": [],
+      "effects": [
+        {
+          "family": "stopped",
+          "src": "spec/M5/controls/intent/i_access_right_2.sol:15"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "caller"
+            ],
+            [
+              "storage",
+              "owner"
+            ]
+          ],
+          "kind": "require",
+          "reaches": [
+            {
+              "expr": [
+                "==",
+                [
+                  "caller"
+                ],
+                [
+                  "storage",
+                  "owner"
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "spec/M5/controls/intent/i_access_right_2.sol:14"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "pause",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "guard",
+          "spec/M5/controls/intent/i_access_right_2.sol:14",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "stopped": 1
+      },
+      "principal": null,
+      "returns": null,
+      "selector": "0x8456cb59",
+      "src": "spec/M5/controls/intent/i_access_right_2.sol:13-16",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "stopped",
+          "path": [],
+          "seq": 2,
+          "src": "spec/M5/controls/intent/i_access_right_2.sol:15",
+          "stack": [],
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    }
+  ],
+  "constants": {},
+  "contract": "C8031a4",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.3",
+    "inputs": [
+      {
+        "sha256": "45b7da1fa709aff3d9fe61ef5da906984e28df83421a54ac4bf8c3a895904d30",
+        "unit": "spec/M5/controls/intent/i_access_right_2.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "gen/M5/intent/facts/C8031a4.sidecar.json",
+      "sha256": "8a4b4d9ca1f82cf3bdb5e0c5eb95a78d881502ad131a536736a7b89f4c5e9654"
+    },
+    "toolchain": {
+      "solc": {
+        "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+        "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "owner",
+      "offset": 0,
+      "slot": 0,
+      "value": "address",
+      "width": 160
+    },
+    {
+      "kind": "scalar",
+      "name": "stopped",
+      "offset": 20,
+      "slot": 0,
+      "value": "bool",
+      "width": 8
+    }
+  ],
+  "target": {
+    "commit": null,
+    "repo": "holon-controls",
+    "scope": "intent lane: the transitions of C8031a4"
+  }
+}
