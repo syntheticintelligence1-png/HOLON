@@ -465,8 +465,19 @@ class TestRegressions(unittest.TestCase):
                  "replay", "spec/M1", "spec/M2", "spec/M3", "spec/M4", "spec/M5/controls", "spec/M5/lib/inputs.schema.json",
                  "spec/M5/lib/environment_classes.json", "spec/M5/lib/truth_protocol.json", "spec/M5/lib/truth_prompt.md",
                  "tests_m5/_i54.py", "tests_m5/_m5.py", "tests_m5/test_m5_definitions.py", "FROZEN.sha256"]
-        out = git("diff", "--name-only", base, "HEAD", "--", *paths).decode().split()
-        self.assertEqual(out, [])
+        # I55's own commits are HEAD's first-parent chain from the base. A non-merge commit on it may change none of
+        # the paths; a merge (the lead's branch or #134's, merged in) may bring only its second parent's bytes.
+        chain = git("rev-list", "--first-parent", "--parents", f"{base}..HEAD").decode().split("\n")
+        bad = []
+        for line in filter(None, chain):
+            c, *parents = line.split()
+            changed = git("diff", "--name-only", parents[0], c, "--", *paths).decode().split()
+            if len(parents) == 1:
+                bad += [f"{c[:8]}: {f}" for f in changed]
+            else:
+                bad += [f"{c[:8]} (merge): {f}" for f in changed
+                        if git("rev-parse", f"{c}:{f}") != git("rev-parse", f"{parents[1]}:{f}")]
+        self.assertEqual(bad, [])
         fz = subprocess.run([sys.executable, "tools/freeze.py", "check"], cwd=ROOT, capture_output=True, text=True)
         self.assertIn("FROZEN OK", fz.stdout)
 
