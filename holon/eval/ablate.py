@@ -1,5 +1,5 @@
 """`python -m holon eval ablate run|calibrate|metrics|report` (BUILD_PLAN I53, which closes the M4 exit; whitepaper §13
-"Metrics" and "Ablations", L14, L15). The contract is the docstring of tests_m4/test_i53_ablations.py; the protocol
+"Metrics" and "Ablations", L14, L15). The contract is the docstring of the I53 key's contract test file; the protocol
 is spec/M4/lib/I53_protocol.json, read here and never written.
 
   run [--only A1,..] [--jobs N]   each ablation in its own scratch copy of the repository (outside it: HOLON_ABLATE_DIR,
@@ -441,7 +441,9 @@ def a7(P: dict) -> dict:
     return blk
 
 
-KERNEL_CASES = ("replay/M1/kernel_mismatch/PROOF.bend", "tests_m3/fixtures/bendtt_i97/kernel_fuel/PROOF.bend")
+def kernel_cases() -> list[str]:
+    """The known kernel-disagreement cases, as the protocol's A8 rerun names them."""
+    return re.findall(r"([\w./-]+/PROOF\.bend)", protocol()["ablations"]["A8"]["rerun"])
 
 
 def a8(P: dict) -> dict:
@@ -449,7 +451,7 @@ def a8(P: dict) -> dict:
     cfg = bend.config(ROOT)
     cmd = list(cfg["bend"].get("cmd") or ["bend"])
     cases = []
-    for rel in KERNEL_CASES:
+    for rel in kernel_cases():
         p = ROOT / rel
         row = {"case": rel}
         for mode, extra in (("single", []), ("dual", ["--verdict"])):
