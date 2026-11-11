@@ -1,0 +1,83 @@
+{
+  "assets": [
+    "eth"
+  ],
+  "callers": [
+    "0x0000000000000000000000000000000000001002",
+    "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+  ],
+  "deltas": [
+    [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ]
+  ],
+  "flows": [
+    [
+      1,
+      "VM3",
+      null,
+      "eth",
+      null,
+      "credit"
+    ],
+    [
+      1,
+      "VM3",
+      null,
+      "eth",
+      null,
+      "debit"
+    ]
+  ],
+  "form": "G-W3",
+  "game": "L_undo_res_Rollup_revertBatch_batchDataStore",
+  "groups": [
+    "Rollup.onlyActiveSubmitter",
+    "Rollup.onlyOwner",
+    "anyone"
+  ],
+  "legal": [],
+  "payoff": "undetermined",
+  "scope": "witness",
+  "steps": [
+    {
+      "action": "commitBatch",
+      "caller": "0x0000000000000000000000000000000000001002"
+    },
+    {
+      "action": "revertBatch",
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+    },
+    {
+      "action": "batchInsideChallengeWindow",
+      "caller": "0x0000000000000000000000000000000000001002"
+    }
+  ]
+}
