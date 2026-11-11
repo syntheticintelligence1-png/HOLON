@@ -332,7 +332,8 @@ def run_solidity(root: Path, harness: str, checkout: Path, foundry_dir: Path) ->
 # ------------------------------------------------------------------------------------------------ the CLI
 def replay_law(root: Path, m: str, lid: str, e: dict) -> dict:
     from .basis import Ctx
-    from ..replay import morph_path
+    from .. import targets as _targets   # the development target's checkout (I47)
+    checkout_path_of = _targets.adapter("checkout_path")
     cx = Ctx(root, m)
     b = e["basis"]
     if e["subform"] == "go_branch":
@@ -351,7 +352,7 @@ def replay_law(root: Path, m: str, lid: str, e: dict) -> dict:
     wr = recompute_record_witness(b, w)
     pkg, text = recompute_go(cx.doc, b, w)
     obs = run_go(root, cx.doc, pkg, text)
-    checkout = morph_path(A(), root)
+    checkout = checkout_path_of(A(), root)
     harness, call, fdir = solidity_harness(root, b, w, checkout)
     sd = run_solidity(root, harness, checkout, fdir)
     obs = {**obs, "solidity_digest": sd, "solidity_call": call}

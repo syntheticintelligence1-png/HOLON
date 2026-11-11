@@ -268,7 +268,9 @@ def control_yul(yul: str) -> tuple[str, str] | None:
 
 
 def run(args) -> int:
-    from .replay import PIN_KEYS, check_checkout, morph_path, toolchain
+    from .replay import PIN_KEYS, check_checkout, toolchain
+    from . import targets as _targets   # the development target's checkout (I47)
+    checkout_path_of = _targets.adapter("checkout_path")
     root = ROOT
     bpath = root / (args.binding or BINDING)
     binding = json.loads(bpath.read_text())
@@ -299,8 +301,8 @@ def run(args) -> int:
     rec["hevm"] = {"version": v.strip().split()[0], "sha256": sha256_file(hevm), "source": pin["url"]}
     rec["solver"] = {"name": "cvc5", "version": sv.splitlines()[0].strip(), "sha256": sha256_file(solver),
                      "source": pin["solver"]["url"]}
-    checkout = Path(args.checkout).resolve() if args.checkout else morph_path(argparse.Namespace(), root)
-    rec["morph_commit"] = check_checkout(checkout, facts["target"]["commit"])
+    checkout = Path(args.checkout).resolve() if args.checkout else checkout_path_of(argparse.Namespace(), root)
+    rec[_targets.vocab("commit_key")] = check_checkout(checkout, facts["target"]["commit"])
     tc = toolchain(argparse.Namespace(forge=None, solc=None, write_pins=False), root)
     rec["toolchain"] = {k: tc[k] for k in PIN_KEYS}
     tmp = None

@@ -28,6 +28,7 @@ import tempfile
 from pathlib import Path
 
 from . import bend
+from . import targets as T
 from . import own as OW
 from .gen import ownheap as OH
 
@@ -315,7 +316,7 @@ def build(root: Path, milestone: str) -> dict | None:
                 commands[lid] = f"(cd {mod.relative_to(ws).as_posix()} && {' '.join(cmd)})"
         finally:
             shutil.rmtree(parent, ignore_errors=True)
-    report = {"milestone": milestone, "morph_commit": go_doc["target"]["commit"], "go_version": go_version,
+    report = {"milestone": milestone, T.vocab("commit_key"): go_doc["target"]["commit"], "go_version": go_version,
               "laws": {}, "witness_sha256": {}}
     for lid in sorted(plan):
         pl = plan[lid]

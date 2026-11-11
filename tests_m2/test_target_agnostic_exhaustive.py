@@ -36,8 +36,8 @@ GENERIC = {"t", "w", "D", "F", "W", "Z", "log", "append", "ctx", "classes", "vie
 ADAPTERS = ["holon/replay.py", "holon/mreplay.py", "holon/consumers.py", "holon/refinement.py",
             "holon/oracles/zero_blob.py"]
 ALLOWLIST: dict[str, list[str]] = {
-    # the --morph checkout flags of the replay adapters' commands (replay, refine, oracle zero-blob)
-    "holon/__main__.py": ["morph"],
+    # (I47, spec/M2/amendments/I47.jsonl: holon/__main__.py's checkout flag is read from targets/<dev>/target.json, so
+    # the file holds no target identifier and its entry, ["morph"], is removed)
     # the M0 commit-side trace builder (replay evidence for the M0 codec witnesses on the real Rollup)
     "holon/evidence.py": ["commitBatch", "fsr"],
     # the M1 deadline class's emitted comment "kappa = b && w + start(chs[i]) < t" is part of gen/M1, pinned byte for

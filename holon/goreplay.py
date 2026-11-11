@@ -30,6 +30,7 @@ import tempfile
 from pathlib import Path
 
 from . import bend, ir
+from . import targets as T
 from .diagram import goops as GO
 from .gen import goloop as GG
 
@@ -262,7 +263,7 @@ def build(root: Path, milestone: str) -> dict:
         if rec is None or rec.get("status") != "REFUTED":
             continue
         laws[law["law_id"]] = (law, doc, rec)
-    report = {"milestone": milestone, "morph_commit": None, "go_version": None, "laws": {}, "witness_sha256": {}}
+    report = {"milestone": milestone, T.vocab("commit_key"): None, "go_version": None, "laws": {}, "witness_sha256": {}}
     by_doc: dict[str, list] = {}
     for lid, (law, doc, rec) in sorted(laws.items()):
         by_doc.setdefault(law["facts"], []).append(lid)
@@ -296,7 +297,7 @@ def build(root: Path, milestone: str) -> dict:
                 cases.append({"key": f"{lid}/{o}", "op": o, "set": concretize(cmap, cells)})
             plan[lid] = {"expected": expected, "witness": w}
         outcomes, command = run_cases(root, go_doc, doc["carrier"]["type"], ops, cases) if cases else ({}, "")
-        report["morph_commit"] = go_doc["target"]["commit"]
+        report[T.vocab("commit_key")] = go_doc["target"]["commit"]
         for lid in lids:
             pl = plan[lid]
             if "not_run" in pl:
@@ -559,7 +560,7 @@ def build_counts(root: Path, milestone: str) -> dict:
         if rec is None or rec.get("status") != "REFUTED":
             continue
         laws[law["law_id"]] = (law, doc, rec)
-    report = {"milestone": milestone, "morph_commit": None, "go_version": None, "laws": {}, "witness_sha256": {}}
+    report = {"milestone": milestone, T.vocab("commit_key"): None, "go_version": None, "laws": {}, "witness_sha256": {}}
     by_doc: dict[str, list] = {}
     for lid, (law, doc, rec) in sorted(laws.items()):
         by_doc.setdefault(law["facts"], []).append(lid)
@@ -568,7 +569,7 @@ def build_counts(root: Path, milestone: str) -> dict:
         go_doc = _load(root / doc["document"])
         raw = (root / rel).read_bytes()
         cm = GN.CompiledModel.build(doc, hashlib.sha256(raw).hexdigest(), doc["component"], bend.config(root))
-        report["morph_commit"] = go_doc["target"]["commit"]
+        report[T.vocab("commit_key")] = go_doc["target"]["commit"]
         plan, cases, runners, owns = {}, [], {}, set()
         fkeys = {fid: f"f{i}" for i, fid in enumerate(sorted({c["source"] for c in doc["channels"].values()}))}
         for lid in lids:

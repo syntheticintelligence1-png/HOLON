@@ -28,6 +28,7 @@ import time
 import traceback
 from pathlib import Path
 
+from .. import targets as _targets
 from . import common as C
 from . import decide as D
 from . import lawsets as L
@@ -276,7 +277,7 @@ class Ctx:
         C.PLACES.update({"work": self.work, "root": self.root.resolve(), "checkout": self.checkout,
                          "sol_deps": self.sol_deps, "python": sys.prefix, "base_python": sys.base_prefix,
                          "home": Path.home()})
-        self.null_doc = json.loads((self.root / C.FACTS2 / "morph_header.extracted.json").read_text())
+        self.null_doc = json.loads((self.root / C.FACTS2 / _targets.vocab("header_extracted")).read_text())
         self.base = None
         self.inputs = None
         self.equivalent = None
@@ -416,7 +417,7 @@ def projection(ctx: Ctx, u: Unit, rec: dict, errs: dict) -> None:
         rec["projection"] = {"normalized_sha256": None, "changed": None, "error": C.scrub(f"{type(e).__name__}: {e}")[:1500]}
         return
     u.proj = proj
-    u.proj_path = u.dir / "m0" / "morph_header.json"
+    u.proj_path = u.dir / "m0" / Path(_targets.vocab("header_facts")).name
     u.proj_path.parent.mkdir(parents=True, exist_ok=True)
     u.proj_path.write_text(C.dump(proj))
     sha = C.normalized_sha256(proj)
@@ -814,7 +815,7 @@ def decide_m1x(ctx: Ctx, u: Unit, rec: dict, pred: set, errs: dict) -> None:
         e["predicted"] = lid in pred
         entries[lid] = e
     rec["laws"].update(entries)
-    rollup = f"{C.FACTS2.as_posix()}/morph_rollup.extracted.json"
+    rollup = f"{C.FACTS2.as_posix()}/{_targets.vocab('rollup_extracted')}"
     if rollup in errs:
         for e in entries.values():
             e["mutant"], e["error"] = "error", "extraction failed: " + rollup
@@ -960,7 +961,7 @@ def decide_m2(ctx: Ctx, u: Unit, rec: dict, pred: set, actions: set, errs: dict,
                     carried_from=b, counters=cl.get(key))
     if not run_ids:
         return
-    rollup = f"{C.FACTS2.as_posix()}/morph_rollup.extracted.json"
+    rollup = f"{C.FACTS2.as_posix()}/{_targets.vocab('rollup_extracted')}"
     if rec["documents"].get(rollup, {}).get("changed") or u.is_base:
         p = None
         for _ in range(STEP_RETRY):
@@ -1009,10 +1010,10 @@ def decide_m2(ctx: Ctx, u: Unit, rec: dict, pred: set, actions: set, errs: dict,
             return
     rdir = u.H / "results" / "M2"
     cones = {}
-    if (rdir / "deps.json").is_file() and (u.H / "gen" / "M2" / "model" / "morph_rollup.defs.json").is_file():
-        cones = L.cones(rdir / "deps.json", u.H / "gen" / "M2" / "model" / "morph_rollup.defs.json")
+    if (rdir / "deps.json").is_file() and (u.H / "gen" / "M2" / "model" / f"{_targets.vocab('rollup_model')}.defs.json").is_file():
+        cones = L.cones(rdir / "deps.json", u.H / "gen" / "M2" / "model" / f"{_targets.vocab('rollup_model')}.defs.json")
     u.m2_cones = cones
-    model_bend = u.H / "gen" / "M2" / "model" / "morph_rollup.bend"
+    model_bend = u.H / "gen" / "M2" / "model" / f"{_targets.vocab('rollup_model')}.bend"
     for key, mid, law, e in plan:
         if mid not in run_ids or e["mutant"] == "error":
             continue
@@ -1062,7 +1063,7 @@ def _channel_retry(fn, *a):
 
 def run_i20(ctx: Ctx, u: Unit, rec: dict, errs: dict) -> dict:
     from . import channels as CH
-    rollup = f"{C.FACTS2.as_posix()}/morph_rollup.extracted.json"
+    rollup = f"{C.FACTS2.as_posix()}/{_targets.vocab('rollup_extracted')}"
     if rollup in errs:
         return incomplete("i20_step", "extraction failed: " + rollup)
     try:
@@ -1135,11 +1136,11 @@ def run_unit(ctx: Ctx, ud: dict, keep: bool = False) -> tuple[dict, Unit]:
         if "i20_step" in wants:
             r20 = run_i20(ctx, u, rec, errs)
             runs.append(r20)
-            rollup = f"{C.FACTS2.as_posix()}/morph_rollup.extracted.json"
+            rollup = f"{C.FACTS2.as_posix()}/{_targets.vocab('rollup_extracted')}"
             if r20["error"] is not None and (u.is_base or rec["documents"].get(rollup, {}).get("changed")):
                 widths = "the unit's i20_step run did not complete: " + r20["error"]
         elif u.lang() == "solidity" and not u.is_base:
-            rollup = f"{C.FACTS2.as_posix()}/morph_rollup.extracted.json"
+            rollup = f"{C.FACTS2.as_posix()}/{_targets.vocab('rollup_extracted')}"
             if rec["documents"].get(rollup, {}).get("changed"):
                 widths = "the rollup document changed and the unit has no i20_step run (no width values of its own)"
         decide_m2(ctx, u, rec, pred["M2"], actions, errs, where, widths)
