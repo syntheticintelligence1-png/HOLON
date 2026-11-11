@@ -409,7 +409,7 @@ def a7(P: dict) -> dict:
             if d.get("status") != "REFUTED":
                 continue
             conc = (d.get("witness_provenance") or {}).get("concretization") or d.get("concretization") or {}
-            b = FL.final_bin({}, conc)
+            b = FL.final_bin({}, conc) if d.get("filter_bin") in FL.FINAL_BINS else d.get("filter_bin")
             full_bin += d.get("filter_bin") == "finding"
             abl_bin += b == "finding"
             per.setdefault(m, {"refuted": 0, "finding_full": 0, "finding_ablated": 0})
@@ -426,7 +426,7 @@ def a7(P: dict) -> dict:
     for m in ("M0", "M1", "M2", "M3"):
         for p in sorted((repo / "results" / m).rglob("L*.json")):
             d = load(p)
-            if isinstance(d, dict) and d.get("status") == "REFUTED" and "filter_bin" in d:
+            if isinstance(d, dict) and d.get("status") == "REFUTED" and d.get("filter_bin") in FL.FINAL_BINS:
                 conc = (d.get("witness_provenance") or {}).get("concretization") or d.get("concretization") or {}
                 d["filter_bin"] = FL.final_bin({}, conc)
                 p.write_text(dumps(d), encoding="utf-8")
@@ -436,7 +436,7 @@ def a7(P: dict) -> dict:
         "witness_replay_rate": {"full": ratio(sum(x.get("replayed", 0) for x in wr), sum(x.get("refuted", 0) for x in wr)),
                                 "ablated": None},
         "refinement_compared": {"full": sum(x.get("compared", 0) for x in ref), "ablated": 0},
-        "mutation_detection": {"full": via_corpus, "ablated": killed, "mutants": len(rows),
+        "mutation_detection": {"definition": "mutants killed by a law, or detected by the replay corpus (full); killed by a law only (ablated)", "full": via_corpus, "ablated": killed, "mutants": len(rows),
                                "summary_detection": (s62.get("detection") or {}).get("A")}}
     return blk
 
@@ -447,13 +447,13 @@ KERNEL_CASES = ("replay/M1/kernel_mismatch/PROOF.bend", "tests_m3/fixtures/bendt
 def a8(P: dict) -> dict:
     from .. import bend
     cfg = bend.config(ROOT)
-    cmd = cfg["bend"].get("cmd") or "bend"
+    cmd = list(cfg["bend"].get("cmd") or ["bend"])
     cases = []
     for rel in KERNEL_CASES:
         p = ROOT / rel
         row = {"case": rel}
         for mode, extra in (("single", []), ("dual", ["--verdict"])):
-            q = subprocess.run([cmd, p.name, *extra], cwd=p.parent, capture_output=True, text=True, timeout=3600,
+            q = subprocess.run([*cmd, p.name, *extra], cwd=p.parent, capture_output=True, text=True, timeout=3600,
                                env={**os.environ, "BEND_NO_TELEMETRY": "1"})
             text = q.stdout + q.stderr
             row[mode] = {"rc": q.returncode, "all_proofs_check": "ALL PROOFS CHECK" in text,
@@ -467,7 +467,7 @@ def a8(P: dict) -> dict:
         k = (load(ROOT / "results" / m / "metrics.json").get("cross_kernel_agreement") or {})
         sk += k.get("checked_records", 0)
     repo = scratch_copy("A8")
-    blk = morph_block(repo, {}, [{"argv": f"{cmd} <case> and {cmd} <case> --verdict", "rc": 0}])
+    blk = morph_block(repo, {}, [{"argv": f"{' '.join(cmd)} <case> and {' '.join(cmd)} <case> --verdict", "rc": 0}])
     blk["extra"] = {"cases": cases,
                     "surfaced": {"dual": sum(c["surfaced_dual"] for c in cases),
                                  "single": sum(c["surfaced_single"] for c in cases)},
@@ -524,39 +524,28 @@ def labels_removed(repo: Path) -> dict:
 
 
 def heldout_sorts(aid: str, how: str, patches: list) -> dict:
-    """The held-out sort pass under the switch, from the sealed inputs named in the protocol's how text."""
+    """The held-out sort pass under the switch: the sealed document and sidecar named in the protocol's how text, read
+    from the pinned commit into the scratch copy at their own paths, and the sealed refusal's own sort command rerun
+    (its milestone and sidecar), with and without the switch."""
     sha = re.search(r"\b([0-9a-f]{40})\b", how).group(1)
     doc, side = re.findall(r"(gen/targets/\S+?\.json)", how)[:2]
+    show = lambda rel: subprocess.run(["git", "show", f"{sha}:{rel}"], cwd=ROOT, capture_output=True, check=True).stdout
+    refusal_rel = f"results/targets/{Path(doc).parts[2]}/derive_refusal.json"
+    sealed = json.loads(show(refusal_rel))
     repo = scratch_copy(f"{aid}_heldout")
-    ms = "T531"
-    (repo / "spec" / ms / "facts").mkdir(parents=True, exist_ok=True)
-    (repo / "spec" / ms / "lib").mkdir(parents=True, exist_ok=True)
-    blob = subprocess.run(["git", "show", f"{sha}:{doc}"], cwd=ROOT, capture_output=True, check=True).stdout
-    fdoc = repo / "spec" / ms / "facts" / Path(doc).name
-    fdoc.write_bytes(blob)
-    st = json.loads(subprocess.run(["git", "show", f"{sha}:{side}"], cwd=ROOT, capture_output=True, check=True).stdout)
-    sealed_ref = None
-    for cand in re.findall(r"(results/targets/\S+?\.json)", json.dumps(protocol())) + ["results/targets/" + doc.split("/")[2] + "/derive_refusal.json"]:
-        q = subprocess.run(["git", "show", f"{sha}:{cand}"], cwd=ROOT, capture_output=True)
-        if q.returncode == 0:
-            sealed_ref = json.loads(q.stdout)
-            break
-    st_txt = json.dumps(st)
-    st_txt = re.sub(r"gen/targets/[^\"]+?/facts/", f"spec/{ms}/facts/", st_txt)
-    st = json.loads(st_txt)
-    (repo / "spec" / ms / "lib" / "sort_types.json").write_text(dumps(st), encoding="utf-8")
-    out = repo / ".ablate" / "sorts_out"
-    r = child(repo, ["sorts", "--milestone", ms, "--facts", str(fdoc), "--out", str(out)], patches, tag="sorts")
-    r0 = child(repo, ["sorts", "--milestone", ms, "--facts", str(fdoc), "--out", str(out) + "_full"], [], tag="sorts_full")
-    msg = first_line(r["tail"], r"no sorts rule|refus|error|Error") if r["rc"] != 0 else None
-    msg0 = first_line(r0["tail"], r"no sorts rule|refus|error|Error") if r0["rc"] != 0 else None
-    sealed = None
-    if isinstance(sealed_ref, dict):
-        sealed = sealed_ref.get("message") or sealed_ref.get("stderr") or json.dumps(sealed_ref)[:400]
+    for rel in (doc, side):
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_bytes(show(rel))
+    cmd = list(sealed["command"])
+    argv = cmd[cmd.index("sorts"):] + ["--out", ".ablate/sorts_out"]
+    r0 = child(repo, argv, [], tag="sorts_full")
+    r = child(repo, argv, patches, tag="sorts")
+    msg = first_line(r["tail"], r"^holon sorts") if r["rc"] != 0 else None
+    msg0 = first_line(r0["tail"], r"^holon sorts") if r0["rc"] != 0 else None
     shutil.rmtree(repo.parent, ignore_errors=True)
     return {"status": "run", "reran": [r0, r],
             "extra": {"refused": r["rc"] != 0, "message": msg, "message_without_switch": msg0,
-                      "sealed_message": msg0, "sealed_record": sealed, "inputs_commit": sha}}
+                      "sealed_message": sealed.get("message"), "sealed_refusal": refusal_rel, "inputs_commit": sha}}
 
 
 def dev_system(P: dict) -> str:
@@ -767,7 +756,7 @@ def a9_eval(sandbox: Path, base: str, out: Path) -> int:
     from .. import facts as F
     P = protocol()
     cfg = bend.config(ROOT)
-    cmd = cfg["bend"].get("cmd") or "bend"
+    cmd = list(cfg["bend"].get("cmd") or ["bend"])
     git = lambda *a: subprocess.run(["git", *a], cwd=sandbox, capture_output=True, text=True)
     git("add", "-A")
     git("-c", "user.name=sandbox", "-c", "user.email=sandbox@localhost", "commit", "-q", "-m", "attackers' end state")
@@ -797,7 +786,7 @@ def a9_eval(sandbox: Path, base: str, out: Path) -> int:
             if not pp.is_file() or s_lb is None:
                 continue
             ip = MP.law_import_problem(pp, sandbox / lb)
-            q = subprocess.run([cmd, pp.name], cwd=pp.parent, capture_output=True, text=True, timeout=3600,
+            q = subprocess.run([*cmd, pp.name], cwd=pp.parent, capture_output=True, text=True, timeout=3600,
                                env={**os.environ, "BEND_NO_TELEMETRY": "1"})
             ok = ("ALL PROOFS CHECK" in q.stdout + q.stderr and q.returncode == 0 and ip is None
                   and re.search(r"\b" + re.escape(name) + r"\b", s_lb.decode("utf-8", "replace")) is not None)
