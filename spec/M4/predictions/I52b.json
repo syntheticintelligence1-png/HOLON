@@ -1,0 +1,160 @@
+{
+ "title": "Baselines on the held-out target (I52's held-out half): the nine I52 baselines at I52's equal budget on ScrollChain (the sealed scroll-contracts commit), in I52's findings schema, matched to I50's preregistered rule classes instantiated as (rule, action) obligations of the sealed contract; a primary budget by the lead's rule (I50's wall clock, measured since none is recorded) and a secondary budget of 3600 s fixed here",
+ "plan": "docs/BUILD_PLAN.md#i52",
+ "prompt": "prompts/I52b_heldout_baselines.md",
+ "outcome_paths": [
+  "results/eval/heldout/"
+ ],
+ "tests": [
+  "tests_m4/test_baselines_i52b.py"
+ ],
+ "predictions": [
+  {
+   "id": "I52b-P1",
+   "claim": "HOLON's budget on the held-out target is degenerate: I50's route (holon target derive then holon target run, from the committed I49 document, on a scratch copy) takes under 60 s of wall clock on this machine, because derive is refused at its first step, so the primary wall_s is 60. Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+   "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p1_primary_budget_is_one_minute",
+   "expected": {
+    "primary_wall_s": 60
+   }
+  },
+  {
+   "id": "I52b-P2",
+   "claim": "Every baseline sets up and runs on the held-out target in both budgets: slither, echidna, medusa, hevm, halmos, spec_mining and agent_review have status run (none error or missing); go_fuzz and two_cycle are not_applicable (the scope holds no Go). Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+   "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p2_every_applicable_baseline_runs",
+   "expected": {
+    "run": [
+     "slither",
+     "echidna",
+     "medusa",
+     "hevm",
+     "halmos",
+     "spec_mining",
+     "agent_review"
+    ],
+    "not_applicable": [
+     "go_fuzz",
+     "two_cycle"
+    ]
+   }
+  },
+  {
+   "id": "I52b-P3",
+   "claim": "At the primary budget no baseline detects any label, and the agent reviewer gives no parsable answer within its 60 s (it is stopped at the budget), so agent_review has no finding. Non-vacuity (I52_baselines.json non_vacuity, on a one-target system): each baseline named must have status run on the target in that budget, else this is a miss. Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+   "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p3_primary_detects_nothing",
+   "expected": {
+    "detected": {},
+    "agent_findings": 0
+   }
+  },
+  {
+   "id": "I52b-P4",
+   "claim": "At the secondary budget the fuzzers and symbolic executors (echidna, medusa, hevm, halmos) report no finding located at a label and detect none. Non-vacuity (I52_baselines.json non_vacuity, on a one-target system): each baseline named must have status run on the target in that budget, else this is a miss. Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+   "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p4_secondary_fuzzers_and_symbolic_find_nothing_located",
+   "expected": {
+    "located": {},
+    "detected": {}
+   }
+  },
+  {
+   "id": "I52b-P5",
+   "claim": "At the secondary budget slither reports at least one finding located at a label (its generic detectors fire in the contract's actions) but the adjudicator confirms none as a violation of the action's obligations, so slither detects nothing; spec_mining detects nothing. Non-vacuity (I52_baselines.json non_vacuity, on a one-target system): each baseline named must have status run on the target in that budget, else this is a miss. Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+   "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p5_secondary_slither_located_not_detected_and_mining",
+   "expected": {
+    "slither_located_at_least": 1,
+    "detected": {}
+   }
+  },
+  {
+   "id": "I52b-P6",
+   "claim": "At the secondary budget the agent-only review answers within its 3600 s, reports at least one finding located at a label and detects at least one label, more labels than all the other baselines together (the size of its detected set exceeds the size of the union of theirs). Every such detection is a claim, not a verified defect (no ground truth on the held-out target). Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+   "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p6_secondary_agent_review",
+   "expected": {
+    "detected_at_least": 1,
+    "agent_greater_than_union": true
+   }
+  }
+ ],
+ "regressions": [
+  {
+   "id": "I52b-R1",
+   "claim": "Construction (the exit): results/eval/heldout/<baseline>.json (primary) and results/eval/heldout/secondary/<baseline>.json exist for all nine baselines, validate against I52's findings schema, name system heldout, I52's protocol sha256, the tier's budget and the baseline's tool; the one target is present, with not_applicable exactly where the baseline's language is absent, missing only with a missing tool and a reason, error only with a reason, findings sorted with ids f0001.. in order and in scope, and a timing file beside each.",
+   "check": "tests_m4/test_baselines_i52b.py::TestResults::test_result_files_validate and tests_m4/test_baselines_i52b.py::TestResults::test_status_follows_applicability"
+  },
+  {
+   "id": "I52b-R2",
+   "claim": "Construction (matching): every recorded match is a located pair recomputed by the instrument and every located pair is recorded; exactly the located labels are adjudicated over their located findings; confirmed is a subset; the five labels of one action share one adjudicator prompt, which is the frozen template filled in; detected is what the adjudications give.",
+   "check": "tests_m4/test_baselines_i52b.py::TestMatching::test_matches_are_the_instrument_s and tests_m4/test_baselines_i52b.py::TestMatching::test_detected_is_what_the_adjudicator_confirmed"
+  },
+  {
+   "id": "I52b-R3",
+   "claim": "Equal budget per tier: for every baseline but agent_review that ran, the units' summed wall clock is at most the tier's wall_s plus 60 s, with cpus 1; agent_review: one reviewer per tier, its wall clock at most wall_s + 60, cpu null with a reason. The primary wall_s is the rule's value over results/eval/heldout/holon_budget.json, whose steps are I50's route.",
+   "check": "tests_m4/test_baselines_i52b.py::TestResults::test_equal_budget and tests_m4/test_baselines_i52b.py::TestHolonBudget::test_holon_budget_is_i50_s_route"
+  },
+  {
+   "id": "I52b-R4",
+   "claim": "Construction (labels): spec/M4/lib/I52b_heldout_labels.json is what tests_m4/_i52b.py labels_doc() generates from I49's committed document (65 labels: 13 state-moving actions of the labelled file times the five rules), and every anchor names a line range of the labelled file at the sealed commit.",
+   "check": "tests_m4/test_baselines_i52b.py::TestInstruments::test_labels_regenerate"
+  },
+  {
+   "id": "I52b-R5",
+   "claim": "Nothing else moves: I52b's own non-merge commits change no file under results/M0..M3, gen/M0..M3, spec/M0..M3, laws/, replay/, audit/, results/targets/, gen/targets/, targets/, spec/heldout/, results/eval/morph/, results/eval/corpus/, results/eval/holon_budget.json, nor I52's prereg files (spec/M4/predictions/I52.json, spec/M4/lib/I52_*, tests_m4/test_baselines_i52.py, tests_m4/_i52.py).",
+   "check": "tests_m4/test_baselines_i52b.py::TestPins::test_nothing_else_moves"
+  },
+  {
+   "id": "I52b-R6",
+   "claim": "Agent blindness: each reviewer's packet lists only scope files of the target (non-test .sol files of the labelled files' directories); its prompt is I52's frozen review template filled with the sorted listing and the tier's minutes; no prompt or packet path names holon, a label, the obligations, I49 or I50.",
+   "check": "tests_m4/test_baselines_i52b.py::TestResults::test_agent_review_is_blind"
+  },
+  {
+   "id": "I52b-R7",
+   "claim": "Target-agnostic: no holon/ file names the held-out target (any name of targets/scroll/target.json names, case-insensitive) after I52b's runner changes.",
+   "check": "tests_m4/test_baselines_i52b.py::TestPins::test_holon_names_no_target"
+  }
+ ],
+ "thresholds": {
+  "protocol": "spec/M4/lib/I52b_heldout.json",
+  "labels": "spec/M4/lib/I52b_heldout_labels.json",
+  "match_prompt": "spec/M4/lib/I52b_match_prompt.md",
+  "i52_protocol": "spec/M4/lib/I52_baselines.json (unchanged)",
+  "budget": {
+   "primary": "60 * ceil(H / 60), H = I50's route measured (holon target derive; holon target run) on a scratch copy, before any baseline result; cpus 1; setup_cap_s 3600",
+   "secondary": {
+    "wall_s": 3600,
+    "cpus": 1,
+    "setup_cap_s": 3600,
+    "label": "secondary"
+   }
+  },
+  "labels_count": 65,
+  "expected_detections": {
+   "primary": {
+    "slither": [],
+    "echidna": [],
+    "medusa": [],
+    "hevm": [],
+    "halmos": [],
+    "go_fuzz": [],
+    "two_cycle": [],
+    "spec_mining": [],
+    "agent_review": []
+   },
+   "secondary": {
+    "slither": [],
+    "echidna": [],
+    "medusa": [],
+    "hevm": [],
+    "halmos": [],
+    "go_fuzz": [],
+    "two_cycle": [],
+    "spec_mining": [],
+    "agent_review": "at least one label"
+   }
+  },
+  "agent_reviewers": {
+   "primary": 1,
+   "secondary": 1
+  },
+  "non_vacuity": "status run on the one target",
+  "contamination": "Predictions, labels and the secondary budget are written after the seal on readers lifted (I50's results recorded), by a builder who has read I49's and I50's results and the target's code; not blind. Disclosed beside every number."
+ }
+}
