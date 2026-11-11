@@ -1,0 +1,145 @@
+{
+ "outcome_paths": [
+  "results/eval/holon/"
+ ],
+ "plan": "docs/BUILD_PLAN.md#i51",
+ "predictions": [
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestPredictions::test_p1_no_entry_is_detected",
+   "claim": "Expected detections per entry: no entry is detected. Every Go entry derives no law (no rule producer takes a Go-only document without a target sidecar), and the Solidity entries either fail extraction or derive only generic DISCH, SYM, UNDO, FACT or typed SORT laws over zero storage, none of which is a REFUTED law of the entry's label rule meeting the fix's lines.",
+   "expected": {
+    "detected": {
+     "c01": false,
+     "c02": false,
+     "c03": false,
+     "c04": false,
+     "c05": false,
+     "c06": false,
+     "c07": false,
+     "c08": false,
+     "c09": false,
+     "c10": false,
+     "c11": false,
+     "c12": false,
+     "c13": false,
+     "c14": false,
+     "c15": false,
+     "c16": false,
+     "c17": false,
+     "c18": false,
+     "c19": false,
+     "c20": false
+    }
+   },
+   "id": "I51-P1"
+  },
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestPredictions::test_p2_extraction_reach",
+   "claim": "Extraction reach on foreign code: c17 (a contract repository whose units import only its own tree) extracts at least one document; the other five Solidity entries (c02, c05, c10, c15, c20: another compiler line, or a monorepo package whose imports need remappings) and the Go entries of c17's system (c01, c07, c12: packages that import generated code) extract none; at least 7 of the other 11 Go entries extract at least one document.",
+   "expected": {
+    "extracts": [
+     "c17"
+    ],
+    "extracts_none": [
+     "c02",
+     "c05",
+     "c10",
+     "c15",
+     "c20",
+     "c01",
+     "c07",
+     "c12"
+    ],
+    "others": [
+     "c03",
+     "c04",
+     "c06",
+     "c08",
+     "c09",
+     "c11",
+     "c13",
+     "c14",
+     "c16",
+     "c18",
+     "c19"
+    ],
+    "others_at_least": 7
+   },
+   "id": "I51-P2"
+  },
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestPredictions::test_p3_no_label_rule_law",
+   "claim": "No entry derives a law of its own label rule (label_rule_laws 0 in all 20 rows): PAR's sub-forms need codec or Go-role sidecars, NAT needs a versioned machine, and the typed rules over the one expected Solidity document do not hit its label.",
+   "expected": {
+    "label_rule_laws_nonzero": {}
+   },
+   "id": "I51-P3"
+  },
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestPredictions::test_p4_findings_unreplayed",
+   "claim": "Every finding (REFUTED law), if there is any, is unreplayed: with no binding no witness replays on real code, so the true_defect, intended_asymmetry and model_defect counts are 0 and precision is 0 or null.",
+   "expected": {
+    "intended_asymmetry": 0,
+    "model_defect": 0,
+    "true_defect": 0
+   },
+   "id": "I51-P4"
+  }
+ ],
+ "prompt": "prompts/I51_corpus_holon.md",
+ "regressions": [
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestRows::test_a_row_for_every_entry",
+   "claim": "The exit (H8): results/eval/holon/corpus.json has one row per corpus entry, in corpus order, with the row keys; not_run exactly when no document was extracted, then with a non-empty reason and every failed document's reason.",
+   "expected": {
+    "rows": 20
+   },
+   "id": "I51-R1"
+  },
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestRows::test_rows_are_the_corpus and tests_m4/test_i51_corpus_run.py::TestRows::test_trees_are_the_instruments",
+   "claim": "Construction: every row's inputs and label are its corpus entry's, and its tree is prefix^{tree} in the instrument's clone.",
+   "id": "I51-R2"
+  },
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestScoring",
+   "claim": "Construction: the locus, sites, localization, classes, detections and summary are the instrument's (S1-S6), and the instrument's verdict turns on planted rows.",
+   "id": "I51-R3"
+  },
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestRows::test_laws_are_the_derived_ones and tests_m4/test_i51_corpus_run.py::TestRows::test_documents_are_committed and tests_m4/test_i51_corpus_run.py::TestEvidence",
+   "claim": "Construction: the laws are the derived ones with their records' statuses, stored documents have their sha256, and Bend re-checks every REFUTED counter-law.",
+   "id": "I51-R4"
+  },
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestDeterminism",
+   "claim": "Determinism: holon eval holon --check reproduces a subset byte for byte.",
+   "id": "I51-R5"
+  },
+  {
+   "check": "tests_m4/test_i51_corpus_run.py::TestRegressions",
+   "claim": "Nothing in M0-M3 changes (no I51 commit touches their laws, results, gen, spec, facts, replay, tests or a holon/ file outside holon/eval/), and the runner names no corpus system, imports no test module and is in no generator closure; the CI gates, freeze check and frozen suite stay green.",
+   "id": "I51-R6"
+  }
+ ],
+ "tests": [
+  "tests_m4/test_i51_corpus_run.py"
+ ],
+ "thresholds": {
+  "base": "7dc50894695b7c37c9a3ec4f2d1d5bfcdfcc545c",
+  "catalog": "holon-rules/1.15",
+  "ground_truth_flags": {
+   "c13": "I48 build review M1: the recorded fix is not the defect's fix (the defect is already absent at the pre-fix tree); kept in every denominator, PAR's recall also reported without it"
+  },
+  "instrument_sha256": {
+   "spec/M4/lib/i51_run.json": "014eb7cfae0caa589cd7ec1048838723f9ec0acba809c9c62fb8b6da874134c5",
+   "spec/eval/corpus.json": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+   "tests_m4/_i48.py": "b02e6ba8bc25854c4fee4f499d5e625e649f67f2b812e144f15a4c9241b51f22",
+   "tests_m4/_i51.py": "285908ff8bbe70e788405012ec6a05d0e7dc7e72dc74ca97064270d2ec368c75",
+   "tests_m4/_m4.py": "37465d13f824fb37ecad2ff6c8943110a60de71502a89c18a9322e5fee0d8aa0"
+  },
+  "machine": "the session's container: 4 CPUs, no GPU",
+  "milestone": "T510"
+ },
+ "title": "HOLON on the corpus pre-fix commits: every one of the 20 I48 entries cloned at its pre-fix commit and run through HOLON as it is (generated extraction inputs, generic rule sidecars with no target-facing value, scratch test milestone T510, derive with holon-rules/1.15, run, replay and filter), scored against I48's labels by an independent instrument: per-entry detection (a REFUTED law of the label rule whose sites meet the fix's lines), per-rule recall, and precision split into true defects, intended asymmetries, model defects and unreplayed findings"
+}
