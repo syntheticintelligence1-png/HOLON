@@ -1,0 +1,186 @@
+{
+  "title": "Baselines on Morph and the corpus pre-fix commits: slither, echidna, medusa, hevm and halmos (pinned under ~/.holon/tools), Go native fuzzing, 2-cycle round-trip testing, frequency-based spec mining and an agent-only review, each at the same budget per target, reported in one findings schema and matched to the labels by location and a blinded match adjudicator; the held-out run is one command, pending I49/I50",
+  "plan": "docs/BUILD_PLAN.md#i52",
+  "prompt": "prompts/I52_baselines.md",
+  "predictions": [
+    {
+      "id": "I52-P1",
+      "claim": "Single-component analyzers find no relational obstruction: none of slither, echidna, medusa, hevm, halmos, go_fuzz and spec_mining detects (located and confirmed) a Morph obstruction of I52_baselines.json relational.ids. Non-vacuity (I52_baselines.json non_vacuity): each baseline named must have status run on at least half of the targets where it applies, else this is a miss.",
+      "check": "tests_m4/test_baselines_i52.py::TestPredictions::test_p1_no_relational_obstruction_by_single_component_analyzers",
+      "expected": {
+        "relational_detected_by_single_component_analyzers": []
+      }
+    },
+    {
+      "id": "I52-P2",
+      "claim": "2-cycle round-trip testing finds the O2 class on Morph and not O1: its bytes cycle on (BatchHeaderV1, BatchHeaderBytes' getters) fails on a version-2 header (byte 0 re-encoded as 1), so two_cycle detects O2; O1 is a Solidity-versus-Go domain difference, a cross-language 2-cycle the baseline has no binding for, so it does not detect O1.",
+      "check": "tests_m4/test_baselines_i52.py::TestPredictions::test_p2_two_cycle_finds_o2_not_o1",
+      "expected": {
+        "detects": [
+          "O2"
+        ],
+        "does_not_detect": [
+          "O1"
+        ]
+      }
+    },
+    {
+      "id": "I52-P3",
+      "claim": "The Solidity analyzers, fuzzers and symbolic executors (slither, echidna, medusa, hevm, halmos) detect no corpus entry. Non-vacuity (I52_baselines.json non_vacuity): each baseline named must have status run on at least half of the targets where it applies, else this is a miss.",
+      "check": "tests_m4/test_baselines_i52.py::TestPredictions::test_p3_solidity_tools_detect_no_corpus_entry",
+      "expected": {
+        "corpus_detected": []
+      }
+    },
+    {
+      "id": "I52-P4",
+      "claim": "Go stock fuzzing and 2-cycle testing (go_fuzz, two_cycle) detect no corpus entry. Non-vacuity (I52_baselines.json non_vacuity): each baseline named must have status run on at least half of the targets where it applies, else this is a miss.",
+      "check": "tests_m4/test_baselines_i52.py::TestPredictions::test_p4_go_stock_tools_detect_no_corpus_entry",
+      "expected": {
+        "corpus_detected": []
+      }
+    },
+    {
+      "id": "I52-P5",
+      "claim": "Frequency-based spec mining detects c06 (an unchecked type assertion, a deviation from the package's comma-ok belief) and at most 2 corpus entries in all, and no Morph obstruction. Non-vacuity (I52_baselines.json non_vacuity): each baseline named must have status run on at least half of the targets where it applies, else this is a miss.",
+      "check": "tests_m4/test_baselines_i52.py::TestPredictions::test_p5_spec_mining",
+      "expected": {
+        "includes": [
+          "c06"
+        ],
+        "corpus_at_most": 2,
+        "morph_detected": []
+      }
+    },
+    {
+      "id": "I52-P6",
+      "claim": "The agent-only review at equal budget (one fresh reviewer per system: Morph's scope; the corpus's 20 renamed labelled-file sets together) detects at least 5 of the 20 corpus entries and at least 2 Morph obstructions.",
+      "check": "tests_m4/test_baselines_i52.py::TestPredictions::test_p6_agent_review",
+      "expected": {
+        "corpus_at_least": 5,
+        "morph_at_least": 2
+      }
+    },
+    {
+      "id": "I52-P7",
+      "claim": "The agent-only review detects more corpus entries than all the other eight baselines together (the size of its detected set exceeds the size of the union of theirs).",
+      "check": "tests_m4/test_baselines_i52.py::TestPredictions::test_p7_agent_beats_the_union",
+      "expected": {
+        "agent_greater_than_union": true
+      }
+    },
+    {
+      "id": "I52-P8",
+      "claim": "The preregistered expected-detection table (thresholds.expected_detections) is right in at least 85% of its cells: one cell per (baseline, corpus entry) where the baseline applies (detected iff listed), and one cell per baseline on Morph (its detected set equals the listed set).",
+      "check": "tests_m4/test_baselines_i52.py::TestPredictions::test_p8_expected_detection_table",
+      "expected": {
+        "cell_accuracy_at_least": 0.85
+      }
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I52-R1",
+      "claim": "Construction (the exit): results/eval/morph/<baseline>.json and results/eval/corpus/<baseline>.json exist for all nine baselines, validate against spec/M4/lib/I52_findings.schema.json, name the protocol's sha256, the protocol's budget for the system and the baseline's tool; every target of the system is present, with status not_applicable exactly where the baseline's language is absent from the target, missing only with a missing tool and a reason, error only with a reason, findings sorted with ids f0001.. in order, and a timing file beside each.",
+      "check": "tests_m4/test_baselines_i52.py::TestResults::test_result_files_validate_and_cover_every_target and tests_m4/test_baselines_i52.py::TestResults::test_status_follows_applicability"
+    },
+    {
+      "id": "I52-R2",
+      "claim": "Construction (matching): every recorded match is a located pair recomputed by the instrument and every located pair is recorded; exactly the labels with a located finding are adjudicated, each adjudication's confirmed ids a subset of its located ids; located and detected are what the matches and adjudications give.",
+      "check": "tests_m4/test_baselines_i52.py::TestMatching::test_matches_are_the_instrument_s and tests_m4/test_baselines_i52.py::TestMatching::test_detected_is_what_the_adjudicator_confirmed"
+    },
+    {
+      "id": "I52-R3",
+      "claim": "Equal budget: for every baseline but agent_review, on every target it ran, the units' summed wall clock is at most the system's wall_s plus 60 s, with cpus 1; agent_review: one reviewer per system, its wall clock at most the Morph wall_s (+60) on Morph and 20 x the corpus wall_s (+60) on the corpus, cpu null with its reason. HOLON's own budget is measured by I52_baselines.json holon_budget and compared in the report. The Morph wall_s is the rule's value from results/eval/holon_budget.json (H = M0..M2's recorded from_scratch_gate_s at the base plus M3's measured), and that file's m0..m2 equal the base's records.",
+      "check": "tests_m4/test_baselines_i52.py::TestResults::test_equal_budget"
+    },
+    {
+      "id": "I52-R4",
+      "claim": "Pins: config/holon.json gains a baselines section naming every baseline tool's version and sha256 (missing tools named with a reason), and every one of the 13 existing pins (the bend, lean, replay and hevm entries verify_toolchain.py checks) is byte-identical to the base 4fd64a52; CI's toolchain job does not require the baseline pins.",
+      "check": "tests_m4/test_baselines_i52.py::TestPins::test_baseline_pins_are_separate_and_the_13_are_unchanged"
+    },
+    {
+      "id": "I52-R5",
+      "claim": "No M0-M3 outcome changes: no file under results/M0..M3, gen/M0..M3, laws/, replay/, spec/M0..M3 (except none) or audit/ differs from the base 4fd64a52.",
+      "check": "tests_m4/test_baselines_i52.py::TestPins::test_no_m0_m3_outcome_changed"
+    },
+    {
+      "id": "I52-R6",
+      "claim": "Agent blindness: the Morph packet lists only Morph scope files; the corpus packet lists only <entry>/<labelled file> paths of renamed files; each prompt is the frozen template filled in, and no prompt or packet path names holon, the corpus manifest, a label or the fix commit.",
+      "check": "tests_m4/test_baselines_i52.py::TestResults::test_agent_review_is_blind"
+    }
+  ],
+  "outcome_paths": [
+    "results/eval/"
+  ],
+  "tests": [
+    "tests_m4/test_baselines_i52.py"
+  ],
+  "thresholds": {
+    "protocol": "spec/M4/lib/I52_baselines.json",
+    "schema": "spec/M4/lib/I52_findings.schema.json",
+    "anchors": "spec/M4/lib/I52_morph_anchors.json",
+    "prompts": [
+      "spec/M4/lib/I52_review_prompt.md",
+      "spec/M4/lib/I52_match_prompt.md"
+    ],
+    "budget": {
+      "morph": {
+        "wall_s_rule": "equal to HOLON's measured Morph budget: wall_s = 60 * ceil(H / 60), H = holon_budget.morph's sum in seconds, written to results/eval/holon_budget.json before any baseline runs",
+        "cpus": 1,
+        "setup_cap_s": 3600
+      },
+      "corpus": {
+        "wall_s": 300,
+        "cpus": 1,
+        "setup_cap_s": 3600
+      }
+    },
+    "window_lines": 10,
+    "expected_detections": {
+      "corpus": {
+        "slither": [],
+        "echidna": [],
+        "medusa": [],
+        "hevm": [],
+        "halmos": [],
+        "go_fuzz": [],
+        "two_cycle": [],
+        "spec_mining": [
+          "c06"
+        ],
+        "agent_review": [
+          "c03",
+          "c06",
+          "c07",
+          "c08",
+          "c12",
+          "c18"
+        ]
+      },
+      "morph": {
+        "slither": [],
+        "echidna": [],
+        "medusa": [],
+        "hevm": [],
+        "halmos": [],
+        "go_fuzz": [],
+        "two_cycle": [
+          "O2"
+        ],
+        "spec_mining": [],
+        "agent_review": [
+          "O1",
+          "O27"
+        ]
+      }
+    },
+    "heldout": "pending I49/I50: python -m holon eval baselines run --system heldout --all",
+    "agent_reviewers": {
+      "morph": 1,
+      "corpus": 1
+    },
+    "holon_budget": "spec/M4/lib/I52_baselines.json holon_budget",
+    "non_vacuity": "at least half of the applicable targets run"
+  }
+}
