@@ -1,0 +1,195 @@
+{
+  "title": "I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every text, packet and rule pinned before any labeller answers",
+  "plan": "docs/BUILD_PLAN.md#i54-l6-l9-and-l10-definitions-preregistered-about-1-day",
+  "prompt": "prompts/I54b_m5_truth_key.md",
+  "tests": [
+    "tests_m5/test_m5_truth_key.py"
+  ],
+  "outcome_paths": [
+    "spec/M5/truth/",
+    "docs/iterations/I54b.md"
+  ],
+  "predictions": [
+    {
+      "id": "I54b-P1",
+      "claim": "In the same-family truth, at least 5 entries other than c13 get an L6 truth (rational or irrational), so L6's corpus accuracy can reach min_n.",
+      "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p1_l6_decided",
+      "expected": 5
+    },
+    {
+      "id": "I54b-P2",
+      "claim": "In the same-family truth, at most 3 entries other than c13 get L6 truth irrational (the corpus negative control of false_rational stays small).",
+      "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p2_l6_irrational",
+      "expected": 3
+    },
+    {
+      "id": "I54b-P3",
+      "claim": "In the same-family truth, between 1 and 3 entries get L10 truth yes.",
+      "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p3_l10_yes",
+      "expected": [
+        1,
+        3
+      ]
+    },
+    {
+      "id": "I54b-P4",
+      "claim": "Labellers a and b give the same raw trigger value (before Q1-Q2) for at least 14 of the 20 entries.",
+      "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p4_trigger_agreement",
+      "expected": 14
+    },
+    {
+      "id": "I54b-P5",
+      "claim": "At most 4 of the 120 same-family answers (20 entries x 2 labellers x 3 questions) fail Q2 (a quote that is not an exact substring of the text).",
+      "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p5_q2_failures",
+      "expected": 4
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I54b-R1",
+      "claim": "spec/eval/corpus.json, truth_protocol.json, truth_prompt.md and the frozen invocation's source are byte-identical to the pins (I48's corpus and I54's protocol are unchanged).",
+      "check": "tests_m5/test_m5_truth_key.py::TestPins::test_inputs_match_the_pins",
+      "expected": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d"
+    },
+    {
+      "id": "I54b-R2",
+      "claim": "truth_protocol.json and truth_prompt.md hash to I54's own instrument pins.",
+      "check": "tests_m5/test_m5_truth_key.py::TestPins::test_protocol_is_i54s",
+      "expected": [
+        "015ea6d9641ca5690835615e8704dc1e16e8b23edec588e0c7bc749a6a758930",
+        "75a1445a7f17f325047f222ad3cc92bfee9ea55344a4fbc2612a54e1ba17f762"
+      ]
+    },
+    {
+      "id": "I54b-R3",
+      "claim": "Between the base commit and HEAD only I54b's paths change: no file of M0-M4, no frozen file, nothing in holon/ or tools/.",
+      "check": "tests_m5/test_m5_truth_key.py::TestScope::test_only_i54b_paths_change",
+      "expected": 0
+    }
+  ],
+  "thresholds": {
+    "base_commit": "95a2288c72e4e476dc1620f2db905ecc42e98de3",
+    "instruments": {
+      "tests_m5/_i54b.py": "2c37dda834aa3c36760f99f6c3b8c8607869432fd3c2713889bda85d6ea22877",
+      "spec/M5/lib/truth_labels.schema.json": "ae92a0ce311405cf5f7b80715595032254d7a39cd4ec301c67672999ccc4f9e4",
+      "prompts/I54b_m5_truth_key.md": "c830879b952d076a859f2cdb29b62751a88b2362e01ce976c6db2c27c39e3be4"
+    },
+    "pins": {
+      "corpus_sha256": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+      "protocol_sha256": "015ea6d9641ca5690835615e8704dc1e16e8b23edec588e0c7bc749a6a758930",
+      "prompt_sha256": "75a1445a7f17f325047f222ad3cc92bfee9ea55344a4fbc2612a54e1ba17f762",
+      "schema_sha256": "ae92a0ce311405cf5f7b80715595032254d7a39cd4ec301c67672999ccc4f9e4",
+      "invocation_source_sha256": "600be4809044ae9a13b727a042aeb95960b038d0e74c0511f8910cfdd3148f05",
+      "texts": {
+        "c01": "2c0a32e59e48927a43e6535b0453d733ba833522c1dc4796982d20bcccf36872",
+        "c02": "13d42e680d6da5d8600b9b360cd4448c626eb1a83cc9cb5cd3fbc58bfe5c8409",
+        "c03": "18c5be89ed062c249d0e4d2f82c457a4fe535b4f56fdb3d900ddc42b4d69599e",
+        "c04": "7b25f54cd7bc9a70ad2244a0bc292261df8132535cb4054151425b711e0a56d2",
+        "c05": "c5f9a9fde9238a0a6b19dc9de5470814a1e5392292c10b65dba2643a30e9f8f6",
+        "c06": "a7b49ae98b4f05eb391dfc6a62a549645143eec26cf37e9cf980cbeec578d77b",
+        "c07": "2140939e6ba1350b73e64f26a9a6dca20f1d768947de1ea44ef8491049e803ce",
+        "c08": "44ead58b05bd87464059736e7c1a19dab02191aa2d46cc7a25653a5289e45164",
+        "c09": "84b2737b93709d252023e990a8feefff02d5cb45a313618041d66278a24fd0a4",
+        "c10": "81d03f4fbb2c49104766c7138db7ca36aff338ac1ce91645a67934018a1e97e9",
+        "c11": "b24449de3dd5692884c8d2727356586d11ae664adbd423d3bc5c76ac6fc8665a",
+        "c12": "5b6762ff26b14f03c1dc0dce975dd9376d3ce5101e8502b191a9fcfde760c821",
+        "c13": "d03332259ee5b77010fa41c5e77a0f1cdb11130745f3550f02e757882a5ec608",
+        "c14": "b0c94ad757da18d88c26b9fc7a470e082fbf3714838511d47f2e328542c920c1",
+        "c15": "2326e934d9cdfd6cbc8131048ebd64c639307809298e1f37c8a9fd5aa9d7c9a5",
+        "c16": "0596ad8bd8b07495f142e645aaf18e412632c5e1dec2071571be8c08263d57e7",
+        "c17": "a1c2ae99a368dea88ee88d41589413b448add729f04b85136ce80c947f37132e",
+        "c18": "8da38e05d955d06bbbe731c2beecb20455960946572cad5e5fe05f02df0027e9",
+        "c19": "b86e827b10568bfdb588782152d3af480f27125f6344cc1935b73aebcf016790",
+        "c20": "78bb2e8872c4df65ec6def9bd39515d59ec4168c73024c99753c8594f9e3d09a"
+      },
+      "packets": {
+        "c01.a": "499d441f09a6a6696d7eec16148c9f8ba35af5a63dd0ad10665f6e05e989fda1",
+        "c01.b": "499d441f09a6a6696d7eec16148c9f8ba35af5a63dd0ad10665f6e05e989fda1",
+        "c02.a": "1f8b9515a579d78f549947249152b678cff567980fada1b1edb7a6e8db81a141",
+        "c02.b": "1f8b9515a579d78f549947249152b678cff567980fada1b1edb7a6e8db81a141",
+        "c03.a": "0f73eae3f7dc1eeae36706f5ea89eb99f282394c48e58a2b1af806378a9bcd09",
+        "c03.b": "0f73eae3f7dc1eeae36706f5ea89eb99f282394c48e58a2b1af806378a9bcd09",
+        "c04.a": "f9497f2970edd9b86af57ff594fc8fc72d881f6f1453c3863da1954a6d8b76e5",
+        "c04.b": "f9497f2970edd9b86af57ff594fc8fc72d881f6f1453c3863da1954a6d8b76e5",
+        "c05.a": "c2e5ba676ba98eb3b4970a3699699dd0c414c8b25a9166b51e59bed1cc07e060",
+        "c05.b": "c2e5ba676ba98eb3b4970a3699699dd0c414c8b25a9166b51e59bed1cc07e060",
+        "c06.a": "5a8c02198f696a9f0c21cc21a7baca45ed2f32e6c67cdfdc9c58b1c10ba3d5a4",
+        "c06.b": "5a8c02198f696a9f0c21cc21a7baca45ed2f32e6c67cdfdc9c58b1c10ba3d5a4",
+        "c07.a": "739cd6be9c5e5061c7006941687b57ee11872bacfb09142133ebcdaafaede2c2",
+        "c07.b": "739cd6be9c5e5061c7006941687b57ee11872bacfb09142133ebcdaafaede2c2",
+        "c08.a": "b7534124eec13afef6633f0a3b91badce15122e688004013255a96501b22f164",
+        "c08.b": "b7534124eec13afef6633f0a3b91badce15122e688004013255a96501b22f164",
+        "c09.a": "bc5ddaabcb0d992571954e571df5331109ccac0b572feb2edd4060045c78eb75",
+        "c09.b": "bc5ddaabcb0d992571954e571df5331109ccac0b572feb2edd4060045c78eb75",
+        "c10.a": "1cc7222ac8d967e9c285e529ba09feb59bd01d7b21c33985d1986761e4a2c52b",
+        "c10.b": "1cc7222ac8d967e9c285e529ba09feb59bd01d7b21c33985d1986761e4a2c52b",
+        "c11.a": "8a610b267eba70f995ef2e0097960e277423ffb581574e9a9bc3b6438e12dbf9",
+        "c11.b": "8a610b267eba70f995ef2e0097960e277423ffb581574e9a9bc3b6438e12dbf9",
+        "c12.a": "0bf9ad3a11a2340533d7194ac1443230fa81e24868c2023d42a0e83e3029836d",
+        "c12.b": "0bf9ad3a11a2340533d7194ac1443230fa81e24868c2023d42a0e83e3029836d",
+        "c13.a": "fc811fbc09431acf0042c904ad26cbc695a2ccde30d951aefd53c56561773691",
+        "c13.b": "fc811fbc09431acf0042c904ad26cbc695a2ccde30d951aefd53c56561773691",
+        "c14.a": "ab8f6512ac3ef9da972bf7b4f83df2d77612b298dfc9bcd4e36fed57e75ab6bf",
+        "c14.b": "ab8f6512ac3ef9da972bf7b4f83df2d77612b298dfc9bcd4e36fed57e75ab6bf",
+        "c15.a": "f4691f821c49dc6c7c1a095897fa74757671a3a02dbd693d183190ae9b53f753",
+        "c15.b": "f4691f821c49dc6c7c1a095897fa74757671a3a02dbd693d183190ae9b53f753",
+        "c16.a": "42af9929b2ab5b22d278cc9dbc770d5a7214dba2d5921169d8d729a9a2136793",
+        "c16.b": "42af9929b2ab5b22d278cc9dbc770d5a7214dba2d5921169d8d729a9a2136793",
+        "c17.a": "0f97b1d515124c3bef15f17803aea61bc876a3f4ada1e809d2c5b92f2e3fceaf",
+        "c17.b": "0f97b1d515124c3bef15f17803aea61bc876a3f4ada1e809d2c5b92f2e3fceaf",
+        "c18.a": "e76212d2ac7912c7c3edc9b67dc87dc353d7e79a6f7edd465137242de3e7d52f",
+        "c18.b": "e76212d2ac7912c7c3edc9b67dc87dc353d7e79a6f7edd465137242de3e7d52f",
+        "c19.a": "9c52785a451d66c917903ef2c9257e66905b932ca5d112af7a73d1189668c057",
+        "c19.b": "9c52785a451d66c917903ef2c9257e66905b932ca5d112af7a73d1189668c057",
+        "c20.a": "d5472504303f9722d781d1e760b9fcff4de70fb92102a18e739ef86a240af31c",
+        "c20.b": "d5472504303f9722d781d1e760b9fcff4de70fb92102a18e739ef86a240af31c"
+      }
+    },
+    "texts": "truth_protocol.json inputs.text: entry title + \"\\n\" + description, verbatim from spec/eval/corpus.json; pins.texts holds the sha256 of each entry's UTF-8 text, for all 20 entries (c13 included: it is labelled like every entry; known_exclusions removes it from scoring, not from labelling)",
+    "packets": {
+      "path": "spec/M5/truth/packets/<id>.<role>.txt, role a or b, with spec/M5/truth/packets/index.json (truth_labels.schema.json#/$defs/packet_index)",
+      "content": "spec/M5/lib/truth_prompt.md with its one {{TEXT}} slot replaced, in one pass, by the entry's text; nothing else (no entry id, system, repository, source URL, fix commit, file list, label or justification beyond what the verbatim text itself holds). The packets of roles a and b of one entry are byte-identical; each is pinned on its own",
+      "count": 40,
+      "pins": "pins.packets: the sha256 of each packet's UTF-8 bytes, computed at the prereg from the pinned prompt and texts"
+    },
+    "answer": {
+      "message": "the labeller's final message is one JSON object (truth_labels.schema.json#/$defs/answer_object), the whole message or the whole message inside one fenced block (``` or ```json first line, ``` last line): I48's parse_response. Values are strings and quotes strings or null; a value outside its list is not a shape error (Q1 makes it undocumented)",
+      "file": "spec/M5/truth/answers/<family>/<id>.<role>.json (truth_labels.schema.json#/$defs/answer_file), one per entry and labeller, written only by python -m tests_m5._i54b answer (sessions) or run (the frozen invocation); every attempt is kept with its outcome",
+      "commit": "no answer file is committed or pushed before every one of its family's 40 answers is recorded: the 40 same-family answer files are added in exactly one commit (and the different-family ones, if any, in one commit), so no labeller can read another's committed answer (T5). A different-family labeller is never given access to the repository",
+      "retry": "I48's rule (corpus_protocol.json labelling_invocation.retry) with this protocol's answer: an attempt that gave no answer (cli_error, or no_response for a session) is retried, at most 5; an attempt that is not an answer (turns, unparsable, invalid) is followed by exactly one more; the answer is the last attempt's when ok, else null (every question undocumented). A retry is a new fresh process or session, never a follow-up message"
+    },
+    "agreement": {
+      "Q1": "a value outside its question's list, or a non-null quote with undocumented, makes that answer undocumented",
+      "Q2": "a quote that is not a string, or whose whitespace-collapsed form (Python re \\s+ to one space, nothing stripped) is not a substring of the text's collapsed form, makes that answer undocumented (a non-undocumented value with a null quote fails Q2)",
+      "Q3": "per question, the final value is a's when a and b both answered, both pass Q1-Q2 and give the same value; otherwise undocumented. There is no adjudicator; every disagreement and rule failure is listed in the run sidecar and never resolved",
+      "derived": "l6 and l10 exactly as truth_protocol.json derived",
+      "empty_quote": "Q2 is applied literally: a quote that is empty or whitespace only is a substring of every text and passes; the run sidecar lists every such quote (empty_quotes) so the measuring key and the human see them; they are never dropped or rewritten by the builder",
+      "builder": "the builder runs no labeller, writes no answer and resolves nothing"
+    },
+    "outputs": {
+      "same": "spec/M5/truth/corpus.json (the protocol's output path and format, truth_labels.schema.json#/$defs/truth_file) and spec/M5/truth/corpus.run.json (invocations, protocol_exact_invocation, model_check, disagreements, rule_failures, tally, per-answer outcomes and file sha256)",
+      "different": "spec/M5/truth/corpus_different.json and corpus_different.run.json, the same rules over answers/different/",
+      "comparison": "spec/M5/truth/family_comparison.json: per entry and per question the two families' final values, and equal/differ counts; pooled false",
+      "scoring_truth": "the key that measures L6 or L10 on the corpus pins the sha256 of the truth file it reads (I54 common.truth_pinning). The same-family file is the protocol's; a different-family file is reported beside it and never pooled with it",
+      "collector": "python -m tests_m5._i54b collect --family F [--check]: refuses, writing nothing, unless every frozen input hashes to its pin and every one of the 40 answer files of F passes truth_labels.schema.json, its path, role tag, invocation, packet path and packet_sha256 (the pin and the packet file's bytes), every attempt's recomputed outcome, the retry rule, and answer = the last ok attempt's parsed message. Deterministic"
+    },
+    "labellers": {
+      "per_entry": 2,
+      "roles": {
+        "a": "model tag A: the family's most capable model available",
+        "b": "model tag B: a smaller model of the same family, different from A"
+      },
+      "independence": "truth_protocol.json invocation, I48's labelling_invocation unchanged: one fresh process per prompt (an entry and a role), nothing else run in it. So the labelling takes exactly 40 fresh labellers (20 entries x 2 roles); no labeller sees two packets, another's answer, a label or a HOLON output",
+      "model_names": "never recorded in the repository; only the tags A and B",
+      "family_default": "same-family (Q9 default, the Q9b precedent): recorded as family same, and disclosed wherever corpus truth is reported as a limitation: the labellers share the builders' model family, so their independence comes from fresh contexts only",
+      "family_different": "if the human has an external agent of another family label (Q9a), it reads the same 40 packets, its answers go to answers/different/ (invocation external, tags A and B for its two labellers), its truth is corpus_different.json, and it is compared with the same-family truth (family_comparison.json), never pooled",
+      "launcher": "the coordinator launches every labeller; the builder launches none"
+    },
+    "invocation": {
+      "cli": "protocol-exact: python -m tests_m5._i54b run --role a --model <A> then --role b --model <B>, from a checkout: each packet in its own fresh `claude -p` process with corpus_protocol.json labelling_invocation's argv, system prompt, environment (env_removed dropped), fresh empty working directory under /tmp, stdin and timeout; tool-less; the model each call reports (modelUsage) is checked per tag outside the repository (one_model_per_role, a_differs_from_b). 40 processes, no cloud session",
+      "cloud_session": "a deviation from the frozen invocation, admitted only as disclosed: one fresh cloud session per packet (40), with no repository, whose first and only user message is the packet's bytes and whose appended system prompt is labelling_invocation.system_prompt; model per role as the tags say; the final message is recorded verbatim with python -m tests_m5._i54b answer --invocation cloud_session. It departs from the frozen invocation in that the session has tools (web access, and the account's repositories), num_turns is not checked, and the model is declared, not observed; the run sidecar records protocol_exact_invocation false and model_check declared",
+      "external": "the different-family path only: an external agent at the human's request (Q9a), one fresh context per packet, recorded with --invocation external",
+      "recommended": "cli: the only invocation that is the frozen one, and the only one in which a labeller cannot reach the corpus's labels or sources"
+    }
+  }
+}
