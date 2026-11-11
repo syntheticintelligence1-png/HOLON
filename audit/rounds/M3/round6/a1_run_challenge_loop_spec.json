@@ -1,0 +1,25 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "note": "Round 6 follow-up of the triage (a1_spec.json): the mutant rollup_challenge_loop, which the triage left incomplete (no statement changed, 141 laws touched), with its two decided laws over challengeState's loop re-run on the mutant and on the baseline (max_law_runs 4).",
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 4
+ },
+ "mutations": [
+  {
+   "id": "rollup_challenge_loop",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 489,
+    "old": "i <= lastCommittedBatchIndex",
+    "new": "i < lastCommittedBatchIndex"
+   },
+   "laws": [
+    "L_contract_C_o12_m3",
+    "L_undo_cancel_Rollup_challengeState_setPause"
+   ],
+   "expect": "off-by-one loop bound in challengeState: the last committed batch no longer gets its finalizeTimestamp extended by proofWindow while another batch is challenged. The O12 laws over challengeState's accumulating loop should see it. Not equivalent whenever lastCommittedBatchIndex > batchIndex."
+  }
+ ]
+}
