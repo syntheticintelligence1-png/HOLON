@@ -1,0 +1,11 @@
+{
+  "clause": "@notice Only the owner can pause the contract.",
+  "family": "access",
+  "file": "C741f84.sol",
+  "id": "i_access_wrong_2",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity 0.8.24;\n\ncontract C741f84 {\n    address public owner;\n    bool public stopped;\n\n    constructor() {\n        owner = msg.sender;\n    }\n\n    /// @notice Only the owner can pause the contract.\n    function pause() external {\n        stopped = true;\n    }\n}\n",
+  "truth": {
+    "obstruction": true,
+    "why": "pause has no owner check"
+  }
+}

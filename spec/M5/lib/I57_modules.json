@@ -1,0 +1,35 @@
+{
+  "doc": "I57 (frozen at the I57 prereg; pinned by sha256 in the key I57 and in tests_m5/test_i57_environment.py PINNED): the three environment modules that I57 builds, one per L9 category, as module records of spec/M5/lib/inputs.schema.json#/$defs/module_record. Every parameter is a premise taken from a cited specification or from the target's code, never fitted to observations (I54 L9 R6); the measuring key I57 pins the same values in thresholds.pinned_parameters. A parameter is a premise of the laws that cite the module, not a fact about mainnet (BUILD_PLAN I57 risk). producers: the code that wrote or chose by the module's parameter (I54 L9 R1: an observation set from one of them is not truth for the module). The observation tool spec/M5/lib/I57_observe.py never reads this file.",
+  "modules": [
+    {
+      "id": "env-da-retention",
+      "family": "window",
+      "category": "da",
+      "parameters": {"W": 131072},
+      "provenance": "premise",
+      "producers": ["holon.historical.fetch"],
+      "observations": ["obs-da-beacon"],
+      "citation": "W in beacon slots: MIN_EPOCHS_FOR_BLOB_SIDECARS_REQUESTS (4096 epochs) x SLOTS_PER_EPOCH (32), the consensus specification's minimum retention of blob sidecars (Deneb p2p-interface; kept by Fulu for data column sidecars). holon/historical/fetch.py RETENTION_SLOTS is the same value, so holon.historical.fetch is a producer. The window family predicts retrievable iff q - t <= W: an exact window, not a lower bound."
+    },
+    {
+      "id": "env-l1-confirmations",
+      "family": "finality_depth",
+      "category": "l1_chain",
+      "parameters": {"d": 10},
+      "provenance": "premise",
+      "producers": [],
+      "observations": ["obs-l1-depth"],
+      "citation": "d in L1 execution blocks: the target's derivation default, node/derivation/config.go DefaultConfirmations = rpc.BlockNumber(10) (latest-10) at the pinned commit 3e44e795586af3e11285b603ab642c67823add51 of the checkout config/holon.json extract.sources names. The premise: a block at least d below the head stays canonical."
+    },
+    {
+      "id": "env-fetch-archive",
+      "family": "availability",
+      "category": "fetcher",
+      "parameters": {},
+      "provenance": "premise",
+      "producers": [],
+      "observations": ["obs-fetch-archive"],
+      "citation": "the blob archive fetcher (the history source of spec/M2/lib/historical.json sources.blob_archive): asked for a versioned hash, it returns exactly the committed blob (the KZG-checked bytes) and nothing for a hash that no transaction committed."
+    }
+  ]
+}

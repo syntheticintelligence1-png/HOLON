@@ -1,0 +1,1488 @@
+{
+  "documents": {
+    "L1CrossDomainMessenger": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519",
+    "L1MessageQueueWithGasPriceOracle": "32786cbfecfc119492d4b12e1d29c02201c3b34d3adebeb6bd0553b118112d8c",
+    "L1Staking": "fa1b32ee17983fc8e1baa0ec08668110166ae46db97fd39fd9c33ba355d6dcad",
+    "MultipleVersionRollupVerifier": "21fd24096fa35027659641793f26a856961e5ab1ad1844f0600498e2c870b920",
+    "Rollup": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+    "Submitter": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2",
+    "Whitelist": "b122193f3b70420b928d127f39e99c0fbe402e598532ef8776da083696e66533"
+  },
+  "entries": [
+    {
+      "action": "L1CrossDomainMessenger.proveAndRelayMessage",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM2"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "param",
+            "_value"
+          ],
+          "asset": "eth",
+          "cond": 1,
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "_to"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:161"
+        }
+      ]
+    },
+    {
+      "action": "L1CrossDomainMessenger.receive",
+      "class": "L1CrossDomainMessenger.onlyOwner",
+      "complete": true,
+      "constructs": [
+        "VM1"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/libraries/CrossDomainMessenger.sol:90"
+        }
+      ]
+    },
+    {
+      "action": "L1CrossDomainMessenger.replayMessage",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM1",
+        "VM2"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:175-244"
+        },
+        {
+          "amount": [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+              "param",
+              "_from"
+            ],
+            [
+              "param",
+              "_newGasLimit"
+            ]
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "call",
+              "IL1MessageQueue.estimateCrossDomainMessageFee",
+              [
+                "param",
+                "_from"
+              ],
+              [
+                "param",
+                "_newGasLimit"
+              ]
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "storage",
+            "feeVault"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:203"
+        },
+        {
+          "amount": [
+            "-",
+            [
+              "env",
+              "msg.value"
+            ],
+            [
+              "call",
+              "IL1MessageQueue.estimateCrossDomainMessageFee",
+              [
+                "param",
+                "_from"
+              ],
+              [
+                "param",
+                "_newGasLimit"
+              ]
+            ]
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "-",
+              [
+                "env",
+                "msg.value"
+              ],
+              [
+                "call",
+                "IL1MessageQueue.estimateCrossDomainMessageFee",
+                [
+                  "param",
+                  "_from"
+                ],
+                [
+                  "param",
+                  "_newGasLimit"
+                ]
+              ]
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "_refundAddress"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:240"
+        }
+      ]
+    },
+    {
+      "action": "L1CrossDomainMessenger.sendMessage_5f7b1577",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM1",
+        "VM2"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:112-120"
+        },
+        {
+          "amount": [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+              "caller"
+            ],
+            [
+              "param",
+              "_gasLimit"
+            ]
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "call",
+              "IL1MessageQueue.estimateCrossDomainMessageFee",
+              [
+                "caller"
+              ],
+              [
+                "param",
+                "_gasLimit"
+              ]
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "storage",
+            "feeVault"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293"
+        },
+        {
+          "amount": [
+            "-",
+            [
+              "-",
+              [
+                "env",
+                "msg.value"
+              ],
+              [
+                "call",
+                "IL1MessageQueue.estimateCrossDomainMessageFee",
+                [
+                  "caller"
+                ],
+                [
+                  "param",
+                  "_gasLimit"
+                ]
+              ]
+            ],
+            [
+              "param",
+              "_value"
+            ]
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "-",
+              [
+                "-",
+                [
+                  "env",
+                  "msg.value"
+                ],
+                [
+                  "call",
+                  "IL1MessageQueue.estimateCrossDomainMessageFee",
+                  [
+                    "caller"
+                  ],
+                  [
+                    "param",
+                    "_gasLimit"
+                  ]
+                ]
+              ],
+              [
+                "param",
+                "_value"
+              ]
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "_refundAddress"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+        }
+      ]
+    },
+    {
+      "action": "L1CrossDomainMessenger.sendMessage_b2267a7b",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM1",
+        "VM2"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:102-109"
+        },
+        {
+          "amount": [
+            "call",
+            "IL1MessageQueue.estimateCrossDomainMessageFee",
+            [
+              "caller"
+            ],
+            [
+              "param",
+              "_gasLimit"
+            ]
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "call",
+              "IL1MessageQueue.estimateCrossDomainMessageFee",
+              [
+                "caller"
+              ],
+              [
+                "param",
+                "_gasLimit"
+              ]
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "storage",
+            "feeVault"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293"
+        },
+        {
+          "amount": [
+            "-",
+            [
+              "-",
+              [
+                "env",
+                "msg.value"
+              ],
+              [
+                "call",
+                "IL1MessageQueue.estimateCrossDomainMessageFee",
+                [
+                  "caller"
+                ],
+                [
+                  "param",
+                  "_gasLimit"
+                ]
+              ]
+            ],
+            [
+              "param",
+              "_value"
+            ]
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "-",
+              [
+                "-",
+                [
+                  "env",
+                  "msg.value"
+                ],
+                [
+                  "call",
+                  "IL1MessageQueue.estimateCrossDomainMessageFee",
+                  [
+                    "caller"
+                  ],
+                  [
+                    "param",
+                    "_gasLimit"
+                  ]
+                ]
+              ],
+              [
+                "param",
+                "_value"
+              ]
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+        }
+      ]
+    },
+    {
+      "action": "L1Staking.claimSlashRemaining",
+      "class": "L1Staking.onlyOwner",
+      "complete": true,
+      "constructs": [
+        "VM2"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "storage",
+            "slashRemaining"
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "storage",
+              "slashRemaining"
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "receiver"
+          ],
+          "src": "contracts/contracts/l1/staking/L1Staking.sol:467"
+        }
+      ]
+    },
+    {
+      "action": "L1Staking.claimWithdrawal",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM2"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "storage",
+            "stakingValue"
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "storage",
+              "stakingValue"
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "receiver"
+          ],
+          "src": "contracts/contracts/l1/staking/L1Staking.sol:467"
+        }
+      ]
+    },
+    {
+      "action": "L1Staking.register",
+      "class": "L1Staking.inWhitelist",
+      "complete": true,
+      "constructs": [
+        "VM1",
+        "VM4"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/staking/L1Staking.sol:161-175"
+        },
+        {
+          "callee": "L1CrossDomainMessenger.sendMessage_b2267a7b",
+          "construct": "VM4",
+          "effects": [
+            {
+              "amount": [
+                "call",
+                "IL1MessageQueue.estimateCrossDomainMessageFee",
+                [
+                  "caller"
+                ],
+                [
+                  "param",
+                  "_gasLimit"
+                ]
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "storage",
+                "feeVault"
+              ],
+              "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293"
+            },
+            {
+              "amount": [
+                "-",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.value"
+                  ],
+                  [
+                    "call",
+                    "IL1MessageQueue.estimateCrossDomainMessageFee",
+                    [
+                      "caller"
+                    ],
+                    [
+                      "param",
+                      "_gasLimit"
+                    ]
+                  ]
+                ],
+                [
+                  "param",
+                  "_value"
+                ]
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "caller"
+              ],
+              "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+            }
+          ],
+          "fn": "ICrossDomainMessenger.sendMessage_b2267a7b",
+          "params": [
+            {
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "name": "_value",
+              "type": "uint256"
+            },
+            {
+              "name": "_message",
+              "type": "bytes"
+            },
+            {
+              "name": "_gasLimit",
+              "type": "uint256"
+            }
+          ],
+          "src": "contracts/contracts/l1/staking/L1Staking.sol:475-480"
+        }
+      ]
+    },
+    {
+      "action": "L1Staking.removeStaker",
+      "class": "L1Staking.onlyOwner",
+      "complete": true,
+      "constructs": [
+        "VM4"
+      ],
+      "flows": [
+        {
+          "callee": "L1CrossDomainMessenger.sendMessage_b2267a7b",
+          "construct": "VM4",
+          "effects": [
+            {
+              "amount": [
+                "call",
+                "IL1MessageQueue.estimateCrossDomainMessageFee",
+                [
+                  "caller"
+                ],
+                [
+                  "param",
+                  "_gasLimit"
+                ]
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "storage",
+                "feeVault"
+              ],
+              "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293"
+            },
+            {
+              "amount": [
+                "-",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.value"
+                  ],
+                  [
+                    "call",
+                    "IL1MessageQueue.estimateCrossDomainMessageFee",
+                    [
+                      "caller"
+                    ],
+                    [
+                      "param",
+                      "_gasLimit"
+                    ]
+                  ]
+                ],
+                [
+                  "param",
+                  "_value"
+                ]
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "caller"
+              ],
+              "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+            }
+          ],
+          "fn": "ICrossDomainMessenger.sendMessage_b2267a7b",
+          "params": [
+            {
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "name": "_value",
+              "type": "uint256"
+            },
+            {
+              "name": "_message",
+              "type": "bytes"
+            },
+            {
+              "name": "_gasLimit",
+              "type": "uint256"
+            }
+          ],
+          "src": "contracts/contracts/l1/staking/L1Staking.sol:486-491"
+        }
+      ]
+    },
+    {
+      "action": "L1Staking.slash",
+      "class": null,
+      "complete": true,
+      "constructs": [
+        "VM2",
+        "VM4"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "/",
+            [
+              "*",
+              [
+                "exit",
+                "contracts/contracts/l1/staking/L1Staking.sol:221-233",
+                "valueSum"
+              ],
+              [
+                "storage",
+                "rewardPercentage"
+              ]
+            ],
+            100
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "/",
+              [
+                "*",
+                [
+                  "exit",
+                  "contracts/contracts/l1/staking/L1Staking.sol:221-233",
+                  "valueSum"
+                ],
+                [
+                  "storage",
+                  "rewardPercentage"
+                ]
+              ],
+              100
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "storage",
+            "rollupContract"
+          ],
+          "src": "contracts/contracts/l1/staking/L1Staking.sol:467"
+        },
+        {
+          "callee": "L1CrossDomainMessenger.sendMessage_b2267a7b",
+          "construct": "VM4",
+          "effects": [
+            {
+              "amount": [
+                "call",
+                "IL1MessageQueue.estimateCrossDomainMessageFee",
+                [
+                  "caller"
+                ],
+                [
+                  "param",
+                  "_gasLimit"
+                ]
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "storage",
+                "feeVault"
+              ],
+              "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293"
+            },
+            {
+              "amount": [
+                "-",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.value"
+                  ],
+                  [
+                    "call",
+                    "IL1MessageQueue.estimateCrossDomainMessageFee",
+                    [
+                      "caller"
+                    ],
+                    [
+                      "param",
+                      "_gasLimit"
+                    ]
+                  ]
+                ],
+                [
+                  "param",
+                  "_value"
+                ]
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "caller"
+              ],
+              "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+            }
+          ],
+          "fn": "ICrossDomainMessenger.sendMessage_b2267a7b",
+          "params": [
+            {
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "name": "_value",
+              "type": "uint256"
+            },
+            {
+              "name": "_message",
+              "type": "bytes"
+            },
+            {
+              "name": "_gasLimit",
+              "type": "uint256"
+            }
+          ],
+          "src": "contracts/contracts/l1/staking/L1Staking.sol:486-491"
+        }
+      ]
+    },
+    {
+      "action": "L1Staking.withdraw",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM4"
+      ],
+      "flows": [
+        {
+          "callee": "L1CrossDomainMessenger.sendMessage_b2267a7b",
+          "construct": "VM4",
+          "effects": [
+            {
+              "amount": [
+                "call",
+                "IL1MessageQueue.estimateCrossDomainMessageFee",
+                [
+                  "caller"
+                ],
+                [
+                  "param",
+                  "_gasLimit"
+                ]
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "storage",
+                "feeVault"
+              ],
+              "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:293"
+            },
+            {
+              "amount": [
+                "-",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.value"
+                  ],
+                  [
+                    "call",
+                    "IL1MessageQueue.estimateCrossDomainMessageFee",
+                    [
+                      "caller"
+                    ],
+                    [
+                      "param",
+                      "_gasLimit"
+                    ]
+                  ]
+                ],
+                [
+                  "param",
+                  "_value"
+                ]
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "caller"
+              ],
+              "src": "contracts/contracts/l1/L1CrossDomainMessenger.sol:313"
+            }
+          ],
+          "fn": "ICrossDomainMessenger.sendMessage_b2267a7b",
+          "params": [
+            {
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "name": "_value",
+              "type": "uint256"
+            },
+            {
+              "name": "_message",
+              "type": "bytes"
+            },
+            {
+              "name": "_gasLimit",
+              "type": "uint256"
+            }
+          ],
+          "src": "contracts/contracts/l1/staking/L1Staking.sol:486-491"
+        }
+      ]
+    },
+    {
+      "action": "Rollup.challengeState",
+      "class": "Rollup.onlyChallenger",
+      "complete": true,
+      "constructs": [
+        "VM1"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:471-496"
+        }
+      ]
+    },
+    {
+      "action": "Rollup.claimProveRemaining",
+      "class": "Rollup.onlyOwner",
+      "complete": true,
+      "constructs": [
+        "VM2"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "storage",
+            "proveRemaining"
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "storage",
+              "proveRemaining"
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "receiver"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:816"
+        }
+      ]
+    },
+    {
+      "action": "Rollup.claimReward",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM2",
+        "VM3"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "map",
+            [
+              "storage",
+              "batchChallengeReward"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "asset": "eth",
+          "cond": [
+            ">",
+            [
+              "map",
+              [
+                "storage",
+                "batchChallengeReward"
+              ],
+              [
+                "caller"
+              ]
+            ],
+            0
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "receiver"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:816"
+        },
+        {
+          "asset": "eth",
+          "construct": "VM3",
+          "direction": "delta",
+          "family": "batchChallengeReward",
+          "key": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:675"
+        }
+      ]
+    },
+    {
+      "action": "Rollup.commitBatch",
+      "class": "Rollup.onlyActiveSubmitter",
+      "complete": true,
+      "constructs": [
+        "VM1"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:255-269"
+        }
+      ]
+    },
+    {
+      "action": "Rollup.proveState",
+      "class": "Rollup.onlyActiveSubmitter",
+      "complete": true,
+      "constructs": [
+        "VM3",
+        "VM4"
+      ],
+      "flows": [
+        {
+          "asset": "eth",
+          "construct": "VM3",
+          "direction": "delta",
+          "family": "batchChallengeReward",
+          "key": [
+            "member",
+            [
+              "map",
+              [
+                "storage",
+                "challenges"
+              ],
+              [
+                ">>",
+                [
+                  "word",
+                  [
+                    "param",
+                    "_batchHeader"
+                  ],
+                  1
+                ],
+                192
+              ]
+            ],
+            "challenger"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:807"
+        },
+        {
+          "asset": "eth",
+          "construct": "VM3",
+          "direction": "delta",
+          "family": "batchChallengeReward",
+          "key": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:795"
+        },
+        {
+          "callee": "Submitter.slash",
+          "construct": "VM4",
+          "effects": [
+            {
+              "amount": null,
+              "asset": "eth",
+              "family": "stakeOf",
+              "key": [
+                "param",
+                "submitter"
+              ],
+              "kind": "ledger",
+              "shape": "zero",
+              "src": "contracts/contracts/l1/rollup/Submitter.sol:151"
+            },
+            {
+              "amount": [
+                "/",
+                [
+                  "*",
+                  [
+                    "map",
+                    [
+                      "storage",
+                      "stakeOf"
+                    ],
+                    [
+                      "param",
+                      "submitter"
+                    ]
+                  ],
+                  [
+                    "storage",
+                    "rewardPercentage"
+                  ]
+                ],
+                100
+              ],
+              "asset": "eth",
+              "kind": "transfer",
+              "receiver": [
+                "storage",
+                "rollupContract"
+              ],
+              "src": "contracts/contracts/l1/rollup/Submitter.sol:178"
+            }
+          ],
+          "fn": "ISubmitter.slash",
+          "params": [
+            {
+              "name": "submitter",
+              "type": "address"
+            }
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:806"
+        }
+      ]
+    },
+    {
+      "action": "Rollup.receive",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM1"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:148"
+        }
+      ]
+    },
+    {
+      "action": "Rollup.revertBatch",
+      "class": "Rollup.onlyOwner",
+      "complete": true,
+      "constructs": [
+        "VM3"
+      ],
+      "flows": [
+        {
+          "asset": "eth",
+          "construct": "VM3",
+          "direction": "delta",
+          "family": "batchChallengeReward",
+          "key": [
+            "member",
+            [
+              "map",
+              [
+                "carried",
+                "contracts/contracts/l1/rollup/Rollup.sol:444-467",
+                [
+                  "storage",
+                  "challenges"
+                ]
+              ],
+              [
+                "+",
+                [
+                  ">>",
+                  [
+                    "word",
+                    [
+                      "param",
+                      "_batchHeader"
+                    ],
+                    1
+                  ],
+                  192
+                ],
+                [
+                  "iter",
+                  "contracts/contracts/l1/rollup/Rollup.sol:444-467"
+                ]
+              ]
+            ],
+            "challenger"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:450"
+        }
+      ]
+    },
+    {
+      "action": "Rollup.setPause",
+      "class": "Rollup.onlyOwner",
+      "complete": true,
+      "constructs": [
+        "VM3"
+      ],
+      "flows": [
+        {
+          "asset": "eth",
+          "construct": "VM3",
+          "direction": "delta",
+          "family": "batchChallengeReward",
+          "key": [
+            "member",
+            [
+              "map",
+              [
+                "storage",
+                "challenges"
+              ],
+              [
+                "storage",
+                "batchChallenged"
+              ]
+            ],
+            "challenger"
+          ],
+          "src": "contracts/contracts/l1/rollup/Rollup.sol:578-579"
+        }
+      ]
+    },
+    {
+      "action": "Submitter.claimSlashRemaining",
+      "class": "Submitter.onlyOwner",
+      "complete": true,
+      "constructs": [
+        "VM2"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "storage",
+            "slashRemaining"
+          ],
+          "asset": "eth",
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "storage",
+                "slashRemaining"
+              ],
+              0
+            ]
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "receiver"
+          ],
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:178"
+        }
+      ]
+    },
+    {
+      "action": "Submitter.claimWithdrawal",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM2",
+        "VM3"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "map",
+            [
+              "storage",
+              "stakeOf"
+            ],
+            [
+              "caller"
+            ]
+          ],
+          "asset": "eth",
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "map",
+                [
+                  "storage",
+                  "stakeOf"
+                ],
+                [
+                  "caller"
+                ]
+              ],
+              0
+            ]
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "param",
+            "receiver"
+          ],
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:178"
+        },
+        {
+          "asset": "eth",
+          "construct": "VM3",
+          "direction": "delta",
+          "family": "stakeOf",
+          "key": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:139"
+        }
+      ]
+    },
+    {
+      "action": "Submitter.slash",
+      "class": null,
+      "complete": true,
+      "constructs": [
+        "VM2",
+        "VM3"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "/",
+            [
+              "*",
+              [
+                "map",
+                [
+                  "storage",
+                  "stakeOf"
+                ],
+                [
+                  "param",
+                  "submitter"
+                ]
+              ],
+              [
+                "storage",
+                "rewardPercentage"
+              ]
+            ],
+            100
+          ],
+          "asset": "eth",
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "param",
+                  "submitter"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "/",
+                  [
+                    "*",
+                    [
+                      "map",
+                      [
+                        "storage",
+                        "stakeOf"
+                      ],
+                      [
+                        "param",
+                        "submitter"
+                      ]
+                    ],
+                    [
+                      "storage",
+                      "rewardPercentage"
+                    ]
+                  ],
+                  100
+                ],
+                0
+              ]
+            ]
+          ],
+          "construct": "VM2",
+          "direction": "credit",
+          "party": [
+            "storage",
+            "rollupContract"
+          ],
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:178"
+        },
+        {
+          "asset": "eth",
+          "construct": "VM3",
+          "direction": "delta",
+          "family": "stakeOf",
+          "key": [
+            "param",
+            "submitter"
+          ],
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:151"
+        }
+      ]
+    },
+    {
+      "action": "Submitter.stake",
+      "class": "anyone",
+      "complete": true,
+      "constructs": [
+        "VM1",
+        "VM3"
+      ],
+      "flows": [
+        {
+          "amount": [
+            "env",
+            "msg.value"
+          ],
+          "asset": "eth",
+          "construct": "VM1",
+          "direction": "debit",
+          "party": [
+            "caller"
+          ],
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:112-118"
+        },
+        {
+          "asset": "eth",
+          "construct": "VM3",
+          "direction": "delta",
+          "family": "stakeOf",
+          "key": [
+            "param",
+            "submitter"
+          ],
+          "src": "contracts/contracts/l1/rollup/Submitter.sol:116"
+        }
+      ]
+    }
+  ],
+  "flows_version": "holon-value-flows/0.1",
+  "ledgers": [
+    {
+      "asset": "eth",
+      "family": "batchChallengeReward",
+      "member": "Rollup"
+    },
+    {
+      "asset": "eth",
+      "family": "stakeOf",
+      "member": "Submitter"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "actions": [
+    {
+      "by": [
+        "a5dc1be"
+      ],
+      "effect": [
+        [
+          "set",
+          "vbef6de",
+          1
+        ]
+      ],
+      "flows": {
+        "caller": {
+          "sab145f": -2
+        }
+      },
+      "guard": [
+        [
+          "eq",
+          "vbef6de",
+          0
+        ]
+      ],
+      "id": "ff5a72b"
+    },
+    {
+      "by": [
+        "a5dc1be"
+      ],
+      "effect": [
+        [
+          "set",
+          "vbef6de",
+          2
+        ]
+      ],
+      "flows": {},
+      "guard": [
+        [
+          "eq",
+          "vbef6de",
+          1
+        ]
+      ],
+      "id": "ff97706"
+    },
+    {
+      "by": [
+        "a5dc1be"
+      ],
+      "effect": [
+        [
+          "set",
+          "vbef6de",
+          3
+        ]
+      ],
+      "flows": {
+        "caller": {
+          "sab145f": 2
+        }
+      },
+      "guard": [
+        [
+          "eq",
+          "vbef6de",
+          2
+        ]
+      ],
+      "id": "fc9c9cb"
+    }
+  ],
+  "actors": [
+    {
+      "id": "a58bbe9",
+      "trusted": true
+    },
+    {
+      "id": "a5dc1be",
+      "trusted": false
+    }
+  ],
+  "assets": [
+    "sab145f"
+  ],
+  "bad": [
+    [
+      "ge",
+      "vbef6de",
+      2
+    ]
+  ],
+  "family": "recoup",
+  "horizon": 3,
+  "id": "g_recoup_2",
+  "semantics": "single deviator: one class acts, the others take no action; each action at most once per schedule; holdings start at 0; payoff at the schedule's end",
+  "truth": {
+    "classes": {
+      "a58bbe9": "irrational",
+      "a5dc1be": "rational"
+    },
+    "depth": 3,
+    "verdict": "rational"
+  },
+  "vars": {
+    "vbef6de": 0
+  },
+  "witness": [
+    {
+      "action": "ff5a72b",
+      "caller": "a5dc1be"
+    },
+    {
+      "action": "ff97706",
+      "caller": "a5dc1be"
+    }
+  ]
+}

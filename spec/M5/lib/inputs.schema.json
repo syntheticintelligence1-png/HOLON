@@ -1,0 +1,644 @@
+{
+  "$defs": {
+    "atom_clause": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "lines": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "file",
+        "lines",
+        "text"
+      ],
+      "type": "object"
+    },
+    "census_clause": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[0-9a-f]{16}$",
+          "type": "string"
+        },
+        "lines": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "tag": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "file",
+        "lines",
+        "text"
+      ],
+      "type": "object"
+    },
+    "env_premise": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "l1_chain",
+            "da",
+            "fetcher"
+          ]
+        },
+        "form": {
+          "enum": [
+            "axiom",
+            "havoc",
+            "module"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "module": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "form"
+      ],
+      "type": "object"
+    },
+    "environment_block": {
+      "additionalProperties": false,
+      "properties": {
+        "carriers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "premises": {
+          "items": {
+            "$ref": "#/$defs/env_premise"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "premises"
+      ],
+      "type": "object"
+    },
+    "evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "law": {
+          "type": "string"
+        },
+        "law_present": {
+          "type": "boolean"
+        },
+        "marker": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "law",
+        "marker",
+        "law_present"
+      ],
+      "type": "object"
+    },
+    "game_class": {
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "type": "string"
+        },
+        "payoff": {
+          "enum": [
+            "nonneg",
+            "negative",
+            "incomparable",
+            null
+          ]
+        },
+        "strategy_length": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "trusted": {
+          "type": "boolean"
+        },
+        "verdict": {
+          "enum": [
+            "rational",
+            "irrational",
+            "irrational_bounded",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "required": [
+        "class",
+        "trusted",
+        "verdict",
+        "payoff"
+      ],
+      "type": "object"
+    },
+    "game_control": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "by": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "effect": {
+                "type": "array"
+              },
+              "flows": {
+                "type": "object"
+              },
+              "guard": {
+                "type": "array"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "by",
+              "guard",
+              "effect",
+              "flows"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "actors": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "trusted": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "trusted"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "assets": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "bad": {
+          "type": "array"
+        },
+        "family": {
+          "type": "string"
+        },
+        "horizon": {
+          "type": "integer"
+        },
+        "id": {
+          "pattern": "^g_[a-z_]+_[0-9]+$",
+          "type": "string"
+        },
+        "semantics": {
+          "type": "string"
+        },
+        "truth": {
+          "additionalProperties": false,
+          "properties": {
+            "classes": {
+              "type": "object"
+            },
+            "depth": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "verdict": {
+              "enum": [
+                "rational",
+                "irrational",
+                "UNKNOWN"
+              ]
+            }
+          },
+          "required": [
+            "verdict",
+            "classes",
+            "depth"
+          ],
+          "type": "object"
+        },
+        "vars": {
+          "type": "object"
+        },
+        "witness": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "caller": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "caller"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "semantics",
+        "actors",
+        "assets",
+        "actions",
+        "bad",
+        "horizon",
+        "witness",
+        "truth"
+      ],
+      "type": "object"
+    },
+    "game_record": {
+      "additionalProperties": false,
+      "properties": {
+        "classes": {
+          "items": {
+            "$ref": "#/$defs/game_class"
+          },
+          "type": "array"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "finding": {
+          "type": "string"
+        },
+        "horizon": {
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "target",
+            "control",
+            "corpus"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "value_flows_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "rational",
+            "irrational",
+            "irrational_bounded",
+            "UNKNOWN"
+          ]
+        },
+        "witness_in_space": {
+          "type": "boolean"
+        },
+        "witness_length": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "finding",
+        "kind",
+        "verdict",
+        "classes",
+        "horizon",
+        "witness_length",
+        "witness_in_space",
+        "evidence",
+        "value_flows_sha256"
+      ],
+      "type": "object"
+    },
+    "intent_control": {
+      "additionalProperties": false,
+      "properties": {
+        "clause": {
+          "type": "string"
+        },
+        "family": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^i_[a-z_]+_[0-9]+$",
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "truth": {
+          "additionalProperties": false,
+          "properties": {
+            "obstruction": {
+              "type": "boolean"
+            },
+            "why": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "obstruction"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "source",
+        "file",
+        "clause",
+        "truth"
+      ],
+      "type": "object"
+    },
+    "intent_law": {
+      "additionalProperties": false,
+      "properties": {
+        "clauses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "control": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "law": {
+          "type": "string"
+        },
+        "review": {
+          "additionalProperties": false,
+          "properties": {
+            "compiler": {
+              "type": "string"
+            },
+            "reviewer": {
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "faithful",
+                "unfaithful",
+                "absent"
+              ]
+            }
+          },
+          "required": [
+            "reviewer",
+            "compiler",
+            "verdict"
+          ],
+          "type": "object"
+        },
+        "status": {
+          "enum": [
+            "PROVED",
+            "REFUTED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "required": [
+        "law",
+        "clauses",
+        "status",
+        "evidence",
+        "review"
+      ],
+      "type": "object"
+    },
+    "module_record": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "l1_chain",
+            "da",
+            "fetcher"
+          ]
+        },
+        "citation": {
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "window",
+            "finality_depth",
+            "availability"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "observations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "producers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "provenance": {
+          "enum": [
+            "premise",
+            "fit_slice_0"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "category",
+        "parameters",
+        "provenance",
+        "observations"
+      ],
+      "type": "object"
+    },
+    "observation": {
+      "properties": {
+        "observed": {
+          "type": "boolean"
+        },
+        "t": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "t",
+        "observed"
+      ],
+      "type": "object"
+    },
+    "observation_set": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/observation"
+          },
+          "type": "array"
+        },
+        "producer": {
+          "type": "string"
+        },
+        "reads": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "set": {
+          "type": "string"
+        },
+        "source_sha256": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "set",
+        "producer",
+        "reads",
+        "items"
+      ],
+      "type": "object"
+    },
+    "sensitivity_pair": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "law": {
+          "type": "string"
+        },
+        "module": {
+          "type": "string"
+        },
+        "replay": {
+          "enum": [
+            "passed",
+            "failed",
+            "absent"
+          ]
+        },
+        "status_axiom": {
+          "enum": [
+            "PROVED",
+            "REFUTED",
+            "UNKNOWN"
+          ]
+        },
+        "status_module": {
+          "enum": [
+            "PROVED",
+            "REFUTED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "required": [
+        "law",
+        "module",
+        "status_axiom",
+        "status_module",
+        "replay"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "I54: the records the L6, L9 and L10 metrics read (spec/M5/preregistration.json; holon.m5.metrics). Frozen at the I54 prereg."
+}

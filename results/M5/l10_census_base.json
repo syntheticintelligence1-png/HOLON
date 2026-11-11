@@ -1,0 +1,881 @@
+{
+  "clauses": [
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "f4f5825ba206ddaf",
+      "lines": [
+        106,
+        109
+      ],
+      "tag": null,
+      "text": "In particular, a failed legacy transition validation must never leak an unvalidated batch to the commit path."
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "c25b7cb0c5a965d5",
+      "lines": [
+        780,
+        782
+      ],
+      "tag": null,
+      "text": "validateCommittedTip closes the same-index reorg/revert window left by an FI/CI/K tuple check."
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "583b43d29e5d70fb",
+      "lines": [
+        880,
+        883
+      ],
+      "tag": null,
+      "text": "in that case the persisted canonical window must begin at FI+1, whose embedded parent header is validated below."
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "f991dc13d14bb056",
+      "lines": [
+        1162,
+        1163
+      ],
+      "tag": null,
+      "text": "ClearCurrent clears current block data Note: lock must be held before calling this method"
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "5d2f42023c8d421f",
+      "lines": [
+        1292,
+        1300
+      ],
+      "tag": null,
+      "text": "Note: This method should be called after block is confirmed, appending data from currentBlockContext to batch"
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "b6718aafe64c62ce",
+      "lines": [
+        1397,
+        1400
+      ],
+      "tag": null,
+      "text": "The live SealBatch path (nil replay index) always supplies an empty set and therefore always produces a zero sequencer-set field."
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "dee49c6274ea41d8",
+      "lines": [
+        1397,
+        1400
+      ],
+      "tag": null,
+      "text": "sequencerSetBytes/hash are accepted only for replay of canonical batches at or before the legacy cutover."
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "16a485c4d16000bd",
+      "lines": [
+        1739,
+        1745
+      ],
+      "tag": null,
+      "text": "Exported for derivation local verify (SPEC-005), which must rebuild blob bytes from local L2 blocks using the same encoding the sequencer applied at seal time."
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "ae66fed4f9a64f26",
+      "lines": [
+        1797,
+        1798
+      ],
+      "tag": null,
+      "text": "V2 multi-blob is only permitted when isBatchV2Upgraded returns true;"
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "a6a5c7c405372e95",
+      "lines": [
+        2087,
+        2091
+      ],
+      "tag": null,
+      "text": "Finalize cleanup must use DeleteUntil."
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "a8ff363853f3aa13",
+      "lines": [
+        2087,
+        2091
+      ],
+      "tag": null,
+      "text": "Must NOT be used for finalize cleanup: it delegates to BatchStorage.DeleteSealedBatch, which rejects interior-index deletes because they punch holes into the persisted indices and crash the next restart load."
+    },
+    {
+      "file": "common/batch/batch_cache.go",
+      "id": "e81018a247ebca23",
+      "lines": [
+        2109,
+        2114
+      ],
+      "tag": null,
+      "text": "Finalize cleanup must use this range-based form: the finalize target can jump (multiple submitters, several batches finalized at once), so deleting a single index leaves stale lower indices behind and punches holes into the persisted indices snapshot, which breaks the contiguity assumption of the startup load path."
+    },
+    {
+      "file": "common/batch/batch_header.go",
+      "id": "13703bddfc64b671",
+      "lines": [
+        107,
+        110
+      ],
+      "tag": null,
+      "text": "This is only meaningful for V0/V1 batches, where the field holds the single blob's versioned hash."
+    },
+    {
+      "file": "common/batch/batch_header.go",
+      "id": "2c4473ebb4d9be1c",
+      "lines": [
+        107,
+        110
+      ],
+      "tag": null,
+      "text": "callers must use BlobHashesHash instead."
+    },
+    {
+      "file": "common/batch/batch_query.go",
+      "id": "a0a8680bb78b0ed3",
+      "lines": [
+        17,
+        19
+      ],
+      "tag": null,
+      "text": "getLastFinalizeBatchHeaderFromRollupByIndex gets the batch header with the specified index from the rollup contract's FinalizeBatch event The finalizeBatch function only receives one parameter: batchHeader bytes, so it can be parsed directly from the transaction Query is limited to 10000 block heights, starting from the latest height and querying backwards until data is found"
+    },
+    {
+      "file": "common/batch/batch_query.go",
+      "id": "24c64a82b9355d5a",
+      "lines": [
+        220,
+        223
+      ],
+      "tag": null,
+      "text": "The pre-Submitter ABI deliberately includes the complete BatchSignatureInput tuple so historical calldata is decoded with its real layout even though callers only need BatchDataInput."
+    },
+    {
+      "file": "common/batch/batch_query.go",
+      "id": "4965c58b0b32867e",
+      "lines": [
+        220,
+        223
+      ],
+      "tag": null,
+      "text": "These two compact ABIs freeze the only historical/current commit methods this query supports."
+    },
+    {
+      "file": "common/batch/batch_storage.go",
+      "id": "3af86ecb6f99c93e",
+      "lines": [
+        37,
+        40
+      ],
+      "tag": null,
+      "text": "Batch data and the indices snapshot are written in one atomic batch so they can never get out of sync;"
+    },
+    {
+      "file": "common/batch/batch_storage.go",
+      "id": "2c91c9f5d998770e",
+      "lines": [
+        226,
+        234
+      ],
+      "tag": null,
+      "text": "Finalize cleanup must use the range-based DeleteSealedBatchesUpTo / BatchCache.DeleteUntil."
+    },
+    {
+      "file": "common/batch/batch_storage.go",
+      "id": "3e63bfe83880bfbb",
+      "lines": [
+        226,
+        234
+      ],
+      "tag": null,
+      "text": "Must NOT be used for finalize cleanup: deleting an interior index punches a hole into sealed_batch_indices, which crashes the startup load path."
+    },
+    {
+      "file": "common/batch/batch_storage.go",
+      "id": "b5c9d6844db410a2",
+      "lines": [
+        226,
+        234
+      ],
+      "tag": null,
+      "text": "This call only permits removing a window boundary (the lowest or highest stored index);"
+    },
+    {
+      "file": "common/batch/batch_storage.go",
+      "id": "3e1ed05537ddbda2",
+      "lines": [
+        352,
+        359
+      ],
+      "tag": null,
+      "text": "It is a recovery-only path;"
+    },
+    {
+      "file": "common/batch/batch_storage.go",
+      "id": "f446b02c2e62825d",
+      "lines": [
+        377,
+        378
+      ],
+      "tag": null,
+      "text": "ValidateExactKeySet ensures the indices snapshot enumerates every persisted sealed-batch data/header key and no orphan key can bypass startup validation."
+    },
+    {
+      "file": "common/batch/batch_storage.go",
+      "id": "1a9799cb5b715fdb",
+      "lines": [
+        541,
+        544
+      ],
+      "tag": null,
+      "text": "Finalize cleanup must use DeleteSealedBatchesUpTo."
+    },
+    {
+      "file": "common/batch/interfaces.go",
+      "id": "99f0e6e421024df8",
+      "lines": [
+        39,
+        39
+      ],
+      "tag": null,
+      "text": "L1HeaderClient is the L1 RPC surface required to recover batch headers from events."
+    },
+    {
+      "file": "common/batch/interfaces.go",
+      "id": "931be114c460c052",
+      "lines": [
+        52,
+        52
+      ],
+      "tag": null,
+      "text": "SingleL2Client adapts a single L2 RPC backend as L2MultiClient (Len is always 1)."
+    },
+    {
+      "file": "common/batch/l2_gov.go",
+      "id": "7bdedb9de3363e5b",
+      "lines": [
+        46,
+        48
+      ],
+      "tag": null,
+      "text": "The two contract reads are checked against each other so replay never accepts bytes from a different L2 state."
+    },
+    {
+      "file": "common/blob/fee.go",
+      "id": "641c30983a45681d",
+      "lines": [
+        44,
+        44
+      ],
+      "tag": null,
+      "text": "BlobConfig contains the parameters required for blob fee calculation."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "ca3db0d7869a4c58",
+      "lines": [
+        90,
+        90
+      ],
+      "tag": "@notice",
+      "text": "@notice The index of the revert request."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "0af526151838682d",
+      "lines": [
+        118,
+        118
+      ],
+      "tag": "@notice",
+      "text": "@notice Only an active submitter is allowed."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "73b0ecd4e02cfe67",
+      "lines": [
+        124,
+        124
+      ],
+      "tag": "@notice",
+      "text": "@notice Only challenger allowed."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "614e03ca9bfdf591",
+      "lines": [
+        130,
+        130
+      ],
+      "tag": "@notice",
+      "text": "@notice Modifier to ensure that there is no pending revert request."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "43ff0abbb4a6312c",
+      "lines": [
+        271,
+        272
+      ],
+      "tag": "@notice",
+      "text": "@notice Commit batch state when blob hash is already stored (recommit after revert without blob)."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "24f46227efa18595",
+      "lines": [
+        379,
+        381
+      ],
+      "tag": "@dev",
+      "text": "Entry conditions: rollup delay OR L1 message queue delay must be met."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "b0edd81ea522cfc7",
+      "lines": [
+        427,
+        429
+      ],
+      "tag": "@dev",
+      "text": "@dev If the owner wants to revert a sequence of batches by sending multiple transactions, make sure to revert recent batches first."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "48e58e848fc802bc",
+      "lines": [
+        887,
+        891
+      ],
+      "tag": "@dev",
+      "text": "|| blobhash(N-1)), requires at least 1 blob."
+    },
+    {
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "ecc09fcdc6237a7b",
+      "lines": [
+        887,
+        891
+      ],
+      "tag": "@dev",
+      "text": "At most one blob is allowed: extra blobs are ignored by this hash but would still be delivered to L2 derivation, which concatenates all blobs."
+    },
+    {
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "id": "a53abb448f319de1",
+      "lines": [
+        137,
+        141
+      ],
+      "tag": "@dev",
+      "text": "@dev Because this function can overwrite the subsequent fields, it must be called before `storeL1MessagePopped`, `storeTotalL1MessagePopped`, and `storeDataHash`."
+    },
+    {
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "id": "66aadb6797d3a221",
+      "lines": [
+        148,
+        152
+      ],
+      "tag": "@dev",
+      "text": "@dev Because this function can overwrite the subsequent fields, it must be called before `storeTotalL1MessagePopped` and `storeDataHash`."
+    },
+    {
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "id": "1b7f8381d811f284",
+      "lines": [
+        159,
+        163
+      ],
+      "tag": "@dev",
+      "text": "@dev Because this function can overwrite the subsequent fields, it must be called before `storeDataHash`."
+    },
+    {
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "id": "82a156ccd5c08235",
+      "lines": [
+        233,
+        238
+      ],
+      "tag": "@dev",
+      "text": "@dev Caller should make sure that the encoded batch header is correct."
+    },
+    {
+      "file": "node/derivation/batch_info.go",
+      "id": "2e903ced402045f8",
+      "lines": [
+        258,
+        262
+      ],
+      "tag": null,
+      "text": "The batch has no parent hashes, so this is content-only;"
+    },
+    {
+      "file": "node/derivation/beacon.go",
+      "id": "5a3fd6cff4ae3c2e",
+      "lines": [
+        190,
+        192
+      ],
+      "tag": null,
+      "text": "It creates a placeholder blobOrCalldata element for each returned blob hash that must be populated by fillBlobPointers after blob bodies are retrieved."
+    },
+    {
+      "file": "node/derivation/beacon.go",
+      "id": "0ee1d29307179cdd",
+      "lines": [
+        214,
+        224
+      ],
+      "tag": null,
+      "text": "Scope: fallback only covers per-endpoint data faults (corruption, pruned or unsynced data, client bugs)."
+    },
+    {
+      "file": "node/derivation/beacon.go",
+      "id": "35b114e6f5b854b5",
+      "lines": [
+        214,
+        224
+      ],
+      "tag": null,
+      "text": "It is not a consistency mechanism and should not grow into one \u2014 safety against bad data comes from the KZG hash verification itself, and EL/CL fork mismatches near the chain head are eliminated by running derivation with confirmations=finalized, not by trying more beacons."
+    },
+    {
+      "file": "node/derivation/beacon.go",
+      "id": "888d3de60a83da6a",
+      "lines": [
+        214,
+        224
+      ],
+      "tag": null,
+      "text": "FallbackBeaconClient queries several beacon nodes in order and rotates to the next one when an endpoint cannot serve verified blobs (error, missing data, or content failing hash verification)."
+    },
+    {
+      "file": "node/derivation/beacon.go",
+      "id": "3287b742502038f6",
+      "lines": [
+        264,
+        272
+      ],
+      "tag": null,
+      "text": "indexHints is an optional fetch optimization (?indices= filter), not a correctness input: verification is purely by hash, so callers that cannot build indices may pass nil and the whole slot is fetched and matched."
+    },
+    {
+      "file": "node/derivation/derivation.go",
+      "id": "5dea17d34223e4d2",
+      "lines": [
+        526,
+        529
+      ],
+      "tag": null,
+      "text": "enforceBatchRootVerification reports whether a root verification failure must stop derivation."
+    },
+    {
+      "file": "node/derivation/derivation.go",
+      "id": "c22158373b27c292",
+      "lines": [
+        526,
+        529
+      ],
+      "tag": null,
+      "text": "local mode is used by regular nodes, which still verify roots for observability but must not lose sync when historical state is unavailable."
+    },
+    {
+      "file": "node/derivation/derivation.go",
+      "id": "0522cfe339b2ca6a",
+      "lines": [
+        680,
+        681
+      ],
+      "tag": null,
+      "text": "unpackModernRollupCall intentionally recognizes only the two methods that derivation supported before this upgrade."
+    },
+    {
+      "file": "node/derivation/derivation.go",
+      "id": "e36c2743e10fcb43",
+      "lines": [
+        724,
+        730
+      ],
+      "tag": null,
+      "text": "We rely on snapshots shipping the full DB so historical L1 messages are always local;"
+    },
+    {
+      "file": "node/derivation/derivation.go",
+      "id": "78d9e77899d3fda1",
+      "lines": [
+        796,
+        804
+      ],
+      "tag": null,
+      "text": "The restart height comes from the L2 EL latest (truth source for what was actually applied \u2014 body may have written only N of M blocks before failing);"
+    },
+    {
+      "file": "node/derivation/derivation.go",
+      "id": "9550d41b4018308d",
+      "lines": [
+        796,
+        804
+      ],
+      "tag": null,
+      "text": "on EL read failure we fall back to the pre-write height we captured before stopping reactors, never to zero (which would tell blocksync to re-fetch from genesis)."
+    },
+    {
+      "file": "node/derivation/derivation.go",
+      "id": "f36e10e70d0ca428",
+      "lines": [
+        847,
+        857
+      ],
+      "tag": null,
+      "text": "A kept block is canonical by induction: matching content on a canonical parent reproduces the canonical block (the batch has no parent hashes, so content is the only signal \u2014 and it suffices given the anchor)."
+    },
+    {
+      "file": "node/derivation/finalizer.go",
+      "id": "2e68c59260fdacf2",
+      "lines": [
+        11,
+        34
+      ],
+      "tag": null,
+      "text": "Originally a separate goroutine (with its own ticker / stopped channel), folded into the derivation main loop because the only justification for a separate goroutine was \"L1 RPC could be slow\" -- which was already true for the main loop's eth_getLogs / eth_getTransactionByHash calls, so the extra goroutine bought nothing and introduced cross-goroutine state writes (cursor / tagAdvancer) that complicated the canonicality recovery path."
+    },
+    {
+      "file": "node/derivation/finalizer.go",
+      "id": "9a3e27f457503206",
+      "lines": [
+        11,
+        34
+      ],
+      "tag": null,
+      "text": "on every finalize, so an older batchIndex returns zero -- but the LATEST committed batch index (queried at the L1 finalized block) is always populated, since at that block its delete has not yet happened."
+    },
+    {
+      "file": "node/derivation/reorg.go",
+      "id": "34e06944d1cd3f03",
+      "lines": [
+        37,
+        44
+      ],
+      "tag": null,
+      "text": "Only when the newest block mismatches does it do a full oldest-to-newest scan to find the earliest divergence point."
+    },
+    {
+      "file": "node/derivation/reorg.go",
+      "id": "9356a5da1d3f1319",
+      "lines": [
+        146,
+        150
+      ],
+      "tag": null,
+      "text": "Returns an error if any header fetch fails -- the caller must NOT advance the derivation cursor in that case to avoid permanent gaps in the L1 hash record (which would defeat detection)."
+    },
+    {
+      "file": "node/derivation/tag_advance.go",
+      "id": "290aba42cbdaa973",
+      "lines": [
+        21,
+        30
+      ],
+      "tag": null,
+      "text": "Both paths converge on `flushTags` which enforces the `finalized <= safe <= unsafe` invariant before calling the existing `RetryableClient.SetBlockTags` engine RPC."
+    },
+    {
+      "file": "node/derivation/tag_advance.go",
+      "id": "71af567512895098",
+      "lines": [
+        21,
+        30
+      ],
+      "tag": null,
+      "text": "In-memory only by design: SPEC-005 section 4.7.7 -- restart starts from zero and derivation refills naturally as it walks its cursor."
+    },
+    {
+      "file": "node/derivation/tag_advance.go",
+      "id": "cfbc8f86d7b1add1",
+      "lines": [
+        93,
+        100
+      ],
+      "tag": null,
+      "text": "finalized never moves backwards;"
+    },
+    {
+      "file": "node/derivation/tag_advance.go",
+      "id": "7f85946055677870",
+      "lines": [
+        158,
+        161
+      ],
+      "tag": null,
+      "text": "On invariant violation we log error and skip -- no panic, no halt -- matching op-node's tryUpdateEngineInternal behavior."
+    },
+    {
+      "file": "node/derivation/tag_advance.go",
+      "id": "aa80078152823abd",
+      "lines": [
+        158,
+        161
+      ],
+      "tag": null,
+      "text": "flushTags enforces the finalized <= safe <= unsafe invariant and calls SetBlockTags exactly once per state change."
+    },
+    {
+      "file": "node/derivation/verify.go",
+      "id": "784804bc3abcc4a2",
+      "lines": [
+        13,
+        25
+      ],
+      "tag": null,
+      "text": "Only the verifyBatchRoots call site in derivation.go gates `metrics.SetBatchStatus(stateException)` on errors.Is(err, ErrBatchVerifyDivergence);"
+    },
+    {
+      "file": "node/derivation/verify.go",
+      "id": "942661221e743ddd",
+      "lines": [
+        13,
+        25
+      ],
+      "tag": null,
+      "text": "Transient or runtime errors (RPC down, tx parsing failure, encoding bug, ...) intentionally do NOT wrap this sentinel: they reflect \"verifier could not run\", not \"verifier determined divergence\", and must not light up the divergence alert."
+    },
+    {
+      "file": "node/derivation/verify.go",
+      "id": "4957268d63fb3eb1",
+      "lines": [
+        28,
+        39
+      ],
+      "tag": null,
+      "text": "SPEC-005 section 3.4 invariant: this check is independent of blob data -- both batchInfo.root (postStateRoot) and batchInfo.withdrawalRoot are extracted from L1 calldata at parse time, so this function runs identically under layer1 (beacon blob) and local-rebuild verification modes."
+    },
+    {
+      "file": "node/derivation/verify_local.go",
+      "id": "136021caa1616c99",
+      "lines": [
+        42,
+        52
+      ],
+      "tag": null,
+      "text": "Only the new commitBatch ABI (rollupABI commitBatch / commitBatchWithProof) is supported."
+    },
+    {
+      "file": "node/derivation/verify_local.go",
+      "id": "2aa7072c15615a63",
+      "lines": [
+        42,
+        52
+      ],
+      "tag": null,
+      "text": "fetchBatchInfoOutline pulls the L1 commitBatch tx, decodes its calldata, and populates a BatchInfo using only the calldata + tx blob hashes -- no beacon blob fetch."
+    },
+    {
+      "file": "node/derivation/verify_local.go",
+      "id": "393797ce56528e6e",
+      "lines": [
+        42,
+        52
+      ],
+      "tag": null,
+      "text": "Legacy-ABI batches (calldata BlockContexts + V1 blob encoding) are not handled here -- they only exist on historical batches that have long since been finalized."
+    },
+    {
+      "file": "node/derivation/verify_local.go",
+      "id": "49272ffe868dcdc0",
+      "lines": [
+        112,
+        129
+      ],
+      "tag": null,
+      "text": "BatchStatus=stateException is set only on verifyBatchRoots failures (state / withdrawal root vs L1)."
+    },
+    {
+      "file": "node/derivation/verify_local.go",
+      "id": "76205020a0e880fa",
+      "lines": [
+        112,
+        129
+      ],
+      "tag": null,
+      "text": "- kind=blob_count_mismatch wraps ErrBatchVerifyDivergence, but this function's call site in derivation.go only logs and retries -- it does not read the sentinel."
+    },
+    {
+      "file": "node/types/batch_header.go",
+      "id": "a1fc0adb2e1a8496",
+      "lines": [
+        122,
+        125
+      ],
+      "tag": null,
+      "text": "This is only meaningful for V0/V1 batches, where the field holds the single blob's versioned hash."
+    },
+    {
+      "file": "node/types/batch_header.go",
+      "id": "dde328473b56e02c",
+      "lines": [
+        122,
+        125
+      ],
+      "tag": null,
+      "text": "callers must use BlobHashesHash instead."
+    },
+    {
+      "file": "node/types/retryable_client.go",
+      "id": "f00f7d89305f1512",
+      "lines": [
+        46,
+        50
+      ],
+      "tag": null,
+      "text": "fullnodes keep the long window because they only need to catch up eventually."
+    },
+    {
+      "file": "node/types/retryable_client.go",
+      "id": "6ea82867ff080960",
+      "lines": [
+        280,
+        300
+      ],
+      "tag": null,
+      "text": "currently we want every error retryable, except the DiscontinuousBlockError retryableError reports whether an RPC error should trigger an exponential backoff retry inside RetryableClient."
+    },
+    {
+      "file": "node/types/retryable_client.go",
+      "id": "b0f76ee9693fca14",
+      "lines": [
+        280,
+        300
+      ],
+      "tag": null,
+      "text": "Permanent logic errors (wrong block number, missing parent) and block validation errors (hash mismatch, invalid NextL1MsgIndex) are not retried, because the same payload will always fail and only delay error surfacing."
+    },
+    {
+      "file": "node/types/retryable_client.go",
+      "id": "c314a8a5ff710cd5",
+      "lines": [
+        280,
+        300
+      ],
+      "tag": null,
+      "text": "retryableError returns true for transient errors that should be retried."
+    },
+    {
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/config.go",
+      "id": "ce706390709ddc5a",
+      "lines": [
+        135,
+        138
+      ],
+      "tag": null,
+      "text": "GetDeployedAddresses will get the deployed addresses of deployed L1 contracts required for the L2 genesis creation."
+    },
+    {
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/devnet_tokens.go",
+      "id": "dd2f47a65288f50e",
+      "lines": [
+        70,
+        71
+      ],
+      "tag": null,
+      "text": "The contract owner must activate the tokens and allow the oracle signer before price updates."
+    },
+    {
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/helpers.go",
+      "id": "bcc284c921e96180",
+      "lines": [
+        63,
+        64
+      ],
+      "tag": null,
+      "text": "AddressToCodeNamespace takes a predeploy address and computes the implementation address that the implementation should be deployed at"
+    },
+    {
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/setters.go",
+      "id": "e74f17ebdee26675",
+      "lines": [
+        36,
+        39
+      ],
+      "tag": null,
+      "text": "It requires a Proxy and ProxyAdmin deployment present so that the Proxy bytecode can be set in state and the ProxyAdmin can be set as the admin of the Proxy."
+    },
+    {
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/setters.go",
+      "id": "50ae4f57271ab213",
+      "lines": [
+        136,
+        138
+      ],
+      "tag": null,
+      "text": "This should only be used for devnets."
+    }
+  ],
+  "repos": {
+    "morph-l2/morph": {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "files": [
+        "common/batch/batch_cache.go",
+        "common/batch/batch_data.go",
+        "common/batch/batch_header.go",
+        "common/batch/batch_query.go",
+        "common/batch/batch_storage.go",
+        "common/batch/blob.go",
+        "common/batch/encoding.go",
+        "common/batch/interfaces.go",
+        "common/batch/l2_gov.go",
+        "common/blob/fee.go",
+        "common/blob/payload.go",
+        "common/codec/zstd/codec.go",
+        "contracts/contracts/l1/rollup/Rollup.sol",
+        "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+        "node/derivation/base_client.go",
+        "node/derivation/batch_info.go",
+        "node/derivation/beacon.go",
+        "node/derivation/blob_type.go",
+        "node/derivation/blobs.go",
+        "node/derivation/config.go",
+        "node/derivation/derivation.go",
+        "node/derivation/finalizer.go",
+        "node/derivation/metrics.go",
+        "node/derivation/reorg.go",
+        "node/derivation/tag_advance.go",
+        "node/derivation/verify.go",
+        "node/derivation/verify_local.go",
+        "node/types/batch.go",
+        "node/types/batch_header.go",
+        "node/types/config.go",
+        "node/types/consensus_message.go",
+        "node/types/converter.go",
+        "node/types/errors.go",
+        "node/types/networks.go",
+        "node/types/retryable_client.go",
+        "node/types/types.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/batch.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/check.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/config.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/devnet_tokens.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/genesis.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/helpers.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/layer_two.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/setters.go"
+      ],
+      "unresolved": [
+        "openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+        "openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
+        "openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol"
+      ]
+    }
+  }
+}

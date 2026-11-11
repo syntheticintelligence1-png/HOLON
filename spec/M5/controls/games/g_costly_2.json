@@ -1,0 +1,95 @@
+{
+  "actions": [
+    {
+      "by": [
+        "a364738"
+      ],
+      "effect": [
+        [
+          "set",
+          "vb0e649",
+          1
+        ]
+      ],
+      "flows": {
+        "caller": {
+          "sc844b2": -2
+        }
+      },
+      "guard": [
+        [
+          "eq",
+          "vb0e649",
+          0
+        ]
+      ],
+      "id": "f7a44a8"
+    },
+    {
+      "by": [
+        "a0b7161"
+      ],
+      "effect": [
+        [
+          "set",
+          "vb0e649",
+          2
+        ]
+      ],
+      "flows": {
+        "a364738": {
+          "sc844b2": 2
+        }
+      },
+      "guard": [
+        [
+          "eq",
+          "vb0e649",
+          1
+        ]
+      ],
+      "id": "f49b8b3"
+    }
+  ],
+  "actors": [
+    {
+      "id": "a0b7161",
+      "trusted": true
+    },
+    {
+      "id": "a364738",
+      "trusted": false
+    }
+  ],
+  "assets": [
+    "sc844b2"
+  ],
+  "bad": [
+    [
+      "ge",
+      "vb0e649",
+      1
+    ]
+  ],
+  "family": "costly",
+  "horizon": 2,
+  "id": "g_costly_2",
+  "semantics": "single deviator: one class acts, the others take no action; each action at most once per schedule; holdings start at 0; payoff at the schedule's end",
+  "truth": {
+    "classes": {
+      "a0b7161": "irrational",
+      "a364738": "irrational"
+    },
+    "depth": null,
+    "verdict": "irrational"
+  },
+  "vars": {
+    "vb0e649": 0
+  },
+  "witness": [
+    {
+      "action": "f7a44a8",
+      "caller": "a364738"
+    }
+  ]
+}

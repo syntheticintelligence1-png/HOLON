@@ -1,0 +1,11 @@
+{
+  "clause": "@notice The count never decreases.",
+  "family": "monotone",
+  "file": "C71e7a3.sol",
+  "id": "i_monotone_wrong_1",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity 0.8.24;\n\ncontract C71e7a3 {\n    uint256 public count;\n\n    /// @notice The count never decreases.\n    function step() external {\n        if (count > 1) {\n            count -= 1;\n        } else {\n            count += 2;\n        }\n    }\n}\n",
+  "truth": {
+    "obstruction": true,
+    "why": "step decreases the count once it exceeds the threshold"
+  }
+}
