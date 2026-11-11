@@ -1,0 +1,351 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2",
+  "milestone": "M3",
+  "notes": "PAR record round trip (holon.rules.par_record): the getter family BatchHeaderBytes (13 getters at version 2: 12 field slots, 1 constant slots) inverts BatchCache_createBatchHeaderWithSequencerSetHash at version 2",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.16",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "h",
+        "q": "forall",
+        "type": "BatchHeaderV1"
+      }
+    ],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_Version"
+            },
+            {
+              "some": {
+                "bytes": "0x02"
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_BatchIndex"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.BatchIndex",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_L1MessagePopped"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.L1MessagePopped",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_TotalL1MessagePopped"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.TotalL1MessagePopped",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_DataHash"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.DataHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_BlobCommitHash"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.BlobVersionedHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_BlobHashesHash"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.BlobVersionedHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_PrevStateRoot"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.PrevStateRoot",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_PostStateRoot"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.PostStateRoot",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_WithdrawalRoot"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.WithdrawalRoot",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_SequencerSetVerifyHash"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.SequencerSetVerifyHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_ParentBatchHash"
+            },
+            {
+              "some": {
+                "field": "BatchHeaderV0.ParentBatchHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+                }
+              ],
+              "call": "BatchHeaderBytes_LastBlockNumber"
+            },
+            {
+              "some": {
+                "field": "LastBlockNumber",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "record_round_trip"
+}
