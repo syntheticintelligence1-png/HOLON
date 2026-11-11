@@ -14,6 +14,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 VERSION = "holon-sort-types/0.1"
+# I50b: 0.2 is 0.1 plus the sort pass's rules U1-U3 for the frontend's "update" term (holon.sorts.extracted; the rules
+# are spec/M4/lib/heldout_rerun.json producer_changes.sorts_update). Every milestone sidecar is 0.1, and a 0.1 sidecar
+# is read and walked exactly as before.
+VERSIONS = (VERSION, "holon-sort-types/0.2")
 
 
 class SidecarError(ValueError):
@@ -39,6 +43,10 @@ class Sidecar:
     @property
     def documents(self) -> list[Path]:
         return [self.root / d for d in self.doc.get("documents") or []]
+
+    @property
+    def version(self) -> str:
+        return self.doc["sort_types_version"]
 
     @property
     def seeds(self) -> Path:
@@ -80,8 +88,8 @@ def load(milestone: str, root: Path, sidecar: str | None = None) -> Sidecar:
     if not p.is_file():
         raise SidecarError(f"the typed-sorts sidecar {p} does not exist")
     doc = json.loads(p.read_text(encoding="utf-8"))
-    if doc.get("sort_types_version") != VERSION:
-        raise SidecarError(f"{p}: sort_types_version {doc.get('sort_types_version')!r} (want {VERSION})")
+    if doc.get("sort_types_version") not in VERSIONS:
+        raise SidecarError(f"{p}: sort_types_version {doc.get('sort_types_version')!r} (want one of {', '.join(VERSIONS)})")
     for k in ("documents", "seeds"):
         if k not in doc:
             raise SidecarError(f"{p}: no {k!r}")

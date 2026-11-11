@@ -137,6 +137,9 @@ def main(argv: list[str]) -> int:
     if argv[:1] == ["derive"] or (argv[:1] == ["run"] and _typed(argv[1:])):   # I50: typed targets
         from . import target_typed
         return target_typed.main(argv[0], argv[1:])
+    if argv[:1] == ["compare"]:   # I50b: a rerun target beside the target it reruns (holon.target_rerun)
+        from . import target_rerun
+        return target_rerun.main(argv[1:])
     ap = argparse.ArgumentParser(prog="holon target")
     ap.add_argument("command", choices=["run", "list"])
     ap.add_argument("--target")
