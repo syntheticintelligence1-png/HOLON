@@ -40,6 +40,13 @@ ALLOWLIST: dict[str, list[str]] = {
     "holon/__main__.py": ["morph"],
     # the M0 commit-side trace builder (replay evidence for the M0 codec witnesses on the real Rollup)
     "holon/evidence.py": ["commitBatch", "fsr"],
+    # I62's mutation driver (holon audit mutation, A1): its pinned target checkout is the config key replay.morph, as
+    # the replay adapters' --morph flag above; stage.py points that key at a mutant's scratch tree
+    "holon/mutate/common.py": ["morph"],
+    "holon/mutate/stage.py": ["morph"],
+    # I62's mutation driver replays a mutant on the real Rollup from the model's initial state, whose fsr starts the
+    # trace, as the commit-side trace builder holon/evidence.py above
+    "holon/mutate/replay.py": ["fsr"],
     # the M1 deadline class's emitted comment "kappa = b && w + start(chs[i]) < t" is part of gen/M1, pinned byte for
     # byte (tests_m2/test_target_agnostic.py GEN_PIN); M2+ use deadline_linear, which names no field
     "holon/gen/mproofs.py": ["chs", "kappa"],
