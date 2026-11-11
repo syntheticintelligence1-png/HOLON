@@ -569,8 +569,8 @@ def _fuzz(system, target, wall, cpu, tool):
     fs, cmds, exhausted = [], [], False
     over = 0.0  # the tool's start-up before its own timeout starts, measured on the previous unit
     for c in names:
-        tmo = int(u.share() - over)
-        if tmo < 1:
+        tmo = max(int(u.share() - over), 1)
+        if u.left < over + 1:
             # the budget is spent: the unit is recorded as not run, so the units' sum stays within the budget
             u.done(c, 0.0, None, exit=None, timed_out=False, skipped="budget spent before this unit")
             exhausted = True
