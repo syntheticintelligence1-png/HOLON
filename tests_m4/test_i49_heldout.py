@@ -102,8 +102,10 @@ def checkout() -> Path:
 
 
 def solc_version() -> str:
+    # Amended after the seal opened (spec/M4/amendments/I49.jsonl): the version number before '+', as the frontend
+    # compares it (holon.frontends.solidity.compile.check_solc) and the development target's sidecar writes it
     out = subprocess.run([config()["replay"]["solc"], "--version"], capture_output=True, text=True).stdout
-    return out.split("Version: ", 1)[1].split()[0]
+    return out.split("Version: ", 1)[1].split()[0].split("+", 1)[0]
 
 
 def doc_rel(name: str) -> str:
@@ -227,7 +229,10 @@ class TestExtraction(unittest.TestCase):
         self.assertEqual(d["target"]["commit"], r["commit"])
         self.assertEqual(d["target"]["repo"], r["repo"])
         self.assertEqual(d["extraction"]["frontend"], "solidity")
-        self.assertEqual(d["extraction"]["sidecar"], f"targets/{name}/extract_solidity.json")
+        # Amended after the seal opened (spec/M4/amendments/I49.jsonl): the frontend records the sidecar as
+        # {path, sha256}
+        side = f"targets/{name}/extract_solidity.json"
+        self.assertEqual(d["extraction"]["sidecar"], {"path": side, "sha256": H.sha256(ROOT / side)})
         self.assertGreaterEqual(len(d["actions"]), 1)
 
     def test_extraction_regenerates(self):

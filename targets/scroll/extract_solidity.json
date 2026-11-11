@@ -1,0 +1,29 @@
+{
+ "compiler": {
+  "settings": {
+   "evmVersion": "cancun",
+   "optimizer": {
+    "enabled": false
+   }
+  },
+  "version": "0.8.24"
+ },
+ "doc": "The held-out target's scope sidecar (I49), derived by rules S1-S5 of spec/M4/lib/heldout_protocol.json from spec/heldout/target.json: the sealed source file (S1), its stem as the contract (S2), the interfaces ending in Verifier that it imports directly as commit interfaces (S3), the pinned solc with the development target's settings (S4), the sealed repository and commit (S5). It names what to extract, never what the extraction says.",
+ "frontend": "solidity",
+ "output": "gen/targets/scroll/facts/ScrollChain.extracted.json",
+ "sidecar_version": 1,
+ "sources": [
+  "src/L1/rollup/ScrollChain.sol"
+ ],
+ "target": {
+  "commit": "42de954bee237cfa478a5b443ac0aeb900aca5ad",
+  "repo": "scroll-tech/scroll-contracts",
+  "scope": "transitions of every external/public function, storage families, cost terms, principal predicates, hash/commit edges, coverage"
+ },
+ "transitions": {
+  "commit_interfaces": [
+   "IRollupVerifier"
+  ],
+  "contract": "ScrollChain"
+ }
+}

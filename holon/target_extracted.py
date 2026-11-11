@@ -324,7 +324,10 @@ def sizes_data(root: Path) -> bytes:
         else:
             doc, dia = r["document"], r["diagram"]
             ob = _obligations(_source_of(r["laws"]), doc, root, None)
-            target = next(n for n in T.names(root) if doc in documents(T.load(n, root)).values())
+            owners = [n for n in T.names(root) if doc in documents(T.load(n, root)).values()]
+            # a milestone document no target extracts (the development target's hand-written machine) is the
+            # development target's
+            target = owners[0] if len(owners) == 1 else T.development(root)["name"]
         d = load(Path(root) / dia)
         cls = Counter(c["cls"] for c in d["carriers"])
         kinds = Counter(e["kind"] for e in d["edges"])
@@ -437,8 +440,11 @@ def _check_x2(t: dict, root: Path) -> dict:
             return _res(False, f"{rel} is not a holon-facts/0.3 extracted document")
         if frontends._frontend(ex.get("frontend") or "") is None:
             return _res(False, f"{rel}: extraction.frontend {ex.get('frontend')!r} is not a HOLON frontend")
-        if ex.get("sidecar") not in sides:
-            return _res(False, f"{rel}: extraction.sidecar {ex.get('sidecar')!r} is not the target's {sorted(sides)}")
+        sc = ex.get("sidecar") if isinstance(ex.get("sidecar"), dict) else {"path": ex.get("sidecar")}
+        if sc.get("path") not in sides:
+            return _res(False, f"{rel}: extraction.sidecar {sc.get('path')!r} is not the target's {sorted(sides)}")
+        if sc.get("sha256") != sha256_file(Path(root) / sc["path"]):
+            return _res(False, f"{rel}: extraction.sidecar's sha256 is not that of {sc['path']} as committed")
         if "hand_written" in json.dumps(d):
             return _res(False, f"{rel} carries a hand_written waiver")
     tdir = Path(root) / "targets" / t["name"]
@@ -459,7 +465,8 @@ def _check_g8(t: dict, root: Path) -> dict:
         return _res(False, f"{coverage_path(t)} differs from a fresh coverage walk")
     rep = json.loads(data)
     if rep["unaccounted"]:
-        return _res(False, f"{rep['unaccounted']} statement(s) unaccounted")
+        where = [f"{u['src']} ({u['node']})" for d in rep["documents"] for u in d["unaccounted"]]
+        return _res(False, f"{rep['unaccounted']} statement(s) unaccounted: {', '.join(where)}")
     for d in rep["documents"]:
         for item in d["debt"]:
             if not str(item.get("kind", "")).strip() or not str(item.get("detail", "")).strip():

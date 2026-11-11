@@ -1,0 +1,32 @@
+{
+  "target": "scroll",
+  "passed": false,
+  "checks": {
+    "GENV": {
+      "passed": true,
+      "detail": "no unsafe Bun or env files; bend 2.0.36 is the pinned version and the pinned checker fingerprint"
+    },
+    "X1": {
+      "passed": true,
+      "detail": "the checkout is at 42de954bee23; a fresh extraction reproduces gen/targets/scroll/extraction.json, gen/targets/scroll/facts/ScrollChain.extracted.json byte for byte"
+    },
+    "X2": {
+      "passed": true,
+      "detail": "1 document(s), each extracted by a HOLON frontend under the target's sidecar; no hand-written fact and no waiver"
+    },
+    "G8": {
+      "passed": false,
+      "detail": "2 statement(s) unaccounted: src/L1/rollup/ScrollChain.sol:748-750 (Block), src/L1/rollup/ScrollChain.sol:749 (ExpressionStatement)"
+    },
+    "D1": {
+      "passed": true,
+      "detail": "1 diagram(s) regenerate byte for byte and validate"
+    },
+    "S1": {
+      "passed": true,
+      "detail": "results/targets/sizes.json regenerates byte for byte and validates"
+    }
+  },
+  "partial": false,
+  "doc": "holon target gate (I49; spec/M4/lib/heldout_protocol.json gate.checks)"
+}
