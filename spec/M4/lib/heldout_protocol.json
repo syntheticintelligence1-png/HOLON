@@ -1,0 +1,85 @@
+{
+  "protocol_version": "holon-heldout/0.1",
+  "doc": "I49 prereg instrument, written blind: before anything under spec/heldout/ or from the sealed upstream was read, listed, fetched or cloned (docs/HUMAN_ANSWERS.md Q7; the seal protocol of the I49/I50 brief). It fixes every choice the held-out run makes that could otherwise be tuned to the target after the seal opens: where the target lives, the scope sidecar the extraction reads (derived by rule from the sealed file, never by judgment), the mapping of an extracted transitions document to a diagram, the four-diagram size report, and the target gate's checks. The contract is the docstring of tests_m4/test_i49_heldout.py.",
+  "seal": {
+    "file": "spec/heldout/target.json",
+    "doc": "The human's sealed description of the held-out target (Q7). Read only after the I49 prereg commit is pushed. Its keys are not known to this prereg; the rules below name the values they need by role (the repository, the pinned commit, the source file), and the held-out target.json records which sealed key each came from (checkout.sealed_keys)."
+  },
+  "target_dir": {
+    "rule": "T1",
+    "doc": "The held-out target is targets/<name>/target.json (holon-target/0.1, spec/M4/lib/target.schema.json) whose checkout object holds \"sealed\": \"spec/heldout/target.json\"; exactly one target does. <name> is the first hyphen-separated word of the sealed repository's owner, lowercased (owner/repo on GitHub). Its names are <name>, the owner and the repository name, lowercased, and the sealed source file's stem, lowercased. checkout.development is false: the held-out target is not the development target."
+  },
+  "scope_sidecar": {
+    "path": "targets/<name>/extract_solidity.json",
+    "doc": "The extraction sidecar of the held-out target (the I19 kind: it names what to extract, never what the extraction says). Every field follows by rule from the sealed file; nothing in it is a judgment about the code.",
+    "rules": {
+      "S1": "sources: exactly [the sealed source file's repository-relative path].",
+      "S2": "transitions.contract: the sealed source file's stem (Foo.sol -> Foo).",
+      "S3": "transitions.commit_interfaces: every interface (an `interface X` declaration) of a source unit the sealed file imports directly, whose name ends in Verifier, sorted; the empty list when there is none. Rationale: the development target's sidecar names its proof verifier's interface (IRollupVerifier) as the commit interface, and this is the rule that choice follows.",
+      "S4": "compiler.version: the version of the pinned solc (config/holon.json replay.solc, its --version text after 'Version: '); compiler.settings: the development target's extraction settings (spec/M2/lib/extract_rollup.json compiler.settings), unchanged. If the sealed file's pragma does not admit the pinned solc, the extraction is refused by the frontend, recorded as extraction debt, and I49-P1 is a MISS; no other compiler is installed.",
+      "S5": "target: {repo: the sealed repository as owner/repo, commit: the sealed commit (40 hex), scope: a fixed sentence naming the extraction kind}. output: gen/targets/<name>/facts/<stem>.extracted.json. frontend: solidity. sidecar_version: 1.",
+      "S6": "Imports resolve as the pinned frontend resolves them: base path the checkout, include path the pinned sol_deps' node_modules (holon.frontends.solidity.compile). The frontend is not changed for the target (its files are record-pinned). A unit solc reads from the include path whose bytes differ from a file the target checkout holds at the same unit path under any of its own dependency directories is listed as extraction debt of kind dependency_version in the target's extraction report (gen/targets/<name>/extraction.json); it is reported, not hidden, and does not fail the gate."
+    }
+  },
+  "locations": {
+    "target": "targets/<name>/target.json",
+    "scope_sidecar": "targets/<name>/extract_solidity.json",
+    "checkout": "config/holon.json extract.sources[<sealed owner/repo>]: a clone of the sealed repository checked out at the sealed commit, fetched only as spec/heldout/target.json pins it",
+    "facts": "gen/targets/<name>/facts/<stem>.extracted.json",
+    "extraction_report": "gen/targets/<name>/extraction.json",
+    "coverage": "gen/targets/<name>/coverage.json",
+    "diagram": "gen/diagrams/<name>/<document stem with every '.' replaced by '_'>.json (diagrams of every target live under gen/diagrams/, outside any target's run.gen, which `holon target run` replaces whole)",
+    "gate_report": "results/targets/<name>/gate_report.json",
+    "sizes": "results/targets/sizes.json"
+  },
+  "diagram_mapping": {
+    "version": "holon-diagram-transitions/0.1",
+    "schema": "spec/M4/lib/diagram_transitions.schema.json",
+    "doc": "The diagram of a holon-facts/0.3 transitions document (the Solidity frontend's output). holon.diagram.build maps holon-facts/0.1 and 0.2 only; this mapping is the 0.3 counterpart, fixed here before it is written and before any held-out document exists, so that the held-out diagram's size cannot be tuned. The same mapping builds the development target's M3 diagram (the extracted rollup document), so the two rows of the size report that rest on extracted documents are counted alike. A construct none of these rules maps (an edges entry of another kind, a family declared twice, two actions of one name, a document that is not a transitions document) is an error: the diagram is not written.",
+    "families": "F: the names of the entries of the document's inherited_storage and storage lists.",
+    "carriers": {
+      "V1": "one state carrier per family f in F, id f, cls state, reach inductive",
+      "V2": "State (cls state, reach inductive, product the families in document order), Act (cls rep, interface, reach external: every action's inputs), Obs (cls rep, reach image: outcomes, return data, events)",
+      "V3": "one env carrier per distinct name n of a term [\"env\", n] anywhere under the document's actions, id env.<n>, cls env, reach external",
+      "V4": "one external carrier per distinct fn of an entry of any action's calls, id ext.<fn>, cls rep, reach external",
+      "V5": "one carrier per distinct (kind, fn) of an entry of any action's edges: kind HASH -> id hash.<fn>, cls digest, reach image; kind COMMIT -> id commit.<fn>, cls rep, reach external"
+    },
+    "edges": {
+      "E1": "per family f: STORE.<f> (State -> f) and LOAD.<f> (f -> State)",
+      "E2": "per action a whose mutability is nonpayable or payable: TRANS.<a> (State -> State)",
+      "E3": "per action a whose mutability is view or pure: OBS.<a> (kind LOAD, State -> Obs)",
+      "E4": "per entry c of an action a's calls: CALL.<a>.<c.seq> (State -> ext.<c.fn>)",
+      "E5": "per entry e at position i of an action a's edges: <e.kind>.<a>.<i> (State -> hash.<e.fn> or commit.<e.fn>)"
+    },
+    "size": "|V| = number of carriers, |E| = number of edges of the written diagram; for a transitions document both are also recomputed from the document alone by the test instrument (tests_m4/_i49.py expected_counts), never from the diagram's own code."
+  },
+  "sizes": {
+    "schema": "spec/M4/lib/sizes.schema.json",
+    "doc": "results/targets/sizes.json reports, for each of the four diagrams of BUILD_PLAN I49/I50's exit, |V|, |E| and the obligations (laws) over that diagram's document, per rule and per rule/subform, plus the law set's total over all its documents for context. It makes no linearity claim: four points from one held-out target support none, and the schema has no field for a fitted relation.",
+    "rows": [
+      {"id": "toy", "document": "targets/abacus/facts/abacus.facts.json", "diagram": "gen/diagrams/abacus/abacus_facts.json", "adapter": "holon.diagram.build (holon-facts/0.2)", "laws": "targets/abacus/laws/*.json (each law file's rule and subform, and its facts)"},
+      {"id": "morph_m2", "document": "spec/M1/facts/morph_rollup.json", "diagram": "gen/M2/diagram/morph_rollup.json", "adapter": "holon.diagram.build (holon-facts/0.2; the committed I11 diagram)", "laws": "laws/M2/DERIVATION.json laws (rule, subform, facts)"},
+      {"id": "morph_m3", "document": "spec/M2/facts/morph_rollup.extracted.json", "diagram": "gen/diagrams/morph/morph_rollup_extracted.json", "adapter": "holon-diagram-transitions/0.1", "laws": "laws/M3/DERIVATION.json laws (rule, subform, facts)"},
+      {"id": "heldout", "document": "gen/targets/<name>/facts/<stem>.extracted.json", "diagram": "gen/diagrams/<name>/<stem_>.json", "adapter": "holon-diagram-transitions/0.1", "laws": "I50's law set over the document (its prereg names it); until then obligations are pending I50 (every count null)"}
+    ]
+  },
+  "gate": {
+    "command": "python -m holon target gate --target <name> [--checks ID,..]",
+    "report": "results/targets/<name>/gate_report.json",
+    "doc": "The held-out target's gate, I49's checks in this order. GENV runs first and, if it fails, every other check fails as skipped (M0 spec section 7). The report is canonical JSON with no timing; exit 0 iff passed. I50 extends the gate with the law checks (its prereg names them); it never removes one of these.",
+    "checks": {
+      "GENV": "no bunfig.toml and no .env* file anywhere under the root, and bend version equals config bend.pinned_version (holon.gate's own GENV, reused)",
+      "X1": "the checkout's HEAD is the sealed commit, and a fresh extraction with the scope sidecar reproduces every committed fact document of the target byte for byte (the frontend's --check)",
+      "X2": "no hand-written facts: gen/targets/<name>/facts/ holds exactly the documents target.json extract.documents names, each a holon-facts/0.3 document whose extraction.frontend is a HOLON frontend and whose extraction.sidecar is the target's scope sidecar; targets/<name>/ holds only target.json, the scope sidecar and (I50) law sources the rules generated; no coverage waiver (hand_written) exists",
+      "G8": "the coverage report regenerates byte for byte from the compiler's output (the frontend's coverage walk) and its unaccounted count is 0; every gap is a debt entry with a kind and a non-empty detail (its reason)",
+      "D1": "the diagram of every fact document regenerates byte for byte and validates against the diagram mapping's schema",
+      "S1": "results/targets/sizes.json regenerates byte for byte and validates against its schema"
+    }
+  },
+  "catalog_pin": "spec/M4/lib/heldout_catalog_pin.json",
+  "disclosures": "spec/M4/lib/heldout_disclosures.jsonl",
+  "contamination": {
+    "label": "sealed in the repository, not sealed from the agent's priors",
+    "doc": "The seal is a repository seal: no session read the sealed file before this prereg. It is not a seal on what the builder already knows. The held-out target is a public repository that predates the builder's training data, so the builder's model family has likely seen its code, and possibly write-ups of its defects. Every held-out result carries this caveat. A change to the pinned catalog after the seal opens adds I49's post-seal contamination caveat to every result it affects (spec/M4/lib/heldout_disclosures.jsonl)."
+  }
+}

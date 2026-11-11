@@ -276,6 +276,134 @@
         "workers": 4
       },
       "title": "Target-agnostic factory, parallel checking, performance loop, drift trigger: targets/<name>/target.json for the development target and a toy second target (abacus) that runs with no edit to holon/; per-law worker processes in the run and the gate with a deterministic merge; the section 9.2(7) loop with veto; holon drift (git ls-remote against the pin, re-extraction, stale closure, stale_closure_latency); no committed M0-M3 output or generator digest moves"
+    },
+    "I49": {
+      "outcome_paths": [
+        "gen/diagrams/",
+        "gen/targets/",
+        "results/targets/",
+        "targets/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i49--i50-held-out-target-about-3--3-days",
+      "predictions": [
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestTarget::test_target_file and tests_m4/test_i49_heldout.py::TestTarget::test_scope_sidecar and tests_m4/test_i49_heldout.py::TestTarget::test_checkout_at_the_sealed_commit and tests_m4/test_i49_heldout.py::TestExtraction::test_document",
+          "claim": "The sealed contract extracts with the pinned Solidity frontend, unchanged: targets/<name>/target.json (rule T1, the seal's repository and commit, checkout.sealed and sealed_keys) and its scope sidecar (rules S1-S5 of spec/M4/lib/heldout_protocol.json, S3 recomputed by the instrument) exist; the checkout is at the sealed commit; and `holon target extract` writes one holon-facts/0.3 transitions document for the sealed source file's contract that validates against spec/schemas/facts_0_3.schema.json, names the sealed repository and commit, is extracted by the solidity frontend under the scope sidecar, and has at least one action.",
+          "expected": {
+            "actions_at_least": 1,
+            "documents": 1,
+            "facts_version": "holon-facts/0.3"
+          },
+          "id": "I49-P1"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestCoverage::test_coverage",
+          "claim": "Coverage (G8) on the held-out document: `holon target coverage --check` reproduces gen/targets/<name>/coverage.json byte for byte from the compiler's output, its unaccounted count is 0, and every gap is a debt entry with a kind and a non-empty detail (its reason). Gaps are coverage debt, never exclusions and never hand-written facts.",
+          "expected": {
+            "unaccounted": 0
+          },
+          "id": "I49-P2"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestDiagram::test_heldout_diagram and tests_m4/test_i49_heldout.py::TestDiagram::test_morph_m3_diagram",
+          "claim": "The held-out document's diagram (holon-diagram-transitions/0.1, rules V1-V5 and E1-E5) builds with zero unmapped constructs, validates against spec/M4/lib/diagram_transitions.schema.json, and its |V|, |E| and per-kind counts equal the instrument's count from the document alone; the same holds for the development target's extracted rollup document (the Morph M3 row).",
+          "expected": {
+            "unmapped": 0
+          },
+          "id": "I49-P3"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestGate::test_gate_passes and tests_m4/test_i49_heldout.py::TestGate::test_bunfig_fails_genv_and_skips and tests_m4/test_i49_heldout.py::TestGate::test_edited_document_fails_x1 and tests_m4/test_i49_heldout.py::TestGate::test_hand_written_fact_fails_x2 and tests_m4/test_i49_heldout.py::TestGate::test_edited_diagram_fails_d1",
+          "claim": "All gates green on the target (I49's half): `holon target gate --target <name>` passes GENV, X1, X2, G8, D1 and S1 in that order on a copy of the repo, exits 0 and writes the committed report byte for byte; and each tamper fails it: a bunfig.toml fails GENV with every other check skipped, an edited extracted document fails X1, a hand-written fact file beside the extracted one fails X2, an edited diagram fails D1.",
+          "expected": {
+            "checks": [
+              "GENV",
+              "X1",
+              "X2",
+              "G8",
+              "D1",
+              "S1"
+            ],
+            "passed": true
+          },
+          "id": "I49-P4"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestSizes::test_sizes",
+          "claim": "The |E|/|V| reporting form: results/targets/sizes.json validates against spec/M4/lib/sizes.schema.json and holds exactly the protocol's four rows in order (toy, morph_m2, morph_m3, heldout), each with its document, diagram and their sha256s, |V|, |E| and per-kind counts equal to the instrument's count of the diagram (and, for the two transitions rows, of the document), and the obligations over its document per rule and per rule/subform equal to the instrument's count over the row's law set; the held-out row's obligations are pending I50 (all null) until I50 counts them. No linearity claim: linearity is the schema's constant 'not claimed' sentence and the schema has no field for a ratio, slope or fit.",
+          "expected": {
+            "linearity": "not claimed",
+            "rows": [
+              "toy",
+              "morph_m2",
+              "morph_m3",
+              "heldout"
+            ]
+          },
+          "id": "I49-P5"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestExtraction::test_extraction_regenerates and tests_m4/test_i49_heldout.py::TestDiagram::test_diagrams_regenerate and tests_m4/test_i49_heldout.py::TestSizes::test_sizes_regenerate and tests_m4/test_i49_heldout.py::TestExtraction::test_extraction_report",
+          "claim": "Determinism: `holon target extract --check` (twice), `holon target diagram --check` for the held-out, development and toy targets, and `holon target sizes --check` (twice) each reproduce the committed files byte for byte; the extraction report lists every include-path unit whose bytes differ from the target's own copy as dependency_version debt (rule S6), with a reason.",
+          "expected": {
+            "differing_files": 0
+          },
+          "id": "I49-P6"
+        }
+      ],
+      "prompt": "prompts/I49_heldout_extraction.md",
+      "regressions": [
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r1_generator_digests_unchanged",
+          "claim": "Every generator_sha256 digest and the files they read are the same at HEAD as at the base commit 7dc50894 (I47's probe), so no committed M0-M3 record moves and G1 regenerates them as they are.",
+          "id": "I49-R1"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r2_outcomes_unchanged",
+          "claim": "No non-merge first-parent commit from the I49 prereg on changes a committed M0-M3 outcome (I47's OUTCOMES list).",
+          "id": "I49-R2"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r3_target_agnostic",
+          "claim": "I47's target-agnostic scan, with every declared target's names (the held-out target's included): no holon/ file names a target except I47's 19 residue files, and none of those names the held-out target.",
+          "id": "I49-R3"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestSeal::test_prereg_commit_is_blind and tests_m4/test_i49_heldout.py::TestSeal::test_seal_unchanged and tests_m4/test_i49_heldout.py::TestSeal::test_heldout_outputs_descend_from_prereg",
+          "claim": "Seal order: the I49 prereg commit touches nothing under spec/heldout/ or the targets' output prefixes and holds neither the sealed commit (full or 8 hex) nor the sealed source path; the sealed file is unchanged since before the prereg; every commit of the held-out target descends from the prereg commit.",
+          "id": "I49-R4"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r5_pin_changes_disclosed and tests_m4/test_i49_heldout.py::TestPrereg::test_pin_is_the_base_tree",
+          "claim": "The catalog pin is the base tree (every holon/ file by sha256, holon-rules/1.15 the newest catalog) and every holon/ file added, changed or removed since is disclosed in spec/M4/lib/heldout_disclosures.jsonl; holon/rules/ is never edited.",
+          "id": "I49-R5"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r6_freeze_and_caveat",
+          "claim": "tools/freeze.py check passes, and docs/iterations/I49.md states the contamination caveat under '## Contamination caveat' with the protocol's label.",
+          "id": "I49-R6"
+        }
+      ],
+      "tests": [
+        "tests_m4/test_i49_heldout.py"
+      ],
+      "thresholds": {
+        "base_commit": "7dc50894695b7c37c9a3ec4f2d1d5bfcdfcc545c",
+        "catalog_pin": "spec/M4/lib/heldout_catalog_pin.json",
+        "catalog_pin_tree_sha256": "3c1bc830918dfbf8d48bce15434df448779a4a15cc02e4f03fa4b95515d75b5d",
+        "contamination_label": "sealed in the repository, not sealed from the agent's priors",
+        "disclosures": "spec/M4/lib/heldout_disclosures.jsonl",
+        "instrument_sha256": {
+          "spec/M4/lib/diagram_transitions.schema.json": "ceda93b400b11225d1f68f082ffbbb7455f2e8d096cbc7a5c21e87b311f4bb0e",
+          "spec/M4/lib/heldout_catalog_pin.json": "e5f667ed5274269fc57574b2adf508ba1e0864d05bb6657359ee8833dfb5c891",
+          "spec/M4/lib/heldout_protocol.json": "450b34a674d104286e6644b94f7f2983146850d347a2104483ca442f16a57dda",
+          "spec/M4/lib/sizes.schema.json": "a9344df1fd22248b09d82fe9f1612d758fc61b2378c8f51c30e02505dbe8da74",
+          "tests_m4/_i49.py": "a718a5c42679b153b6f390217e163bdff8c64ca717be88ae4319e4e7600577a2"
+        },
+        "protocol": "spec/M4/lib/heldout_protocol.json",
+        "rule_catalog_version": "holon-rules/1.15"
+      },
+      "title": "Held-out target I: extraction, facts and the diagram of the sealed target (blind prereg)"
     }
   }
 }

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON diagram of an extracted transitions document (holon-diagram-transitions/0.1; I49)",
+  "description": "The holon-facts/0.3 counterpart of holon-diagram/0.1 (spec/schemas/diagram.schema.json), built by the mapping of spec/M4/lib/heldout_protocol.json diagram_mapping (rules V1-V5, E1-E5). Carriers and edges keep holon-diagram/0.1's core keys; kinds add CALL (an external call) and COMMIT (a commit edge the frontend recorded).",
+  "type": "object",
+  "required": ["diagram_version", "model", "facts", "facts_sha256", "facts_version", "contract", "carriers", "edges", "provenance"],
+  "additionalProperties": false,
+  "properties": {
+    "diagram_version": {"const": "holon-diagram-transitions/0.1"},
+    "model": {"type": "string", "pattern": "^[A-Za-z0-9_]+$"},
+    "facts": {"type": "string", "pattern": "^[^/].*\\.json$"},
+    "facts_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "facts_version": {"const": "holon-facts/0.3"},
+    "contract": {"type": "string"},
+    "carriers": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/carrier"}},
+    "edges": {"type": "array", "items": {"$ref": "#/$defs/edge"}},
+    "provenance": {"type": "object", "additionalProperties": false, "properties": {"target": {"type": "object"}, "extraction": {"type": "object"}}}
+  },
+  "$defs": {
+    "carrier": {
+      "type": "object",
+      "required": ["id", "cls", "rule", "interface", "reach"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^\\S+$"},
+        "cls": {"enum": ["rep", "state", "env", "digest"]},
+        "rule": {"enum": ["V1", "V2", "V3", "V4", "V5"]},
+        "interface": {"type": "boolean"},
+        "reach": {"enum": ["external", "inductive", "image"]},
+        "base_type": {"type": ["string", "null"]},
+        "product": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "kind", "rule", "src", "tgt", "action", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^\\S+$"},
+        "kind": {"enum": ["STORE", "LOAD", "TRANS", "CALL", "HASH", "COMMIT"]},
+        "rule": {"enum": ["E1", "E2", "E3", "E4", "E5"]},
+        "src": {"type": "string"},
+        "tgt": {"type": "string"},
+        "action": {"type": ["string", "null"]},
+        "source": {"type": ["string", "null"], "description": "the document's src span of the action, call or edge entry"}
+      }
+    }
+  }
+}
