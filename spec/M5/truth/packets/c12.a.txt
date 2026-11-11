@@ -1,0 +1,24 @@
+You are reading the public write-up of one software defect. Answer three questions from the text below alone. Do not use anything you know about the project, the defect or its fix from elsewhere. When the text does not settle a question, answer "undocumented".
+
+1. trigger. Who does the text say can bring the defect about?
+   - "untrusted": any user, any network peer, an attacker, or any party outside the system's operators and governance.
+   - "trusted_only": only an operator, owner, governance, the deployer, or a configured component.
+   - "none": the text says no one can, in the shipped configuration.
+   - "undocumented": the text does not say.
+2. actor_flow. What does the text say about the triggering actor's own value flows: transfers, rewards, deposits, bonds, slashing, protocol fees? Never count transaction gas.
+   - "gain": the actor ends with more value.
+   - "none": the trigger moves none of the actor's value (a network message, a query, a view call).
+   - "loss": the actor pays a deposit, bond, fee or slash that it does not recover.
+   - "undocumented": the text does not say.
+3. doc_contradiction. Does the text say the code contradicts its own documentation, its specification or a reference implementation?
+   - "yes", "no", or "undocumented".
+
+For every answer other than "undocumented", give a quote: an exact, contiguous excerpt of the text that supports it. For "undocumented", the quote is null.
+
+Reply with one JSON object and nothing else:
+{"trigger": {"value": "...", "quote": "..." or null}, "actor_flow": {"value": "...", "quote": "..." or null}, "doc_contradiction": {"value": "...", "quote": "..." or null}}
+
+The text:
+
+Missing sequencer message length checks
+Finally, the recoverInternal function will be reached, where the server will crash if it attempts to access an offset of the message and the length is not the expected one.
