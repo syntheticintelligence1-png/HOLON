@@ -6,19 +6,39 @@
   "systems": {
     "corpus": {
       "extra": {
+        "completed": true,
         "detected": false,
         "entry": "c17",
         "full_detected": false,
         "full_laws": 0,
-        "i51_stages": [],
-        "last_stage_rc": 1,
-        "laws": 0
+        "laws": 0,
+        "milestone": "T530"
       },
       "reran": [
         {
-          "argv": "holon sorts --milestone T530",
-          "rc": 1,
-          "tail": "holon sorts: test milestone T530 needs --sidecar\n"
+          "argv": "holon sorts --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts",
+          "rc": 0,
+          "tail": "holon sorts: 0 conflicts, 26 unresolved variables -> gen/T530/sorts\n"
+        },
+        {
+          "argv": "holon types --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts",
+          "rc": 0,
+          "tail": "holon types: onestepproverhostio.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\n"
+        },
+        {
+          "argv": "holon model --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts/models",
+          "rc": 0,
+          "tail": "wrote <scratch>\n"
+        },
+        {
+          "argv": "holon disch --milestone T530 --sidecar results/eval/holon/c17/sidecars/disch.json --out gen/T530/disch",
+          "rc": 0,
+          "tail": "holon disch: closure.json, conjuncts.json -> <scratch>\n"
+        },
+        {
+          "argv": "holon derive --milestone T530 --catalog holon-rules/1.15 --sidecar results/eval/holon/c17/sidecars/sort_types.json --disch results/eval/holon/c17/sidecars/disch.json --undo-sidecar results/eval/holon/c17/sidecars/undo.json --fact-sidecar results/eval/holon/c17/sidecars/fact.json --out laws/T530 --obstructions gen/T530/sorts/obstructions.json",
+          "rc": 0,
+          "tail": "holon derive: 0 laws, 0 obstructions -> laws/T530\n"
         }
       ],
       "status": "run"
