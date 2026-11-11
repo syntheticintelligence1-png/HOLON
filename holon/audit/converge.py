@@ -13,7 +13,8 @@ the milestone's findings file (audit/<M>_findings.jsonl; M0 and M1: audit/findin
   CV1  a round is counted iff counts_toward_convergence is true and it qualifies (holon.audit.rounds.qualifies: the
        counted family, or a same-family round whose auditor.ruling is the admitting ruling of the milestone's
        spec/<M>/lib/audit_rulings.json (HUMAN_ANSWERS Q9b); not a dry run, every auditor type ran, a session no
-       earlier round of M had)
+       earlier round of M had; and, where the root has spec/<M>/lib/audit_evidence.json, the round carries the
+       evidence that file requires: its driver records and packet, in its own directory (F-M3-27))
   CV2  a round is clean iff every finding it lists is in the findings file with a severity that is not high-priority
   CV3  walking the rounds in order, a round that is not clean resets the streak to 0, whatever its family; a counted
        clean round adds 1; any other round leaves it unchanged
@@ -30,8 +31,8 @@ import json
 import sys
 from pathlib import Path
 
-from .rounds import (ROOT, RoundError, admitted_same_family, check, file_sha256, findings_rel, load_findings,
-                     load_policy, load_rounds, load_rulings, qualifies, rel_or_abs)
+from .rounds import (ROOT, RoundError, admitted_same_family, check, evidence_problems, file_sha256, findings_rel,
+                     load_evidence_rule, load_findings, load_policy, load_rounds, load_rulings, qualifies, rel_or_abs)
 
 STATUS_VERSION = "holon-audit-status/0.1"
 
@@ -55,6 +56,10 @@ def compute(root: Path, milestone: str) -> dict:
         rulings = load_rulings(root, milestone)
     except RoundError:
         rulings = {}                                            # check() reports the unreadable file already
+    try:
+        rule = load_evidence_rule(root, milestone)
+    except RoundError:
+        rule = {}                                               # check() reports the unreadable file already
     sev = {f["id"]: f.get("severity") for f in findings}
     seen: set = set()
     streak = counted = 0
@@ -62,7 +67,8 @@ def compute(root: Path, milestone: str) -> dict:
     for n, _p, r in rounds:
         a = r.get("auditor") or {}
         claims = a.get("counts_toward_convergence") is True
-        ok, why_not = qualifies(r, seen, policy, rulings)
+        ev = evidence_problems(root, milestone, n, r, rule) if claims else []
+        ok, why_not = qualifies(r, seen, policy, rulings, ev)
         is_counted = claims and ok
         listed = list(r.get("findings") or [])
         unknown = sorted(f for f in listed if f not in sev)
