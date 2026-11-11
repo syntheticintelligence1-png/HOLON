@@ -419,6 +419,10 @@ GEN3 = ROOT / "gen" / "M3"
 IR03 = SCHEMAS / "law_ir_0_3.schema.json"
 LAW_FILE = re.compile(r"^L[0-9]?_[A-Za-z0-9_]+\.json$")
 COMPONENT = "header_length"
+# PAR sub-forms later M3 iterations add beside I24's ten, each by amendment (spec/M3/amendments/I24.jsonl): I28's
+# init_chain, I84's link_domain, I86's push, and I93's Go sub-forms go_branch, go_recompute and go_round_trip
+# (holon-rules/1.15, amended at the lead). I24's checks are about I24's PAR laws.
+LATER_PAR_SUBFORMS = ("init_chain", "link_domain", "push", "go_branch", "go_recompute", "go_round_trip")
 CODEC_DOC = f"gen/M3/codec/{COMPONENT}.json"
 EXTRACTED = ("spec/M2/facts/morph_batch.go.extracted.json", "spec/M2/facts/morph_header.extracted.json",
              "spec/M2/facts/morph_rollup.extracted.json")
@@ -571,11 +575,13 @@ class _Morph(unittest.TestCase):
         """The PAR laws derive wrote but those of sub-form init_chain (later M3 iterations add laws of other rules, and I28
         a PAR law of the sub-form init_chain over the versioned document; I24's checks are about I24's PAR laws. Amended
         at the I28 prereg, spec/M3/amendments.jsonl), those over a Go-op document (I67's, gen/M3/goops/; amended at
-        the I67 prereg), those of sub-form link_domain (I84's, over I80's bundle declaration; amended at I84's build)
-        and those of the sub-form push (I86's, over a bundle member's document; amended at I86's build)."""
+        the I67 prereg), those of sub-form link_domain (I84's, over I80's bundle declaration; amended at I84's build),
+        those of the sub-form push (I86's, over a bundle member's document; amended at I86's build) and those of the Go
+        sub-forms go_branch, go_recompute and go_round_trip (I93's, holon-rules/1.15; amended at the lead, as I93 did
+        not)."""
         self.assertEqual(self.r.code, 0, self.r.log)
         return {k: v for k, v in self.r.law_docs().items()
-                if v.get("rule") == "PAR" and v.get("subform") not in ("init_chain", "link_domain", "push")
+                if v.get("rule") == "PAR" and v.get("subform") not in LATER_PAR_SUBFORMS
                 and not str(v.get("facts") or "").startswith("gen/M3/goops/")}
 
 
@@ -600,13 +606,14 @@ class TestRegistry(unittest.TestCase):
         else:          # from I30 on: a later catalog for M3 that keeps holon-rules/1.1's PAR producers unchanged (the
             #            same objects; I28 adds PAR's sub-form init_chain, and only it, beside them: amended at the I28
             #            prereg, spec/M3/amendments.jsonl; I84 adds link_domain: amended at I84's build; I86 adds PAR's
-            #            sub-form push: amended at I86's build)
+            #            sub-form push: amended at I86's build; I93 adds the Go sub-forms go_branch, go_recompute and
+            #            go_round_trip: amended at the lead)
             self.assertNotIn(cv, ("holon-rules/1.0", "holon-rules/1.1"))
             base = rules.CATALOGS["holon-rules/1.1"]["PAR"]
             self.assertEqual({s: p for s, p in rules.CATALOGS[cv]["PAR"].items() if s in base}, base)
             for s, p in base.items():
                 self.assertIs(rules.CATALOGS[cv]["PAR"][s], p, s)
-            self.assertLessEqual(set(rules.CATALOGS[cv]["PAR"]) - set(base), {"init_chain", "link_domain", "push"})
+            self.assertLessEqual(set(rules.CATALOGS[cv]["PAR"]) - set(base), set(LATER_PAR_SUBFORMS))
 
     def test_m2_derivation_is_unchanged(self):
         """I24-R2: PAR is not in M2's catalog; derive --milestone M2 reproduces laws/M2 and gen/M2/sorts/obstructions.json
@@ -844,7 +851,9 @@ class TestDeriveM3(_Morph):
         P0-P12 give over the component, as tests_m3/_i24x.py writes them out; statements exactly (canonical JSON).
         Amended at the I28 prereg (spec/M3/amendments.jsonl): the entries of sub-form init_chain (I28's) are left out.
         Amended at the I67 prereg: the entries and basis rows over a Go-op component (I67's, gen/M3/goops/) are left out.
-        Amended at I84's build: the entries of sub-form link_domain (I84's) are left out."""
+        Amended at I84's build: the entries of sub-form link_domain (I84's) are left out.
+        Amended at the lead for I93: the entries of the Go sub-forms go_branch, go_recompute and go_round_trip (I93's)
+        are left out."""
         comp, diag, ats, exp = morph_component()
         dv = self.r.doc("DERIVATION")
         ls = self.derived()
@@ -861,7 +870,7 @@ class TestDeriveM3(_Morph):
         goops = {p.stem for p in (ROOT / "gen" / "M3" / "goops").glob("*.json")}
         self.assertEqual(I.basis_rows([b for b in dv["par_basis"] if b["model"] not in goops]), I.basis_rows(exp["basis"]))
         entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR"
-                   and e.get("subform") not in ("init_chain", "link_domain", "push")
+                   and e.get("subform") not in LATER_PAR_SUBFORMS
                    and not str(e.get("facts") or "").startswith("gen/M3/goops/")}
         self.assertEqual(sorted(entries), sorted(ls))
         for lid, e in entries.items():
