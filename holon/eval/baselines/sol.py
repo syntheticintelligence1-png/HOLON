@@ -100,7 +100,7 @@ def _build(system: str, target: str) -> dict:
         else:
             remaps_txt = ""
         needs_nm = "node_modules" in remaps_txt or (not cfg_has and (proj / "package.json").is_file())
-        if system == "corpus" and needs_nm and not (proj / "node_modules").is_dir() and (proj / "package.json").is_file():
+        if not core.pinned(system) and needs_nm and not (proj / "node_modules").is_dir() and (proj / "package.json").is_file():
             if (proj / "yarn.lock").is_file():
                 step(["yarn", "install", "--frozen-lockfile", "--ignore-scripts", "--non-interactive"], proj)
             else:
@@ -133,7 +133,7 @@ def _build(system: str, target: str) -> dict:
         if core.pinned(system):
             remaps.append(f"node_modules/={proj / 'node_modules'}/")
         solc = conf.get("solc") or conf.get("solc_version")
-        if core.pinned(system):
+        if core.pinned(system) or system == core.HELDOUT:  # I52b: the held-out project pins the pinned solc's version
             solc = solc_pinned()
         first = (src / sol_scope[0]).read_text(encoding="utf-8", errors="replace") if sol_scope else ""
         pragma = _pragma(first) or ">=0.4.0"

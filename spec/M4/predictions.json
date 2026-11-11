@@ -277,6 +277,272 @@
       },
       "title": "Target-agnostic factory, parallel checking, performance loop, drift trigger: targets/<name>/target.json for the development target and a toy second target (abacus) that runs with no edit to holon/; per-law worker processes in the run and the gate with a deterministic merge; the section 9.2(7) loop with veto; holon drift (git ls-remote against the pin, re-extraction, stale closure, stale_closure_latency); no committed M0-M3 output or generator digest moves"
     },
+    "I49": {
+      "outcome_paths": [
+        "gen/diagrams/",
+        "gen/targets/",
+        "results/targets/",
+        "targets/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i49--i50-held-out-target-about-3--3-days",
+      "predictions": [
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestTarget::test_target_file and tests_m4/test_i49_heldout.py::TestTarget::test_scope_sidecar and tests_m4/test_i49_heldout.py::TestTarget::test_checkout_at_the_sealed_commit and tests_m4/test_i49_heldout.py::TestExtraction::test_document",
+          "claim": "The sealed contract extracts with the pinned Solidity frontend, unchanged: targets/<name>/target.json (rule T1, the seal's repository and commit, checkout.sealed and sealed_keys) and its scope sidecar (rules S1-S5 of spec/M4/lib/heldout_protocol.json, S3 recomputed by the instrument) exist; the checkout is at the sealed commit; and `holon target extract` writes one holon-facts/0.3 transitions document for the sealed source file's contract that validates against spec/schemas/facts_0_3.schema.json, names the sealed repository and commit, is extracted by the solidity frontend under the scope sidecar, and has at least one action.",
+          "expected": {
+            "actions_at_least": 1,
+            "documents": 1,
+            "facts_version": "holon-facts/0.3"
+          },
+          "id": "I49-P1"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestCoverage::test_coverage",
+          "claim": "Coverage (G8) on the held-out document: `holon target coverage --check` reproduces gen/targets/<name>/coverage.json byte for byte from the compiler's output, its unaccounted count is 0, and every gap is a debt entry with a kind and a non-empty detail (its reason). Gaps are coverage debt, never exclusions and never hand-written facts.",
+          "expected": {
+            "unaccounted": 0
+          },
+          "id": "I49-P2"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestDiagram::test_heldout_diagram and tests_m4/test_i49_heldout.py::TestDiagram::test_morph_m3_diagram",
+          "claim": "The held-out document's diagram (holon-diagram-transitions/0.1, rules V1-V5 and E1-E5) builds with zero unmapped constructs, validates against spec/M4/lib/diagram_transitions.schema.json, and its |V|, |E| and per-kind counts equal the instrument's count from the document alone; the same holds for the development target's extracted rollup document (the Morph M3 row).",
+          "expected": {
+            "unmapped": 0
+          },
+          "id": "I49-P3"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestGate::test_gate_passes and tests_m4/test_i49_heldout.py::TestGate::test_bunfig_fails_genv_and_skips and tests_m4/test_i49_heldout.py::TestGate::test_edited_document_fails_x1 and tests_m4/test_i49_heldout.py::TestGate::test_hand_written_fact_fails_x2 and tests_m4/test_i49_heldout.py::TestGate::test_edited_diagram_fails_d1",
+          "claim": "All gates green on the target (I49's half): `holon target gate --target <name>` passes GENV, X1, X2, G8, D1 and S1 in that order on a copy of the repo, exits 0 and writes the committed report byte for byte; and each tamper fails it: a bunfig.toml fails GENV with every other check skipped, an edited extracted document fails X1, a hand-written fact file beside the extracted one fails X2, an edited diagram fails D1.",
+          "expected": {
+            "checks": [
+              "GENV",
+              "X1",
+              "X2",
+              "G8",
+              "D1",
+              "S1"
+            ],
+            "passed": true
+          },
+          "id": "I49-P4"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestSizes::test_sizes",
+          "claim": "The |E|/|V| reporting form: results/targets/sizes.json validates against spec/M4/lib/sizes.schema.json and holds exactly the protocol's four rows in order (toy, morph_m2, morph_m3, heldout), each with its document, diagram and their sha256s, |V|, |E| and per-kind counts equal to the instrument's count of the diagram (and, for the two transitions rows, of the document), and the obligations over its document per rule and per rule/subform equal to the instrument's count over the row's law set; the held-out row's obligations are pending I50 (all null) until I50 counts them. No linearity claim: linearity is the schema's constant 'not claimed' sentence and the schema has no field for a ratio, slope or fit.",
+          "expected": {
+            "linearity": "not claimed",
+            "rows": [
+              "toy",
+              "morph_m2",
+              "morph_m3",
+              "heldout"
+            ]
+          },
+          "id": "I49-P5"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestExtraction::test_extraction_regenerates and tests_m4/test_i49_heldout.py::TestDiagram::test_diagrams_regenerate and tests_m4/test_i49_heldout.py::TestSizes::test_sizes_regenerate and tests_m4/test_i49_heldout.py::TestExtraction::test_extraction_report",
+          "claim": "Determinism: `holon target extract --check` (twice), `holon target diagram --check` for the held-out, development and toy targets, and `holon target sizes --check` (twice) each reproduce the committed files byte for byte; the extraction report lists every include-path unit whose bytes differ from the target's own copy as dependency_version debt (rule S6), with a reason.",
+          "expected": {
+            "differing_files": 0
+          },
+          "id": "I49-P6"
+        }
+      ],
+      "prompt": "prompts/I49_heldout_extraction.md",
+      "regressions": [
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r1_generator_digests_unchanged",
+          "claim": "Every generator_sha256 digest and the files they read are the same at HEAD as at the base commit 7dc50894 (I47's probe), so no committed M0-M3 record moves and G1 regenerates them as they are.",
+          "id": "I49-R1"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r2_outcomes_unchanged",
+          "claim": "No non-merge first-parent commit from the I49 prereg on changes a committed M0-M3 outcome (I47's OUTCOMES list).",
+          "id": "I49-R2"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r3_target_agnostic",
+          "claim": "I47's target-agnostic scan, with every declared target's names (the held-out target's included): no holon/ file names a target except I47's 19 residue files, and none of those names the held-out target.",
+          "id": "I49-R3"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestSeal::test_prereg_commit_is_blind and tests_m4/test_i49_heldout.py::TestSeal::test_seal_unchanged and tests_m4/test_i49_heldout.py::TestSeal::test_heldout_outputs_descend_from_prereg",
+          "claim": "Seal order: the I49 prereg commit touches nothing under spec/heldout/ or the targets' output prefixes and holds neither the sealed commit (full or 8 hex) nor the sealed source path; the sealed file is unchanged since before the prereg; every commit of the held-out target descends from the prereg commit.",
+          "id": "I49-R4"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r5_pin_changes_disclosed and tests_m4/test_i49_heldout.py::TestPrereg::test_pin_is_the_base_tree",
+          "claim": "The catalog pin is the base tree (every holon/ file by sha256, holon-rules/1.15 the newest catalog) and every holon/ file added, changed or removed since is disclosed in spec/M4/lib/heldout_disclosures.jsonl; holon/rules/ is never edited.",
+          "id": "I49-R5"
+        },
+        {
+          "check": "tests_m4/test_i49_heldout.py::TestRegressions::test_r6_freeze_and_caveat",
+          "claim": "tools/freeze.py check passes, and docs/iterations/I49.md states the contamination caveat under '## Contamination caveat' with the protocol's label.",
+          "id": "I49-R6"
+        }
+      ],
+      "tests": [
+        "tests_m4/test_i49_heldout.py"
+      ],
+      "thresholds": {
+        "base_commit": "7dc50894695b7c37c9a3ec4f2d1d5bfcdfcc545c",
+        "catalog_pin": "spec/M4/lib/heldout_catalog_pin.json",
+        "catalog_pin_tree_sha256": "3c1bc830918dfbf8d48bce15434df448779a4a15cc02e4f03fa4b95515d75b5d",
+        "contamination_label": "sealed in the repository, not sealed from the agent's priors",
+        "disclosures": "spec/M4/lib/heldout_disclosures.jsonl",
+        "instrument_sha256": {
+          "spec/M4/lib/diagram_transitions.schema.json": "ceda93b400b11225d1f68f082ffbbb7455f2e8d096cbc7a5c21e87b311f4bb0e",
+          "spec/M4/lib/heldout_catalog_pin.json": "e5f667ed5274269fc57574b2adf508ba1e0864d05bb6657359ee8833dfb5c891",
+          "spec/M4/lib/heldout_protocol.json": "450b34a674d104286e6644b94f7f2983146850d347a2104483ca442f16a57dda",
+          "spec/M4/lib/sizes.schema.json": "a9344df1fd22248b09d82fe9f1612d758fc61b2378c8f51c30e02505dbe8da74",
+          "tests_m4/_i49.py": "a718a5c42679b153b6f390217e163bdff8c64ca717be88ae4319e4e7600577a2"
+        },
+        "protocol": "spec/M4/lib/heldout_protocol.json",
+        "rule_catalog_version": "holon-rules/1.15"
+      },
+      "title": "Held-out target I: extraction, facts and the diagram of the sealed target (blind prereg)"
+    },
+    "I50": {
+      "outcome_paths": [
+        "gen/targets/scroll/",
+        "results/targets/",
+        "targets/scroll/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i49--i50-held-out-target-about-3--3-days",
+      "predictions": [
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestDerive::test_p1_counts",
+          "claim": "Per-rule obligation counts, frozen before derive ran on the target: holon-rules/1.15 over the held-out document (route R1, sidecars Q1-Q4) derives exactly these laws per rule/subform, and none of any other. Estimated from the document's features against the same route on the development document (whose counts were measured before this prereg on a scratch derivation: SYM tau 13, pi 11, omega 49, sentinel 4; DISCH blocking 16, revert 9, external 3, external_none 3; UNDO pair 5, residue 3, cancel 1; FACT kernel 3, attribution 2; SORT as_member 2, realize 1): tau from the 3 actions that read block.timestamp and the actions that read the Time word in miscData; pi from the prover and sequencer roles; omega scaled from Morph's eligible-pair share over 15 movers; DISCH from the initializer, pause, enforced-mode and role guard sites; UNDO pairs from add/remove prover and sequencer and commitBatches/revertBatch; FACT kernel from the two blob-hash commit actions; SORT realize from the narrowing casts.",
+          "expected": {
+            "DISCH/blocking": 10,
+            "DISCH/external": 2,
+            "DISCH/external_none": 2,
+            "DISCH/revert": 6,
+            "FACT/kernel": 2,
+            "SORT/realize": 2,
+            "SYM/omega": 17,
+            "SYM/pi": 2,
+            "SYM/sentinel": 3,
+            "SYM/tau": 9,
+            "UNDO/pair": 5,
+            "UNDO/residue": 1
+          },
+          "id": "I50-P1"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestDerive::test_p2_classes",
+          "claim": "Expected rule classes: the rule/subforms that derive at least one law are exactly the twelve of I50-P1 (SYM tau, pi, omega, sentinel; DISCH blocking, revert, external, external_none; UNDO pair, residue; FACT kernel; SORT realize), so UNDO cancel, FACT attribution and SORT as_member derive none; the rules present are DISCH, FACT, SORT, SYM and UNDO. The catalog's other parts (PAR, NAT, OWN, the bundle, slash and Go sub-forms) derive nothing over a single transitions document given by --facts.",
+          "expected": {
+            "derive": [
+              "DISCH/blocking",
+              "DISCH/external",
+              "DISCH/external_none",
+              "DISCH/revert",
+              "FACT/kernel",
+              "SORT/realize",
+              "SYM/omega",
+              "SYM/pi",
+              "SYM/sentinel",
+              "SYM/tau",
+              "UNDO/pair",
+              "UNDO/residue"
+            ],
+            "rules": [
+              "DISCH",
+              "FACT",
+              "SORT",
+              "SYM",
+              "UNDO"
+            ]
+          },
+          "id": "I50-P2"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRun::test_every_law_has_a_record and tests_m4/test_i50_heldout.py::TestGate::test_law_checks_pass",
+          "claim": "The run decides every derived law (a record with PROVED, REFUTED or UNKNOWN, and summary.json), and the gate's law checks L2, L9, L3, L5, L11 and L6 all pass on a copy of the repo.",
+          "expected": {
+            "law_checks": [
+              "L2",
+              "L9",
+              "L3",
+              "L5",
+              "L11",
+              "L6"
+            ]
+          },
+          "id": "I50-P3"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRun::test_p4_statuses",
+          "claim": "Statuses: at least one law is PROVED; every DISCH revert law is PROVED (as all 8 of the development target's are); every SYM omega law is UNKNOWN (as all 49 of the development target's are).",
+          "expected": {
+            "all_proved": [
+              "DISCH/revert"
+            ],
+            "all_unknown": [
+              "SYM/omega"
+            ],
+            "proved_at_least": 1
+          },
+          "id": "I50-P4"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestSizes::test_heldout_row_counted",
+          "claim": "The four-diagram report: the held-out row's obligations are counted from the derivation (pending null), per rule/subform equal to the derivation's, its total the derivation's law count; still no linearity claim.",
+          "expected": {
+            "pending": null
+          },
+          "id": "I50-P5"
+        }
+      ],
+      "prompt": "prompts/I50_heldout_rules.md",
+      "regressions": [
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRegressions::test_r1_i49_checks_unchanged",
+          "claim": "I49's six gate checks keep their verdicts: G8 still fails on ScrollChain.sol:748-750 and :749 (the frontend is not changed), GENV, X1, X2, D1 and S1 pass.",
+          "id": "I50-R1"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRegressions::test_r2_no_rule_change",
+          "claim": "holon/rules/ is byte for byte the catalog pin's.",
+          "id": "I50-R2"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRegressions::test_r3_outcomes_and_scan",
+          "claim": "No committed M0-M3 outcome changes and no holon/ file names a declared target (I49-R2 and I49-R3 re-run).",
+          "id": "I50-R3"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRun::test_replay_entries",
+          "claim": "Construction: every REFUTED law has a replay entry with a status and a reason; with binding null no witness is replayed on the real contract, so each is not_run with that reason, never passed.",
+          "id": "I50-R4"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestDerive::test_sidecars_follow_the_rules and tests_m4/test_i50_heldout.py::TestDerive::test_catalog_and_document and tests_m4/test_i50_heldout.py::TestDerive::test_derive_regenerates",
+          "claim": "Construction: the sidecars follow Q1-Q4; the derivation is holon-rules/1.15 as T50 over the held-out document only, its registry matches its laws, and it regenerates byte for byte.",
+          "id": "I50-R5"
+        }
+      ],
+      "tests": [
+        "tests_m4/test_i50_heldout.py"
+      ],
+      "thresholds": {
+        "budgets": "the M3 sidecars' search budgets, copied by rules Q1-Q4 (no new threshold)",
+        "catalog_pin": "spec/M4/lib/heldout_catalog_pin.json",
+        "contamination_label": "sealed in the repository, not sealed from the agent's priors",
+        "document": "gen/targets/scroll/facts/ScrollChain.extracted.json",
+        "document_sha256": "275730a29a4f352f5aeaec036285d36b11467b689a8399ca54b4e0fb6fce6837",
+        "instrument_sha256": {
+          "spec/M4/lib/heldout_run.json": "f35a110be877138831ae960b3d3ef0f01a712454ebc5380f29b7e189e3031177"
+        },
+        "route": "spec/M4/lib/heldout_run.json",
+        "rule_catalog_version": "holon-rules/1.15"
+      },
+      "title": "Held-out target II: the pinned catalog's rules, the run, replay and metrics on the sealed target"
+    },
     "I51": {
       "outcome_paths": [
         "results/eval/holon/"
@@ -606,6 +872,166 @@
         },
         "holon_budget": "spec/M4/lib/I52_baselines.json holon_budget",
         "non_vacuity": "at least half of the applicable targets run"
+      }
+    },
+    "I52b": {
+      "title": "Baselines on the held-out target (I52's held-out half): the nine I52 baselines at I52's equal budget on ScrollChain (the sealed scroll-contracts commit), in I52's findings schema, matched to I50's preregistered rule classes instantiated as (rule, action) obligations of the sealed contract; a primary budget by the lead's rule (I50's wall clock, measured since none is recorded) and a secondary budget of 3600 s fixed here",
+      "plan": "docs/BUILD_PLAN.md#i52",
+      "prompt": "prompts/I52b_heldout_baselines.md",
+      "outcome_paths": [
+        "results/eval/heldout/"
+      ],
+      "tests": [
+        "tests_m4/test_baselines_i52b.py"
+      ],
+      "predictions": [
+        {
+          "id": "I52b-P1",
+          "claim": "HOLON's budget on the held-out target is degenerate: I50's route (holon target derive then holon target run, from the committed I49 document, on a scratch copy) takes under 60 s of wall clock on this machine, because derive is refused at its first step, so the primary wall_s is 60. Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+          "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p1_primary_budget_is_one_minute",
+          "expected": {
+            "primary_wall_s": 60
+          }
+        },
+        {
+          "id": "I52b-P2",
+          "claim": "Every baseline sets up and runs on the held-out target in both budgets: slither, echidna, medusa, hevm, halmos, spec_mining and agent_review have status run (none error or missing); go_fuzz and two_cycle are not_applicable (the scope holds no Go). Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+          "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p2_every_applicable_baseline_runs",
+          "expected": {
+            "run": [
+              "slither",
+              "echidna",
+              "medusa",
+              "hevm",
+              "halmos",
+              "spec_mining",
+              "agent_review"
+            ],
+            "not_applicable": [
+              "go_fuzz",
+              "two_cycle"
+            ]
+          }
+        },
+        {
+          "id": "I52b-P3",
+          "claim": "At the primary budget no baseline detects any label, and the agent reviewer gives no parsable answer within its 60 s (it is stopped at the budget), so agent_review has no finding. Non-vacuity (I52_baselines.json non_vacuity, on a one-target system): each baseline named must have status run on the target in that budget, else this is a miss. Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+          "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p3_primary_detects_nothing",
+          "expected": {
+            "detected": {},
+            "agent_findings": 0
+          }
+        },
+        {
+          "id": "I52b-P4",
+          "claim": "At the secondary budget the fuzzers and symbolic executors (echidna, medusa, hevm, halmos) report no finding located at a label and detect none. Non-vacuity (I52_baselines.json non_vacuity, on a one-target system): each baseline named must have status run on the target in that budget, else this is a miss. Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+          "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p4_secondary_fuzzers_and_symbolic_find_nothing_located",
+          "expected": {
+            "located": {},
+            "detected": {}
+          }
+        },
+        {
+          "id": "I52b-P5",
+          "claim": "At the secondary budget slither reports at least one finding located at a label (its generic detectors fire in the contract's actions) but the adjudicator confirms none as a violation of the action's obligations, so slither detects nothing; spec_mining detects nothing. Non-vacuity (I52_baselines.json non_vacuity, on a one-target system): each baseline named must have status run on the target in that budget, else this is a miss. Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+          "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p5_secondary_slither_located_not_detected_and_mining",
+          "expected": {
+            "slither_located_at_least": 1,
+            "detected": {}
+          }
+        },
+        {
+          "id": "I52b-P6",
+          "claim": "At the secondary budget the agent-only review answers within its 3600 s, reports at least one finding located at a label and detects at least one label, more labels than all the other baselines together (the size of its detected set exceeds the size of the union of theirs). Every such detection is a claim, not a verified defect (no ground truth on the held-out target). Contamination: written after the seal on readers lifted, by a builder who had read I49's and I50's results and the target's code.",
+          "check": "tests_m4/test_baselines_i52b.py::TestPredictions::test_p6_secondary_agent_review",
+          "expected": {
+            "detected_at_least": 1,
+            "agent_greater_than_union": true
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I52b-R1",
+          "claim": "Construction (the exit): results/eval/heldout/<baseline>.json (primary) and results/eval/heldout/secondary/<baseline>.json exist for all nine baselines, validate against I52's findings schema, name system heldout, I52's protocol sha256, the tier's budget and the baseline's tool; the one target is present, with not_applicable exactly where the baseline's language is absent, missing only with a missing tool and a reason, error only with a reason, findings sorted with ids f0001.. in order and in scope, and a timing file beside each.",
+          "check": "tests_m4/test_baselines_i52b.py::TestResults::test_result_files_validate and tests_m4/test_baselines_i52b.py::TestResults::test_status_follows_applicability"
+        },
+        {
+          "id": "I52b-R2",
+          "claim": "Construction (matching): every recorded match is a located pair recomputed by the instrument and every located pair is recorded; exactly the located labels are adjudicated over their located findings; confirmed is a subset; the five labels of one action share one adjudicator prompt, which is the frozen template filled in; detected is what the adjudications give.",
+          "check": "tests_m4/test_baselines_i52b.py::TestMatching::test_matches_are_the_instrument_s and tests_m4/test_baselines_i52b.py::TestMatching::test_detected_is_what_the_adjudicator_confirmed"
+        },
+        {
+          "id": "I52b-R3",
+          "claim": "Equal budget per tier: for every baseline but agent_review that ran, the units' summed wall clock is at most the tier's wall_s plus 60 s, with cpus 1; agent_review: one reviewer per tier, its wall clock at most wall_s + 60, cpu null with a reason. The primary wall_s is the rule's value over results/eval/heldout/holon_budget.json, whose steps are I50's route.",
+          "check": "tests_m4/test_baselines_i52b.py::TestResults::test_equal_budget and tests_m4/test_baselines_i52b.py::TestHolonBudget::test_holon_budget_is_i50_s_route"
+        },
+        {
+          "id": "I52b-R4",
+          "claim": "Construction (labels): spec/M4/lib/I52b_heldout_labels.json is what tests_m4/_i52b.py labels_doc() generates from I49's committed document (65 labels: 13 state-moving actions of the labelled file times the five rules), and every anchor names a line range of the labelled file at the sealed commit.",
+          "check": "tests_m4/test_baselines_i52b.py::TestInstruments::test_labels_regenerate"
+        },
+        {
+          "id": "I52b-R5",
+          "claim": "Nothing else moves: I52b's own non-merge commits change no file under results/M0..M3, gen/M0..M3, spec/M0..M3, laws/, replay/, audit/, results/targets/, gen/targets/, targets/, spec/heldout/, results/eval/morph/, results/eval/corpus/, results/eval/holon_budget.json, nor I52's prereg files (spec/M4/predictions/I52.json, spec/M4/lib/I52_*, tests_m4/test_baselines_i52.py, tests_m4/_i52.py).",
+          "check": "tests_m4/test_baselines_i52b.py::TestPins::test_nothing_else_moves"
+        },
+        {
+          "id": "I52b-R6",
+          "claim": "Agent blindness: each reviewer's packet lists only scope files of the target (non-test .sol files of the labelled files' directories); its prompt is I52's frozen review template filled with the sorted listing and the tier's minutes; no prompt or packet path names holon, a label, the obligations, I49 or I50.",
+          "check": "tests_m4/test_baselines_i52b.py::TestResults::test_agent_review_is_blind"
+        },
+        {
+          "id": "I52b-R7",
+          "claim": "Target-agnostic: no holon/ file names the held-out target (any name of targets/scroll/target.json names, case-insensitive) after I52b's runner changes.",
+          "check": "tests_m4/test_baselines_i52b.py::TestPins::test_holon_names_no_target"
+        }
+      ],
+      "thresholds": {
+        "protocol": "spec/M4/lib/I52b_heldout.json",
+        "labels": "spec/M4/lib/I52b_heldout_labels.json",
+        "match_prompt": "spec/M4/lib/I52b_match_prompt.md",
+        "i52_protocol": "spec/M4/lib/I52_baselines.json (unchanged)",
+        "budget": {
+          "primary": "60 * ceil(H / 60), H = I50's route measured (holon target derive; holon target run) on a scratch copy, before any baseline result; cpus 1; setup_cap_s 3600",
+          "secondary": {
+            "wall_s": 3600,
+            "cpus": 1,
+            "setup_cap_s": 3600,
+            "label": "secondary"
+          }
+        },
+        "labels_count": 65,
+        "expected_detections": {
+          "primary": {
+            "slither": [],
+            "echidna": [],
+            "medusa": [],
+            "hevm": [],
+            "halmos": [],
+            "go_fuzz": [],
+            "two_cycle": [],
+            "spec_mining": [],
+            "agent_review": []
+          },
+          "secondary": {
+            "slither": [],
+            "echidna": [],
+            "medusa": [],
+            "hevm": [],
+            "halmos": [],
+            "go_fuzz": [],
+            "two_cycle": [],
+            "spec_mining": [],
+            "agent_review": "at least one label"
+          }
+        },
+        "agent_reviewers": {
+          "primary": 1,
+          "secondary": 1
+        },
+        "non_vacuity": "status run on the one target",
+        "contamination": "Predictions, labels and the secondary budget are written after the seal on readers lifted (I50's results recorded), by a builder who has read I49's and I50's results and the target's code; not blind. Disclosed beside every number."
       }
     },
     "I53": {

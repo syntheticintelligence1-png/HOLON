@@ -120,8 +120,23 @@ def run_target(name: str, root: Path = ROOT, jobs: int = 1, log=print) -> int:
         shutil.rmtree(s.parent, ignore_errors=True)
 
 
+def _typed(argv: list[str]) -> bool:
+    """Is --target a target whose run.kind is "typed" (I50, holon.target_typed)?"""
+    name = next((argv[i + 1] for i, x in enumerate(argv[:-1]) if x == "--target"), None)
+    try:
+        return name is not None and (T.load(name, ROOT).get("run") or {}).get("kind") == "typed"
+    except T.TargetError:
+        return False
+
+
 def main(argv: list[str]) -> int:
     import argparse
+    if argv[:1] and argv[0] in ("extract", "coverage", "diagram", "sizes", "gate"):   # I49: extracted targets
+        from . import target_extracted
+        return target_extracted.main(argv[0], argv[1:])
+    if argv[:1] == ["derive"] or (argv[:1] == ["run"] and _typed(argv[1:])):   # I50: typed targets
+        from . import target_typed
+        return target_typed.main(argv[0], argv[1:])
     ap = argparse.ArgumentParser(prog="holon target")
     ap.add_argument("command", choices=["run", "list"])
     ap.add_argument("--target")
