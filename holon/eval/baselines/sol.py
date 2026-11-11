@@ -567,10 +567,17 @@ def _fuzz(system, target, wall, cpu, tool):
     names = [c for c in h["deployables"] if h["info"][c]["fuzz"]]
     u = core.Units(wall, len(names))
     fs, cmds, exhausted = [], [], False
+    over = 0.0  # the tool's start-up before its own timeout starts, measured on the previous unit
     for c in names:
+        tmo = int(u.share() - over)
+        if tmo < 1:
+            # the budget is spent: the unit is recorded as not run, so the units' sum stays within the budget
+            u.done(c, 0.0, None, exit=None, timed_out=False, skipped="budget spent before this unit")
+            exhausted = True
+            continue
         if tool == "echidna":
             argv = [str(core.TOOLS / "echidna-2.4.0" / "echidna"), ".", "--contract", f"H_{c}", "--test-mode",
-                    "assertion", "--workers", "1", "--timeout", str(int(u.share())),
+                    "assertion", "--workers", "1", "--timeout", str(tmo),
                     # the budget is the only stop (as medusa's testLimit 0): echidna's default 50000-call limit ends a
                     # unit long before its share of the wall clock
                     "--test-limit", "1000000000000", "--format", "text",
@@ -579,7 +586,7 @@ def _fuzz(system, target, wall, cpu, tool):
         else:
             cfgp = unit / f"medusa_{c}.json"
             cfgp.write_text(json.dumps({
-                "fuzzing": {"workers": 1, "timeout": int(u.share()), "targetContracts": [f"H_{c}"],
+                "fuzzing": {"workers": 1, "timeout": tmo, "targetContracts": [f"H_{c}"],
                             "corpusDirectory": "", "testLimit": 0,
                             "testing": {"stopOnFailedTest": False, "assertionTesting": {"enabled": True},
                                         "propertyTesting": {"enabled": False}, "optimizationTesting": {"enabled": False}}},
@@ -587,8 +594,10 @@ def _fuzz(system, target, wall, cpu, tool):
                                 "platformConfig": {"target": ".", "solcVersion": "", "exportDirectory": "",
                                                    "args": ["--ignore-compile"]}}}, indent=1))
             argv = [str(core.TOOLS / "medusa-1.5.1" / "medusa"), "fuzz", "--config", str(cfgp), "--no-color"]
-        r = core.run_bounded(argv, unit, u.share() + 60, cpu, env(), unit / f"{tool}_{c}.log")
-        u.done(c, r["wall_s"], r["cpu_s"], exit=r["exit"], timed_out=r["timed_out"])
+        r = core.run_bounded(argv, unit, tmo + over + 60, cpu, env(), unit / f"{tool}_{c}.log")
+        u.done(c, r["wall_s"], r["cpu_s"], exit=r["exit"], timed_out=r["timed_out"], timeout_s=tmo)
+        if r["exit"] == 0:
+            over = max(0.0, r["wall_s"] - tmo)
         exhausted |= r["timed_out"]
         cmds.append(" ".join(argv))
         out = r["output"]
