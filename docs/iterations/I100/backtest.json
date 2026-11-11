@@ -1,0 +1,242 @@
+{
+  "after": {
+    "exit_blockers": [
+      "gap:M0:L_par_hdr_v2"
+    ],
+    "rows": {
+      "L_dom_hdr": {
+        "acceptance": "witness",
+        "bridges": [
+          [
+            "ok_go",
+            "UNKNOWN"
+          ],
+          [
+            "ok_sol",
+            "UNKNOWN"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+      },
+      "L_par_hdr_ssvh": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "enc_go_v1",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+      },
+      "L_par_hdr_v0": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "enc_go_v0",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+      },
+      "L_par_hdr_v1": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "enc_go_v1",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+      },
+      "L_par_hdr_v2": {
+        "acceptance": null,
+        "bridges": [],
+        "gap": "gap:M0:L_par_hdr_v2",
+        "implication": null,
+        "new": null
+      },
+      "L_rt_go_v0": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "dec_go",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ],
+          [
+            "view",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_rec_enc_sol_BatchHeaderBytes_v0"
+      },
+      "L_rt_go_v1": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "dec_go",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ],
+          [
+            "view",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_rec_enc_sol_BatchHeaderBytes_v1"
+      },
+      "L_rt_go_v2": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "dec_go",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ],
+          [
+            "view",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_rec_enc_sol_BatchHeaderBytes_v2"
+      }
+    }
+  },
+  "before": {
+    "exit_blockers": [
+      "gap:M0:L_par_hdr_v2",
+      "gap:M0:L_rt_go_v0",
+      "gap:M0:L_rt_go_v1",
+      "gap:M0:L_rt_go_v2"
+    ],
+    "rows": {
+      "L_dom_hdr": {
+        "acceptance": "witness",
+        "bridges": [
+          [
+            "ok_go",
+            "UNKNOWN"
+          ],
+          [
+            "ok_sol",
+            "UNKNOWN"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+      },
+      "L_par_hdr_ssvh": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "enc_go_v1",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+      },
+      "L_par_hdr_v0": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "enc_go_v0",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+      },
+      "L_par_hdr_v1": {
+        "acceptance": "bridges",
+        "bridges": [
+          [
+            "enc_go_v1",
+            "PROVED"
+          ],
+          [
+            "enc_sol",
+            "PROVED"
+          ]
+        ],
+        "gap": null,
+        "implication": "accepted",
+        "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+      },
+      "L_par_hdr_v2": {
+        "acceptance": null,
+        "bridges": [],
+        "gap": "gap:M0:L_par_hdr_v2",
+        "implication": null,
+        "new": null
+      },
+      "L_rt_go_v0": {
+        "acceptance": null,
+        "bridges": [],
+        "gap": "gap:M0:L_rt_go_v0",
+        "implication": null,
+        "new": null
+      },
+      "L_rt_go_v1": {
+        "acceptance": null,
+        "bridges": [],
+        "gap": "gap:M0:L_rt_go_v1",
+        "implication": null,
+        "new": null
+      },
+      "L_rt_go_v2": {
+        "acceptance": null,
+        "bridges": [],
+        "gap": "gap:M0:L_rt_go_v2",
+        "implication": null,
+        "new": null
+      }
+    }
+  }
+}
