@@ -165,11 +165,11 @@ jobs:
           - name: tests-m3-audit
             # F-M3-27 (audit M3/6): a round that claims to count carries its evidence (spec/M3/lib/audit_evidence.json;
             # E1-E5, including the finding's own probe on its target), with the audit loop's own rules beside it: Q9b's
-            # admission (Q1-Q4), Q42's plain-language rule approval (A1-A4), the M3 exit rulings (X1-X4), and I87's
-            # rounds, convergence, gaps, coordinator, packet, oracle and honesty tests.
+            # admission (Q1-Q4), Q42's plain-language rule approval (A1-A4), the M3 exit rulings (X1-X5), the M3 exit
+            # record (X1-X6), and I87's rounds, convergence, gaps, coordinator, packet, oracle and honesty tests.
             # Left out: TestVacuity (P1 is I87's preregistered miss; R5 rebuilds round 1's a4.json with the checker).
             timeout: 30
-            run: python -m unittest tests_m3.test_audit_evidence tests_m3.test_audit_q9b tests_m3.test_audit_q42 tests_m3.test_exit_rulings tests_m3.test_audit_loop.TestRounds tests_m3.test_audit_loop.TestConverge tests_m3.test_audit_loop.TestGaps tests_m3.test_audit_loop.TestCoordinator tests_m3.test_audit_loop.TestPacket tests_m3.test_audit_loop.TestOracles tests_m3.test_audit_loop.TestHonesty -v
+            run: python -m unittest tests_m3.test_audit_evidence tests_m3.test_audit_q9b tests_m3.test_audit_q42 tests_m3.test_exit_rulings tests_m3.test_m3_exit tests_m3.test_audit_loop.TestRounds tests_m3.test_audit_loop.TestConverge tests_m3.test_audit_loop.TestGaps tests_m3.test_audit_loop.TestCoordinator tests_m3.test_audit_loop.TestPacket tests_m3.test_audit_loop.TestOracles tests_m3.test_audit_loop.TestHonesty -v
           - name: tests-m3-par-record
             # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
             # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an
