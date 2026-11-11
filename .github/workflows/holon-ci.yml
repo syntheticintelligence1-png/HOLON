@@ -96,11 +96,12 @@ jobs:
           - name: tests-m2-target-agnostic
             # AGENTS.md rule 2 and I6: no target identifier in generic code (the exhaustive scan of every holon/
             # module, audit M2/1 F-M2-14, and I6's generator grep), and a toy machine end to end through the same
-            # generators. Until now no CI job ran them, and the scan had gone red unnoticed (holon/mutate, I62).
-            # Left out: I6's bindings and records byte-identity pins, stale since I40 (records, e20648e0) and F35
-            # (bindings, df993634), pending their narrowing by amendment as I9, I14, I15 and I16 did.
+            # generators, and I6's byte-identity pins of gen/M0-M1, the M0 and M1 records and their bindings (narrowed
+            # by amendment for each later iteration's additions by design: I9, I14, I15, I16, I19, I24, I40, F35, I41).
+            # Until #137 no CI job ran them: the scan had gone red unnoticed (holon/mutate, I62), and so had the
+            # records and bindings pins (since I40 and F35).
             timeout: 30
-            run: python -m unittest tests_m2.test_target_agnostic_exhaustive tests_m2.test_target_agnostic.TestNoMorphInGenerators tests_m2.test_target_agnostic.TestToyMachine tests_m2.test_target_agnostic.TestByteIdentity.test_generated_files_unchanged -v
+            run: python -m unittest tests_m2.test_target_agnostic_exhaustive tests_m2.test_target_agnostic -v
           - name: freeze-check
             timeout: 15
             # the manifest's own sha256, pinned to the seed freeze (8a1dbe7): an edit of FROZEN.sha256 and

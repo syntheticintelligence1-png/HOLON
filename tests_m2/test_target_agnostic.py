@@ -81,6 +81,9 @@ def norm_record(f: Path, b: bytes) -> bytes:
     # agent prover is kept, so an agent-proved M0 or M1 record changes the hash
     if rec.get("prover") == "generator":
         rec.pop("prover")
+    # I40 adds the witness concretization block (whitepaper §10.9) to REFUTED records; without it the record is exactly
+    # the pinned one
+    rec.pop("concretization", None)
     return json.dumps(s(rec), sort_keys=True).encode()
 
 
@@ -108,8 +111,11 @@ class TestByteIdentity(unittest.TestCase):
             keep = [ln for ln in b.decode().splitlines(keepends=True)
                     if not ln.strip() or json.loads(ln).get("milestone") in ("M0", "M1")]
             return "".join(keep).encode()
+        # F35: spec/bindings/equivalence/, the equivalence certificates of M3's binding changes, new by design
+        equivalence = {p.relative_to(ROOT).as_posix() for p in (ROOT / "spec" / "bindings" / "equivalence").rglob("*")}
         self.assertEqual(tree_sha(ROOT, ["spec/bindings"], norm=m0_m1_lines,
-                                  skip={"spec/bindings/M2.json", "spec/bindings/M3.json"}),   # I24: M3's, new by design
+                                  skip={"spec/bindings/M2.json", "spec/bindings/M3.json"}   # I24: M3's, new by design
+                                  | equivalence),
                          BINDINGS_PIN)
 
     def test_records_unchanged_modulo_seconds_and_generator_hash(self):
