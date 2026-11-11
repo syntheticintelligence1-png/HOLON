@@ -1089,6 +1089,8 @@ Impact is given as sink / reach / persistence.
 | O36 | OWN-alias | `TxsPayloadV2` view aliases buffer capacity later written by `Append` | off-chain integrity / — / conditional on caller | F9 sub-item |
 | O37 | OWN-lost-write | Value-receiver cache write is lost | performance, consistency / — / — | F12.3 |
 
+**Disclosed (M3, `docs/HUMAN_ANSWERS.md` Q44).** The M3 exit's clause E4 holds by the human's ruling, not by the back-test. The back-test against the M0 laws leaves one gap: O2's M0 law, `L_par_hdr_v2`. That law states `enc_sol(h) == enc_go_v1(h)` at version 2 and is REFUTED, because Go's v1 encoder hard-codes the version byte. No M3 law collapses to it, since the candidates are at version 1. The human closed the gap by M3's real-path law, `L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned` (PROVED). That law states the Go producer's actual path, which patches the version byte, against `enc_sol` under the same premises. The back-test's table still lists the gap, as the back-test checked no implication. Both statuses stand, and O2 remains an obstruction of `enc_go_v1`.
+
 ### 11.4 New obstructions in brief
 
 **N1 (O15).** η₂ wrote CSR only at the last committed index. Suppose:
