@@ -315,7 +315,7 @@ def cmd_assemble(a) -> int:
                                     "cpu_reason": "the model provider's compute; not measured", "tokens": rr["tokens"],
                                     "timed_out": rr["timed_out"]}]
         if a.check:
-            ok &= common.write_or_check(out_dir / f"{b}.json", common.dumps(doc), True)
+            ok &= not common.write_or_check(out_dir / f"{b}.json", common.dumps(doc), True)  # I52b: True means it differs
         else:
             out_dir.mkdir(parents=True, exist_ok=True)
             (out_dir / f"{b}.json").write_text(common.dumps(doc))
