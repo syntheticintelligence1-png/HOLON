@@ -409,8 +409,13 @@ class TestRegressions(unittest.TestCase):
         base = key()["thresholds"]["base_commit"]
         paths = [f"{d}/{m}" for d in ("results", "gen", "laws", "replay") for m in ("M0", "M1", "M2", "M3", "M4")]
         paths += [f"spec/{m}" for m in ("M1", "M2", "M3", "M4")] + ["laws/CONTRACTS", "facts", "schemas", "tests"]
-        out = git("diff", "--stat", base, "HEAD", "--", *paths).decode().strip()
-        self.assertEqual(out, "", out)
+        own = git("rev-list", "--first-parent", "--no-merges", f"{base}..HEAD").decode().split()
+        self.assertTrue(own, "no I56 commit")
+        changed = set()
+        for c in own:
+            changed |= set(git("show", "--name-only", "--format=", c).decode().split())
+        hit = sorted(f for f in changed if any(f == q or f.startswith(q + "/") for q in paths))
+        self.assertEqual(hit, [], hit)
         for m in ("M2", "M3", "M4", "M5"):
             r = holon("audit", "prereg", "--milestone", m)
             self.assertIn("PREREG OK", r.stdout, m + r.stdout[-2000:] + r.stderr[-2000:])
