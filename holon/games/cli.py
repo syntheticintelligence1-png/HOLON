@@ -1,6 +1,7 @@
 """python -m holon games <command> (I56):
 
   flows [--root DIR] [--check]   gen/M5/games/value_flows.json and results/M5/games/v9.json (holon.games.flows)
+  corpus [--root DIR] [--check]  results/M5/corpus/: the corpus mapping and L6 with the corpus truth (key I56b)
   run   [--root DIR] [--check]   every game: the control and witness games, their Bend modules (checked), the econ
                                  laws (laws/M5/games/), the game and econ records, attempts.json, l6.json, summary.json
 
@@ -330,9 +331,31 @@ def run_all(root: Path, out: Out) -> dict:
     return summary
 
 
+def corpus_files(root: Path, out: Out) -> None:
+    """Key I56b: the mapping, and L6 over I56's committed records with the mapped items' truth."""
+    from . import corpus as C
+    mp = C.mapping(root)
+    out.put("results/M5/corpus/mapping.json", mp)
+    key = _key(root)
+    recs = [json.loads(p.read_text()) for p in sorted((root / "results/M5/games/records").glob("*.json"))]
+    pop = sorted(json.loads((root / "spec/M5/preregistration.json").read_text())["base"]["l6_findings"])
+    t = Target(root)
+    pin = json.loads((root / FLOWS_PIN).read_text())["value_flows_sha256"]
+    byid = {r["finding"]: r for r in recs}
+    expect = {f: {"classes": dict(sorted(t.trusted.items())),
+                  "witness_length": byid[f]["witness_length"] if f in byid else None, "value_flows_sha256": pin}
+              for f in pop}
+    ctl = [json.loads((root / p).read_text()) for p in sorted(key["thresholds"]["pins"]["controls"])]
+    items = {f: r["l6"] for r in mp["entries"].values() for f in r["findings"]}
+    v9 = json.loads((root / "results/M5/games/v9.json").read_text())
+    out.put("results/M5/corpus/l6_corpus.json",
+            metric.l6_v9({"population": pop, "expect": expect, "records": recs, "controls": ctl,
+                          "corpus_truth": items, "corpus_expect": {}}, v9))
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="holon games", description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    ap.add_argument("command", choices=["flows", "run"])
+    ap.add_argument("command", choices=["flows", "run", "corpus"])
     ap.add_argument("--root", type=Path, default=ROOT)
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args(argv)
@@ -342,6 +365,9 @@ def main(argv: list[str]) -> int:
         if a.command == "flows":
             flows_files(root, Target(root), out)
             dirs: tuple = ()
+        elif a.command == "corpus":
+            corpus_files(root, out)
+            dirs = ("results/M5/corpus",)
         else:
             s = run_all(root, out)
             print(f"games run: {s['controls']} controls, {s['target_records']} target records, decided "
