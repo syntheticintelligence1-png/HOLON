@@ -1,0 +1,70 @@
+{
+  "doc": "I57's sensitivity pairs (I54 sensitivity_pair), one per law; replay by the key's definitions over the admitted sets",
+  "pairs": [
+    {
+      "evidence": {
+        "law": "cl_l_env_fact_da_always",
+        "law_present": true,
+        "marker": "ALL PROOFS CHECK"
+      },
+      "law": "L_env_fact_da_always",
+      "module": "env-da-retention",
+      "replay": "passed",
+      "status_axiom": "REFUTED",
+      "status_module": "REFUTED"
+    },
+    {
+      "evidence": {
+        "law": "l_env_fact_da_window",
+        "law_present": true,
+        "marker": "ALL PROOFS CHECK"
+      },
+      "law": "L_env_fact_da_window",
+      "module": "env-da-retention",
+      "replay": "passed",
+      "status_axiom": "REFUTED",
+      "status_module": "PROVED"
+    },
+    {
+      "evidence": {
+        "law": "l_env_fact_fetch",
+        "law_present": true,
+        "marker": "ALL PROOFS CHECK"
+      },
+      "law": "L_env_fact_fetch",
+      "module": "env-fetch-archive",
+      "replay": "passed",
+      "status_axiom": "REFUTED",
+      "status_module": "PROVED"
+    },
+    {
+      "evidence": {
+        "law": "l_env_undo_reorg",
+        "law_present": true,
+        "marker": "ALL PROOFS CHECK"
+      },
+      "law": "L_env_undo_reorg",
+      "module": "env-l1-confirmations",
+      "replay": "absent",
+      "status_axiom": "REFUTED",
+      "status_module": "PROVED"
+    }
+  ],
+  "sets": {
+    "obs-da-beacon": {
+      "admitted": true,
+      "sha256": "f14869f7136467ae109532cf6417406fe92f47b533ce3eef5e9dc15767581391",
+      "why": "admitted"
+    },
+    "obs-fetch-archive": {
+      "admitted": true,
+      "sha256": "3390d2d686ce95ef7b0cda29b7faad5d09f82dd0285e64aec969d12697c8719e",
+      "why": "admitted"
+    },
+    "obs-l1-depth": {
+      "admitted": false,
+      "sha256": null,
+      "why": "absent"
+    }
+  }
+}

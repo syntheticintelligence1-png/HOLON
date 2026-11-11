@@ -1,0 +1,76 @@
+{
+  "artifacts": {
+    "laws": "gen/M5/env/module/L_env_fact_da_always/LAWS.bend",
+    "model": "gen/M5/env/model/env.bend",
+    "proof": "gen/M5/env/module/L_env_fact_da_always/PROOF.bend"
+  },
+  "axiom_form": {
+    "artifacts": {
+      "laws": "gen/M5/env/axiom/L_env_fact_da_always/LAWS.bend",
+      "model": "gen/M5/env/model/env.bend",
+      "proof": "gen/M5/env/axiom/L_env_fact_da_always/PROOF.bend"
+    },
+    "environment": {
+      "carriers": [
+        "da"
+      ],
+      "premises": [
+        {
+          "category": "da",
+          "form": "havoc",
+          "id": "havoc:da",
+          "module": null
+        }
+      ]
+    },
+    "evidence": {
+      "law": "cl_l_env_fact_da_always",
+      "law_present": true,
+      "marker": "ALL PROOFS CHECK"
+    },
+    "proof_class": "counter_witness",
+    "status": "REFUTED"
+  },
+  "claim": "for every query age a and every committed blob x, the DA consumer at q delivers x (the factorization holds at every query time)",
+  "environment": {
+    "carriers": [
+      "da"
+    ],
+    "premises": [
+      {
+        "category": "da",
+        "form": "module",
+        "id": "env-da-retention",
+        "module": "env-da-retention"
+      }
+    ]
+  },
+  "evidence": {
+    "law": "cl_l_env_fact_da_always",
+    "law_present": true,
+    "marker": "ALL PROOFS CHECK"
+  },
+  "generator": "holon.m5.env",
+  "indexes": [
+    "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash",
+    "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash",
+    "L_fact_kernel_Rollup_commitState_committedBatches_blobhash"
+  ],
+  "law_id": "L_env_fact_da_always",
+  "ledger_assumptions": [],
+  "milestone": "M5",
+  "model_assumptions": [],
+  "module": {
+    "family": "window",
+    "id": "env-da-retention",
+    "parameters": {
+      "W": 131072
+    }
+  },
+  "premises": [],
+  "proof_class": "counter_witness",
+  "provenance": "spec/M5/lib/I57_laws.json",
+  "rule": "FACT",
+  "status": "REFUTED",
+  "subform": "time_any"
+}
