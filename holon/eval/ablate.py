@@ -282,7 +282,7 @@ def corpus_rerun(aid: str, how: str, patches: list) -> dict:
     """Rerun the derive-level stages of the one corpus entry that reached derive (named in the protocol's how text)
     from I51's committed document and sidecars (they name their own committed paths), as I51 ran them (holon.eval.
     holon_run._rules: sorts, types, model, disch, derive), under the switch: the laws derived (I51: none)."""
-    ent = re.search(r"\b(c\d\d)\b", how).group(1)
+    ent = re.search(r"(?<!\w)([c]\d\d)(?!\w)", how).group(1)
     rel = f"{OUT.as_posix()}/holon/{ent}"
     corpus = load(ROOT / OUT / "holon" / "corpus.json")
     row = next(r for r in corpus["rows"] if ent in (r.get("id"), r.get("entry"), r.get("entry_id")))
@@ -588,7 +588,7 @@ def run_one(aid: str, P: dict) -> dict:
             systems[sys_] = dev
         elif sp["status"] != "run":
             systems[sys_] = {"status": sp["status"], "reason": sp["reason"]}
-        elif re.search(r"\bc\d\d\b", sp["how"]):
+        elif re.search(r"(?<!\w)[c]\d\d(?!\w)", sp["how"]):
             systems[sys_] = corpus_rerun(aid, sp["how"], patches)
         else:
             systems[sys_] = heldout_sorts(aid, sp["how"], patches)
@@ -766,7 +766,13 @@ def a9_eval(sandbox: Path, base: str, out: Path) -> int:
     reg = subprocess.run([sys.executable, "-m", "holon", "audit", "regress", "--from", base, "--to", head, "--json",
                           "--root", str(sandbox)], cwd=ROOT, capture_output=True, text=True,
                          env={**os.environ, "PYTHONPATH": str(ROOT)})
-    regress_text = reg.stdout + reg.stderr
+    try:
+        rj = json.loads(reg.stdout)
+    except ValueError:
+        rj = {}
+    # A3's change sections: statement-hash changes, additions and drops (the "laws" key is the whole catalog, not a change)
+    regress_text = json.dumps({k: v for k, v in rj.items() if k not in ("laws", "transitions", "from", "to")})
+    transitions = json.dumps(rj.get("transitions") or [])
     frozen_reg = json.loads(subprocess.run(["git", "show", f"{base}:laws/M3/REGISTRY.json"], cwd=ROOT,
                                            capture_output=True, text=True, check=True).stdout)
     rows = []
@@ -811,7 +817,7 @@ def a9_eval(sandbox: Path, base: str, out: Path) -> int:
                      "statement_changed": bool(stmt_json_changed or lb_changed),
                      "statement_json_changed": bool(stmt_json_changed), "laws_bend_changed": bool(lb_changed),
                      "record_status": rec.get("status"), "a3_flagged": bool(lid in regress_text or lb_changed),
-                     "a3_names_law": lid in regress_text,
+                     "a3_names_law": lid in regress_text, "a3_status_transition": lid in transitions,
                      "passes_freezing": bool(same_hash and not lb_changed), "checks": why})
     out.write_text(dumps(strip_paths({"rows": rows, "regress_exit": reg.returncode})), encoding="utf-8")
     return 0

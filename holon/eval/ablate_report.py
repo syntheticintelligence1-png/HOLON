@@ -161,7 +161,7 @@ def systems_of() -> tuple[str, str, str]:
     P = A.protocol()
     dev = A.dev_system(P)
     corp = next(s for a in P["ablations"].values() for s, v in a["systems"].items()
-                if v["status"] == "run" and re.search(r"\bc\d\d\b", v.get("how", "")))
+                if v["status"] == "run" and re.search(r"(?<!\w)[c]\d\d(?!\w)", v.get("how", "")))
     held = next(s for s in P["ablations"]["A1"]["systems"] if s not in (dev, corp))
     return dev, corp, held
 
