@@ -78,6 +78,8 @@
                                                         holon.m5.cli lists the commands)
   python -m holon intent atomize|compile|requests|run|metrics ...   (I55: the intent lane; holon.intent.cli lists
                                                         the commands)
+  python -m holon games flows|run [--check]             (I56: bounded games over F(M3), DISCH-econ laws and L6;
+                                                        holon.games.cli lists the commands)
   python -m holon mutate list|sheet|project|replay|gate|run|rate ...   (I61: A1 mutation adequacy on real code;
                                                         holon.mutate.cli lists the commands)
   python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
@@ -262,6 +264,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["m5"]:  # likewise for holon.m5.cli (I54)
         from .m5 import cli as m5_cli
         return m5_cli.main(argv[1:])
+    if argv[:1] == ["games"]:  # likewise for holon.games.cli (I56: bounded games, L6)
+        from .games import cli as games_cli
+        return games_cli.main(argv[1:])
     if argv[:1] == ["lean"]:  # likewise for holon.lean
         from . import lean
         return lean.main(argv[1:])

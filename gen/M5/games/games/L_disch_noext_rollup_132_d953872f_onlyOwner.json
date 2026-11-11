@@ -1,0 +1,131 @@
+{
+  "assets": [
+    "eth"
+  ],
+  "callers": [
+    "0x0000000000000000000000000000000000001002",
+    "0x0000000000000000000000000000000000001004",
+    "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+  ],
+  "deltas": [
+    [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ]
+    ]
+  ],
+  "flows": [
+    [
+      1,
+      "VM1",
+      "0x0000000000000000000000000000000000001004",
+      "eth",
+      1,
+      "debit"
+    ],
+    [
+      2,
+      "VM3",
+      "0x0000000000000000000000000000000000001004",
+      "eth",
+      1,
+      "credit"
+    ],
+    [
+      2,
+      "VM4",
+      "0x0000000000000000000000000000000000001002",
+      "eth",
+      null,
+      "debit"
+    ],
+    [
+      2,
+      "VM4",
+      null,
+      "eth",
+      null,
+      "credit"
+    ],
+    [
+      3,
+      "VM3",
+      null,
+      "eth",
+      null,
+      "credit"
+    ],
+    [
+      3,
+      "VM3",
+      null,
+      "eth",
+      null,
+      "debit"
+    ]
+  ],
+  "form": "G-W1",
+  "game": "L_disch_noext_rollup_132_d953872f_onlyOwner",
+  "groups": [
+    "Rollup.onlyActiveSubmitter",
+    "Rollup.onlyChallenger",
+    "Rollup.onlyActiveSubmitter",
+    "Rollup.onlyOwner"
+  ],
+  "legal": [],
+  "payoff": "undetermined",
+  "scope": "witness",
+  "steps": [
+    {
+      "action": "commitBatch",
+      "caller": "0x0000000000000000000000000000000000001002"
+    },
+    {
+      "action": "challengeState",
+      "caller": "0x0000000000000000000000000000000000001004"
+    },
+    {
+      "action": "proveState",
+      "caller": "0x0000000000000000000000000000000000001002"
+    },
+    {
+      "action": "revertBatch",
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+    }
+  ]
+}
