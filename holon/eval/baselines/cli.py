@@ -178,7 +178,7 @@ def _record(system, b, t):
     scope.update(r.get("scope_extra") or {})
     rec = {"status": r["status"], "reason": r.get("reason"), "budget_exhausted": r.get("budget_exhausted"),
            "commit": core.commit_of(system, t), "scope": scope, "commands": r.get("commands", []),
-           "seeds": r.get("seeds", {}), "units": [{k: u[k] for k in ("name", "exit", "timed_out") if k in u}
+           "seeds": r.get("seeds", {}), "units": [{k: u[k] for k in ("name", "exit", "timed_out", "skipped") if k in u}
                                                    for u in r.get("units", [])],
            "findings": fs, "matches": matches, "adjudications": adj, "located": located, "detected": detected}
     timing = {"cpus": 1, "setup_s": r.get("setup_s", 0.0), "units": [{"name": u["name"], "wall_s": u["wall_s"],
