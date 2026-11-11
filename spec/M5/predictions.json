@@ -294,6 +294,204 @@
           "prompts/I54_m5_definitions.md"
         ]
       }
+    },
+    "I57": {
+      "title": "I57: environment modules (L1 reorg depth, the DA retention window, the blob-archive fetcher) validated against observations from one pinned tool, time-indexed FACT and UNDO laws in module and axiom forms, and L9 computed by I54's definition",
+      "plan": "docs/BUILD_PLAN.md#i57-environment-modules-about-3-days",
+      "prompt": "prompts/I57_environment_modules.md",
+      "tests": [
+        "tests_m5/test_i57_environment.py"
+      ],
+      "outcome_paths": [
+        "results/M5/env/",
+        "results/M5/l9_I57.json",
+        "results/M5/L_env_",
+        "gen/M5/env/",
+        "laws/M5/"
+      ],
+      "predictions": [
+        {
+          "id": "I57-P1",
+          "claim": "INFORMED, NOT COUNTED (thresholds.counting). The DA module env-da-retention (window, W = 131072 slots, the consensus minimum) is not validated on obs-da-beacon: R4 fails (some held-out slice has accuracy below 0.95, because the beacon serves blobs older than W), while R1, R2, R3, R5 and R6 hold.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p1_da_not_validated_by_r4",
+          "expected": {
+            "validated": false,
+            "R1": true,
+            "R2": true,
+            "R3": true,
+            "R4": false,
+            "R5": true,
+            "R6": true
+          }
+        },
+        {
+          "id": "I57-P2",
+          "claim": "The fetcher module env-fetch-archive (availability) is validated on obs-fetch-archive: R1-R6 all hold. Every sampled committed blob is served with the bytes I59 KZG-checked, and no flipped hash is served (accuracy 1.0 on every slice).",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p2_fetch_validated",
+          "expected": {
+            "validated": true,
+            "worst": 1.0
+          }
+        },
+        {
+          "id": "I57-P3",
+          "claim": "The L1 module env-l1-confirmations (finality_depth, d = 10 blocks, the target's derivation default) is not validated on obs-l1-depth, and R5 is the only rule that fails: no scored observation (depth >= 10) is observed false, so the history holds one class; R1, R2, R3, R4 and R6 hold.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p3_l1_not_validated_by_r5_only",
+          "expected": {
+            "validated": false,
+            "failed_rules": [
+              "R5"
+            ],
+            "scored_false": 0
+          }
+        },
+        {
+          "id": "I57-P4",
+          "claim": "INFORMED, NOT COUNTED. On obs-da-beacon at least 90% of the sampled blocks with W < q - t <= 2W are observed retrievable (the served retention exceeds the consensus minimum), and at least 5 sampled blocks with q - t <= 4W are observed not retrievable.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p4_served_retention_exceeds_minimum",
+          "expected": {
+            "beyond_w_within_2w_retrievable_at_least": 0.9,
+            "unretrievable_at_least": 5
+          }
+        },
+        {
+          "id": "I57-P5",
+          "claim": "On obs-l1-depth no observation at depth >= 1 is observed false: a block seen below the head of an observed view always stays canonical; a non-canonical sighting, if any, is of a head itself (depth 0).",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p5_no_false_below_the_head",
+          "expected": 0
+        },
+        {
+          "id": "I57-P6",
+          "claim": "Every sensitivity pair whose status changes (axiom form REFUTED, module form PROVED: L_env_fact_da_window, L_env_fact_fetch, L_env_undo_reorg) replays as passed on the admitted observations (definitions.replay): every sampled blob with q - t <= W is retrievable, every sampled committed blob is fetched, and every observation at depth >= d is canonical. So sensitivity counts 3 and unreplayed is 0.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p6_sensitivity_replays",
+          "expected": {
+            "count": 3,
+            "unreplayed": 0
+          }
+        },
+        {
+          "id": "I57-P7",
+          "claim": "L9 computed by I54's definition (results/M5/l9_I57.json) misses overall: coverage 1 of 226 (the one covered law is L_env_fact_fetch; the 222 base laws stay A-env havoc), base_coverage 0 of 222, new_coverage 1 of 4 (insufficient_n), validated_categories ['fetcher'], sensitivity_unreplayed meets.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p7_l9_outcome",
+          "expected": {
+            "coverage": [
+              1,
+              226
+            ],
+            "base_coverage": [
+              0,
+              222
+            ],
+            "new_coverage": [
+              1,
+              4
+            ],
+            "validated_categories": [
+              "fetcher"
+            ],
+            "thresholds": {
+              "coverage": "misses",
+              "base_coverage": "misses",
+              "validated_categories": "misses",
+              "sensitivity_unreplayed": "meets"
+            },
+            "overall": "misses"
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I57-R1",
+          "claim": "I57 changes no file of M0-M4 (results, gen, laws, replay, spec), no frozen file, no I54 instrument, key or output, and no module of a generator closure: the M2-M5 prereg audits stay PREREG OK, tools/freeze.py check stays FROZEN OK, and python -m holon m5 prereg|controls|census|metrics --base --check stay CHECK OK.",
+          "check": "tests_m5/test_i57_environment.py::TestRegressions::test_r1_nothing_earlier_changes"
+        },
+        {
+          "id": "I57-R2",
+          "claim": "Which existing laws change outcome under retention and reorg: none. The 222 environment-dependent M2 and M3 laws of I54's base keep their statuses and records. Their statements read the block, msg and tx members and blobhash at execution time; the modules constrain only the query-time availability of a blob, the canonicity of an observed block and a fetcher's answer, none of which a base statement reads, so a module premise adds no constraint on any base witness and removes none from any base proof. None of them is covered: covering one needs its record regenerated with a module premise in place of A-env, which I57 may not do (M0-M3 unchanged).",
+          "check": "tests_m5/test_i57_environment.py::TestRegressions::test_r2_existing_laws_keep_their_outcomes",
+          "expected": 0
+        }
+      ],
+      "thresholds": {
+        "base_commit": "95a2288c72e4e476dc1620f2db905ecc42e98de3",
+        "base_doc": "the head of claude/i54-m5-definitions (PR #134) when I57 branched; M0-M4 and I54's files are compared against it",
+        "measured_by": "I54's definitions.L9 (spec/M5/preregistration.json), unchanged: holon.m5.metrics.l9 computes results/M5/l9_I57.json, and the instrument tests_m5/_i54.py l9 recomputes it from inputs that tests_m5/_i57.py assembles on its own",
+        "pinned_parameters": {
+          "env-da-retention": {
+            "W": 131072
+          },
+          "env-fetch-archive": {},
+          "env-l1-confirmations": {
+            "d": 10
+          }
+        },
+        "observation_tool": {
+          "path": "spec/M5/lib/I57_observe.py",
+          "producer": "spec/M5/lib/I57_observe.py",
+          "sha256": "9ffac5405dfa6cb0fe6770eab280ef64c602bbfe8e6c00f9a4920a820c700b98",
+          "plan": "spec/M5/lib/I57_observe_plan.json",
+          "rule": "the lead's condition G3 (PR #134): an observation set is admitted iff its producer equals observation_tool.producer and its source_sha256 equals observation_tool.sha256, and every one of its reads is a read the tool records (FILE or GET or RPC of the plan's sources); a set that is not admitted is not passed to the metric, so every module citing it fails R1 (I54: a missing set fails R1). producer, reads and source_sha256 are written by the tool from its own run, never by hand. Network: the tool reads only the plan's three sources, all I23a hosts of docs/HUMAN_ANSWERS.md (Q5)."
+        },
+        "modules": "spec/M5/lib/I57_modules.json (the three module records, as the metric reads them)",
+        "laws": "spec/M5/lib/I57_laws.json",
+        "replay": {
+          "doc": "definitions of a sensitivity pair's replay (I54 sensitivity_pair.replay), over the admitted observation sets of the law's module; 'absent' when no admitted observation lies in the region",
+          "L_env_fact_da_window": "region: obs-da-beacon items with q - t <= W; passed iff every one is observed true",
+          "L_env_fact_da_always": "region: obs-da-beacon items with q - t > W; passed iff some one is observed false (the module form's witness region shows a non-delivery)",
+          "L_env_fact_fetch": "region: obs-fetch-archive items with committed true; passed iff every one is observed true",
+          "L_env_undo_reorg": "region: obs-l1-depth items with head - t >= d; passed iff every one is observed true"
+        },
+        "statuses": {
+          "doc": "construction checks (C1), not predictions: the laws are written by the generator over a model whose outcome follows from its definitions; the checker's verdict still decides each one",
+          "module": {
+            "L_env_fact_da_window": "PROVED",
+            "L_env_fact_da_always": "REFUTED",
+            "L_env_fact_fetch": "PROVED",
+            "L_env_undo_reorg": "PROVED"
+          },
+          "axiom": {
+            "L_env_fact_da_window": "REFUTED",
+            "L_env_fact_da_always": "REFUTED",
+            "L_env_fact_fetch": "REFUTED",
+            "L_env_undo_reorg": "REFUTED"
+          }
+        },
+        "counting": {
+          "counted": [
+            "I57-P2",
+            "I57-P3",
+            "I57-P5",
+            "I57-P6",
+            "I57-P7"
+          ],
+          "informed": {
+            "ids": [
+              "I57-P1",
+              "I57-P4"
+            ],
+            "why": "before this prereg the builder made 36 requests of the beacon's /eth/v1/beacon/blob_sidecars/{slot} and /eth/v1/beacon/blobs/{slot} at ages 1000 to 3000000 slots (200 at ages 1000, 130000, 133000, 140000 and 300000; 404 at 120000; 403 at 400000 and beyond), and smoke-ran the tool with n = 3 into a scratch directory: obs-da-beacon ages 87295 (retrievable), 261961 (retrievable) and 436845 (403, not retrievable); obs-fetch-archive 3 committed blobs served with I59's bytes and 1 flipped hash answered 404. The DA outcome was known in part, so P1 and P4 are reported, never counted. P2's first 4 items were seen in the smoke."
+          },
+          "smoke": "the tool's smoke run before the prereg (n = 3 for obs-da-beacon and obs-fetch-archive, 30 s for obs-l1-depth, into a scratch directory) is disclosed in docs/iterations/I57.md; none of its items is in any committed set"
+        },
+        "volume": "the law set is exactly the four classes of spec/M5/lib/I57_laws.json, one record each in results/M5/; coverage's denominator grows by 4, never by more (G4)",
+        "instruments": [
+          "tests_m5/_i57.py",
+          "spec/M5/lib/I57_modules.json",
+          "spec/M5/lib/I57_laws.json",
+          "spec/M5/lib/I57_observe.py",
+          "spec/M5/lib/I57_observe_plan.json",
+          "prompts/I57_environment_modules.md"
+        ],
+        "adversarial_prereg": {
+          "doc": "attacks tried on this prereg before it was frozen, and what was folded in (the build's attacks are in docs/iterations/I57.md)",
+          "A1_volume": "coverage = covered / (222 + new): about 74 covered copies of one law would lift the headline to 0.25. Folded: one law per (rule, subform, module), the law set fixed at four (thresholds.volume), and the copy-per-indexed-base-law design dropped.",
+          "A2_fitted_parameter": "W could be chosen from the probe (the beacon served age 300000). Folded: W is the consensus minimum and d the target's default, both cited; R6 compares them with pinned_parameters.",
+          "A3_self_declared_provenance": "a hand-written set can carry the pinned producer and sha256 (I54 G3 again, one level down). Not closable without re-running the network: the sets are committed alone, by the tool's command, and the residual risk is E-G8 and a question for the human.",
+          "A4_shallow_depth": "a finality module with d = 0 (the head never reorgs) predicts true for every observation and is wrong only on reorged heads; with 5 such sightings it would pass R5 and, at a reorg rate far below 5%, R4. I54's R4 bar cannot tell it from a sound module. Not a module of this key: the build reports the computation on obs-l1-depth as an analysis, never as a record.",
+          "A5_family_mismatch": "a correct finality_depth module predicts only true, so R5 holds only if the module errs at least 5 times; a window module predicts an exact edge, so a server that keeps more than the minimum fails R4. Neither can be fixed in this key (I54's definitions are immutable); both are questions for the human, and P1 and P3 predict them.",
+          "A6_constructed_negatives": "obs-fetch-archive's negative class is flipped hashes (E-G9): it only shows the archive does not fabricate. Kept, disclosed, and P2 is read with it."
+        }
+      }
     }
   }
 }
