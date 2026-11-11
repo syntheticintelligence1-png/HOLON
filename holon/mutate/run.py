@@ -828,9 +828,9 @@ def decide_m1x(ctx: Ctx, u: Unit, rec: dict, pred: set, errs: dict) -> None:
         u.error("M1x", list(entries), str(ex))
         return
     view_sha = C.normalized_sha256(json.loads(view))
-    bc = ((ctx.inputs or {}).get("cones") or {}).get("M1x") or {}
+    base_cones = ((ctx.inputs or {}).get("cones") or {}).get("M1x") or {}
     carry = ctx.carry and not u.is_base and all(
-        base_entry(ctx, lid) and L.own_input_sha(laws1[lid], {L.VIEW: view_sha}, bc.get(lid, {}))
+        base_entry(ctx, lid) and L.own_input_sha(laws1[lid], {L.VIEW: view_sha}, base_cones.get(lid, {}))
         == base_entry(ctx, lid)["own_input"]["sha256"] for lid in ids)
     model_bend = u.H / "gen" / "M2" / "extracted" / "m1" / "model" / "m1_view.bend"
     if carry:
@@ -895,7 +895,7 @@ def decide_m2(ctx: Ctx, u: Unit, rec: dict, pred: set, actions: set, errs: dict,
         return
     mut_der = L.derivation(u.H)
     pairs, new, missing = L.match(base_der, mut_der) if not u.is_base else ({k: k for k in mut_der}, [], [])
-    bc = ((ctx.inputs or {}).get("cones") or {}).get("M2") or {}
+    base_cones = ((ctx.inputs or {}).get("cones") or {}).get("M2") or {}
     plan = []          # (record key, mutant law id, law file, entry)
     for key, mid in list(pairs.items()) + [(mid, mid) for mid in new]:
         d = mut_der[mid]
@@ -945,7 +945,7 @@ def decide_m2(ctx: Ctx, u: Unit, rec: dict, pred: set, actions: set, errs: dict,
             u.error("i20_step", [key], f"{key}: {widths}")
             continue
         b = base_entry(ctx, key) if e["baseline"] != "absent" else None
-        cand = L.own_input_sha(law, {law["facts"]: fsha(law["facts"])}, bc.get(key, {}))
+        cand = L.own_input_sha(law, {law["facts"]: fsha(law["facts"])}, base_cones.get(key, {}))
         if ctx.carry and not u.is_base and b is not None and cand == b["own_input"]["sha256"]:
             carried.append((key, mid, law, e))
         else:
