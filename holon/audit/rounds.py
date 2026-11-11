@@ -19,6 +19,9 @@ run), so every earlier round stays valid. A round's auditor types are the audito
        hostile-input`) is valid against spec/schemas/audit_a1|a2.schema.json, names the round's milestone, number and
        target commit, lists each of its mutants or cases once in its summary, and is cited by an attack of the
        round's file that ran, of the record's auditor type and category; an attack citing one that is missing fails
+  RD2 with evidence (F-M3-27, the lead's triage in #133): when the root has spec/<M>/lib/audit_evidence.json, a round
+       that claims to count qualifies only if it carries the evidence that file requires (evidence_problems): a round
+       whose attacks claim to have run but whose directory lacks its driver records or packet is refused, not counted
 
 Schemas are read from this repository; rounds and the policy from the root. The policy is spec/<M>/lib/audit_loop.json
 of the root, or I87's spec/M3/lib/audit_loop.json (the root's, else this repository's) for a milestone without one.
@@ -162,9 +165,63 @@ def round_types(r: dict) -> set:
             if isinstance(a, dict) and a.get("auditor_type") and a.get("run", True) is not False}
 
 
-def qualifies(r: dict, earlier_sessions: set, policy: dict, rulings: dict | None = None) -> tuple[bool, str]:
+def load_evidence_rule(root: Path, milestone: str) -> dict:
+    """The evidence a counted round must carry, spec/<M>/lib/audit_evidence.json of the root, or {} without one
+    (F-M3-27). Its counted_round_requires.records maps a file name of the round's directory to what it must be."""
+    p = Path(root) / "spec" / milestone / "lib" / "audit_evidence.json"
+    if not p.is_file():
+        return {}
+    try:
+        doc = json.loads(p.read_text(encoding="utf-8"))
+    except ValueError as e:
+        raise RoundError(f"{rel_or_abs(p, Path(root))}: {e}") from None
+    return doc if isinstance(doc, dict) else {}
+
+
+def evidence_problems(root: Path, milestone: str, n: int, r: dict, rule: dict | None) -> list[str]:
+    """What round n lacks of the evidence the milestone's rule requires of a round that claims to count ([] without
+    the rule). Each required record is in the round's own directory, a JSON object with its version field, naming the
+    round's milestone, number and target commit; one with an auditor_type is cited in the evidence of an attack of
+    the round that ran with that type; the packet record is the round's packet.path, with that sha256."""
+    records = ((rule or {}).get("counted_round_requires") or {}).get("records") or {}
+    d = Path(root) / "audit" / "rounds" / milestone / f"round{n}"
+    rel = f"audit/rounds/{milestone}/round{n}"
+    ran = [a for a in r.get("attacks") or [] if isinstance(a, dict) and a.get("run", True) is not False]
+    out = []
+    for fname in sorted(records):
+        want, path = records[fname] or {}, f"{rel}/{fname}"
+        if not (d / fname).is_file():
+            out.append(f"{path} is missing")
+            continue
+        try:
+            rec = json.loads((d / fname).read_text(encoding="utf-8"))
+        except ValueError:
+            out.append(f"{path} is not JSON")
+            continue
+        if not isinstance(rec, dict) or want.get("version_field", "") not in rec:
+            out.append(f"{path} has no {want.get('version_field')}")
+            continue
+        for k, v in (("milestone", milestone), ("round", n), ("target_commit", r.get("target_commit"))):
+            if rec.get(k) != v:
+                out.append(f"{path}: its {k} is {rec.get(k)!r}, the round's {v!r}")
+        t = want.get("auditor_type")
+        if t and not any(a.get("auditor_type") == t and path in (a.get("evidence") or []) for a in ran):
+            out.append(f"{path}: no attack that ran with auditor_type {t} cites it")
+        if want.get("packet"):
+            pk = r.get("packet") or {}
+            if pk.get("path") != path:
+                out.append(f"{path}: the round's packet.path is {pk.get('path')!r}")
+            elif pk.get("sha256") != file_sha256(d / fname):
+                out.append(f"{path}: its sha256 is not the round's packet.sha256")
+    return out
+
+
+def qualifies(r: dict, earlier_sessions: set, policy: dict, rulings: dict | None = None,
+              evidence: list | None = None) -> tuple[bool, str]:
     """CV1 without the round's own claim: (qualifies, why not). A same-family round that cites the milestone's
-    admitting ruling (admitted_same_family; HUMAN_ANSWERS Q9b) passes the family condition, and only that one."""
+    admitting ruling (admitted_same_family; HUMAN_ANSWERS Q9b) passes the family condition, and only that one.
+    evidence is evidence_problems of a round that claims to count: any problem there and the round does not qualify
+    (F-M3-27)."""
     cv = policy["convergence"]
     a = r.get("auditor") or {}
     if a.get("family") != cv["counted_family"] and not admitted_same_family(r, rulings):
@@ -176,6 +233,8 @@ def qualifies(r: dict, earlier_sessions: set, policy: dict, rulings: dict | None
         return False, f"auditor types {', '.join(missing)} did not run"
     if a.get("session") in earlier_sessions:
         return False, "its auditor session is an earlier round's (no fresh context, L19)"
+    if evidence:
+        return False, f"it does not carry its evidence (F-M3-27): {'; '.join(evidence)}"
     return True, ""
 
 
@@ -242,6 +301,10 @@ def check(root: Path, milestone: str) -> dict:
     except RoundError as e:
         rulings, problems = {}, problems + [str(e)]
     try:
+        rule = load_evidence_rule(root, milestone)
+    except RoundError as e:
+        rule, problems = {}, problems + [str(e)]
+    try:
         rounds = load_rounds(root, milestone)
     except RoundError as e:
         return {"milestone": milestone, "rounds": 0, "problems": problems + [str(e)], "policy": rel_or_abs(pp, root)}
@@ -264,7 +327,8 @@ def check(root: Path, milestone: str) -> dict:
             problems.append(f"RD1: {name}: a {'dry run' if r.get('dry_run') is True else 'same-family round'} "
                             "never counts toward convergence (Q9), unless a same-family round cites the milestone's "
                             "admitting ruling in auditor.ruling (Q9b)")
-        ok, why = qualifies(r, seen, policy, rulings)
+        ev = evidence_problems(root, milestone, n, r, rule) if claims else []
+        ok, why = qualifies(r, seen, policy, rulings, ev)
         if claims and not ok:
             problems.append(f"RD2: {name} claims to count toward convergence but does not qualify: {why}")
         problems += [f"RD5: {name}: {x}" for x in driver_problems(root, milestone, n, r)]
