@@ -13,9 +13,11 @@ without the file keeps I87's rule (and Q9b's).
 
   E1 on a scratch copy of the committed M3 audit tree with the rule, one change at a time to round 6 (counted, clean):
      a4.json removed, packet.json changed by a byte, a4.json naming round 5, a4.json without a4_version, or the A4
-     attack no longer citing a4.json: each makes RD2 refuse round 6, which is then not counted, so the streak falls
-     to 0; the unchanged copy is valid, with round 6 counted and the streak 1;
-  E2 without the rule, the copy with a4.json removed is valid and round 6 is counted: the rule is the file's;
+     attack no longer citing a4.json: each makes RD2 refuse round 6, which is then not counted, so the number of
+     counted rounds falls by one and the streak does not rise; the unchanged copy is valid, with round 6 counted, and
+     its status is the committed one (whatever later rounds have added);
+  E2 without the rule, the copy with a4.json removed is valid and round 6 is counted, with the committed status's
+     counted rounds and streak: the rule is the file's;
   E3 F-M3-27's probe (audit/rounds/M3/round6/a7/cv1_probe.py) on a scratch tree of its target ed893be8: without the
      rule its three evidence-less rounds pass and are counted clean (the finding, reproduced); with the rule each is
      refused by RD2, none is counted, and the streak is 0;
@@ -99,10 +101,11 @@ class TestEvidence(unittest.TestCase):
 
     def test_e1_round6_without_its_evidence_is_refused(self):
         """E1: each removal or mismatch of round 6's evidence makes RD2 refuse it, and it is not counted."""
-        problems, st = verdicts(copy_audit_tree(self.scratch()))
+        problems, st0 = verdicts(copy_audit_tree(self.scratch()))
         self.assertEqual(problems, [])
-        self.assertTrue(row(st, 6)["counted"], row(st, 6))
-        self.assertEqual(st["streak"], 1)
+        self.assertTrue(row(st0, 6)["counted"], row(st0, 6))
+        committed = load(ROOT / "results" / M / "audit_status.json")
+        self.assertEqual((st0["counted"], st0["streak"]), (committed["counted"], committed["streak"]))
         for name, change in CHANGES.items():
             with self.subTest(change=name):
                 s = copy_audit_tree(self.scratch())
@@ -111,7 +114,8 @@ class TestEvidence(unittest.TestCase):
                 self.assertTrue(any(p.startswith("RD2: round6 ") and "F-M3-27" in p for p in problems), problems)
                 self.assertFalse(row(st, 6)["counted"], row(st, 6))
                 self.assertIn("F-M3-27", row(st, 6)["why"])
-                self.assertEqual(st["streak"], 0)
+                self.assertEqual(st["counted"], st0["counted"] - 1)
+                self.assertLessEqual(st["streak"], st0["streak"])
                 self.assertFalse(st["converged"])
 
     def test_e2_without_the_rule_i87s_reading_stands(self):
@@ -121,7 +125,8 @@ class TestEvidence(unittest.TestCase):
         problems, st = verdicts(s)
         self.assertEqual(problems, [])
         self.assertTrue(row(st, 6)["counted"])
-        self.assertEqual(st["streak"], 1)
+        committed = load(ROOT / "results" / M / "audit_status.json")
+        self.assertEqual((st["counted"], st["streak"]), (committed["counted"], committed["streak"]))
 
     def test_e3_the_findings_probe(self):
         """E3: F-M3-27's probe passes without the rule and is refused with it."""
