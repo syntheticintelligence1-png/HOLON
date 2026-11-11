@@ -46,22 +46,22 @@
     "heldout": {
       "extra": {
         "inputs_commit": "9f1462edea111fbda8451cd783e2ab8e20e257cc",
-        "message": null,
-        "message_without_switch": null,
+        "message": "holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule",
+        "message_without_switch": "holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule",
         "refused": true,
-        "sealed_message": null,
-        "sealed_record": "{}"
+        "sealed_message": "holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule",
+        "sealed_refusal": "results/targets/scroll/derive_refusal.json"
       },
       "reran": [
         {
-          "argv": "holon sorts --milestone T531 --facts <scratch> --out <scratch>",
+          "argv": "holon sorts --milestone T50 --sidecar gen/targets/scroll/lib/sort_types.json --out .ablate/sorts_out",
           "rc": 1,
-          "tail": "holon sorts: test milestone T531 needs --sidecar\n"
+          "tail": "holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule\n"
         },
         {
-          "argv": "holon sorts --milestone T531 --facts <scratch> --out <scratch>",
+          "argv": "holon sorts --milestone T50 --sidecar gen/targets/scroll/lib/sort_types.json --out .ablate/sorts_out",
           "rc": 1,
-          "tail": "holon sorts: test milestone T531 needs --sidecar\n"
+          "tail": "holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule\n"
         }
       ],
       "status": "run"
