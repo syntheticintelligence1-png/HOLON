@@ -40,6 +40,12 @@ ALLOWLIST: dict[str, list[str]] = {
     # the file holds no target identifier and its entry, ["morph"], is removed)
     # the M0 commit-side trace builder (replay evidence for the M0 codec witnesses on the real Rollup)
     "holon/evidence.py": ["commitBatch", "fsr"],
+    # (I47, spec/M2/amendments/I47.jsonl: I62's mutation driver reads its pinned checkout's config key from
+    # targets/<dev>/target.json, so holon/mutate/common.py and stage.py hold no target identifier and their entries,
+    # ["morph"] each, are removed)
+    # I62's mutation driver replays a mutant on the real Rollup from the model's initial state, whose fsr starts the
+    # trace, as the commit-side trace builder holon/evidence.py above
+    "holon/mutate/replay.py": ["fsr"],
     # the M1 deadline class's emitted comment "kappa = b && w + start(chs[i]) < t" is part of gen/M1, pinned byte for
     # byte (tests_m2/test_target_agnostic.py GEN_PIN); M2+ use deadline_linear, which names no field
     "holon/gen/mproofs.py": ["chs", "kappa"],
