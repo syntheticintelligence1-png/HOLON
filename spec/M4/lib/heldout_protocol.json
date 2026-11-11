@@ -35,17 +35,17 @@
   "diagram_mapping": {
     "version": "holon-diagram-transitions/0.1",
     "schema": "spec/M4/lib/diagram_transitions.schema.json",
-    "doc": "The diagram of a holon-facts/0.3 transitions document (the Solidity frontend's output). holon.diagram.build maps holon-facts/0.1 and 0.2 only; this mapping is the 0.3 counterpart, fixed here before it is written and before any held-out document exists, so that the held-out diagram's size cannot be tuned. The same mapping builds the development target's M3 diagram (the extracted rollup document), so the two rows of the size report that rest on extracted documents are counted alike. A construct none of these rules maps (an edges entry of another kind, a family declared twice, two actions of one name, a document that is not a transitions document) is an error: the diagram is not written.",
-    "families": "F: the names of the entries of the document's inherited_storage and storage lists.",
+    "doc": "The diagram of a holon-facts/0.3 transitions document (the Solidity frontend's output). holon.diagram.build maps holon-facts/0.1 and 0.2 only; this mapping is the 0.3 counterpart, fixed here before it is written and before any held-out document exists, so that the held-out diagram's size cannot be tuned. The same mapping builds the development target's M3 diagram (the extracted rollup document), so the two rows of the size report that rest on extracted documents are counted alike. A construct none of these rules maps (an edges entry of another kind, two entries of F with one id, two actions of one name, a document that is not a transitions document) is an error: the diagram is not written.",
+    "families": "F: the entries of the document's inherited_storage and storage lists, in that order. An entry's id is its name when no other entry of F has that name, else <declared_in>.<name> (the document's contract when the entry has no declared_in). Amended before the seal opened (spec/M4/amendments/I49.jsonl): the rule as first written refused a name declared twice, and the development target's own extracted rollup document declares __gap in three inherited contracts.",
     "carriers": {
-      "V1": "one state carrier per family f in F, id f, cls state, reach inductive",
+      "V1": "one state carrier per entry f of F, id the entry's id, cls state, reach inductive",
       "V2": "State (cls state, reach inductive, product the families in document order), Act (cls rep, interface, reach external: every action's inputs), Obs (cls rep, reach image: outcomes, return data, events)",
       "V3": "one env carrier per distinct name n of a term [\"env\", n] anywhere under the document's actions, id env.<n>, cls env, reach external",
       "V4": "one external carrier per distinct fn of an entry of any action's calls, id ext.<fn>, cls rep, reach external",
       "V5": "one carrier per distinct (kind, fn) of an entry of any action's edges: kind HASH -> id hash.<fn>, cls digest, reach image; kind COMMIT -> id commit.<fn>, cls rep, reach external"
     },
     "edges": {
-      "E1": "per family f: STORE.<f> (State -> f) and LOAD.<f> (f -> State)",
+      "E1": "per entry f of F: STORE.<id> (State -> id) and LOAD.<id> (id -> State)",
       "E2": "per action a whose mutability is nonpayable or payable: TRANS.<a> (State -> State)",
       "E3": "per action a whose mutability is view or pure: OBS.<a> (kind LOAD, State -> Obs)",
       "E4": "per entry c of an action a's calls: CALL.<a>.<c.seq> (State -> ext.<c.fn>)",

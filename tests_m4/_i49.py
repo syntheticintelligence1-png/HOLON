@@ -198,9 +198,12 @@ def expected_counts(doc: dict) -> dict:
     """|V|, |E| and the per-kind counts the mapping gives a transitions document, from the document alone."""
     if doc.get("facts_version") != "holon-facts/0.3" or "actions" not in doc or "storage" not in doc:
         raise ValueError("not a holon-facts/0.3 transitions document")
-    fams = [s["name"] for s in doc.get("inherited_storage", [])] + [s["name"] for s in doc["storage"]]
+    entries = list(doc.get("inherited_storage", [])) + list(doc["storage"])
+    names = Counter(s["name"] for s in entries)
+    fams = [s["name"] if names[s["name"]] == 1 else f"{s.get('declared_in') or doc.get('contract')}.{s['name']}"
+            for s in entries]
     if len(set(fams)) != len(fams):
-        raise ValueError("a family is declared twice")
+        raise ValueError("two entries of F share an id")   # rule V1 as amended before the seal opened
     names = [a["name"] for a in doc["actions"]]
     if len(set(names)) != len(names):
         raise ValueError("two actions share a name")
