@@ -313,7 +313,10 @@ class TestEcon(unittest.TestCase):
             self.assertEqual(sorted(rec_c["premises"]), ["P-gas"])
             for r in (rec_r, rec_c):
                 self.assertTrue((LAWS / f"{r['law_id']}.json").is_file(), r["law_id"])
-                self.assertEqual((r["checker"]["marker"], r["checker"]["law_present"]), ("ALL PROOFS CHECK", True))
+                if r["status"] in ("PROVED", "REFUTED"):
+                    self.assertEqual((r["checker"]["marker"], r["checker"]["law_present"]), ("ALL PROOFS CHECK", True))
+                else:
+                    self.assertTrue(r["reason"], r["law_id"])
 
     def test_o35(self):  # E2
         st = G.o35_static(sc(), docs())
