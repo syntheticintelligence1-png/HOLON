@@ -319,7 +319,13 @@ def sizes_data(root: Path) -> bytes:
             doc = next(iter(documents(t).values()))
             dia = diagram_path(t, doc)
             law_src = ((t.get("run") or {}).get("law_set"))
-            ob = _obligations(law_src, doc, root, None if law_src else "I50")
+            ref = Path(root) / "results" / "targets" / t["name"] / "derive_refusal.json"
+            if law_src and not (Path(root) / law_src).is_file() and ref.is_file():
+                rf = load(ref)
+                ob = _obligations(law_src, doc, root, f"refused: holon target derive stopped at {rf['step']}: "
+                                                      f"{rf['message']}")
+            else:
+                ob = _obligations(law_src, doc, root, None if law_src else "I50")
             target = t["name"]
         else:
             doc, dia = r["document"], r["diagram"]
@@ -386,10 +392,18 @@ def gate(name: str, root: Path, only: list[str] | None = None) -> int:
             checks[c] = _res(False, f"{type(e).__name__}: {e}")
         except Exception as e:  # noqa: BLE001  (a crash of a check is a failure of that check, never a pass)
             checks[c] = _res(False, f"crashed: {type(e).__name__}: {e}")
+    na = {}
+    if (t.get("run") or {}).get("kind") == "typed" and not only:
+        law = law_checks(t, root, skip)
+        checks.update(law["checks"])
+        na = law["not_applicable"]
     passed = all(v["passed"] for v in checks.values())
     rep = {"target": name, "passed": passed, "checks": checks, "partial": bool(only),
-           "doc": "holon target gate (I49; spec/M4/lib/heldout_protocol.json gate.checks)"}
-    out = Path(root) / "results" / "targets" / name / "gate_report.json"
+           "doc": "holon target gate (I49 and I50; spec/M4/lib/heldout_protocol.json gate.checks, "
+                  "spec/M4/lib/heldout_run.json gate_law_checks)"}
+    if na:
+        rep["not_applicable"] = na
+    out = Path(root) / "results" / "targets" / name / "gate_report.json"   # noqa: E501
     out.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(rep, indent=2) + "\n"    # check order kept
     out.write_text(text, encoding="utf-8")
@@ -397,6 +411,56 @@ def gate(name: str, root: Path, only: list[str] | None = None) -> int:
         print(f"  {c}: {'PASS' if v['passed'] else 'FAIL'}  {v['detail'][:300]}")
     print(f"holon target gate: {name}: {'PASSED' if passed else 'FAILED'} ({out.relative_to(root)})")
     return 0 if passed else 1
+
+
+LAW_CHECKS = ["L2", "L9", "L3", "L5", "L11", "L6"]
+
+
+def law_checks(t: dict, root: Path, skip: str | None) -> dict:
+    """I50's checks (heldout_run.json gate_law_checks). A check with no meaning for the target's law set (no law was
+    derived) is listed under not_applicable with the reason, never passed vacuously (BUILD_PLAN §2 invariant 10)."""
+    from . import target_typed as TT
+    out, na = {}, {}
+    if skip:
+        return {"checks": {c: _res(False, skip) for c in LAW_CHECKS}, "not_applicable": {}}
+    try:
+        want = TT.sidecars(t, root)
+        bad = [n for n, side in want.items()
+               if not (Path(root) / TT.lib(t) / f"{n}.json").is_file()
+               or load(Path(root) / TT.lib(t) / f"{n}.json") != side]
+        fresh = TT.derive_outputs(t, root)
+        rp = TT.refusal_path(t)
+        n = t["name"]
+        dirs = [TT.lib(t), f"gen/targets/{n}/sorts", f"gen/targets/{n}/disch", f"gen/targets/{n}/laws"]
+        have = {}
+        for d in dirs:
+            p = Path(root) / d
+            if p.is_dir():
+                for f in sorted(p.rglob("*")):
+                    if f.is_file():
+                        have[f.relative_to(root).as_posix()] = f.read_bytes()
+        if (Path(root) / rp).is_file():
+            have[rp] = (Path(root) / rp).read_bytes()
+        differ = sorted(set(have) ^ set(fresh)) + sorted(k for k in fresh if k in have and have[k] != fresh[k])
+        if bad or differ:
+            out["L2"] = _res(False, f"sidecars not by rules Q1-Q4: {bad}; differ from a fresh derivation: {differ[:5]}")
+        elif rp in fresh:
+            r = json.loads(fresh[rp])
+            out["L2"] = _res(False, f"no derivation: holon target derive was refused at {r['step']}: {r['message']} "
+                                    f"(the refusal regenerates byte for byte; the sidecars follow Q1-Q4)")
+        else:
+            out["L2"] = _res(True, "the sidecars follow Q1-Q4 and a fresh derivation reproduces it byte for byte")
+    except Exception as e:  # noqa: BLE001
+        out["L2"] = _res(False, f"crashed: {type(e).__name__}: {e}")
+        return {"checks": out, "not_applicable": na}
+    laws_dir = Path(root) / f"gen/targets/{t['name']}/laws"
+    if not (laws_dir / "DERIVATION.json").is_file() or not load(laws_dir / "DERIVATION.json").get("laws"):
+        for c in LAW_CHECKS[1:]:
+            na[c] = "no law was derived on the target, so there is no record, proof or replay to check"
+        return {"checks": out, "not_applicable": na}
+    for c in LAW_CHECKS[1:]:
+        out[c] = _res(False, "not implemented for a target with laws (I50 Not done): never a vacuous pass")
+    return {"checks": out, "not_applicable": na}
 
 
 def _check_x1(t: dict, root: Path) -> dict:

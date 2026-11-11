@@ -25,8 +25,19 @@
     "S1": {
       "passed": true,
       "detail": "results/targets/sizes.json regenerates byte for byte and validates"
+    },
+    "L2": {
+      "passed": false,
+      "detail": "no derivation: holon target derive was refused at holon sorts: holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule (the refusal regenerates byte for byte; the sidecars follow Q1-Q4)"
     }
   },
   "partial": false,
-  "doc": "holon target gate (I49; spec/M4/lib/heldout_protocol.json gate.checks)"
+  "doc": "holon target gate (I49 and I50; spec/M4/lib/heldout_protocol.json gate.checks, spec/M4/lib/heldout_run.json gate_law_checks)",
+  "not_applicable": {
+    "L9": "no law was derived on the target, so there is no record, proof or replay to check",
+    "L3": "no law was derived on the target, so there is no record, proof or replay to check",
+    "L5": "no law was derived on the target, so there is no record, proof or replay to check",
+    "L11": "no law was derived on the target, so there is no record, proof or replay to check",
+    "L6": "no law was derived on the target, so there is no record, proof or replay to check"
+  }
 }
