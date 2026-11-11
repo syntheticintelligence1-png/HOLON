@@ -23,7 +23,8 @@ These are the rules of `spec/M3/lib/audit_loop.json` (the policy) and `holon/aud
   - `auditor.family` is `"different"` (Q9a), or `"same"` with `auditor.ruling` `"HUMAN_ANSWERS Q9b"` (a fresh agent session launched by HOLON's coordinator, Q9b);
   - it is not a dry run;
   - each of the auditor types A1, A2, A3 and A4 has an attack that ran;
-  - its `auditor.session` differs from the session of every earlier M3 round.
+  - its `auditor.session` differs from the session of every earlier M3 round;
+  - it carries its evidence (F-M3-27, `spec/M3/lib/audit_evidence.json`). Its own directory holds `a1.json`, `a2.json`, `a4.json` and `packet.json`. Each has its version field and names the round's milestone, number and target commit. `a1.json`, `a2.json` and `a4.json` are cited in the `evidence` of an attack that ran with auditor type A1, A2 and A4. `packet.json` is the round's `packet.path`, with that sha256. A round that claims to count without them is refused (RD2).
 - **Clean (CV2).** A round is clean iff every finding it lists is in the findings file with a severity other than `high`.
 - **Converged (CV3, CV4).** M3 converges after k = 3 consecutive counted clean rounds, with no open `high` finding.
   - A round that is not clean resets the streak, whatever its family.

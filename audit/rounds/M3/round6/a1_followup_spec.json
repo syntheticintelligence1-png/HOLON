@@ -1,0 +1,51 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "note": "Round 6 follow-up of the triage (a1_spec.json): the same three mutants, re-derived with --keep-trees so the auditor can read each mutant's derived laws and run its changed and added laws with holon run in the kept mutant tree (commands and outputs in a1_followup_runs.json). No law run by the driver (max_law_runs 0).",
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 0
+ },
+ "mutations": [
+  {
+   "id": "rollup_revert_noclear",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 447,
+    "old": "committedBatches[_batchIndex] = bytes32(0);",
+    "new": "committedBatches[_batchIndex] = _batchHash;"
+   },
+   "laws": [
+    "L_undo_pair_Rollup_commitState_revertBatch",
+    "L_undo_pair_Rollup_commitBatch_revertBatch"
+   ],
+   "expect": "missing clear in revertBatch: committedBatches[i] keeps its hash after the revert, so a recommit of index i reverts with 'batch already committed'. UNDO's commit/revert pair and residue laws should move (a new live residue on committedBatches). Not equivalent: the slot is nonzero after the revert."
+  },
+  {
+   "id": "go_getter_batchindex",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 83,
+    "old": "b[1:9]",
+    "new": "b[2:10]"
+   },
+   "laws": [
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1"
+   ],
+   "expect": "off-by-one offset in the Go getter BatchHeaderBytes.BatchIndex: the round trips of BatchIndex should go PROVED -> REFUTED."
+  },
+  {
+   "id": "sol_store_total",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "edit": {
+    "line": 166,
+    "old": "mstore(add(batchPtr, 17)",
+    "new": "mstore(add(batchPtr, 16)"
+   },
+   "laws": [
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0"
+   ],
+   "expect": "off-by-one offset in the Solidity store storeTotalL1MessagePopped: the commit-path header shifts totalL1MessagePopped one byte left; the Sol->Go round trips of TotalL1MessagePopped and L1MessagePopped should go PROVED -> REFUTED."
+  }
+ ]
+}
