@@ -60,6 +60,10 @@ INSTRUMENTS = ["tests_m4/_i49.py", "spec/M4/lib/heldout_protocol.json", "spec/M4
 I49_CHECKS = ["GENV", "X1", "X2", "G8", "D1", "S1"]
 CATALOG = "holon-rules/1.15"
 BASE = "7dc50894695b7c37c9a3ec4f2d1d5bfcdfcc545c"
+AMENDED_PINS = {
+    "tests_m4/_i49.py": "dd7dd81415d8aab9da1d2ba2f1149acab99672b536d2a68f887ed5acc4abcb02",
+    "spec/M4/lib/heldout_protocol.json": "4e0fb1551931f6bcb235d19b5f1f531e60ecfa8599ce8ed788f3cded8a2d823d",
+}
 FACTS03_SCHEMA = ROOT / "spec" / "schemas" / "facts_0_3.schema.json"
 MORPH_M3_DOC = "spec/M2/facts/morph_rollup.extracted.json"
 MORPH_M3_DIAGRAM = "gen/diagrams/morph/morph_rollup_extracted.json"
@@ -122,7 +126,10 @@ class TestPrereg(unittest.TestCase):
         self.assertEqual(load_json(H.PIN)["rule_catalog_version"], CATALOG)
 
     def test_instruments_pinned(self):
-        pins = predictions(KEY)["thresholds"]["instrument_sha256"]
+        # Amended before the seal opened (spec/M4/amendments/I49.jsonl): rule V1 as first written refused a storage
+        # name declared twice, which the development target's own document does (__gap); the amended protocol and
+        # instrument are pinned here, every other pin is the key's.
+        pins = dict(predictions(KEY)["thresholds"]["instrument_sha256"], **AMENDED_PINS)
         self.assertEqual(sorted(pins), sorted(INSTRUMENTS))
         for rel in INSTRUMENTS:
             with self.subTest(file=rel):

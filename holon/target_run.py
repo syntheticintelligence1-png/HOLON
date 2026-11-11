@@ -122,6 +122,9 @@ def run_target(name: str, root: Path = ROOT, jobs: int = 1, log=print) -> int:
 
 def main(argv: list[str]) -> int:
     import argparse
+    if argv[:1] and argv[0] in ("extract", "coverage", "diagram", "sizes", "gate"):   # I49: extracted targets
+        from . import target_extracted
+        return target_extracted.main(argv[0], argv[1:])
     ap = argparse.ArgumentParser(prog="holon target")
     ap.add_argument("command", choices=["run", "list"])
     ap.add_argument("--target")
