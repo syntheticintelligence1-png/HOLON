@@ -1,0 +1,71 @@
+{
+  "actions": [
+    {
+      "by": [
+        "a3fc109",
+        "aaff94c"
+      ],
+      "effect": [
+        [
+          "set",
+          "v5fbbb0",
+          1
+        ]
+      ],
+      "flows": {
+        "caller": {
+          "s8b1434": 2
+        }
+      },
+      "guard": [
+        [
+          "eq",
+          "v5fbbb0",
+          0
+        ]
+      ],
+      "id": "fda7473"
+    }
+  ],
+  "actors": [
+    {
+      "id": "aaff94c",
+      "trusted": true
+    },
+    {
+      "id": "a3fc109",
+      "trusted": false
+    }
+  ],
+  "assets": [
+    "s8b1434"
+  ],
+  "bad": [
+    [
+      "ge",
+      "v5fbbb0",
+      1
+    ]
+  ],
+  "family": "profit",
+  "horizon": 2,
+  "id": "g_profit_2",
+  "semantics": "single deviator: one class acts, the others take no action; each action at most once per schedule; holdings start at 0; payoff at the schedule's end",
+  "truth": {
+    "classes": {
+      "a3fc109": "rational",
+      "aaff94c": "rational"
+    },
+    "depth": 1,
+    "verdict": "rational"
+  },
+  "vars": {
+    "v5fbbb0": 0
+  },
+  "witness": [
+    {
+      "action": "fda7473",
+      "caller": "a3fc109"
+    }
+  ]
+}
