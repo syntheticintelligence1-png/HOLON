@@ -12,6 +12,9 @@ scratch copy's modules in memory and nothing else:
   no_writer_labels   holon.sorts.unions.labels gives no writer-provenance label
   two_cycles         derive drops every law of PAR's sub-forms that compare two distinct forward paths
   no_enablement      holon.analysis.closure.definitely_false is False for every check
+  no_evidence        holon.diagram.evidence.build_milestone gives no atom at any level (the evidence set is empty);
+                     the scratch copy's gen/<M>/evidence.json is rewritten from the patched builder (params
+                     "milestones"), so derive's freshness check reads the ablated set
   budget             the controls' run budgets passed explicitly (explore.mjs, houdini.mjs, reach_search max_tries)
 
 This module is in no generator closure (no generator imports holon.eval).
@@ -61,6 +64,20 @@ def patch(name: str, params: dict) -> None:
     elif name == "no_enablement":
         import holon.analysis.closure as C
         C.definitely_false = lambda *a, **k: False
+    elif name == "no_evidence":
+        import holon.diagram.evidence as EV
+        orig = EV.build_milestone
+
+        def empty(*a, **k):
+            doc = orig(*a, **k)
+            doc["atoms"] = []
+            doc["evidence_sha256"] = EV.body_sha256(doc)
+            return doc
+        EV.build_milestone = empty
+        for m in params.get("milestones") or []:
+            ep = Path("gen") / m / "evidence.json"
+            if ep.is_file():
+                ep.write_text(EV.render(EV.build_milestone(m, Path.cwd())), encoding="utf-8")
     elif name == "budget":
         import holon.mpipeline as MP
         run = dict(params["budget"])

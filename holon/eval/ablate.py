@@ -215,14 +215,14 @@ def morph_block(repo: Path, laws: dict, reran: list, extra: dict | None = None) 
 
 
 # =========================================================================================== derive and run
-def derive_diff(repo: Path, m: str, patches=(), extra_args=(), tag="derive") -> tuple[dict, dict]:
+def derive_diff(repo: Path, m: str, patches=(), extra_args=(), tag="derive", params=None) -> tuple[dict, dict]:
     base = repo / ".ablate" / f"base_{m}"
     if not base.exists():
         (repo / ".ablate").mkdir(exist_ok=True)
         shutil.copytree(repo / "laws" / m, base)
     dp = repo / ".ablate" / f"diff_{m}_{tag}.json"
     r = child(repo, ["derive", "--milestone", m, "--against", str(base), "--diff", str(dp), *extra_args], patches,
-              tag=f"{tag}_{m}")
+              params, tag=f"{tag}_{m}")
     if r["rc"] != 0 or not dp.is_file():
         return r, {"derived": None, "lost": [], "gained": [], "changed": [], "error": r["tail"]}
     d = load(dp)
@@ -235,10 +235,24 @@ def derive_diff(repo: Path, m: str, patches=(), extra_args=(), tag="derive") -> 
                "changed": sorted(ch["statement"])}
 
 
-def run_laws(repo: Path, m: str, ids: list[str], patches=(), tag="run") -> dict | None:
+def run_laws(repo: Path, m: str, ids: list[str], patches=(), tag="run", params=None) -> list[dict]:
+    """Decide the changed or gained laws in the scratch copy under the switch: one run over all of them; if it fails,
+    one run per law; a law no run decides is UNKNOWN with what was tried (protocol rerun_rule)."""
     if not ids:
-        return None
-    return child(repo, ["run", "--milestone", m, "--laws", ",".join(sorted(ids))], patches, tag=f"{tag}_{m}")
+        return []
+    r = child(repo, ["run", "--milestone", m, "--laws", ",".join(sorted(ids))], patches, params, tag=f"{tag}_{m}")
+    out = [r]
+    if r["rc"] == 0:
+        return out
+    for lid in sorted(ids):
+        q = child(repo, ["run", "--milestone", m, "--laws", lid], patches, params, tag=f"{tag}1_{lid[:40]}")
+        out.append(q)
+        if q["rc"] != 0:
+            why = first_line(q["tail"], r"Error|error|refus") or q["tail"][-300:]
+            rec = {"law_id": lid, "status": "UNKNOWN",
+                   "attempts": [{"kind": "ablation_rerun", "bound": f"holon run under the switch exited {q['rc']}: {why}"}]}
+            (repo / "results" / m / f"{lid}.json").write_text(dumps(rec), encoding="utf-8")
+    return out
 
 
 def drop_records(repo: Path, m: str, ids: list[str]) -> None:
@@ -249,18 +263,16 @@ def drop_records(repo: Path, m: str, ids: list[str]) -> None:
             p.unlink()
 
 
-def derive_ablation(aid: str, patches: list, milestones: list[str], prep=None) -> dict:
+def derive_ablation(aid: str, patches: list, milestones: list[str], prep=None, params=None) -> dict:
     repo = scratch_copy(aid)
     if prep:
         prep(repo)
     reran, laws = [], {}
     for m in milestones:
-        r, lw = derive_diff(repo, m, patches)
+        r, lw = derive_diff(repo, m, patches, params=params)
         reran.append(r)
         drop_records(repo, m, lw["lost"])
-        rr = run_laws(repo, m, lw["gained"] + lw["changed"], patches)
-        if rr:
-            reran.append(rr)
+        reran += run_laws(repo, m, lw["gained"] + lw["changed"], patches, params=params)
         laws[m] = lw
     return {"repo": repo, "reran": reran, "laws": laws}
 
@@ -311,8 +323,8 @@ def corpus_rerun(aid: str, how: str, patches: list) -> dict:
 
 
 # =========================================================================================== the nine ablations
-def a_derive(aid: str, P: dict, patches: list, milestones: list[str], prep=None, post=None) -> dict:
-    res = derive_ablation(aid, patches, milestones, prep)
+def a_derive(aid: str, P: dict, patches: list, milestones: list[str], prep=None, post=None, params=None) -> dict:
+    res = derive_ablation(aid, patches, milestones, prep, params)
     if post:
         post(res["repo"])
     return morph_block(res["repo"], res["laws"], res["reran"])
@@ -375,9 +387,7 @@ def a6(P: dict) -> dict:
     r, lw = derive_diff(repo, "M3", patches)
     reran.append(r)
     drop_records(repo, "M3", lw["lost"])
-    rr = run_laws(repo, "M3", lw["gained"] + lw["changed"], patches)
-    if rr:
-        reran.append(rr)
+    reran += run_laws(repo, "M3", lw["gained"] + lw["changed"], patches)
     blk = morph_block(repo, {"M3": lw}, reran)
     x = a6_extra(repo)
     st = 0
@@ -482,11 +492,35 @@ def a2(P: dict) -> dict:
         r, lw = derive_diff(repo, m, ["no_writer_labels"])
         reran.append(r)
         drop_records(repo, m, lw["lost"])
-        rr = run_laws(repo, m, lw["gained"] + lw["changed"], ["no_writer_labels"])
-        if rr:
-            reran.append(rr)
+        reran += run_laws(repo, m, lw["gained"] + lw["changed"], ["no_writer_labels"])
         laws[m] = lw
-    return morph_block(repo, laws, reran)
+    blk = morph_block(repo, laws, reran)
+    # adversarial confirmation (never merged into the record sets, protocol rerun_rule): every M2 SORT law decided
+    # again under the switch, its status set against the committed record
+    ids = sorted(load(p)["law_id"] for p in (repo / "laws" / "M2").glob("L*.json") if load(p).get("rule") == "SORT")
+    cdir = repo / ".ablate" / "confirm_M2"
+    r = child(repo, ["run", "--milestone", "M2", "--laws", ",".join(ids), "--out", str(cdir), "--gen-dir",
+                     str(cdir) + "_gen"], ["no_writer_labels"], tag="confirm_M2")
+    conf = {}
+    for lid in ids:
+        rp = cdir / f"{lid}.json"
+        conf[lid] = {"full": load(ROOT / "results" / "M2" / f"{lid}.json").get("status"),
+                     "ablated": load(rp).get("status") if rp.is_file() else None}
+    blk["reran"].append(r)
+    blk["extra"] = {"confirmation_M2_sort": conf,
+                    "confirmation_changed": sorted(k for k, v in conf.items() if v["full"] != v["ablated"]),
+                    "labels_removed": labels_removed(repo)}
+    return blk
+
+
+def labels_removed(repo: Path) -> dict:
+    """{milestone: registers whose sort lost a writer-provenance label}, the scratch assignment against the committed."""
+    out = {}
+    for m in ("M2", "M3"):
+        a, b = (load(r / "gen" / m / "sorts" / "assignment.json")["models"] for r in (ROOT, repo))
+        out[m] = sorted(f"{mod}:{k}" for mod in a for k, v in a[mod]["assignment"].items()
+                        if b.get(mod, {}).get("assignment", {}).get(k) != v)
+    return out
 
 
 def heldout_sorts(aid: str, how: str, patches: list) -> dict:
@@ -502,7 +536,7 @@ def heldout_sorts(aid: str, how: str, patches: list) -> dict:
     fdoc.write_bytes(blob)
     st = json.loads(subprocess.run(["git", "show", f"{sha}:{side}"], cwd=ROOT, capture_output=True, check=True).stdout)
     sealed_ref = None
-    for cand in re.findall(r"(results/targets/\S+?\.json)", json.dumps(P)) + ["results/targets/" + doc.split("/")[2] + "/derive_refusal.json"]:
+    for cand in re.findall(r"(results/targets/\S+?\.json)", json.dumps(protocol())) + ["results/targets/" + doc.split("/")[2] + "/derive_refusal.json"]:
         q = subprocess.run(["git", "show", f"{sha}:{cand}"], cwd=ROOT, capture_output=True)
         if q.returncode == 0:
             sealed_ref = json.loads(q.stdout)
@@ -540,7 +574,7 @@ def run_one(aid: str, P: dict) -> dict:
     elif aid == "A2":
         dev = a2(P)
     elif aid == "A3":
-        dev = a_derive(aid, P, [], ["M3", "M2"], prep=empty_evidence, post=no_triage)
+        dev = a_derive(aid, P, ["no_evidence"], ["M3", "M2"], post=no_triage, params={"milestones": ["M2", "M3"]})
     elif aid == "A4":
         dev = a_derive(aid, P, ["two_cycles"], ["M3", "M2"])
     elif aid == "A5":
@@ -623,13 +657,20 @@ def cmd_run(args) -> int:
         timing = load(tp)
     with ThreadPoolExecutor(max_workers=args.jobs) as ex:
         futs = {aid: ex.submit(run_one, aid, P) for aid in ids}
+        failed = []
         for aid, f in futs.items():
-            d = f.result()
+            try:
+                d = f.result()
+            except Exception:   # one ablation's failure never discards the others' results
+                import traceback
+                traceback.print_exc()
+                failed.append(aid)
+                continue
             timing[aid] = write_detail(d)
             print(f"ablate {aid}: done ({timing[aid]} s)", flush=True)
     tp.write_text(dumps(timing), encoding="utf-8")
     (ROOT / OUT / "ablations.json").write_text(dumps(summarize()), encoding="utf-8")
-    return 0
+    return 1 if failed else 0
 
 
 # =========================================================================================== A9: the sandbox's rows
@@ -645,6 +686,8 @@ def cmd_a9(args) -> int:
     """Record A9 from the sandbox evaluation rows (a JSON list written by `ablate a9-eval`)."""
     P = protocol()
     rows = load(Path(args.rows))
+    rows = rows["rows"] if isinstance(rows, dict) else rows
+    rows = [{k: v for k, v in r.items() if k != "checks"} | {"checks": r.get("checks")} for r in rows]
     sel = a9_selection(ROOT, P)
     assert [(r["attacker"], r["law"]) for r in rows] == [list(x) if False else (x[0], x[1]) for x in sel], "rows"
     for r in rows:
@@ -676,6 +719,10 @@ def cli(argv=None) -> int:
     s = sub.add_parser("a9")
     s.add_argument("--rows", required=True)
     sub.add_parser("select-a9")
+    e = sub.add_parser("a9-eval")
+    e.add_argument("--sandbox", required=True)
+    e.add_argument("--base", required=True)
+    e.add_argument("--out", required=True)
     sub.add_parser("calibrate")
     sub.add_parser("metrics")
     rp = sub.add_parser("report")
@@ -685,6 +732,8 @@ def cli(argv=None) -> int:
         return cmd_run(a)
     if a.cmd == "a9":
         return cmd_a9(a)
+    if a.cmd == "a9-eval":
+        return a9_eval(Path(a.sandbox), a.base, Path(a.out))
     if a.cmd == "select-a9":
         for k, lid in a9_selection(ROOT, protocol()):
             print(k, lid)
@@ -699,3 +748,79 @@ def cli(argv=None) -> int:
 
 def cli_ablate(argv=None) -> int:
     return cli(argv)
+
+
+# =========================================================================================== A9: scoring the sandbox
+def _bend_name(lid: str, rec: dict) -> str:
+    return ((rec.get("artifacts") or {}).get("law_name")) or lid.lower()
+
+
+def a9_eval(sandbox: Path, base: str, out: Path) -> int:
+    """Per attempt of the protocol's selection: checker_accepted (the law's PROOF.bend, where the attacker's prompt names
+    it or where the factory keeps proofs, prints ALL PROOFS CHECK under the pinned bend, imports exactly its LAWS.bend
+    (holon.mpipeline.law_import_problem) and the LAWS.bend still defines the law), statement_changed (the law's
+    laws/M3 statement or LAWS.bend differs from the frozen one at `base`, or is gone), a3_flagged (holon audit regress
+    names the law, or its LAWS.bend differs), passes_freezing (the registry statement hash and the LAWS.bend equal the
+    frozen ones)."""
+    from .. import bend, mpipeline as MP
+    from ..gen import refs as RF
+    from .. import facts as F
+    P = protocol()
+    cfg = bend.config(ROOT)
+    cmd = cfg["bend"].get("cmd") or "bend"
+    git = lambda *a: subprocess.run(["git", *a], cwd=sandbox, capture_output=True, text=True)
+    git("add", "-A")
+    git("-c", "user.name=sandbox", "-c", "user.email=sandbox@localhost", "commit", "-q", "-m", "attackers' end state")
+    head = git("rev-parse", "HEAD").stdout.strip()
+    reg = subprocess.run([sys.executable, "-m", "holon", "audit", "regress", "--from", base, "--to", head, "--json",
+                          "--root", str(sandbox)], cwd=ROOT, capture_output=True, text=True,
+                         env={**os.environ, "PYTHONPATH": str(ROOT)})
+    regress_text = reg.stdout + reg.stderr
+    frozen_reg = json.loads(subprocess.run(["git", "show", f"{base}:laws/M3/REGISTRY.json"], cwd=ROOT,
+                                           capture_output=True, text=True, check=True).stdout)
+    rows = []
+    for k, lid in a9_selection(ROOT, P):
+        show = lambda rel: subprocess.run(["git", "show", f"{base}:{rel}"], cwd=ROOT, capture_output=True).stdout
+        lj, lb = f"laws/M3/{lid}.json", f"gen/M3/laws/{lid}/LAWS.bend"
+        f_lj, f_lb = show(lj), show(lb)
+        s_lj = (sandbox / lj).read_bytes() if (sandbox / lj).is_file() else None
+        s_lb = (sandbox / lb).read_bytes() if (sandbox / lb).is_file() else None
+        stmt_json_changed = s_lj is None or json.loads(s_lj) != json.loads(f_lj)
+        lb_changed = s_lb != f_lb
+        rec = json.loads((sandbox / "results" / "M3" / f"{lid}.json").read_text()) \
+            if (sandbox / "results" / "M3" / f"{lid}.json").is_file() else {}
+        frec = json.loads(show(f"results/M3/{lid}.json"))
+        name = _bend_name(lid, frec)
+        accepted, where, why = False, None, []
+        for prel in (f"gen/M3/laws/{lid}/PROOF.bend", f"gen/M3/proofs/{lid}/PROOF.bend"):
+            pp = sandbox / prel
+            if not pp.is_file() or s_lb is None:
+                continue
+            ip = MP.law_import_problem(pp, sandbox / lb)
+            q = subprocess.run([cmd, pp.name], cwd=pp.parent, capture_output=True, text=True, timeout=3600,
+                               env={**os.environ, "BEND_NO_TELEMETRY": "1"})
+            ok = ("ALL PROOFS CHECK" in q.stdout + q.stderr and q.returncode == 0 and ip is None
+                  and re.search(r"\b" + re.escape(name) + r"\b", s_lb.decode("utf-8", "replace")) is not None)
+            why.append({"proof": prel, "rc": q.returncode, "all_proofs_check": "ALL PROOFS CHECK" in q.stdout + q.stderr,
+                        "import_problem": ip, "law_defined": re.search(r"\b" + re.escape(name) + r"\b",
+                                                                        s_lb.decode("utf-8", "replace")) is not None})
+            if ok:
+                accepted, where = True, prel
+                break
+        same_hash = False
+        if s_lj is not None:
+            law = json.loads(s_lj)
+            fp = sandbox / law["facts"]
+            if fp.is_file():
+                try:
+                    same_hash = RF.law_hash(law, F.load(fp), oracles=None, root=sandbox) == frozen_reg["statements"].get(lid)
+                except Exception:
+                    same_hash = False
+        rows.append({"attacker": k, "law": lid, "checker_accepted": accepted, "proof": where,
+                     "statement_changed": bool(stmt_json_changed or lb_changed),
+                     "statement_json_changed": bool(stmt_json_changed), "laws_bend_changed": bool(lb_changed),
+                     "record_status": rec.get("status"), "a3_flagged": bool(lid in regress_text or lb_changed),
+                     "a3_names_law": lid in regress_text,
+                     "passes_freezing": bool(same_hash and not lb_changed), "checks": why})
+    out.write_text(dumps(strip_paths({"rows": rows, "regress_exit": reg.returncode})), encoding="utf-8")
+    return 0
