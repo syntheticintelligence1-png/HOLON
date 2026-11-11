@@ -540,11 +540,21 @@ PROTECTED = ["results/M0", "results/M1", "results/M2", "results/M3", "results/M4
              "tests_m5/test_m5_definitions.py", "tests_m5/__init__.py"]
 
 
+I54B_PATHS = ["prompts/I54b_m5_truth_key.md", "spec/M5/predictions/I54b.json", "spec/M5/lib/truth_labels.schema.json",
+              "spec/M5/truth", "tests_m5/_i54b.py", "tests_m5/test_m5_truth_key.py", "docs/iterations/I54b.md",
+              "spec/M5/amendments/I54b.jsonl"]
+
+
 class TestScope(unittest.TestCase):
-    def test_only_i54b_paths_change(self):  # T6, R3
+    def test_only_i54b_paths_change(self):  # T6, R3 (amended: spec/M5/amendments/I54b.jsonl)
+        """I54b's own commits (the non-merge commits after the base that touch one of I54b's paths) change no
+        protected path. A merge of the trunk into the branch brings other iterations' changes, which are not I54b's."""
         base = key()["thresholds"]["base_commit"]
-        out = git("diff", "--name-only", base, "HEAD", "--", *PROTECTED).decode()
-        self.assertEqual([p for p in out.split("\n") if p], [])
+        own = git("log", "--no-merges", "--format=%H", f"{base}..HEAD", "--", *I54B_PATHS).decode().split()
+        self.assertTrue(own, "no I54b commit found after the base")
+        for c in own:
+            out = git("diff-tree", "--no-commit-id", "--name-only", "-r", c, "--", *PROTECTED).decode()
+            self.assertEqual([p for p in out.split("\n") if p], [], c)
 
 
 # ---------------------------------------------------------------------------------------------- P1-P5
