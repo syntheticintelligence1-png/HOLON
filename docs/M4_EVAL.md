@@ -57,7 +57,7 @@ Metrics: agreement 1.000, controls 14, decided_within_budget 1.000, unknown_beyo
 
 | metric | morph | corpus | heldout |
 |---|---|---|---|
-| recall_per_rule | `{"DISCH": {"recall": 0.4, "reproduced": 2, "total": 5}, "FACT": {"recall": 0.5, "reproduced": 2, "total": 4}, "NAT": {"recall": 0.16666666666666666, "reproduced": 1, "total": 6}, "OWN": {"recall": 0.0, "reproduced": 0, "total": 2}, "PAR": {"recall": 0.3, "reproduced": 3, "total": 10}, "SORT": {"recall": 0.3333333333333333, "reproduced": 2, "total": 6}, "SYM": {"recall": 0.3333333333333333, "reproduced": 1, "total": 3}, "UNDO": {"recall": 0.6666666666666666, "reproduced": 2, "total": 3}}` (holon.report verdicts on the committed records (code basis, §11.3 families)) | `{"DISCH": {"detected": [], "entries": 3, "recall": 0.0}, "FACT": {"detected": [], "entries": 1, "recall": 0.0}, "NAT": {"detected": [], "entries": 1, "recall": 0.0}, "PAR": {"detected": [], "entries": 7, "recall": 0.0}, "SORT": {"detected": [], "entries": 5, "recall": 0.0}, "UNDO": {"detected": [], "entries": 1, "recall": 0.0}}` (results/eval/holon/corpus.json summary.recall (I51)) | `{"detected": 0, "labels": ["O1", "O10", "O11", "O12", "O13", "O14", "O15", "O16", "O17", "O18", "O19", "O2", "O20", "O26", "O27", "O28", "O29", "O3", "O30", "O31", "O32", "O33", "O34", "O35", "O36", "O37", "O38", "O39", "O4", "O40", "O41", "O42", "O43", "O44", "O45", "O46", "O47", "O48", "O49", "O5", "O50", "O51", "O52", "O53", "O54", "O55", "O56", "O57", "O58", "O59", "O6", "O60", "O61", "O62", "O63", "O64", "O65", "O7", "O8", "O9"], "recall": 0.0}` (I50: no held-out law, so no detection; labels from the held-out baseline files' adjudications) |
+| recall_per_rule | `{"DISCH": {"recall": 0.4, "reproduced": 2, "total": 5}, "FACT": {"recall": 0.5, "reproduced": 2, "total": 4}, "NAT": {"recall": 0.16666666666666666, "reproduced": 1, "total": 6}, "OWN": {"recall": 0.0, "reproduced": 0, "total": 2}, "PAR": {"recall": 0.3, "reproduced": 3, "total": 10}, "SORT": {"recall": 0.3333333333333333, "reproduced": 2, "total": 6}, "SYM": {"recall": 0.3333333333333333, "reproduced": 1, "total": 3}, "UNDO": {"recall": 0.6666666666666666, "reproduced": 2, "total": 3}}` (holon.report verdicts on the committed records (code basis, §11.3 families)) | `{"DISCH": {"detected": [], "entries": 3, "recall": 0.0}, "FACT": {"detected": [], "entries": 1, "recall": 0.0}, "NAT": {"detected": [], "entries": 1, "recall": 0.0}, "PAR": {"detected": [], "entries": 7, "recall": 0.0}, "SORT": {"detected": [], "entries": 5, "recall": 0.0}, "UNDO": {"detected": [], "entries": 1, "recall": 0.0}}` (results/eval/holon/corpus.json summary.recall (I51)) | missing: undefined: the held-out labels are obligation labels, not known-defect labels (the lead's ruling on I52b, 2026-11-11); known-defect labels are a post-M4 key. Detections against the obligation labels are reported beside it (obligation_label_detections) |
 | precision | `{"intended_asymmetry": 4, "model_defect": 0, "precision": 0.8095238095238095, "precision_all": 0.288135593220339, "true_defect": 17, "unadjudicated": 38}` (REFUTED records of the code-basis sets, classes per the protocol) | `{"classes": {"intended_asymmetry": 0, "model_defect": 0, "true_defect": 0, "unreplayed": 0}, "precision": null}` (results/eval/holon/corpus.json summary (I51)) | missing: I50 derived no law on the held-out target (derive refused in holon sorts), so no record carries it |
 | witness_replay_rate | `{"rate": 1.0, "refuted": 63, "replayed": 63}` (results/M0-M3/metrics.json witness_replay_rate) | missing: I51 derived no law on the corpus, so no record carries it | missing: I50 derived no law on the held-out target (derive refused in holon sorts), so no record carries it |
 | certificate_coverage | missing: results/M3/metrics.json records no value: 138 records carry a coverage entry (gen/<M>/coverage.json); the share of covered code elements is not computed yet | missing: I51 derived no law on the corpus, so no record carries it | missing: I50 derived no law on the held-out target (derive refused in holon sorts), so no record carries it |
@@ -72,35 +72,125 @@ Metrics: agreement 1.000, controls 14, decided_within_budget 1.000, unknown_beyo
 
 ## Deltas against the baselines
 
-Delta = holon - baseline; a baseline file that does not exist is missing, never substituted. Present: corpus: none; heldout: agent_review, echidna, go_fuzz, halmos, hevm, medusa, slither, spec_mining, two_cycle; morph: none
+Delta = holon - baseline; a baseline file that does not exist is missing, never substituted. Present: corpus: agent_review, echidna, go_fuzz, halmos, hevm, medusa, slither, spec_mining, two_cycle; heldout: agent_review, echidna, go_fuzz, halmos, hevm, medusa, slither, spec_mining, two_cycle; morph: none
 
 | system | baseline | metric | holon | baseline | delta | run targets |
 |---|---|---|---|---|---|---|
-| heldout | agent_review | labels_detected | 0 | 0 | 0 | 1 |
+| corpus | agent_review | labels_detected | 0 | 5 | -5 | 20 |
+| corpus | agent_review | precision | — | 0.714 | — | 20 |
+| corpus | agent_review | from_scratch_time_s | 554.200 | 6000 | -5445.800 | 20 |
+| corpus | agent_review | recall:DISCH | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | agent_review | recall:FACT | 0.000 | 1.000 | -1.000 | 20 |
+| corpus | agent_review | recall:NAT | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | agent_review | recall:PAR | 0.000 | 0.286 | -0.286 | 20 |
+| corpus | agent_review | recall:SORT | 0.000 | 0.400 | -0.400 | 20 |
+| corpus | agent_review | recall:UNDO | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | agent_review | recall:none | — | 0.000 | — | 20 |
+| corpus | echidna | labels_detected | 0 | 0 | 0 | 6 |
+| corpus | echidna | precision | — | — | — | 6 |
+| corpus | echidna | from_scratch_time_s | 554.200 | 1800 | -1245.800 | 6 |
+| corpus | echidna | recall:DISCH | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | echidna | recall:FACT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | echidna | recall:NAT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | echidna | recall:PAR | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | echidna | recall:SORT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | echidna | recall:UNDO | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | echidna | recall:none | — | 0.000 | — | 6 |
+| corpus | go_fuzz | labels_detected | 0 | 0 | 0 | 11 |
+| corpus | go_fuzz | precision | — | 0.000 | — | 11 |
+| corpus | go_fuzz | from_scratch_time_s | 554.200 | 3300 | -2745.800 | 11 |
+| corpus | go_fuzz | recall:DISCH | 0.000 | 0.000 | 0.000 | 11 |
+| corpus | go_fuzz | recall:FACT | 0.000 | 0.000 | 0.000 | 11 |
+| corpus | go_fuzz | recall:NAT | 0.000 | 0.000 | 0.000 | 11 |
+| corpus | go_fuzz | recall:PAR | 0.000 | 0.000 | 0.000 | 11 |
+| corpus | go_fuzz | recall:SORT | 0.000 | 0.000 | 0.000 | 11 |
+| corpus | go_fuzz | recall:UNDO | 0.000 | 0.000 | 0.000 | 11 |
+| corpus | go_fuzz | recall:none | — | 0.000 | — | 11 |
+| corpus | halmos | labels_detected | 0 | 0 | 0 | 6 |
+| corpus | halmos | precision | — | — | — | 6 |
+| corpus | halmos | from_scratch_time_s | 554.200 | 1800 | -1245.800 | 6 |
+| corpus | halmos | recall:DISCH | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | halmos | recall:FACT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | halmos | recall:NAT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | halmos | recall:PAR | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | halmos | recall:SORT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | halmos | recall:UNDO | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | halmos | recall:none | — | 0.000 | — | 6 |
+| corpus | hevm | labels_detected | 0 | 0 | 0 | 6 |
+| corpus | hevm | precision | — | 0.000 | — | 6 |
+| corpus | hevm | from_scratch_time_s | 554.200 | 1800 | -1245.800 | 6 |
+| corpus | hevm | recall:DISCH | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | hevm | recall:FACT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | hevm | recall:NAT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | hevm | recall:PAR | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | hevm | recall:SORT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | hevm | recall:UNDO | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | hevm | recall:none | — | 0.000 | — | 6 |
+| corpus | medusa | labels_detected | 0 | 0 | 0 | 6 |
+| corpus | medusa | precision | — | — | — | 6 |
+| corpus | medusa | from_scratch_time_s | 554.200 | 1800 | -1245.800 | 6 |
+| corpus | medusa | recall:DISCH | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | medusa | recall:FACT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | medusa | recall:NAT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | medusa | recall:PAR | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | medusa | recall:SORT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | medusa | recall:UNDO | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | medusa | recall:none | — | 0.000 | — | 6 |
+| corpus | slither | labels_detected | 0 | 1 | -1 | 6 |
+| corpus | slither | precision | — | 0.000 | — | 6 |
+| corpus | slither | from_scratch_time_s | 554.200 | 1800 | -1245.800 | 6 |
+| corpus | slither | recall:DISCH | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | slither | recall:FACT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | slither | recall:NAT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | slither | recall:PAR | 0.000 | 0.143 | -0.143 | 6 |
+| corpus | slither | recall:SORT | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | slither | recall:UNDO | 0.000 | 0.000 | 0.000 | 6 |
+| corpus | slither | recall:none | — | 0.000 | — | 6 |
+| corpus | spec_mining | labels_detected | 0 | 0 | 0 | 20 |
+| corpus | spec_mining | precision | — | 0.000 | — | 20 |
+| corpus | spec_mining | from_scratch_time_s | 554.200 | 6000 | -5445.800 | 20 |
+| corpus | spec_mining | recall:DISCH | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | spec_mining | recall:FACT | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | spec_mining | recall:NAT | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | spec_mining | recall:PAR | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | spec_mining | recall:SORT | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | spec_mining | recall:UNDO | 0.000 | 0.000 | 0.000 | 20 |
+| corpus | spec_mining | recall:none | — | 0.000 | — | 20 |
+| corpus | two_cycle | labels_detected | 0 | 0 | 0 | 14 |
+| corpus | two_cycle | precision | — | — | — | 14 |
+| corpus | two_cycle | from_scratch_time_s | 554.200 | 4200 | -3645.800 | 14 |
+| corpus | two_cycle | recall:DISCH | 0.000 | 0.000 | 0.000 | 14 |
+| corpus | two_cycle | recall:FACT | 0.000 | 0.000 | 0.000 | 14 |
+| corpus | two_cycle | recall:NAT | 0.000 | 0.000 | 0.000 | 14 |
+| corpus | two_cycle | recall:PAR | 0.000 | 0.000 | 0.000 | 14 |
+| corpus | two_cycle | recall:SORT | 0.000 | 0.000 | 0.000 | 14 |
+| corpus | two_cycle | recall:UNDO | 0.000 | 0.000 | 0.000 | 14 |
+| corpus | two_cycle | recall:none | — | 0.000 | — | 14 |
+| heldout | agent_review | obligation_labels_detected | 0 | 0 | 0 | 1 |
 | heldout | agent_review | precision | — | — | — | 1 |
 | heldout | agent_review | from_scratch_time_s | — | 60 | — | 1 |
-| heldout | echidna | labels_detected | 0 | 0 | 0 | 1 |
+| heldout | echidna | obligation_labels_detected | 0 | 0 | 0 | 1 |
 | heldout | echidna | precision | — | — | — | 1 |
 | heldout | echidna | from_scratch_time_s | — | 60 | — | 1 |
-| heldout | go_fuzz | labels_detected | 0 | 0 | 0 | 0 |
+| heldout | go_fuzz | obligation_labels_detected | 0 | 0 | 0 | 0 |
 | heldout | go_fuzz | precision | — | — | — | 0 |
 | heldout | go_fuzz | from_scratch_time_s | — | 0 | — | 0 |
-| heldout | halmos | labels_detected | 0 | 0 | 0 | 1 |
+| heldout | halmos | obligation_labels_detected | 0 | 0 | 0 | 1 |
 | heldout | halmos | precision | — | — | — | 1 |
 | heldout | halmos | from_scratch_time_s | — | 60 | — | 1 |
-| heldout | hevm | labels_detected | 0 | 0 | 0 | 1 |
+| heldout | hevm | obligation_labels_detected | 0 | 0 | 0 | 1 |
 | heldout | hevm | precision | — | 0.000 | — | 1 |
 | heldout | hevm | from_scratch_time_s | — | 60 | — | 1 |
-| heldout | medusa | labels_detected | 0 | 0 | 0 | 1 |
+| heldout | medusa | obligation_labels_detected | 0 | 0 | 0 | 1 |
 | heldout | medusa | precision | — | — | — | 1 |
 | heldout | medusa | from_scratch_time_s | — | 60 | — | 1 |
-| heldout | slither | labels_detected | 0 | 0 | 0 | 1 |
+| heldout | slither | obligation_labels_detected | 0 | 0 | 0 | 1 |
 | heldout | slither | precision | — | 0.000 | — | 1 |
 | heldout | slither | from_scratch_time_s | — | 60 | — | 1 |
-| heldout | spec_mining | labels_detected | 0 | 0 | 0 | 1 |
+| heldout | spec_mining | obligation_labels_detected | 0 | 0 | 0 | 1 |
 | heldout | spec_mining | precision | — | — | — | 1 |
 | heldout | spec_mining | from_scratch_time_s | — | 60 | — | 1 |
-| heldout | two_cycle | labels_detected | 0 | 0 | 0 | 0 |
+| heldout | two_cycle | obligation_labels_detected | 0 | 0 | 0 | 0 |
 | heldout | two_cycle | precision | — | — | — | 0 |
 | heldout | two_cycle | from_scratch_time_s | — | 0 | — | 0 |
 
@@ -110,3 +200,4 @@ Delta = holon - baseline; a baseline file that does not exist is missing, never 
 - Morph is the development target: every Morph number carries the contamination stated in docs/M3_COMPARISON.md. The corpus and held-out rows are where the result is not contaminated, and there HOLON derives (nearly) nothing, so most ablations cannot move them.
 - A3's sandbox removes the policy files with the mechanism; the attackers are the builders' model family (Q9), so the measured weakening rate is a same-family rate.
 - A law whose statement is unchanged keeps its committed record (rerun_rule), which assumes its decision does not depend on the switched component through anything but its statement and model.
+- The heldout rows follow the lead's ruling on I52b (2026-11-11): the baselines' equal-budget figure is I52b's primary tier, a degenerate budget since HOLON's own route took under a second (its 3600 s tier is a sensitivity row in results/eval/heldout/secondary/, not compared here); the labels are obligation labels, so held-out recall is undefined and only detections against them are reported; halmos is vacuous there (its frozen harness never calls the initializer, so every path reverts).
