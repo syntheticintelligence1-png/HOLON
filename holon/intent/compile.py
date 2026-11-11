@@ -102,8 +102,9 @@ def reading(template: str, mdl: Model, actions: list[str], b: dict) -> str:
 
 # ------------------------------------------------------------------ binding (design T2)
 class Compiler:
-    def __init__(self, root: Path, write: bool):
+    def __init__(self, root: Path, write: bool, srcmap: dict | None = None):
         self.root, self.write = root, write
+        self.srcmap = srcmap      # {repo: checkout}; None: config/holon.json extract.sources (I55b: the corpus)
         self.docs: dict = {}       # (repo, commit, file, contract) -> (rel, doc) or _Fail
         self.models: dict = {}     # contract -> Model
         self.problems: list = []
@@ -111,13 +112,15 @@ class Compiler:
     def source_text(self, atom: dict) -> str:
         if atom["commit"] is None:
             return (self.root / atom["file"]).read_text(encoding="utf-8")
-        src = Path(sources(self.root)[atom["repo"]])
+        src = Path((self.srcmap or sources(self.root))[atom["repo"]])
         return git(["show", f"{atom['commit']}:{atom['file']}"], src).decode("utf-8")
 
     def document(self, atom: dict, contract: str):
         k = (atom["repo"], atom["commit"], atom["file"], contract)
         if k not in self.docs:
-            src = self.root if atom["commit"] is None else Path(sources(self.root)[atom["repo"]])
+            src = self.root if atom["commit"] is None else Path((self.srcmap or sources(self.root))[atom["repo"]])
+            if self.srcmap and atom["commit"] is not None:
+                git(["checkout", "-q", atom["commit"]], src)   # the frontend compiles a checkout at its commit
             try:
                 self.docs[k] = X.extract(self.root, atom["repo"], atom["commit"], atom["file"], contract, src,
                                          write=self.write, problems=self.problems)

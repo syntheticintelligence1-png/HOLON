@@ -7,6 +7,8 @@
   run      [--root DIR] [--check --tmp DIR]      gen/M5/intent/<law>/ and results/M5/intent/records/ (holon.intent.run)
   metrics  [--root DIR] [--check]                results/M5/intent/{l10_inputs,l10,obstructions,sym_route_i}.json
                                                  (holon.intent.metrics)
+  corpus   [--root DIR] [--check]                I55b: results/M5/intent/corpus/{atoms,compile}.json (holon.intent.corpus)
+  corpus-score [--root DIR] [--check]            I55b: results/M5/intent/corpus/l10_corpus.json (reads the pinned truth)
 
 Each command imports only its own module, so the atomizer's closure is its own (key design I1).
 """
@@ -15,7 +17,8 @@ from __future__ import annotations
 import importlib
 import sys
 
-COMMANDS = {"atomize": "atomize", "compile": "compile", "requests": "review", "run": "run", "metrics": "metrics"}
+COMMANDS = {"atomize": "atomize", "compile": "compile", "requests": "review", "run": "run", "metrics": "metrics",
+            "corpus": "corpus", "corpus-score": "corpus"}
 
 
 def main(argv: list[str]) -> int:
@@ -23,4 +26,4 @@ def main(argv: list[str]) -> int:
         print(__doc__)
         return 2
     mod = importlib.import_module(f"holon.intent.{COMMANDS[argv[0]]}")
-    return mod.main(argv[1:])
+    return (mod.main_score if argv[0] == "corpus-score" else mod.main)(argv[1:])
