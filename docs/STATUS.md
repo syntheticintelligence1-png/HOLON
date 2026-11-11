@@ -9,7 +9,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M2 | 27 | 242 | 126 | 27 |
 | M3 | 49 | 310 | 258 | 49 |
 | M4 | 1 | 4 | 6 | 1 |
-| M5 | 2 | 14 | 6 | 2 |
+| M5 | 4 | 22 | 11 | 3 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -98,6 +98,8 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I97 | M3 | I97: the F-M3-13 fix, BendTT (G7) on M3 in CI and the six BendTT rejections classified by the lead's ruling | `prompts/I97_bendtt_g7_m3.md` | 5 | 8 | 1 | `docs/iterations/I97.md` |
 | I98 | M3 | I98: G6 on M3, the two REFUTED records G6 refuses diagnosed and fixed, one rule for the final filter and G6, and G6 in … | `prompts/I98_g6_m3.md` | 6 | 7 | 1 | `docs/iterations/I98.md` |
 | I99 | M3 | I99: G9 checks every result record's premises against its law's assume clauses (audit M3/5 F-M3-19, high, gate_evasion) | `prompts/I99_g9_premises.md` | 5 | 9 | 1 | `docs/iterations/I99.md` |
+| I54b | M5 | I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every… | `prompts/I54b_m5_truth_key.md` | 5 | 3 | 1 | `docs/iterations/I54b.md` |
+| I55b | M5 | I55b: the intent lane on the corpus: L10's corpus_recall over the corpus-truth key I54b's scored entries (c17), the tru… | `prompts/I55b_intent_corpus.md` | 3 | 2 | 1 | none |
 | I96a | M3 | I96a (= I46c, first half): DISCH's R0 derived from the binding by a target-agnostic step that also writes the sidecar's… | `prompts/I96a_r0_from_binding.md` | 5 | 7 | 1 | `docs/iterations/I96a.md` |
 | I96b | M3 | I96b (= I46c, second half): the refinement hints derived inside the pack (holon refinement; the fragments binding deriv… | `prompts/I96b_hints_from_code.md` | 5 | 10 | 1 | `docs/iterations/I96b.md` |
 
