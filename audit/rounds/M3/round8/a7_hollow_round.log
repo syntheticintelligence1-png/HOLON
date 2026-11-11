@@ -1,0 +1,21 @@
+$ python audit/rounds/M3/round8/a7_hollow_round.py dadfb28040931f447d4b22e2760a6e2f8e54aeab <scratch>
+$ python -m holon audit round --milestone M3 --root <scratch>: exit 0
+M3: 8 round(s), ROUNDS OK
+$ python -m holon audit converge --milestone M3 --root <scratch> --out <scratch>/audit_status.json: exit 0
+
+round 8 in audit_status.json: [{"clean": true, "counted": true, "dry_run": false, "family": "same", "round": 8, "why": "counted: a same-family round admitted by HUMAN_ANSWERS Q9b"}]
+converged: True
+$ cat <scratch>/audit/rounds/M3/round8/a4.json  # the whole hollow A4 record
+{
+ "a4_version": "holon-audit-a4/0.1",
+ "milestone": "M3",
+ "round": 8,
+ "target_commit": "dadfb28040931f447d4b22e2760a6e2f8e54aeab"
+}
+$ cat <scratch>/audit/rounds/M3/round8/packet.json  # the whole hollow packet
+{
+ "milestone": "M3",
+ "packet_version": "holon-audit-packet/0.1",
+ "round": 8,
+ "target_commit": "dadfb28040931f447d4b22e2760a6e2f8e54aeab"
+}

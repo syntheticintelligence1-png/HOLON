@@ -1,0 +1,90 @@
+{
+ "doc": "Round 8 (M3), A8: the back-test's exit blockers (results/M3/backtest.json exit_blockers) and the facts the round's judgement of each rests on. Statuses are results/M3 at C.",
+ "exit_blockers": [
+  "gap:M0:L_par_hdr_v2",
+  "gap:M0:L_rt_go_v0",
+  "gap:M0:L_rt_go_v1",
+  "gap:M0:L_rt_go_v2"
+ ],
+ "gaps": {
+  "gap:M0:L_par_hdr_v2": {
+   "kind": "rule",
+   "law": "L_par_hdr_v2",
+   "reason": "no M3 law of sub-form cross_component_codec naming BatchHeaderV1_Bytes, enc_sol is at version 2: the candidates are at version(s) [1] (rule B2 finds no alpha-equivalent collapse); a missed M0 law is a rule gap, never added by hand (rule admission and closing it are I45's)",
+   "status": "open"
+  },
+  "gap:M0:L_rt_go_v0": {
+   "kind": "rule",
+   "law": "L_rt_go_v0",
+   "reason": "dec_go, view have no image under the name map, so no M3 law's collapse can be alpha-equivalent to it (rule B2); a missed M0 law is a rule gap, never added by hand (rule admission and closing it are I45's)",
+   "status": "open"
+  },
+  "gap:M0:L_rt_go_v1": {
+   "kind": "rule",
+   "law": "L_rt_go_v1",
+   "reason": "dec_go, view have no image under the name map, so no M3 law's collapse can be alpha-equivalent to it (rule B2); a missed M0 law is a rule gap, never added by hand (rule admission and closing it are I45's)",
+   "status": "open"
+  },
+  "gap:M0:L_rt_go_v2": {
+   "kind": "rule",
+   "law": "L_rt_go_v2",
+   "reason": "dec_go, view have no image under the name map, so no M3 law's collapse can be alpha-equivalent to it (rule B2); a missed M0 law is a rule gap, never added by hand (rule admission and closing it are I45's)",
+   "status": "open"
+  }
+ },
+ "judgement": {
+  "gap:M0:L_par_hdr_v2": "not a defect: M0's obstruction (the Go v1 encoder writes version byte 1 where Solidity writes 2) is gone at the target: the only Go path that builds a v2 header, BatchCache.createBatchHeaderWithSequencerSetHash, sets h[0] = BatchHeaderVersion2 after BatchHeaderV1.Bytes(); its M3 cc laws at v2 exist (pinned PROVED; unpinned UNKNOWN with a kernel-accepted counter-law at the ssvh field, held back by G6 for want of a replay). B2 finds no alpha-equivalent law because the M3 encoder at v2 is another function.",
+  "gap:M0:L_rt_go_v0": "not a defect: the M0 record round trip dec_go(enc_sol(h)) == Some(view(h)) is the conjunction of M3's per-field round trips L_par_rt_enc_sol_BatchHeaderBytes_<F>_v0 (all PROVED, each getter guarded by the same validate()), with sequencerSetVerifyHash, which M3's Solidity Header no longer carries (Solidity writes bytes32(0)), covered by the PROVED pinned cc law (Go bytes == Solidity bytes with ssvh pinned to 0) and the PROVED Go round trip of SequencerSetVerifyHash; B2 matches one law to one law and cannot see a conjunction.",
+  "gap:M0:L_rt_go_v1": "as gap:M0:L_rt_go_v0, at version 1 (LastBlockNumber included).",
+  "gap:M0:L_rt_go_v2": "as gap:M0:L_rt_go_v0, at version 2 (BlobHashesHash for the blob field)."
+ },
+ "morph common/batch/batch_cache.go 1720-1734 (createBatchHeaderWithSequencerSetHash, the only non-test BatchHeaderV1 literal)": "\tif bc.isBatchUpgraded(blockTimestamp) {\n\t\tbatchHeaderV1 := BatchHeaderV1{\n\t\t\tBatchHeaderV0:   batchHeaderV0,\n\t\t\tLastBlockNumber: bc.lastPackedBlockHeight,\n\t\t}\n\t\t// V2 is activated: use V1-format header (257 bytes) with version byte 2.\n\t\t// Store keccak256(concat all blob hashes) at offset 57 as the aggregated blob hash.\n\t\tif bc.isBatchV2Upgraded(blockTimestamp) {\n\t\t\tbatchHeaderV1.BlobVersionedHash = aggregateBlobHashes(blobHashes)\n\t\t\th := batchHeaderV1.Bytes()\n\t\t\th[0] = BatchHeaderVersion2\n\t\t\treturn h\n\t\t}\n\t\treturn batchHeaderV1.Bytes()\n\t}\n",
+ "non-test BatchHeaderV1{ literals in the morph checkout (go-ethereum excluded)": [
+  "./common/batch/batch_cache.go:1721:\t\tbatchHeaderV1 := BatchHeaderV1{"
+ ],
+ "statuses_at_C": {
+  "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2": "UNKNOWN",
+  "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned": "PROVED",
+  "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned": "PROVED",
+  "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": "REFUTED",
+  "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned": "PROVED",
+  "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2": "PROVED",
+  "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0": "PROVED",
+  "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1": "PROVED",
+  "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2": "PROVED"
+ }
+}

@@ -1,0 +1,11 @@
+# Round 8 (M3), A1 verification of mutant g_getter (common/batch/batch_header.go:97 b[17:25] -> b[18:26]).
+# The tree: `python -m holon audit mutation --milestone M3 --round 8 --spec <a1_spec.json's g_getter alone, budget 0>
+#   --target dadfb28040931f447d4b22e2760a6e2f8e54aeab --out <scratch>/a1.json --work <scratch>/w --keep-trees`
+# (1 detected: 6 laws dropped, 7 statements changed), then in <scratch>/w/m/g_getter/tree:
+$ grep -l BatchHeaderBytes_TotalL1MessagePopped laws/M3/L*.json   # law files over the mutated getter
+mutant tree: 0 file(s) []
+target C:    12 file(s) ['L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2.json', 'L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned.json', 'L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0.json', 'L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned.json', 'L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1.json', 'L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned.json', 'L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2.json', 'L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0.json', 'L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1.json', 'L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0.json', 'L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1.json', 'L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2.json']
+L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned: premise dropped by the re-derivation: [{"eq": [{"field": "TotalL1MessagePopped", "of": {"var": "h"}}, {"field": "totalL1MessagePopped", "of": {"var": "k"}}]}]
+$ python -m holon run --milestone M3 --laws L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned   # in the mutant tree
+status REFUTED (committed at C: PROVED), triage finding; witness h.TotalL1MessagePopped=0x1112131415161718 k.totalL1MessagePopped=0x0b0c0d0e0f101112; difference at bytes 17..24: lhs 1112131415161718 rhs 0b0c0d0e0f101112
+kernels: [('bend2', 'checked'), ('bendtt', 'checked'), ('lean4', 'not_run')]
