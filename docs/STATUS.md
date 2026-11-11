@@ -9,6 +9,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M2 | 27 | 242 | 126 | 27 |
 | M3 | 50 | 319 | 272 | 50 |
 | M4 | 1 | 4 | 6 | 1 |
+| M5 | 8 | 41 | 22 | 6 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -62,6 +63,11 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I44 | M3 | I44 (= I44b): Def 6.13's measures that I81 (= I44a) left pending, and the ranking over them: NAT's naturality defect ma… | `prompts/I44_measures_pending.md` | 7 | 5 | 1 | `docs/iterations/I44.md` |
 | I46 | M3 | I46: the blind rerun from code, its comparison with the lead, and the M3 exit decision (I82 = I46a built the pack, the … | `prompts/I46_blind_rerun.md` | 6 | 6 | 1 | `docs/iterations/I46.md` |
 | I48 | M4 | Evaluation corpus and unsolved controls: 20 public defects across six fixed systems (two rollups, four beyond), collect… | `prompts/I48_eval_corpus.md` | 4 | 6 | 1 | `docs/iterations/I48.md` |
+| I54 | M5 | I54: L6, L9 and L10 defined and preregistered (Q11): bounded games scored against constructed and documented truth, env… | `prompts/I54_m5_definitions.md` | 3 | 3 | 1 | `docs/iterations/I54.md` |
+| I55 | M5 | I55: the intent lane: doc comments atomized with exact spans, reviewed clauses compiled to laws/INTENT/ over the factor… | `prompts/I55_intent_lane.md` | 11 | 3 | 1 | `docs/iterations/I55.md` |
+| I56 | M5 | I56: bounded games over F(M3) (M5, L6): payoff facts as a generated value-flow document with V9 coverage, strategies as… | `prompts/I56_games.md` | 5 | 3 | 1 | `docs/iterations/I56.md` |
+| I57 | M5 | I57: environment modules (L1 reorg depth, the DA retention window, the blob-archive fetcher) validated against observat… | `prompts/I57_environment_modules.md` | 7 | 2 | 1 | `docs/iterations/I57.md` |
+| I58 | M5 | I58: the M5 report: L6, L9 and L10 reported as measured in results/M5/metrics.json, each computed by I54's stub (holon.… | `prompts/I58_m5_report.md` | 7 | 3 | 1 | `docs/iterations/I58.md` |
 | I59 | M2 | I23a track: historical on-chain acquisition and the first per-edge replay on real inputs (human answer Q5) | `prompts/I59_historical.md` | 9 | 2 | 1 | `docs/iterations/I59.md` |
 | I60 | M2 | A1 mutation adequacy on real code, replacement catalog | `prompts/I60_mutation_replacement.md` | 20 | 10 | 1 | `docs/iterations/I60.md` |
 | I61 | M2 | A1 mutation adequacy on real code, second replacement catalog | `prompts/I61_mutation_second_replacement.md` | 24 | 11 | 1 | `docs/iterations/I61.md` |
@@ -96,6 +102,9 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I98 | M3 | I98: G6 on M3, the two REFUTED records G6 refuses diagnosed and fixed, one rule for the final filter and G6, and G6 in … | `prompts/I98_g6_m3.md` | 6 | 7 | 1 | `docs/iterations/I98.md` |
 | I99 | M3 | I99: G9 checks every result record's premises against its law's assume clauses (audit M3/5 F-M3-19, high, gate_evasion) | `prompts/I99_g9_premises.md` | 5 | 9 | 1 | `docs/iterations/I99.md` |
 | I100 | M3 | I100: rule PAR_record_round_trip: the record law over an encoder into a byte record and its getter family, the constant… | `prompts/I100_par_record_round_trip.md` | 9 | 14 | 1 | `docs/iterations/I100.md` |
+| I54b | M5 | I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every… | `prompts/I54b_m5_truth_key.md` | 5 | 3 | 1 | `docs/iterations/I54b.md` |
+| I55b | M5 | I55b: the intent lane on the corpus: L10's corpus_recall over the corpus-truth key I54b's scored entries (c17), the tru… | `prompts/I55b_intent_corpus.md` | 3 | 2 | 1 | none |
+| I56b | M5 | I56b: L6's corpus accuracy scored against the corpus-truth key I54b (the lead's condition 5), with the truth pinned bef… | `prompts/I56b_corpus.md` | 0 | 3 | 1 | none |
 | I96a | M3 | I96a (= I46c, first half): DISCH's R0 derived from the binding by a target-agnostic step that also writes the sidecar's… | `prompts/I96a_r0_from_binding.md` | 5 | 7 | 1 | `docs/iterations/I96a.md` |
 | I96b | M3 | I96b (= I46c, second half): the refinement hints derived inside the pack (holon refinement; the fragments binding deriv… | `prompts/I96b_hints_from_code.md` | 5 | 10 | 1 | `docs/iterations/I96b.md` |
 
