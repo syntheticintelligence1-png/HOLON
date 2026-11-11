@@ -1,0 +1,227 @@
+{
+  "classes": [
+    {
+      "id": "L1CrossDomainMessenger.onlyOwner",
+      "predicate": [
+        "==",
+        [
+          "storage",
+          "_owner"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": true,
+      "why": "the member's owner: the deployment's governance, which the threat model trusts"
+    },
+    {
+      "id": "L1MessageQueueWithGasPriceOracle.onlyOwner",
+      "predicate": [
+        "==",
+        [
+          "storage",
+          "_owner"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": true,
+      "why": "the member's owner: the deployment's governance, which the threat model trusts"
+    },
+    {
+      "id": "L1Staking.inWhitelist",
+      "predicate": [
+        "map",
+        [
+          "storage",
+          "whitelist"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": false,
+      "why": "a role an untrusted address can hold: an economic actor"
+    },
+    {
+      "id": "L1Staking.onlyOwner",
+      "predicate": [
+        "==",
+        [
+          "storage",
+          "_owner"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": true,
+      "why": "the member's owner: the deployment's governance, which the threat model trusts"
+    },
+    {
+      "id": "MultipleVersionRollupVerifier.onlyOwner",
+      "predicate": [
+        "==",
+        [
+          "storage",
+          "_owner"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": true,
+      "why": "the member's owner: the deployment's governance, which the threat model trusts"
+    },
+    {
+      "id": "Rollup.onlyActiveSubmitter",
+      "predicate": [
+        "call",
+        "ISubmitter.isActive",
+        [
+          "caller"
+        ]
+      ],
+      "trusted": false,
+      "why": "a role an untrusted address can hold: an economic actor"
+    },
+    {
+      "id": "Rollup.onlyChallenger",
+      "predicate": [
+        "map",
+        [
+          "storage",
+          "isChallenger"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": false,
+      "why": "a role an untrusted address can hold: an economic actor"
+    },
+    {
+      "id": "Rollup.onlyOwner",
+      "predicate": [
+        "==",
+        [
+          "storage",
+          "_owner"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": true,
+      "why": "the member's owner: the deployment's governance, which the threat model trusts"
+    },
+    {
+      "id": "Submitter.onlyOwner",
+      "predicate": [
+        "==",
+        [
+          "storage",
+          "_owner"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": true,
+      "why": "the member's owner: the deployment's governance, which the threat model trusts"
+    },
+    {
+      "id": "Whitelist.onlyOwner",
+      "predicate": [
+        "==",
+        [
+          "storage",
+          "owner"
+        ],
+        [
+          "caller"
+        ]
+      ],
+      "trusted": true,
+      "why": "the member's owner: the deployment's governance, which the threat model trusts"
+    },
+    {
+      "id": "anyone",
+      "predicate": null,
+      "trusted": false,
+      "why": "any address"
+    }
+  ],
+  "doc": "I56's game sidecar for target M3 (key I56, definitions G-C1..G-C3, G-R1..G-R3, N3 and O35). Fixed at I56's prereg, before any game record. The trusted flags are a preregistered judgment, one per class with its reason; the documents and the run member's initial state are pinned by sha256. The value-flow document's sha256 (V8) is pinned later, by spec/M5/lib/games_M3_flows.json, in a build commit that precedes every game record.",
+  "documents": [
+    {
+      "member": "Rollup",
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "member": "L1Staking",
+      "path": "gen/M3/bundle/documents/l1staking.json",
+      "sha256": "fa1b32ee17983fc8e1baa0ec08668110166ae46db97fd39fd9c33ba355d6dcad"
+    },
+    {
+      "member": "L1CrossDomainMessenger",
+      "path": "gen/M3/bundle/documents/messenger.json",
+      "sha256": "d5f94103c79e91f935ccc5a89efd7fa3feb5560eb3203d5c9f7c102f97dd2519"
+    },
+    {
+      "member": "L1MessageQueueWithGasPriceOracle",
+      "path": "gen/M3/bundle/documents/queue.json",
+      "sha256": "32786cbfecfc119492d4b12e1d29c02201c3b34d3adebeb6bd0553b118112d8c"
+    },
+    {
+      "member": "Submitter",
+      "path": "gen/M3/bundle/documents/submitter.json",
+      "sha256": "2ad85c1002b38fac97b99fd3a9b0e4ac44a9247736859d2f6427d40dc0ce88d2"
+    },
+    {
+      "member": "Whitelist",
+      "path": "gen/M3/bundle/documents/whitelist.json",
+      "sha256": "b122193f3b70420b928d127f39e99c0fbe402e598532ef8776da083696e66533"
+    },
+    {
+      "member": "MultipleVersionRollupVerifier",
+      "path": "gen/M3/bundle2/documents/router.json",
+      "sha256": "21fd24096fa35027659641793f26a856961e5ab1ad1844f0600498e2c870b920"
+    }
+  ],
+  "member_caller": [
+    "L1MessageQueueWithGasPriceOracle.onlyMessenger",
+    "L1Staking.onlyRollupContract",
+    "Submitter.onlyRollup"
+  ],
+  "member_caller_why": "each predicate compares the caller with another member contract's address (the queue's MESSENGER immutable, L1Staking's and Submitter's rollupContract): the caller is code of the deployment, reached only through a member call, not a principal",
+  "n3": {
+    "bond_family": "Submitter.stakeOf",
+    "laws": [
+      "L_fact_attr_Rollup_commitBatchWithProof_batchBlobVersionedHashes_batchDataStore_submitter",
+      "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter"
+    ],
+    "premises": {
+      "P-bond": "every atom of the bond family debited in the law's run is positive: the bonded address's stake at risk is non-zero (an active submitter's stake is at least the minimum stake, which is positive)",
+      "P-gas": "transaction gas is outside the value flows (definitions.L6.ordinal_payoff)"
+    }
+  },
+  "o35": {
+    "action": "challengeState",
+    "law": "L_disch_self_Rollup_challengeState_489_493",
+    "loop": "489-493",
+    "member": "Rollup"
+  },
+  "run": {
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "init": "gen/M3/sorts/models/morph_rollup.extracted.init.json",
+    "init_sha256": "814b34cefb89cd73e2ad265d3473220e6e36115d00e84738a85a0e2691da2014",
+    "member": "Rollup",
+    "why": "the witnesses of M3's REFUTED records run on the Rollup's extracted model from the deployment state that the M3 model's Reach starts from"
+  },
+  "target": "M3",
+  "trust_rule": "a class is trusted iff it is a member's onlyOwner group; every other class (anyone, a submitter, a challenger, a whitelisted staker) is untrusted"
+}

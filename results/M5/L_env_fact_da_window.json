@@ -1,0 +1,76 @@
+{
+  "artifacts": {
+    "laws": "gen/M5/env/module/L_env_fact_da_window/LAWS.bend",
+    "model": "gen/M5/env/model/env.bend",
+    "proof": "gen/M5/env/module/L_env_fact_da_window/PROOF.bend"
+  },
+  "axiom_form": {
+    "artifacts": {
+      "laws": "gen/M5/env/axiom/L_env_fact_da_window/LAWS.bend",
+      "model": "gen/M5/env/model/env.bend",
+      "proof": "gen/M5/env/axiom/L_env_fact_da_window/PROOF.bend"
+    },
+    "environment": {
+      "carriers": [
+        "da"
+      ],
+      "premises": [
+        {
+          "category": "da",
+          "form": "havoc",
+          "id": "havoc:da",
+          "module": null
+        }
+      ]
+    },
+    "evidence": {
+      "law": "cl_l_env_fact_da_window",
+      "law_present": true,
+      "marker": "ALL PROOFS CHECK"
+    },
+    "proof_class": "counter_witness",
+    "status": "REFUTED"
+  },
+  "claim": "for every query age a = q - t (beacon slots) with a <= W and every committed blob x, the DA consumer at q delivers x (the factorization of the derivation consumer through the blob commitment holds inside the retention window)",
+  "environment": {
+    "carriers": [
+      "da"
+    ],
+    "premises": [
+      {
+        "category": "da",
+        "form": "module",
+        "id": "env-da-retention",
+        "module": "env-da-retention"
+      }
+    ]
+  },
+  "evidence": {
+    "law": "l_env_fact_da_window",
+    "law_present": true,
+    "marker": "ALL PROOFS CHECK"
+  },
+  "generator": "holon.m5.env",
+  "indexes": [
+    "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash",
+    "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash",
+    "L_fact_kernel_Rollup_commitState_committedBatches_blobhash"
+  ],
+  "law_id": "L_env_fact_da_window",
+  "ledger_assumptions": [],
+  "milestone": "M5",
+  "model_assumptions": [],
+  "module": {
+    "family": "window",
+    "id": "env-da-retention",
+    "parameters": {
+      "W": 131072
+    }
+  },
+  "premises": [],
+  "proof_class": "premise_rewrite",
+  "provenance": "spec/M5/lib/I57_laws.json",
+  "rule": "FACT",
+  "status": "PROVED",
+  "subform": "time_window"
+}

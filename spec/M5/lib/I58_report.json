@@ -1,0 +1,283 @@
+{
+  "doc": "I58's report specification (key I58), committed in the prereg before results/M5/metrics.json or docs/M5_REPORT.md exist. holon.m5.report reads it: which keys measure each metric, which committed iteration output each metric must agree with, which truth file each metric pins (with the key and the field holding the pin), the lead's conditions on PR #134 and the disclosed limitations, each with the evidence the generator checks before it prints the text. Values are never written here: every number in the outputs is computed from the committed records by I54's computation stub (holon.m5.metrics).",
+  "definitions": "spec/M5/preregistration.json",
+  "milestone": "M5",
+  "exit": "M5 exit criterion (docs/BUILD_PLAN.md, M5 header): the L6, L9 and L10 metrics are reported. Reporting is the exit; meeting a threshold is not. Each metric's overall verdict is printed as I54's common.overall computes it.",
+  "outputs": {
+    "metrics": "results/M5/metrics.json",
+    "report": "docs/M5_REPORT.md"
+  },
+  "metrics": {
+    "L6": {
+      "name_from": "definitions.L6.name",
+      "measured_by": [
+        "I56",
+        "I56b"
+      ],
+      "agrees_with": "results/M5/corpus/l6_corpus.json",
+      "pins": [
+        {
+          "role": "corpus truth",
+          "path": "spec/M5/truth/corpus.json",
+          "key": "I56b",
+          "field": "/thresholds/pins/spec~1M5~1truth~1corpus.json"
+        },
+        {
+          "role": "corpus truth run sidecar",
+          "path": "spec/M5/truth/corpus.run.json",
+          "key": "I56b",
+          "field": "/thresholds/pins/spec~1M5~1truth~1corpus.run.json"
+        },
+        {
+          "role": "corpus",
+          "path": "spec/eval/corpus.json",
+          "key": "I56b",
+          "field": "/thresholds/pins/spec~1eval~1corpus.json"
+        },
+        {
+          "role": "trusted flags sidecar",
+          "path": "spec/M5/lib/games_M3.json",
+          "key": "I56",
+          "field": "/thresholds/pins/sidecar/spec~1M5~1lib~1games_M3.json"
+        }
+      ],
+      "pin_sets": [
+        {
+          "role": "game controls (constructed truth)",
+          "key": "I56",
+          "field": "/thresholds/pins/controls"
+        }
+      ]
+    },
+    "L9": {
+      "name_from": "definitions.L9.name",
+      "measured_by": [
+        "I57"
+      ],
+      "agrees_with": "results/M5/l9_I57.json#/L9",
+      "pins": [
+        {
+          "role": "observation tool (the only admitted producer)",
+          "path": "spec/M5/lib/I57_observe.py",
+          "key": "I57",
+          "field": "/thresholds/observation_tool/sha256"
+        }
+      ],
+      "pin_sets": [],
+      "no_corpus_truth": "L9 is scored against observation sets (history), not against the corpus: it pins no corpus-truth file. The sets' own sha256 are reported as I57's l9 inputs record them."
+    },
+    "L10": {
+      "name_from": "definitions.L10.name",
+      "measured_by": [
+        "I55",
+        "I55b"
+      ],
+      "agrees_with": "results/M5/intent/l10.json#/l10",
+      "corpus_recall_from": "results/M5/intent/corpus/l10_corpus.json",
+      "pins": [
+        {
+          "role": "corpus truth",
+          "path": "spec/M5/truth/corpus.json",
+          "key": "I55b",
+          "field": "/thresholds/truth_sha256"
+        },
+        {
+          "role": "corpus",
+          "path": "spec/eval/corpus.json",
+          "key": "I55b",
+          "field": "/thresholds/corpus_sha256"
+        },
+        {
+          "role": "census (the denominator)",
+          "path": "results/M5/l10_census_base.json",
+          "key": "I55",
+          "field": "/thresholds/census_sha256"
+        }
+      ],
+      "pin_sets": [
+        {
+          "role": "intent controls (constructed truth)",
+          "key": "I55",
+          "field": "/thresholds/controls_sha256"
+        }
+      ],
+      "beside": "I55's trivially-true shares (the lead's condition G2(b)) are reported beside coverage. I55's pooled precision (target atoms with constructed control atoms) is not reported: I58 never pools constructed and documented truth."
+    }
+  },
+  "keys": [
+    "I54",
+    "I54b",
+    "I55",
+    "I55b",
+    "I56",
+    "I56b",
+    "I57"
+  ],
+  "conditions": [
+    {
+      "id": "C1",
+      "text": "G1, V9 (I56's prereg): the value-flow document has an entry for every value-moving action, its coverage is reported, and until V9 holds L6's decided fraction is not_judged, never meets.",
+      "evidence": [
+        {
+          "kind": "json",
+          "path": "results/M5/games/v9.json",
+          "pointer": "/holds",
+          "equals": true
+        }
+      ]
+    },
+    {
+      "id": "C2",
+      "text": "G2, I55's prereg: (a) the atomizer never reads the census (checked by I55's test A3); (b) coverage is reported beside the share of trivially true laws; (c) the overall verdict still requires control_recall.",
+      "evidence": [
+        {
+          "kind": "json",
+          "path": "results/M5/intent/l10.json",
+          "pointer": "/trivially_true/covering/denominator",
+          "equals": 0
+        },
+        {
+          "kind": "json",
+          "path": "results/M5/intent/l10.json",
+          "pointer": "/l10/thresholds/control_recall",
+          "equals": "meets"
+        }
+      ]
+    },
+    {
+      "id": "C3",
+      "text": "G3, I57's prereg: observation sets come only from the tool whose sha256 the measuring key pins; producer and reads are recorded by that tool; a set from any other producer is inadmissible under R1.",
+      "evidence": [
+        {
+          "kind": "json",
+          "path": "results/M5/l9_I57.json",
+          "pointer": "/inputs/observation_sets/obs-da-beacon/admitted",
+          "equals": true
+        },
+        {
+          "kind": "json",
+          "path": "results/M5/l9_I57.json",
+          "pointer": "/inputs/observation_sets/obs-fetch-archive/admitted",
+          "equals": true
+        },
+        {
+          "kind": "json",
+          "path": "results/M5/l9_I57.json",
+          "pointer": "/inputs/observation_sets/obs-l1-depth/admitted",
+          "equals": true
+        }
+      ]
+    },
+    {
+      "id": "C4",
+      "text": "Census scope: a later key may add a second, @inheritdoc-resolving census; the 82-clause census stays the frozen base. No second census exists, so L10 is measured over the base census only.",
+      "evidence": [
+        {
+          "kind": "glob",
+          "pattern": "results/M5/l10_census*.json",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "C5",
+      "text": "Corpus truth gets its own key (I54b), run under the frozen truth_protocol.json by two fresh labellers per entry who must agree; same-family unless the human runs an external agent (Q9a), disclosed as a limitation.",
+      "evidence": [
+        {
+          "kind": "json",
+          "path": "spec/M5/truth/corpus.run.json",
+          "pointer": "/key",
+          "equals": "I54b"
+        },
+        {
+          "kind": "json",
+          "path": "spec/M5/truth/corpus.run.json",
+          "pointer": "/protocol_exact_invocation",
+          "equals": true
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "X1",
+      "text": "Corpus truth is same-family: both labellers of every entry are of the builder's model family (Q9 default). No different-family labelling was run, so no family comparison exists.",
+      "evidence": [
+        {
+          "kind": "json",
+          "path": "spec/M5/truth/corpus.run.json",
+          "pointer": "/family",
+          "equals": "same"
+        },
+        {
+          "kind": "absent",
+          "path": "spec/M5/truth/corpus_different.json"
+        }
+      ]
+    },
+    {
+      "id": "X2",
+      "text": "Labeller disagreements stay undocumented, never adjudicated: 12 of the 60 (entry, question) pairs disagreed, and labeller b documented no actor flow, so only one entry (c05) has an L6 truth and only one (c17) an L10 truth.",
+      "evidence": [
+        {
+          "kind": "json_len",
+          "path": "spec/M5/truth/corpus.run.json",
+          "pointer": "/disagreements",
+          "equals": 12
+        }
+      ]
+    },
+    {
+      "id": "X3",
+      "text": "L10's review (W2) is one fresh reviewer of the builder's family (I55 gap E-I4), answering once; its sensitivity to an unfaithful law was not probed.",
+      "evidence": [
+        {
+          "kind": "json",
+          "path": "spec/M5/intent/reviews.json",
+          "pointer": "/reviewer",
+          "equals": "fresh-reviewer-1"
+        }
+      ]
+    },
+    {
+      "id": "X4",
+      "text": "L6's corpus has 0 items: I54's corpus_mapping needs I51's run on each entry's pre-fix commit, and I51 has not run. Even after it, at most one entry (c05) is decided, so corpus accuracy can be insufficient_n at best (I54 gap E-G3).",
+      "evidence": [
+        {
+          "kind": "absent",
+          "path": "results/eval/holon/corpus.json"
+        }
+      ]
+    },
+    {
+      "id": "X5",
+      "text": "L6's decided headline can only count findings whose REFUTED witness one untrusted class runs alone (single-deviator witness games, I54 semantics and I56 G-T3); on F(M3) none qualifies, and no target class is ever irrational.",
+      "evidence": []
+    },
+    {
+      "id": "X6",
+      "text": "L9's base coverage cannot move without regenerating M2/M3 records with module premises in place of A-env, which no M5 key was allowed to do (M0-M3 unchanged).",
+      "evidence": []
+    },
+    {
+      "id": "X7",
+      "text": "G3 one level down (I57 adversarial 2): the admission rule pins the observation tool, not the bytes it wrote; a hand-edited set with the tool's producer, sha256 and reads would be admitted. Each set was committed alone by the tool's command.",
+      "evidence": []
+    },
+    {
+      "id": "X8",
+      "text": "Self-certification (BUILD_PLAN §2.11): the definitions, the instruments, the prereg tool and tests_m5 are agent-writable until the human freezes them (Q1). I54's stub and instrument were written by the same session (gap E-G1). Q11 is the lead's delegated answer, not the human's own.",
+      "evidence": []
+    },
+    {
+      "id": "X9",
+      "text": "Every M5 branch is unlanded: I54-I57 and this report are stacked drafts that wait for M3's exit. The measured tree is the merge of I57, I55, I56 and I54b, not the lead's trunk.",
+      "evidence": []
+    },
+    {
+      "id": "X10",
+      "text": "The prereg audit of the merged M5 tree prints PREREG FAILED, on I57 alone: I57's outcome path laws/M5/ also covers laws/M5/games/, which I56 wrote (4b927ae1, after its own prereg 773027e1) on a branch parallel to I57's prereg ef603317. Every other key, I58's included, is OK. No key or audit rule was changed to make it pass; the overlap is the lead's to resolve. (Added to this sidecar after I58's prereg, disclosed in docs/iterations/I58.md.)",
+      "evidence": []
+    }
+  ]
+}

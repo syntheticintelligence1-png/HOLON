@@ -1,0 +1,11 @@
+{
+  "clause": "@notice The count never decreases.",
+  "family": "monotone",
+  "file": "Cfb8bc7.sol",
+  "id": "i_monotone_right_2",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity 0.8.24;\n\ncontract Cfb8bc7 {\n    uint256 public count;\n\n    /// @notice The count never decreases.\n    function step() external {\n        count += 2;\n    }\n}\n",
+  "truth": {
+    "obstruction": false,
+    "why": "step only adds"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "artifacts": {
+    "laws": "gen/M5/env/module/L_env_fact_fetch/LAWS.bend",
+    "model": "gen/M5/env/model/env.bend",
+    "proof": "gen/M5/env/module/L_env_fact_fetch/PROOF.bend"
+  },
+  "axiom_form": {
+    "artifacts": {
+      "laws": "gen/M5/env/axiom/L_env_fact_fetch/LAWS.bend",
+      "model": "gen/M5/env/model/env.bend",
+      "proof": "gen/M5/env/axiom/L_env_fact_fetch/PROOF.bend"
+    },
+    "environment": {
+      "carriers": [
+        "fetcher"
+      ],
+      "premises": [
+        {
+          "category": "fetcher",
+          "form": "havoc",
+          "id": "havoc:fetcher",
+          "module": null
+        }
+      ]
+    },
+    "evidence": {
+      "law": "cl_l_env_fact_fetch",
+      "law_present": true,
+      "marker": "ALL PROOFS CHECK"
+    },
+    "proof_class": "counter_witness",
+    "status": "REFUTED"
+  },
+  "claim": "for every committed blob x, the fetcher delivers x (the factorization through the commitment holds through the fetcher at every query time)",
+  "environment": {
+    "carriers": [
+      "fetcher"
+    ],
+    "premises": [
+      {
+        "category": "fetcher",
+        "form": "module",
+        "id": "env-fetch-archive",
+        "module": "env-fetch-archive"
+      }
+    ]
+  },
+  "evidence": {
+    "law": "l_env_fact_fetch",
+    "law_present": true,
+    "marker": "ALL PROOFS CHECK"
+  },
+  "generator": "holon.m5.env",
+  "indexes": [
+    "L_fact_kernel_Rollup_commitBatchWithProof_committedBatches_blobhash",
+    "L_fact_kernel_Rollup_commitBatch_committedBatches_blobhash",
+    "L_fact_kernel_Rollup_commitState_committedBatches_blobhash"
+  ],
+  "law_id": "L_env_fact_fetch",
+  "ledger_assumptions": [],
+  "milestone": "M5",
+  "model_assumptions": [],
+  "module": {
+    "family": "availability",
+    "id": "env-fetch-archive",
+    "parameters": {}
+  },
+  "premises": [],
+  "proof_class": "computation",
+  "provenance": "spec/M5/lib/I57_laws.json",
+  "rule": "FACT",
+  "status": "PROVED",
+  "subform": "fetcher"
+}
