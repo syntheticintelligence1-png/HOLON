@@ -306,7 +306,21 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(I.load(ROOT, I.BACKTEST)["record_map"], {"path": I.RECORD_MAP, "sha256": _sha(I.RECORD_MAP)})
 
     def test_b6_target_agnostic(self):
-        self.assertEqual(I.scan(I.added_lines(ROOT), I.target_names(ROOT)), [])
+        """B6. (Amended, spec/M3/amendments/I100.jsonl: _i100.added_lines diffs the base against HEAD, so any later
+        key's lines under holon/ counted as I100's. The lines I100 adds are now the diff from the base to R, the
+        oldest commit of HEAD's history that adds docs/iterations/I100.md (I100's report), scanned by _i100.scan
+        against _i100.target_names as before.)"""
+        added = I.git(ROOT, "log", "--diff-filter=A", "--format=%H", "--reverse", "HEAD", "--",
+                      "docs/iterations/I100.md").split()
+        self.assertTrue(added, "docs/iterations/I100.md is added by no commit of HEAD's history")
+        out, cur = [], None
+        for ln in I.git(ROOT, "diff", "-U0", f"{I.BASE}..{added[0]}", "--", "holon/").splitlines():
+            if ln.startswith("+++ "):
+                cur = ln[6:] if ln.startswith("+++ b/") else None
+            elif ln.startswith("+") and cur:
+                out.append((cur, ln[1:]))
+        self.assertTrue(out, "I100 adds no line under holon/ before its report")
+        self.assertEqual(I.scan(out, I.target_names(ROOT)), [])
 
     def test_b7_deterministic(self):
         _build()
