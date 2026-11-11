@@ -1,0 +1,100 @@
+{
+  "checkout": {
+    "config": [
+      "extract",
+      "sources",
+      "scroll-tech/scroll-contracts"
+    ],
+    "contaminated": "contaminated (post-seal change)",
+    "development": false,
+    "doc": "config/holon.json's key path of the checkout: the sealed target's (a clone of the sealed repository at the sealed commit, fetched only as spec/heldout/target.json pins it). Not sealed: this target names no seal, so the sealed target stays the one target that does. rerun_of: the target whose committed result this one reruns; contaminated: the label every number of the rerun carries. Not the development target.",
+    "rerun_of": "scroll"
+  },
+  "doc": "I50b's contaminated rerun of the held-out target (spec/M4/lib/heldout_rerun.json rule T1b): the sealed target's description (targets/scroll/target.json) with its paths moved here, the seal keys left out, and the rerun's sidecar rules. Its documents are the pinned Solidity frontend's output over the same checkout, under a scope sidecar at sidecar_version 2 (rule D1); its laws are derived with the typed-sorts sidecar at holon-sort-types/0.2 (rules U1-U3). Both changes were made after the seal opened, so every number here is labelled: contaminated (post-seal change). The sealed target's result is the result of record.",
+  "drift": {
+    "out": "results/targets/scroll_i50b/drift.json",
+    "timing": "results/targets/scroll_i50b/drift_timing.json"
+  },
+  "extract": {
+    "commands": [
+      [
+        "{python}",
+        "-m",
+        "holon",
+        "extract",
+        "solidity",
+        "--sidecar",
+        "targets/scroll_i50b/extract_solidity.json",
+        "--source",
+        "{checkout}",
+        "--out",
+        "{out}/ScrollChain.extracted.json"
+      ]
+    ],
+    "doc": "the pinned Solidity frontend with the rerun's scope sidecar (the sealed one at sidecar_version 2) over the checkout; holon target extract writes the document and the extraction report gen/targets/scroll_i50b/extraction.json",
+    "documents": {
+      "ScrollChain.extracted.json": "gen/targets/scroll_i50b/facts/ScrollChain.extracted.json"
+    },
+    "method": "commands"
+  },
+  "index": {
+    "deps": [],
+    "doc": "as the sealed target's: the typed run's dependency index is not built; drift on this target compares documents only",
+    "models": {}
+  },
+  "name": "scroll_i50b",
+  "names": [
+    "scroll_i50b"
+  ],
+  "run": {
+    "catalog": "holon-rules/1.15",
+    "doc": "I50b: I50's route (the pinned catalog's laws over the target's document, derived and decided as the typed test milestone T50 in a scratch root) with the sidecars of rules Q1b-Q4b of sidecar_rules; labelled contaminated",
+    "iteration": "I50b",
+    "kind": "typed",
+    "law_set": "gen/targets/scroll_i50b/laws/DERIVATION.json",
+    "milestone": "T50",
+    "sidecar_rules": "spec/M4/lib/heldout_rerun.json"
+  },
+  "target_version": "holon-target/0.1",
+  "upstream": {
+    "pinned_commit": "42de954bee237cfa478a5b443ac0aeb900aca5ad",
+    "pinned_refs": {
+      "refs/tags/v0.0.1": "b21804473b6bb6f94921d26106fa31cf32db04b5",
+      "refs/tags/v0.0.10": "244dc4fe200592c07518cbf190ea364e32813a7c",
+      "refs/tags/v0.0.11": "4ca3a3cb017858bd2cfe96ad1a0d573e4b64ef67",
+      "refs/tags/v0.0.12-gas-token": "ca2acbe5a56982c6aae1c5c79d13f6d66b28c26b",
+      "refs/tags/v0.0.13-gas-token": "161b2dd409780c6e9440cca98b69bc9d7ebd63e0",
+      "refs/tags/v0.0.14-gas-token": "e5bdf6f5a39905362b5174a50a371379c6f7004e",
+      "refs/tags/v0.0.15": "0251956912bd7e39aa34053648074af52fd364f5",
+      "refs/tags/v0.0.16": "9fe3780cb3dd52748cd479626f1476a9031279b6",
+      "refs/tags/v0.0.17": "560aad6dfcaf1b856a40857a90b4e0a96e55aed2",
+      "refs/tags/v0.0.18": "fae129ea9cf1bc7cfaa57209804c9ecbc9eb689f",
+      "refs/tags/v0.0.19": "3f9e8e478b9c7bd332eae10103a2de92cabe8606",
+      "refs/tags/v0.0.2": "54d9b7564e42861af48fd622419e843b14696eec",
+      "refs/tags/v0.0.20": "3793c18ec8b02ec1d13a759e2b3f21d7b69d08ee",
+      "refs/tags/v0.0.21": "574c7833a32a4ca780a27ce73efc76ca2e819619",
+      "refs/tags/v0.0.22": "0c993a7096f95995d50a43f0419251f56012b702",
+      "refs/tags/v0.0.23": "5b84246bd68ec83fd2769c1d48250b76a4fff190",
+      "refs/tags/v0.0.24": "0414a230a0ffff2e4ff661f8d1aa90566e8b7ab1",
+      "refs/tags/v0.0.25": "128cdd04e4bff1b73d55f65a5fe484a7c32071d1",
+      "refs/tags/v0.0.25-volatile-exchange-rate": "4bd7361a4bf4e58e1a72dc0dd4645d577b5313c7",
+      "refs/tags/v0.0.26": "e14c75171bb20ea031a30ba7852a8c70862b88e8",
+      "refs/tags/v0.0.3": "ffa830b9ba4170c495371eba1b4fd65d7660d055",
+      "refs/tags/v0.0.4": "cdc9db123f0dcc3dcfffdd1b395456f260cef9e3",
+      "refs/tags/v0.0.5": "591b875a18e7faa9e51d7233487c40b243091de1",
+      "refs/tags/v0.0.6": "cc9b57908fa4286301e88eda655e259d1822db10",
+      "refs/tags/v0.0.7": "1da60676cf770319cb86191aa8042b1e71faddf1",
+      "refs/tags/v0.0.8": "2fc37bdd9faa989ff1298acffc17446d2acb52fa",
+      "refs/tags/v0.0.9": "1f9cdd7e38de85d0a0995fef1935a9a8c0b9ea33",
+      "refs/tags/v1.0.0": "7bb751f9cf1b5fdde95297049e3407ce23d56ac6",
+      "refs/tags/v2.0.0": "8e6a02b120d3a997f7c8e948b62bfb0e5b3ac185",
+      "refs/tags/v2.0.1": "b7a01e43a834d0da2fce3e2abee1470640dc9170",
+      "refs/tags/v3.0.0": "b634a1b00a235602204921aef084cd42138cfd63",
+      "refs/tags/v4.0.0": "42de954bee237cfa478a5b443ac0aeb900aca5ad"
+    },
+    "pinned_refs_doc": "the upstream's tags (each at its peeled commit) as git ls-remote listed them when this file was written (I49, 2026-11-11); the sealed commit is the peeled commit of refs/tags/v4.0.0. A tag added or moved after this snapshot is drift.",
+    "repo": "scroll-tech/scroll-contracts",
+    "url": "https://github.com/scroll-tech/scroll-contracts",
+    "watch": "refs/tags/"
+  }
+}
