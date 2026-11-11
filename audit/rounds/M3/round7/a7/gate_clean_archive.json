@@ -1,0 +1,17 @@
+{
+ "checks": {
+  "G11": {
+   "detail": "I30 laws: 3 records match the registry and name existing artifacts; DISCH laws: 35 DISCH records match the registry and name existing artifacts; FACT laws: 5 FACT records match the registry and name existing artifacts; contract laws: 1 contract law records match the registry and name existing artifacts; derivation laws: 5 derivation laws have a decision and a record that agree and name existing artifacts; bundle laws: 8 bundle-law records match the registry and name existing artifacts; bundle laws: 17 bundle laws have records; every decided one states its generated law, which its proof imports; the 207 other laws: every law has a record and a non-vacuous LAWS.bend, which its checked PROOF.bend imports",
+   "passed": true
+  },
+  "G2": {
+   "detail": "I30 laws: derive reproduces laws/M3 (278 files); 3 I30 law files state their coerce term; derivation laws: 5 derivation laws: law files hash to I88's registry, LAWS.bend is the frozen statement's rendering over the four models, the product module and the equivalence pair regenerate, and the pair checks in Bend and BendTT; holon.gate G2 over every law of M3: laws/STATEMENT_DIFF.jsonl: line 261: binding_change L_sort_realize_rollup_363_4a64383b: a binding_change is checked against the bound kernel forms at bound_commit, which needs the git history (a copied tree cannot check it); line 262: binding_change L_sort_tag_rollup_279_e01ea84a: a binding_change is checked against the bound kernel forms at bound_commit, which needs the git history (a copied tree cannot check it); line 263: binding_change L_sort_tag_rollup_406_e01ea84a: a binding_change is checked against the bound kernel forms at bound_commit, which needs the git history (a copied tree cannot check it)",
+   "passed": false
+  },
+  "G3": {
+   "detail": "I30 laws: no law under proofs/, no escape hatch, every law file imports the typed model as M; holon.gate G3 over every law of M3: no escape hatches; 78 Lean files free of forbidden tactics and commands",
+   "passed": true
+  }
+ },
+ "command": "python -m holon gate --milestone M3 --root <git-archive copy of the target, gen/M3/refute and spec/heldout left out> --checks G2,G3,G11 --report <scratch>"
+}

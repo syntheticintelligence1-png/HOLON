@@ -1,0 +1,39 @@
+{
+ "m01": {
+  "member": "queue",
+  "baseline_reproduces_committed_content": true,
+  "baseline_diff_paths": [],
+  "mutant_content_changes": true,
+  "paths": [
+   "/actions/0/events/0/seq",
+   "/actions/0/order[len 11 -> 12]",
+   "/actions/0/panics[len 0 -> 1]",
+   "/actions/0/post/messageEnqueueTime/2/0/1[len 2 -> 3]",
+   "/actions/0/post/messageEnqueueTime/2/0/1/0",
+   "/actions/0/post/messageEnqueueTime/2/0/1/1/0",
+   "/actions/0/post/messageEnqueueTime/2/0/1/1/1",
+   "/actions/0/writes/1/path/0/1[len 2 -> 3]",
+   "/actions/0/writes/1/path/0/1/0",
+   "/actions/0/writes/1/path/0/1/1/0",
+   "/actions/0/writes/1/path/0/1/1/1",
+   "/actions/0/writes/1/seq"
+  ],
+  "names": [
+   "appendCrossDomainMessage",
+   "appendEnforcedTransaction"
+  ]
+ },
+ "m02": {
+  "member": "messenger",
+  "baseline_reproduces_committed_content": true,
+  "baseline_diff_paths": [],
+  "mutant_content_changes": true,
+  "paths": [
+   "/actions/7/guards/6/expr/0",
+   "/actions/7/guards/6/reaches/0/expr/0"
+  ],
+  "names": [
+   "replayMessage"
+  ]
+ }
+}
