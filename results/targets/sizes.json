@@ -1,0 +1,169 @@
+{
+  "doc": "BUILD_PLAN I49/I50 exit: obligation counts against |E| and |V| across the four diagrams of spec/M4/lib/heldout_protocol.json sizes.rows (holon target sizes). |V| is the number of carriers and |E| the number of edges of each row's diagram; obligations are the laws of the row's law set over the row's document. No linearity claim is made.",
+  "linearity": "not claimed: four diagrams and one held-out target support no claim about how obligation counts grow with |E| or |V|",
+  "rows": [
+    {
+      "E": 11,
+      "V": 6,
+      "adapter": "holon.diagram.build (holon-facts/0.2)",
+      "carriers_by_kind": {
+        "rep": 2,
+        "state": 4
+      },
+      "diagram": "gen/diagrams/abacus/abacus_facts.json",
+      "diagram_sha256": "1e54ec7a274339cb76bc631d94a93c5d7956931bcdf46c25c1fb1bbec3ad7ae3",
+      "document": "targets/abacus/facts/abacus.facts.json",
+      "document_sha256": "fe3e01a7099be2bba7fdf233774bf39ef28b6bd61789b15db9df5bfcc30c8a1a",
+      "edges_by_kind": {
+        "LOAD": 6,
+        "STORE": 3,
+        "TRANS": 2
+      },
+      "id": "toy",
+      "obligations": {
+        "by_rule": {
+          "DISCH": 2,
+          "SORT": 1
+        },
+        "by_rule_subform": {
+          "DISCH/profile_point": 2,
+          "SORT/bound": 1
+        },
+        "law_set_total": 3,
+        "pending": null,
+        "source": "targets/abacus/laws",
+        "total": 3
+      },
+      "target": "abacus"
+    },
+    {
+      "E": 62,
+      "V": 30,
+      "adapter": "holon.diagram.build (holon-facts/0.2; the committed I11 diagram)",
+      "carriers_by_kind": {
+        "env": 5,
+        "rep": 3,
+        "state": 22
+      },
+      "diagram": "gen/M2/diagram/morph_rollup.json",
+      "diagram_sha256": "f9364d1dd3d5291f461c0b51ed3ea6b65d45957cfce41d50996b1ce5bd20be82",
+      "document": "spec/M1/facts/morph_rollup.json",
+      "document_sha256": "44386d7c178711f50d04f7c9ffbc837827ba26503b93485a195cf4e29edf8a3f",
+      "edges_by_kind": {
+        "CONS": 1,
+        "LOAD": 27,
+        "MIG": 2,
+        "STORE": 22,
+        "TRANS": 10
+      },
+      "id": "morph_m2",
+      "obligations": {
+        "by_rule": {
+          "SORT": 10
+        },
+        "by_rule_subform": {
+          "SORT/site": 10
+        },
+        "law_set_total": 12,
+        "pending": null,
+        "source": "laws/M2/DERIVATION.json",
+        "total": 10
+      },
+      "target": "morph"
+    },
+    {
+      "E": 139,
+      "V": 48,
+      "adapter": "holon-diagram-transitions/0.1",
+      "carriers_by_kind": {
+        "digest": 1,
+        "env": 3,
+        "rep": 12,
+        "state": 32
+      },
+      "diagram": "gen/diagrams/morph/morph_rollup_extracted.json",
+      "diagram_sha256": "e509082b397418fc8ee82717fa3e5ad8e0fe9c73f9978b787bba64bf722026a2",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "document_sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5",
+      "edges_by_kind": {
+        "CALL": 17,
+        "COMMIT": 11,
+        "HASH": 16,
+        "LOAD": 39,
+        "STORE": 31,
+        "TRANS": 25
+      },
+      "id": "morph_m3",
+      "obligations": {
+        "by_rule": {
+          "DISCH": 36,
+          "FACT": 9,
+          "PAR": 3,
+          "SORT": 6,
+          "SYM": 77,
+          "UNDO": 9
+        },
+        "by_rule_subform": {
+          "DISCH/blocking": 15,
+          "DISCH/external": 6,
+          "DISCH/external_none": 6,
+          "DISCH/revert": 8,
+          "DISCH/self_controlled": 1,
+          "FACT/attribution": 2,
+          "FACT/kernel": 3,
+          "FACT/public_input": 4,
+          "PAR/link_domain": 3,
+          "SORT/as_member": 2,
+          "SORT/conservation": 3,
+          "SORT/realize": 1,
+          "SYM/omega": 49,
+          "SYM/pi": 11,
+          "SYM/sentinel": 4,
+          "SYM/tau": 13,
+          "UNDO/cancel": 1,
+          "UNDO/pair": 5,
+          "UNDO/residue": 3
+        },
+        "law_set_total": 275,
+        "pending": null,
+        "source": "laws/M3/DERIVATION.json",
+        "total": 140
+      },
+      "target": "morph"
+    },
+    {
+      "E": 76,
+      "V": 35,
+      "adapter": "holon-diagram-transitions/0.1",
+      "carriers_by_kind": {
+        "digest": 1,
+        "env": 4,
+        "rep": 11,
+        "state": 19
+      },
+      "diagram": "gen/diagrams/scroll/ScrollChain_extracted.json",
+      "diagram_sha256": "dfc30a8509273331df5ba1ddc79377e66fd4646b2de7259270e887363b6903e7",
+      "document": "gen/targets/scroll/facts/ScrollChain.extracted.json",
+      "document_sha256": "275730a29a4f352f5aeaec036285d36b11467b689a8399ca54b4e0fb6fce6837",
+      "edges_by_kind": {
+        "CALL": 10,
+        "COMMIT": 4,
+        "HASH": 6,
+        "LOAD": 23,
+        "STORE": 18,
+        "TRANS": 15
+      },
+      "id": "heldout",
+      "obligations": {
+        "by_rule": null,
+        "by_rule_subform": null,
+        "law_set_total": null,
+        "pending": "refused: holon target derive stopped at holon sorts: holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule",
+        "source": "gen/targets/scroll/laws/DERIVATION.json",
+        "total": null
+      },
+      "target": "scroll"
+    }
+  ],
+  "sizes_version": "holon-sizes/0.1"
+}

@@ -68,11 +68,13 @@ def corpus(w: Window, rep: dict) -> list[dict]:
     """[{commit, key, bytes, version, length, keccak, parent}] of every parent header of replay.json, in its order."""
     from . import abi as A
     from . import target as TG
-    from ..replay import check_checkout, morph_path, replay_config
+    from ..replay import check_checkout, replay_config
+    from .. import targets as _targets   # the development target's checkout (I47)
+    checkout_path_of = _targets.adapter("checkout_path")
     from .checks import model as header_model
     tgt = TG.load(w.milestone, w.root)
     hm = header_model(w.root)
-    checkout = morph_path(types.SimpleNamespace(), w.root)
+    checkout = checkout_path_of(types.SimpleNamespace(), w.root)
     sha = check_checkout(checkout, hm.facts["target"]["commit"])
     cfg = replay_config(w.root)
     pabi = A.PinnedAbi(checkout, sha, cfg["solc"], tgt)
@@ -135,7 +137,9 @@ def impl_ref(bind: dict, edge: str) -> dict:
 
 def run(milestone: str = "M2", root: Path = ROOT, work: Path | None = None) -> dict:
     from .. import refinement as R
-    from ..replay import check_checkout, morph_path, toolchain
+    from ..replay import check_checkout, toolchain
+    from .. import targets as _targets   # the development target's checkout (I47)
+    checkout_path_of = _targets.adapter("checkout_path")
     from .checks import model as header_model
     w = Window(milestone, root)
     rep, rep_path = load_replay(milestone, root)
@@ -189,7 +193,7 @@ def run(milestone: str = "M2", root: Path = ROOT, work: Path | None = None) -> d
     corp = {"enc_sol": dec_items,
             "enc_go_v0": [it for it in dec_items if it["version"] == 0],
             "enc_go_v1": [it for it in dec_items if it["version"] in (1, 2)]}
-    checkout = morph_path(types.SimpleNamespace(), root)
+    checkout = checkout_path_of(types.SimpleNamespace(), root)
     check_checkout(checkout, hm.facts["target"]["commit"])
     tc = toolchain(types.SimpleNamespace(forge=None, solc=None, write_pins=False), root)
     model_out = {}

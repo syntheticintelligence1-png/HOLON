@@ -2,7 +2,13 @@
 
   python -m holon run  --milestone M0 [--facts PATH] [--out DIR] [--gen-dir DIR] [--no-registry] [--core import|paste]
                        [--laws ID,ID]   (M1+: decide only those laws; I15)
-  python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9]
+  python -m holon gate --milestone M0 [--root DIR] [--report PATH] [--checks G6,G9] [--jobs N]
+                                                        (--jobs N, I47: the checks in N worker processes)
+  python -m holon run --milestone M [--jobs N] ...      (I47: state-machine milestones, the laws in N worker processes,
+                                                        merged as the sequential run's; holon.parallel)
+  python -m holon target run|list [--target NAME] [--jobs N]   (I47: a target of targets/<name>/target.json through
+                                                        the factory; holon.target_run)
+  python -m holon drift --target NAME [--remote URL]    (I47: the L22 drift trigger; holon.drift)
   python -m holon contracts derive|apply --milestone M [--root DIR] [--check]   (intent contracts, K3 and K5; I64)
   python -m holon audit prereg --milestone M2 [--root DIR]
   python -m holon audit status [--json] [--root DIR]
@@ -198,6 +204,18 @@ def _typed_run(argv: list) -> int | None:
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
+    if argv[:1] == ["run"] and any(x == "--jobs" or x.startswith("--jobs=") for x in argv):
+        # I47: --jobs N decides the laws in N worker processes and merges them (holon.parallel); --jobs 1 is the
+        # sequential run itself
+        from . import parallel
+        rest, vals = parallel._strip(argv, ("--jobs",))
+        if int(vals.get("--jobs") or 1) > 1:
+            rc = parallel.run(argv)
+            if rc == 0:
+                from . import contracts
+                rc = contracts.after_run(rest)
+            return rc
+        argv = rest
     if argv[:1] == ["run"]:
         # pipeline v2 (B): with HOLON_TRACE=1 a run records what it read for each law it decides (holon.trace); with
         # --reuse it first drops the laws whose record and trace still hold
@@ -240,6 +258,12 @@ def _reuse(argv: list) -> list | None:
 
 
 def _main(argv: list) -> int:
+    if argv[:1] == ["target"]:  # I47: a target's run (targets/<name>/target.json; holon.target_run)
+        from . import target_run
+        return target_run.main(argv[1:])
+    if argv[:1] == ["drift"]:  # I47: the L22 drift trigger (holon.drift)
+        from . import drift
+        return drift.main(argv[1:])
     if argv[:1] == ["contracts"]:  # its flags go to holon.contracts unparsed (I64: intent contracts, K3 and K5)
         from . import contracts
         return contracts.main(argv[1:])
@@ -344,7 +368,8 @@ def _main(argv: list) -> int:
         from . import replay as _replay
         p = _ap.ArgumentParser(prog="holon replay-par")
         p.add_argument("--milestone", default="M3")
-        for f in ("--morph", "--forge", "--solc", "--work"):
+        from . import targets as _targets
+        for f in (_targets.checkout_flag(), "--forge", "--solc", "--work"):   # the checkout flag: targets/ (I47)
             p.add_argument(f)
         return _replay.main_replay_par(p.parse_args(argv[1:]))
     if argv[:1] == ["profile"]:  # likewise for holon.profile (discharge profiles, DISCH II, I32)
@@ -537,6 +562,7 @@ def _main(argv: list) -> int:
         rc = _typed_run(argv)
         if rc is not None:
             return rc
+    from . import targets as _targets
     ap = argparse.ArgumentParser(prog="holon")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="drive every frozen law to PROVED / REFUTED / UNKNOWN")
@@ -554,6 +580,7 @@ def _main(argv: list) -> int:
     g.add_argument("--root")
     g.add_argument("--report")
     g.add_argument("--checks", help="comma-separated subset to run after GENV (the report is marked partial)")
+    g.add_argument("--jobs", type=int, default=1, help="I47: worker processes for the checks (default 1: sequential)")
     bd = sub.add_parser("bind", help="bind each law to the kernel form of the definitions it reaches (spec/bindings)")
     bd.add_argument("--milestone", default="M0")
     bd.add_argument("--root")
@@ -563,7 +590,7 @@ def _main(argv: list) -> int:
     bd.add_argument("--remodel", metavar="LICENSE",
                     help="(I68) first append the remodel entries the license covers (holon.statement_diff.remodel_entries, "
                          "each checked by check_entry), then rebind through them")
-    orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob --morph PATH` (D2), `oracle check --milestone M2` "
+    orc = sub.add_parser("oracle", help="oracle checks: `oracle zero-blob` with the development target's checkout (D2), `oracle check --milestone M2` "
                                         "(the oracle sidecar's hypotheses, I12), both writing results/M2/hypotheses.json; "
                                         "`oracle compression --milestone M3` (HypZ and HypZ_len on the real codec, I91), "
                                         "writing results/M3/compression_oracle.json")
@@ -587,7 +614,8 @@ def _main(argv: list) -> int:
     co.add_argument("rest", nargs=argparse.REMAINDER)
     rp = sub.add_parser("replay", help="replay REFUTED witnesses on the real Go and Solidity code")
     rp.add_argument("--milestone", default="M0")
-    rp.add_argument("--morph", help="morph-l2/morph checkout at the facts' commit (default: config replay.morph)")
+    rp.add_argument(_targets.checkout_flag(), help="the development target's checkout at the facts' commit (default: "
+                                                    "its config key, targets/<name>/target.json checkout.config)")
     rp.add_argument("--forge", help="forge binary (default: config replay.forge); its sha256 must match the pin")
     rp.add_argument("--solc", help="solc 0.8.24 binary for forge --use (default: config replay.solc), pinned likewise")
     rp.add_argument("--work")
@@ -600,7 +628,7 @@ def _main(argv: list) -> int:
     lay = sub.add_parser("layout", help="print the symbolic byte layout of an encoder")
     lay.add_argument("fn")
     lay.add_argument("version", type=int)
-    lay.add_argument("--facts", default="facts/morph_header.json")
+    lay.add_argument("--facts", help="default: the development target's header facts (checkout.vocab header_facts)")
     dg = sub.add_parser("diagram", help="build the protocol diagram of every fact document (gen/<M>/diagram)")
     dg.add_argument("--milestone", default="M2")
     dg.add_argument("--out", help="output directory (default: <root>/gen/<milestone>/diagram)")
@@ -612,7 +640,8 @@ def _main(argv: list) -> int:
     rf.add_argument("--edges", help="comma-separated subset of the refined edges (default: all, plus cross_edge.json "
                                     "and spec/M2/disagreements.json)")
     rf.add_argument("--out", help="output directory for the records (default: results/M2/refinement)")
-    rf.add_argument("--morph", help="morph checkout at the facts' commit (default: config replay.morph)")
+    rf.add_argument(_targets.checkout_flag(), help="the development target's checkout at the facts' commit (default: "
+                                                    "its config key)")
     rf.add_argument("--work", help="scratch directory for the harness workspaces (default: a temporary directory)")
     rf.add_argument("--fix", action="append", help="a fix commit (40 lowercase hex) this run measures; repeatable")
     md = sub.add_parser("model", help="build and check the model a milestone compiles a fact document to (M2+: "
@@ -687,7 +716,8 @@ def _main(argv: list) -> int:
         return diagram.run(a.milestone, a.out, a.root)
     if a.cmd == "layout":
         from . import facts, layout
-        for i, c in enumerate(layout.layout(facts.load(a.facts), a.fn, a.version)):
+        from . import targets as _t
+        for i, c in enumerate(layout.layout(facts.load(a.facts or _t.vocab("header_facts")), a.fn, a.version)):
             print(i, json.dumps(c))
         return 0
     return 1

@@ -1,0 +1,41 @@
+{
+  "checkout": null,
+  "doc": "The toy second target of I47: a two-counter machine whose upstream repository holds its facts document. It runs through the same factory as the development target, with no edit to holon/. Its facts document's target.commit is zeros: the document is the upstream's own content, and the upstream commit that holds it is upstream.pinned_commit.",
+  "drift": {
+    "out": "results/targets/abacus/drift.json",
+    "timing": "results/targets/abacus/drift_timing.json"
+  },
+  "extract": {
+    "documents": {
+      "abacus.facts.json": "targets/abacus/facts/abacus.facts.json"
+    },
+    "method": "copy"
+  },
+  "index": {
+    "deps": "results/targets/abacus/deps.json",
+    "models": {
+      "targets/abacus/facts/abacus.facts.json": "gen/targets/abacus/model/abacus_facts.defs.json"
+    }
+  },
+  "name": "abacus",
+  "names": [
+    "abacus"
+  ],
+  "run": {
+    "gen": "gen/targets/abacus",
+    "kind": "machine",
+    "laws": "targets/abacus/laws",
+    "milestone": "T11",
+    "out": "results/targets/abacus"
+  },
+  "target_version": "holon-target/0.1",
+  "upstream": {
+    "pinned_commit": "919cccf4abca40c28d0f2aae9173e94088367329",
+    "pinned_refs": {
+      "refs/tags/v1": "919cccf4abca40c28d0f2aae9173e94088367329"
+    },
+    "url": null,
+    "url_doc": "no public upstream: `holon drift --target abacus --remote URL` names one (the I47 tests build it with tests_m4/_i47.upstream_repo)",
+    "watch": "refs/tags/"
+  }
+}

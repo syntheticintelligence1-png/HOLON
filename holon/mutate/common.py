@@ -14,6 +14,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from .. import targets as _targets
+
 ROOT = Path(__file__).resolve().parents[2]
 
 # The iteration whose instrument and outputs this package serves: I62 (the rerun with I61's defects fixed) unless
@@ -37,7 +39,7 @@ GEN = Path(f"gen/M2/mutation_{_k}")
 PROJECTED = GEN / "header.projected.json"
 HARNESS = Path("replay/M2/mutation_i61")
 FACTS2 = Path("spec/M2/facts")
-HEADER_FACTS = Path("facts/morph_header.json")
+HEADER_FACTS = Path(_targets.vocab("header_facts"))   # the development target's (targets/, I47)
 
 
 class MutateError(Exception):
@@ -137,7 +139,7 @@ def config(r=None) -> dict:
 
 def checkout(r=None) -> Path:
     """The pinned target checkout (config replay.morph), read only."""
-    return Path(config(r)["replay"]["morph"])
+    return _targets.checkout_path(config(r), root(r))
 
 
 def sol_deps(r=None) -> Path:
