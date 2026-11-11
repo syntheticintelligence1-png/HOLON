@@ -1,0 +1,61 @@
+{
+  "evidence": "list",
+  "facts": "targets/abacus/facts/abacus.facts.json",
+  "facts_sha256": "",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_abacus_b_reach",
+  "milestone": "T11",
+  "notes": "Planted TRUE law: some successful trace makes the second counter 4.",
+  "rule": "DISCH",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "st",
+        "q": "exists",
+        "type": "Trace"
+      }
+    ],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "var": "st"
+                },
+                {
+                  "s0": {}
+                }
+              ],
+              "fn": "runs_ok"
+            },
+            {
+              "bool": true
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "obsv": "b_of",
+              "of": {
+                "from": {
+                  "s0": {}
+                },
+                "run": {
+                  "var": "st"
+                }
+              }
+            },
+            {
+              "nat": 4
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "subform": "profile_point"
+}

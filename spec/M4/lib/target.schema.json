@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON target description (targets/<name>/target.json, holon-target/0.1; I47)",
+  "type": "object",
+  "required": ["target_version", "name", "names", "doc", "upstream", "checkout", "extract", "run", "index", "drift"],
+  "additionalProperties": false,
+  "properties": {
+    "target_version": {"const": "holon-target/0.1"},
+    "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "names": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "doc": {"type": "string"},
+    "upstream": {
+      "type": "object",
+      "required": ["url", "pinned_commit", "watch", "pinned_refs"],
+      "properties": {
+        "url": {"type": ["string", "null"]},
+        "url_doc": {"type": "string"},
+        "repo": {"type": "string"},
+        "pinned_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "watch": {"type": "string", "pattern": "^refs/"},
+        "pinned_refs": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{40}$"}},
+        "pinned_refs_doc": {"type": "string"}
+      }
+    },
+    "checkout": {"type": ["object", "null"]},
+    "extract": {
+      "type": "object",
+      "required": ["method"],
+      "properties": {
+        "method": {"enum": ["copy", "commands"]},
+        "documents": {"type": "object", "additionalProperties": {"type": "string"}},
+        "commands": {"type": "array"}
+      }
+    },
+    "run": {"type": ["object", "null"]},
+    "index": {"type": "object", "required": ["deps", "models"]},
+    "drift": {"type": "object", "required": ["out", "timing"]}
+  }
+}
