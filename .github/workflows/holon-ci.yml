@@ -153,6 +153,13 @@ jobs:
             # the finding names have their premises (B4); this job runs the module (B5).
             timeout: 60
             run: python -m unittest tests_m3.test_g9_i99.TestBuild -v
+          - name: tests-m3-audit
+            # F-M3-27 (audit M3/6): a round that claims to count carries its evidence (spec/M3/lib/audit_evidence.json;
+            # E1-E5, including the finding's own probe on its target), with the audit loop's own rules beside it: Q9b's
+            # admission (Q1-Q4) and I87's rounds, convergence, gaps, coordinator, packet, oracle and honesty tests.
+            # Left out: TestVacuity (P1 is I87's preregistered miss; R5 rebuilds round 1's a4.json with the checker).
+            timeout: 30
+            run: python -m unittest tests_m3.test_audit_evidence tests_m3.test_audit_q9b tests_m3.test_audit_loop.TestRounds tests_m3.test_audit_loop.TestConverge tests_m3.test_audit_loop.TestGaps tests_m3.test_audit_loop.TestCoordinator tests_m3.test_audit_loop.TestPacket tests_m3.test_audit_loop.TestOracles tests_m3.test_audit_loop.TestHonesty -v
           - name: gate-M3-G2
             # F38: each gate re-runs only its own milestone's binding_change proofs in the two kernels, so M3's are
             # re-run here, once per CI run, in a job of their own (gate-M3-partial is red until G11V passes, Q36).
