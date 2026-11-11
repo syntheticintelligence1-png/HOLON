@@ -1,0 +1,331 @@
+{
+  "component": "writer-provenance refinement (whitepaper §7.3; holon.sorts.unions.labels)",
+  "id": "A2",
+  "name": "no_writer_provenance",
+  "switch": "holon.sorts.unions.labels returns no label for any register (no Idx/Cnt register is refined by its writer set); every other sort rule unchanged",
+  "systems": {
+    "corpus": {
+      "extra": {
+        "completed": true,
+        "detected": false,
+        "entry": "c17",
+        "full_detected": false,
+        "full_laws": 0,
+        "laws": 0,
+        "milestone": "T530"
+      },
+      "reran": [
+        {
+          "argv": "holon sorts --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts",
+          "rc": 0,
+          "tail": "holon sorts: 0 conflicts, 26 unresolved variables -> gen/T530/sorts\n"
+        },
+        {
+          "argv": "holon types --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts",
+          "rc": 0,
+          "tail": "holon types: onestepproverhostio.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\n"
+        },
+        {
+          "argv": "holon model --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts/models",
+          "rc": 0,
+          "tail": "wrote <scratch>\n"
+        },
+        {
+          "argv": "holon disch --milestone T530 --sidecar results/eval/holon/c17/sidecars/disch.json --out gen/T530/disch",
+          "rc": 0,
+          "tail": "holon disch: closure.json, conjuncts.json -> <scratch>\n"
+        },
+        {
+          "argv": "holon derive --milestone T530 --catalog holon-rules/1.15 --sidecar results/eval/holon/c17/sidecars/sort_types.json --disch results/eval/holon/c17/sidecars/disch.json --undo-sidecar results/eval/holon/c17/sidecars/undo.json --fact-sidecar results/eval/holon/c17/sidecars/fact.json --out laws/T530 --obstructions gen/T530/sorts/obstructions.json",
+          "rc": 0,
+          "tail": "holon derive: 0 laws, 0 obstructions -> laws/T530\n"
+        }
+      ],
+      "status": "run"
+    },
+    "heldout": {
+      "extra": {
+        "inputs_commit": "9f1462edea111fbda8451cd783e2ab8e20e257cc",
+        "message": null,
+        "message_without_switch": null,
+        "refused": true,
+        "sealed_message": null,
+        "sealed_record": "{}"
+      },
+      "reran": [
+        {
+          "argv": "holon sorts --milestone T531 --facts <scratch> --out <scratch>",
+          "rc": 1,
+          "tail": "holon sorts: test milestone T531 needs --sidecar\n"
+        },
+        {
+          "argv": "holon sorts --milestone T531 --facts <scratch> --out <scratch>",
+          "rc": 1,
+          "tail": "holon sorts: test milestone T531 needs --sidecar\n"
+        }
+      ],
+      "status": "run"
+    },
+    "morph": {
+      "ablated": {
+        "findings": 71,
+        "obstructions_reproduced": {
+          "code": 12,
+          "hand": 12
+        },
+        "precision": {
+          "intended_asymmetry": 4,
+          "model_defect": 0,
+          "precision": 0.8095238095238095,
+          "precision_all": 0.288135593220339,
+          "true_defect": 17,
+          "unadjudicated": 38
+        },
+        "recall_per_rule": {
+          "DISCH": {
+            "recall": 0.4,
+            "reproduced": 2,
+            "total": 5
+          },
+          "FACT": {
+            "recall": 0.5,
+            "reproduced": 2,
+            "total": 4
+          },
+          "NAT": {
+            "recall": 0.16666666666666666,
+            "reproduced": 1,
+            "total": 6
+          },
+          "OWN": {
+            "recall": 0.0,
+            "reproduced": 0,
+            "total": 2
+          },
+          "PAR": {
+            "recall": 0.3,
+            "reproduced": 3,
+            "total": 10
+          },
+          "SORT": {
+            "recall": 0.3333333333333333,
+            "reproduced": 2,
+            "total": 6
+          },
+          "SYM": {
+            "recall": 0.3333333333333333,
+            "reproduced": 1,
+            "total": 3
+          },
+          "UNDO": {
+            "recall": 0.6666666666666666,
+            "reproduced": 2,
+            "total": 3
+          }
+        },
+        "rows_held": {
+          "code": 8,
+          "hand": 13
+        }
+      },
+      "added": {},
+      "delta": {
+        "findings": 0,
+        "obstructions_reproduced": {
+          "code": 0,
+          "hand": 0
+        },
+        "precision": {
+          "intended_asymmetry": 0,
+          "model_defect": 0,
+          "precision": 0.0,
+          "precision_all": 0.0,
+          "true_defect": 0,
+          "unadjudicated": 0
+        },
+        "recall_per_rule": {
+          "DISCH": 0.0,
+          "FACT": 0.0,
+          "NAT": 0.0,
+          "OWN": 0.0,
+          "PAR": 0.0,
+          "SORT": 0.0,
+          "SYM": 0.0,
+          "UNDO": 0.0
+        },
+        "rows_held": {
+          "code": 0,
+          "hand": 0
+        }
+      },
+      "extra": {
+        "confirmation_M2_sort": {
+          "L_sort_site_def_bvh_at_6126d1f1": {
+            "ablated": "PROVED",
+            "full": "PROVED"
+          },
+          "L_sort_site_def_bvh_at_e064679d": {
+            "ablated": "PROVED",
+            "full": "PROVED"
+          },
+          "L_sort_site_def_lci_356891e4": {
+            "ablated": "UNKNOWN",
+            "full": "UNKNOWN"
+          },
+          "L_sort_site_def_w_b4cd5068": {
+            "ablated": "PROVED",
+            "full": "PROVED"
+          },
+          "L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17": {
+            "ablated": "UNKNOWN",
+            "full": "UNKNOWN"
+          },
+          "L_sort_site_rollup_363_1fc7f88a": {
+            "ablated": "REFUTED",
+            "full": "REFUTED"
+          },
+          "L_sort_site_rollup_441_b4cd5068": {
+            "ablated": "PROVED",
+            "full": "PROVED"
+          },
+          "L_sort_site_rollup_485_495_b4cd5068": {
+            "ablated": "PROVED",
+            "full": "PROVED"
+          },
+          "L_sort_site_rollup_636_e68daf06": {
+            "ablated": "REFUTED",
+            "full": "REFUTED"
+          },
+          "L_sort_site_rollup_644_660_e68daf06": {
+            "ablated": "PROVED",
+            "full": "PROVED"
+          },
+          "L_sort_width_batchheadercodecv0_144_1abeb29c": {
+            "ablated": "UNKNOWN",
+            "full": "UNKNOWN"
+          },
+          "L_sort_width_batchheadercodecv0_166_8ad80b42": {
+            "ablated": "UNKNOWN",
+            "full": "UNKNOWN"
+          }
+        },
+        "confirmation_changed": [],
+        "labels_removed": {
+          "M2": [
+            "morph_rollup:Entry.n",
+            "morph_rollup:Entry.tot",
+            "morph_rollup:qlen",
+            "morph_rollup:qpend"
+          ],
+          "M3": []
+        }
+      },
+      "full": {
+        "findings": 71,
+        "obstructions_reproduced": {
+          "code": 12,
+          "hand": 12
+        },
+        "precision": {
+          "intended_asymmetry": 4,
+          "model_defect": 0,
+          "precision": 0.8095238095238095,
+          "precision_all": 0.288135593220339,
+          "true_defect": 17,
+          "unadjudicated": 38
+        },
+        "recall_per_rule": {
+          "DISCH": {
+            "recall": 0.4,
+            "reproduced": 2,
+            "total": 5
+          },
+          "FACT": {
+            "recall": 0.5,
+            "reproduced": 2,
+            "total": 4
+          },
+          "NAT": {
+            "recall": 0.16666666666666666,
+            "reproduced": 1,
+            "total": 6
+          },
+          "OWN": {
+            "recall": 0.0,
+            "reproduced": 0,
+            "total": 2
+          },
+          "PAR": {
+            "recall": 0.3,
+            "reproduced": 3,
+            "total": 10
+          },
+          "SORT": {
+            "recall": 0.3333333333333333,
+            "reproduced": 2,
+            "total": 6
+          },
+          "SYM": {
+            "recall": 0.3333333333333333,
+            "reproduced": 1,
+            "total": 3
+          },
+          "UNDO": {
+            "recall": 0.6666666666666666,
+            "reproduced": 2,
+            "total": 3
+          }
+        },
+        "rows_held": {
+          "code": 8,
+          "hand": 13
+        }
+      },
+      "items_changed": {},
+      "laws": {
+        "M2": {
+          "changed": [],
+          "derived": 12,
+          "gained": [],
+          "lost": []
+        },
+        "M3": {
+          "changed": [],
+          "derived": 275,
+          "gained": [],
+          "lost": []
+        }
+      },
+      "overrides": {},
+      "removed": [],
+      "reran": [
+        {
+          "argv": "holon sorts --milestone M2",
+          "rc": 0,
+          "tail": "holon sorts: 0 conflicts, 101 unresolved variables -> <scratch>\n"
+        },
+        {
+          "argv": "holon sorts --milestone M3",
+          "rc": 0,
+          "tail": "holon sorts: 0 conflicts, 148 unresolved variables -> <scratch>\n"
+        },
+        {
+          "argv": "holon derive --milestone M2 --against <scratch> --diff <scratch>",
+          "rc": 0,
+          "tail": "89daf17  finalizeBatch\n  L_sort_site_rollup_363_1fc7f88a                            commitBatch, commitBatchWithProof, commitState\n  L_sort_site_rollup_441_b4cd5068                            revertBatch\n  L_sort_site_rollup_485_495_b4cd5068                        challengeState\n  L_sort_site_rollup_636_e68daf06                            finalizeBatch\n  L_sort_site_rollup_644_660_e68daf06                        finalizeBatch\n  L_sort_width_batchheadercodecv0_144_1abeb29c               commitBatch, commitBatchWithProof, commitState\n  L_sort_width_batchheadercodecv0_166_8ad80b42               commitBatch, commitBatchWithProof, commitState\nholon derive: 1 contract law(s) of laws/CONTRACTS -> <scratch>\n  L_contract_C_o12                                           gen/M2/extracted/m1_view.json\n"
+        },
+        {
+          "argv": "holon derive --milestone M3 --against <scratch> --diff <scratch>",
+          "rc": 0,
+          "tail": "             \n  L_sym_tau_Rollup_setPause                                  \n  L_undo_cancel_Rollup_challengeState_setPause               \n  L_undo_pair_Rollup_addChallenger_removeChallenger          \n  L_undo_pair_Rollup_commitBatchWithProof_revertBatch        \n  L_undo_pair_Rollup_commitBatch_revertBatch                 \n  L_undo_pair_Rollup_commitState_revertBatch                 \n  L_undo_pair_Rollup_removeChallenger_addChallenger          \n  L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes     \n  L_undo_res_Rollup_revertBatch_batchDataStore               \n  L_undo_res_Rollup_revertBatch_committedStateRoots          \nholon derive: 1 contract law(s) of laws/CONTRACTS -> <scratch>\n  L_contract_C_o12_m3                                        spec/M2/facts/morph_rollup.extracted.json\n"
+        },
+        {
+          "argv": "holon run --milestone M2 --laws L_sort_site_def_bvh_at_6126d1f1,L_sort_site_def_bvh_at_e064679d,L_sort_site_def_lci_356891e4,L_sort_site_def_w_b4cd5068,L_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17,L_sort_site_rollup_363_1fc7f88a,L_sort_site_rollup_441_b4cd5068,L_sort_site_rollup_485_495_b4cd5068,L_sort_site_rollup_636_e68daf06,L_sort_site_rollup_644_660_e68daf06,L_sort_width_batchheadercodecv0_144_1abeb29c,L_sort_width_batchheadercodecv0_166_8ad80b42 --out <scratch> --gen-dir <scratch>",
+          "rc": 0,
+          "tail": "L_sort_site_def_bvh_at_6126d1f1 PROVED   checked  none\nL_sort_site_def_bvh_at_e064679d PROVED   checked  none\nL_sort_site_def_lci_356891e4 UNKNOWN  not_run  none\nL_sort_site_def_w_b4cd5068 PROVED   checked  none\nL_sort_site_l1messagequeuewithgaspriceoracle_325_f89daf17 UNKNOWN  not_run  none\nL_sort_site_rollup_363_1fc7f88a REFUTED  checked  finding\nL_sort_site_rollup_441_b4cd5068 PROVED   checked  none\nL_sort_site_rollup_485_495_b4cd5068 PROVED   checked  none\nL_sort_site_rollup_636_e68daf06 REFUTED  checked  finding\nL_sort_site_rollup_644_660_e68daf06 PROVED   checked  none\nL_sort_width_batchheadercodecv0_144_1abeb29c UNKNOWN  not_run  none\nL_sort_width_batchheadercodecv0_166_8ad80b42 UNKNOWN  not_run  none\ncontracts on M2: C_o12 not derived or not decided\n"
+        }
+      ],
+      "status": "run"
+    }
+  }
+}
