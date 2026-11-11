@@ -1206,6 +1206,204 @@
           "A6_constructed_negatives": "obs-fetch-archive's negative class is flipped hashes (E-G9): it only shows the archive does not fabricate. Kept, disclosed, and P2 is read with it."
         }
       }
+    },
+    "I58": {
+      "title": "I58: the M5 report: L6, L9 and L10 reported as measured in results/M5/metrics.json, each computed by I54's stub (holon.m5.metrics) from the iterations' committed records, with its truth pins, and docs/M5_REPORT.md generated from it with every M5 prediction's outcome, the lead's conditions and the disclosed limitations",
+      "plan": "docs/BUILD_PLAN.md#i58-m5-report-about-1-day",
+      "prompt": "prompts/I58_m5_report.md",
+      "tests": [
+        "tests_m5/test_m5_report.py"
+      ],
+      "outcome_paths": [
+        "results/M5/metrics.json",
+        "results/M5/metrics_timing.json",
+        "docs/M5_REPORT.md"
+      ],
+      "predictions": [
+        {
+          "id": "I58-P1",
+          "claim": "INFORMED, NOT COUNTED (thresholds.counting). L6 in results/M5/metrics.json, by I54's definition with I56's V9 applied (V9 holds, 23 of 23): decided 0 of 49 (misses); every control threshold meets (decided accuracy 12/12, strict accuracy 14/14, strict correct 14 > majority 8, false_rational 0, false_irrational 0); corpus_decided_accuracy not_measured (0 corpus items: I51 has not run); overall misses.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p1_l6_status",
+          "expected": {
+            "overall": "misses",
+            "thresholds": {
+              "decided": "misses",
+              "controls_decided_accuracy": "meets",
+              "controls_strict_accuracy": "meets",
+              "controls_beats_majority": "meets",
+              "false_rational": "meets",
+              "false_irrational": "meets",
+              "corpus_decided_accuracy": "not_measured"
+            },
+            "decided": [
+              0,
+              49
+            ]
+          }
+        },
+        {
+          "id": "I58-P2",
+          "claim": "INFORMED, NOT COUNTED. L9 in results/M5/metrics.json: coverage 1 of 226 (misses), base_coverage 0 of 222 (misses), validated_categories ['fetcher'] (misses), sensitivity_unreplayed 0 with 3 counted (meets), new_coverage 1 of 4 labelled insufficient_n; overall misses.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p2_l9_status",
+          "expected": {
+            "overall": "misses",
+            "thresholds": {
+              "coverage": "misses",
+              "base_coverage": "misses",
+              "validated_categories": "misses",
+              "sensitivity_unreplayed": "meets"
+            },
+            "coverage": [
+              1,
+              226
+            ],
+            "base_coverage": [
+              0,
+              222
+            ],
+            "new_coverage": [
+              1,
+              4,
+              "insufficient_n"
+            ]
+          }
+        },
+        {
+          "id": "I58-P3",
+          "claim": "INFORMED, NOT COUNTED. L10 in results/M5/metrics.json: coverage 0 of 82 (misses), precision 81 of 82 (meets), review 12 of 12 (meets), control_recall 6 of 6 (meets), false_obstruction empty (meets); overall misses; corpus_recall 0 of 1 labelled insufficient_n (never judged); the trivially-true share of covering laws 0 of 0, not_measured.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p3_l10_status",
+          "expected": {
+            "overall": "misses",
+            "thresholds": {
+              "coverage": "misses",
+              "precision": "meets",
+              "review": "meets",
+              "control_recall": "meets",
+              "false_obstruction": "meets"
+            },
+            "coverage": [
+              0,
+              82
+            ],
+            "corpus_recall": [
+              0,
+              1,
+              "insufficient_n"
+            ]
+          }
+        },
+        {
+          "id": "I58-P4",
+          "claim": "INFORMED, NOT COUNTED. On the merged M5 tree (I57 with I55, I56 and I54b merged in), each metric holon reports equals the measuring iteration's committed output: L6 equals results/M5/corpus/l6_corpus.json, L9 equals results/M5/l9_I57.json's L9, and L10 equals results/M5/intent/l10.json's l10. (The builder ran the iterations' own --check commands on the merged tree before this prereg: CHECK OK.)",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p4_agrees_with_iterations"
+        },
+        {
+          "id": "I58-P5",
+          "claim": "L6 recomputed by I54's reference implementation (tests_m5/_i54.py l6), over inputs tests_m5/_i58.py assembles from the committed records without holon, equals results/M5/metrics.json's L6 value on every field the reference reports (population, decided, decided_unbounded, verdicts, invalid, controls, corpus, thresholds, overall), the corpus block included (0 items).",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p5_l6_reference"
+        },
+        {
+          "id": "I58-P6",
+          "claim": "L10 recomputed by I54's reference implementation (tests_m5/_i54.py l10), over inputs tests_m5/_i58.py assembles from the committed records and the controls at I55's pins, equals results/M5/metrics.json's L10 value on every field the reference reports, and corpus_recall recomputed from the truth file at I55b's pin equals the reported one.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p6_l10_reference"
+        },
+        {
+          "id": "I58-P7",
+          "claim": "INFORMED, NOT COUNTED (thresholds.counting: its test ran before this prereg). V4 does not rest on the game records themselves: recomputing each finding's expected witness_length from its M3 REFUTED record (I56's witness forms G-W1..G-W4), not from its game record, leaves all 9 target game records valid (no finding gains rule V4), so L6 is unchanged under that expectation.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p7_v4_independent"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I58-R1",
+          "claim": "I58 changes no output of M0-M4 and no generator closure: holon.metrics.compute renders M0-M3's committed results/<M>/metrics.json byte for byte, holon.records.generator_files names neither holon/m5 nor holon/metrics.py for any IR version, no frozen file changes (tools/freeze.py check: FROZEN OK), and I58's own commits touch no path under results/M0-M4, gen/M0-M4, laws/M0-M4 or replay/.",
+          "check": "tests_m5/test_m5_report.py::TestRegressions::test_r1_nothing_earlier_changes"
+        },
+        {
+          "id": "I58-R2",
+          "claim": "The M5 iterations' outputs are unchanged on the merged tree: python -m holon m5 prereg|controls|census|l9 --check, m5 metrics --base --check, intent metrics --check, intent corpus-score --check and games corpus --check all print CHECK OK.",
+          "check": "tests_m5/test_m5_report.py::TestRegressions::test_r2_iteration_outputs_unchanged"
+        },
+        {
+          "id": "I58-R3",
+          "claim": "The M5 keys' counted predictions, as their iteration reports record them: I54 1 of 3 held, I54b 4 of 5, I55 10 of 11, I55b 2 of 3, I56 2 of 5, I56b none, I57 5 of 5 counted (its 2 informed ones held): 24 of 32 counted predictions held, 8 missed.",
+          "check": "tests_m5/test_m5_report.py::TestRegressions::test_r3_prediction_tally",
+          "expected": {
+            "I54": [
+              1,
+              3
+            ],
+            "I54b": [
+              4,
+              5
+            ],
+            "I55": [
+              10,
+              11
+            ],
+            "I55b": [
+              2,
+              3
+            ],
+            "I56": [
+              2,
+              5
+            ],
+            "I56b": [
+              0,
+              0
+            ],
+            "I57": [
+              5,
+              5
+            ]
+          }
+        }
+      ],
+      "thresholds": {
+        "base": "claude/i57-m5-environment-modules at f8842357 (PR #147), with claude/i55-m5-intent (2d8f42a1, #138), claude/i56-m5-games (d3af7179, #139) and claude/i54b-m5-truth-key (d4a09349, #136) merged in as merge commits; all stacked on claude/i54-m5-definitions (#134)",
+        "measured_by": "I54 definitions (spec/M5/preregistration.json) through holon.m5.metrics, unchanged; I56's V9 wrapper (holon.games.metric.l6_v9) for L6",
+        "metrics_path": "results/M5/metrics.json: I54's definitions name no path, so the milestone's metrics file (holon.metrics, which holon land regenerates) carries L6, L9 and L10 beside its section-13 block",
+        "report_path": "docs/M5_REPORT.md, generated by python -m holon m5 report and checked by its --check",
+        "rules": {
+          "never_round_up": "a measure labelled insufficient_n or not_measured is never judged; each metric's overall is common.overall of its thresholds, and the report prints it verbatim; the generator refuses a document in which any of this fails",
+          "no_pooling": "constructed truth (controls) and documented truth (corpus, history) are reported apart; I55's pooled precision is not reported",
+          "pins": "every truth file a metric reads is reported with its sha256, and the generator refuses unless it equals the measuring key's pin",
+          "agreement": "the generator refuses unless each metric equals the measuring iteration's committed output",
+          "evidence": "a condition or limitation is printed only when every evidence check in spec/M5/lib/I58_report.json holds"
+        },
+        "counting": {
+          "counted": [
+            "I58-P5",
+            "I58-P6"
+          ],
+          "informed": {
+            "ids": [
+              "I58-P1",
+              "I58-P2",
+              "I58-P3",
+              "I58-P4",
+              "I58-P7"
+            ],
+            "why": "each metric's status is already recorded in the measuring iteration's committed outputs (results/M5/corpus/l6_corpus.json, results/M5/l9_I57.json, results/M5/intent/l10.json and intent/corpus/l10_corpus.json), which the builder read before this prereg, and the builder ran the iterations' --check commands on the merged tree; BUILD_PLAN 0.1 counts only claims whose outcome is recorded nowhere; I58-P7: one run of the then-red contract tests, before this prereg commit, executed test_p7_v4_independent, which needs no holon output, and it passed. The runs of test_p5 and test_p6 computed the reference but stopped at the missing results/M5/metrics.json, so their outcomes were not seen (disclosed as BUILD_PLAN 0.1's undetectable-local-run risk)"
+          }
+        },
+        "instruments": {
+          "tests_m5/_i58.py": "43144025cf48e85697d98d80c251c5791d53e50ed57f77d0528c880ea86776b1",
+          "tests_m5/_i54.py": "024caa738f1280680bc41a5050f262162cf8f94988c3dc1196e74757bb6721e3",
+          "spec/M5/lib/I58_report.json": "a509d78d6b6f3db02bf3391bbc46514fbd7c3dbc21976f2303fe5e18444dd905",
+          "prompts/I58_m5_report.md": "97430c76911c205e56302eca3eba29c096f96f52e82d1d03beebfd413e068584"
+        },
+        "pins": {
+          "spec/M5/truth/corpus.json": "12df4efaf1a8575d37e6f13a3d04c281c361922cb5d578c40fdbcf18f1cc09cb",
+          "spec/M5/truth/corpus.run.json": "98ed3353ec880260446abdeadbca17a0580e38a2d247d5fbcb27d94b3ba5a10b",
+          "spec/eval/corpus.json": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+          "results/M5/l10_census_base.json": "2b763add1fa1b02574865dc0be2539039bbe9ef07eee41cb875c400590285e6d",
+          "spec/M5/lib/I57_observe.py": "9ffac5405dfa6cb0fe6770eab280ef64c602bbfe8e6c00f9a4920a820c700b98",
+          "spec/M5/lib/games_M3.json": "78967599ce56d713b3adb8c5160505bb2602b1956f6f2ecf1760833517b8e2da",
+          "spec/M5/preregistration.json": "df6c36c3ec9db2d8fc127c456b9ddb01984594af86b1f5f01632c967e9cce994"
+        }
+      }
     }
   }
 }
