@@ -404,6 +404,144 @@
         "rule_catalog_version": "holon-rules/1.15"
       },
       "title": "Held-out target I: extraction, facts and the diagram of the sealed target (blind prereg)"
+    },
+    "I50": {
+      "outcome_paths": [
+        "gen/targets/scroll/",
+        "results/targets/",
+        "targets/scroll/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i49--i50-held-out-target-about-3--3-days",
+      "predictions": [
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestDerive::test_p1_counts",
+          "claim": "Per-rule obligation counts, frozen before derive ran on the target: holon-rules/1.15 over the held-out document (route R1, sidecars Q1-Q4) derives exactly these laws per rule/subform, and none of any other. Estimated from the document's features against the same route on the development document (whose counts were measured before this prereg on a scratch derivation: SYM tau 13, pi 11, omega 49, sentinel 4; DISCH blocking 16, revert 9, external 3, external_none 3; UNDO pair 5, residue 3, cancel 1; FACT kernel 3, attribution 2; SORT as_member 2, realize 1): tau from the 3 actions that read block.timestamp and the actions that read the Time word in miscData; pi from the prover and sequencer roles; omega scaled from Morph's eligible-pair share over 15 movers; DISCH from the initializer, pause, enforced-mode and role guard sites; UNDO pairs from add/remove prover and sequencer and commitBatches/revertBatch; FACT kernel from the two blob-hash commit actions; SORT realize from the narrowing casts.",
+          "expected": {
+            "DISCH/blocking": 10,
+            "DISCH/external": 2,
+            "DISCH/external_none": 2,
+            "DISCH/revert": 6,
+            "FACT/kernel": 2,
+            "SORT/realize": 2,
+            "SYM/omega": 17,
+            "SYM/pi": 2,
+            "SYM/sentinel": 3,
+            "SYM/tau": 9,
+            "UNDO/pair": 5,
+            "UNDO/residue": 1
+          },
+          "id": "I50-P1"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestDerive::test_p2_classes",
+          "claim": "Expected rule classes: the rule/subforms that derive at least one law are exactly the twelve of I50-P1 (SYM tau, pi, omega, sentinel; DISCH blocking, revert, external, external_none; UNDO pair, residue; FACT kernel; SORT realize), so UNDO cancel, FACT attribution and SORT as_member derive none; the rules present are DISCH, FACT, SORT, SYM and UNDO. The catalog's other parts (PAR, NAT, OWN, the bundle, slash and Go sub-forms) derive nothing over a single transitions document given by --facts.",
+          "expected": {
+            "derive": [
+              "DISCH/blocking",
+              "DISCH/external",
+              "DISCH/external_none",
+              "DISCH/revert",
+              "FACT/kernel",
+              "SORT/realize",
+              "SYM/omega",
+              "SYM/pi",
+              "SYM/sentinel",
+              "SYM/tau",
+              "UNDO/pair",
+              "UNDO/residue"
+            ],
+            "rules": [
+              "DISCH",
+              "FACT",
+              "SORT",
+              "SYM",
+              "UNDO"
+            ]
+          },
+          "id": "I50-P2"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRun::test_every_law_has_a_record and tests_m4/test_i50_heldout.py::TestGate::test_law_checks_pass",
+          "claim": "The run decides every derived law (a record with PROVED, REFUTED or UNKNOWN, and summary.json), and the gate's law checks L2, L9, L3, L5, L11 and L6 all pass on a copy of the repo.",
+          "expected": {
+            "law_checks": [
+              "L2",
+              "L9",
+              "L3",
+              "L5",
+              "L11",
+              "L6"
+            ]
+          },
+          "id": "I50-P3"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRun::test_p4_statuses",
+          "claim": "Statuses: at least one law is PROVED; every DISCH revert law is PROVED (as all 8 of the development target's are); every SYM omega law is UNKNOWN (as all 49 of the development target's are).",
+          "expected": {
+            "all_proved": [
+              "DISCH/revert"
+            ],
+            "all_unknown": [
+              "SYM/omega"
+            ],
+            "proved_at_least": 1
+          },
+          "id": "I50-P4"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestSizes::test_heldout_row_counted",
+          "claim": "The four-diagram report: the held-out row's obligations are counted from the derivation (pending null), per rule/subform equal to the derivation's, its total the derivation's law count; still no linearity claim.",
+          "expected": {
+            "pending": null
+          },
+          "id": "I50-P5"
+        }
+      ],
+      "prompt": "prompts/I50_heldout_rules.md",
+      "regressions": [
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRegressions::test_r1_i49_checks_unchanged",
+          "claim": "I49's six gate checks keep their verdicts: G8 still fails on ScrollChain.sol:748-750 and :749 (the frontend is not changed), GENV, X1, X2, D1 and S1 pass.",
+          "id": "I50-R1"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRegressions::test_r2_no_rule_change",
+          "claim": "holon/rules/ is byte for byte the catalog pin's.",
+          "id": "I50-R2"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRegressions::test_r3_outcomes_and_scan",
+          "claim": "No committed M0-M3 outcome changes and no holon/ file names a declared target (I49-R2 and I49-R3 re-run).",
+          "id": "I50-R3"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestRun::test_replay_entries",
+          "claim": "Construction: every REFUTED law has a replay entry with a status and a reason; with binding null no witness is replayed on the real contract, so each is not_run with that reason, never passed.",
+          "id": "I50-R4"
+        },
+        {
+          "check": "tests_m4/test_i50_heldout.py::TestDerive::test_sidecars_follow_the_rules and tests_m4/test_i50_heldout.py::TestDerive::test_catalog_and_document and tests_m4/test_i50_heldout.py::TestDerive::test_derive_regenerates",
+          "claim": "Construction: the sidecars follow Q1-Q4; the derivation is holon-rules/1.15 as T50 over the held-out document only, its registry matches its laws, and it regenerates byte for byte.",
+          "id": "I50-R5"
+        }
+      ],
+      "tests": [
+        "tests_m4/test_i50_heldout.py"
+      ],
+      "thresholds": {
+        "budgets": "the M3 sidecars' search budgets, copied by rules Q1-Q4 (no new threshold)",
+        "catalog_pin": "spec/M4/lib/heldout_catalog_pin.json",
+        "contamination_label": "sealed in the repository, not sealed from the agent's priors",
+        "document": "gen/targets/scroll/facts/ScrollChain.extracted.json",
+        "document_sha256": "275730a29a4f352f5aeaec036285d36b11467b689a8399ca54b4e0fb6fce6837",
+        "instrument_sha256": {
+          "spec/M4/lib/heldout_run.json": "f35a110be877138831ae960b3d3ef0f01a712454ebc5380f29b7e189e3031177"
+        },
+        "route": "spec/M4/lib/heldout_run.json",
+        "rule_catalog_version": "holon-rules/1.15"
+      },
+      "title": "Held-out target II: the pinned catalog's rules, the run, replay and metrics on the sealed target"
     }
   }
 }
