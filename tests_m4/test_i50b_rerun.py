@@ -306,7 +306,8 @@ class TestPredictions(unittest.TestCase):
         want = pred(4)["expected"]
         cov = load_json(ROOT / "gen" / "targets" / NAME / "coverage.json")
         sealed = load_json(ROOT / "gen" / "targets" / B.SEALED / "coverage.json")
-        self.assertEqual(cov["unaccounted"], want["unaccounted"])
+        self.assertEqual([u for x in cov["documents"] for u in x["unaccounted"]], want["unaccounted"])
+        self.assertEqual(cov["unaccounted"], len(want["unaccounted"]))
         dead = [d for x in cov["documents"] for d in x["debt"] if d["kind"] == "dead_code"]
         self.assertEqual([d["src"] for d in dead], want["dead_code_src"])
         for d in dead:
