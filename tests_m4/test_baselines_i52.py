@@ -262,7 +262,16 @@ class TestHolonBudget(unittest.TestCase):
         for i in range(3):
             base = json.loads(git("show", f"{BASE}:results/M{i}/metrics_timing.json"))
             self.assertEqual(hb[f"m{i}_s"], base["from_scratch_gate_s"])
-        self.assertEqual(hb["m3_measurement"]["exit"], 0)
+        m = hb["m3_measurement"]
+        if m["exit"] != 0:
+            # amendment (spec/M4/amendments/I52.jsonl): exit 1 only when the report lists every check the full gate
+            # runs, G1 alone failed (the check CI leaves out of M3, I97) and its failure detail is recorded
+            from holon.gate import CHECK_ORDER
+            self.assertEqual(m["exit"], 1)
+            self.assertEqual(sorted(set(m["checks"]) | set(m["not_applicable"])), sorted(CHECK_ORDER))
+            self.assertEqual(m["failed_checks"], ["G1"])
+            self.assertEqual(sorted(k for k, ok in m["checks"].items() if not ok), ["G1"])
+            self.assertTrue(m["failed_details"]["G1"])
         self.assertEqual(hb["m3_s"], hb["m3_measurement"]["wall_s"])
         self.assertGreater(_i52.budget("morph")["wall_s"], 0)
 
