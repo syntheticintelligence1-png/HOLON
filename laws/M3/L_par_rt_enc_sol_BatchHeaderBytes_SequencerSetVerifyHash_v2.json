@@ -1,0 +1,61 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+  "milestone": "M3",
+  "notes": "PAR constant read (holon.rules.par_record): BatchHeaderBytes_SequencerSetVerifyHash reads 0x0000000000000000000000000000000000000000000000000000000000000000 from enc_sol's output at version 2, a constant of enc_sol's layout",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.16",
+  "statement": {
+    "assume": [
+      {
+        "eq": [
+          {
+            "field": "version",
+            "of": {
+              "var": "h"
+            }
+          },
+          {
+            "bytes": "0x02"
+          }
+        ]
+      }
+    ],
+    "binders": [
+      {
+        "name": "h",
+        "q": "forall",
+        "type": "Header"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "var": "h"
+                }
+              ],
+              "call": "enc_sol"
+            }
+          ],
+          "call": "BatchHeaderBytes_SequencerSetVerifyHash"
+        },
+        {
+          "some": {
+            "bytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "constant_read"
+}
