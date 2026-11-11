@@ -1,0 +1,133 @@
+{
+  "artifacts": {
+    "law_name": "l_abacus_b_reach",
+    "laws": "gen/targets/abacus/laws/L_abacus_b_reach/LAWS.bend",
+    "model": "gen/targets/abacus/model/abacus_facts.bend",
+    "proof": "gen/targets/abacus/proofs/L_abacus_b_reach/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "hit": true,
+      "kind": "strategy-search",
+      "tried": 7
+    },
+    {
+      "exit_code": 0,
+      "generator": "evaluate",
+      "kind": "proof",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.199
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.217
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.199
+  },
+  "compiled_sha256": "26279742643445ca438870a6d58b83f05f1e61d8ebf0a6e12d60b826f207a429",
+  "cone": [
+    "Dec_inc_a",
+    "Dec_inc_b",
+    "HAct",
+    "HObs",
+    "HSt",
+    "all_ok",
+    "b_of",
+    "clear_log",
+    "decide_inc_a",
+    "decide_inc_b",
+    "exec_inc_a",
+    "exec_inc_b",
+    "log_of",
+    "obs",
+    "run",
+    "runs_ok",
+    "s0",
+    "step",
+    "step_inc_a",
+    "step_inc_b"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": null,
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "fe3e01a7099be2bba7fdf233774bf39ef28b6bd61789b15db9df5bfcc30c8a1a",
+  "filter_bin": null,
+  "generator_sha256": "a432cb03d2af5b94870642c1f351bd3497b2d95e598e7e5304da0bfd3e72582e",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_abacus_b_reach",
+  "ledger_assumptions": [],
+  "ledger_match": "none",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "4a7d37129606793c2acd25c7bb7d7946e97b136b618fcb96fee002c368b11e4a",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:d8a6dd08b3224c5bc828804b93fb7da490a7d5cc326e0f297547fea1f6ab8ace",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "DISCH",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": "s0",
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2203 st: Trace. runs_ok(st, s0) == true \u2227 b_of(run(st, s0)) == 4",
+  "statement_hash": "sha256:d8a6dd08b3224c5bc828804b93fb7da490a7d5cc326e0f297547fea1f6ab8ace",
+  "status": "PROVED",
+  "subform": "profile_point",
+  "triage": "none",
+  "witness": {
+    "st": [
+      {
+        "op": "inc_b"
+      },
+      {
+        "op": "inc_b"
+      }
+    ]
+  },
+  "witness_provenance": null
+}
