@@ -2,7 +2,7 @@
 
   python -m holon eval holon [--root DIR] [--entries ID,ID,..] [--check]
 
-The contract is the docstring of tests_m4/test_i51_corpus_run.py (rules H0-H9, S1-S6); the run protocol is
+The contract is the docstring of the test file key I51 names (rules H0-H9, S1-S6); the run protocol is
 spec/M4/lib/i51_run.json. For every entry of spec/eval/corpus.json (or the named ones) this module:
 
   H1  checks the entry's pre-fix commit out of holon's own partial clone (holon.eval.common.repo_cache) as a detached
