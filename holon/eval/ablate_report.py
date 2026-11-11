@@ -250,8 +250,12 @@ def build_metrics() -> dict:
     S[held] = {k: _missing(na_h) for k in METRICS}
     S[held]["unknown_calibration"] = _missing(f"reported once, under {dev}")
     hb = heldout_recall()
+    S[held]["recall_per_rule"] = _missing(
+        "undefined: the held-out labels are obligation labels, not known-defect labels (the lead's ruling on I52b, "
+        "2026-11-11); known-defect labels are a post-M4 key. Detections against the obligation labels are reported "
+        "beside it (obligation_label_detections)")
     if hb is not None:
-        S[held]["recall_per_rule"] = hb
+        S[held]["obligation_label_detections"] = hb
     deltas = baseline_deltas(S, full)
     return {"schema": "holon-eval-metrics/0.1", "protocol_sha256": A.sha256(ROOT / A.PROTOCOL), "systems": S,
             "baseline_deltas": deltas, "baselines_present": baselines_present()}
@@ -271,8 +275,9 @@ def heldout_recall():
     labels.discard(None)
     if not labels:
         return None
-    return _val({"detected": 0, "labels": sorted(labels), "recall": 0.0},
-                "I50: no held-out law, so no detection; labels from the held-out baseline files' adjudications")
+    return _val({"detected": 0, "labels": len(labels)},
+                "I50: no held-out law, so no detection; the obligation labels named by the held-out baseline files' "
+                "adjudications (I52b's primary, equal-budget tier)")
 
 
 def baselines_present() -> dict:
@@ -298,7 +303,7 @@ def baseline_deltas(S: dict, full: dict) -> list:
             v = baseline_doc(doc, labels.get(s, {}))
             n = len([x for x in v["detected"] if x in labels.get(s, {})]) if labels.get(s) else len(v["detected"])
             hc = holon_counts.get(s, 0 if s == held else None)
-            rows.append({"system": s, "name": b, "metric": "obstructions_detected" if s == dev else "labels_detected",
+            rows.append({"system": s, "name": b, "metric": {dev: "obstructions_detected", corp: "labels_detected"}.get(s, "obligation_labels_detected"),
                          "holon": hc, "baseline": n, "delta": A.delta(hc, n), "run_targets": v["run_targets"]})
             if s == dev:
                 hp = full["precision"]["precision"]
@@ -312,7 +317,7 @@ def baseline_deltas(S: dict, full: dict) -> list:
             rows.append({"system": s, "name": b, "metric": "from_scratch_time_s", "holon": ht, "baseline": v["wall_s"],
                          "delta": A.delta(ht, v["wall_s"]), "run_targets": v["run_targets"]})
             hr = full["recall_per_rule"] if s == dev else (S[corp]["recall_per_rule"]["value"] if s == corp else {})
-            for r, e in v["recall_per_rule"].items():
+            for r, e in (v["recall_per_rule"].items() if s != held else []):
                 hv = (hr.get(r) or {}).get("recall") if s != held else 0.0
                 rows.append({"system": s, "name": b, "metric": f"recall:{r}", "holon": hv, "baseline": e["recall"],
                              "delta": A.delta(hv, e["recall"]), "run_targets": v["run_targets"]})
@@ -404,7 +409,12 @@ def render(summary: dict, mx: dict, cal: dict | None) -> str:
         for r in mx["baseline_deltas"]:
             L.append(f"| {r['system']} | {r['name']} | {r['metric']} | {_f(r['holon'])} | {_f(r['baseline'])} | "
                      f"{_f(r['delta'])} | {r['run_targets']} |")
-    L += ["", "## Threats to validity", ""] + [f"- {t}" for t in P["threats"]] + [""]
+    L += ["", "## Threats to validity", ""] + [f"- {t}" for t in P["threats"]]
+    L += [f"- The {held} rows follow the lead's ruling on I52b (2026-11-11): the baselines' equal-budget figure is "
+          "I52b's primary tier, a degenerate budget since HOLON's own route took under a second (its 3600 s tier is a "
+          "sensitivity row in results/eval/" + held + "/secondary/, not compared here); the labels are obligation labels, "
+          "so held-out recall is undefined and only detections against them are reported; halmos is vacuous there "
+          "(its frozen harness never calls the initializer, so every path reverts).", ""]
     return "\n".join(L)
 
 
