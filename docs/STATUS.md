@@ -8,7 +8,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
 | M3 | 50 | 319 | 272 | 50 |
-| M4 | 1 | 4 | 6 | 1 |
+| M4 | 6 | 29 | 35 | 6 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -61,7 +61,11 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I43 | M3 | Theory core II and Lean for the promoted set: Thm 6.6 (symmetries: identity, composition, inverses, the submonoid of pa… | `prompts/I43_theory_core2_lean.md` | 3 | 12 | 2 | `docs/iterations/I43.md` |
 | I44 | M3 | I44 (= I44b): Def 6.13's measures that I81 (= I44a) left pending, and the ranking over them: NAT's naturality defect ma… | `prompts/I44_measures_pending.md` | 7 | 5 | 1 | `docs/iterations/I44.md` |
 | I46 | M3 | I46: the blind rerun from code, its comparison with the lead, and the M3 exit decision (I82 = I46a built the pack, the … | `prompts/I46_blind_rerun.md` | 6 | 6 | 1 | `docs/iterations/I46.md` |
+| I47 | M4 | Target-agnostic factory, parallel checking, performance loop, drift trigger: targets/<name>/target.json for the develop… | `prompts/I47_target_factory.md` | 5 | 6 | 1 | `docs/iterations/I47.md` |
 | I48 | M4 | Evaluation corpus and unsolved controls: 20 public defects across six fixed systems (two rollups, four beyond), collect… | `prompts/I48_eval_corpus.md` | 4 | 6 | 1 | `docs/iterations/I48.md` |
+| I49 | M4 | Held-out target I: extraction, facts and the diagram of the sealed target (blind prereg) | `prompts/I49_heldout_extraction.md` | 6 | 6 | 1 | `docs/iterations/I49.md` |
+| I50 | M4 | Held-out target II: the pinned catalog's rules, the run, replay and metrics on the sealed target | `prompts/I50_heldout_rules.md` | 5 | 5 | 1 | `docs/iterations/I50.md` |
+| I51 | M4 | HOLON on the corpus pre-fix commits: every one of the 20 I48 entries cloned at its pre-fix commit and run through HOLON… | `prompts/I51_corpus_holon.md` | 4 | 6 | 1 | `docs/iterations/I51.md` |
 | I59 | M2 | I23a track: historical on-chain acquisition and the first per-edge replay on real inputs (human answer Q5) | `prompts/I59_historical.md` | 9 | 2 | 1 | `docs/iterations/I59.md` |
 | I60 | M2 | A1 mutation adequacy on real code, replacement catalog | `prompts/I60_mutation_replacement.md` | 20 | 10 | 1 | `docs/iterations/I60.md` |
 | I61 | M2 | A1 mutation adequacy on real code, second replacement catalog | `prompts/I61_mutation_second_replacement.md` | 24 | 11 | 1 | `docs/iterations/I61.md` |
@@ -96,6 +100,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I98 | M3 | I98: G6 on M3, the two REFUTED records G6 refuses diagnosed and fixed, one rule for the final filter and G6, and G6 in … | `prompts/I98_g6_m3.md` | 6 | 7 | 1 | `docs/iterations/I98.md` |
 | I99 | M3 | I99: G9 checks every result record's premises against its law's assume clauses (audit M3/5 F-M3-19, high, gate_evasion) | `prompts/I99_g9_premises.md` | 5 | 9 | 1 | `docs/iterations/I99.md` |
 | I100 | M3 | I100: rule PAR_record_round_trip: the record law over an encoder into a byte record and its getter family, the constant… | `prompts/I100_par_record_round_trip.md` | 9 | 14 | 1 | `docs/iterations/I100.md` |
+| I50b | M4 | Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term… | `prompts/I50b_heldout_rerun.md` | 5 | 6 | 1 | `docs/iterations/I50b.md` |
 | I96a | M3 | I96a (= I46c, first half): DISCH's R0 derived from the binding by a target-agnostic step that also writes the sidecar's… | `prompts/I96a_r0_from_binding.md` | 5 | 7 | 1 | `docs/iterations/I96a.md` |
 | I96b | M3 | I96b (= I46c, second half): the refinement hints derived inside the pack (holon refinement; the fragments binding deriv… | `prompts/I96b_hints_from_code.md` | 5 | 10 | 1 | `docs/iterations/I96b.md` |
 
