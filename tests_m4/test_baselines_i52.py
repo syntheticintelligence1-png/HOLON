@@ -290,7 +290,11 @@ class TestPins(unittest.TestCase):
         """B7 (I52-R5)."""
         prefixes = [f"results/M{i}/" for i in range(4)] + [f"gen/M{i}/" for i in range(4)] + \
             [f"spec/M{i}/" for i in range(4)] + ["laws/", "replay/", "audit/"]
-        changed = git("diff", "--name-only", BASE, "HEAD").split()
+        # against the newest lead commit merged into this branch (the second parent of the newest first-parent merge
+        # after BASE), so the lead's own changes are not I52's; with no merge, against BASE
+        merges = git("rev-list", "--first-parent", "--merges", f"{BASE}..HEAD").split()
+        lead = git("rev-parse", f"{merges[0]}^2").strip() if merges else BASE
+        changed = git("diff", "--name-only", lead, "HEAD").split()
         self.assertEqual([p for p in changed if any(p.startswith(x) for x in prefixes)], [])
 
 

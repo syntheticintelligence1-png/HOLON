@@ -51,19 +51,21 @@ def cmd_budget(a) -> int:
                            capture_output=True, text=True, check=True)
         base[f"m{i}_s"] = json.loads(p.stdout)["from_scratch_gate_s"]
     h = base["m0_s"] + base["m1_s"] + base["m2_s"] + m["wall_s"]
-    doc = {"doc": "I52: HOLON's own budget on Morph (spec/M4/lib/I52_baselines.json holon_budget.morph): M0-M2 as "
+    proto = core.protocol()
+    (s,) = [s for s in core.systems() if core.pinned(s) and "wall_s_rule" in proto["budget"].get(s, {})]
+    doc = {"doc": f"I52: HOLON's own budget on {s} (spec/M4/lib/I52_baselines.json holon_budget.{s}): M0-M2 as "
                   "recorded at the base 4fd64a52, M3 measured by a full `holon gate --milestone M3` on a scratch copy "
-                  "(this machine, before any baseline result). morph_wall_s = 60 * ceil(sum_s / 60) is every baseline's "
-                  "Morph wall clock. The M3 run used several threads and checker processes (m3_cpu_s); a baseline gets "
+                  f"(this machine, before any baseline result). {s}_wall_s = 60 * ceil(sum_s / 60) is every baseline's "
+                  f"{s} wall clock. The M3 run used several threads and checker processes (m3_cpu_s); a baseline gets "
                   "one core.",
            **base, "m3_s": m["wall_s"], "m3_cpu_s": m["cpu_s"], "sum_s": round(h, 3),
-           "morph_wall_s": core.rule_wall_s(h),
+           f"{s}_wall_s": core.rule_wall_s(h),
            "m3_measurement": {"argv": ["python", "-m", "holon", "gate", "--milestone", "M3", "--root", "<scratch copy>"],
                               "exit": m["exit"], "wall_s": m["wall_s"], "cpu_s": m["cpu_s"]}}
     p = core.holon_budget_path()
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(common.dumps(doc))
-    print(f"holon budget: sum {h:.1f} s -> Morph wall_s {doc['morph_wall_s']}")
+    print(f"holon budget: sum {h:.1f} s -> {s} wall_s {doc[f'{s}_wall_s']}")
     return 0
 
 

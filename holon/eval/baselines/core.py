@@ -38,7 +38,6 @@ PY = TOOLS / "baselines-py" / "bin"
 BASELINES = ("slither", "echidna", "medusa", "hevm", "halmos", "go_fuzz", "two_cycle", "spec_mining", "agent_review")
 SOLIDITY = ("slither", "echidna", "medusa", "hevm", "halmos")
 GO = ("go_fuzz", "two_cycle")
-SYSTEMS = ("morph", "corpus", "heldout")
 WINDOW = 10
 MAX_SPAN = 150
 SCHEMA = "holon-baseline-findings/0.1"
@@ -68,6 +67,16 @@ def entry(eid: str) -> dict:
     return next(e for e in entries() if e["id"] == eid)
 
 
+def systems() -> tuple:
+    return tuple(protocol()["systems"])
+
+
+def pinned(system: str) -> bool:
+    """A pinned system is one repository at one commit (the protocol's systems.<s>.repo, checked out from the
+    config's replay.<s>); the others are manifests of entries (systems.<s>.manifest)."""
+    return "repo" in protocol()["systems"].get(system, {})
+
+
 def config() -> dict:
     return load(ROOT / "config" / "holon.json")
 
@@ -80,10 +89,10 @@ def holon_budget_path() -> Path:
 def budget(system: str) -> dict:
     b = dict(protocol()["budget"][system])
     if "wall_s_rule" in b:
-        if system != "morph":
+        hb = load(holon_budget_path()) if holon_budget_path().is_file() else {}
+        if f"{system}_wall_s" not in hb:
             raise common.Refused(f"the {system} budget waits for its HOLON measurement (holon_budget.{system})")
-        hb = load(holon_budget_path())
-        b = {"wall_s": hb["morph_wall_s"], "cpus": b["cpus"], "setup_cap_s": b["setup_cap_s"]}
+        b = {"wall_s": hb[f"{system}_wall_s"], "cpus": b["cpus"], "setup_cap_s": b["setup_cap_s"]}
     return b
 
 
@@ -94,15 +103,15 @@ def rule_wall_s(h: float) -> int:
 
 # ------------------------------------------------------------------------------------------------- targets and scope
 def targets(system: str) -> list[str]:
-    if system == "morph":
-        return ["morph"]
+    if pinned(system):
+        return list(protocol()["systems"][system]["targets"])
     if system == "corpus":
         return [e["id"] for e in entries()]
     raise common.Refused("the held-out system is pending I49/I50; this session never reads spec/heldout/")
 
 
 def labelled_files(system: str, target: str) -> list[str]:
-    if system == "morph":
+    if pinned(system):
         return sorted({a["file"] for o in anchors().values() for a in o["anchors"]})
     return list(entry(target)["files"])
 
@@ -116,7 +125,7 @@ def is_test(path: str) -> bool:
 
 
 def languages(system: str, target: str) -> set:
-    if system == "morph":
+    if pinned(system):
         return {"go" if f.endswith(".go") else "solidity" for f in labelled_files(system, target)}
     return set(entry(target)["languages"])
 
@@ -150,7 +159,7 @@ _LOCK = threading.Lock()
 
 
 def commit_of(system: str, target: str) -> str:
-    if system == "morph":
+    if pinned(system):
         return load(ANCHORS_PATH)["commit"]
     return entry(target)["prefix_commit"]
 
@@ -165,9 +174,9 @@ def checkout(system: str, target: str) -> Path:
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.rmtree(dest, ignore_errors=True)
         sha = commit_of(system, target)
-        if system == "morph":
-            morph = config()["replay"]["morph"]
-            common.git(dest.parent, "clone", "-q", "--shared", "--no-checkout", morph, str(dest))
+        if pinned(system):
+            pin = config()["replay"][system]
+            common.git(dest.parent, "clone", "-q", "--shared", "--no-checkout", pin, str(dest))
             common.git(dest, "checkout", "-q", "--detach", sha)
         else:
             e = entry(target)
@@ -368,7 +377,7 @@ def _meets(span, lo, hi) -> bool:
 
 
 def located(system: str, target: str, f: dict) -> list[str]:
-    if system == "morph":
+    if pinned(system):
         out = []
         for oid, o in anchors().items():
             if any(l["file"] == a["file"] and _meets(l["lines"], *a["lines"]) for a in o["anchors"] for l in f["locations"]):

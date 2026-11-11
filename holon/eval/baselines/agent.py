@@ -89,14 +89,15 @@ def packet(system: str, wall_s: int) -> dict:
     (target, pre-fix path, map info)}}."""
     d = Path(tempfile.mkdtemp(prefix="review-", dir="/tmp"))
     per, back = {}, {}
-    if system == "morph":
-        src = core.checkout("morph", "morph")
-        files = core.scope_files(src, "morph", "morph")
+    if core.pinned(system):
+        tgt = core.targets(system)[0]
+        src = core.checkout(system, tgt)
+        files = core.scope_files(src, system, tgt)
         for f in files:
             (d / f).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(src / f, d / f)
-            back[f] = ("morph", f, None)
-        per["morph"] = files
+            back[f] = (tgt, f, None)
+        per[tgt] = files
     else:
         for eid in core.targets(system):
             e = core.entry(eid)

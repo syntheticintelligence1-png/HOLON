@@ -80,11 +80,11 @@ def build(system: str, target: str) -> dict:
         return code, text
 
     try:
-        if system == "corpus":
+        if not core.pinned(system):
             subs = [s for s in core.submodules_list(src) if (src / s["path"]).resolve().is_relative_to(proj.resolve())
                     or proj == src]
             out["submodules"] = core.fetch_submodules(src, subs)
-        if system == "morph":
+        if core.pinned(system):
             from ... import replay
             replay._sol_deps(proj)
         cfg_has = (proj / "foundry.toml").is_file()
@@ -118,10 +118,10 @@ def build(system: str, target: str) -> dict:
             if d not in ("out", "cache", "artifacts", "forge-artifacts"):
                 remaps.append(f"{d}/={proj / d}/")
         remaps.append(f"holon_target/={proj}/")
-        if system == "morph":
+        if core.pinned(system):
             remaps.append(f"node_modules/={proj / 'node_modules'}/")
         solc = conf.get("solc") or conf.get("solc_version")
-        if system == "morph":
+        if core.pinned(system):
             solc = solc_pinned()
         first = (src / sol_scope[0]).read_text(encoding="utf-8", errors="replace") if sol_scope else ""
         pragma = _pragma(first) or ">=0.4.0"
