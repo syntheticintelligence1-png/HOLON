@@ -1,0 +1,36 @@
+# Round 8 (M3), A4: representative searches by the laws' own G11V generators, narrowed (audit/rounds/M3/round8/a4_rep.py), each run as
+#   cd <git archive of dadfb28040931f447d4b22e2760a6e2f8e54aeab> && PYTHONPATH=. timeout 1500 python a4_rep.py <mode> <law>
+# lines kept: a4_rep's own lines and the run's PROVED/REFUTED/UNKNOWN and search lines
+=== a4_rep sym L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366 (18:39:08)
+  witness at prefix depth 1 after 35 states, 20 candidates (7.1 s)
+L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366: PROVED
+a4_rep: holon run exited 0
+a4_rep: status PROVED
+a4_rep: non_vacuity {"status": "inhabited", "bound": "35 prefix states (depth <= 2, max 400), 20 candidates (max 60000)", "degenerate": false, "law": "gen/M3/L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366/nonvac/LAWS.bend"}
+a4_rep: witness steps None prefix ['commitBatch'] x commitBatch
+a4_rep: bend PROOF.bend  -> exit 0, ALL PROOFS CHECK
+a4_rep: bend PROOF.bend --verdict -> exit 0, ALL PROOFS CHECK
+=== exit 0 (18:39:45)
+=== a4_rep sym L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatchWithProof_366 (18:39:45)
+  witness at prefix depth 1 after 35 states, 65 candidates (7.7 s)
+L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatchWithProof_366: PROVED
+a4_rep: holon run exited 0
+a4_rep: status PROVED
+a4_rep: non_vacuity {"status": "inhabited", "bound": "35 prefix states (depth <= 2, max 400), 65 candidates (max 60000)", "degenerate": false, "law": "gen/M3/L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatchWithProof_366/nonvac/LAWS.bend"}
+a4_rep: witness steps None prefix ['commitBatch'] x commitBatchWithProof
+a4_rep: bend PROOF.bend  -> exit 0, ALL PROOFS CHECK
+a4_rep: bend PROOF.bend --verdict -> exit 0, ALL PROOFS CHECK
+=== exit 0 (18:40:30)
+=== a4_rep disch L_disch_blk_rollup_228_79cc3e9a_onlyOwner (18:40:30)
+L_disch_blk_rollup_228_79cc3e9a_onlyOwner: PROVED (frame) in 14.0 s
+L_disch_blk_rollup_228_79cc3e9a_onlyOwner: PROVED
+a4_rep: holon run exited 0
+a4_rep: status PROVED
+a4_rep: non_vacuity {"status": "inhabited", "bound": "a reachable state of 1 steps where B holds at t, and addChallenger", "degenerate": false, "law": "gen/M3/L_disch_blk_rollup_228_79cc3e9a_onlyOwner/nonvac/LAWS.bend"}
+a4_rep: witness steps ['setPause', 'addChallenger'] prefix None x None
+a4_rep: bend PROOF.bend  -> exit 0, ALL PROOFS CHECK
+a4_rep: bend PROOF.bend --verdict -> exit 0, ALL PROOFS CHECK
+=== exit 0 (18:59:43)
+=== a4_rep disch0 L_disch_rev_rollup_228_79cc3e9a (18:59:43)
+L_disch_rev_rollup_228_79cc3e9a: PROVED (chain_revert) in 3.9 s
+=== stopped by the auditor at 19:16:24 after 16 min (time box): no inhabitant reported for L_disch_rev_rollup_228_79cc3e9a by the narrowed search (disch0) within that time

@@ -52,8 +52,8 @@ JSON3 = ("spec/*/predictions.json", "spec/*/predictions/*.json", "spec/schemas/*
 GENERATED = ("laws/M*/*.json", "docs/M*_COMPARISON.md", "spec/M*/appendixA_map.json", "docs/STATUS.md",
              "results/M*/ranking.json", "results/M*/metrics.json", "results/M*/metrics_timing.json",
              "gen/M*/evidence.json", "gen/M*/coverage.json", "gen/M*/diagram/**", "gen/M*/own/**",
-             "gen/M*/par_lossy/**", "gen/M*/binding/**", "spec/M*/evidence_review.jsonl", "replay/M*/**",
-             "results/M*/refute/**")
+             "gen/M*/par_lossy/**", "gen/M*/par_record/**", "gen/M*/binding/**", "spec/M*/evidence_review.jsonl",
+             "replay/M*/**", "results/M*/refute/**")
 AGGREGATE = re.compile(r"spec/(M\d+)/(?:predictions\.json|amendments\.jsonl)")   # generated from per-key sources (A)
 LAW_OUTPUTS = (re.compile(r"results/[MT]\d+/(L_[^/]+)\.json"), re.compile(r"gen/M\d+/(?:laws|proofs)/(L_[^/]+)/.+"))
 # what a run, derive or bind writes: with `merge --key K`, a branch's change to one of these outside K's outcome paths is

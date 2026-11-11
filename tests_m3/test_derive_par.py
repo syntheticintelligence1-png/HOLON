@@ -422,7 +422,8 @@ COMPONENT = "header_length"
 # PAR sub-forms later M3 iterations add beside I24's ten, each by amendment (spec/M3/amendments/I24.jsonl): I28's
 # init_chain, I84's link_domain, I86's push, and I93's Go sub-forms go_branch, go_recompute and go_round_trip
 # (holon-rules/1.15, amended at the lead). I24's checks are about I24's PAR laws.
-LATER_PAR_SUBFORMS = ("init_chain", "link_domain", "push", "go_branch", "go_recompute", "go_round_trip")
+LATER_PAR_SUBFORMS = ("init_chain", "link_domain", "push", "go_branch", "go_recompute", "go_round_trip", "constant_read",
+                      "record_round_trip")
 CODEC_DOC = f"gen/M3/codec/{COMPONENT}.json"
 EXTRACTED = ("spec/M2/facts/morph_batch.go.extracted.json", "spec/M2/facts/morph_header.extracted.json",
              "spec/M2/facts/morph_rollup.extracted.json")
@@ -578,7 +579,8 @@ class _Morph(unittest.TestCase):
         the I67 prereg), those of sub-form link_domain (I84's, over I80's bundle declaration; amended at I84's build),
         those of the sub-form push (I86's, over a bundle member's document; amended at I86's build) and those of the Go
         sub-forms go_branch, go_recompute and go_round_trip (I93's, holon-rules/1.15; amended at the lead, as I93 did
-        not)."""
+        not), and those of the sub-forms constant_read and record_round_trip (I100's, over the codec document; amended at
+        I100's prereg)."""
         self.assertEqual(self.r.code, 0, self.r.log)
         return {k: v for k, v in self.r.law_docs().items()
                 if v.get("rule") == "PAR" and v.get("subform") not in LATER_PAR_SUBFORMS

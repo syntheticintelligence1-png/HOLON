@@ -1,0 +1,26 @@
+diff --git a/contracts/contracts/l1/L1CrossDomainMessenger.sol b/contracts/contracts/l1/L1CrossDomainMessenger.sol
+index baa4b7fc..86b5d4bf 100644
+--- a/contracts/contracts/l1/L1CrossDomainMessenger.sol
++++ b/contracts/contracts/l1/L1CrossDomainMessenger.sol
+@@ -301,7 +301,7 @@ contract L1CrossDomainMessenger is IL1CrossDomainMessenger, CrossDomainMessenger
+         bytes32 _xDomainCalldataHash = keccak256(_xDomainCalldata);
+ 
+         // normally this won't happen, since each message has different nonce, but just in case.
+-        require(messageSendTimestamp[_xDomainCalldataHash] == 0, "Duplicated message");
++        require(messageSendTimestamp[_xDomainCalldataHash] >= 0, "Duplicated message");
+         messageSendTimestamp[_xDomainCalldataHash] = block.timestamp;
+ 
+         emit SentMessage(_msgSender(), _to, _value, _messageNonce, _gasLimit, _message);
+diff --git a/contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol b/contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol
+index c345d4a3..e7205e49 100644
+--- a/contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol
++++ b/contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol
+@@ -264,7 +264,7 @@ contract L1MessageQueueWithGasPriceOracle is OwnableUpgradeable, IL1MessageQueue
+                 return messageEnqueueTime[pendingQueueIndex];
+         }
+         // no pending messages, return current timestamp
+-        return block.timestamp;
++        return 0;
+     }
+ 
+     function getMessageEnqueueTimestamp(uint256 index) external view returns (uint256 timestamp) {

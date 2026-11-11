@@ -257,10 +257,15 @@ class TestLaws(unittest.TestCase):
         """I93-P5 (G3, G7): M3's catalog is the next version (expected holon-rules/1.15), the registry gains exactly the
         five laws of thresholds.law_ids over the base, and every base statement keeps its hash."""
         th = key()["thresholds"]
-        self.assertEqual(self.registry["rule_catalog_version"], th["catalog_expected"])
+        # I100 (amended, spec/M3/amendments/I93.jsonl): I100's catalog holon-rules/1.16 adds its twelve laws; I93's
+        # five are checked as before
+        i100 = json.loads((ROOT / "spec" / "M3" / "predictions" / "I100.json").read_text())["thresholds"]
+        cv = self.registry["rule_catalog_version"]
+        self.assertIn(cv, (th["catalog_expected"], i100["catalog_expected"]))
+        later = set(i100["constant_read_laws"]) | set(i100["record_laws"]) if cv == i100["catalog_expected"] else set()
         stm = self.registry["statements"]
         new = sorted(set(stm) - set(th["base_statement_hashes"]))
-        self.assertEqual(new, sorted(th["law_ids"]))
+        self.assertEqual(new, sorted(set(th["law_ids"]) | later))
         for lid, h in th["base_statement_hashes"].items():
             self.assertEqual(stm.get(lid), h, lid)
 

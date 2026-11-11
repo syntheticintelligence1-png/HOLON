@@ -83,7 +83,9 @@ def par_records() -> dict:
     covered), those over a Go-op document (amended at the I67 prereg: I67's laws over gen/M3/goops/), those of
     sub-form link_domain (amended at I84's build: I84's laws over I80's bundle declaration), those of the sub-form
     push (amended at I86's build: I86's PAR law over a bundle member's document) and those of I93's Go sub-forms
-    go_branch, go_recompute and go_round_trip (amended at the lead; test_derive_par.LATER_PAR_SUBFORMS)."""
+    go_branch, go_recompute and go_round_trip (amended at the lead), and those of the sub-forms constant_read and
+    record_round_trip (amended at I100's prereg: I100's twelve laws over the codec document); both in
+    test_derive_par.LATER_PAR_SUBFORMS."""
     ls = laws("M3")
     return {k: v for k, v in records("M3").items()
             if ls.get(k, {}).get("rule") == "PAR"
@@ -336,10 +338,21 @@ class TestBacktest(unittest.TestCase):
                 self.assertEqual((r["new"], r["acceptance"], r["implication"], r["gap"]), (new, acc, "accepted", None))
                 self.assertEqual(sorted((b["fn"], b["image"], b["status"]) for b in r["bridges"]),
                                  sorted(tuple(b) for b in exp[old]["bridges"]))
+        # I100 (amended, spec/M3/amendments/I24.jsonl): I100's record laws pair L_rt_go_v0, _v1 and _v2 and accept
+        # them by bridges (the record map, B1-B3 amended); I24's four pairings and the gap L_par_hdr_v2 are as before
+        i100 = json.loads((ROOT / "spec" / "M3" / "predictions" / "I100.json").read_text())["thresholds"]
+        for v in (0, 1, 2):
+            with self.subTest(m0=f"L_rt_go_v{v}"):
+                r = rows[f"L_rt_go_v{v}"]
+                self.assertEqual((r["new"], r["acceptance"], r["implication"], r["gap"]),
+                                 (f"L_par_rec_enc_sol_BatchHeaderBytes_v{v}", "bridges", "accepted", None))
+                self.assertEqual(sorted((b["fn"], b["status"]) for b in r["bridges"]),
+                                 [("dec_go", "PROVED"), ("enc_sol", "PROVED"), ("view", "PROVED")])
+        open_gaps = [law for law in RULE_GAPS if f"gap:M0:{law}" in i100["exit_blockers_after"]]
         gaps = {g["law"]: g for g in bt["gaps"]}
-        self.assertEqual(sorted(gaps), RULE_GAPS)
+        self.assertEqual(sorted(gaps), open_gaps)
         want = {g["law"]: g for g in X.backtest_expected(ROOT)["gaps"]}
-        for law in RULE_GAPS:
+        for law in open_gaps:
             with self.subTest(gap=law):
                 g = gaps[law]
                 self.assertEqual((g["id"], g["milestone"], g["kind"], g["status"]), (f"gap:M0:{law}", "M0", "rule", "open"))
@@ -349,7 +362,7 @@ class TestBacktest(unittest.TestCase):
         self.assertEqual(gaps["L_par_hdr_v2"]["candidates"],
                          ["L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1", "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"])
         self.assertTrue(bt["complete"])
-        self.assertEqual(bt["exit_blockers"], [f"gap:M0:{law}" for law in RULE_GAPS],
+        self.assertEqual(bt["exit_blockers"], [f"gap:M0:{law}" for law in open_gaps],
                          "M3 exit cannot be claimed with a gap open")
 
     def test_matched_m0_outcomes_are_identical(self):
@@ -382,7 +395,8 @@ class TestBacktest(unittest.TestCase):
                         self.assertNotIn(hatch, text)
                     code, out = run_bend([str(base / "PROOF.bend")], cwd=base)
                     self.assertEqual((code, "ALL PROOFS CHECK" in out), (0, True), out[-2000:])
-        self.assertEqual(n, 7, "6 encoder bridges and 1 witness transfer")
+        # I100 (amended, spec/M3/amendments/I24.jsonl): I100's three rows add 3 encoder bridges and 6 record bridges
+        self.assertEqual(n, 16, "I24's 6 encoder bridges and 1 witness transfer; I100's 3 encoder and 6 record bridges")
 
     def test_backtest_cli_reproduces_the_table(self):
         """Construction: python -m holon backtest --milestone M3 rewrites results/M3/backtest.json byte for byte."""
@@ -401,7 +415,8 @@ class TestM3Construction(unittest.TestCase):
         # the PAR laws but those of sub-form init_chain (amended at the I28 prereg, spec/M3/amendments.jsonl, as par_records)
         # and those over a Go-op document (amended at the I67 prereg, as par_records), those of sub-form link_domain
         # (amended at I84's build, as par_records), those of the sub-form push (amended at I86's build, as
-        # par_records) and those of I93's Go sub-forms (amended at the lead, as par_records)
+        # par_records), those of I93's Go sub-forms (amended at the lead) and those of I100's sub-forms constant_read and
+        # record_round_trip (amended at I100's prereg), as par_records
         ls = {k: v for k, v in laws("M3").items() if v.get("rule") == "PAR"
               and v.get("subform") not in LATER_PAR_SUBFORMS
               and not str(v.get("facts") or "").startswith("gen/M3/goops/")}

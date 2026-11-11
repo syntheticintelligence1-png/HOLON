@@ -1,0 +1,19 @@
+commit 74224a0166af7268390b3474604919d6ba6a2b6d
+Author: scratch <scratch@invalid>
+Date:   Wed Nov 11 20:04:05 2026 +0000
+
+    scratch: E2 weakened PAR record generator (never pushed)
+
+diff --git a/holon/rules/par_record.py b/holon/rules/par_record.py
+index 462f4e21..596daf1c 100644
+--- a/holon/rules/par_record.py
++++ b/holon/rules/par_record.py
+@@ -142,7 +142,7 @@ def derive_documents(items: list[tuple[str, dict, dict]]) -> dict:
+                         nf = sum(1 for m in members if m["component"] == "field")
+                         add(lid, {
+                             "subform": "record_round_trip",
+-                            "statement": _statement(src, vp, {"all": [_conjunct(e, m["getter"], m) for m in members]}),
++                            "statement": _statement(src, vp, {"all": [_conjunct(e, m["getter"], m) for m in members if m["component"] == "field"]}),
+                             "notes": f"PAR record round trip (holon.rules.par_record): the getter family {key[2]} "
+                                      f"({len(members)} getters at version {v}: {nf} field slots, {len(members) - nf} "
+                                      f"constant slots) inverts {e} at version {v}",
