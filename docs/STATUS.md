@@ -14,7 +14,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 
 | Milestone | Converged | Streak | k | Counted rounds | Rounds | Open high findings | Why |
 |---|---|---|---|---|---|---|---|
-| M3 | yes | 3 | 3 | 6 | 8 | none | converged: 3 consecutive counted clean rounds (k = 3) and no open high-priority finding |
+| M3 | yes | 4 | 3 | 7 | 9 | none | converged: 4 consecutive counted clean rounds (k = 3) and no open high-priority finding |
 
 ## Iterations
 
