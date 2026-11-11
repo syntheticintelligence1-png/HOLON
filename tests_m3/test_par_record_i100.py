@@ -445,5 +445,32 @@ class TestOutcome(unittest.TestCase):
         self.assertEqual((m["changed"], m["obstructed"], m["dropped"]), ([], [], []))
 
 
+class TestRound6(unittest.TestCase):
+    """I100-P10, added by a scope_amendment (spec/M3/amendments/I100.jsonl) after the prereg and before any build
+    result: the lead's round-6 triage files F-M3-22 as a duplicate of F-M3-10, and its mutant go_getter_batchindex
+    (round 6's A1 spec; Go BatchHeaderBytes.BatchIndex reads b[2:10] for b[1:9]) joins round 3's m05-m08. Predicted:
+    caught, obstructed. The getter's read range moves to bytes 2..9, which every encoder's layout fills with
+    BatchIndex's bytes 1..7 and L1MessagePopped's byte 0, neither one field in order nor constants; so each of the six
+    instances (enc_sol at versions 0, 1 and 2, BatchHeaderV0_Bytes v0, BatchHeaderV1_Bytes v1,
+    BatchCache_createBatchHeaderWithSequencerSetHash v2) is an obstruction missing exactly BatchHeaderBytes_BatchIndex;
+    no instance is dropped and no record law is stated. The record is OUT/mutations_round6.json
+    (tests_m3/_i100r6.py)."""
+
+    def test_p10_go_getter_batchindex_obstructed(self):
+        from tests_m3 import _i100r6 as R6
+        m = _out(R6.OUT_NAME)["mutants"][R6.MUTANT]
+        self.assertEqual((m["source_commit"], m["mutant_sha256"]), (R6.SOURCE_COMMIT, R6.MUTANT_SHA256))
+        self.assertEqual(m["verdict"], ["obstructed"])
+        self.assertTrue(m["caught"])
+        want = sorted(["enc_sol|BatchHeaderBytes|v0", "enc_sol|BatchHeaderBytes|v1", "enc_sol|BatchHeaderBytes|v2",
+                       "BatchHeaderV0_Bytes|BatchHeaderBytes|v0", "BatchHeaderV1_Bytes|BatchHeaderBytes|v1",
+                       "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2"])
+        self.assertEqual(m["obstructed"], want)
+        for k in want:
+            self.assertEqual((m["instances"][k]["missing"], m["instances"][k]["law"]),
+                             (["BatchHeaderBytes_BatchIndex"], None), k)
+        self.assertEqual(m["dropped"], [])
+
+
 if __name__ == "__main__":
     unittest.main()
