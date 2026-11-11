@@ -542,6 +542,156 @@
         "rule_catalog_version": "holon-rules/1.15"
       },
       "title": "Held-out target II: the pinned catalog's rules, the run, replay and metrics on the sealed target"
+    },
+    "I50b": {
+      "outcome_paths": [
+        "gen/diagrams/scroll_i50b/",
+        "gen/targets/scroll_i50b/",
+        "results/targets/scroll_i50b/",
+        "targets/scroll_i50b/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i49--i50-held-out-target-about-3--3-days",
+      "predictions": [
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestPredictions::test_p1_sorts_accept",
+          "claim": "Stage 1, the sort pass: with rules U1-U3 (holon-sort-types/0.2) holon sorts accepts the rerun document, which is the sealed document but for extraction.sidecar, so derive is not refused at holon sorts and gen/targets/scroll_i50b/sorts/assignment.json is written. (I50's refusal named only 'update'; this predicts that no other construct stops the pass.)",
+          "expected": {
+            "sorts": "accepted"
+          },
+          "id": "I50b-P1"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestPredictions::test_p2_derivation",
+          "claim": "Stage 2, holon disch and holon derive: the derivation completes (no derive_refusal.json) with between 30 and 200 laws over the rerun document, of holon-rules/1.15, among whose rules are DISCH and SYM. Fresh: no count of I50-P1 is reused; the range is set from the development document's 125 laws on the same route and the rerun document's smaller diagram (|V| 35, |E| 76 against 48, 139).",
+          "expected": {
+            "laws_at_least": 30,
+            "laws_at_most": 200,
+            "rules_include": [
+              "DISCH",
+              "SYM"
+            ]
+          },
+          "id": "I50b-P2"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestPredictions::test_p3_model_refuses",
+          "claim": "Stage 3, the run: holon target run stops at holon model, because the unchanged typed model generator (holon.sorts.model3, I86's t_update) builds an update only over a storage struct read or a struct value, and the rerun document's finalization actions update a storage view (a ['store', ..] base) or a conditional; the refusal is recorded in run_refusal.json with a message naming an update, and no law is decided (summary.json {}). The lead's term (b) allows no change to the model generator.",
+          "expected": {
+            "message_matches": "update",
+            "step": "holon model"
+          },
+          "id": "I50b-P3"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestPredictions::test_p4_g8",
+          "claim": "Coverage under rule D1 (sidecar_version 2): the rerun's coverage has 0 unaccounted statements; exactly one dead_code debt entry, at src/L1/rollup/ScrollChain.sol:748-750 (the isV1 branch, whose condition is the constant 0 at every reach), with D1's detail; every other debt entry is the sealed coverage's, in its order; G8 passes on the rerun target.",
+          "expected": {
+            "dead_code_src": [
+              "src/L1/rollup/ScrollChain.sol:748-750"
+            ],
+            "unaccounted": []
+          },
+          "id": "I50b-P4"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestPredictions::test_p5_gate",
+          "claim": "The rerun target's gate, on a copy of the repo: I49's six checks (GENV, X1, X2, G8, D1, S1) and I50's L2 pass. (L9, L3, L5, L11 and L6 are not predicted: they are unimplemented for a law set, I50's Not done, and stay failures, never vacuous passes.)",
+          "expected": {
+            "passed": [
+              "GENV",
+              "X1",
+              "X2",
+              "G8",
+              "D1",
+              "S1",
+              "L2"
+            ]
+          },
+          "id": "I50b-P5"
+        }
+      ],
+      "prompt": "prompts/I50b_heldout_rerun.md",
+      "regressions": [
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestRegressions::test_r1_sealed_bytes",
+          "claim": "Every file under the sealed paths of spec/M4/lib/heldout_rerun.json (the sealed target's description, documents, coverage, diagram, refusal, records, replay and gate report, the size report, I49's and I50's keys, protocols, prompts, reports and tests) is byte for byte what it is at the I50b prereg commit.",
+          "id": "I50b-R1"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestRegressions::test_r2_sealed_outcomes and tests_m4/test_i50b_rerun.py::TestRegressions::test_r3_sealed_route_reproduces",
+          "claim": "The sealed I49/I50 suites keep their outcomes: the 10 tests that fail at the prereg fail, and every other passes, except I49-R1 (test_r1_generator_digests_unchanged), which must flip: holon/sorts/extracted.py and the frontend sit in generator closures, so their digests move, which the lead's term (c) licenses as a re-stamp. Under the old versions (holon-sort-types/0.1, sidecar_version 1) the sealed route still refuses at holon sorts byte for byte, and the sealed coverage regenerates.",
+          "id": "I50b-R2"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestSortsRule and tests_m4/test_i50b_rerun.py::TestDeadCodeRule",
+          "claim": "Construction (generality): rules U1-U3 and D1 hold on documents that are not the target (a synthetic struct-update document, the fixture contract Tally, the development target's rollup document and checkout); 0.1 still refuses update; 0.2 walks the development document event for event as 0.1; sidecar_version 2 gives the development rollup's version-1 coverage byte for byte and leaves an unread local unaccounted.",
+          "id": "I50b-R3"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestRegressions::test_r4_no_m0_m3_output_changes",
+          "claim": "No M0-M3 output, fact document or law file changes in any I50b commit; the generator_sha256 re-stamps the producer changes need wait for landing after M3's exit (holon land plan), and their plan is in the PR.",
+          "id": "I50b-R4"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestRegressions::test_r5_target_agnostic",
+          "claim": "No holon/ file names a declared target, the rerun target's name included (I49's R3 re-run).",
+          "id": "I50b-R5"
+        },
+        {
+          "check": "tests_m4/test_i50b_rerun.py::TestRegressions::test_r6_changes_scoped_and_disclosed and tests_m4/test_i50b_rerun.py::TestRerunTarget and tests_m4/test_i50b_rerun.py::TestComparison",
+          "claim": "Construction: holon/rules/ is the pin's; the holon/ files I50b changes are only the five producer modules and four plumbing modules the test lists, each disclosed by a post_seal line naming I50b; the rerun target follows T1b, its scope sidecar and Q1b-Q4b; extract, coverage, diagram, derive and compare regenerate; the run's outputs, the replay entries and the comparison follow K3-K4 and C1, every report labelled contaminated.",
+          "id": "I50b-R6"
+        }
+      ],
+      "tests": [
+        "tests_m4/test_i50b_rerun.py"
+      ],
+      "thresholds": {
+        "base_commit": "9f1462ed",
+        "budgets": "I50's: the M3 sidecars' search budgets, copied by rules Q1b-Q4b (no new threshold)",
+        "contamination_label": "contaminated (post-seal change)",
+        "instrument_sha256": {
+          "spec/M4/lib/heldout_rerun.json": "cac36806777a7e0a11b09a4a5b5b07146fe085600780a82fafdf3a5123e943d7",
+          "tests_m4/_i50b.py": "07afb7bfc42300acc7f37bfc4541487c84c6c493700bbfc9ee16cced390c525d",
+          "tests_m4/fixtures/i50b/extract_v1.json": "b817e02baf98f3de9b3f6c196d6bd2fe50228ee9d152e4d124710fdfbad7fed5",
+          "tests_m4/fixtures/i50b/extract_v2.json": "2644264fb72c664a7f3cd053b2dccbdc4e526196ed01d12bbcc96568ca07d654",
+          "tests_m4/fixtures/i50b/src/Tally.sol": "b8b8a0f75db362269cde6616ecd7f52174384b3dfb605c957517dca1a1315aa5"
+        },
+        "protocol": "spec/M4/lib/heldout_rerun.json",
+        "rule_catalog_version": "holon-rules/1.15",
+        "sealed_document_sha256": "275730a29a4f352f5aeaec036285d36b11467b689a8399ca54b4e0fb6fce6837",
+        "sealed_label": "sealed in the repository, not sealed from the agent's priors",
+        "sealed_outcome": {
+          "doc": "python -m unittest tests_m4.test_i49_heldout tests_m4.test_i50_heldout at the prereg base: 43 tests, failures=5, errors=5 (the ids in not_ok_at_prereg, as I50's report gives them). not_ok adds the one predicted flip, I49-R1.",
+          "not_ok": [
+            "tests_m4.test_i49_heldout.TestCoverage.test_coverage",
+            "tests_m4.test_i49_heldout.TestGate.test_gate_passes",
+            "tests_m4.test_i49_heldout.TestRegressions.test_r1_generator_digests_unchanged",
+            "tests_m4.test_i49_heldout.TestSizes.test_sizes",
+            "tests_m4.test_i50_heldout.TestDerive.test_catalog_and_document",
+            "tests_m4.test_i50_heldout.TestDerive.test_p1_counts",
+            "tests_m4.test_i50_heldout.TestDerive.test_p2_classes",
+            "tests_m4.test_i50_heldout.TestGate.test_law_checks_pass",
+            "tests_m4.test_i50_heldout.TestRun.test_every_law_has_a_record",
+            "tests_m4.test_i50_heldout.TestRun.test_p4_statuses",
+            "tests_m4.test_i50_heldout.TestSizes.test_heldout_row_counted"
+          ],
+          "not_ok_at_prereg": [
+            "tests_m4.test_i49_heldout.TestCoverage.test_coverage",
+            "tests_m4.test_i49_heldout.TestGate.test_gate_passes",
+            "tests_m4.test_i49_heldout.TestSizes.test_sizes",
+            "tests_m4.test_i50_heldout.TestDerive.test_catalog_and_document",
+            "tests_m4.test_i50_heldout.TestDerive.test_p1_counts",
+            "tests_m4.test_i50_heldout.TestDerive.test_p2_classes",
+            "tests_m4.test_i50_heldout.TestGate.test_law_checks_pass",
+            "tests_m4.test_i50_heldout.TestRun.test_every_law_has_a_record",
+            "tests_m4.test_i50_heldout.TestRun.test_p4_statuses",
+            "tests_m4.test_i50_heldout.TestSizes.test_heldout_row_counted"
+          ],
+          "ran": 43
+        }
+      },
+      "title": "Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term; G8's accounting of statically dead statements), then the I50 route rerun on a sibling target beside the sealed I49/I50 result, every number labelled contaminated and set beside its sealed counterpart"
     }
   }
 }
