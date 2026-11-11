@@ -1,0 +1,927 @@
+{
+  "document": "i100_mutations",
+  "key": "I100",
+  "mutants": {
+    "m05": {
+      "backtest": {
+        "exit": 0,
+        "exit_blockers": [
+          "gap:M0:L_par_hdr_v2"
+        ],
+        "rows": {
+          "L_dom_hdr": {
+            "acceptance": "witness",
+            "bridges": [
+              [
+                "ok_go",
+                "UNKNOWN"
+              ],
+              [
+                "ok_sol",
+                "UNKNOWN"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+          },
+          "L_par_hdr_ssvh": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v1",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+          },
+          "L_par_hdr_v0": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v0",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+          },
+          "L_par_hdr_v1": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v1",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+          },
+          "L_par_hdr_v2": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_par_hdr_v2",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v0": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "dec_go",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v0"
+          },
+          "L_rt_go_v1": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "dec_go",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v1"
+          },
+          "L_rt_go_v2": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "dec_go",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v2"
+          }
+        }
+      },
+      "caught": false,
+      "changed": [],
+      "driver": {
+        "added": [],
+        "dropped": [
+          "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_0",
+          "L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_1"
+        ],
+        "exit": 0,
+        "statement_changed": [],
+        "verdict": "detected",
+        "why": null
+      },
+      "dropped": [],
+      "instances": {
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2": {
+          "conjuncts": 13,
+          "law": "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2",
+          "missing": []
+        },
+        "BatchHeaderV0_Bytes|BatchHeaderBytes|v0": {
+          "conjuncts": 12,
+          "law": "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0",
+          "missing": []
+        },
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1": {
+          "conjuncts": 13,
+          "law": "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v0": {
+          "conjuncts": 12,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v0",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v1": {
+          "conjuncts": 13,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v1",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v2": {
+          "conjuncts": 13,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v2",
+          "missing": []
+        }
+      },
+      "model_refresh": {
+        "exit": 0,
+        "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2"
+      },
+      "mutant": "m05",
+      "obstructed": [],
+      "record_runs": {
+        "exit": 0,
+        "laws": {
+          "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:4292ea315820e4ed2ac01f4047964992adde730ca9695e2ffe8c17438f7d4733",
+            "status": "PROVED"
+          },
+          "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:92d32c817c698ae462e0f27e1ec51cfab550c54f200fcbb1451892862920ec0f",
+            "status": "PROVED"
+          },
+          "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:c87586ae20d705b1c741759d4185c0674c802f3ab3af949f640164dc9f8573fd",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v0": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:be1186d5d36a905fa2ff5c1ff918198d2ae1219a514b6b2507fbd977732db8ed",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v1": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:9cd56baafbbad76646b251ef9f195967aa6f700184ce4427a928ae3dd1c9c09c",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v2": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:0e86ac100d5dd47bb631899032762a25060001b796f2aa071f4f499c12715820",
+            "status": "PROVED"
+          }
+        }
+      },
+      "spec": "audit/rounds/M3/round3/a1_spec_m05.json",
+      "spec_sha256": "c64aac77f4b846970ba16f8821f15dfbca945d546a15c7fd02d90b66b7b3a50e",
+      "target": "dbecea26818288d61e342c9c4c4a3f699ab30f8c",
+      "verdict": [
+        "not_caught"
+      ]
+    },
+    "m06": {
+      "backtest": {
+        "exit": 0,
+        "exit_blockers": [
+          "gap:M0:L_par_hdr_v2",
+          "gap:M0:L_rt_go_v1"
+        ],
+        "rows": {
+          "L_dom_hdr": {
+            "acceptance": "witness",
+            "bridges": [
+              [
+                "ok_go",
+                "UNKNOWN"
+              ],
+              [
+                "ok_sol",
+                "UNKNOWN"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+          },
+          "L_par_hdr_ssvh": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v1",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+          },
+          "L_par_hdr_v0": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v0",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+          },
+          "L_par_hdr_v1": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v1",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+          },
+          "L_par_hdr_v2": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_par_hdr_v2",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v0": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "dec_go",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v0"
+          },
+          "L_rt_go_v1": {
+            "acceptance": null,
+            "bridges": [
+              [
+                "dec_go",
+                "REFUTED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "REFUTED"
+              ]
+            ],
+            "gap": "gap:M0:L_rt_go_v1",
+            "implication": "missing",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v1"
+          },
+          "L_rt_go_v2": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "dec_go",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v2"
+          }
+        }
+      },
+      "caught": true,
+      "changed": [
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1",
+        "enc_sol|BatchHeaderBytes|v1"
+      ],
+      "driver": {
+        "added": [],
+        "dropped": [
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+          "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1"
+        ],
+        "exit": 0,
+        "statement_changed": [
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+          "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1",
+          "L_par_rec_enc_sol_BatchHeaderBytes_v1"
+        ],
+        "verdict": "detected",
+        "why": null
+      },
+      "dropped": [],
+      "instances": {
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2": {
+          "conjuncts": 13,
+          "law": "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2",
+          "missing": []
+        },
+        "BatchHeaderV0_Bytes|BatchHeaderBytes|v0": {
+          "conjuncts": 12,
+          "law": "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0",
+          "missing": []
+        },
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1": {
+          "conjuncts": 12,
+          "law": "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v0": {
+          "conjuncts": 12,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v0",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v1": {
+          "conjuncts": 12,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v1",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v2": {
+          "conjuncts": 13,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v2",
+          "missing": []
+        }
+      },
+      "model_refresh": {
+        "exit": 0,
+        "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2"
+      },
+      "mutant": "m06",
+      "obstructed": [],
+      "record_runs": {
+        "exit": 0,
+        "laws": {
+          "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:14ad5886631b944f076e4b1b668399bd637f56cc5da09bdf775cab3b371c7471",
+            "status": "PROVED"
+          },
+          "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:92d32c817c698ae462e0f27e1ec51cfab550c54f200fcbb1451892862920ec0f",
+            "status": "PROVED"
+          },
+          "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:34b194757cc5f8acbcbf07a08e0813cf390f09848ebce1a5e0055638ebc269e8",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v0": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:be1186d5d36a905fa2ff5c1ff918198d2ae1219a514b6b2507fbd977732db8ed",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v1": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:bc3fb21f6311405cc7e12e36aa74565fdc5b99c04c52316e0a566c1c1d76b2eb",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v2": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:6c0870a4354d8382b37af5fa8809e66c73c43652bfa0eea64b1e3fd5e07fbabe",
+            "status": "PROVED"
+          }
+        }
+      },
+      "spec": "audit/rounds/M3/round3/a1_spec_m06.json",
+      "spec_sha256": "ec40c561ef621ffbc5460a06e48b7ffe84b259979f52a1b4ff02d46bdddcf930",
+      "target": "dbecea26818288d61e342c9c4c4a3f699ab30f8c",
+      "verdict": [
+        "refuted"
+      ]
+    },
+    "m07": {
+      "backtest": {
+        "exit": 0,
+        "exit_blockers": [
+          "gap:M0:L_par_hdr_v1",
+          "gap:M0:L_par_hdr_v2"
+        ],
+        "rows": {
+          "L_dom_hdr": {
+            "acceptance": "witness",
+            "bridges": [
+              [
+                "ok_go",
+                "UNKNOWN"
+              ],
+              [
+                "ok_sol",
+                "UNKNOWN"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+          },
+          "L_par_hdr_ssvh": {
+            "acceptance": "witness",
+            "bridges": [
+              [
+                "enc_go_v1",
+                "UNKNOWN"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+          },
+          "L_par_hdr_v0": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "enc_go_v0",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+          },
+          "L_par_hdr_v1": {
+            "acceptance": null,
+            "bridges": [
+              [
+                "enc_go_v1",
+                "UNKNOWN"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ]
+            ],
+            "gap": "gap:M0:L_par_hdr_v1",
+            "implication": "missing",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+          },
+          "L_par_hdr_v2": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_par_hdr_v2",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v0": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "dec_go",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v0"
+          },
+          "L_rt_go_v1": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "dec_go",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v1"
+          },
+          "L_rt_go_v2": {
+            "acceptance": "bridges",
+            "bridges": [
+              [
+                "dec_go",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "PROVED"
+              ],
+              [
+                "view",
+                "PROVED"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_rec_enc_sol_BatchHeaderBytes_v2"
+          }
+        }
+      },
+      "caught": true,
+      "changed": [
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2",
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1"
+      ],
+      "driver": {
+        "added": [],
+        "dropped": [
+          "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2",
+          "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1"
+        ],
+        "exit": 0,
+        "statement_changed": [
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+        ],
+        "verdict": "detected",
+        "why": null
+      },
+      "dropped": [],
+      "instances": {
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2": {
+          "conjuncts": 11,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_LastBlockNumber",
+            "BatchHeaderBytes_ParentBatchHash"
+          ]
+        },
+        "BatchHeaderV0_Bytes|BatchHeaderBytes|v0": {
+          "conjuncts": 12,
+          "law": "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0",
+          "missing": []
+        },
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1": {
+          "conjuncts": 11,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_LastBlockNumber",
+            "BatchHeaderBytes_ParentBatchHash"
+          ]
+        },
+        "enc_sol|BatchHeaderBytes|v0": {
+          "conjuncts": 12,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v0",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v1": {
+          "conjuncts": 13,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v1",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v2": {
+          "conjuncts": 13,
+          "law": "L_par_rec_enc_sol_BatchHeaderBytes_v2",
+          "missing": []
+        }
+      },
+      "model_refresh": {
+        "exit": 0,
+        "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2"
+      },
+      "mutant": "m07",
+      "obstructed": [
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2",
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1"
+      ],
+      "record_runs": {
+        "exit": 0,
+        "laws": {
+          "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:92d32c817c698ae462e0f27e1ec51cfab550c54f200fcbb1451892862920ec0f",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v0": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:be1186d5d36a905fa2ff5c1ff918198d2ae1219a514b6b2507fbd977732db8ed",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v1": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:9cd56baafbbad76646b251ef9f195967aa6f700184ce4427a928ae3dd1c9c09c",
+            "status": "PROVED"
+          },
+          "L_par_rec_enc_sol_BatchHeaderBytes_v2": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:0e86ac100d5dd47bb631899032762a25060001b796f2aa071f4f499c12715820",
+            "status": "PROVED"
+          }
+        }
+      },
+      "spec": "audit/rounds/M3/round3/a1_spec_m07.json",
+      "spec_sha256": "7003ee211800fac3ffa5d51b496e74a275d0bb2e70aee825907e065a940b0d77",
+      "target": "dbecea26818288d61e342c9c4c4a3f699ab30f8c",
+      "verdict": [
+        "obstructed"
+      ]
+    },
+    "m08": {
+      "backtest": {
+        "exit": 0,
+        "exit_blockers": [
+          "gap:M0:L_par_hdr_v0",
+          "gap:M0:L_par_hdr_v1",
+          "gap:M0:L_par_hdr_v2",
+          "gap:M0:L_rt_go_v0",
+          "gap:M0:L_rt_go_v1",
+          "gap:M0:L_rt_go_v2"
+        ],
+        "rows": {
+          "L_dom_hdr": {
+            "acceptance": "witness",
+            "bridges": [
+              [
+                "ok_go",
+                "UNKNOWN"
+              ],
+              [
+                "ok_sol",
+                "UNKNOWN"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+          },
+          "L_par_hdr_ssvh": {
+            "acceptance": "witness",
+            "bridges": [
+              [
+                "enc_go_v1",
+                "PROVED"
+              ],
+              [
+                "enc_sol",
+                "UNKNOWN"
+              ]
+            ],
+            "gap": null,
+            "implication": "accepted",
+            "new": "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+          },
+          "L_par_hdr_v0": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_par_hdr_v0",
+            "implication": null,
+            "new": null
+          },
+          "L_par_hdr_v1": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_par_hdr_v1",
+            "implication": null,
+            "new": null
+          },
+          "L_par_hdr_v2": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_par_hdr_v2",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v0": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_rt_go_v0",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v1": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_rt_go_v1",
+            "implication": null,
+            "new": null
+          },
+          "L_rt_go_v2": {
+            "acceptance": null,
+            "bridges": [],
+            "gap": "gap:M0:L_rt_go_v2",
+            "implication": null,
+            "new": null
+          }
+        }
+      },
+      "caught": true,
+      "changed": [
+        "enc_sol|BatchHeaderBytes|v0",
+        "enc_sol|BatchHeaderBytes|v1",
+        "enc_sol|BatchHeaderBytes|v2"
+      ],
+      "driver": {
+        "added": [],
+        "dropped": [
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+          "L_par_rec_enc_sol_BatchHeaderBytes_v0",
+          "L_par_rec_enc_sol_BatchHeaderBytes_v1",
+          "L_par_rec_enc_sol_BatchHeaderBytes_v2",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+          "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+          "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+          "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v2"
+        ],
+        "exit": 0,
+        "statement_changed": [
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+        ],
+        "verdict": "detected",
+        "why": null
+      },
+      "dropped": [],
+      "instances": {
+        "BatchCache_createBatchHeaderWithSequencerSetHash|BatchHeaderBytes|v2": {
+          "conjuncts": 13,
+          "law": "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2",
+          "missing": []
+        },
+        "BatchHeaderV0_Bytes|BatchHeaderBytes|v0": {
+          "conjuncts": 12,
+          "law": "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0",
+          "missing": []
+        },
+        "BatchHeaderV1_Bytes|BatchHeaderBytes|v1": {
+          "conjuncts": 13,
+          "law": "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1",
+          "missing": []
+        },
+        "enc_sol|BatchHeaderBytes|v0": {
+          "conjuncts": 10,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_ParentBatchHash",
+            "BatchHeaderBytes_SequencerSetVerifyHash"
+          ]
+        },
+        "enc_sol|BatchHeaderBytes|v1": {
+          "conjuncts": 11,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_ParentBatchHash",
+            "BatchHeaderBytes_SequencerSetVerifyHash"
+          ]
+        },
+        "enc_sol|BatchHeaderBytes|v2": {
+          "conjuncts": 11,
+          "law": null,
+          "missing": [
+            "BatchHeaderBytes_ParentBatchHash",
+            "BatchHeaderBytes_SequencerSetVerifyHash"
+          ]
+        }
+      },
+      "model_refresh": {
+        "exit": 0,
+        "law": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2"
+      },
+      "mutant": "m08",
+      "obstructed": [
+        "enc_sol|BatchHeaderBytes|v0",
+        "enc_sol|BatchHeaderBytes|v1",
+        "enc_sol|BatchHeaderBytes|v2"
+      ],
+      "record_runs": {
+        "exit": 0,
+        "laws": {
+          "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:4292ea315820e4ed2ac01f4047964992adde730ca9695e2ffe8c17438f7d4733",
+            "status": "PROVED"
+          },
+          "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:92d32c817c698ae462e0f27e1ec51cfab550c54f200fcbb1451892862920ec0f",
+            "status": "PROVED"
+          },
+          "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1": {
+            "failing_conjunct": null,
+            "statement_hash": "sha256:c87586ae20d705b1c741759d4185c0674c802f3ab3af949f640164dc9f8573fd",
+            "status": "PROVED"
+          }
+        }
+      },
+      "spec": "audit/rounds/M3/round3/a1_spec_m08.json",
+      "spec_sha256": "cb56455b45ddebf6545cc10a8e3637f736d9a20c0afe84e0e13454f6f0243490",
+      "target": "dbecea26818288d61e342c9c4c4a3f699ab30f8c",
+      "verdict": [
+        "obstructed"
+      ]
+    }
+  }
+}
