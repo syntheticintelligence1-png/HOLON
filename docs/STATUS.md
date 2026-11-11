@@ -9,7 +9,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M2 | 27 | 242 | 126 | 27 |
 | M3 | 49 | 310 | 258 | 49 |
 | M4 | 1 | 4 | 6 | 1 |
-| M5 | 7 | 34 | 19 | 5 |
+| M5 | 8 | 41 | 22 | 6 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -67,6 +67,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I55 | M5 | I55: the intent lane: doc comments atomized with exact spans, reviewed clauses compiled to laws/INTENT/ over the factor… | `prompts/I55_intent_lane.md` | 11 | 3 | 1 | `docs/iterations/I55.md` |
 | I56 | M5 | I56: bounded games over F(M3) (M5, L6): payoff facts as a generated value-flow document with V9 coverage, strategies as… | `prompts/I56_games.md` | 5 | 3 | 1 | `docs/iterations/I56.md` |
 | I57 | M5 | I57: environment modules (L1 reorg depth, the DA retention window, the blob-archive fetcher) validated against observat… | `prompts/I57_environment_modules.md` | 7 | 2 | 1 | `docs/iterations/I57.md` |
+| I58 | M5 | I58: the M5 report: L6, L9 and L10 reported as measured in results/M5/metrics.json, each computed by I54's stub (holon.… | `prompts/I58_m5_report.md` | 7 | 3 | 1 | `docs/iterations/I58.md` |
 | I59 | M2 | I23a track: historical on-chain acquisition and the first per-edge replay on real inputs (human answer Q5) | `prompts/I59_historical.md` | 9 | 2 | 1 | `docs/iterations/I59.md` |
 | I60 | M2 | A1 mutation adequacy on real code, replacement catalog | `prompts/I60_mutation_replacement.md` | 20 | 10 | 1 | `docs/iterations/I60.md` |
 | I61 | M2 | A1 mutation adequacy on real code, second replacement catalog | `prompts/I61_mutation_second_replacement.md` | 24 | 11 | 1 | `docs/iterations/I61.md` |
