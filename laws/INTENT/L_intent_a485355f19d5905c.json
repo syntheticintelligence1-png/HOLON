@@ -1,0 +1,86 @@
+{
+  "actions": [
+    "pause"
+  ],
+  "binding": {
+    "name": "owner",
+    "noun": "owner",
+    "percent": null
+  },
+  "clauses": [
+    "a485355f19d5905c"
+  ],
+  "contract": "C8031a4",
+  "control": "i_access_right_2",
+  "facts": "gen/M5/intent/facts/C8031a4.extracted.json",
+  "facts_sha256": "be9061dae1ad9649c99db86ffffde6414ef8a0657eb5a22f8979cdf4ebf90267",
+  "file": "spec/M5/controls/intent/i_access_right_2.sol",
+  "ir_version": "holon-intent/0.1",
+  "law_id": "L_intent_a485355f19d5905c",
+  "model": "gen/M5/intent/model/C8031a4.bend",
+  "notes": "compiled by holon.intent.compile from the access template; one clause, the atom a485355f19d5905c",
+  "reading": "For every pre-transaction state of C8031a4 and every call of pause() that does not revert, the caller is the address stored in owner.",
+  "statement": {
+    "binders": [
+      {
+        "name": "s",
+        "type": "St"
+      },
+      {
+        "name": "x",
+        "type": "X_pause"
+      }
+    ],
+    "holds": {
+      "args": [
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "act": "chk_pause",
+                  "args": [
+                    {
+                      "var": "s"
+                    },
+                    {
+                      "var": "x"
+                    }
+                  ]
+                },
+                {
+                  "u32": 0
+                }
+              ],
+              "fn": "U32.is_eq"
+            }
+          ],
+          "fn": "Bool.not"
+        },
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "var": "x"
+                }
+              ],
+              "m": "x_pause_caller"
+            },
+            {
+              "args": [
+                {
+                  "var": "s"
+                }
+              ],
+              "m": "st_owner"
+            }
+          ],
+          "m": "w_eq"
+        }
+      ],
+      "fn": "Bool.or"
+    }
+  },
+  "template": "access"
+}
