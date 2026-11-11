@@ -290,7 +290,10 @@ class TestPins(unittest.TestCase):
         """B7 (I52-R5)."""
         prefixes = [f"results/M{i}/" for i in range(4)] + [f"gen/M{i}/" for i in range(4)] + \
             [f"spec/M{i}/" for i in range(4)] + ["laws/", "replay/", "audit/"]
-        changed = git("diff", "--name-only", BASE, "HEAD").split()
+        # I52's own commits: the non-merge commits of the first-parent history after BASE (a merge of the lead is not
+        # I52's change; amendment spec/M4/amendments/I52.jsonl)
+        own = git("rev-list", "--first-parent", "--no-merges", f"{BASE}..HEAD").split()
+        changed = sorted({f for c in own for f in git("diff-tree", "--no-commit-id", "--name-only", "-r", c).split()})
         self.assertEqual([p for p in changed if any(p.startswith(x) for x in prefixes)], [])
 
 
