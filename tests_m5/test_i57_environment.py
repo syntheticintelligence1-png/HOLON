@@ -259,7 +259,10 @@ class TestRegressions(unittest.TestCase):
                  "results/M5/definitions_base.json", "results/M5/l10_census_base.json", "tests_m5/_i54.py",
                  "tests_m5/_m5.py", "tests_m5/test_m5_definitions.py", "spec/M5/lib/environment_classes.json",
                  "spec/M5/lib/inputs.schema.json"]
-        self.assertEqual(git("diff", "--stat", base, "--", *paths).decode(), "")
+        # I57's own commits (first parent, no merges): a merged lead commit is not I57's (amendment I57.jsonl)
+        own = git("log", "--first-parent", "--no-merges", "--name-only", "--format=", f"{base}..HEAD", "--",
+                  *paths).decode().split()
+        self.assertEqual(sorted(set(own)), [])
         for args in (("audit", "prereg", "--milestone", "M5"), ("m5", "prereg", "--check"),
                      ("m5", "metrics", "--base", "--check")):
             r = holon(*args)
