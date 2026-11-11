@@ -572,10 +572,13 @@ class _Morph(unittest.TestCase):
         a PAR law of the sub-form init_chain over the versioned document; I24's checks are about I24's PAR laws. Amended
         at the I28 prereg, spec/M3/amendments.jsonl), those over a Go-op document (I67's, gen/M3/goops/; amended at
         the I67 prereg), those of sub-form link_domain (I84's, over I80's bundle declaration; amended at I84's build)
-        and those of the sub-form push (I86's, over a bundle member's document; amended at I86's build)."""
+        and those of the sub-form push (I86's, over a bundle member's document; amended at I86's build), and those of
+        the sub-forms constant_read and record_round_trip (I100's, over the codec document; amended at I100's
+        prereg)."""
         self.assertEqual(self.r.code, 0, self.r.log)
         return {k: v for k, v in self.r.law_docs().items()
-                if v.get("rule") == "PAR" and v.get("subform") not in ("init_chain", "link_domain", "push")
+                if v.get("rule") == "PAR" and v.get("subform") not in ("init_chain", "link_domain", "push",
+                                                                       "constant_read", "record_round_trip")
                 and not str(v.get("facts") or "").startswith("gen/M3/goops/")}
 
 
@@ -860,8 +863,9 @@ class TestDeriveM3(_Morph):
                 self.assertEqual(canonical_json(ls[lid]["statement"]), canonical_json(want["statement"]))
         goops = {p.stem for p in (ROOT / "gen" / "M3" / "goops").glob("*.json")}
         self.assertEqual(I.basis_rows([b for b in dv["par_basis"] if b["model"] not in goops]), I.basis_rows(exp["basis"]))
-        entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR"
-                   and e.get("subform") not in ("init_chain", "link_domain", "push")
+        entries = {e["law_id"]: e for e in dv["laws"] if e["rule"] == "PAR"   # I100's sub-forms too (amended)
+                   and e.get("subform") not in ("init_chain", "link_domain", "push", "constant_read",
+                                                "record_round_trip")
                    and not str(e.get("facts") or "").startswith("gen/M3/goops/")}
         self.assertEqual(sorted(entries), sorted(ls))
         for lid, e in entries.items():

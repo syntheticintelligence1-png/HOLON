@@ -1,0 +1,3521 @@
+{
+ "a2_version": "holon-audit-a2/0.1",
+ "attack": {
+  "auditor_type": "A2",
+  "category": "model_vs_code",
+  "evidence": [
+   "audit/rounds/M3/round9/a2.json",
+   "audit/rounds/M3/round9/a2_spec.json"
+  ],
+  "findings": [],
+  "id": "A2",
+  "result": "finding",
+  "run": true,
+  "tried": "`python -m holon audit hostile-input --milestone M3 --round 9 --spec audit/rounds/M3/round9/a2_spec.json`: 66 hostile input(s) of the auditor's choosing; 65 agree, 1 disagree, 0 unsupported (reasons in the record). Each disagreement is the auditor's to judge (the model or the code is wrong); file the real defects as findings and list their ids."
+ },
+ "cases": [
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb01_v0_ok",
+   "model": {
+    "events": 1,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x0111111111111111111111111111111111111111111111111111111111111111",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0x9d1fa656a58d409f39d8f8aa255e7e9b9ab1fe0c38a07f7296af55a86f1a362c"
+    }
+   },
+   "pre": [],
+   "real": {
+    "events": 1,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x0111111111111111111111111111111111111111111111111111111111111111",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0x9d1fa656a58d409f39d8f8aa255e7e9b9ab1fe0c38a07f7296af55a86f1a362c"
+    }
+   },
+   "slots_compared": 8,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb02_v1_ok",
+   "model": {
+    "events": 1,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x0111111111111111111111111111111111111111111111111111111111111111",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0xd77bf39cbcb61c11f9a60041bc910d44747f6bdbd83ecc354745581053f174e7"
+    }
+   },
+   "pre": [],
+   "real": {
+    "events": 1,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x0111111111111111111111111111111111111111111111111111111111111111",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0xd77bf39cbcb61c11f9a60041bc910d44747f6bdbd83ecc354745581053f174e7"
+    }
+   },
+   "slots_compared": 8,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb03_v2_two_blobs",
+   "model": {
+    "events": 1,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0xd068e50f54fea8dd4e8914b87162839b561cf3cc2e2de55e3a59d5bf83607e83",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0x8b08565a386f5ac16f857964c3b9c91da39b524f1be70514dbd061bb608b8ad5"
+    }
+   },
+   "pre": [],
+   "real": {
+    "events": 1,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0xd068e50f54fea8dd4e8914b87162839b561cf3cc2e2de55e3a59d5bf83607e83",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0x8b08565a386f5ac16f857964c3b9c91da39b524f1be70514dbd061bb608b8ad5"
+    }
+   },
+   "slots_compared": 8,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb04_v0_noblob",
+   "model": {
+    "events": 1,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0xaaa641565a9c48f71823b4b2b8b9489ca13e541e31e0e4cf02033e9360e014a4"
+    }
+   },
+   "pre": [],
+   "real": {
+    "events": 1,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0xaaa641565a9c48f71823b4b2b8b9489ca13e541e31e0e4cf02033e9360e014a4"
+    }
+   },
+   "slots_compared": 8,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb05_parent_trailing_byte",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+    "revert_key": [
+     "error",
+     "incorrect parent batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "incorrect parent batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb06_parent_short",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+    "revert_key": [
+     "error",
+     "batch header length too small"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "batch header length too small"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb07_parent_empty",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+    "revert_key": [
+     "error",
+     "Empty batch header"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "Empty batch header"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb08_parent_version3",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:844#0",
+    "revert_key": [
+     "error",
+     "Unsupported batch version"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "Unsupported batch version"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb09_parent_v1_249",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol:35#0",
+    "revert_key": [
+     "error",
+     "batch header length is incorrect"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "batch header length is incorrect"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb10_parent_v2_257",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+    "revert_key": [
+     "error",
+     "incorrect parent batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "incorrect parent batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb11_parent_v0_257",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+    "revert_key": [
+     "error",
+     "incorrect parent batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "incorrect parent batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb12_input_version3",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+    "revert_key": [
+     "error",
+     "invalid version"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "invalid version"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb13_input_version255",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:293#0",
+    "revert_key": [
+     "error",
+     "invalid version"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "invalid version"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb14_v2_no_blob",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:913#0",
+    "revert_key": [
+     "error",
+     "V2 requires at least 1 blob"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "V2 requires at least 1 blob"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb15_v1_two_blobs",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:915#0",
+    "revert_key": [
+     "error",
+     "legacy batches support exactly 1 blob"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "legacy batches support exactly 1 blob"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb16_prev_zero",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:294#0",
+    "revert_key": [
+     "error",
+     "previous state root is zero"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "previous state root is zero"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb17_post_zero",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:295#0",
+    "revert_key": [
+     "error",
+     "new state root is zero"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "new state root is zero"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb18_prev_wrong",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:314#0",
+    "revert_key": [
+     "error",
+     "incorrect previous state root"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "incorrect previous state root"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb19_l1msgs_empty_queue",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:937#0",
+    "revert_key": [
+     "error",
+     "message index out of range"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "message index out of range"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb20_lbn_max_v1",
+   "model": {
+    "events": 1,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x0111111111111111111111111111111111111111111111111111111111111111",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0x4b9a951272ff2b4d41b706e64a1564f3d0e74512bfabeef0e8f4956fe8b90ced"
+    }
+   },
+   "pre": [],
+   "real": {
+    "events": 1,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x0111111111111111111111111111111111111111111111111111111111111111",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0x4b9a951272ff2b4d41b706e64a1564f3d0e74512bfabeef0e8f4956fe8b90ced"
+    }
+   },
+   "slots_compared": 8,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb21_not_submitter",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+    "revert_key": [
+     "error",
+     "only active submitter allowed"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "only active submitter allowed"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb22_parent_wrong_index",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:312#0",
+    "revert_key": [
+     "error",
+     "incorrect batch index"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "incorrect batch index"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb23_twice",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:261#0",
+    "revert_key": [
+     "error",
+     "commitBatch requires no stored blob hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [
+    {
+     "action": "commitBatch",
+     "real": "ok"
+    }
+   ],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "commitBatch requires no stored blob hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb24_v2_one_zero_blob_gap",
+   "model": {
+    "events": 1,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x9f9c49663d0a365823b49fcb595132618d480d04751b0b06961b39337c629012",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0x0d46c25416f24a25dc88c1315b2f596f786eb660cc5bb1d7494e31a7e473aada"
+    }
+   },
+   "pre": [],
+   "real": {
+    "events": 1,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {
+     "0x000000000000000000000000000000000000000000000000000000000000009e": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x0c5aa3afb5d7178824cafae65209988ed5d90c8cfea91ab0c0520fab0ec88a65": "0x0000000000000000000000000000000000000000000000000000000000000065",
+     "0x6d38be70288fd8965f946447fa4742c638827ea58338f1ed9c279e2725f68028": "0x9f9c49663d0a365823b49fcb595132618d480d04751b0b06961b39337c629012",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9836": "0x000000000000000000000000000000000000000000000000000000006553f10a",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9837": "0x000000000000000000000000000000000000000000000000000000006553f132",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9838": "0x0000000000000000000000000000000000000000000000000000000000000001",
+     "0x87286cc7b9cf8a377e677776b2644ce858185998d33108f493bdc3c2f07b9839": "0x0000000000000000000000000000000000000000000000000000000000001002",
+     "0xf4875fff8b0cf986238a93aa5a1c4dd6cdbe2f1045b9974e1f43ef715569af66": "0x0d46c25416f24a25dc88c1315b2f596f786eb660cc5bb1d7494e31a7e473aada"
+    }
+   },
+   "slots_compared": 8,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb25_parent_header_v2_genesis_bytes",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:313#0",
+    "revert_key": [
+     "error",
+     "incorrect parent batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "incorrect parent batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "differ": [
+    "revert"
+   ],
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb26_raw_bytes_offset_oob",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+    "revert_key": [
+     "error",
+     "Empty batch header"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "raw",
+     "0x"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "disagree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb27_raw_truncated",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:120#0",
+    "revert_key": [
+     "raw",
+     "0x"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "raw",
+     "0x"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cb28_raw_dirty_version",
+   "model": {
+    "events": 0,
+    "guard": "commitBatch#contracts/contracts/l1/rollup/Rollup.sol:267#0",
+    "revert_key": [
+     "raw",
+     "0x"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "raw",
+     "0x"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitState",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cs01_no_stored_blob",
+   "model": {
+    "events": 0,
+    "guard": "commitState#contracts/contracts/l1/rollup/Rollup.sol:279#0",
+    "revert_key": [
+     "error",
+     "no stored blob hash for this batch"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "no stored blob hash for this batch"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "commitState",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "cs02_with_blob",
+   "model": {
+    "events": 0,
+    "guard": "commitState#contracts/contracts/l1/rollup/Rollup.sol:276#0",
+    "revert_key": [
+     "error",
+     "commitState must not carry blob"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "commitState must not carry blob"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "fb01_genesis",
+   "model": {
+    "events": 0,
+    "guard": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:636#0",
+    "revert_key": [
+     "panic",
+     17
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "panic",
+     17
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "fb02_trailing",
+   "model": {
+    "events": 0,
+    "guard": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0",
+    "revert_key": [
+     "error",
+     "incorrect batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "incorrect batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "fb03_one_byte",
+   "model": {
+    "events": 0,
+    "guard": "finalizeBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+    "revert_key": [
+     "error",
+     "batch header length too small"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "batch header length too small"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "fb04_empty",
+   "model": {
+    "events": 0,
+    "guard": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:825#0",
+    "revert_key": [
+     "error",
+     "Empty batch header"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "Empty batch header"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "fb05_v1_of_genesis",
+   "model": {
+    "events": 0,
+    "guard": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:629#0",
+    "revert_key": [
+     "error",
+     "incorrect batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "incorrect batch hash"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "finalizeBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "fb06_committed_in_window",
+   "model": {
+    "events": 0,
+    "guard": "finalizeBatch#contracts/contracts/l1/rollup/Rollup.sol:636#0",
+    "revert_key": [
+     "panic",
+     17
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [
+    {
+     "action": "commitBatch",
+     "real": "ok"
+    }
+   ],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "panic",
+     17
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "revertBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "rb01_genesis",
+   "model": {
+    "events": 0,
+    "guard": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:441#0",
+    "revert_key": [
+     "error",
+     "can only revert unFinalized batch"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "can only revert unFinalized batch"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "revertBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "rb02_count0",
+   "model": {
+    "events": 0,
+    "guard": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:431#0",
+    "revert_key": [
+     "error",
+     "count must be nonzero"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "count must be nonzero"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "revertBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "rb03_count_max",
+   "model": {
+    "events": 0,
+    "guard": "revertBatch#contracts/contracts/l1/rollup/Rollup.sol:441#0",
+    "revert_key": [
+     "error",
+     "can only revert unFinalized batch"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "can only revert unFinalized batch"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "revertBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "rb04_not_owner",
+   "model": {
+    "events": 0,
+    "guard": "revertBatch#@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:56#0",
+    "revert_key": [
+     "error",
+     "Ownable: caller is not the owner"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "Ownable: caller is not the owner"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "revertBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "rb05_short",
+   "model": {
+    "events": 0,
+    "guard": "revertBatch#contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:32#0",
+    "revert_key": [
+     "error",
+     "batch header length too small"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "batch header length too small"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "importGenesisBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "ig01_again",
+   "model": {
+    "events": 0,
+    "guard": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0",
+    "revert_key": [
+     "error",
+     "genesis batch imported"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "genesis batch imported"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "importGenesisBatch",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "ig02_v1",
+   "model": {
+    "events": 0,
+    "guard": "importGenesisBatch#contracts/contracts/l1/rollup/Rollup.sol:228#0",
+    "revert_key": [
+     "error",
+     "genesis batch imported"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "genesis batch imported"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "proveState",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "ps01_genesis",
+   "model": {
+    "events": 0,
+    "guard": "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+    "revert_key": [
+     "error",
+     "only active submitter allowed"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "only active submitter allowed"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "proveState",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "ps02_empty",
+   "model": {
+    "events": 0,
+    "guard": "proveState#contracts/contracts/l1/rollup/Rollup.sol:120#1",
+    "revert_key": [
+     "error",
+     "only active submitter allowed"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "only active submitter allowed"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "proveCommittedBatchState",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "pc01_genesis",
+   "model": {
+    "events": 0,
+    "guard": "proveCommittedBatchState#contracts/contracts/l1/rollup/Rollup.sol:779-784#0",
+    "revert_key": [
+     "error",
+     "invalid proof"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "invalid proof"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "challengeState",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "ch01_genesis",
+   "model": {
+    "events": 0,
+    "guard": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:476#0",
+    "revert_key": [
+     "error",
+     "batch already finalized"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "batch already finalized"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "challengeState",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "ch02_future",
+   "model": {
+    "events": 0,
+    "guard": "challengeState#contracts/contracts/l1/rollup/Rollup.sol:478#0",
+    "revert_key": [
+     "error",
+     "batch not exist"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": [
+     "error",
+     "batch not exist"
+    ],
+    "status": "revert",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "batchInsideChallengeWindow",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "bx01_batchInsideChallengeWindow",
+   "model": {
+    "events": 0,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "isBatchFinalized",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "bx01_isBatchFinalized",
+   "model": {
+    "events": 0,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "batchInsideChallengeWindow",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "bx02_batchInsideChallengeWindow",
+   "model": {
+    "events": 0,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "entry": {
+    "action": "isBatchFinalized",
+    "document": "spec/M2/facts/morph_rollup.extracted.json",
+    "kind": "action"
+   },
+   "id": "bx02_isBatchFinalized",
+   "model": {
+    "events": 0,
+    "guard": null,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {}
+   },
+   "pre": [],
+   "real": {
+    "events": 0,
+    "revert_key": null,
+    "status": "ok",
+    "writes": {}
+   },
+   "slots_compared": 0,
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 0,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_batch_RetrieveBlobBytes_zero",
+   "model": {
+    "cells_read": 4096,
+    "class": "ORet"
+   },
+   "real": {
+    "class": "ORet",
+    "detail": "ok"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 0,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_batch_RetrieveBlobBytes_hi0",
+   "model": {
+    "cells_read": 4096,
+    "class": "OErr"
+   },
+   "real": {
+    "class": "OErr",
+    "detail": "err:invalid blob, found non-zero high order byte 0 of field element 0"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 0,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_batch_RetrieveBlobBytes_hi_last",
+   "model": {
+    "cells_read": 4096,
+    "class": "OPanic"
+   },
+   "real": {
+    "class": "OPanic",
+    "detail": "panic:runtime error: index out of range [131040] with length 126976"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 1,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_batch_RetrieveBlobBytes_lo_last",
+   "model": {
+    "cells_read": 4096,
+    "class": "ORet"
+   },
+   "real": {
+    "class": "ORet",
+    "detail": "ok"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 31,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_batch_RetrieveBlobBytes_lo_all31",
+   "model": {
+    "cells_read": 4096,
+    "class": "ORet"
+   },
+   "real": {
+    "class": "ORet",
+    "detail": "ok"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 0,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_batch_RetrieveBlobBytes_hi_mid",
+   "model": {
+    "cells_read": 4096,
+    "class": "OErr"
+   },
+   "real": {
+    "class": "OErr",
+    "detail": "err:invalid blob, found non-zero high order byte 0 of field element 2048"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 1,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "batch_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_batch_RetrieveBlobBytes_lo_and_hi",
+   "model": {
+    "cells_read": 4096,
+    "class": "OPanic"
+   },
+   "real": {
+    "class": "OPanic",
+    "detail": "panic:runtime error: index out of range [131040] with length 126976"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 0,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_blob_RetrieveBlobBytes_zero",
+   "model": {
+    "cells_read": 4096,
+    "class": "ORet"
+   },
+   "real": {
+    "class": "ORet",
+    "detail": "ok"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 0,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_blob_RetrieveBlobBytes_hi0",
+   "model": {
+    "cells_read": 4096,
+    "class": "OErr"
+   },
+   "real": {
+    "class": "OErr",
+    "detail": "err:invalid blob, found non-zero high order byte 1 of field element 0"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 0,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_blob_RetrieveBlobBytes_hi_last",
+   "model": {
+    "cells_read": 4096,
+    "class": "OErr"
+   },
+   "real": {
+    "class": "OErr",
+    "detail": "err:invalid blob, found non-zero high order byte 80 of field element 4095"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 1,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_blob_RetrieveBlobBytes_lo_last",
+   "model": {
+    "cells_read": 4096,
+    "class": "ORet"
+   },
+   "real": {
+    "class": "ORet",
+    "detail": "ok"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 31,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_blob_RetrieveBlobBytes_lo_all31",
+   "model": {
+    "cells_read": 4096,
+    "class": "ORet"
+   },
+   "real": {
+    "class": "ORet",
+    "detail": "ok"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 0,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_blob_RetrieveBlobBytes_hi_mid",
+   "model": {
+    "cells_read": 4096,
+    "class": "OErr"
+   },
+   "real": {
+    "class": "OErr",
+    "detail": "err:invalid blob, found non-zero high order byte ff of field element 2048"
+   },
+   "verdict": "agree"
+  },
+  {
+   "bytes_the_model_does_not_read": 1,
+   "entry": {
+    "document": "gen/M3/goops/blob_ops.json",
+    "function": "blob_RetrieveBlobBytes",
+    "kind": "go"
+   },
+   "id": "go_blob_RetrieveBlobBytes_lo_and_hi",
+   "model": {
+    "cells_read": 4096,
+    "class": "OErr"
+   },
+   "real": {
+    "class": "OErr",
+    "detail": "err:invalid blob, found non-zero high order byte 1 of field element 4095"
+   },
+   "verdict": "agree"
+  }
+ ],
+ "milestone": "M3",
+ "round": 9,
+ "spec": {
+  "body": {
+   "cases": [
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb01_v0_ok"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 1,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb02_v1_ok"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 2,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111",
+       "0x0122222222222222222222222222222222222222222222222222222222222222"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb03_v2_two_blobs"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb04_v0_noblob"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb05_parent_trailing_byte"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb06_parent_short"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb07_parent_empty"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb08_parent_version3"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb09_parent_v1_249"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb10_parent_v2_257"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb11_parent_v0_257"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 3,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb12_input_version3"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 255,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb13_input_version255"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 2,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb14_v2_no_blob"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 1,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111",
+       "0x0122222222222222222222222222222222222222222222222222222222222222"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb15_v1_two_blobs"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb16_prev_zero"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb17_post_zero"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb18_prev_wrong"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 1,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb19_l1msgs_empty_queue"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 18446744073709551615,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 1,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb20_lbn_max_v1"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb21_not_submitter"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb22_parent_wrong_index"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb23_twice",
+     "pre": {
+      "calls": [
+       {
+        "action": "commitBatch",
+        "args": {
+         "batchDataInput": {
+          "lastBlockNumber": 1,
+          "numL1Messages": 0,
+          "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+          "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+          "version": 0,
+          "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+         }
+        },
+        "blobs": [
+         "0x0111111111111111111111111111111111111111111111111111111111111111"
+        ],
+        "caller": "0x0000000000000000000000000000000000001002"
+       }
+      ]
+     }
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 2,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111",
+       "0x0000000000000000000000000000000000000000000000000000000000000000",
+       "0x0122222222222222222222222222222222222222222222222222222222222222"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb24_v2_one_zero_blob_gap"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 2,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb25_parent_header_v2_genesis_bytes"
+    },
+    {
+     "call": {
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "calldata": "0x41f756da00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffff00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000650000000000000000000000000000000000000000000000000000000000000000",
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb26_raw_bytes_offset_oob"
+    },
+    {
+     "call": {
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000",
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb27_raw_truncated"
+    },
+    {
+     "call": {
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "calldata": "0x41f756da0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000065000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cb28_raw_dirty_version"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitState",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cs01_no_stored_blob"
+    },
+    {
+     "call": {
+      "args": {
+       "batchDataInput": {
+        "lastBlockNumber": 1,
+        "numL1Messages": 0,
+        "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+        "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "version": 0,
+        "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+       }
+      },
+      "blobs": [
+       "0x0111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "caller": "0x0000000000000000000000000000000000001002"
+     },
+     "entry": {
+      "action": "commitState",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "cs02_with_blob"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "finalizeBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "fb01_genesis"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c4440140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "finalizeBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "fb02_trailing"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x00"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "finalizeBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "fb03_one_byte"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "finalizeBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "fb04_empty"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "finalizeBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "fb05_v1_of_genesis"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "finalizeBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "fb06_committed_in_window",
+     "pre": {
+      "calls": [
+       {
+        "action": "commitBatch",
+        "args": {
+         "batchDataInput": {
+          "lastBlockNumber": 1,
+          "numL1Messages": 0,
+          "parentBatchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "postStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000065",
+          "prevStateRoot": "0x0000000000000000000000000000000000000000000000000000000000000064",
+          "version": 0,
+          "withdrawalRoot": "0x0000000000000000000000000000000000000000000000000000000000000000"
+         }
+        },
+        "blobs": [
+         "0x0111111111111111111111111111111111111111111111111111111111111111"
+        ],
+        "caller": "0x0000000000000000000000000000000000001002"
+       }
+      ]
+     }
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+       "_count": 1
+      },
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+     },
+     "entry": {
+      "action": "revertBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "rb01_genesis"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+       "_count": 0
+      },
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+     },
+     "entry": {
+      "action": "revertBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "rb02_count0"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+       "_count": 115792089237316195423570985008687907853269984665640564039457584007913129639935
+      },
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+     },
+     "entry": {
+      "action": "revertBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "rb03_count_max"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+       "_count": 1
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "revertBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "rb04_not_owner"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x00",
+       "_count": 1
+      },
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+     },
+     "entry": {
+      "action": "revertBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "rb05_short"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+     },
+     "entry": {
+      "action": "importGenesisBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "ig01_again"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c444014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+     },
+     "entry": {
+      "action": "importGenesisBatch",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "ig02_v1"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+       "_batchProof": "0x"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "proveState",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "ps01_genesis"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x",
+       "_batchProof": "0x"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "proveState",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "ps02_empty"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHeader": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010657f37554c781402a22917dee2f75def7ab966d7b770905398eba3c44401400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+       "_batchProof": "0x00"
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "proveCommittedBatchState",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "pc01_genesis"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+       "batchIndex": 0
+      },
+      "caller": "0x0000000000000000000000000000000000001004",
+      "value": 1000000000000000000
+     },
+     "entry": {
+      "action": "challengeState",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "ch01_genesis"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+       "batchIndex": 18446744073709551615
+      },
+      "caller": "0x0000000000000000000000000000000000001004",
+      "value": 1000000000000000000
+     },
+     "entry": {
+      "action": "challengeState",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "ch02_future"
+    },
+    {
+     "call": {
+      "args": {
+       "batchIndex": 0
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "batchInsideChallengeWindow",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "bx01_batchInsideChallengeWindow"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchIndex": 0
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "isBatchFinalized",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "bx01_isBatchFinalized"
+    },
+    {
+     "call": {
+      "args": {
+       "batchIndex": 115792089237316195423570985008687907853269984665640564039457584007913129639935
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "batchInsideChallengeWindow",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "bx02_batchInsideChallengeWindow"
+    },
+    {
+     "call": {
+      "args": {
+       "_batchIndex": 115792089237316195423570985008687907853269984665640564039457584007913129639935
+      },
+      "caller": "0x0000000000000000000000000000000000001005"
+     },
+     "entry": {
+      "action": "isBatchFinalized",
+      "document": "spec/M2/facts/morph_rollup.extracted.json",
+      "kind": "action"
+     },
+     "id": "bx02_isBatchFinalized"
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "batch_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_batch_RetrieveBlobBytes_zero",
+     "input": {
+      "set": []
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "batch_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_batch_RetrieveBlobBytes_hi0",
+     "input": {
+      "set": [
+       [
+        0,
+        1
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "batch_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_batch_RetrieveBlobBytes_hi_last",
+     "input": {
+      "set": [
+       [
+        131040,
+        128
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "batch_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_batch_RetrieveBlobBytes_lo_last",
+     "input": {
+      "set": [
+       [
+        131071,
+        255
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "batch_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_batch_RetrieveBlobBytes_lo_all31",
+     "input": {
+      "set": [
+       [
+        1,
+        255
+       ],
+       [
+        2,
+        255
+       ],
+       [
+        3,
+        255
+       ],
+       [
+        4,
+        255
+       ],
+       [
+        5,
+        255
+       ],
+       [
+        6,
+        255
+       ],
+       [
+        7,
+        255
+       ],
+       [
+        8,
+        255
+       ],
+       [
+        9,
+        255
+       ],
+       [
+        10,
+        255
+       ],
+       [
+        11,
+        255
+       ],
+       [
+        12,
+        255
+       ],
+       [
+        13,
+        255
+       ],
+       [
+        14,
+        255
+       ],
+       [
+        15,
+        255
+       ],
+       [
+        16,
+        255
+       ],
+       [
+        17,
+        255
+       ],
+       [
+        18,
+        255
+       ],
+       [
+        19,
+        255
+       ],
+       [
+        20,
+        255
+       ],
+       [
+        21,
+        255
+       ],
+       [
+        22,
+        255
+       ],
+       [
+        23,
+        255
+       ],
+       [
+        24,
+        255
+       ],
+       [
+        25,
+        255
+       ],
+       [
+        26,
+        255
+       ],
+       [
+        27,
+        255
+       ],
+       [
+        28,
+        255
+       ],
+       [
+        29,
+        255
+       ],
+       [
+        30,
+        255
+       ],
+       [
+        31,
+        255
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "batch_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_batch_RetrieveBlobBytes_hi_mid",
+     "input": {
+      "set": [
+       [
+        65536,
+        255
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "batch_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_batch_RetrieveBlobBytes_lo_and_hi",
+     "input": {
+      "set": [
+       [
+        1,
+        7
+       ],
+       [
+        131040,
+        1
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "blob_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_blob_RetrieveBlobBytes_zero",
+     "input": {
+      "set": []
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "blob_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_blob_RetrieveBlobBytes_hi0",
+     "input": {
+      "set": [
+       [
+        0,
+        1
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "blob_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_blob_RetrieveBlobBytes_hi_last",
+     "input": {
+      "set": [
+       [
+        131040,
+        128
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "blob_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_blob_RetrieveBlobBytes_lo_last",
+     "input": {
+      "set": [
+       [
+        131071,
+        255
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "blob_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_blob_RetrieveBlobBytes_lo_all31",
+     "input": {
+      "set": [
+       [
+        1,
+        255
+       ],
+       [
+        2,
+        255
+       ],
+       [
+        3,
+        255
+       ],
+       [
+        4,
+        255
+       ],
+       [
+        5,
+        255
+       ],
+       [
+        6,
+        255
+       ],
+       [
+        7,
+        255
+       ],
+       [
+        8,
+        255
+       ],
+       [
+        9,
+        255
+       ],
+       [
+        10,
+        255
+       ],
+       [
+        11,
+        255
+       ],
+       [
+        12,
+        255
+       ],
+       [
+        13,
+        255
+       ],
+       [
+        14,
+        255
+       ],
+       [
+        15,
+        255
+       ],
+       [
+        16,
+        255
+       ],
+       [
+        17,
+        255
+       ],
+       [
+        18,
+        255
+       ],
+       [
+        19,
+        255
+       ],
+       [
+        20,
+        255
+       ],
+       [
+        21,
+        255
+       ],
+       [
+        22,
+        255
+       ],
+       [
+        23,
+        255
+       ],
+       [
+        24,
+        255
+       ],
+       [
+        25,
+        255
+       ],
+       [
+        26,
+        255
+       ],
+       [
+        27,
+        255
+       ],
+       [
+        28,
+        255
+       ],
+       [
+        29,
+        255
+       ],
+       [
+        30,
+        255
+       ],
+       [
+        31,
+        255
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "blob_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_blob_RetrieveBlobBytes_hi_mid",
+     "input": {
+      "set": [
+       [
+        65536,
+        255
+       ]
+      ]
+     }
+    },
+    {
+     "entry": {
+      "document": "gen/M3/goops/blob_ops.json",
+      "function": "blob_RetrieveBlobBytes",
+      "kind": "go"
+     },
+     "id": "go_blob_RetrieveBlobBytes_lo_and_hi",
+     "input": {
+      "set": [
+       [
+        1,
+        7
+       ],
+       [
+        131040,
+        1
+       ]
+      ]
+     }
+    }
+   ],
+   "milestone": "M3",
+   "spec_version": "holon-audit-a2-spec/0.1"
+  },
+  "path": "audit/rounds/M3/round9/a2_spec.json",
+  "sha256": "204e1e2708526f1406d9a76160b4c3edf34d87e548879973b159edee1341fccc"
+ },
+ "summary": {
+  "agree": [
+   "bx01_batchInsideChallengeWindow",
+   "bx01_isBatchFinalized",
+   "bx02_batchInsideChallengeWindow",
+   "bx02_isBatchFinalized",
+   "cb01_v0_ok",
+   "cb02_v1_ok",
+   "cb03_v2_two_blobs",
+   "cb04_v0_noblob",
+   "cb05_parent_trailing_byte",
+   "cb06_parent_short",
+   "cb07_parent_empty",
+   "cb08_parent_version3",
+   "cb09_parent_v1_249",
+   "cb10_parent_v2_257",
+   "cb11_parent_v0_257",
+   "cb12_input_version3",
+   "cb13_input_version255",
+   "cb14_v2_no_blob",
+   "cb15_v1_two_blobs",
+   "cb16_prev_zero",
+   "cb17_post_zero",
+   "cb18_prev_wrong",
+   "cb19_l1msgs_empty_queue",
+   "cb20_lbn_max_v1",
+   "cb21_not_submitter",
+   "cb22_parent_wrong_index",
+   "cb23_twice",
+   "cb24_v2_one_zero_blob_gap",
+   "cb25_parent_header_v2_genesis_bytes",
+   "cb27_raw_truncated",
+   "cb28_raw_dirty_version",
+   "ch01_genesis",
+   "ch02_future",
+   "cs01_no_stored_blob",
+   "cs02_with_blob",
+   "fb01_genesis",
+   "fb02_trailing",
+   "fb03_one_byte",
+   "fb04_empty",
+   "fb05_v1_of_genesis",
+   "fb06_committed_in_window",
+   "go_batch_RetrieveBlobBytes_hi0",
+   "go_batch_RetrieveBlobBytes_hi_last",
+   "go_batch_RetrieveBlobBytes_hi_mid",
+   "go_batch_RetrieveBlobBytes_lo_all31",
+   "go_batch_RetrieveBlobBytes_lo_and_hi",
+   "go_batch_RetrieveBlobBytes_lo_last",
+   "go_batch_RetrieveBlobBytes_zero",
+   "go_blob_RetrieveBlobBytes_hi0",
+   "go_blob_RetrieveBlobBytes_hi_last",
+   "go_blob_RetrieveBlobBytes_hi_mid",
+   "go_blob_RetrieveBlobBytes_lo_all31",
+   "go_blob_RetrieveBlobBytes_lo_and_hi",
+   "go_blob_RetrieveBlobBytes_lo_last",
+   "go_blob_RetrieveBlobBytes_zero",
+   "ig01_again",
+   "ig02_v1",
+   "pc01_genesis",
+   "ps01_genesis",
+   "ps02_empty",
+   "rb01_genesis",
+   "rb02_count0",
+   "rb03_count_max",
+   "rb04_not_owner",
+   "rb05_short"
+  ],
+  "disagree": [
+   "cb26_raw_bytes_offset_oob"
+  ],
+  "unsupported": []
+ },
+ "target_commit": "da95f80f48aa04db53e439fe6cd5455a837768c8"
+}

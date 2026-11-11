@@ -1,0 +1,26 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "budget": {
+  "law_timeout_s": 1800,
+  "max_law_runs": 6
+ },
+ "note": "round 9 supplement to a1.json: mutant g7 (incomplete in pass 1, max_law_runs 0) re-run on the laws it should move, baseline and mutant",
+ "mutations": [
+  {
+   "id": "g7",
+   "file": "common/batch/batch_cache.go",
+   "edit": {
+    "line": 1728,
+    "old": "aggregateBlobHashes(blobHashes)",
+    "new": "blobHashes[0]"
+   },
+   "expect": "V2 header stores the first blob's versioned hash instead of the aggregated hash (semantic, below the encoder's record abstraction)",
+   "laws": [
+    "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+    "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2"
+   ]
+  }
+ ]
+}

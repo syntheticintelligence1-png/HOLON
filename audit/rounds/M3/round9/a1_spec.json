@@ -1,0 +1,181 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 0
+ },
+ "mutations": [
+  {
+   "id": "g1",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 143,
+    "old": "version >= BatchHeaderVersion2",
+    "new": "version > BatchHeaderVersion2"
+   },
+   "expect": "BlobCommitHash routes v2 to BlobVersionedHash (errors): the v2 BlobCommitHash round trips should move"
+  },
+  {
+   "id": "g2",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 189,
+    "old": "version < 1",
+    "new": "version < 2"
+   },
+   "expect": "LastBlockNumber rejects v1: the v1 LastBlockNumber round trip and v1 record laws should move"
+  },
+  {
+   "id": "g3",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 52,
+    "old": "len(b) != expectedLengthV2",
+    "new": "len(b) != expectedLengthV0"
+   },
+   "expect": "validate wants 249 bytes for v2: every v2 getter on a 257-byte header errors"
+  },
+  {
+   "id": "g4",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 256,
+    "old": "batchBytes[249:]",
+    "new": "batchBytes[241:]"
+   },
+   "expect": "V1.Bytes writes LastBlockNumber over the tail of ParentBatchHash: v1 ParentBatchHash/LastBlockNumber round trips should move"
+  },
+  {
+   "id": "g5",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 225,
+    "old": "copy(batchBytes[153:], b.WithdrawalRoot[:])",
+    "new": "_ = b.WithdrawalRoot"
+   },
+   "expect": "V0.Bytes forgets WithdrawalRoot (missing write): v0 WithdrawalRoot round trip and v0 record law should move"
+  },
+  {
+   "id": "g6",
+   "file": "common/batch/batch_cache.go",
+   "edit": {
+    "line": 1730,
+    "old": "h[0] = BatchHeaderVersion2",
+    "new": "h[0] = BatchHeaderVersion1"
+   },
+   "expect": "the V2 header carries version byte 1: the v2 constant read of Version should move"
+  },
+  {
+   "id": "g7",
+   "file": "common/batch/batch_cache.go",
+   "edit": {
+    "line": 1728,
+    "old": "aggregateBlobHashes(blobHashes)",
+    "new": "blobHashes[0]"
+   },
+   "expect": "V2 header stores the first blob's versioned hash instead of the aggregated hash (semantic, below the encoder's record abstraction)"
+  },
+  {
+   "id": "g8",
+   "file": "common/batch/encoding.go",
+   "edit": {
+    "line": 24,
+    "old": "blockContextBytes[:8]",
+    "new": "blockContextBytes[1:9]"
+   },
+   "expect": "HeightFromBlockContextBytes reads the wrong offset: L_par_gort_BuildBlockContext_HeightFromBlockContextBytes_* should move"
+  },
+  {
+   "id": "g9",
+   "file": "common/batch/batch_data.go",
+   "edit": {
+    "line": 41,
+    "old": "cks.l1TxNum += uint16(len(l1TxHashes))",
+    "new": "cks.l1TxNum += 1"
+   },
+   "expect": "Append counts calls, not L1 hashes: the l1TxHashes/l1TxNum branch law should move"
+  },
+  {
+   "id": "g10",
+   "file": "common/batch/batch_data.go",
+   "edit": {
+    "line": 126,
+    "old": "blobBytes := append(cks.txsPayload, txPayload...)",
+    "new": "blobBytes := append(append([]byte{}, cks.txsPayload...), txPayload...)"
+   },
+   "expect": "inverse mutant: removes the aliasing append; L_own_alias_batch_BatchData_TxsPayload_EstimateCompressedSizeWithNewPayload should move"
+  },
+  {
+   "id": "g11",
+   "file": "common/batch/blob.go",
+   "edit": {
+    "line": 48,
+    "old": "blob[i*32] != 0",
+    "new": "blob[i*32+1] != 0"
+   },
+   "expect": "RetrieveBlobBytes checks the wrong byte of each field element: blob_ops laws should move"
+  },
+  {
+   "id": "s1",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 351,
+    "old": "bytes32(0)",
+    "new": "batchDataInput.prevStateRoot"
+   },
+   "expect": "commit stores prevStateRoot as sequencerSetVerifyHash: the enc_sol SequencerSetVerifyHash constant reads and record laws should move"
+  },
+  {
+   "id": "s2",
+   "file": "contracts/contracts/l1/rollup/Rollup.sol",
+   "edit": {
+    "line": 353,
+    "old": "batchDataInput.version >= 1",
+    "new": "batchDataInput.version >= 2"
+   },
+   "expect": "commit forgets lastBlockNumber at v1: the enc_sol v1 LastBlockNumber round trip and v1 record law should move"
+  },
+  {
+   "id": "s3",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+   "edit": {
+    "line": 211,
+    "old": "add(batchPtr, 153)",
+    "new": "add(batchPtr, 152)"
+   },
+   "expect": "storeWithdrawRootHash one byte early (off-by-one): enc_sol WithdrawalRoot/PostStateRoot round trips should move"
+  },
+  {
+   "id": "s4",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+   "edit": {
+    "line": 35,
+    "old": "length == BATCH_HEADER_LENGTH",
+    "new": "length >= BATCH_HEADER_LENGTH"
+   },
+   "expect": "V1 loader accepts over-long headers: loader domain/totality laws should move"
+  },
+  {
+   "id": "s5",
+   "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+   "edit": {
+    "line": 267,
+    "old": "return block.timestamp;",
+    "new": "return 0;"
+   },
+   "expect": "getFirstUnfinalizedMessageEnqueueTime returns the sentinel 0 when nothing is pending: the sentinel_inv law should move"
+  },
+  {
+   "id": "s6",
+   "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+   "edit": {
+    "line": 304,
+    "old": "messageSendTimestamp[_xDomainCalldataHash] == 0",
+    "new": "messageSendTimestamp[_xDomainCalldataHash] >= 0"
+   },
+   "expect": "the duplicate-message guard of sendMessage is vacuous: a sendMessage sentinel law should move"
+  }
+ ],
+ "note": "round 9 pass 1: every mutant applied, re-extracted and re-derived; no law re-runs (max_law_runs 0). The mutants that no extraction or derivation detects are re-run on their target laws in the supplementary records a1_<id>.json."
+}

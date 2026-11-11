@@ -1,0 +1,47 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_Version_v2",
+  "milestone": "M3",
+  "notes": "PAR constant read (holon.rules.par_record): BatchHeaderBytes_Version reads 0x02 from BatchCache_createBatchHeaderWithSequencerSetHash's output at version 2, a constant of BatchCache_createBatchHeaderWithSequencerSetHash's layout",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.16",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "h",
+        "q": "forall",
+        "type": "BatchHeaderV1"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "var": "h"
+                }
+              ],
+              "call": "BatchCache_createBatchHeaderWithSequencerSetHash"
+            }
+          ],
+          "call": "BatchHeaderBytes_Version"
+        },
+        {
+          "some": {
+            "bytes": "0x02"
+          }
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "constant_read"
+}

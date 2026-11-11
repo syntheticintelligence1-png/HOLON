@@ -1,0 +1,8 @@
+# Round 8 (M3), A5: the keccak256 entries of results/M3/L*.json re-hashed with golang.org/x/crypto/sha3 (v0.21.0) NewLegacyKeccak256, independently of holon/keccak.py.
+# build: a scratch module with a5_keccak.go and 'require golang.org/x/crypto v0.21.0' (GOFLAGS=-mod=mod GOPROXY=off GOSUMDB=off, from the local module cache)
+$ python audit/rounds/M3/round8/a5_keccak_entries.py hashes | ./kk
+17 entries, 0 mismatches
+$ python audit/rounds/M3/round8/a5_keccak_entries.py tables | ./kk
+39 entries, 0 mismatches
+$ python -m holon audit oracles --milestone M3 --json   # O3
+{"entries": 383, "mismatches": [], "oracles": {"keccak256": 383}} {"keccak256": {"constrained": 1, "laws": 89, "type": "Fn<Bytes,Word>"}} hypotheses {}
