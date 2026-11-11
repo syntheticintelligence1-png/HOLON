@@ -1,7 +1,8 @@
 """python -m holon eval baselines <command> (I52; spec/M4/lib/I52_baselines.json)
 
   budget  --measurement FILE          write results/eval/holon_budget.json (holon_budget.morph's rule) from the M3 gate's
-                                      measurement (argv, exit, wall_s, cpu_s) and the base's recorded M0-M2 timings
+                                      measurement (argv, exit, wall_s, cpu_s) and the base's recorded M0-M2 timings;
+          [--report R --failed-checks G1,..]  a failed run is accepted only when its failing checks are exactly these
   run     --system S [--baseline B ...] [--target T ...] [--jobs N] [--force]
                                       run the tool baselines (not agent_review) at the system's budget, one core each
   agent   --system S --model NAME     the one fresh reviewer of the system
@@ -43,8 +44,16 @@ def _tool_info(b: str) -> dict:
 # ------------------------------------------------------------------------------------------------- budget
 def cmd_budget(a) -> int:
     m = core.load(a.measurement)
+    failed, details = [], {}
     if m.get("exit") != 0:
-        raise common.Refused("the M3 gate measurement did not pass (exit != 0); HOLON's budget is not measured")
+        if not a.report or not a.failed_checks:
+            raise common.Refused("the M3 gate measurement did not pass (exit != 0); name its report and the checks "
+                                 "allowed to fail (--report, --failed-checks)")
+        rep = core.load(a.report)
+        failed = sorted(k for k, v in rep["checks"].items() if not v["passed"])
+        if failed != sorted(a.failed_checks.split(",")):
+            raise common.Refused(f"the gate's failing checks are {failed}, not {a.failed_checks}")
+        details = {k: rep["checks"][k]["detail"] for k in failed}
     base = {}
     for i in range(3):
         p = subprocess.run(["git", "-C", str(core.ROOT), "show", f"4fd64a52:results/M{i}/metrics_timing.json"],
@@ -61,7 +70,8 @@ def cmd_budget(a) -> int:
            **base, "m3_s": m["wall_s"], "m3_cpu_s": m["cpu_s"], "sum_s": round(h, 3),
            f"{s}_wall_s": core.rule_wall_s(h),
            "m3_measurement": {"argv": ["python", "-m", "holon", "gate", "--milestone", "M3", "--root", "<scratch copy>"],
-                              "exit": m["exit"], "wall_s": m["wall_s"], "cpu_s": m["cpu_s"]}}
+                              "exit": m["exit"], "wall_s": m["wall_s"], "cpu_s": m["cpu_s"],
+                              "failed_checks": failed, "failed_details": details}}
     p = core.holon_budget_path()
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(common.dumps(doc))
@@ -239,6 +249,7 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="holon eval baselines")
     sp = ap.add_subparsers(dest="cmd", required=True)
     p = sp.add_parser("budget"); p.add_argument("--measurement", required=True)
+    p.add_argument("--report"); p.add_argument("--failed-checks")
     p = sp.add_parser("run"); p.add_argument("--system", required=True); p.add_argument("--baseline", nargs="*")
     p.add_argument("--target", nargs="*"); p.add_argument("--jobs", type=int, default=3); p.add_argument("--force", action="store_true")
     p = sp.add_parser("agent"); p.add_argument("--system", required=True); p.add_argument("--model", required=True)
