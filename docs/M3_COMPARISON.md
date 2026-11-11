@@ -156,4 +156,4 @@ None.
 | `spec/M1/predictions.json` | `a500eeac89c4cd4a17b1e1aaf8bc86ce93170e137fdbe7f865716839fdcb7ca8` |
 | `spec/M3/lib/appendixA.json` | `ac4cf55ea9937eb04c1ee805be83316c89df891542e46dca72d98aa3b1141599` |
 | `spec/ledger/maps_to.json` | `0e9fdbfc51d5fa1dba15d88e3e4bf2137060e6954ea3c8e9f15ebcffc24cff94` |
-| `whitepaper.md` | `54b95c9f87aad20928bc0719210a83cce28c2b10055f5b8f7f7af6cf66ec9d22` |
+| `whitepaper.md` | `0fea61b92503883c75bc8895b9de9958bbdd69b3ad40f1edb5170406f86a96ae` |

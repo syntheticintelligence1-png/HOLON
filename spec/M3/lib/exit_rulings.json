@@ -1,0 +1,27 @@
+{
+ "doc": "The human's rulings on clauses of the M3 exit (spec/M3/lib/blind_rerun.json, exit.clauses E1-E5), for the M3 exit record. A clause listed here holds by the human's adjudication of the named record, not by its instrument. Every report of the exit states that. The adjudication is bound to the record by its sha256: a different record is scored afresh. The instruments, the records and the iteration reports stay as written.",
+ "rulings_version": "holon-exit-rulings/0.1",
+ "clauses": {
+  "E5": {
+   "clause": "the reads check passes (the run is blind)",
+   "holds": true,
+   "by": "adjudication",
+   "ruling": "HUMAN_ANSWERS Q43",
+   "source": "docs/HUMAN_ANSWERS.md, row Q43 (the human, 2026-11-11, confirmed directly in the lead's session)",
+   "record": "audit/blind/I96/session/run.json",
+   "record_sha256": "b2cede3a4f7583f08474ccd0c17bbf75deeb4ffd7171a890e5e880d68fdea7d3",
+   "scorers": {
+    "preregistered": {
+     "instrument": "tests_m3/_i46.py::calls_problems",
+     "problems": 19
+    },
+    "amended": {
+     "instrument": "tests_m3/_i46_reads.py::reads_problems",
+     "problems": 3
+    }
+   },
+   "words": "the 3 hits left by the amended reads scorer are harmless (config-path edits and path-shaped substrings, a `sleep; cd W`, and two `ps` listings showing only the session's own processes). The reads check passes.",
+   "disclosure": "E5 holds by the human's adjudication of I96's reads check, not by either scorer. The preregistered scorer still reports 19 problems and the amended one 3. The human judged them harmless: the config/holon.json edits that move its target paths into W, path-shaped substrings of commands run inside W, a `sleep 60; cd W && ...`, and two `ps` listings of the session's own processes."
+  }
+ }
+}
