@@ -153,6 +153,15 @@ jobs:
             # the finding names have their premises (B4); this job runs the module (B5).
             timeout: 60
             run: python -m unittest tests_m3.test_g9_i99.TestBuild -v
+          - name: tests-m3-par-record
+            # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
+            # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an
+            # m06-like plant obstruct, or shrink the family, as computed (B3); a conjunction decides by Bend, a planted
+            # wrong constant REFUTED on that conjunct (B4); the back-test pairs L_rt_go_vN by the record map (B5); no
+            # target name in the lines I100 adds under holon/ (B6); deterministic (B7); this job (B8). B0, the human's
+            # admission, is TestAdmission and is not run here.
+            timeout: 60
+            run: python -m unittest tests_m3.test_par_record_i100.TestBuild -v
           - name: gate-M3-G2
             # F38: each gate re-runs only its own milestone's binding_change proofs in the two kernels, so M3's are
             # re-run here, once per CI run, in a job of their own (gate-M3-partial is red until G11V passes, Q36).
