@@ -1,0 +1,64 @@
+{
+ "kernels": [
+  {
+   "name": "bend2",
+   "result": "checked",
+   "role": "primary",
+   "version": "2.0.36"
+  },
+  {
+   "name": "bendtt",
+   "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+   "result": "checked",
+   "role": "second",
+   "shares_frontend_with": "bend2",
+   "version": "2.0.36"
+  }
+ ],
+ "law": "L_disch_blk_rollup_228_79cc3e9a_onlyOwner",
+ "non_vacuity": {
+  "bound": "a reachable state of 1 steps where B holds at t, and finalizeBatch",
+  "degenerate": false,
+  "law": "gen/M3/L_disch_blk_rollup_228_79cc3e9a_onlyOwner/nonvac/LAWS.bend",
+  "parent_statement_hash": "sha256:8a7fc124496a3567ec40723965a050c4fa1fd5487d2bc75f13c507755a0ccfcd",
+  "reachable": true,
+  "status": "inhabited",
+  "witness": {
+   "hashes": {
+    "keccak256": []
+   },
+   "steps": [
+    {
+     "action": "setPause",
+     "args": {
+      "_status": true
+     },
+     "calldata": "0xbedb86fb0000000000000000000000000000000000000000000000000000000000000001",
+     "env": {
+      "blobhash": [],
+      "block.timestamp": 1700000010,
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496",
+      "calls": [],
+      "msg.value": 0
+     }
+    },
+    {
+     "action": "finalizeBatch",
+     "args": {
+      "_batchHeader": "0x"
+     },
+     "calldata": "0x1336110100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
+     "env": {
+      "blobhash": [],
+      "block.timestamp": 1700000010,
+      "caller": "0x0000000000000000000000000000000000001002",
+      "calls": [],
+      "msg.value": 0
+     }
+    }
+   ],
+   "t": 1700000010
+  }
+ },
+ "status": "PROVED"
+}
