@@ -126,7 +126,7 @@ r = {"round": 6, "milestone": "M3", "target_commit": C, "round_version": "holon-
   "F-M3-11's cause (model_call evaluates the model with no arguments) in the opposite direction (calldata solc rejects, not "
   "calldata solc accepts); F-M3-26 overlaps F-M3-01 (the D2 inhabitant) and F-M3-21 (which notes the blob guard makes the law "
   "hold), its new part being that the PROVED status at the target is independent of the commitment premise; F-M3-24 and F-M3-27 "
-  "have no earlier counterpart. A4's representatives answer F-M3-04: its three laws have checked non-initial inhabitants "
+  "have no earlier counterpart. A4's representatives answer F-M3-04 (its three laws) and the DISCH half of F-M3-01 (L_disch_rev_rollup_228_79cc3e9a): each has a checked non-initial inhabitant "
   "(a4_reps/). The auditor leaves every status open for the lead's triage.")}
 json.dump(r, open(f"{R}.json", "w"), indent=1, ensure_ascii=False)
 open(f"{R}.json", "a").write("\n")
