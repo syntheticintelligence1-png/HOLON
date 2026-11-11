@@ -216,9 +216,9 @@ def _intent(family: str, wrong: bool, n: int) -> dict:
     elif family == "access":
         clause = "@notice Only the owner can pause the contract."
         check = "" if wrong else "        require(msg.sender == owner);\n"
-        body = (f"contract {name} {{\n    address public owner;\n    bool public paused;\n\n"
+        body = (f"contract {name} {{\n    address public owner;\n    bool public stopped;\n\n"
                 f"    constructor() {{\n        owner = msg.sender;\n    }}\n\n    /// {clause}\n"
-                f"    function pause() external {{\n{check}        paused = true;\n    }}\n}}\n")
+                f"    function pause() external {{\n{check}        stopped = true;\n    }}\n}}\n")
         why = "pause has no owner check" if wrong else "pause checks the owner"
     elif family == "monotone":
         clause = "@notice The count never decreases."

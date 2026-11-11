@@ -90,7 +90,7 @@ PINNED = {
     "spec/M5/lib/truth_prompt.md": "75a1445a7f17f325047f222ad3cc92bfee9ea55344a4fbc2612a54e1ba17f762",
     "spec/M5/lib/truth_protocol.json": "015ea6d9641ca5690835615e8704dc1e16e8b23edec588e0c7bc749a6a758930",
     "tests_m5/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "tests_m5/_i54.py": "fc8fa5b9c689a770b0b4df1a6d8f3016f99b2af408d55c7cc68771ba3811228c",
+    "tests_m5/_i54.py": "024caa738f1280680bc41a5050f262162cf8f94988c3dc1196e74757bb6721e3",
     "tests_m5/_m5.py": "32f96f8b4fa27aa266ab9f4e443cc10fa5c54c8c83bae5a0fa21dceb4fde90d6",
 }
 

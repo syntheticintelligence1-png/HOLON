@@ -74,6 +74,8 @@
                          [--gen-dir DIR] [--laws ID,..]   (the refutation engines, concretization, filter; I40)
   python -m holon eval <command> ...                   (I48: the evaluation corpus, the renaming tool and the
                                                         controls; holon.eval.cli lists the commands)
+  python -m holon m5 prereg|controls|census|metrics ... (I54: the L6, L9 and L10 definitions and their computation;
+                                                        holon.m5.cli lists the commands)
   python -m holon mutate list|sheet|project|replay|gate|run|rate ...   (I61: A1 mutation adequacy on real code;
                                                         holon.mutate.cli lists the commands)
   python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
@@ -252,6 +254,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["eval"]:  # likewise for holon.eval.cli (I48)
         from .eval import cli as eval_cli
         return eval_cli.main(argv[1:])
+    if argv[:1] == ["m5"]:  # likewise for holon.m5.cli (I54)
+        from .m5 import cli as m5_cli
+        return m5_cli.main(argv[1:])
     if argv[:1] == ["lean"]:  # likewise for holon.lean
         from . import lean
         return lean.main(argv[1:])
