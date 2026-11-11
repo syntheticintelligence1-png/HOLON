@@ -41,6 +41,39 @@ GO = ("go_fuzz", "two_cycle")
 WINDOW = 10
 MAX_SPAN = 150
 SCHEMA = "holon-baseline-findings/0.1"
+# I52b: the held-out system, enabled by its own instrument (never named here: its repository, commit, target name,
+# labelled files and labels are the instrument's). TIER selects its budget (primary: the lead's rule; secondary: the
+# instrument's fixed larger one); the raw records, adjudications and results of each tier are kept apart.
+HELDOUT = "heldout"
+HELDOUT_PATH = LIB / "I52b_heldout.json"
+TIERS = ("primary", "secondary")
+TIER = "primary"
+
+
+def set_tier(tier: str) -> None:
+    global TIER
+    if tier not in TIERS:
+        raise common.Refused(f"unknown budget tier {tier}")
+    TIER = tier
+
+
+def heldout() -> dict:
+    if not HELDOUT_PATH.is_file():
+        raise common.Refused("the held-out system is pending: its instrument (spec/M4/lib/I52b_heldout.json) does not exist")
+    return load(HELDOUT_PATH)
+
+
+def heldout_labels() -> dict:
+    return load(ROOT / heldout()["labels"]["file"])["labels"]
+
+
+def tiered(system: str) -> str:
+    """The name the system's raw records, adjudications and reviewer records are kept under (one per budget tier)."""
+    return system if system != HELDOUT or TIER == "primary" else f"{system}.{TIER}"
+
+
+def results_dir(system: str) -> Path:
+    return RESULTS / system if system != HELDOUT or TIER == "primary" else RESULTS / system / TIER
 
 
 def load(p):
@@ -86,7 +119,19 @@ def holon_budget_path() -> Path:
     return RESULTS / "holon_budget.json"
 
 
+def heldout_budget_path() -> Path:
+    return RESULTS / HELDOUT / "holon_budget.json"
+
+
 def budget(system: str) -> dict:
+    if system == HELDOUT:
+        b = heldout()["budget"][TIER]
+        if TIER == "primary":
+            hb = load(heldout_budget_path()) if heldout_budget_path().is_file() else {}
+            if "heldout_wall_s" not in hb:
+                raise common.Refused("the held-out primary budget waits for its HOLON measurement (budget-heldout)")
+            return {"wall_s": hb["heldout_wall_s"], "cpus": b["cpus"], "setup_cap_s": b["setup_cap_s"]}
+        return {"wall_s": b["wall_s"], "cpus": b["cpus"], "setup_cap_s": b["setup_cap_s"]}
     b = dict(protocol()["budget"][system])
     if "wall_s_rule" in b:
         hb = load(holon_budget_path()) if holon_budget_path().is_file() else {}
@@ -107,12 +152,16 @@ def targets(system: str) -> list[str]:
         return list(protocol()["systems"][system]["targets"])
     if system == "corpus":
         return [e["id"] for e in entries()]
-    raise common.Refused("the held-out system is pending I49/I50; this session never reads spec/heldout/")
+    if system == HELDOUT:
+        return [heldout()["system"]["target"]]
+    raise common.Refused(f"unknown system {system}")
 
 
 def labelled_files(system: str, target: str) -> list[str]:
     if pinned(system):
         return sorted({a["file"] for o in anchors().values() for a in o["anchors"]})
+    if system == HELDOUT:
+        return list(heldout()["system"]["labelled_files"])
     return list(entry(target)["files"])
 
 
@@ -125,7 +174,7 @@ def is_test(path: str) -> bool:
 
 
 def languages(system: str, target: str) -> set:
-    if pinned(system):
+    if pinned(system) or system == HELDOUT:
         return {"go" if f.endswith(".go") else "solidity" for f in labelled_files(system, target)}
     return set(entry(target)["languages"])
 
@@ -169,6 +218,8 @@ def target_lock(system: str, target: str) -> threading.RLock:
 def commit_of(system: str, target: str) -> str:
     if pinned(system):
         return load(ANCHORS_PATH)["commit"]
+    if system == HELDOUT:
+        return heldout()["system"]["commit"]
     return entry(target)["prefix_commit"]
 
 
@@ -184,8 +235,13 @@ def checkout(system: str, target: str) -> Path:
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.rmtree(dest, ignore_errors=True)
         sha = commit_of(system, target)
-        if pinned(system):
-            pin = config()["replay"][system]
+        if pinned(system) or system == HELDOUT:
+            if system == HELDOUT:
+                pin = config()
+                for k in heldout()["system"]["checkout_config"]:
+                    pin = pin[k]
+            else:
+                pin = config()["replay"][system]
             common.git(dest.parent, "clone", "-q", "--shared", "--no-checkout", pin, str(dest))
             common.git(dest, "checkout", "-q", "--detach", sha)
         else:
@@ -393,6 +449,12 @@ def located(system: str, target: str, f: dict) -> list[str]:
             if any(l["file"] == a["file"] and _meets(l["lines"], *a["lines"]) for a in o["anchors"] for l in f["locations"]):
                 out.append(oid)
         return sorted(out, key=lambda k: int(k[1:]))
+    if system == HELDOUT:
+        files = set(labelled_files(system, target))
+        out = [lab for lab, v in heldout_labels().items()
+               if any(l["file"] in files and l["file"] == a["file"] and _meets(l["lines"], *a["lines"])
+                      for a in v["anchors"] for l in f["locations"])]
+        return sorted(out, key=lambda k: int(k[1:]))
     e = entry(target)
     for l in f["locations"]:
         if l["file"] in e["files"] and any(_meets(l["lines"], x - WINDOW, x + WINDOW) for x in fix_lines(e, l["file"])):
@@ -406,7 +468,7 @@ def label_key(k: str):
 
 # ------------------------------------------------------------------------------------------------- raw records
 def raw_path(system: str, baseline: str, target: str) -> Path:
-    return RAW / system / baseline / f"{target}.json"
+    return RAW / tiered(system) / baseline / f"{target}.json"
 
 
 def write_raw(system: str, baseline: str, target: str, rec: dict) -> None:

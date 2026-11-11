@@ -8,7 +8,10 @@
   agent   --system S --model NAME     the one fresh reviewer of the system
   adjudicate --system S --model NAME  the blinded match adjudicator over every located group not yet adjudicated
   assemble --system S [--check]       results/eval/<system>/<baseline>.json and .timing.json from the raw records
-  heldout                             the held-out run, one command once I50 lands (refused until then)
+  budget-heldout                      I52b: write results/eval/heldout/holon_budget.json, the primary budget's rule over
+                                      I50's route measured on a scratch copy (spec/M4/lib/I52b_heldout.json budget.primary)
+  --tier primary|secondary            I52b: the held-out system's budget tier (run, agent, adjudicate, assemble); the
+                                      secondary tier's records and results are kept apart (results/eval/heldout/secondary/)
 
 Raw records live under ~/.holon/eval/baselines/ (outside the repository); assemble is deterministic over them.
 """
@@ -158,7 +161,7 @@ def _record(system, b, t):
             matches.append({"finding": f["id"], "label": lab, "how": "location"})
     located = sorted({m["label"] for m in matches}, key=core.label_key)
     adj = []
-    store = ADJ / system / b / f"{t}.json"
+    store = ADJ / core.tiered(system) / b / f"{t}.json"
     have = core.load(store) if store.is_file() else {}
     for lab in located:
         ids = sorted(m["finding"] for m in matches if m["label"] == lab)
@@ -203,6 +206,8 @@ def pending_groups(system):
 def cmd_adjudicate(a) -> int:
     groups = pending_groups(a.system)
     print(f"{len(groups)} groups to adjudicate", flush=True)
+    if a.system == core.HELDOUT:
+        return _adjudicate_heldout(a, groups)
 
     def go(g):
         b, t, lab, fs = g
@@ -219,8 +224,75 @@ def cmd_adjudicate(a) -> int:
     return 0
 
 
+def _adjudicate_heldout(a, groups) -> int:
+    """I52b: an action's five labels share their located findings, so one process answers for all five (per rule)."""
+    labs = core.heldout_labels()
+    by = {}
+    for b, t, lab, fs in groups:
+        k = (b, t, labs[lab]["action"], tuple(f["id"] for f in fs))
+        by.setdefault(k, (fs, {}))[1][labs[lab]["rule"]] = lab
+
+    def go(item):
+        (b, t, action, _), (fs, rules) = item
+        return b, t, action, agent.adjudicate_heldout(action, rules, fs, a.model)
+    with ThreadPoolExecutor(max_workers=a.jobs) as ex:
+        for b, t, action, res in ex.map(go, sorted(by.items())):
+            store = ADJ / core.tiered(a.system) / b / f"{t}.json"
+            store.parent.mkdir(parents=True, exist_ok=True)
+            have = core.load(store) if store.is_file() else {}
+            have.update(res)
+            store.write_text(json.dumps(have, indent=1, sort_keys=True))
+            print(f"{b}/{t}/{action}: confirmed " + ", ".join(f"{k} {v['confirmed']}" for k, v in sorted(res.items())),
+                  flush=True)
+    return 0
+
+
+def cmd_budget_heldout(a) -> int:
+    """I52b: H = the wall clock of I50's route (holon target derive, then holon target run) on a scratch copy of the
+    repository, from the committed held-out document; written before any held-out baseline result."""
+    import os
+    import shutil
+    import tempfile
+    import time
+    if core.heldout_budget_path().is_file() and not a.force:
+        raise common.Refused(f"{core.heldout_budget_path()} exists (--force to re-measure before any baseline result)")
+    t = core.targets(core.HELDOUT)[0]
+    scratch = Path(tempfile.mkdtemp(prefix="i52b-budget-")) / "repo"
+    shutil.copytree(core.ROOT, scratch, ignore=shutil.ignore_patterns(".git", "__pycache__"), symlinks=True)
+    steps = []
+    try:
+        for c in ("derive", "run"):
+            argv = [sys.executable, "-m", "holon", "target", c, "--target", t, "--root", str(scratch)]
+            t0 = time.monotonic()
+            r0 = os.times()
+            p = subprocess.run(argv, cwd=str(scratch), capture_output=True, text=True,
+                               env={**os.environ, "BEND_NO_TELEMETRY": "1"})
+            wall = time.monotonic() - t0
+            r1 = os.times()
+            steps.append({"argv": ["python", "-m", "holon", "target", c, "--target", t, "--root", "<scratch copy>"],
+                          "exit": p.returncode, "wall_s": round(wall, 3),
+                          "cpu_s": round((r1.children_user - r0.children_user) + (r1.children_system - r0.children_system), 3),
+                          "stdout_tail": (p.stdout or "")[-600:], "stderr_tail": (p.stderr or "")[-600:]})
+            print(f"{c}: exit {p.returncode}, {wall:.3f} s", flush=True)
+    finally:
+        shutil.rmtree(scratch.parent, ignore_errors=True)
+    h = round(sum(s["wall_s"] for s in steps), 3)
+    doc = {"doc": "I52b: HOLON's own budget on the held-out system (spec/M4/lib/I52_baselines.json holon_budget.heldout, "
+                  "'I50's recorded wall clock'; spec/M4/lib/I52b_heldout.json budget.primary). I50 recorded no wall "
+                  "clock, so its route was measured on this machine on a scratch copy of the repository, from the "
+                  "committed held-out document, before any baseline result of the system: holon target derive, then "
+                  "holon target run. heldout_wall_s = 60 * ceil(sum_s / 60) is every baseline's primary wall clock.",
+           "steps": steps, "sum_s": h, "heldout_wall_s": core.rule_wall_s(h),
+           "cpu_s": round(sum(s["cpu_s"] for s in steps), 3)}
+    p = core.heldout_budget_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(common.dumps(doc))
+    print(f"holon budget (held-out): sum {h:.3f} s -> wall_s {doc['heldout_wall_s']}")
+    return 0
+
+
 def cmd_assemble(a) -> int:
-    out_dir = core.RESULTS / a.system
+    out_dir = core.results_dir(a.system)
     ok = True
     for b in core.BASELINES:
         targets, timing = {}, {}
@@ -236,7 +308,7 @@ def cmd_assemble(a) -> int:
         tm = {"system": a.system, "baseline": b, "note": "timings only (wall clock and CPU of each unit, setup "
               "outside the budget); never compared for determinism", "targets": timing}
         if b == "agent_review":
-            rp = core.HOME / "agent" / f"{a.system}.json"
+            rp = agent.reviewer_path(a.system)
             if rp.is_file():
                 rr = core.load(rp)
                 tm["reviewers"] = [{"wall_s": rr["wall_s"], "budget_s": rr["budget_s"], "cpu_s": None,
@@ -257,6 +329,7 @@ def main(argv: list[str]) -> int:
     sp = ap.add_subparsers(dest="cmd", required=True)
     p = sp.add_parser("budget"); p.add_argument("--measurement", required=True)
     p.add_argument("--report"); p.add_argument("--failed-checks")
+    p = sp.add_parser("budget-heldout"); p.add_argument("--force", action="store_true")
     p = sp.add_parser("run"); p.add_argument("--system", required=True); p.add_argument("--baseline", nargs="*")
     p.add_argument("--target", nargs="*"); p.add_argument("--jobs", type=int, default=3); p.add_argument("--force", action="store_true")
     p = sp.add_parser("agent"); p.add_argument("--system", required=True); p.add_argument("--model", required=True)
@@ -264,13 +337,19 @@ def main(argv: list[str]) -> int:
     p.add_argument("--jobs", type=int, default=4)
     p = sp.add_parser("assemble"); p.add_argument("--system", required=True); p.add_argument("--check", action="store_true")
     sp.add_parser("heldout")
+    for name in ("run", "agent", "adjudicate", "assemble"):
+        sp.choices[name].add_argument("--tier", choices=core.TIERS, default="primary")
     a = ap.parse_args(argv)
-    if getattr(a, "system", None) == "heldout" or a.cmd == "heldout":
-        raise common.Refused("the held-out system is pending: it waits for I49/I50 and this command never reads "
-                             "spec/heldout/ until I50's labels and scope exist (then: run, agent, adjudicate, assemble "
-                             "with --system heldout)")
+    if a.cmd == "heldout":
+        raise common.Refused("the held-out run is: budget-heldout, then run, agent, adjudicate and assemble with "
+                             "--system heldout [--tier secondary]")
+    if getattr(a, "system", None) == core.HELDOUT or a.cmd == "budget-heldout":
+        core.heldout()  # refuses until I52b's instrument exists
+    if getattr(a, "tier", "primary") != "primary" and a.system != core.HELDOUT:
+        raise common.Refused("--tier applies to the held-out system only")
+    core.set_tier(getattr(a, "tier", "primary"))
     return {"budget": cmd_budget, "run": cmd_run, "agent": cmd_agent, "adjudicate": cmd_adjudicate,
-            "assemble": cmd_assemble}[a.cmd](a)
+            "assemble": cmd_assemble, "budget-heldout": cmd_budget_heldout}[a.cmd](a)
 
 
 def cli_baselines(argv: list[str]) -> int:

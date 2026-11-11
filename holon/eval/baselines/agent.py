@@ -89,7 +89,7 @@ def packet(system: str, wall_s: int) -> dict:
     (target, pre-fix path, map info)}}."""
     d = Path(tempfile.mkdtemp(prefix="review-", dir="/tmp"))
     per, back = {}, {}
-    if core.pinned(system):
+    if core.pinned(system) or system == core.HELDOUT:  # I52b: the held-out packet is its scope files, as Morph's
         tgt = core.targets(system)[0]
         src = core.checkout(system, tgt)
         files = core.scope_files(src, system, tgt)
@@ -164,10 +164,14 @@ def run_reviewer(system: str, model: str) -> dict:
            "tokens": {k: usage.get(k) for k in ("input_tokens", "output_tokens", "cache_read_input_tokens",
                                                 "cache_creation_input_tokens")},
            "result_text": result[-20000:]}
-    p = core.HOME / "agent" / f"{system}.json"
+    p = reviewer_path(system)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(rec, indent=1, sort_keys=True))
     return rec
+
+
+def reviewer_path(system: str) -> Path:
+    return core.HOME / "agent" / f"{core.tiered(system)}.json"
 
 
 # ------------------------------------------------------------------------------------------------- adjudicator
@@ -198,6 +202,8 @@ def defect_text(system: str, label: str) -> str:
 
 
 def match_prompt(system: str, label: str, findings: list[dict]) -> str:
+    if system == core.HELDOUT:
+        return heldout_match_prompt(core.heldout_labels()[label]["action"], findings)
     t = core.MATCH_PROMPT.read_text(encoding="utf-8")
     rows = "\n".join(json.dumps({k: f[k] for k in ("id", "kind", "message", "locations")}, sort_keys=True,
                                 ensure_ascii=False) for f in findings)
@@ -241,3 +247,65 @@ def adjudicate(system: str, label: str, findings: list[dict], model: str) -> dic
             break
     return {"label": label, "findings": sorted(ids), "confirmed": confirmed or [],
             "prompt_sha256": core.sha256_text(prompt), "attempts": attempts}
+
+
+# ------------------------------------------------------------------------------------------------- I52b: obligation labels
+RULES = ("DISCH", "FACT", "SORT", "SYM", "UNDO")
+
+
+def heldout_match_prompt(action: str, findings: list[dict]) -> str:
+    """The held-out adjudicator's prompt for one (baseline, action) group (I52b_heldout.json matching.adjudicator): the
+    frozen template filled with the action, the five rules' obligations and the located findings."""
+    h = core.heldout()
+    t = (core.ROOT / "spec" / "M4" / "lib" / "I52b_match_prompt.md").read_text(encoding="utf-8")
+    obl = h["labels"]["obligations"]
+    rows = "\n".join(json.dumps({k: f[k] for k in ("id", "kind", "message", "locations")}, sort_keys=True,
+                                ensure_ascii=False) for f in findings)
+    return (t.replace("{{ACTION}}", action)
+            .replace("{{OBLIGATIONS}}", "\n".join(f"- {r}: {obl[r]}" for r in RULES))
+            .replace("{{FINDINGS}}", rows))
+
+
+def adjudicate_heldout(action: str, labels: dict, findings: list[dict], model: str) -> dict:
+    """One fresh tool-less process for an action's group; labels maps each rule to its label id. Returns
+    {label: adjudication}, every adjudication carrying the one prompt's sha256."""
+    adj = core.heldout()["matching"]["adjudicator"]
+    proto = core.protocol()["matching"]["adjudicator"]
+    prompt = heldout_match_prompt(action, findings)
+    argv = _argv(proto["invocation"], adj["system_prompt"], model)
+    ids = {f["id"] for f in findings}
+    attempts, ans = [], None
+    for _ in range(2):
+        d = Path(tempfile.mkdtemp(prefix="match-", dir="/tmp"))
+        try:
+            p = subprocess.run(argv, input=prompt, capture_output=True, text=True, cwd=str(d), timeout=600,
+                               env=_env(["CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD", "CLAUDE_ADDITIONAL_DIRECTORIES"]))
+            out = p.stdout
+        except subprocess.TimeoutExpired:
+            out = ""
+        shutil.rmtree(d, ignore_errors=True)
+        try:
+            cli = json.loads(out)
+        except json.JSONDecodeError:
+            cli = {}
+        if cli:
+            _check_model("A", cli)
+        res = cli.get("result") or ""
+        got = None
+        m = re.search(r"\{.*\}", res, re.S)
+        if m:
+            try:
+                got = json.loads(m.group(0))
+            except json.JSONDecodeError:
+                got = None
+        v = got.get("violates") if isinstance(got, dict) else None
+        ok = isinstance(v, dict) and all(isinstance(v.get(r, []), list) and all(isinstance(x, str) for x in v.get(r, []))
+                                         for r in RULES)
+        attempts.append({"is_error": cli.get("is_error"), "num_turns": cli.get("num_turns"), "result": res[-4000:],
+                         "outcome": "ok" if ok else "unparsable"})
+        if ok:
+            ans = v
+            break
+    sha = core.sha256_text(prompt)
+    return {lab: {"label": lab, "findings": sorted(ids), "confirmed": sorted(set((ans or {}).get(r, [])) & ids),
+                  "prompt_sha256": sha, "attempts": attempts} for r, lab in labels.items()}
