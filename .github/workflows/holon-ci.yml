@@ -85,14 +85,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # DEVIN.md section 6 also lists `audit prereg --milestone M5`; spec/M5 does not exist in the repo yet
-          # (PREREG FAILED: spec/M5/predictions.json does not exist), so it joins the matrix when M5 does
+          # one job per milestone with preregistered keys on the lead. M4 and M5 joined at M4's landing (PREREG OK on
+          # the merged tree); M6 joins with its first key, as an empty milestone fails by design ("an audit of nothing").
           - name: prereg-M2
             timeout: 30
             run: python -m holon audit prereg --milestone M2
           - name: prereg-M3
             timeout: 30
             run: python -m holon audit prereg --milestone M3
+          - name: prereg-M4
+            timeout: 30
+            run: python -m holon audit prereg --milestone M4
+          - name: prereg-M5
+            timeout: 30
+            run: python -m holon audit prereg --milestone M5
           - name: tests-prereg
             # I1's prereg audit on synthetic histories (rules 1-6), and rule 6's parallel_outcome lines: a parallel
             # commit licensed one at a time when its files under K's outcome paths are another key's (I57/I56).
