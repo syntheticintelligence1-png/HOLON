@@ -945,10 +945,10 @@ def _bind(R: Runner, S: Path, M: str, laws: list[str], stages: dict) -> None:
     bound = (common.load_json(bp).get("laws") or {}) if bp.is_file() else {}
     unbound = (common.load_json(up).get("laws") or {}) if up.is_file() else {}
     refused = binding_check(S, M, laws)
-    agg = {"laws": len(laws), "bound": sum(1 for x in laws if x in bound), "unbound": sum(1 for x in laws if x in unbound),
-           "refused": refused}
-    stages["bind"] = {"status": r["status"], "exit": r["exit"], "aggregate": agg,
-                      "detail": f"holon bind --unbound skip: {r['status']} (exit {r['exit']}); " + json.dumps(agg, sort_keys=True)}
+    counts = {"laws": len(laws), "bound": sum(1 for x in laws if x in bound), "unbound": sum(1 for x in laws if x in unbound),
+              "refused": refused}
+    stages["bind"] = {"status": r["status"], "exit": r["exit"], "aggregate": counts,
+                      "detail": f"holon bind --unbound skip: {r['status']} (exit {r['exit']}); " + json.dumps(counts, sort_keys=True)}
 
 
 def binding_check(S: Path, M: str, laws: list[str]) -> int:
