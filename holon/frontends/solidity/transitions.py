@@ -2118,7 +2118,7 @@ class Walk:
         bits, signed = info
         if op in ("/", "%"):
             self.panic(18, node, op, [a, b], fold("!=", b, 0))
-        checked = not self.frame.unchecked
+        checked = not (self.frame.unchecked or self.ix.wrapping)
         if checked and (op in ("+", "-", "*", "**") or (signed and op == "/")):
             eop = "sdiv" if op == "/" else op
             self.panic(17, node, op, [a, b], fits(bits, signed, (eop, a, b)))
@@ -2260,7 +2260,7 @@ class Walk:
         a = self.val(self.ev(sub))
         if op == "-":
             info = int_info(ts)
-            if info is not None and info[1] and not self.frame.unchecked:
+            if info is not None and info[1] and not (self.frame.unchecked or self.ix.wrapping):
                 self.panic(17, n, "neg", [a], fits(info[0], True, ("neg", a)))
         return fold({"-": "neg"}.get(op, op), a)
 
@@ -2569,6 +2569,10 @@ class Walk:
     def assembly(self, n: dict) -> None:
         f = self.frame
         saved = (f.asm, f.yul, f.yulfns)
+        if "AST" not in n:
+            # I103: a compiler before 0.6 writes inline assembly as source text ("operations"), with no Yul AST
+            raise ExtractionError(f"inline assembly at {n.get('src')} has no Yul AST (this compiler writes assembly as "
+                                  "text): the walker cannot read it")
         f.asm, f.yul, f.yulfns = n, [], []
         try:
             self.yul_block(n["AST"])
@@ -3586,9 +3590,29 @@ def overload_name(ix, owner: dict | None, fn: dict) -> str:
     return f"{name}_{sel}" if len(sels) > 1 else name
 
 
+def fill_selectors(index: Index) -> None:
+    """I103, under a pragma selection only: a compiler before 0.6 writes no functionSelector on a FunctionDefinition.
+    The selector is the ABI's own (the first 4 bytes of keccak256 of name(canonical parameter types)), computed here
+    for every external or public function that lacks one, so that actions, overloads and call signatures are read as
+    the 0.6+ AST states them. A parameter type the ABI signature cannot hold leaves the function without one."""
+    from ...keccak import keccak256
+    for n in list(index.nodes.values()):
+        if n.get("nodeType") != "FunctionDefinition" or n.get("functionSelector") \
+                or n.get("visibility") not in ("external", "public") or n.get("kind", "function") != "function" \
+                or not n.get("name"):
+            continue
+        try:
+            sig = f"{n['name']}({','.join(abi_type(index, p.get('typeName') or {}) for p in n['parameters']['parameters'])})"
+        except ExtractionError:
+            continue
+        n["functionSelector"] = keccak256(sig.encode())[:4].hex()
+
+
 def walk_contract(compiled, side: dict):
     """(index, contract, actions, collector): every action walked."""
     index = Index(compiled)
+    if getattr(compiled, "selection", None):
+        fill_selectors(index)
     tr = side["transitions"]
     contract = find_contract(index, tr["contract"])
     coll = Collector()
@@ -3613,6 +3637,14 @@ def walk_contract(compiled, side: dict):
     return index, contract, acts, coll
 
 
+def _selected(compiled) -> dict:
+    """I103: a pragma-selected compiler's record (selected_by, arithmetic); nothing for a sidecar that names its own."""
+    sel = getattr(compiled, "selection", None)
+    if not sel:
+        return {}
+    return {"selected_by": {"rule": sel["rule"], "pragmas": list(sel["pragmas"])}, "arithmetic": sel["arithmetic"]}
+
+
 def build(compiled, side: dict, sidecar_rel: str, sidecar_sha256: str) -> dict:
     """The transitions document of a sidecar with "transitions"."""
     import hashlib
@@ -3626,7 +3658,8 @@ def build(compiled, side: dict, sidecar_rel: str, sidecar_sha256: str) -> dict:
             "kind": "transitions",
             "frontend_version": TRANSITIONS_VERSION,
             "sidecar": {"path": sidecar_rel, "sha256": sidecar_sha256},
-            "toolchain": {"solc": {"version": compiled.version, "sha256": compiled.solc_sha256}},
+            "toolchain": {"solc": {"version": compiled.version, "sha256": compiled.solc_sha256,
+                                   **_selected(compiled)}},
             "settings": compiled.settings,
             "inputs": [{"unit": u, "sha256": hashlib.sha256(compiled.units[u]).hexdigest()}
                        for u in sorted(compiled.units)],

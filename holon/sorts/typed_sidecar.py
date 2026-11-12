@@ -17,7 +17,9 @@ VERSION = "holon-sort-types/0.1"
 # I50b: 0.2 is 0.1 plus the sort pass's rules U1-U3 for the frontend's "update" term (holon.sorts.extracted; the rules
 # are spec/M4/lib/heldout_rerun.json producer_changes.sorts_update). Every milestone sidecar is 0.1, and a 0.1 sidecar
 # is read and walked exactly as before.
-VERSIONS = (VERSION, "holon-sort-types/0.2")
+# I103: 0.3 is 0.2 plus rule T1, the total pass (an unknown term is an opaque fresh variable and coverage debt;
+# holon.sorts.extracted). Only a sidecar that names 0.3 gets it; no milestone sidecar does.
+VERSIONS = (VERSION, "holon-sort-types/0.2", "holon-sort-types/0.3")
 
 
 class SidecarError(ValueError):
