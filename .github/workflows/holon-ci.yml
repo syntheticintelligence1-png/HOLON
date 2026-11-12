@@ -218,11 +218,9 @@ jobs:
             # (P1), havoc never drops a write (P2), the KV-store pattern (P3), byte-identical (P5), the existing
             # frontends unchanged (R1), guards keep every behaviour (TestGuardSoundness), and a Go machine through
             # sorts -> derive with DISCH laws (TestDemo). P4 and the corpus smoke measures P6-P8 are missed
-            # predictions (docs/iterations/I105.md) and are not run here. TestDemo is superseded by I109 (Q64: nil
-            # maps are UNKNOWN by default; the demo's Vault has no constructor, so its law is re-decided UNKNOWN,
-            # checked by tests-m6-i109's TestNilMapDefault.test_p6_i105_demo_redecided_unknown).
+            # predictions (docs/iterations/I105.md) and are not run here.
             timeout: 30
-            run: python -m unittest tests_m6.test_i105_go_machines.TestStructMachines tests_m6.test_i105_go_machines.TestSoundness tests_m6.test_i105_go_machines.TestKVMachines tests_m6.test_i105_go_machines.TestDeterminism tests_m6.test_i105_go_machines.TestRegressions tests_m6.test_i105_go_machines.TestGuardSoundness -v
+            run: python -m unittest tests_m6.test_i105_go_machines.TestStructMachines tests_m6.test_i105_go_machines.TestSoundness tests_m6.test_i105_go_machines.TestKVMachines tests_m6.test_i105_go_machines.TestDeterminism tests_m6.test_i105_go_machines.TestRegressions tests_m6.test_i105_go_machines.TestGuardSoundness tests_m6.test_i105_go_machines.TestDemo -v
           - name: tests-m6-i109
             # I109 (M6, pipeline totality pass 3): the Go rendering's types gaps A1-A4 (P1), the go-directive rule
             # without the key (P2; the 1.25 selection needs tools/install_toolchain_sets.sh, run locally), D9's SG1
@@ -243,10 +241,8 @@ jobs:
             # SYM per model in a multi-model milestone (P2), Go nil maps as UNKNOWN under the opt-in (P3), the layout
             # rules L1-L3 (P4), SP_b still refused (P5) and the regressions R1-R2. The corpus smoke measures P6-P10
             # (results/M6/I108) are the key's measured outcome and are not run here; P1's law count is a recorded miss.
-            # Superseded by I109 (Q64: nil maps UNKNOWN by default, the opt-out explicit): P2's two-model derive (its
-            # Book writes a map with no constructor, so types refuses it) and P3's "debt only under the opt-in".
             timeout: 30
-            run: python -m unittest tests_m6.test_i108_pipeline_totality.TestSymPerModel.test_p2_single_model_unchanged tests_m6.test_i108_pipeline_totality.TestNilMaps.test_p3_plain_documents_unchanged_by_the_key tests_m6.test_i108_pipeline_totality.TestNilMaps.test_p3_types_refuses_a_nil_map_machine tests_m6.test_i108_pipeline_totality.TestLayout tests_m6.test_i108_pipeline_totality.TestStringKeys tests_m6.test_i108_pipeline_totality.TestRegressions tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_fixture_has_signed_terms tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_sorts_03_records_signed_debt tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_sorts_04_has_no_signed_debt -v
+            run: python -m unittest tests_m6.test_i108_pipeline_totality.TestSymPerModel tests_m6.test_i108_pipeline_totality.TestNilMaps tests_m6.test_i108_pipeline_totality.TestLayout tests_m6.test_i108_pipeline_totality.TestStringKeys tests_m6.test_i108_pipeline_totality.TestRegressions tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_fixture_has_signed_terms tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_sorts_03_records_signed_debt tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_sorts_04_has_no_signed_debt -v
           - name: tests-m3-par-record
             # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
             # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an
