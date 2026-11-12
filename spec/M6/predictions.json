@@ -1,5 +1,172 @@
 {
   "milestone": "M6",
   "doc": "Preregistration for M6 iterations (docs/BUILD_PLAN.md §0.1, §4 \"M6: generality\"). One key per iteration under iterations, each in its own source spec/M6/predictions/<key>.json (holon.aggregate writes this aggregate from them). A key is written once, in its prereg commit, before any of its outcome_paths change; holon audit prereg checks the order and that the key is never edited afterwards. predictions count toward prediction accuracy; regressions are outcomes already recorded in the repo that must not change.",
-  "iterations": {}
+  "iterations": {
+    "I105": {
+      "title": "I105: Go state machines: the Go frontend emits transitions documents in the Solidity frontend's IR (struct-field machines first, then constant-prefix KV stores), with writes it cannot model over-approximated as havoc, so the typed pipeline (sorts, types, model, disch, derive) runs unchanged on a Go-only machine",
+      "plan": "docs/BUILD_PLAN.md#m6-generality",
+      "prompt": "prompts/I105_go_machines.md",
+      "tests": [
+        "tests_m6/test_i105_go_machines.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I105/",
+        "docs/iterations/I105.md"
+      ],
+      "predictions": [
+        {
+          "id": "I105-P1",
+          "claim": "On the planted fixture (tests_m6/fixtures/i105/src), holon extract go_machines writes one holon-facts/0.3 transitions document (extraction.kind transitions, frontend go) per machine, exactly the five struct types with exported methods (Bank, Alias, Loop, Spawn, Keeper); Bank's families are Bal (mapping), Count, Owner, Paused (scalars); its actions are its eight exported methods; Deposit writes Bal at [[map, [param, who]]] and Count from [storage, Count]; SetPaused writes Paused := [param, p] behind a guard over [param, caller] and [storage, Owner]; Withdraw's guards mention [storage, Paused] and [param, n]; Halt's panic is a guard over [storage, Paused]; the value receiver Credit writes the shared map Bal, Lose (a write to the receiver's copy) and Total write nothing, Total returns [storage, Count]; Tick writes Count through the inlined unexported helper.",
+          "check": "tests_m6/test_i105_go_machines.py::TestStructMachines"
+        },
+        {
+          "id": "I105-P2",
+          "claim": "Soundness on the planted cases: a write the frontend cannot model is never dropped. Through (a local alias of &a.X) writes X := [param, v] exactly; Leak (&a.Y passed to a dynamic call) writes Y with a havoc value (holding [unknown, ...]); Deref (a write through a pointer read from the state) writes every family (P, X, Y) with havoc values; Fill (writes inside a loop bounded by an argument) writes Arr and N with havoc values and records loop debt, and K := 7 after the loop exactly; Go (a goroutine writing X) writes X with a havoc value, records goroutine debt, and Z := 2 exactly.",
+          "check": "tests_m6/test_i105_go_machines.py::TestSoundness"
+        },
+        {
+          "id": "I105-P3",
+          "claim": "The KV-store pattern: the planted Keeper (a field of an interface type with Get/Has/Set/Delete over []byte keys) has the mapping family store; its actions are Balance, Remove, SetBalance; SetBalance writes store at a map key that holds [param, addr] and the prefix constant [str, hex(\"bal/\")], with a value that mentions [param, amt], behind a guard over [param, caller]; Remove deletes (writes 0) at that key behind a guard that reads [storage, store].",
+          "check": "tests_m6/test_i105_go_machines.py::TestKVMachines"
+        },
+        {
+          "id": "I105-P4",
+          "claim": "The typed pipeline runs unchanged on a Go-only machine: on the Bank document, I51's stages sorts, types, model, disch and derive (holon.eval.holon_run._rules, spec/M4/lib/i51_run.json) all finish ok and derive at least one law.",
+          "check": "tests_m6/test_i105_go_machines.py::TestTypedPipeline::test_p4_bank_end_to_end"
+        },
+        {
+          "id": "I105-P5",
+          "claim": "Two extractions of the planted fixture write the same file names with byte-identical contents.",
+          "check": "tests_m6/test_i105_go_machines.py::TestDeterminism::test_p5_byte_identical"
+        },
+        {
+          "id": "I105-P6",
+          "claim": "Smoke measure on I51's Go entries at their prefix commits (results/M6/I105/corpus.json, python -m holon eval go-machines; machines counted over every Go document of the entry, actions summed over its machines): per entry, machines and actions lie in the preregistered ranges [machines_lo, machines_hi, actions_lo, actions_hi] of expected.",
+          "check": "tests_m6/test_i105_go_machines.py::TestCorpusSmoke::test_p6_machines_and_actions",
+          "expected": {
+            "c03": [
+              3,
+              8,
+              30,
+              150
+            ],
+            "c04": [
+              5,
+              25,
+              30,
+              200
+            ],
+            "c08": [
+              1,
+              5,
+              30,
+              120
+            ],
+            "c09": [
+              4,
+              20,
+              30,
+              150
+            ],
+            "c13": [
+              1,
+              3,
+              8,
+              25
+            ],
+            "c14": [
+              4,
+              20,
+              30,
+              150
+            ],
+            "c18": [
+              50,
+              600,
+              500,
+              8000
+            ],
+            "c19": [
+              20,
+              80,
+              100,
+              600
+            ]
+          }
+        },
+        {
+          "id": "I105-P7",
+          "claim": "Smoke measure: the typed pipeline (sorts, types, model, disch, derive over the entry's transitions documents) completes on at least 1 of the 8 entries; on every other entry the first stage that is not ok is named in refused_at.",
+          "check": "tests_m6/test_i105_go_machines.py::TestCorpusSmoke::test_p7_pipeline_completes",
+          "expected": {
+            "complete_at_least": 1
+          }
+        },
+        {
+          "id": "I105-P8",
+          "claim": "Smoke measure: the laws derived over the 8 entries total between 1 and 500.",
+          "check": "tests_m6/test_i105_go_machines.py::TestCorpusSmoke::test_p8_laws",
+          "expected": {
+            "total_laws": [
+              1,
+              500
+            ]
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I105-R1",
+          "claim": "The Solidity frontend and the Go codec frontend are unchanged: every file of holon/frontends/solidity/ and holon/frontends/go/ (ssadump's main.go included) hashes to its pin, so every Solidity document and every Go codec document re-extracts byte-identically; the Go machine emitter lives in its own frontend module. Morph's M0-M3 records move by re-stamp only (holon land dirty, reported in docs/iterations/I105.md).",
+          "check": "tests_m6/test_i105_go_machines.py::TestRegressions::test_r1_frontends_unchanged"
+        }
+      ],
+      "thresholds": {
+        "base": "claude/holon-v2-bend2-c6z3cd at 95c9ef34 with claude/ci-m6-skeleton (5bae37d7) merged",
+        "counting": {
+          "counted": [
+            "I105-P1",
+            "I105-P2",
+            "I105-P3",
+            "I105-P4",
+            "I105-P5",
+            "I105-P6",
+            "I105-P7",
+            "I105-P8"
+          ],
+          "informed": {
+            "ids": [],
+            "why": "no outcome of these claims is recorded anywhere before this prereg: no Go transitions document exists, and no corpus run of the emitter has been made (I51's results/eval/holon/ hold codec documents only)"
+          }
+        },
+        "smoke": "P6-P8 are smoke measures (the brief: I107 scores); a miss is reported, never tuned to",
+        "definitions": {
+          "machine": "a named struct type declared in a document package with at least one exported method (value or pointer receiver) declared in that package",
+          "action": "an exported method of a machine declared in the package; its walk inlines static calls of functions of the document's packages to the config's inline_depth",
+          "complete": "the stages sorts, types, model, disch and derive all finish with status ok over the entry's machine documents",
+          "laws": "the L*.json files derive writes to laws/<milestone> for the entry"
+        },
+        "pins": {
+          "holon/frontends/go/__init__.py": "08b6e6a3696e9df6c2313c337047bc5aefe4e822c73bf689e4dbcbfb4475e73d",
+          "holon/frontends/go/analyses.py": "716f1c696460c861165b5c25e79a459c5fb9b29a21f122b519879c22342befaf",
+          "holon/frontends/go/ctx.py": "5bd97d607f37e513422d18e941a5589e80522310b39be094d91a9d644498d91e",
+          "holon/frontends/go/document.py": "062e07b34eca2fcd3d197092fb21b644ededbbd6d8d7102a33ace146ce65dbbb",
+          "holon/frontends/go/extract.py": "fa57db7fce7bbc2d9d2aaf441496d0f233be6653d91fcd32051f5aafec7241bc",
+          "holon/frontends/go/flow.py": "10a3d02bff9713e4b1db0fda75bc3abe1dde0cb2336f3c57acd6112f309d4ca2",
+          "holon/frontends/go/paths.py": "d9ef34e94f5d6dcffd5909876b452d9cf196511075acf486ff2d948e8775106c",
+          "holon/frontends/go/ssadump/main.go": "f7083162d895011a0dfcca0308c27592493f098f6b3638a852803b8bf6a1a9e6",
+          "holon/frontends/go/ssaload.py": "fff6e6e06ba70d70384e526fa9d0184b725bf142e95cfd7dc3b5158f6b744dd5",
+          "holon/frontends/go/terms.py": "29b74b99f7c9ff46c833957f5c885e596cefaa21f854bae086836aa3fe8159cf",
+          "holon/frontends/solidity/__init__.py": "a80518da738c9bb2cefc5e9f3d128471389f18776c3c662722d9645fb694c041",
+          "holon/frontends/solidity/ast.py": "72f37f0916e3cd4b6462999539270eb5635c8a193a34af03cc35b45cd773d311",
+          "holon/frontends/solidity/compile.py": "2cf553566f1ecf7d1936d1a2843bddf62b561239d156f813d0cbad42cee6e7aa",
+          "holon/frontends/solidity/history.py": "b8eadd58f80208cfe28220ec3855ad95a5e5352c8baf78174d40c2de9611951a",
+          "holon/frontends/solidity/layout_extract.py": "bef5ee8692ecda7cab47f727e1a23fa406f66cf782f240c851e1465d16771826",
+          "holon/frontends/solidity/storage.py": "0a9e70ee0d3b926022edff6c7508377e701339a56bc5c2390cf9fa205c2f53ec",
+          "holon/frontends/solidity/transitions.py": "5669c460c9e02b16c01810d46e6614827d96010f2f51af5a46400c8b3ddc4264",
+          "holon/frontends/solidity/trees.py": "2c50405f17a726e718b6cbefc1dabebf209656d30e4a342c50a6b03e9717288a"
+        }
+      }
+    }
+  }
 }
