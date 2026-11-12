@@ -1,0 +1,37 @@
+{
+  "carrier": {
+    "id": "rlpxTransport",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/p2p.rlpxTransport"
+  },
+  "component": "rlpx_transport_ops",
+  "document": "results/M6/I115/holon/c09/facts/go_1.go.extracted.json",
+  "document_sha256": "5b9210f21590c7b4789f0f7309ea5823b72c991665aa76b264d93bafc7c82e07",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_rlpxTransport_ReadMsg": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "t",
+          "type": "*github.com/ethereum/go-ethereum/p2p.rlpxTransport"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "github.com/ethereum/go-ethereum/p2p.Msg",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.rlpxTransport).ReadMsg",
+      "span": "p2p/transport.go:58"
+    }
+  },
+  "results": {
+    "R_Msg_Error": [
+      "github.com/ethereum/go-ethereum/p2p.Msg",
+      "error"
+    ]
+  }
+}

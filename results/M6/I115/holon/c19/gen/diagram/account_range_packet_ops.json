@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "AccountRangePacket",
+      "cls": "rep",
+      "domains": [
+        "ok_snap_AccountRangePacket_Unpack"
+      ],
+      "id": "AccountRangePacket",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_SliceHash_SliceSliceByte_Error",
+      "cls": "rep",
+      "id": "R_SliceHash_SliceSliceByte_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I115/holon/c19/facts/go_1.go.extracted.json",
+      "domain": "ok_snap_AccountRangePacket_Unpack",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.snap_AccountRangePacket_Unpack",
+      "kind": "CODEC",
+      "model_fn": "snap_AccountRangePacket_Unpack",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/eth/protocols/snap.AccountRangePacket).Unpack"
+        }
+      ],
+      "src": "AccountRangePacket",
+      "tgt": "R_SliceHash_SliceSliceByte_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/account_range_packet_ops.json",
+  "facts_sha256": "badd2b03f56d39d5d3ca4c8f13c01e41ebb08ea471ec7b082f4462ecaf9b60bd",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "account_range_packet_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

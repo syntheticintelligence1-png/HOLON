@@ -1,0 +1,391 @@
+{
+  "document": "disch_closure",
+  "inputs": [
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.Cap.extracted.json",
+      "sha256": "877ee7d38a39473ca8d6afd371d5662e24fc5e1b526f831bd476ca10c9f4a6b8"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.Msg.extracted.json",
+      "sha256": "ef7c75f72466a68c8ff38fc44a61005e5add8d3004fdc265d2e210e02e152e9f"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.MsgPipeRW.extracted.json",
+      "sha256": "cd8557dcb054e574bce89469b24f577808e069659171f474aa660b3d2fedfbb7"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.conn.extracted.json",
+      "sha256": "cf8b97cbd77a90770026cbade0156e00d0f9ddef729595ec82e3956c73f01f64"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.eofSignal.extracted.json",
+      "sha256": "40d26338f3a3b2173c3b32ec673d079a2b1febba434f2ef2849886f859220ee8"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.meteredConn.extracted.json",
+      "sha256": "7d8a621ae8694d6a0573311f4a884b73f41850e4f0bd5f8c6a25057f7b10aeee"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.peerError.extracted.json",
+      "sha256": "2d5dce592356d49637ecca8404bda8dfc9fb97c51291312e08de65435e1a4507"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.protoRW.extracted.json",
+      "sha256": "d3f2188c98ef4f3c0599c02fe95b702c3d2113d051a73c841b4f3aefbd9572e3"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.rlpxTransport.extracted.json",
+      "sha256": "e3c2f51f8b3e704ced0e20ef19882f5f0484a37a3f55c64be379d26f6bee5813"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.sharedUDPConn.extracted.json",
+      "sha256": "90fa7f697814f7fc2f3eb341ccd7d06515a100ebd34f84dacd4ff4df0d679618"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.tcpDialer.extracted.json",
+      "sha256": "f8cc159dadcaa70e37b138489a1a1440c5749808fdce3792912514470a70de5c"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.Cap.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Name": [
+          0
+        ],
+        "Version": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.Msg.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Code": [
+          0
+        ],
+        "Payload": [
+          0
+        ],
+        "ReceivedAt": [
+          0
+        ],
+        "Size": [
+          0
+        ],
+        "meterCap": [
+          0
+        ],
+        "meterCode": [
+          0
+        ],
+        "meterSize": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.MsgPipeRW.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Close",
+            "ReadMsg",
+            "WriteMsg"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Close",
+            "ReadMsg",
+            "WriteMsg"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "closed",
+            "closing",
+            "r",
+            "w"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Close": null,
+        "ReadMsg": null,
+        "WriteMsg": null
+      },
+      "r0": {
+        "closed": [
+          0
+        ],
+        "closing": [
+          0
+        ],
+        "r": [
+          0
+        ],
+        "w": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.conn.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "String"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "String"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "caps",
+            "cont",
+            "fd",
+            "flags",
+            "name",
+            "node",
+            "transport"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "String": null
+      },
+      "r0": {
+        "caps": [
+          0
+        ],
+        "cont": [
+          0
+        ],
+        "fd": [
+          0
+        ],
+        "flags": [
+          0
+        ],
+        "name": [
+          0
+        ],
+        "node": [
+          0
+        ],
+        "transport": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.eofSignal.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Read"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Read"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "count",
+            "eof"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Read": null
+      },
+      "r0": {
+        "count": [
+          0
+        ],
+        "eof": [
+          0
+        ],
+        "wrapped": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.meteredConn.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Conn": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.peerError.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "code": [
+          0
+        ],
+        "message": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.protoRW.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Protocol": [
+          0
+        ],
+        "closed": [
+          0
+        ],
+        "in": [
+          0
+        ],
+        "offset": [
+          0
+        ],
+        "w": [
+          0
+        ],
+        "werr": [
+          0
+        ],
+        "wstart": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.rlpxTransport.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "ReadMsg",
+            "WriteMsg"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "ReadMsg",
+            "WriteMsg"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "conn",
+            "rmu",
+            "wbuf",
+            "wmu"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "ReadMsg": null,
+        "WriteMsg": null
+      },
+      "r0": {
+        "conn": [
+          0
+        ],
+        "rmu": [
+          0
+        ],
+        "wbuf": [
+          0
+        ],
+        "wmu": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.sharedUDPConn.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "UDPConn": [
+          0
+        ],
+        "unhandled": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.tcpDialer.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Dial"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Dial"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "d"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Dial": null
+      },
+      "r0": {
+        "d": [
+          0
+        ]
+      }
+    }
+  },
+  "sidecar": {
+    "path": "results/M6/I115/holon/c14/sidecars/disch.json",
+    "sha256": "d475a04f7ea014ba24e7fb465980924ab248c84b36d04066f9691b77cab82ecd"
+  }
+}

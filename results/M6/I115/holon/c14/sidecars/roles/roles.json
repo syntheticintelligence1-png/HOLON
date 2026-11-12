@@ -1,0 +1,309 @@
+{
+  "dropped": [],
+  "inputs": [
+    {
+      "kind": "go",
+      "path": "results/M6/I115/holon/c14/facts/go_1.go.extracted.json",
+      "sha256": "5a3c7cdb7b4c0e3f4285e7a751c304829f0b9cd4e7e9be285e0c693fa8e5de60"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.Cap.extracted.json",
+      "sha256": "877ee7d38a39473ca8d6afd371d5662e24fc5e1b526f831bd476ca10c9f4a6b8"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.Msg.extracted.json",
+      "sha256": "ef7c75f72466a68c8ff38fc44a61005e5add8d3004fdc265d2e210e02e152e9f"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.MsgPipeRW.extracted.json",
+      "sha256": "cd8557dcb054e574bce89469b24f577808e069659171f474aa660b3d2fedfbb7"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.Peer.extracted.json",
+      "sha256": "559c952b88260545ee6e445cca643e1547cfe0086ab5ac2bb1ee0646344dbb03"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.Server.extracted.json",
+      "sha256": "c0b906a0981d352b875ed05c9f3ee0198a35af6e9dd679402970ef32ab2968ec"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.conn.extracted.json",
+      "sha256": "cf8b97cbd77a90770026cbade0156e00d0f9ddef729595ec82e3956c73f01f64"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.eofSignal.extracted.json",
+      "sha256": "40d26338f3a3b2173c3b32ec673d079a2b1febba434f2ef2849886f859220ee8"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.meteredConn.extracted.json",
+      "sha256": "7d8a621ae8694d6a0573311f4a884b73f41850e4f0bd5f8c6a25057f7b10aeee"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.msgEventer.extracted.json",
+      "sha256": "c66289cde9b028abf726c5f1c63fdf29ec636fde54b9a453b74798b315550f04"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.peerError.extracted.json",
+      "sha256": "2d5dce592356d49637ecca8404bda8dfc9fb97c51291312e08de65435e1a4507"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.protoRW.extracted.json",
+      "sha256": "d3f2188c98ef4f3c0599c02fe95b702c3d2113d051a73c841b4f3aefbd9572e3"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.rlpxTransport.extracted.json",
+      "sha256": "e3c2f51f8b3e704ced0e20ef19882f5f0484a37a3f55c64be379d26f6bee5813"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.sharedUDPConn.extracted.json",
+      "sha256": "90fa7f697814f7fc2f3eb341ccd7d06515a100ebd34f84dacd4ff4df0d679618"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.tcpDialer.extracted.json",
+      "sha256": "f8cc159dadcaa70e37b138489a1a1440c5749808fdce3792912514470a70de5c"
+    }
+  ],
+  "milestone": "M9",
+  "mode": "static",
+  "proposed": null,
+  "rejected": [],
+  "roles": [
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/p2p.meteredConn",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/p2p.meteredConn).Close"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.meteredConn).Close"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "metered_conn_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/p2p.msgEventer",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/p2p.msgEventer).Close",
+          "(*github.com/ethereum/go-ethereum/p2p.msgEventer).ReadMsg"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.msgEventer).Close",
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.msgEventer).ReadMsg"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "msg_eventer_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "github.com/ethereum/go-ethereum/p2p.Msg",
+      "detail": {
+        "ops": [
+          "(github.com/ethereum/go-ethereum/p2p.Msg).Discard"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(github.com/ethereum/go-ethereum/p2p.Msg).Discard"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "msg_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/p2p.MsgPipeRW",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/p2p.MsgPipeRW).Close",
+          "(*github.com/ethereum/go-ethereum/p2p.MsgPipeRW).ReadMsg"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.MsgPipeRW).Close",
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.MsgPipeRW).ReadMsg"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "msg_pipe_rw_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "github.com/ethereum/go-ethereum/p2p.MsgReader",
+      "detail": {
+        "ops": [
+          "github.com/ethereum/go-ethereum/p2p.readProtocolHandshake"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.github.com/ethereum/go-ethereum/p2p.readProtocolHandshake"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "msg_reader_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/p2p.Peer",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/p2p.Peer).run"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.Peer).run"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "peer_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/p2p.protoRW",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/p2p.protoRW).ReadMsg"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.protoRW).ReadMsg"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "proto_rw_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/p2p.rlpxTransport",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/p2p.rlpxTransport).ReadMsg"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.rlpxTransport).ReadMsg"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "rlpx_transport_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/p2p.Server",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/p2p.Server).Start",
+          "(*github.com/ethereum/go-ethereum/p2p.Server).setupDiscovery",
+          "(*github.com/ethereum/go-ethereum/p2p.Server).setupListening",
+          "(*github.com/ethereum/go-ethereum/p2p.Server).setupLocalNode"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.Server).Start",
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.Server).setupDiscovery",
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.Server).setupListening",
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.Server).setupLocalNode"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "server_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/p2p.sharedUDPConn",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/p2p.sharedUDPConn).Close"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/p2p.sharedUDPConn).Close"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "shared_udpconn_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "evidence": {
+        "facts": [
+          "results/M6/I115/holon/c14/facts/go_1_go_1.Cap.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.Msg.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.MsgPipeRW.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.Peer.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.Server.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.conn.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.eofSignal.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.meteredConn.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.msgEventer.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.peerError.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.protoRW.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.rlpxTransport.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.sharedUDPConn.extracted.json",
+          "results/M6/I115/holon/c14/facts/go_1_go_1.tcpDialer.extracted.json"
+        ],
+        "rule": "transitions_documents"
+      },
+      "id": "documents",
+      "roles_source": "static",
+      "sidecar": "typed"
+    }
+  ],
+  "roles_version": "holon-roles/0.1",
+  "sidecars": {
+    "derive_extracted.json": "556f25df52273c822aab0806efde2a75b7fe6a57defe6d43f22cb5eee690f41e",
+    "disch.json": "30421a67e9978e9164fbd3f8b33989ad61cd9f904c149d866359b10387dbeed0",
+    "fact.json": "f20993de7fb9bdf6225abe0754a0d041d6dd87b095258c7072e592e3a13ca516",
+    "go_ops.json": "fc4d755d1041a26f2e8af12aafa065d1048b5b65e905b1f0955e6c17cf7d75af",
+    "sort_types.json": "873357b5958433f92d853ce7124cf70bcad51d246eeae0b117f6ea8ced689644",
+    "undo.json": "c3ee8bca15739a6c4f559289d18814dbb537b140dadcaf743c545c2171ae3ed4"
+  }
+}
