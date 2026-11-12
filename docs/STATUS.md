@@ -8,7 +8,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
 | M3 | 51 | 323 | 280 | 51 |
-| M4 | 6 | 29 | 35 | 6 |
+| M4 | 7 | 37 | 41 | 7 |
 | M5 | 8 | 41 | 22 | 6 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -67,6 +67,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I49 | M4 | Held-out target I: extraction, facts and the diagram of the sealed target (blind prereg) | `prompts/I49_heldout_extraction.md` | 6 | 6 | 1 | `docs/iterations/I49.md` |
 | I50 | M4 | Held-out target II: the pinned catalog's rules, the run, replay and metrics on the sealed target | `prompts/I50_heldout_rules.md` | 5 | 5 | 1 | `docs/iterations/I50.md` |
 | I51 | M4 | HOLON on the corpus pre-fix commits: every one of the 20 I48 entries cloned at its pre-fix commit and run through HOLON… | `prompts/I51_corpus_holon.md` | 4 | 6 | 1 | `docs/iterations/I51.md` |
+| I52 | M4 | Baselines on Morph and the corpus pre-fix commits: slither, echidna, medusa, hevm and halmos (pinned under ~/.holon/too… | `prompts/I52_baselines.md` | 8 | 6 | 1 | `docs/iterations/I52.md` |
 | I54 | M5 | I54: L6, L9 and L10 defined and preregistered (Q11): bounded games scored against constructed and documented truth, env… | `prompts/I54_m5_definitions.md` | 3 | 3 | 1 | `docs/iterations/I54.md` |
 | I55 | M5 | I55: the intent lane: doc comments atomized with exact spans, reviewed clauses compiled to laws/INTENT/ over the factor… | `prompts/I55_intent_lane.md` | 11 | 3 | 1 | `docs/iterations/I55.md` |
 | I56 | M5 | I56: bounded games over F(M3) (M5, L6): payoff facts as a generated value-flow document with V9 coverage, strategies as… | `prompts/I56_games.md` | 5 | 3 | 1 | `docs/iterations/I56.md` |
