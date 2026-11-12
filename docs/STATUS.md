@@ -7,7 +7,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | Milestone | Keys | Predictions | Regressions | Reports |
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
-| M3 | 51 | 323 | 280 | 51 |
+| M3 | 52 | 326 | 288 | 52 |
 | M4 | 7 | 37 | 41 | 7 |
 | M5 | 8 | 41 | 22 | 6 |
 
@@ -108,6 +108,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I99 | M3 | I99: G9 checks every result record's premises against its law's assume clauses (audit M3/5 F-M3-19, high, gate_evasion) | `prompts/I99_g9_premises.md` | 5 | 9 | 1 | `docs/iterations/I99.md` |
 | I100 | M3 | I100: rule PAR_record_round_trip: the record law over an encoder into a byte record and its getter family, the constant… | `prompts/I100_par_record_round_trip.md` | 9 | 14 | 1 | `docs/iterations/I100.md` |
 | I101 | M3 | I101: the post-exit fixes of three M3 audit findings: the counted-round evidence rule reads each record's content and C… | `prompts/I101_post_exit_audit_fixes.md` | 4 | 8 | 1 | `docs/iterations/I101.md` |
+| I102 | M3 | I102: holon audit regress compares each commit with its own parents, so it neither reports statement changes no commit … | `prompts/I102_regress_parents.md` | 3 | 8 | 1 | `docs/iterations/I102.md` |
 | I50b | M4 | Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term… | `prompts/I50b_heldout_rerun.md` | 5 | 6 | 1 | `docs/iterations/I50b.md` |
 | I54b | M5 | I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every… | `prompts/I54b_m5_truth_key.md` | 5 | 3 | 1 | `docs/iterations/I54b.md` |
 | I55b | M5 | I55b: the intent lane on the corpus: L10's corpus_recall over the corpus-truth key I54b's scored entries (c17), the tru… | `prompts/I55b_intent_corpus.md` | 3 | 2 | 1 | none |

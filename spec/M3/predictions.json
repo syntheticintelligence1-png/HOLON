@@ -12469,6 +12469,117 @@
           "check": "tests_m3/test_audit_fixes_i101.py::TestBuild::test_b9_no_generator_closure_moves"
         }
       ]
+    },
+    "I102": {
+      "title": "I102: holon audit regress compares each commit with its own parents, so it neither reports statement changes no commit made nor leaves out ones commits did make (F-M3-07, medium, and its duplicate F-M3-30)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I102)",
+      "prompt": "prompts/I102_regress_parents.md",
+      "tests": [
+        "tests_m3/test_regress_parents_i102.py"
+      ],
+      "outcome_paths": [
+        "docs/iterations/I102/",
+        "docs/iterations/I102.md"
+      ],
+      "thresholds": {
+        "base": "82134fff (the lead after #165, I101)",
+        "base_commit": "82134fffd850dad60321ce57242a1541a93a8a2c",
+        "contract_docstring_sha256": "e65ae86400876eb27ea72f773bb53155c291346e9dc1a11189dcefc41048c016",
+        "pins": {
+          "instrument": {
+            "path": "tests_m3/_i102.py",
+            "sha256": "7ed80876a060f09cfc9a6663ccf87a464d6278f51a7f55cd24c4fa1ba31743b4"
+          }
+        },
+        "findings": {
+          "F-M3-07": "medium (the lead's triage; the auditor rated it low)",
+          "F-M3-30": "duplicate of F-M3-07"
+        },
+        "ranges": {
+          "round2": [
+            "2b4578afc7bb71c19715c1df680c824b218bd4ec",
+            "c3eda1976c6811ff181fd71ae6ad1166f7e86a49"
+          ],
+          "round7": [
+            "fe1f88f2fac7e7654ed10e7ed36021ca261ce060",
+            "ef39bed5897aa7e8a0a147cb369f190a9e6e3fcc"
+          ],
+          "full": [
+            "8a1dbe7f16eb79f283e7b7115bd9f427ebb116fe",
+            "82134fffd850dad60321ce57242a1541a93a8a2c"
+          ]
+        },
+        "observed_at_prereg": "At the prereg the lead ran the base's regress over fe1f88f2..82134fff: 1150 M3 hash changes, 408 of them uncovered (4m27s). Those are round 7's numbers, so no M3 statement hash moves after round 7's target. Round 7's checkers recorded 224 changes the base leaves out on fe1f88f2..ef39bed5 (audit/rounds/M3/round7/a3/hidden_check.out). None of these is counted as a prediction.",
+        "predicted": {
+          "full_uncovered": {
+            "M2": 0,
+            "M3": 0
+          },
+          "full_changes": {
+            "M0": 0,
+            "M1": 0
+          }
+        }
+      },
+      "predictions": [
+        {
+          "id": "I102-P1",
+          "claim": "Over the whole history 8a1dbe7..82134fff, every M3 hash change the fixed tool reports is covered by a STATEMENT_DIFF line on its edge: 0 uncovered.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestOutcome::test_p1_m3_every_change_covered"
+        },
+        {
+          "id": "I102-P2",
+          "claim": "Over the same history, no M0 or M1 law changes its statement hash: 0 changes.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestOutcome::test_p2_no_m0_or_m1_change"
+        },
+        {
+          "id": "I102-P3",
+          "claim": "Over the same history, every M2 hash change the fixed tool reports is covered on its edge: 0 uncovered.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestOutcome::test_p3_m2_every_change_covered"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I102-R0",
+          "claim": "The contract docstring and the instrument keep the sha256 pinned in thresholds.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestPrereg::test_r0_the_prereg_pins_hold"
+        },
+        {
+          "id": "I102-R1",
+          "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestPrereg::test_r1_the_prereg_audit_passes"
+        },
+        {
+          "id": "I102-R2",
+          "claim": "The instrument imports nothing from holon/ or tools/.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+        },
+        {
+          "id": "I102-R3",
+          "claim": "spec/M3/amendments/I102.jsonl holds one line for this module, pinning its docstring.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestPrereg::test_r3_the_amendment_pins_this_docstring"
+        },
+        {
+          "id": "I102-R4",
+          "claim": "Round 7's range: no uncovered M3 change, none at the merge 41c7e34, and round 7's own hidden_check finds 0 unreported real changes. These agree with the parent analysis the findings record.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestBuild::test_b3_round7s_range"
+        },
+        {
+          "id": "I102-R5",
+          "claim": "Round 2's range: no uncovered M3 change, none at the merges 41c7e34 and ecbb695, nothing for the L_pinit law at 38d66f5 or 4f0f51b. These agree with F-M3-07's recorded parent analysis.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestBuild::test_b4_round2s_range"
+        },
+        {
+          "id": "I102-R6",
+          "claim": "The other A3 tests keep holding: tests_m2/test_regress_a3.py (the synthetic covered change, the additions, the transitions, covered_by on every change).",
+          "check": "tests_m2/test_regress_a3.py"
+        },
+        {
+          "id": "I102-R7",
+          "claim": "No file of a generator closure differs from the base, so no committed record's generator_sha256 moves.",
+          "check": "tests_m3/test_regress_parents_i102.py::TestBuild::test_b7_no_generator_closure_moves"
+        }
+      ]
     }
   }
 }
