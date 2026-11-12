@@ -155,40 +155,45 @@ def publish(run: str, src: Path, vault: Path) -> None:
     (OUT / "bundles.json").write_text(dumps(dict(sorted(bundles.items()))))
 
 
-def publish_morph(work: Path, vault: Path) -> None:
-    """Morph (c): copy morph_roles.json; aggregate morph_auto.json; bundle the new laws' files (Q56 rule 3)."""
+def publish_morph(work: Path, vault: Path, wt: Path) -> None:
+    """Morph (c): copy morph_roles.json; aggregate morph_auto.json (the landed I104 scorer already writes no per-law row
+    for a new law); bundle the new laws' files of the --roles auto worktree WT in the protocol's canonical form (Q56)."""
     src = work / "results" / "M6" / "I104"
     (OUT / "morph").mkdir(parents=True, exist_ok=True)
     shutil.copy(src / "morph_roles.json", OUT / "morph" / "morph_roles.json")
     a = load(src / "morph_auto.json")
-    new = [r for r in a["rows"] if r["in_auto"] and not r["in_hand"]]
+    s = a["summary"]
+    hand = {p.stem for p in (ROOT / "laws" / "M3").glob("L*.json")}
+    new_ids = sorted(p.stem for p in (wt / "laws" / "M3").glob("L*.json") if p.stem not in hand)
     v = vault / "morph" / "new_laws"
     if v.exists():
         shutil.rmtree(v)
-    for r in new:
+    for lid in new_ids:
         for d in ("laws/M3", "results/M3"):
-            f = work / d / f"{r['law_id']}.json"
+            f = wt / d / f"{lid}.json"
             if f.is_file():
                 (v / d).mkdir(parents=True, exist_ok=True)
                 shutil.copy(f, v / d / f.name)
     shutil.copy(src / "morph_auto.json", vault / "morph" / "morph_auto.json")
-    s = a["summary"]
-    old = [r for r in a["rows"] if r["in_hand"]]
+    lost = [{k: r.get(k) for k in ("law_id", "rule", "subform", "hand_status", "auto_status", "auto_note")}
+            for r in a["laws"] if r.get("role_dependent") and r.get("hand_status") in DECIDED
+            and not r.get("rederived_same_status")]
+    nb = s["new_by_family"]
     (OUT / "morph" / "aggregates.json").write_text(dumps({
-        "doc": "I107 (c): Morph under --roles auto (tools/i104_roles_experiment.py morph in a scratch copy). Laws already on "
-               "the lead keep their public verdicts; the new laws are aggregated only (Q56 rule 3).",
+        "doc": "I107 (c): Morph under --roles auto (tools/i104_roles_experiment.py morph in a scratch copy of the snapshot "
+               "tree; every role-dependent and every new law run alone). Laws already on the lead keep their public "
+               "verdicts; the new laws are aggregated only (Q56 rule 3).",
         "hand_laws": s["hand_laws"], "auto_laws": s["auto_laws"], "role_dependent_decided": s["role_dependent_decided"],
-        "role_dependent_rederived": s["role_dependent_rederived"], "role_dependent_lost": s["role_dependent_lost"],
-        "lost": [{k: r[k] for k in ("law_id", "hand_status", "auto_status", "auto_note")} for r in old
-                 if r["law_id"] in s["role_dependent_lost"]],
-        "other_decided_unchanged": s["other_decided_unchanged"], "new_laws": len(new),
-        "new_decided": sum(1 for r in new if r["auto_status"] in DECIDED),
-        "new_unknown": sum(1 for r in new if r["auto_status"] not in DECIDED),
-        "new_by_family": family_counts([{"rule": r["rule"], "status": r["auto_status"]} for r in new])}))
+        "role_dependent_rederived": s["role_dependent_rederived"], "role_dependent_lost": sorted(x["law_id"] for x in lost),
+        "lost": lost, "changed_by_family": s.get("changed_by_family"),
+        "other_decided_unchanged": s["other_decided_unchanged"], "new_laws": s["new_laws"],
+        "new_decided": sum(x["decided"] for x in nb.values()), "new_unknown": sum(x["unknown"] for x in nb.values()),
+        "new_not_run": sum(x.get("not_run", 0) for x in nb.values()), "new_by_family": nb,
+        "new_law_files_in_bundle": sum(1 for _ in v.rglob("*.json")) if v.exists() else 0,
+        "scorer_bundle_sha256": s.get("new_bundle_sha256"), "scorer_bundle_doc": s.get("bundle_doc")}))
     b = load(OUT / "bundles.json") or {}
     b["morph/new_laws"] = bundle_sha(v) if v.exists() else hashlib.sha256(b"").hexdigest()
     (OUT / "bundles.json").write_text(dumps(dict(sorted(b.items()))))
-
 
 
 # ------------------------------------------------------------------------------------------- snapshot, AI channel, slither
@@ -434,6 +439,7 @@ def main(argv=None) -> int:
     p.add_argument("--command", required=True)
     p = sp.add_parser("remap-counts"); p.add_argument("--dir", nargs=2, action="append", required=True)
     p = sp.add_parser("publish-morph"); p.add_argument("--work", required=True); p.add_argument("--vault", required=True)
+    p.add_argument("--worktree", required=True)
     a = ap.parse_args(argv)
     sys.path.insert(0, str(ROOT))
     if a.cmd == "roles-derive":
@@ -458,7 +464,7 @@ def main(argv=None) -> int:
         remap_counts([(r, Path(d)) for r, d in a.dir])
         return 0
     if a.cmd == "publish-morph":
-        publish_morph(Path(a.work), Path(a.vault))
+        publish_morph(Path(a.work), Path(a.vault), Path(a.worktree))
         return 0
     text = assemble()
     if a.check:

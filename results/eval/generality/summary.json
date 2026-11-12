@@ -73,9 +73,9 @@
      "C": 0
     },
     "miss": {
-     "reason": "the run decided or left UNKNOWN the derived laws; no detection (verdicts bundled, Q56)",
-     "stage": "run",
-     "status": "not_applicable"
+     "reason": "derive completed and derived 0 laws: no producer of the catalog gives a law over the extracted document(s); nothing to run",
+     "stage": "derive",
+     "status": "ok"
     },
     "reached_derive": true,
     "reached_extraction": true,
@@ -941,9 +941,9 @@
      "C": 0
     },
     "miss": {
-     "reason": "the run decided or left UNKNOWN the derived laws; no detection (verdicts bundled, Q56)",
-     "stage": "run",
-     "status": "not_applicable"
+     "reason": "derive completed and derived 0 laws: no producer of the catalog gives a law over the extracted document(s); nothing to run",
+     "stage": "derive",
+     "status": "ok"
     },
     "reached_derive": true,
     "reached_extraction": true,
@@ -1177,7 +1177,114 @@
   }
  },
  "doc": "I107 summary (tools/i107_generality.py assemble) over results/eval/generality/; the protocol is spec/M6/lib/i107_protocol.json, the key spec/M6/predictions/I107.json. Q56: no per-law verdict.",
- "morph": null,
+ "morph": {
+  "auto_laws": 617,
+  "changed_by_family": {
+   "PAR/cross_component_codec": {
+    "changed": 1,
+    "decided": 1,
+    "unknown": 0
+   },
+   "PAR/go_branch": {
+    "changed": 2,
+    "decided": 0,
+    "unknown": 2
+   }
+  },
+  "hand_laws": 288,
+  "i104": {
+   "auto_laws": 617,
+   "hand_laws": 288,
+   "new_laws": 330,
+   "precision": [
+    4,
+    11
+   ],
+   "recall": [
+    4,
+    6
+   ],
+   "role_dependent_decided": 99,
+   "role_dependent_lost": 4,
+   "role_dependent_rederived": 95
+  },
+  "label": "contaminated: the development target; reported, never substituted for M3's record",
+  "lost": [
+   {
+    "auto_note": "withheld (HUMAN_ANSWERS Q56): the status differs from the lead's record",
+    "auto_status": null,
+    "hand_status": "REFUTED",
+    "law_id": "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3",
+    "rule": "PAR",
+    "subform": "go_branch"
+   },
+   {
+    "auto_note": "withheld (HUMAN_ANSWERS Q56): the status differs from the lead's record",
+    "auto_status": null,
+    "hand_status": "REFUTED",
+    "law_id": "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7",
+    "rule": "PAR",
+    "subform": "go_branch"
+   },
+   {
+    "auto_note": null,
+    "auto_status": null,
+    "hand_status": "REFUTED",
+    "law_id": "L_par_gorc_data_hash_BatchData_DataHash",
+    "rule": "PAR",
+    "subform": "go_recompute"
+   }
+  ],
+  "new_by_family": {
+   "PAR/domain_coherence": {
+    "decided": 0,
+    "derived": 202,
+    "not_run": 0,
+    "unknown": 202
+   },
+   "PAR/go_recompute": {
+    "decided": 0,
+    "derived": 1,
+    "not_run": 0,
+    "unknown": 1
+   },
+   "PAR/totality": {
+    "decided": 0,
+    "derived": 39,
+    "not_run": 0,
+    "unknown": 39
+   },
+   "PAR/weak": {
+    "decided": 0,
+    "derived": 88,
+    "not_run": 0,
+    "unknown": 88
+   }
+  },
+  "new_decided": 0,
+  "new_law_files_in_bundle": 331,
+  "new_laws": 330,
+  "new_not_run": 0,
+  "new_unknown": 330,
+  "other_decided_unchanged": 80,
+  "precision": [
+   4,
+   11
+  ],
+  "recall": [
+   4,
+   6
+  ],
+  "role_dependent_decided": 99,
+  "role_dependent_lost": [
+   "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3",
+   "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7",
+   "L_par_gorc_data_hash_BatchData_DataHash"
+  ],
+  "role_dependent_rederived": 96,
+  "scorer_bundle_doc": "sha256 of the lines 'path sha256' (law IR and record files of every new law and every changed verdict, paths relative to the scratch worktree, sorted, one per line, each ending in a newline); the files stay outside the repository",
+  "scorer_bundle_sha256": "10b660bc65690bc922dc584ba6d65c001c71b803b5394e1317550db619badaa0"
+ },
  "sealed": {
   "P8": {
    "commitments": {
@@ -1233,7 +1340,17 @@
      "roles": 0
     },
     "slither": {
-     "status": null
+     "invocation": "slither . --json <out> --foundry-compile-all (I52 stock, no triage)",
+     "primary": {
+      "counts": {},
+      "error_kind": "no JSON",
+      "findings": 0,
+      "high": 0,
+      "status": "compile_failed",
+      "wall_budget_s": 1860
+     },
+     "secondary": null,
+     "status": "compile_failed"
     },
     "stage_status": {
      "checkout": "ok",
@@ -1286,7 +1403,24 @@
      "roles": 0
     },
     "slither": {
-     "status": null
+     "invocation": "slither . --json <out> --foundry-compile-all (I52 stock, no triage)",
+     "primary": {
+      "counts": {},
+      "error_kind": "no JSON",
+      "findings": 0,
+      "high": 0,
+      "status": "compile_failed",
+      "wall_budget_s": 1860
+     },
+     "secondary": {
+      "counts": {},
+      "error_kind": "no JSON",
+      "findings": 0,
+      "high": 0,
+      "status": "compile_failed",
+      "wall_budget_s": 3600
+     },
+     "status": "compile_failed"
     },
     "stage_status": {
      "checkout": "ok",
