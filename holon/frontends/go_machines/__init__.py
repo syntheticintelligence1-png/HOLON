@@ -1401,6 +1401,21 @@ def machine_document(prog: Program, tv: TypeView, cfg: dict, prov: dict, typ: st
                               "inputs": [dict(tv.abi(pt), name=pn) for pn, pt in fn.params[1:]],
                               "outputs": [dict(tv.abi(t), name="") for t in fn.results if t != "error"],
                               "declared_in": short}
+    if ((cfg.get("machines") or {}).get("nil_maps")) == "unknown":
+        # I108 (Q60), under the config's opt-in: a Go map field is nil until it is made (a struct's zero value, or a
+        # constructor that leaves it nil), and a write into a nil map panics. Without a constructor rule the frontend
+        # cannot tell which state made it, so every element write into a map field (a KV store is not a Go map) is
+        # nil_map debt, and the typed model refuses the document (holon.sorts.model3): every law over it is UNKNOWN.
+        gomaps = {f["name"] for f in fields if f["name"] not in kv
+                  and types[next(x["type"] for x in layout if x["label"] == f["name"])]["encoding"] == "mapping"}
+        for rec in actions:
+            for w in rec["writes"]:
+                if w["family"] in gomaps and w.get("path") and isinstance(w["path"][0], list) \
+                        and w["path"][0][:1] == ["map"]:
+                    debt.append({"action": rec["name"], "kind": "nil_map", "src": w["src"],
+                                 "what": f"a write into the map field {w['family']}, which may be nil (Q60: a nil-map "
+                                         "write panics; no constructor rule)"})
+        debt = [json.loads(x) for x in sorted({json.dumps(d, sort_keys=True) for d in debt})]
     sels: dict = {}
     for k, (v,) in sorted(members.items()):
         if sels.setdefault(v["selector"], k) != k:

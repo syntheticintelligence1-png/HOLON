@@ -453,6 +453,97 @@
           "sole_reader": "Before the reveal nobody reads the plaintext, not the lead and not a builder; after it, only I107 reads the targets (docs/iterations/I49.md's rule)."
         }
       }
+    },
+    "I108": {
+      "title": "I108: pipeline totality, pass 2: sort rules S1-S3 for the IR's signed operators (holon-sort-types/0.4) and their typed-model compilation, Foundry remappings and gitlinked submodules in the corpus protocol (holon-layout/0.1), SYM per model in a multi-model milestone, and Go nil maps as UNKNOWN under an opt-in (Q60); string/bytes-keyed mappings stay refused",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I108)",
+      "prompt": "prompts/I108_pipeline_totality.md",
+      "tests": [
+        "tests_m6/test_i108_pipeline_totality.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I108/",
+        "docs/iterations/I108.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P6-P10 are smoke measures on I51's corpus, already contaminated by I51/I103/I105; I107 does the scored run.",
+        "instruments": "spec/M6/lib/i108_run.json (the run protocol) and tests_m6/test_i108_pipeline_totality.py (every check)",
+        "base": "claude/holon-v2-bend2-c6z3cd at c2cd112c with claude/i103-frontend-reach (f67e9b80) and claude/i105-go-machines (d13ab328) merged"
+      },
+      "predictions": [
+        {
+          "id": "I108-P1",
+          "claim": "Signed operators: on the planted fixture's Acct (int64 Bal and Limit; tests_m6/fixtures/i108), the Go machine document holds s<, s> and sext; holon-sort-types/0.3 records them as coverage debt; 0.4 records no debt for s<, s<=, s>, s>=, sext, sdiv, smod or sar; and Acct runs sorts, types, model, disch and derive all ok under 0.4, deriving at least one law, its model comparing signed words through the flipped sign bit.",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestSigned"
+        },
+        {
+          "id": "I108-P2",
+          "claim": "SYM per model: a milestone of two Go machine documents (the fixture's Acct and Book, no opt-in) runs sorts through derive all ok (no 'SYM states one' refusal); holon.sym.typed_models lists both documents, and every L_sym_ law names one of them as its facts.",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestSymPerModel"
+        },
+        {
+          "id": "I108-P3",
+          "claim": "Nil maps (Q60): with machines.nil_maps \"unknown\", the fixture's Book carries nil_map debt for Credit only (the one action writing the map field Bal), Acct none; storage, actions and info equal the documents without the key, which carry no nil_map debt; and types refuses Book with a reason naming a nil map, so every law over it is UNKNOWN.",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestNilMaps"
+        },
+        {
+          "id": "I108-P4",
+          "claim": "Layout: holon.eval.layout finds a unit's Foundry project (the nearest foundry.toml at or above it), reads its remappings from [profile.default] then remappings.txt (first (context, prefix) kept, rewritten relative to the checkout, plus rule L2's base-path remappings for the project's top-level directories) exactly as listed in the test, gives none outside a project, and records a submodule whose URL is not a GitHub repository or is excluded by the clone rule as refused (never cloned), with its path and gitlinked commit.",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestLayout"
+        },
+        {
+          "id": "I108-P5",
+          "claim": "(b) is not built tonight: a string- or bytes-keyed mapping stays refused at types by the SP_b refusal; no opaque-key fallback exists, so no opaque key is equated or ordered to prove anything (Q61).",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestStringKeys"
+        },
+        {
+          "id": "I108-P6",
+          "claim": "Extraction reach on I51's 20 entries under the I108 protocol: at least 14 entries extract at least one document (holon eval holon) or one Go machine (holon eval go-machines); I103 recorded 12 (c02 c03 c04 c06 c08 c09 c13 c14 c16 c17 c18 c19). The expected gains are nitro's c01 and c12 (their go-ethereum replace target is a submodule) and optimism's entries (remappings, submodules and the base path).",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestCorpusSmoke::test_p6_extraction_reach",
+          "expected": {
+            "at_least": 14
+          }
+        },
+        {
+          "id": "I108-P7",
+          "claim": "No Go machine entry of the go-machines run stops at sorts, and none on a signed head (I105 run 2: 7 of 8 did, on s> or sext).",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestCorpusSmoke::test_p7_no_sorts_refusal_on_go_machines"
+        },
+        {
+          "id": "I108-P8",
+          "claim": "Go machine entries completing sorts through derive: 0, and 0 laws: past sorts every entry still meets a types refusal (a string- or bytes-keyed map (SP_b), a whole-map havoc, a nil-map write under the opt-in, sdiv/smod/sar, or I105's tuple rendering gap), because one refusing document stops the entry's milestone.",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestCorpusSmoke::test_p8_go_machines_complete",
+          "expected": {
+            "complete": 0,
+            "laws": 0
+          }
+        },
+        {
+          "id": "I108-P9",
+          "claim": "c02 (compound, 7 models in one milestone) passes derive with SYM derived per model and derives at least one law.",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestCorpusSmoke::test_p9_c02_derives_per_model"
+        },
+        {
+          "id": "I108-P10",
+          "claim": "Every remaining miss is recorded with its stage and reason, and the run records no verdict (stop_after derive).",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestCorpusSmoke::test_p10_every_miss_has_stage_and_reason"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I108-R1",
+          "claim": "Morph's M0-M3 record (results/M0-M3, laws/M0-M3) moves only by re-stamp: every JSON file equals the base's (c2cd112c) with generator_sha256 removed; with the CI gates (M0, M1, M2, partial M3) and a field-by-field record comparison in docs/iterations/I108.md.",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestRegressions::test_r1_morph_record_moves_only_by_restamp",
+          "expected": {
+            "moved": []
+          }
+        },
+        {
+          "id": "I108-R2",
+          "claim": "No Morph document under spec/M*/facts holds a head S1-S3 names, so holon-sort-types/0.4 walks each exactly as 0.3 and Morph's sort pass cannot move.",
+          "check": "tests_m6/test_i108_pipeline_totality.py::TestRegressions::test_r2_morph_documents_have_no_signed_heads"
+        }
+      ]
     }
   }
 }
