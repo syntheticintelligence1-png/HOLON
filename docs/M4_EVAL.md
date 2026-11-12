@@ -293,6 +293,24 @@ Delta = holon - baseline; a baseline file that does not exist is missing, never 
 | heldout | two_cycle | precision | — | — | — | 0 |
 | heldout | two_cycle | from_scratch_time_s | — | 0 | — | 0 |
 
+**Compiler asymmetry on the corpus** (generated from results/eval/holon/corpus.json and the baselines' files). HOLON's run (I51) had one pinned compiler per language, so 11 of 20 entries never reached extraction (not_run); the baselines' Solidity runner selects the compiler by pragma, so a baseline detection on these entries is on code HOLON never read.
+
+| entry | why HOLON did not run it |
+|---|---|
+| c01 | no document extracted: github.com/offchainlabs/nitro/arbos: holon extract go: refused: ssadump: packages did not load or type-check (exit 2): ssadump: load: err: exit status 1: stderr: go: go.mod requires go >= 1.25 (run |
+| c02 | no document extracted: CErc20: holon extract solidity: extraction error: compile errors: ParserError: Source file requires different compiler version (current compiler is 0.8.24+commit.e11b9ed9.Linux.g++) - note that nig |
+| c05 | no document extracted: SuperPermissionedDisputeGame: holon extract solidity: extraction error: compile errors: ParserError: Source file requires different compiler version (current compiler is 0.8.24+commit.e11b9ed9.Linu |
+| c06 | no document extracted: github.com/certusone/wormhole/node/pkg/governor: holon extract go: refused: ssadump: packages did not load or type-check (exit 2): ssadump: load: err: exit status 1: stderr: go: conflicting replace |
+| c07 | no document extracted: github.com/offchainlabs/nitro/precompiles: holon extract go: refused: ssadump: packages did not load or type-check (exit 2): ssadump: load: err: exit status 1: stderr: go: go.mod requires go >= 1.2 |
+| c10 | no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: compile errors: ParserError: Source file requires different compiler version (current compiler is 0.8.24+commit.e11b9e |
+| c11 | no document extracted: github.com/certusone/wormhole/node/pkg/watchers/algorand: holon extract go: refused: ssadump: packages did not load or type-check (exit 2): ssadump: load: err: exit status 1: stderr: go: conflictin |
+| c12 | no document extracted: github.com/offchainlabs/nitro/daprovider: holon extract go: refused: ssadump: packages did not load or type-check (exit 2): ssadump: load: err: exit status 1: stderr: go: go.mod requires go >= 1.25 |
+| c15 | no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: compile errors: ParserError: Source file requires different compiler version (current compiler is 0.8.24+commit.e11b9e |
+| c16 | no document extracted: github.com/certusone/wormhole/node/pkg/watchers/evm/connectors: holon extract go: refused: ssadump: packages did not load or type-check (exit 2): ssadump: load: err: exit status 1: stderr: go: conf |
+| c20 | no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: compile errors: ParserError: Source file requires different compiler version (current compiler is 0.8.24+commit.e11b9e |
+
+Baseline detections on those entries: agent_review: c15, c20; slither: c05.
+
 ## Threats to validity
 
 - The ablated systems are this codebase with one function or input replaced, not independently engineered alternatives: an ablation measures what the component contributes inside HOLON, not the best design without it.
