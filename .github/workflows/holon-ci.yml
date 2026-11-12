@@ -211,6 +211,14 @@ jobs:
             # derive a law) is a recorded miss (docs/iterations/I104.md) and is not run here.
             timeout: 30
             run: python -m unittest tests_m6.test_i104_roles.TestBuild tests_m6.test_i104_roles.TestPredictions.test_p1_morph_role_precision_recall tests_m6.test_i104_roles.TestPredictions.test_p2_m3_rederived tests_m6.test_i104_roles.TestPredictions.test_p3_planted_wrong_roles_are_never_findings -v
+          - name: tests-m6-i105
+            # I105 (M6, Go state machines): holon extract go_machines on the planted fixtures. Struct-field machines
+            # (P1), havoc never drops a write (P2), the KV-store pattern (P3), byte-identical (P5), the existing
+            # frontends unchanged (R1), guards keep every behaviour (TestGuardSoundness), and a Go machine through
+            # sorts -> derive with DISCH laws (TestDemo). P4 and the corpus smoke measures P6-P8 are missed
+            # predictions (docs/iterations/I105.md) and are not run here.
+            timeout: 30
+            run: python -m unittest tests_m6.test_i105_go_machines.TestStructMachines tests_m6.test_i105_go_machines.TestSoundness tests_m6.test_i105_go_machines.TestKVMachines tests_m6.test_i105_go_machines.TestDeterminism tests_m6.test_i105_go_machines.TestRegressions tests_m6.test_i105_go_machines.TestGuardSoundness tests_m6.test_i105_go_machines.TestDemo -v
           - name: tests-m3-par-record
             # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
             # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an
