@@ -1,0 +1,23 @@
+{
+  "doc": "I113's candidate list (docs/BUILD_PLAN.md §3 row I113, HUMAN_ANSWERS Q54 (a), Q55 (1) and Q86 (1) as relayed in the I113 brief). Written before any draw, from names and URLs only: no candidate repository was opened, listed or fetched to write it, and no ranking was fetched either. spec/M6/lib/I113_draw.py draws 2 of these by commit-reveal; the list's order plays no part in the draw.",
+  "snapshot_date": "2025-01-01",
+  "criteria": {
+    "C1_well_known": "Listed in DefiLlama's top 30 protocols by TVL, or in L2BEAT's top 20 rollups by total value secured, at the snapshot 2025-01-01 (the same lists and date as I106's C1). Membership is asserted from the sealer's memory of those public lists and was not fetched for this file. Under Q55 (1) it is checked later against the lists' archives for every candidate; a failure is disclosed as a selection-criteria error and is never a reason to redraw. The list a candidate is asserted under is its c1_list.",
+    "C2_multi_component": "The on-chain system is several contracts that call each other (not a single contract or a single token).",
+    "C3_upgrade_history": "Its mainnet deployment has been upgraded at least once after launch: a proxy implementation change, or a governance-executed module replacement.",
+    "C4_public_repo": "Its source is in a public GitHub repository under the project's own organisation; the URL is the canonical one, as the sealer remembers it. A URL that does not answer `git ls-remote` at the draw is skipped by the draw script's resolvable rule, and recorded.",
+    "C5_frontend_language": "The system's on-chain core is written in Solidity or Go, the two languages HOLON's frontends read. For a rollup the candidate is its L1 contract system (Solidity), not its node software.",
+    "excluded": "I106's 9 candidates (eigenlayer, aave-v3, pendle, lido, linea, rocketpool, zksync-era, makerdao, etherfi), so also the two spent targets EigenLayer and Aave V3; I48's corpus systems (spec/eval/corpus.json: arbitrum, compound, cosmos, go-ethereum, optimism, wormhole); Morph; Scroll; across-protocol; and the forks of all of these: Aave forks (Spark), Maker/Sky forks, OP-stack chains (Base, Blast, Mantle's L2, Mode, Zora and the like), Arbitrum Orbit chains, ZK Stack chains, geth forks (so Taiko's taiko-geth is not the candidate, its Solidity protocol is), Cosmos-SDK chains (Babylon, dYdX v4), Compound forks. Systems that meet C1 but fail another criterion are left out, e.g. Uniswap and Morpho Blue (immutable core: no C3), Curve (Vyper: no C5), Starknet (Cairo: no C5), Solana programs such as Jito, Jupiter and Kamino (Rust: no C5), and Ethena and Usual (no canonical public repository URL the sealer could name with confidence: C4 as written here)."
+  },
+  "candidates": [
+    {"id": "fluid", "name": "Fluid (Instadapp)", "repo": "https://github.com/Instadapp/fluid-contracts-public", "c1_list": "DefiLlama top 30 by TVL"},
+    {"id": "kelpdao", "name": "Kelp DAO rsETH", "repo": "https://github.com/Kelp-DAO/LRT-rsETH", "c1_list": "DefiLlama top 30 by TVL"},
+    {"id": "loopring", "name": "Loopring", "repo": "https://github.com/Loopring/protocols", "c1_list": "L2BEAT top 20 by value secured"},
+    {"id": "mantle-meth", "name": "Mantle mETH (liquid staking)", "repo": "https://github.com/mantle-lsp/contracts", "c1_list": "DefiLlama top 30 by TVL"},
+    {"id": "polygon-zkevm", "name": "Polygon zkEVM", "repo": "https://github.com/0xPolygonHermez/zkevm-contracts", "c1_list": "L2BEAT top 20 by value secured"},
+    {"id": "puffer", "name": "Puffer Finance", "repo": "https://github.com/PufferFinance/puffer-contracts", "c1_list": "DefiLlama top 30 by TVL"},
+    {"id": "renzo", "name": "Renzo", "repo": "https://github.com/Renzo-Protocol/contracts-public", "c1_list": "DefiLlama top 30 by TVL"},
+    {"id": "symbiotic", "name": "Symbiotic", "repo": "https://github.com/symbioticfi/core", "c1_list": "DefiLlama top 30 by TVL"},
+    {"id": "taiko", "name": "Taiko (L1 protocol)", "repo": "https://github.com/taikoxyz/taiko-mono", "c1_list": "L2BEAT top 20 by value secured"}
+  ]
+}
