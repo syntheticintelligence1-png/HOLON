@@ -220,6 +220,11 @@ class _Producer:
         if inputs is not None:
             inputs.read(root / "gen" / ctx.milestone / "sorts" / "assignment.json")
         out = []
+        tsc = getattr(ctx, "sidecar", None)
+        if tsc is not None and tsc.types_fallback:   # I111 O3: no law over an opaque document (holon.sorts.opaque)
+            from ..sorts import opaque as OP
+            gone = OP.excluded(ctx.milestone, root)
+            models = [m for m in models if m[0] not in gone]
         for rel, facts, assignment in models:
             doc = next((d for d in getattr(ctx, "typed_documents", []) or [] if d.rel == rel), None)
             if doc is None:

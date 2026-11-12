@@ -1,0 +1,4837 @@
+{
+  "constraints": [
+    {
+      "id": "go_1_go_1.BlockPollConnector.extracted.c0001",
+      "kind": "type",
+      "model": "go_1_go_1.BlockPollConnector.extracted",
+      "sort": "Bool",
+      "src": null,
+      "text": "publishSafeBlocks : Bool (ABI type)",
+      "vars": [
+        "publishSafeBlocks"
+      ]
+    },
+    {
+      "id": "go_1_go_1.BlockPollConnector.extracted.c0002",
+      "kind": "type",
+      "model": "go_1_go_1.BlockPollConnector.extracted",
+      "sort": "Bool",
+      "src": null,
+      "text": "useFinalized : Bool (ABI type)",
+      "vars": [
+        "useFinalized"
+      ]
+    },
+    {
+      "id": "go_1_go_1.BlockPollConnector.extracted.c0003",
+      "kind": "flow",
+      "model": "go_1_go_1.BlockPollConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/poller.go:204",
+      "text": "SubscribeForBlocks: $1 flows into blockFeed",
+      "vars": [
+        "$1",
+        "blockFeed"
+      ]
+    },
+    {
+      "id": "go_1_go_1.BlockPollConnector.extracted.c0004",
+      "kind": "flow",
+      "model": "go_1_go_1.BlockPollConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/poller.go:204",
+      "text": "SubscribeForBlocks: $2 flows into errFeed",
+      "vars": [
+        "$2",
+        "errFeed"
+      ]
+    },
+    {
+      "id": "go_1_go_1.BlockPollConnector.extracted.c0005",
+      "kind": "writer",
+      "model": "go_1_go_1.BlockPollConnector.extracted",
+      "src": null,
+      "text": "blockFeed is written by SubscribeForBlocks",
+      "vars": [
+        "blockFeed"
+      ],
+      "writers": [
+        "SubscribeForBlocks"
+      ]
+    },
+    {
+      "id": "go_1_go_1.BlockPollConnector.extracted.c0006",
+      "kind": "writer",
+      "model": "go_1_go_1.BlockPollConnector.extracted",
+      "src": null,
+      "text": "errFeed is written by SubscribeForBlocks",
+      "vars": [
+        "errFeed"
+      ],
+      "writers": [
+        "SubscribeForBlocks"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0001",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:74",
+      "text": "GetCurrentGuardianSetIndex: $1 flows into address",
+      "vars": [
+        "$1",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0002",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:74",
+      "text": "GetCurrentGuardianSetIndex: $2 flows into caller",
+      "vars": [
+        "$2",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0003",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:74",
+      "text": "GetCurrentGuardianSetIndex: $3 flows into client",
+      "vars": [
+        "$3",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0004",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:74",
+      "text": "GetCurrentGuardianSetIndex: $4 flows into filterer",
+      "vars": [
+        "$4",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0005",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:74",
+      "text": "GetCurrentGuardianSetIndex: $5 flows into logger",
+      "vars": [
+        "$5",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0006",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:74",
+      "text": "GetCurrentGuardianSetIndex: $6 flows into networkName",
+      "vars": [
+        "$6",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0007",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:74",
+      "text": "GetCurrentGuardianSetIndex: $7 flows into rawClient",
+      "vars": [
+        "$7",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0008",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:81",
+      "text": "GetGuardianSet: $11 flows into address",
+      "vars": [
+        "$11",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0009",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:81",
+      "text": "GetGuardianSet: $15 flows into caller",
+      "vars": [
+        "$15",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0010",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:81",
+      "text": "GetGuardianSet: $19 flows into client",
+      "vars": [
+        "$19",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0011",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:81",
+      "text": "GetGuardianSet: $23 flows into filterer",
+      "vars": [
+        "$23",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0012",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:81",
+      "text": "GetGuardianSet: $27 flows into logger",
+      "vars": [
+        "$27",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0013",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:81",
+      "text": "GetGuardianSet: $31 flows into networkName",
+      "vars": [
+        "$31",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0014",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:81",
+      "text": "GetGuardianSet: $35 flows into rawClient",
+      "vars": [
+        "$35",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0015",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:89",
+      "text": "GetGuardianSet: $39 flows into address",
+      "vars": [
+        "$39",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0016",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:89",
+      "text": "GetGuardianSet: $43 flows into caller",
+      "vars": [
+        "$43",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0017",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:89",
+      "text": "GetGuardianSet: $47 flows into client",
+      "vars": [
+        "$47",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0018",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:89",
+      "text": "GetGuardianSet: $51 flows into filterer",
+      "vars": [
+        "$51",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0019",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:89",
+      "text": "GetGuardianSet: $55 flows into logger",
+      "vars": [
+        "$55",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0020",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:89",
+      "text": "GetGuardianSet: $59 flows into networkName",
+      "vars": [
+        "$59",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0021",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:89",
+      "text": "GetGuardianSet: $63 flows into rawClient",
+      "vars": [
+        "$63",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0022",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:141",
+      "text": "ParseLogMessagePublished: $67 flows into address",
+      "vars": [
+        "$67",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0023",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:141",
+      "text": "ParseLogMessagePublished: $71 flows into caller",
+      "vars": [
+        "$71",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0024",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:141",
+      "text": "ParseLogMessagePublished: $75 flows into client",
+      "vars": [
+        "$75",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0025",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:141",
+      "text": "ParseLogMessagePublished: $79 flows into filterer",
+      "vars": [
+        "$79",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0026",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:141",
+      "text": "ParseLogMessagePublished: $83 flows into logger",
+      "vars": [
+        "$83",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0027",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:141",
+      "text": "ParseLogMessagePublished: $87 flows into networkName",
+      "vars": [
+        "$87",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0028",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:141",
+      "text": "ParseLogMessagePublished: $91 flows into rawClient",
+      "vars": [
+        "$91",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0029",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:144",
+      "text": "ParseLogMessagePublished: $95 flows into address",
+      "vars": [
+        "$95",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0030",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:144",
+      "text": "ParseLogMessagePublished: $99 flows into caller",
+      "vars": [
+        "$99",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0031",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:144",
+      "text": "ParseLogMessagePublished: $103 flows into client",
+      "vars": [
+        "$103",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0032",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:144",
+      "text": "ParseLogMessagePublished: $107 flows into filterer",
+      "vars": [
+        "$107",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0033",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:144",
+      "text": "ParseLogMessagePublished: $111 flows into logger",
+      "vars": [
+        "$111",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0034",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:144",
+      "text": "ParseLogMessagePublished: $115 flows into networkName",
+      "vars": [
+        "$115",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0035",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:144",
+      "text": "ParseLogMessagePublished: $119 flows into rawClient",
+      "vars": [
+        "$119",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0036",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:181",
+      "text": "RawCallContext: $120 flows into address",
+      "vars": [
+        "$120",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0037",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:181",
+      "text": "RawCallContext: $121 flows into caller",
+      "vars": [
+        "$121",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0038",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:181",
+      "text": "RawCallContext: $122 flows into client",
+      "vars": [
+        "$122",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0039",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:181",
+      "text": "RawCallContext: $123 flows into filterer",
+      "vars": [
+        "$123",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0040",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:181",
+      "text": "RawCallContext: $124 flows into logger",
+      "vars": [
+        "$124",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0041",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:181",
+      "text": "RawCallContext: $125 flows into networkName",
+      "vars": [
+        "$125",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0042",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:181",
+      "text": "RawCallContext: $126 flows into rawClient",
+      "vars": [
+        "$126",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0043",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:151",
+      "text": "SubscribeForBlocks: $130 flows into address",
+      "vars": [
+        "$130",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0044",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:151",
+      "text": "SubscribeForBlocks: $134 flows into caller",
+      "vars": [
+        "$134",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0045",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:151",
+      "text": "SubscribeForBlocks: $138 flows into client",
+      "vars": [
+        "$138",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0046",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:151",
+      "text": "SubscribeForBlocks: $142 flows into filterer",
+      "vars": [
+        "$142",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0047",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:151",
+      "text": "SubscribeForBlocks: $146 flows into logger",
+      "vars": [
+        "$146",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0048",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:151",
+      "text": "SubscribeForBlocks: $150 flows into networkName",
+      "vars": [
+        "$150",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0049",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:151",
+      "text": "SubscribeForBlocks: $154 flows into rawClient",
+      "vars": [
+        "$154",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0050",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:177",
+      "text": "SubscribeForBlocks: $158 flows into address",
+      "vars": [
+        "$158",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0051",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:177",
+      "text": "SubscribeForBlocks: $162 flows into caller",
+      "vars": [
+        "$162",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0052",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:177",
+      "text": "SubscribeForBlocks: $166 flows into client",
+      "vars": [
+        "$166",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0053",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:177",
+      "text": "SubscribeForBlocks: $170 flows into filterer",
+      "vars": [
+        "$170",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0054",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:177",
+      "text": "SubscribeForBlocks: $174 flows into logger",
+      "vars": [
+        "$174",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0055",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:177",
+      "text": "SubscribeForBlocks: $178 flows into networkName",
+      "vars": [
+        "$178",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0056",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:177",
+      "text": "SubscribeForBlocks: $182 flows into rawClient",
+      "vars": [
+        "$182",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0057",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:132",
+      "text": "TimeOfBlockByHash: $185 flows into address",
+      "vars": [
+        "$185",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0058",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:132",
+      "text": "TimeOfBlockByHash: $188 flows into caller",
+      "vars": [
+        "$188",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0059",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:132",
+      "text": "TimeOfBlockByHash: $191 flows into client",
+      "vars": [
+        "$191",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0060",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:132",
+      "text": "TimeOfBlockByHash: $194 flows into filterer",
+      "vars": [
+        "$194",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0061",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:132",
+      "text": "TimeOfBlockByHash: $197 flows into logger",
+      "vars": [
+        "$197",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0062",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:132",
+      "text": "TimeOfBlockByHash: $200 flows into networkName",
+      "vars": [
+        "$200",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0063",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:132",
+      "text": "TimeOfBlockByHash: $203 flows into rawClient",
+      "vars": [
+        "$203",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0064",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:135",
+      "text": "TimeOfBlockByHash: $206 flows into address",
+      "vars": [
+        "$206",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0065",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:135",
+      "text": "TimeOfBlockByHash: $209 flows into caller",
+      "vars": [
+        "$209",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0066",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:135",
+      "text": "TimeOfBlockByHash: $212 flows into client",
+      "vars": [
+        "$212",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0067",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:135",
+      "text": "TimeOfBlockByHash: $215 flows into filterer",
+      "vars": [
+        "$215",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0068",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:135",
+      "text": "TimeOfBlockByHash: $218 flows into logger",
+      "vars": [
+        "$218",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0069",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:135",
+      "text": "TimeOfBlockByHash: $221 flows into networkName",
+      "vars": [
+        "$221",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0070",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:135",
+      "text": "TimeOfBlockByHash: $224 flows into rawClient",
+      "vars": [
+        "$224",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0071",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:123",
+      "text": "TransactionReceipt: $227 flows into address",
+      "vars": [
+        "$227",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0072",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:123",
+      "text": "TransactionReceipt: $230 flows into caller",
+      "vars": [
+        "$230",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0073",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:123",
+      "text": "TransactionReceipt: $233 flows into client",
+      "vars": [
+        "$233",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0074",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:123",
+      "text": "TransactionReceipt: $236 flows into filterer",
+      "vars": [
+        "$236",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0075",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:123",
+      "text": "TransactionReceipt: $239 flows into logger",
+      "vars": [
+        "$239",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0076",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:123",
+      "text": "TransactionReceipt: $242 flows into networkName",
+      "vars": [
+        "$242",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0077",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:123",
+      "text": "TransactionReceipt: $245 flows into rawClient",
+      "vars": [
+        "$245",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0078",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:126",
+      "text": "TransactionReceipt: $248 flows into address",
+      "vars": [
+        "$248",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0079",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:126",
+      "text": "TransactionReceipt: $251 flows into caller",
+      "vars": [
+        "$251",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0080",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:126",
+      "text": "TransactionReceipt: $254 flows into client",
+      "vars": [
+        "$254",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0081",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:126",
+      "text": "TransactionReceipt: $257 flows into filterer",
+      "vars": [
+        "$257",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0082",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:126",
+      "text": "TransactionReceipt: $260 flows into logger",
+      "vars": [
+        "$260",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0083",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:126",
+      "text": "TransactionReceipt: $263 flows into networkName",
+      "vars": [
+        "$263",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0084",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:126",
+      "text": "TransactionReceipt: $266 flows into rawClient",
+      "vars": [
+        "$266",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0085",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:101",
+      "text": "WatchLogMessagePublished: $271 flows into address",
+      "vars": [
+        "$271",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0086",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:101",
+      "text": "WatchLogMessagePublished: $276 flows into caller",
+      "vars": [
+        "$276",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0087",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:101",
+      "text": "WatchLogMessagePublished: $281 flows into client",
+      "vars": [
+        "$281",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0088",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:101",
+      "text": "WatchLogMessagePublished: $286 flows into filterer",
+      "vars": [
+        "$286",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0089",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:101",
+      "text": "WatchLogMessagePublished: $291 flows into logger",
+      "vars": [
+        "$291",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0090",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:101",
+      "text": "WatchLogMessagePublished: $296 flows into networkName",
+      "vars": [
+        "$296",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0091",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:101",
+      "text": "WatchLogMessagePublished: $301 flows into rawClient",
+      "vars": [
+        "$301",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0092",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:117",
+      "text": "WatchLogMessagePublished: $306 flows into address",
+      "vars": [
+        "$306",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0093",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:117",
+      "text": "WatchLogMessagePublished: $311 flows into caller",
+      "vars": [
+        "$311",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0094",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:117",
+      "text": "WatchLogMessagePublished: $316 flows into client",
+      "vars": [
+        "$316",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0095",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:117",
+      "text": "WatchLogMessagePublished: $321 flows into filterer",
+      "vars": [
+        "$321",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0096",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:117",
+      "text": "WatchLogMessagePublished: $326 flows into logger",
+      "vars": [
+        "$326",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0097",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:117",
+      "text": "WatchLogMessagePublished: $331 flows into networkName",
+      "vars": [
+        "$331",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0098",
+      "kind": "flow",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/celo.go:117",
+      "text": "WatchLogMessagePublished: $336 flows into rawClient",
+      "vars": [
+        "$336",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0099",
+      "kind": "writer",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": null,
+      "text": "address is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "address"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0100",
+      "kind": "writer",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": null,
+      "text": "caller is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "caller"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0101",
+      "kind": "writer",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": null,
+      "text": "client is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "client"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0102",
+      "kind": "writer",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": null,
+      "text": "filterer is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "filterer"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0103",
+      "kind": "writer",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": null,
+      "text": "logger is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "logger"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0104",
+      "kind": "writer",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": null,
+      "text": "networkName is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "networkName"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.CeloConnector.extracted.c0105",
+      "kind": "writer",
+      "model": "go_1_go_1.CeloConnector.extracted",
+      "src": null,
+      "text": "rawClient is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "rawClient"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0001",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+      "text": "GetCurrentGuardianSetIndex: $1 flows into address",
+      "vars": [
+        "$1",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0002",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+      "text": "GetCurrentGuardianSetIndex: $2 flows into caller",
+      "vars": [
+        "$2",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0003",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+      "text": "GetCurrentGuardianSetIndex: $3 flows into client",
+      "vars": [
+        "$3",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0004",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+      "text": "GetCurrentGuardianSetIndex: $4 flows into filterer",
+      "vars": [
+        "$4",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0005",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+      "text": "GetCurrentGuardianSetIndex: $5 flows into logger",
+      "vars": [
+        "$5",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0006",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+      "text": "GetCurrentGuardianSetIndex: $6 flows into networkName",
+      "vars": [
+        "$6",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0007",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+      "text": "GetCurrentGuardianSetIndex: $7 flows into rawClient",
+      "vars": [
+        "$7",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0008",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+      "text": "GetGuardianSet: $8 flows into address",
+      "vars": [
+        "$8",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0009",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+      "text": "GetGuardianSet: $9 flows into caller",
+      "vars": [
+        "$9",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0010",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+      "text": "GetGuardianSet: $10 flows into client",
+      "vars": [
+        "$10",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0011",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+      "text": "GetGuardianSet: $11 flows into filterer",
+      "vars": [
+        "$11",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0012",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+      "text": "GetGuardianSet: $12 flows into logger",
+      "vars": [
+        "$12",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0013",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+      "text": "GetGuardianSet: $13 flows into networkName",
+      "vars": [
+        "$13",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0014",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+      "text": "GetGuardianSet: $14 flows into rawClient",
+      "vars": [
+        "$14",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0015",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+      "text": "ParseLogMessagePublished: $15 flows into address",
+      "vars": [
+        "$15",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0016",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+      "text": "ParseLogMessagePublished: $16 flows into caller",
+      "vars": [
+        "$16",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0017",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+      "text": "ParseLogMessagePublished: $17 flows into client",
+      "vars": [
+        "$17",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0018",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+      "text": "ParseLogMessagePublished: $18 flows into filterer",
+      "vars": [
+        "$18",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0019",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+      "text": "ParseLogMessagePublished: $19 flows into logger",
+      "vars": [
+        "$19",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0020",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+      "text": "ParseLogMessagePublished: $20 flows into networkName",
+      "vars": [
+        "$20",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0021",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+      "text": "ParseLogMessagePublished: $21 flows into rawClient",
+      "vars": [
+        "$21",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0022",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+      "text": "RawCallContext: $22 flows into address",
+      "vars": [
+        "$22",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0023",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+      "text": "RawCallContext: $23 flows into caller",
+      "vars": [
+        "$23",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0024",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+      "text": "RawCallContext: $24 flows into client",
+      "vars": [
+        "$24",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0025",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+      "text": "RawCallContext: $25 flows into filterer",
+      "vars": [
+        "$25",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0026",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+      "text": "RawCallContext: $26 flows into logger",
+      "vars": [
+        "$26",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0027",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+      "text": "RawCallContext: $27 flows into networkName",
+      "vars": [
+        "$27",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0028",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+      "text": "RawCallContext: $28 flows into rawClient",
+      "vars": [
+        "$28",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0029",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+      "text": "SubscribeForBlocks: $32 flows into address",
+      "vars": [
+        "$32",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0030",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+      "text": "SubscribeForBlocks: $36 flows into caller",
+      "vars": [
+        "$36",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0031",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+      "text": "SubscribeForBlocks: $40 flows into client",
+      "vars": [
+        "$40",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0032",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+      "text": "SubscribeForBlocks: $44 flows into filterer",
+      "vars": [
+        "$44",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0033",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+      "text": "SubscribeForBlocks: $48 flows into logger",
+      "vars": [
+        "$48",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0034",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+      "text": "SubscribeForBlocks: $52 flows into networkName",
+      "vars": [
+        "$52",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0035",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+      "text": "SubscribeForBlocks: $56 flows into rawClient",
+      "vars": [
+        "$56",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0036",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+      "text": "SubscribeForBlocks: $60 flows into address",
+      "vars": [
+        "$60",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0037",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+      "text": "SubscribeForBlocks: $64 flows into caller",
+      "vars": [
+        "$64",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0038",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+      "text": "SubscribeForBlocks: $68 flows into client",
+      "vars": [
+        "$68",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0039",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+      "text": "SubscribeForBlocks: $72 flows into filterer",
+      "vars": [
+        "$72",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0040",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+      "text": "SubscribeForBlocks: $76 flows into logger",
+      "vars": [
+        "$76",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0041",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+      "text": "SubscribeForBlocks: $80 flows into networkName",
+      "vars": [
+        "$80",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0042",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+      "text": "SubscribeForBlocks: $84 flows into rawClient",
+      "vars": [
+        "$84",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0043",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+      "text": "TimeOfBlockByHash: $87 flows into address",
+      "vars": [
+        "$87",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0044",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+      "text": "TimeOfBlockByHash: $90 flows into caller",
+      "vars": [
+        "$90",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0045",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+      "text": "TimeOfBlockByHash: $93 flows into client",
+      "vars": [
+        "$93",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0046",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+      "text": "TimeOfBlockByHash: $96 flows into filterer",
+      "vars": [
+        "$96",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0047",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+      "text": "TimeOfBlockByHash: $99 flows into logger",
+      "vars": [
+        "$99",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0048",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+      "text": "TimeOfBlockByHash: $102 flows into networkName",
+      "vars": [
+        "$102",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0049",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+      "text": "TimeOfBlockByHash: $105 flows into rawClient",
+      "vars": [
+        "$105",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0050",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+      "text": "TimeOfBlockByHash: $108 flows into address",
+      "vars": [
+        "$108",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0051",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+      "text": "TimeOfBlockByHash: $111 flows into caller",
+      "vars": [
+        "$111",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0052",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+      "text": "TimeOfBlockByHash: $114 flows into client",
+      "vars": [
+        "$114",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0053",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+      "text": "TimeOfBlockByHash: $117 flows into filterer",
+      "vars": [
+        "$117",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0054",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+      "text": "TimeOfBlockByHash: $120 flows into logger",
+      "vars": [
+        "$120",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0055",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+      "text": "TimeOfBlockByHash: $123 flows into networkName",
+      "vars": [
+        "$123",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0056",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+      "text": "TimeOfBlockByHash: $126 flows into rawClient",
+      "vars": [
+        "$126",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0057",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+      "text": "TransactionReceipt: $127 flows into address",
+      "vars": [
+        "$127",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0058",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+      "text": "TransactionReceipt: $128 flows into caller",
+      "vars": [
+        "$128",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0059",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+      "text": "TransactionReceipt: $129 flows into client",
+      "vars": [
+        "$129",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0060",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+      "text": "TransactionReceipt: $130 flows into filterer",
+      "vars": [
+        "$130",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0061",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+      "text": "TransactionReceipt: $131 flows into logger",
+      "vars": [
+        "$131",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0062",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+      "text": "TransactionReceipt: $132 flows into networkName",
+      "vars": [
+        "$132",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0063",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+      "text": "TransactionReceipt: $133 flows into rawClient",
+      "vars": [
+        "$133",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0064",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+      "text": "WatchLogMessagePublished: $134 flows into address",
+      "vars": [
+        "$134",
+        "address"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0065",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+      "text": "WatchLogMessagePublished: $135 flows into caller",
+      "vars": [
+        "$135",
+        "caller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0066",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+      "text": "WatchLogMessagePublished: $136 flows into client",
+      "vars": [
+        "$136",
+        "client"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0067",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+      "text": "WatchLogMessagePublished: $137 flows into filterer",
+      "vars": [
+        "$137",
+        "filterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0068",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+      "text": "WatchLogMessagePublished: $138 flows into logger",
+      "vars": [
+        "$138",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0069",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+      "text": "WatchLogMessagePublished: $139 flows into networkName",
+      "vars": [
+        "$139",
+        "networkName"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0070",
+      "kind": "flow",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+      "text": "WatchLogMessagePublished: $140 flows into rawClient",
+      "vars": [
+        "$140",
+        "rawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0071",
+      "kind": "writer",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": null,
+      "text": "address is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "address"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0072",
+      "kind": "writer",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": null,
+      "text": "caller is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "caller"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0073",
+      "kind": "writer",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": null,
+      "text": "client is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "client"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0074",
+      "kind": "writer",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": null,
+      "text": "filterer is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "filterer"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0075",
+      "kind": "writer",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": null,
+      "text": "logger is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "logger"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0076",
+      "kind": "writer",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": null,
+      "text": "networkName is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "networkName"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.EthereumConnector.extracted.c0077",
+      "kind": "writer",
+      "model": "go_1_go_1.EthereumConnector.extracted",
+      "src": null,
+      "text": "rawClient is written by GetCurrentGuardianSetIndex, GetGuardianSet, ParseLogMessagePublished, RawCallContext, SubscribeForBlocks, TimeOfBlockByHash, TransactionReceipt, WatchLogMessagePublished",
+      "vars": [
+        "rawClient"
+      ],
+      "writers": [
+        "GetCurrentGuardianSetIndex",
+        "GetGuardianSet",
+        "ParseLogMessagePublished",
+        "RawCallContext",
+        "SubscribeForBlocks",
+        "TimeOfBlockByHash",
+        "TransactionReceipt",
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.LogPollConnector.extracted.c0001",
+      "kind": "flow",
+      "model": "go_1_go_1.LogPollConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/logpoller.go:98",
+      "text": "WatchLogMessagePublished: $1 flows into errFeed",
+      "vars": [
+        "$1",
+        "errFeed"
+      ]
+    },
+    {
+      "id": "go_1_go_1.LogPollConnector.extracted.c0002",
+      "kind": "flow",
+      "model": "go_1_go_1.LogPollConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/logpoller.go:98",
+      "text": "WatchLogMessagePublished: $2 flows into messageFeed",
+      "vars": [
+        "$2",
+        "messageFeed"
+      ]
+    },
+    {
+      "id": "go_1_go_1.LogPollConnector.extracted.c0003",
+      "kind": "writer",
+      "model": "go_1_go_1.LogPollConnector.extracted",
+      "src": null,
+      "text": "errFeed is written by WatchLogMessagePublished",
+      "vars": [
+        "errFeed"
+      ],
+      "writers": [
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.LogPollConnector.extracted.c0004",
+      "kind": "writer",
+      "model": "go_1_go_1.LogPollConnector.extracted",
+      "src": null,
+      "text": "messageFeed is written by WatchLogMessagePublished",
+      "vars": [
+        "messageFeed"
+      ],
+      "writers": [
+        "WatchLogMessagePublished"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PollSubscription.extracted.c0001",
+      "kind": "flow",
+      "model": "go_1_go_1.PollSubscription.extracted",
+      "src": "node/pkg/watchers/evm/connectors/common.go:59",
+      "text": "Unsubscribe: $1 flows into err",
+      "vars": [
+        "$1",
+        "err"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PollSubscription.extracted.c0002",
+      "kind": "flow",
+      "model": "go_1_go_1.PollSubscription.extracted",
+      "src": "node/pkg/watchers/evm/connectors/common.go:59",
+      "text": "Unsubscribe: $2 flows into errOnce",
+      "vars": [
+        "$2",
+        "errOnce"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PollSubscription.extracted.c0003",
+      "kind": "flow",
+      "model": "go_1_go_1.PollSubscription.extracted",
+      "src": "node/pkg/watchers/evm/connectors/common.go:59",
+      "text": "Unsubscribe: $3 flows into quit",
+      "vars": [
+        "$3",
+        "quit"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PollSubscription.extracted.c0004",
+      "kind": "flow",
+      "model": "go_1_go_1.PollSubscription.extracted",
+      "src": "node/pkg/watchers/evm/connectors/common.go:59",
+      "text": "Unsubscribe: $4 flows into unsubDone",
+      "vars": [
+        "$4",
+        "unsubDone"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PollSubscription.extracted.c0005",
+      "kind": "writer",
+      "model": "go_1_go_1.PollSubscription.extracted",
+      "src": null,
+      "text": "err is written by Unsubscribe",
+      "vars": [
+        "err"
+      ],
+      "writers": [
+        "Unsubscribe"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PollSubscription.extracted.c0006",
+      "kind": "writer",
+      "model": "go_1_go_1.PollSubscription.extracted",
+      "src": null,
+      "text": "errOnce is written by Unsubscribe",
+      "vars": [
+        "errOnce"
+      ],
+      "writers": [
+        "Unsubscribe"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PollSubscription.extracted.c0007",
+      "kind": "writer",
+      "model": "go_1_go_1.PollSubscription.extracted",
+      "src": null,
+      "text": "quit is written by Unsubscribe",
+      "vars": [
+        "quit"
+      ],
+      "writers": [
+        "Unsubscribe"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PollSubscription.extracted.c0008",
+      "kind": "writer",
+      "model": "go_1_go_1.PollSubscription.extracted",
+      "src": null,
+      "text": "unsubDone is written by Unsubscribe",
+      "vars": [
+        "unsubDone"
+      ],
+      "writers": [
+        "Unsubscribe"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0001",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:102",
+      "text": "SubscribeForBlocks: $5 flows into Connector",
+      "vars": [
+        "$5",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0002",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:102",
+      "text": "SubscribeForBlocks: $10 flows into logger",
+      "vars": [
+        "$10",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0003",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:102",
+      "text": "SubscribeForBlocks: $15 flows into rootCaller",
+      "vars": [
+        "$15",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0004",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:102",
+      "text": "SubscribeForBlocks: $20 flows into rootClient",
+      "vars": [
+        "$20",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0005",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:102",
+      "text": "SubscribeForBlocks: $25 flows into rootFilterer",
+      "vars": [
+        "$25",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0006",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:102",
+      "text": "SubscribeForBlocks: $30 flows into rootRawClient",
+      "vars": [
+        "$30",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0007",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:109",
+      "text": "SubscribeForBlocks: $38 flows into Connector",
+      "vars": [
+        "$38",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0008",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:109",
+      "text": "SubscribeForBlocks: $46 flows into logger",
+      "vars": [
+        "$46",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0009",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:109",
+      "text": "SubscribeForBlocks: $54 flows into rootCaller",
+      "vars": [
+        "$54",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0010",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:109",
+      "text": "SubscribeForBlocks: $62 flows into rootClient",
+      "vars": [
+        "$62",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0011",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:109",
+      "text": "SubscribeForBlocks: $70 flows into rootFilterer",
+      "vars": [
+        "$70",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0012",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:109",
+      "text": "SubscribeForBlocks: $78 flows into rootRawClient",
+      "vars": [
+        "$78",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0013",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $89 flows into Connector",
+      "vars": [
+        "$89",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0014",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $100 flows into logger",
+      "vars": [
+        "$100",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0015",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $111 flows into rootCaller",
+      "vars": [
+        "$111",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0016",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $122 flows into rootClient",
+      "vars": [
+        "$122",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0017",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $133 flows into rootFilterer",
+      "vars": [
+        "$133",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0018",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $144 flows into rootRawClient",
+      "vars": [
+        "$144",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0019",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $155 flows into Connector",
+      "vars": [
+        "$155",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0020",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $166 flows into logger",
+      "vars": [
+        "$166",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0021",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $177 flows into rootCaller",
+      "vars": [
+        "$177",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0022",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $188 flows into rootClient",
+      "vars": [
+        "$188",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0023",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $199 flows into rootFilterer",
+      "vars": [
+        "$199",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0024",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $210 flows into rootRawClient",
+      "vars": [
+        "$210",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0025",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $231 flows into Connector",
+      "vars": [
+        "$231",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0026",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $252 flows into logger",
+      "vars": [
+        "$252",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0027",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $273 flows into rootCaller",
+      "vars": [
+        "$273",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0028",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $294 flows into rootClient",
+      "vars": [
+        "$294",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0029",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $315 flows into rootFilterer",
+      "vars": [
+        "$315",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0030",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $336 flows into rootRawClient",
+      "vars": [
+        "$336",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0031",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $357 flows into Connector",
+      "vars": [
+        "$357",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0032",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $378 flows into logger",
+      "vars": [
+        "$378",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0033",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $399 flows into rootCaller",
+      "vars": [
+        "$399",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0034",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $420 flows into rootClient",
+      "vars": [
+        "$420",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0035",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $441 flows into rootFilterer",
+      "vars": [
+        "$441",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0036",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $462 flows into rootRawClient",
+      "vars": [
+        "$462",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0037",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $482 flows into Connector",
+      "vars": [
+        "$482",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0038",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $502 flows into logger",
+      "vars": [
+        "$502",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0039",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $522 flows into rootCaller",
+      "vars": [
+        "$522",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0040",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $542 flows into rootClient",
+      "vars": [
+        "$542",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0041",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $562 flows into rootFilterer",
+      "vars": [
+        "$562",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0042",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $582 flows into rootRawClient",
+      "vars": [
+        "$582",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0043",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $602 flows into Connector",
+      "vars": [
+        "$602",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0044",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $622 flows into logger",
+      "vars": [
+        "$622",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0045",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $642 flows into rootCaller",
+      "vars": [
+        "$642",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0046",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $662 flows into rootClient",
+      "vars": [
+        "$662",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0047",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $682 flows into rootFilterer",
+      "vars": [
+        "$682",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0048",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $702 flows into rootRawClient",
+      "vars": [
+        "$702",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0049",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $720 flows into Connector",
+      "vars": [
+        "$720",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0050",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $738 flows into logger",
+      "vars": [
+        "$738",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0051",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $756 flows into rootCaller",
+      "vars": [
+        "$756",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0052",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $774 flows into rootClient",
+      "vars": [
+        "$774",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0053",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $792 flows into rootFilterer",
+      "vars": [
+        "$792",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0054",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $810 flows into rootRawClient",
+      "vars": [
+        "$810",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0055",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $828 flows into Connector",
+      "vars": [
+        "$828",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0056",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $846 flows into logger",
+      "vars": [
+        "$846",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0057",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $864 flows into rootCaller",
+      "vars": [
+        "$864",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0058",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $882 flows into rootClient",
+      "vars": [
+        "$882",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0059",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $900 flows into rootFilterer",
+      "vars": [
+        "$900",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0060",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $918 flows into rootRawClient",
+      "vars": [
+        "$918",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0061",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $935 flows into Connector",
+      "vars": [
+        "$935",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0062",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $952 flows into logger",
+      "vars": [
+        "$952",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0063",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $969 flows into rootCaller",
+      "vars": [
+        "$969",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0064",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $986 flows into rootClient",
+      "vars": [
+        "$986",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0065",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1003 flows into rootFilterer",
+      "vars": [
+        "$1003",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0066",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1020 flows into rootRawClient",
+      "vars": [
+        "$1020",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0067",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1037 flows into Connector",
+      "vars": [
+        "$1037",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0068",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1054 flows into logger",
+      "vars": [
+        "$1054",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0069",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1071 flows into rootCaller",
+      "vars": [
+        "$1071",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0070",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1088 flows into rootClient",
+      "vars": [
+        "$1088",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0071",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1105 flows into rootFilterer",
+      "vars": [
+        "$1105",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0072",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1122 flows into rootRawClient",
+      "vars": [
+        "$1122",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0073",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1140 flows into Connector",
+      "vars": [
+        "$1140",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0074",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1158 flows into logger",
+      "vars": [
+        "$1158",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0075",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1176 flows into rootCaller",
+      "vars": [
+        "$1176",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0076",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1194 flows into rootClient",
+      "vars": [
+        "$1194",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0077",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1212 flows into rootFilterer",
+      "vars": [
+        "$1212",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0078",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1230 flows into rootRawClient",
+      "vars": [
+        "$1230",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0079",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1248 flows into Connector",
+      "vars": [
+        "$1248",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0080",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1266 flows into logger",
+      "vars": [
+        "$1266",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0081",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1284 flows into rootCaller",
+      "vars": [
+        "$1284",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0082",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1302 flows into rootClient",
+      "vars": [
+        "$1302",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0083",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1320 flows into rootFilterer",
+      "vars": [
+        "$1320",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0084",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1338 flows into rootRawClient",
+      "vars": [
+        "$1338",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0085",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1355 flows into Connector",
+      "vars": [
+        "$1355",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0086",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1372 flows into logger",
+      "vars": [
+        "$1372",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0087",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1389 flows into rootCaller",
+      "vars": [
+        "$1389",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0088",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1406 flows into rootClient",
+      "vars": [
+        "$1406",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0089",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1423 flows into rootFilterer",
+      "vars": [
+        "$1423",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0090",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1440 flows into rootRawClient",
+      "vars": [
+        "$1440",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0091",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1457 flows into Connector",
+      "vars": [
+        "$1457",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0092",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1474 flows into logger",
+      "vars": [
+        "$1474",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0093",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1491 flows into rootCaller",
+      "vars": [
+        "$1491",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0094",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1508 flows into rootClient",
+      "vars": [
+        "$1508",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0095",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1525 flows into rootFilterer",
+      "vars": [
+        "$1525",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0096",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1542 flows into rootRawClient",
+      "vars": [
+        "$1542",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0097",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1560 flows into Connector",
+      "vars": [
+        "$1560",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0098",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1578 flows into logger",
+      "vars": [
+        "$1578",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0099",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1596 flows into rootCaller",
+      "vars": [
+        "$1596",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0100",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1614 flows into rootClient",
+      "vars": [
+        "$1614",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0101",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1632 flows into rootFilterer",
+      "vars": [
+        "$1632",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0102",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1650 flows into rootRawClient",
+      "vars": [
+        "$1650",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0103",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1668 flows into Connector",
+      "vars": [
+        "$1668",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0104",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1686 flows into logger",
+      "vars": [
+        "$1686",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0105",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1704 flows into rootCaller",
+      "vars": [
+        "$1704",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0106",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1722 flows into rootClient",
+      "vars": [
+        "$1722",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0107",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1740 flows into rootFilterer",
+      "vars": [
+        "$1740",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0108",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1758 flows into rootRawClient",
+      "vars": [
+        "$1758",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0109",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1775 flows into Connector",
+      "vars": [
+        "$1775",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0110",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1792 flows into logger",
+      "vars": [
+        "$1792",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0111",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1809 flows into rootCaller",
+      "vars": [
+        "$1809",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0112",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1826 flows into rootClient",
+      "vars": [
+        "$1826",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0113",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1843 flows into rootFilterer",
+      "vars": [
+        "$1843",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0114",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1860 flows into rootRawClient",
+      "vars": [
+        "$1860",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0115",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1877 flows into Connector",
+      "vars": [
+        "$1877",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0116",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1894 flows into logger",
+      "vars": [
+        "$1894",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0117",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1911 flows into rootCaller",
+      "vars": [
+        "$1911",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0118",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1928 flows into rootClient",
+      "vars": [
+        "$1928",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0119",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1945 flows into rootFilterer",
+      "vars": [
+        "$1945",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0120",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $1962 flows into rootRawClient",
+      "vars": [
+        "$1962",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0121",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $1983 flows into Connector",
+      "vars": [
+        "$1983",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0122",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2004 flows into logger",
+      "vars": [
+        "$2004",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0123",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2025 flows into rootCaller",
+      "vars": [
+        "$2025",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0124",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2046 flows into rootClient",
+      "vars": [
+        "$2046",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0125",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2067 flows into rootFilterer",
+      "vars": [
+        "$2067",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0126",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2088 flows into rootRawClient",
+      "vars": [
+        "$2088",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0127",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2109 flows into Connector",
+      "vars": [
+        "$2109",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0128",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2130 flows into logger",
+      "vars": [
+        "$2130",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0129",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2151 flows into rootCaller",
+      "vars": [
+        "$2151",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0130",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2172 flows into rootClient",
+      "vars": [
+        "$2172",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0131",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2193 flows into rootFilterer",
+      "vars": [
+        "$2193",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0132",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2214 flows into rootRawClient",
+      "vars": [
+        "$2214",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0133",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2234 flows into Connector",
+      "vars": [
+        "$2234",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0134",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2254 flows into logger",
+      "vars": [
+        "$2254",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0135",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2274 flows into rootCaller",
+      "vars": [
+        "$2274",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0136",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2294 flows into rootClient",
+      "vars": [
+        "$2294",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0137",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2314 flows into rootFilterer",
+      "vars": [
+        "$2314",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0138",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2334 flows into rootRawClient",
+      "vars": [
+        "$2334",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0139",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2354 flows into Connector",
+      "vars": [
+        "$2354",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0140",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2374 flows into logger",
+      "vars": [
+        "$2374",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0141",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2394 flows into rootCaller",
+      "vars": [
+        "$2394",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0142",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2414 flows into rootClient",
+      "vars": [
+        "$2414",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0143",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2434 flows into rootFilterer",
+      "vars": [
+        "$2434",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0144",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2454 flows into rootRawClient",
+      "vars": [
+        "$2454",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0145",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2472 flows into Connector",
+      "vars": [
+        "$2472",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0146",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2490 flows into logger",
+      "vars": [
+        "$2490",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0147",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2508 flows into rootCaller",
+      "vars": [
+        "$2508",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0148",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2526 flows into rootClient",
+      "vars": [
+        "$2526",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0149",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2544 flows into rootFilterer",
+      "vars": [
+        "$2544",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0150",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2562 flows into rootRawClient",
+      "vars": [
+        "$2562",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0151",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2580 flows into Connector",
+      "vars": [
+        "$2580",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0152",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2598 flows into logger",
+      "vars": [
+        "$2598",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0153",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2616 flows into rootCaller",
+      "vars": [
+        "$2616",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0154",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2634 flows into rootClient",
+      "vars": [
+        "$2634",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0155",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2652 flows into rootFilterer",
+      "vars": [
+        "$2652",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0156",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2670 flows into rootRawClient",
+      "vars": [
+        "$2670",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0157",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2687 flows into Connector",
+      "vars": [
+        "$2687",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0158",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2704 flows into logger",
+      "vars": [
+        "$2704",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0159",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2721 flows into rootCaller",
+      "vars": [
+        "$2721",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0160",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2738 flows into rootClient",
+      "vars": [
+        "$2738",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0161",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2755 flows into rootFilterer",
+      "vars": [
+        "$2755",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0162",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2772 flows into rootRawClient",
+      "vars": [
+        "$2772",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0163",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2789 flows into Connector",
+      "vars": [
+        "$2789",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0164",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2806 flows into logger",
+      "vars": [
+        "$2806",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0165",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2823 flows into rootCaller",
+      "vars": [
+        "$2823",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0166",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2840 flows into rootClient",
+      "vars": [
+        "$2840",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0167",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2857 flows into rootFilterer",
+      "vars": [
+        "$2857",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0168",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $2874 flows into rootRawClient",
+      "vars": [
+        "$2874",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0169",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2892 flows into Connector",
+      "vars": [
+        "$2892",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0170",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2910 flows into logger",
+      "vars": [
+        "$2910",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0171",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2928 flows into rootCaller",
+      "vars": [
+        "$2928",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0172",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2946 flows into rootClient",
+      "vars": [
+        "$2946",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0173",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2964 flows into rootFilterer",
+      "vars": [
+        "$2964",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0174",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $2982 flows into rootRawClient",
+      "vars": [
+        "$2982",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0175",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3000 flows into Connector",
+      "vars": [
+        "$3000",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0176",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3018 flows into logger",
+      "vars": [
+        "$3018",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0177",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3036 flows into rootCaller",
+      "vars": [
+        "$3036",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0178",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3054 flows into rootClient",
+      "vars": [
+        "$3054",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0179",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3072 flows into rootFilterer",
+      "vars": [
+        "$3072",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0180",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3090 flows into rootRawClient",
+      "vars": [
+        "$3090",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0181",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3107 flows into Connector",
+      "vars": [
+        "$3107",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0182",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3124 flows into logger",
+      "vars": [
+        "$3124",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0183",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3141 flows into rootCaller",
+      "vars": [
+        "$3141",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0184",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3158 flows into rootClient",
+      "vars": [
+        "$3158",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0185",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3175 flows into rootFilterer",
+      "vars": [
+        "$3175",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0186",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3192 flows into rootRawClient",
+      "vars": [
+        "$3192",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0187",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3209 flows into Connector",
+      "vars": [
+        "$3209",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0188",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3226 flows into logger",
+      "vars": [
+        "$3226",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0189",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3243 flows into rootCaller",
+      "vars": [
+        "$3243",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0190",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3260 flows into rootClient",
+      "vars": [
+        "$3260",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0191",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3277 flows into rootFilterer",
+      "vars": [
+        "$3277",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0192",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3294 flows into rootRawClient",
+      "vars": [
+        "$3294",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0193",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3312 flows into Connector",
+      "vars": [
+        "$3312",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0194",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3330 flows into logger",
+      "vars": [
+        "$3330",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0195",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3348 flows into rootCaller",
+      "vars": [
+        "$3348",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0196",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3366 flows into rootClient",
+      "vars": [
+        "$3366",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0197",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3384 flows into rootFilterer",
+      "vars": [
+        "$3384",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0198",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3402 flows into rootRawClient",
+      "vars": [
+        "$3402",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0199",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3420 flows into Connector",
+      "vars": [
+        "$3420",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0200",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3438 flows into logger",
+      "vars": [
+        "$3438",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0201",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3456 flows into rootCaller",
+      "vars": [
+        "$3456",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0202",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3474 flows into rootClient",
+      "vars": [
+        "$3474",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0203",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3492 flows into rootFilterer",
+      "vars": [
+        "$3492",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0204",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3510 flows into rootRawClient",
+      "vars": [
+        "$3510",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0205",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3527 flows into Connector",
+      "vars": [
+        "$3527",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0206",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3544 flows into logger",
+      "vars": [
+        "$3544",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0207",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3561 flows into rootCaller",
+      "vars": [
+        "$3561",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0208",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3578 flows into rootClient",
+      "vars": [
+        "$3578",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0209",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3595 flows into rootFilterer",
+      "vars": [
+        "$3595",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0210",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:115",
+      "text": "SubscribeForBlocks: $3612 flows into rootRawClient",
+      "vars": [
+        "$3612",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0211",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3629 flows into Connector",
+      "vars": [
+        "$3629",
+        "Connector"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0212",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3646 flows into logger",
+      "vars": [
+        "$3646",
+        "logger"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0213",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3663 flows into rootCaller",
+      "vars": [
+        "$3663",
+        "rootCaller"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0214",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3680 flows into rootClient",
+      "vars": [
+        "$3680",
+        "rootClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0215",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3697 flows into rootFilterer",
+      "vars": [
+        "$3697",
+        "rootFilterer"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0216",
+      "kind": "flow",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": "node/pkg/watchers/evm/connectors/polygon.go:133",
+      "text": "SubscribeForBlocks: $3714 flows into rootRawClient",
+      "vars": [
+        "$3714",
+        "rootRawClient"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0217",
+      "kind": "writer",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": null,
+      "text": "Connector is written by SubscribeForBlocks",
+      "vars": [
+        "Connector"
+      ],
+      "writers": [
+        "SubscribeForBlocks"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0218",
+      "kind": "writer",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": null,
+      "text": "logger is written by SubscribeForBlocks",
+      "vars": [
+        "logger"
+      ],
+      "writers": [
+        "SubscribeForBlocks"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0219",
+      "kind": "writer",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": null,
+      "text": "rootCaller is written by SubscribeForBlocks",
+      "vars": [
+        "rootCaller"
+      ],
+      "writers": [
+        "SubscribeForBlocks"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0220",
+      "kind": "writer",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": null,
+      "text": "rootClient is written by SubscribeForBlocks",
+      "vars": [
+        "rootClient"
+      ],
+      "writers": [
+        "SubscribeForBlocks"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0221",
+      "kind": "writer",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": null,
+      "text": "rootFilterer is written by SubscribeForBlocks",
+      "vars": [
+        "rootFilterer"
+      ],
+      "writers": [
+        "SubscribeForBlocks"
+      ]
+    },
+    {
+      "id": "go_1_go_1.PolygonConnector.extracted.c0222",
+      "kind": "writer",
+      "model": "go_1_go_1.PolygonConnector.extracted",
+      "src": null,
+      "text": "rootRawClient is written by SubscribeForBlocks",
+      "vars": [
+        "rootRawClient"
+      ],
+      "writers": [
+        "SubscribeForBlocks"
+      ]
+    }
+  ],
+  "document": "constraints",
+  "inputs": [
+    {
+      "path": "results/M6/I111/holon/c16/facts/go_1_go_1.BlockPollConnector.extracted.json",
+      "sha256": "95d4222f34e82b503a0e438220d9ef76e772227cb65f9415b5a6c28206481009"
+    },
+    {
+      "path": "results/M6/I111/holon/c16/facts/go_1_go_1.CeloConnector.extracted.json",
+      "sha256": "086765326dc361e537887d5420357154105ca6e74f27dde3bea6ba5c5396655f"
+    },
+    {
+      "path": "results/M6/I111/holon/c16/facts/go_1_go_1.EthereumConnector.extracted.json",
+      "sha256": "5d0c796d2be32f25157876edd8f1f74c3dce76109f8de38569948f3db12e33b9"
+    },
+    {
+      "path": "results/M6/I111/holon/c16/facts/go_1_go_1.LogPollConnector.extracted.json",
+      "sha256": "f9a823d1bedf845af23c6eeb9ac045cc3273d0e278787eae874662d6dbec1360"
+    },
+    {
+      "path": "results/M6/I111/holon/c16/facts/go_1_go_1.PollSubscription.extracted.json",
+      "sha256": "a96fd8ef0023a0ae807aaddae2e6466eb364a938323312e3069858b98d09fdd8"
+    },
+    {
+      "path": "results/M6/I111/holon/c16/facts/go_1_go_1.PolygonConnector.extracted.json",
+      "sha256": "7ada999cdda8e5a33b6eeb8ce2b4cf5a59316ad15368518dc2be89c17d484435"
+    },
+    {
+      "path": "results/M6/I111/holon/c16/sidecars/sort_types.json",
+      "sha256": "bcf54c751bb7704f56a9d1752c3e40b365095bf2cb36b923396c2b833197e2ea"
+    },
+    {
+      "path": "spec/M3/lib/sort_seeds.json",
+      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+    }
+  ],
+  "milestone": "M9",
+  "sorts_version": "holon-sorts/0.1"
+}

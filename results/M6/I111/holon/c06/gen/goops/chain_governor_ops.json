@@ -1,0 +1,570 @@
+{
+  "carrier": {
+    "id": "ChainGovernor",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor"
+  },
+  "component": "chain_governor_ops",
+  "document": "results/M6/I111/holon/c06/facts/go_1.go.extracted.json",
+  "document_sha256": "914d9d14a775a952ebbe3cc1d9dc919c8e734a53ab0cc1fdc9f703986c44ceec",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "governor_ChainGovernor_CheckPending": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "gov",
+          "type": "*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "[]*github.com/certusone/wormhole/node/pkg/common.MessagePublication",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).CheckPending",
+      "span": "node/pkg/governor/governor.go:500"
+    },
+    "governor_ChainGovernor_Reload": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "gov",
+          "type": "*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "string",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).Reload",
+      "span": "node/pkg/governor/governor_monitoring.go:125"
+    },
+    "governor_ChainGovernor_initConfig": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "gov",
+          "type": "*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t24",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t24",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "var",
+                  "t14",
+                  "configTokens"
+                ]
+              ]
+            ]
+          ],
+          "id": "node/pkg/governor/governor.go:187:21:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t165",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t165",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "var",
+                  "t15",
+                  "configChains"
+                ]
+              ]
+            ]
+          ],
+          "id": "node/pkg/governor/governor.go:248:21:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+      "span": "node/pkg/governor/governor.go:173"
+    },
+    "governor_ChainGovernor_loadFromDB": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "gov",
+          "type": "*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).loadFromDB",
+      "span": "node/pkg/governor/governor_db.go:15"
+    },
+    "governor_ChainGovernor_loadFromDBAlreadyLocked": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "gov",
+          "type": "*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t31",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t31",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "result",
+                  [
+                    "call",
+                    "dynamic:GetChainGovernorData",
+                    [
+                      [
+                        "field",
+                        [
+                          "param",
+                          "gov"
+                        ],
+                        "db"
+                      ],
+                      [
+                        "field",
+                        [
+                          "param",
+                          "gov"
+                        ],
+                        "logger"
+                      ]
+                    ]
+                  ],
+                  1
+                ]
+              ]
+            ]
+          ],
+          "id": "node/pkg/governor/governor_db.go:34:21:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t48",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t48",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "result",
+                  [
+                    "call",
+                    "dynamic:GetChainGovernorData",
+                    [
+                      [
+                        "field",
+                        [
+                          "param",
+                          "gov"
+                        ],
+                        "db"
+                      ],
+                      [
+                        "field",
+                        [
+                          "param",
+                          "gov"
+                        ],
+                        "logger"
+                      ]
+                    ]
+                  ],
+                  0
+                ]
+              ]
+            ]
+          ],
+          "id": "node/pkg/governor/governor_db.go:45:24:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).loadFromDBAlreadyLocked",
+      "span": "node/pkg/governor/governor_db.go:21"
+    },
+    "governor_ChainGovernor_queryCoinGecko": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "gov",
+          "type": "*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t5",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t5",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "gov"
+                  ],
+                  "coinGeckoQueries"
+                ]
+              ]
+            ]
+          ],
+          "id": "node/pkg/governor/governor_prices.go:130:35:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": null,
+          "id": "node/pkg/governor/governor_prices.go:160:14:assert",
+          "kind": "assert",
+          "status": "open",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t90",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t90",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "result",
+                  [
+                    "index",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "gov"
+                      ],
+                      "tokensByCoinGeckoId"
+                    ],
+                    [
+                      "result",
+                      [
+                        "unknown",
+                        "next"
+                      ],
+                      1
+                    ]
+                  ],
+                  0
+                ]
+              ]
+            ]
+          ],
+          "id": "node/pkg/governor/governor_prices.go:178:23:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t109",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t109",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "result",
+                  [
+                    "unknown",
+                    "next"
+                  ],
+                  2
+                ]
+              ]
+            ]
+          ],
+          "id": "node/pkg/governor/governor_prices.go:192:23:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).queryCoinGecko",
+      "span": "node/pkg/governor/governor_prices.go:128"
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ],
+    "R_SlicePtrMessagePublication_Error": [
+      "[]*github.com/certusone/wormhole/node/pkg/common.MessagePublication",
+      "error"
+    ],
+    "R_String_Error": [
+      "string",
+      "error"
+    ]
+  }
+}

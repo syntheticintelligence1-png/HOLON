@@ -386,9 +386,11 @@ class TestRegressions(unittest.TestCase):
     def test_r3_earlier_protocols_name_no_budget_or_compose(self):
         found = []
         for p in sorted((ROOT / "spec").glob("M[4-6]/lib/i*_run.json")):
-            if p.name == "i110_run.json":
-                continue
             d = json.loads(p.read_text(encoding="utf-8"))
+            # amended (spec/M6/amendments/I110.jsonl): the protocols of I110 and later keys are not earlier ones
+            it = str(d.get("iteration") or "")
+            if it[1:].isdigit() and int(it[1:]) >= 110:
+                continue
             if "compose" in d or "sort_budget" in (d.get("typed") or {}):
                 found.append(p.name)
         self.assertEqual(found, [])
