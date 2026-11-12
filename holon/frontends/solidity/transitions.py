@@ -2569,6 +2569,10 @@ class Walk:
     def assembly(self, n: dict) -> None:
         f = self.frame
         saved = (f.asm, f.yul, f.yulfns)
+        if "AST" not in n:
+            # I103: a compiler before 0.6 writes inline assembly as source text ("operations"), with no Yul AST
+            raise ExtractionError(f"inline assembly at {n.get('src')} has no Yul AST (this compiler writes assembly as "
+                                  "text): the walker cannot read it")
         f.asm, f.yul, f.yulfns = n, [], []
         try:
             self.yul_block(n["AST"])
@@ -3586,9 +3590,29 @@ def overload_name(ix, owner: dict | None, fn: dict) -> str:
     return f"{name}_{sel}" if len(sels) > 1 else name
 
 
+def fill_selectors(index: Index) -> None:
+    """I103, under a pragma selection only: a compiler before 0.6 writes no functionSelector on a FunctionDefinition.
+    The selector is the ABI's own (the first 4 bytes of keccak256 of name(canonical parameter types)), computed here
+    for every external or public function that lacks one, so that actions, overloads and call signatures are read as
+    the 0.6+ AST states them. A parameter type the ABI signature cannot hold leaves the function without one."""
+    from ...keccak import keccak256
+    for n in list(index.nodes.values()):
+        if n.get("nodeType") != "FunctionDefinition" or n.get("functionSelector") \
+                or n.get("visibility") not in ("external", "public") or n.get("kind", "function") != "function" \
+                or not n.get("name"):
+            continue
+        try:
+            sig = f"{n['name']}({','.join(abi_type(index, p.get('typeName') or {}) for p in n['parameters']['parameters'])})"
+        except ExtractionError:
+            continue
+        n["functionSelector"] = keccak256(sig.encode())[:4].hex()
+
+
 def walk_contract(compiled, side: dict):
     """(index, contract, actions, collector): every action walked."""
     index = Index(compiled)
+    if getattr(compiled, "selection", None):
+        fill_selectors(index)
     tr = side["transitions"]
     contract = find_contract(index, tr["contract"])
     coll = Collector()
