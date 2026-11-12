@@ -31,7 +31,8 @@ Rules of inference (each role records its rule and the facts it rests on):
   hash_store        go_recompute's two sides, as holon.gox.basis accepts them: the Go functions of the gox document
                     with exactly one non-error return of the extraction config's hash primitive over one preimage, and
                     a Solidity action's store of keccak256 over a memory slice. One role per store site (its first
-                    action by name).
+                    action by name). A function that holon.gox.basis gives a reason, or whose element
+                    holon.gox.model refuses (model debt), is listed as rejected: the producer would refuse it.
   transitions_documents   the typed sidecars (sort_types, disch, undo, fact) over every transitions document, with no
                     hypothesis: DISCH and FACT hypotheses are premises and are never inferred; UNDO's action pairs and
                     FACT's commitments are found by those rules' own generators from the documents.
@@ -263,14 +264,17 @@ def go_ops_roles(docs: list) -> tuple[str | None, list, list]:
 class _Cx:
     """The parts of holon.gox.basis.Ctx its bases read, built from a document without a sidecar."""
 
-    def __init__(self, doc: Doc, config: dict):
-        self.doc, self.config = doc.doc, config
+    def __init__(self, doc: Doc, config: dict, root=None):
+        self.doc, self.config, self.root = doc.doc, config, root
         self.compression = {"codec": {"enc": None}}
         self.side = {"hypz_len": None, "recompute": {}}
 
     @property
     def fns(self):
         return self.doc["go"]["functions"]
+
+    def read_json(self, rel: str):
+        return json.loads((Path(self.root) / rel).read_text())
 
     def hash_prims(self) -> set:
         return {n for n, p in (self.config.get("primitives") or {}).items() if isinstance(p, dict)
@@ -325,17 +329,45 @@ def gox_roles(root: Path, docs: list) -> tuple[dict | None, list]:
             for m in a.get("mstores") or []:
                 if _keccak_mem(m.get("value")) and isinstance(m.get("src"), str):
                     stores.setdefault((t.rel, m["src"]), a["name"])
-    recompute = {}
+    recompute, rejected = {}, []
     if rec:
         for (trel, src), act in sorted(stores.items()):
             rid = ident("hash_" + src.rsplit("/", 1)[-1].replace(".sol", "").replace(":", "_"))
+            rec_ok = []
+            for fn in rec:
+                why = _recompute_refusal(root, g, cfg, rid, fn, trel, act, src)
+                if why is None:
+                    rec_ok.append(fn)
+                else:
+                    rejected.append({"document": rel, "carrier": f"{rid}:{fn}", "reason": why})
+            if not rec_ok:
+                continue
             r = role("go_laws", rid, "hash_store",
-                     [f"{rel}#go.functions.{fn}" for fn in rec] + [f"{trel}#actions.{act}.mstores.{src}"],
-                     go={"document": rel, "functions": rec},
+                     [f"{rel}#go.functions.{fn}" for fn in rec_ok] + [f"{trel}#actions.{act}.mstores.{src}"],
+                     go={"document": rel, "functions": rec_ok},
                      solidity={"document": trel, "action": act, "store": src})
             roles.append(r)
             recompute[rid] = r
-    return {"document": rel, "config": cfg_rel, "recompute": recompute}, _unique_ids(roles)
+    return {"document": rel, "config": cfg_rel, "recompute": recompute, "rejected": rejected}, _unique_ids(roles)
+
+
+def _recompute_refusal(root, g: Doc, cfg: dict, rid: str, fn: str, trel: str, act: str, src: str) -> str | None:
+    """Why holon.gox.basis or holon.gox.model refuses the role (fn, store) as it stands, or None: a role the rule
+    producer would refuse (and with it the milestone's whole Go part) is no candidate."""
+    from ..gox import basis as B
+    from ..gox import model as G
+    cx = _Cx(g, cfg, root)
+    cx.side = {"hypz_len": None, "recompute": {rid: {"go": {"document": g.rel, "functions": [fn]},
+                                                     "solidity": {"document": trel, "action": act, "store": src}}}}
+    try:
+        els = B.recomputes(cx)
+        for e in els:
+            if e.get("reason"):
+                return f"gox basis: {e['reason']}"
+            G.binders(e)
+    except (ValueError, KeyError, TypeError, IndexError, OSError) as e:
+        return f"{type(e).__name__}: {str(e)[:160]}"
+    return None
 
 
 # ====================================================================== everything
@@ -349,6 +381,7 @@ def infer(root: Path, rels: list) -> dict:
     out["rejected"] += rej
     gox, groles = gox_roles(root, docs)
     out["gox"] = gox
+    out["rejected"] += (gox or {}).get("rejected") or []
     out["roles"] += groles
     trans = sorted(d.rel for d in docs if d.kind == "transitions")
     out["transitions"] = trans

@@ -119,6 +119,21 @@ def build(root: Path, milestone: str, rels: list, mode: str, proposed: Path | No
         p, prov = P.read(proposed)
         prov = {"path": Path(proposed).name, **prov}
         roles, dropped = P.merge(roles, P.roles_of(p))
+        docs = {d.rel: d for d in res["docs"]}
+        kept = []
+        for r in roles:
+            if r["roles_source"] == "ai_proposal" and r["sidecar"] == "go_laws" and "go" in r:
+                g = docs.get(r["go"]["document"])
+                why = None if g is not None else "the Go document is not an input"
+                for fn in (r["go"]["functions"] if g is not None else []):
+                    why = why or I._recompute_refusal(root, g, I.go_config_of(root, g)[1], r["id"], fn,
+                                                      r["solidity"].get("document"), r["solidity"].get("action"),
+                                                      r["solidity"].get("store"))
+                if why:
+                    dropped.append({"sidecar": r["sidecar"], "id": r["id"], "reason": f"the producer refuses it: {why}"})
+                    continue
+            kept.append(r)
+        roles = kept
     side = sidecars(milestone, res, roles, dropped)
     texts = {n: dumps(v) for n, v in sorted(side.items())}
     man = {"roles_version": VERSION, "milestone": milestone, "mode": mode,
