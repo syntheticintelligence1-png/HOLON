@@ -1133,6 +1133,11 @@ class Gen:
             if el == "W":
                 return f"w_u(w_len({c}))", "w"
             return f"w_u(U32.from_nat(List.length(&2, {el}, {c})))", "w"
+        if _go_doc(self.m):
+            # I109 (a) A2 (run 2): in a Go machine document a string the rendering holds as a word or a storage view
+            # (an abstract cell, whose content no read decodes) has a length the model cannot compute: a free value,
+            # an environment member of the step keyed by the term (A-env: len is a function of its operand)
+            return self.leaf(self.ge("go.len." + canonical(t), sc), "env:go.len." + canonical(t), t)
         raise GenError(f"{sc.action}: the length of a {k} value")
 
     def t_byte(self, t, sc):

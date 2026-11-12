@@ -165,6 +165,11 @@ class TestTypesGaps(_Fixture):
     def test_p1_counter_compiles(self):
         self.stages_ok("Counter")
 
+    def test_p1_a2_len_of_a_string_cell_is_free(self):
+        """Added after run 1 (not counted; run 2): len of a string field (a storage view in the model) is a free value."""
+        text = self.stages_ok("Labeled")
+        self.assertIn("go.len.", text)
+
     def test_p1_a3_whole_string_write_is_a_havoc(self):
         text = self.stages_ok("Named")
         self.assertIn("go.string.", text)
