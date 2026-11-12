@@ -66,6 +66,12 @@ class Sidecar:
         return opaque.mode(self.doc)
 
     @property
+    def opaque_classes(self) -> tuple:
+        """I112: the refusal classes the fallback makes opaque (holon.sorts.opaque.classes)."""
+        from . import opaque
+        return opaque.classes(self.doc)
+
+    @property
     def version(self) -> str:
         return self.doc["sort_types_version"]
 

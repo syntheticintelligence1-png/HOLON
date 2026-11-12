@@ -1,0 +1,97 @@
+{
+  "carriers": [
+    {
+      "base_type": "MsgPipeRW",
+      "cls": "rep",
+      "domains": [
+        "ok_p2p_MsgPipeRW_Close",
+        "ok_p2p_MsgPipeRW_ReadMsg"
+      ],
+      "id": "MsgPipeRW",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Msg_Error",
+      "cls": "rep",
+      "id": "R_Msg_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I112/holon/c14/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_MsgPipeRW_Close",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_MsgPipeRW_Close",
+      "kind": "CODEC",
+      "model_fn": "p2p_MsgPipeRW_Close",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/p2p.MsgPipeRW).Close"
+        }
+      ],
+      "src": "MsgPipeRW",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I112/holon/c14/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_MsgPipeRW_ReadMsg",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_MsgPipeRW_ReadMsg",
+      "kind": "CODEC",
+      "model_fn": "p2p_MsgPipeRW_ReadMsg",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/p2p.MsgPipeRW).ReadMsg"
+        }
+      ],
+      "src": "MsgPipeRW",
+      "tgt": "R_Msg_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/msg_pipe_rw_ops.json",
+  "facts_sha256": "e258ab37f16a54e2a691a2095c0c2a867819d503fda81e226d586020466c1745",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "msg_pipe_rw_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

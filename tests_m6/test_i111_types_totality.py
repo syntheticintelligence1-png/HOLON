@@ -577,7 +577,9 @@ class TestRegressions(unittest.TestCase):
     def test_p6_earlier_protocols_name_no_types_fallback(self):
         found = []
         for p in sorted((ROOT / "spec").glob("M[4-6]/lib/i*_run.json")):
-            if p.name == "i111_run.json":
+            # amended (spec/M6/amendments/I111.jsonl): the protocols of I111 and later keys are not earlier ones
+            it = str(json.loads(p.read_text(encoding="utf-8")).get("iteration") or "")
+            if p.name == "i111_run.json" or (it[1:].isdigit() and int(it[1:]) >= 111):
                 continue
             if "types_fallback" in (json.loads(p.read_text(encoding="utf-8")).get("typed") or {}):
                 found.append(p.name)

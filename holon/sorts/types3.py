@@ -100,6 +100,8 @@ def compute(milestone: str, root: Path, sidecar: str | None = None, facts: list 
     except (OSError, ValueError) as e:
         raise OSError(f"{asg_p}: {e}") from None
     fallback = sc.types_fallback if not facts else None   # I111 (Q77): the per-document fallback, opt-in only
+    classes = sc.opaque_classes if fallback is not None else ()   # I112 (Q81): the classes it makes opaque
+    named = fallback is not None and "types_opaque_classes" in sc.doc
     rels = documents_of(milestone, root, sidecar, facts, all_documents=fallback is not None)
     inputs = {asg_p.relative_to(root).as_posix(): sha256_file(asg_p), sc.rel: sha256_file(sc.path),
               sc.seeds.relative_to(root).as_posix(): sha256_file(sc.seeds)}
@@ -112,12 +114,17 @@ def compute(milestone: str, root: Path, sidecar: str | None = None, facts: list 
         init = init_of(milestone, root, sidecar, rel)
         try:
             text, mm = generate(milestone, root, rel, typed=True, sidecar=sidecar, init=init, assignment=assignment)
-        except GenError as e:
-            if fallback is None:
+        except Exception as e:  # noqa: BLE001: re-raised unless its class is one the fallback names
+            cls = opaque.class_of(e)
+            if fallback is None or cls not in classes:
                 raise
-            # I111 O1: an ill-sorted document is opaque, a recorded miss (no model, no state, no action, no law)
-            misses.append({"document": rel, "sha256": inputs[rel], "model": model_name(rel),
-                           "term": opaque.term_of(str(e)), "reason": str(e)})
+            # I111 O1 (I112: widened to the classes the sidecar names): the document is opaque, a recorded miss (no
+            # model, no state, no action, no law)
+            miss = {"document": rel, "sha256": inputs[rel], "model": model_name(rel),
+                    "term": opaque.term_of(str(e)), "reason": str(e)}
+            if named:   # I112: the class only when the sidecar names types_opaque_classes (else I111's bytes)
+                miss["class"] = cls
+            misses.append(miss)
             continue
         typed_rels.append(rel)
         name = model_name(rel)

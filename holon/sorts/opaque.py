@@ -24,6 +24,9 @@ from pathlib import Path
 
 VERSION = "holon-opaque/0.1"
 MODES = ("opaque",)
+# I112 (Q81, the lead's correction): the per-document refusal classes the fallback may make opaque, named by the
+# sidecar's types_opaque_classes (absent: I111's, gen_error only, and every output is I111's)
+CLASSES = ("gen_error", "member_layout", "unsupported")
 
 
 def mode(doc: dict) -> str | None:
@@ -34,6 +37,38 @@ def mode(doc: dict) -> str | None:
     if v not in MODES:
         raise ValueError(f"types_fallback {v!r}: the only fallback is {MODES[0]!r}")
     return v
+
+
+def classes(doc: dict) -> tuple:
+    """The refusal classes a sidecar's fallback makes opaque: () without types_fallback; I111's ("gen_error",) without
+    types_opaque_classes; else that non-empty, sorted, duplicate-free subset of CLASSES (anything else: ValueError)."""
+    named = "types_opaque_classes" in doc
+    if mode(doc) is None:
+        if named:
+            raise ValueError("types_opaque_classes needs types_fallback \"opaque\"")
+        return ()
+    if not named:
+        return ("gen_error",)
+    v = doc["types_opaque_classes"]
+    if not isinstance(v, list) or not v or any(x not in CLASSES for x in v) or v != sorted(set(v)):
+        raise ValueError(f"types_opaque_classes {v!r}: a non-empty sorted subset of {list(CLASSES)}")
+    return tuple(v)
+
+
+def class_of(e: BaseException) -> str | None:
+    """The refusal class of a document's typed model generation error, or None (a refusal of the milestone): GenError
+    (whatever its case) gen_error; holon.machine.MemberLayoutError member_layout; holon.extracted_eval.Unsupported
+    unsupported. Every other error, ModelError included, is None."""
+    from .. import extracted_eval
+    from ..machine import MemberLayoutError
+    from .model3 import GenError
+    if isinstance(e, GenError):
+        return "gen_error"
+    if isinstance(e, MemberLayoutError):
+        return "member_layout"
+    if isinstance(e, extracted_eval.Unsupported):
+        return "unsupported"
+    return None
 
 
 def path(milestone: str, root: Path) -> Path:

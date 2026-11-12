@@ -1,0 +1,167 @@
+{
+  "catalog": "holon-rules/1.16",
+  "clones": "~/.holon/eval/repos",
+  "commit": "per entry under <out>/<id>/: sidecars/ (every generated input), facts/ (every extracted document; a Go document over store_max_bytes is recorded by sha256 and size only), laws/ (laws/<milestone>), gen/ (gen/<milestone>: models, proofs), records/ (results/<milestone>); and <out>/corpus.json; timings only in <out>/corpus_timing.json",
+  "compose": {
+    "doc": "I110 (b): the composed route A, run by holon eval holon --compose (the opt-in; without it this protocol is route A as I109's). Per entry: I103's extraction (unchanged); for every Go package, I105's Go machine frontend from the same source and config with machines.nil_maps = nil_maps (I109's default); holon roles over every stored document (mode --roles, default static), installed under spec/<milestone>/lib/ only where no sidecar exists (holon.roles.cli.install, mode hand: a hand sidecar always wins); I104's route C stages: holon codecs when a link role exists, else the Go-op documents of a go_ops role, then holon diagram and holon evidence; then route A's sorts, types, model, disch and derive over the transitions documents and the machine documents (Q62: without a link sidecar the codec layer is empty), holon run, replay and filter. The milestone is a target-shaped scratch milestone (M9, as I104's route C), so derive runs the catalog's diagram, gox and par_record parts. Every derived record carries roles_source; the per-law rows are withheld (Q56) and the aggregates keep it.",
+    "nil_maps": "unknown"
+  },
+  "corpus": "spec/eval/corpus.json",
+  "disch": {
+    "binding": null,
+    "disch_version": "holon-disch/0.1",
+    "hypotheses": {},
+    "hypothesis_verdicts": null,
+    "r0": {
+      "doc": "the zero storage (no deployment)",
+      "keys": {},
+      "proxy_slots": [],
+      "values": {}
+    },
+    "search": {
+      "max_prefixes": 3000,
+      "neighbourhood_insertion_length_max": 2,
+      "neighbourhood_prefixes_per_entry_point_max": 20000,
+      "prefix_depth": 3
+    },
+    "section_errors": "unknown"
+  },
+  "doc": "I112 prereg instrument (the contract is the docstring of tests_m6/test_i112_run_wall.py). It is I111's protocol (spec/M6/lib/i111_run.json, which stays the protocol of I111's record) with exactly four additions, each an opt-in no earlier protocol names: run_routing \"per_runner\" (Q82: the composed driver's run step sends each law to the runner of its rule family with that runner's own arguments), disch.section_errors \"unknown\" (Q82: a DISCH section error makes that section's laws UNKNOWN, recorded with the error; every other section runs), typed.types_opaque_classes [\"gen_error\", \"member_layout\", \"unsupported\"] (Q81: O1 widened under the same types_fallback \"opaque\"), and preflight \"toolchain_sets\" (Q80: the run refuses to start unless every toolchain-set binary the protocol can select is installed and matches its pin; the check is recorded in corpus.json). The tier typed.sort_budget is I110's 5000000, unchanged.",
+  "fact": {
+    "binding": null,
+    "fact_version": "holon-fact/0.1",
+    "hypotheses": {},
+    "measure": {
+      "fresh": [
+        "0x0100000000000000000000000000000000000000000000000000000000000001",
+        "0x0100000000000000000000000000000000000000000000000000000000000002"
+      ],
+      "max_length": 3
+    },
+    "search": {
+      "continuation_depth": 2,
+      "max_candidates": 200000,
+      "max_prefixes": 3000,
+      "prefix_depth": 3,
+      "time_candidates": "E - 1, E and E + 1 for every term E an atom of a check of the candidate step compares with block.timestamp, evaluated on the candidate state, and the trace's own times (never 0, never decreasing)"
+    },
+    "term_size": "spec/M3/lib/term_size.json",
+    "verdicts": {}
+  },
+  "filter": "the record's replay status decides the class of a finding (REFUTED record): failed is model_defect; otherwise localized is true_defect; passed and not localized is intended_asymmetry; anything else unreplayed",
+  "go": {
+    "config_version": "holon-go-frontend/0.3",
+    "files": "every entry file ending in .go",
+    "limits": {
+      "flow_depth": 3,
+      "inline_depth": 4,
+      "max_paths": 512
+    },
+    "package": "the directory of the file; its module is the nearest directory at or above it holding go.mod; its import path is the module path (go.mod's module line) joined with the directory relative to the module",
+    "primitives": {},
+    "source": "the module directory, when its go.mod has no replace directive with a relative path that leaves it; otherwise a scratch copy of the whole checkout with a generated go.work whose use list is the closure of the module directory under its relative replace targets that hold a go.mod (a checkout that has its own go.work keeps it, unchanged); under work_replace main_module the generated go.work also carries a replace for each module path two used modules replace differently, taken from the package's own module (paths rewritten relative to the workspace root), and its go line is the highest go directive among the used modules",
+    "stem": "go_<n>, n the 1-based index of the package in the sorted list of the entry's import paths",
+    "store_max_bytes": 1000000,
+    "toolchain": "go_directive",
+    "work_replace": "main_module"
+  },
+  "go_machines": {
+    "entries": "every corpus entry with a file ending in .go",
+    "nil_maps": "unknown",
+    "out": "results/M6/I112/go_machines.json"
+  },
+  "go_rules_doc": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+  "iteration": "I112",
+  "layout": {
+    "layout_version": "holon-layout/0.1",
+    "remappings": "foundry: a unit's project is the nearest directory at or above it holding foundry.toml; its remappings are [profile.default] remappings of foundry.toml, then the lines of the project's remappings.txt (blank and # lines skipped), the first of each (context, prefix) kept; each target (and context) is rewritten relative to the checkout root; foundry's base path is the project root, so for every top-level directory D of the project that no explicit remapping has as its prefix, the context-scoped remapping <project>/:D/=<project>/D/ is added (rule L2); no remapping is auto-detected from lib/ or invented; a unit outside any Foundry project gets none",
+    "submodules": "gitlinked: for every gitlink (mode 160000) of the checkout's tree at the pinned commit whose path .gitmodules (read at that commit) names, the URL is .gitmodules' url (a relative url resolved against the superproject's repository URL; git@github.com:o/r and https://github.com/o/r forms only, anything else refused); a URL the clone rule excludes (corpus protocol excluded_repos, or a repository named in spec/M6/predictions/I106.json) is refused and never cloned; the gitlinked commit must be reachable from a branch or tag of the submodule's clone (nothing is fetched by sha); the submodule is then a detached worktree of that clone at exactly that commit; nested submodules recurse to depth 3; every submodule is recorded {path, url, commit, status initialized | refused, reason} in the entry's sidecars/layout.json"
+  },
+  "milestone": "M9",
+  "normalize": "every path inside a scratch directory, the checkout or the home directory in a recorded message is written <scratch>, <checkout> or <home>; a message keeps its last 1500 characters",
+  "out": "results/M6/I112/holon",
+  "preflight": "toolchain_sets",
+  "preflight_doc": "Q80: before any entry runs, every binary of config/toolchains.json the protocol can select is checked: solidity.compiler.version \"pragma\" selects any solc_set release (the file <dir>/solc-<v> must exist and its sha256 equal the pin); go.toolchain \"go_directive\" selects any go_set release (its go binary must exist and print the pinned version_line; go_set pins its tarballs' sha256, not the installed binary, so the version line is the check). Any missing or different binary: holon eval holon refuses to start (exit 2, nothing written). The check is recorded in corpus.json preflight.",
+  "replay": "the binding is null: no deployment of a foreign contract is generated, so no witness is replayed on real code (record replay.status not_applicable); stage replay records that",
+  "run": "I112 (run_routing per_runner): the derived laws are grouped by the runner of their rule family, read from laws/<M>/DERIVATION.json (holon.eval.holon_run.route): disch (rule DISCH, holon.disch.run's sub-forms) with --sidecar, --disch and --section-errors unknown; fact (rule FACT) with --sidecar and --fact-sidecar; typed (rule SORT sub-forms as_member, realize, reinterpret; rules UNDO and SYM) with --sidecar; milestone (every other law: PAR and route C's families) with no sidecar argument, which holon run sends to holon.pipeline or to the runner its own dispatch names. One holon run --laws call per non-empty group, in that order; a law with no record after every call is UNKNOWN (no record). The run stage's detail holds aggregates only (per runner: laws, exit, records written, section errors), never a law id or a runner's output (Q72); the output is kept in the vault.",
+  "run_routing": "per_runner",
+  "run_version": "holon-corpus-run/0.2",
+  "solidity": {
+    "commit_interfaces": [],
+    "compiler": {
+      "settings": {
+        "optimizer": {
+          "enabled": false
+        }
+      },
+      "version": "pragma"
+    },
+    "compiler_doc": "version \"pragma\": holon.frontends.solidity.toolchains selects the newest pinned release (config solc_set) satisfying every `pragma solidity` of every unit solc reads; none satisfies: Refused with the pragmas and the pinned set; the selection is recorded in the document's extraction.toolchain.solc.selected_by. A release below 0.8.0 has no checked arithmetic: the walker reads every arithmetic operation as unchecked (wrapping, as in an unchecked block), and the document says so in extraction.toolchain.solc.arithmetic",
+    "contract_pattern": "^\\s*(?:abstract\\s+)?contract\\s+([A-Za-z_$][A-Za-z0-9_$]*)",
+    "contracts": "one transitions document per contract a file declares: every match of contract_pattern on the file's lines at the pre-fix commit, in file order (interfaces and libraries are not contracts); a file that declares none contributes no document and is recorded",
+    "files": "every entry file ending in .sol",
+    "sol_deps": null,
+    "sol_deps_doc": "the scratch configuration names no dependency tree: the pinned sol_deps are the development target's, never a foreign target's; an import the target's own tree does not hold fails the compile (an extraction failure, a miss)",
+    "stem": "<contract lowercased>.extracted.json; a second contract of the same lowercased name in one entry gets _2, _3 in file order",
+    "term_budget": 4000000,
+    "term_budget_doc": "I109 (e): every transitions sidecar this protocol generates names term_budget 4000000, the M6 tier (ten times holon.frontends.solidity.transitions TERM_BUDGET, 400000, the default every sidecar without the key keeps: Morph's sidecars name none). The walker renders every term under it and the document records it in extraction.term_budget. A term over the tier is still an extraction error that names the budget; nothing is dropped."
+  },
+  "stages": [
+    "checkout",
+    "extract",
+    "sorts",
+    "types",
+    "model",
+    "disch",
+    "derive",
+    "run",
+    "replay",
+    "filter",
+    "score"
+  ],
+  "timeouts_s": {
+    "checkout": 3600,
+    "derive": 1800,
+    "disch": 1800,
+    "extract": 3600,
+    "model": 1800,
+    "run": 7200,
+    "sorts": 7200,
+    "types": 1800
+  },
+  "typed": {
+    "binding": null,
+    "search": {
+      "max_prefixes": 3000,
+      "neighbourhood_insertion_length_max": 2,
+      "neighbourhood_prefixes_per_entry_point_max": 20000,
+      "prefix_depth": 3
+    },
+    "seeds": "spec/M3/lib/sort_seeds.json",
+    "sort_budget": 5000000,
+    "sort_types_version": "holon-sort-types/0.4",
+    "types_fallback": "opaque",
+    "types_opaque_classes": [
+      "gen_error",
+      "member_layout",
+      "unsupported"
+    ]
+  },
+  "typed_doc": "0.3 is 0.2 (update rules U1-U3) plus T1: a term whose head has no sorts rule is walked like the documented opaque heads (its non-string operands walked, a fresh variable returned, nothing flowing in or out) and counted in the walk's coverage debt (head, action, record, count); the sorts stage writes the debt to <out>/coverage_debt.json I110 (a): typed.sort_budget is the per-document sort budget (holon.sorts.budget): a document whose work exceeds it is a recorded miss in <out>/budget.json, its model's variables unrefined and no conflict, site or union of it written. I111: types_fallback \"opaque\" (holon.sorts.opaque): holon types types each document on its own; a document with an ill-sorted term is opaque, a recorded miss in gen/<M>/sorts/opaque.json (the document, its sha256, the term and why it is ill-sorted), with no typed model, no state, no action and no law; every later stage of the typed part reads the typed documents only.",
+  "undo": {
+    "observation": [
+      "status",
+      "ret",
+      "logs",
+      "calls"
+    ],
+    "premise": "nz",
+    "search": {
+      "continuation_depth": 2,
+      "max_candidates": 200000,
+      "max_prefixes": 3000,
+      "prefix_depth": 3
+    },
+    "undo_version": "holon-undo/0.1"
+  }
+}
