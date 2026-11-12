@@ -153,9 +153,13 @@ def sym_ref(sid: str, law: dict, root=None) -> str:
     basis that no longer gives the id hashes as absent."""
     root = Path(root or ROOT)
     try:
-        rel, facts, assignment = S.typed_inputs(root, str(law.get("milestone")))
-        if rel != law.get("facts"):
-            raise SymRuleError(f"the law's facts {law.get('facts')} are not the milestone's typed document {rel}")
+        ms = S.typed_models(root, str(law.get("milestone")))
+        if len(ms) == 1:
+            rel, facts, assignment = ms[0]
+            if rel != law.get("facts"):
+                raise SymRuleError(f"the law's facts {law.get('facts')} are not the milestone's typed document {rel}")
+        else:   # I108 (Q58): the model whose document the law names
+            rel, facts, assignment = S.typed_inputs(root, str(law.get("milestone")), law.get("facts"))
         for e in elements(facts, assignment, rel):
             if e["sym_id"] == sid:
                 return sym_hash(e["subform"], e["basis"])
@@ -209,19 +213,26 @@ class _Producer:
     def produce(self, ctx) -> list:
         root = Path(ctx.root)
         try:
-            rel, facts, assignment = S.typed_inputs(root, ctx.milestone)
+            models = S.typed_models(root, ctx.milestone)   # I108 (Q58): per model; one model as before
         except (OSError, S.SymError) as e:
             raise SymRuleError(f"{RULE}: {e}") from e
         inputs = getattr(ctx, "inputs", None)
         if inputs is not None:
             inputs.read(root / "gen" / ctx.milestone / "sorts" / "assignment.json")
-        doc = next((d for d in getattr(ctx, "typed_documents", []) or [] if d.rel == rel), None)
-        if doc is None:
-            raise SymRuleError(f"{RULE}: the assignment's document {rel} is not a typed document of the derivation")
         out = []
-        for e in elements(facts, assignment, rel):
-            if e["subform"] == self.subform:
-                out.append((law_ir(e, ctx.milestone, rel, doc.sha256, ctx.rule_catalog_version), entry_of(e, rel)))
+        for rel, facts, assignment in models:
+            doc = next((d for d in getattr(ctx, "typed_documents", []) or [] if d.rel == rel), None)
+            if doc is None:
+                raise SymRuleError(f"{RULE}: the assignment's document {rel} is not a typed document of the derivation")
+            for e in elements(facts, assignment, rel):
+                if e["subform"] == self.subform:
+                    out.append((law_ir(e, ctx.milestone, rel, doc.sha256, ctx.rule_catalog_version), entry_of(e, rel)))
+        if len(models) > 1:
+            ids = [x[0]["law_id"] for x in out]
+            dup = sorted({i for i in ids if ids.count(i) > 1})
+            if dup:
+                raise SymRuleError(f"{RULE}: two models give the same law ids {dup[:5]}: refused (no law is merged)")
+            return sorted(out, key=lambda x: x[0]["law_id"])
         return out
 
 
