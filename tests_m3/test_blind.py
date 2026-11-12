@@ -310,7 +310,16 @@ class TestRegressions(unittest.TestCase):
             self.assertEqual(I.sha256_file(ROOT / th[k]["path"]), th[k]["sha256"], k)
 
     def test_r1_own_commits_touch_only_what_the_contract_allows(self):
-        self.assertEqual(I.own_commit_problems(ROOT), [])
+        # Amended (spec/M3/amendments/I82.jsonl): I82's own commits are its first-parent non-merge commits from its
+        # prereg to its landed head e6a71dc8, the second parent of the lead's merge 0e589262. A walk to HEAD never
+        # reaches that head on the lead. The per-file check is own_commit_problems', unchanged.
+        landed = "e6a71dc83ce596969f3cdf51b51becad8088d06e"
+        chain = I.git(ROOT, "rev-list", "--first-parent", "--reverse", f"{I.prereg_commit(ROOT)}..{landed}").split()
+        own = [c for c in chain if len(I.git(ROOT, "rev-list", "--parents", "-n", "1", c).split()) == 2]
+        self.assertTrue(own, "no own commit found")
+        bad = [f"an own commit changes {f}" for f in sorted(I.changed_files(ROOT, own))
+               if f not in I.ALLOWED_FILES and not f.startswith(I.ALLOWED_PREFIXES)]
+        self.assertEqual(bad, [])
 
     def test_r2_the_prereg_audits_pass(self):
         for m in ("M2", "M3"):
