@@ -1,0 +1,130 @@
+{
+  "doc": "I115 P13: the composed driver on I106's targets as I107 pinned them, a measurement labelled contaminated: post-I107.",
+  "entries": "origin/claude/ci-i107-landing:results/eval/generality/sealed/entries.json",
+  "gate_q88_1": {
+    "corpus_decided": 1,
+    "doc": "HUMAN_ANSWERS Q88 (1): I114 starts only after a counted run decides at least 1 law on the corpus and at least 1 on at least one spent target (decided: PROVED and REFUTED together, Q56)",
+    "met": false,
+    "spent_targets_decided": {
+      "s1": 0,
+      "s2": 0
+    }
+  },
+  "holon_sha256": "fc0687f54349acd9863b3276d7023f01cee016478c7c245d002dddd73cafb092",
+  "label": "contaminated: post-I107",
+  "protocol": "spec/M6/lib/i115_run.json",
+  "protocol_sha256": "c0ebd227a9a1439a100f3c62ae63e661c04a09fbbcf1ea65c122efe6d66cba5c",
+  "targets": [
+    {
+      "bind": null,
+      "bundle_files": 228,
+      "bundle_sha256": "9469d75e4acfc88425afbca75590719a9a576610b1659369d94ddc3c99f3ff87",
+      "commit": "ef8f97992241338cb88335b9d74295e33321b780",
+      "documents_attempted": 94,
+      "documents_extracted": 49,
+      "documents_over_tier": 1,
+      "documents_sorted": 49,
+      "documents_under_tier": 48,
+      "id": "s1",
+      "laws_aggregate": {},
+      "laws_decided": 0,
+      "laws_derived": 0,
+      "laws_unknown": 0,
+      "machine_documents": 0,
+      "repo": "https://github.com/Layr-Labs/eigenlayer-contracts",
+      "roles_sources": {},
+      "run_runners": {},
+      "seconds": {
+        "checkout": 2.3,
+        "derive": 8.2,
+        "diagram": 0.1,
+        "disch": 0.1,
+        "evidence": 8.0,
+        "extract": 152.9,
+        "model": 19.5,
+        "roles": 3.8,
+        "sorts": 27.7,
+        "submodules": 3.7,
+        "types": 16.2
+      },
+      "sort_work_max_under_tier": 694840,
+      "stage_reasons": {
+        "derive": "holon derive: refused: the evidence set cannot be rebuilt: crosschainregistry.extracted: a construct the E2 rule over transitions documents does not map (a path segment ['index', ['-', ['map', ['member', ['member', ['member', ['member', ['carried', 'src/contracts/multichain/CrossChainRegistry.sol:191-198', ['storage', '_whitelistedChainIDs']], '_inner'], '_keys'], '_inner'], '_indexes'], ['index', ['param', 'chainIDs'], ['iter', 'src/contracts/multichain/CrossChainRegistry.sol:191-198']]], 1]])",
+        "evidence": "holon evidence: crosschainregistry.extracted: a construct the E2 rule over transitions documents does not map (a path segment ['index', ['-', ['map', ['member', ['member', ['member', ['member', ['carried', 'src/contracts/multichain/CrossChainRegistry.sol:191-198', ['storage', '_whitelistedChainIDs']], '_inner'], '_keys'], '_inner'], '_indexes'], ['index', ['param', 'chainIDs'], ['iter', 'src/contracts/multichain/CrossChainRegistry.sol:191-198']]], 1]])",
+        "machines": "no Go package extracted"
+      },
+      "stages": {
+        "checkout": "ok",
+        "derive": "failed",
+        "diagram": "ok",
+        "disch": "ok",
+        "evidence": "failed",
+        "extract": "ok",
+        "machines": "not_applicable",
+        "model": "ok",
+        "roles": "ok",
+        "sorts": "ok",
+        "types": "ok"
+      },
+      "system": "eigenlayer",
+      "types_documents": 49,
+      "types_opaque": 32,
+      "types_opaque_classes": {
+        "null": 32
+      },
+      "types_typed": 17
+    },
+    {
+      "bind": null,
+      "bundle_files": 212,
+      "bundle_sha256": "5956e51de3b8469570416431a0d83f690270b1a1e70286bdfa23b7b1daa2fa30",
+      "commit": "b74526a7bc67a3a117a1963fc871b3eb8cea8435",
+      "documents_attempted": 102,
+      "documents_extracted": 39,
+      "documents_over_tier": 1,
+      "documents_sorted": 39,
+      "documents_under_tier": 38,
+      "id": "s2",
+      "laws_aggregate": {},
+      "laws_decided": 0,
+      "laws_derived": 0,
+      "laws_unknown": 0,
+      "machine_documents": 0,
+      "repo": "https://github.com/aave/aave-v3-core",
+      "roles_sources": {},
+      "run_runners": {},
+      "seconds": {
+        "checkout": 1.4,
+        "disch": 0.1,
+        "extract": 45.2,
+        "model": 0.3,
+        "roles": 1.2,
+        "sorts": 7.0,
+        "submodules": 0.0,
+        "types": 7.1
+      },
+      "sort_work_max_under_tier": 6443,
+      "stage_reasons": {
+        "disch": "holon disch: one predicate for two classes: caller_erc20_231 and caller_erc20_295",
+        "machines": "no Go package extracted"
+      },
+      "stages": {
+        "checkout": "ok",
+        "disch": "failed",
+        "extract": "ok",
+        "machines": "not_applicable",
+        "model": "ok",
+        "roles": "ok",
+        "sorts": "ok",
+        "types": "ok"
+      },
+      "system": "aave-v3",
+      "types_documents": 39,
+      "types_opaque": 22,
+      "types_opaque_classes": {
+        "null": 22
+      },
+      "types_typed": 17
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "document": "disch_conjuncts",
+  "inputs": [
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.Cap.extracted.json",
+      "sha256": "877ee7d38a39473ca8d6afd371d5662e24fc5e1b526f831bd476ca10c9f4a6b8"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.Msg.extracted.json",
+      "sha256": "ef7c75f72466a68c8ff38fc44a61005e5add8d3004fdc265d2e210e02e152e9f"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.MsgPipeRW.extracted.json",
+      "sha256": "cd8557dcb054e574bce89469b24f577808e069659171f474aa660b3d2fedfbb7"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.conn.extracted.json",
+      "sha256": "cf8b97cbd77a90770026cbade0156e00d0f9ddef729595ec82e3956c73f01f64"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.eofSignal.extracted.json",
+      "sha256": "40d26338f3a3b2173c3b32ec673d079a2b1febba434f2ef2849886f859220ee8"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.meteredConn.extracted.json",
+      "sha256": "7d8a621ae8694d6a0573311f4a884b73f41850e4f0bd5f8c6a25057f7b10aeee"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.peerError.extracted.json",
+      "sha256": "2d5dce592356d49637ecca8404bda8dfc9fb97c51291312e08de65435e1a4507"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.protoRW.extracted.json",
+      "sha256": "d3f2188c98ef4f3c0599c02fe95b702c3d2113d051a73c841b4f3aefbd9572e3"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.rlpxTransport.extracted.json",
+      "sha256": "e3c2f51f8b3e704ced0e20ef19882f5f0484a37a3f55c64be379d26f6bee5813"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.sharedUDPConn.extracted.json",
+      "sha256": "90fa7f697814f7fc2f3eb341ccd7d06515a100ebd34f84dacd4ff4df0d679618"
+    },
+    {
+      "path": "results/M6/I115/holon/c14/facts/go_1_go_1.tcpDialer.extracted.json",
+      "sha256": "f8cc159dadcaa70e37b138489a1a1440c5749808fdce3792912514470a70de5c"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.Cap.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.Msg.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.MsgPipeRW.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.conn.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.eofSignal.extracted": {
+      "basis": [
+        {
+          "blocked": [
+            "&&",
+            [
+              "==",
+              [
+                "storage",
+                "count"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "storage",
+                  "eof"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "p2p/message.go:138",
+                  "load"
+                ],
+                0
+              ]
+            ]
+          ],
+          "check": "Read#p2p/message.go:138#0",
+          "check_expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "storage",
+                    "count"
+                  ],
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "storage",
+                      "eof"
+                    ],
+                    0
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "p2p/message.go:138",
+                "load"
+              ],
+              0
+            ]
+          ],
+          "checks": [
+            "Read#p2p/message.go:138#0"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "Read#p2p/message.go:138#0"
+              ],
+              "closure": [],
+              "named": {},
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "Read": "Read#p2p/message.go:138#0"
+          },
+          "tag": "message_138_5c1b3bf6",
+          "time": "0"
+        }
+      ],
+      "checks": [
+        {
+          "action": "Read",
+          "class": "anyone",
+          "id": "Read#p2p/message.go:138#0",
+          "kind": "state",
+          "span": "p2p/message.go:138"
+        }
+      ],
+      "external": {},
+      "kinds": {
+        "state": 1
+      }
+    },
+    "go_1_go_1.meteredConn.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.peerError.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.protoRW.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.rlpxTransport.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.sharedUDPConn.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.tcpDialer.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    }
+  },
+  "sidecar": {
+    "path": "results/M6/I115/holon/c14/sidecars/disch.json",
+    "sha256": "d475a04f7ea014ba24e7fb465980924ab248c84b36d04066f9691b77cab82ecd"
+  }
+}

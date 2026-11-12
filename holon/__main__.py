@@ -591,6 +591,9 @@ def _main(argv: list) -> int:
     r.add_argument("--no-registry", action="store_true")
     r.add_argument("--core", choices=["import", "paste"], default="import",
                    help="M2+ milestones: import the core library (default) or paste it into each proof (baseline)")
+    r.add_argument("--unbound", choices=["unknown"],
+                   help="I115 (Q88 (2)): a law whose statement cannot be bound to its model (holon.bindings.kernel_cone) "
+                        "is UNKNOWN, recorded with the error, and every other law is decided (default: the run stops)")
     r.add_argument("--laws", help="comma-separated law ids: decide only those laws (the registry is still checked whole; "
                                   "state-machine milestones)")
     g = sub.add_parser("gate", help="re-check everything from scratch (G1-G5, G7, G11, GENV, canaries)")
@@ -605,6 +608,9 @@ def _main(argv: list) -> int:
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
     bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
                                    "(or stays unbound)")
+    bd.add_argument("--unbound", choices=["skip"],
+                    help="I115 (Q88 (2)): bind a milestone that has no bindings file yet, leaving out each law whose "
+                         "statement cannot be bound (BindingError) and listing it in spec/bindings/<M>.unbound.json")
     bd.add_argument("--remodel", metavar="LICENSE",
                     help="(I68) first append the remodel entries the license covers (holon.statement_diff.remodel_entries, "
                          "each checked by check_entry), then rebind through them")

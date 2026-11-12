@@ -1267,6 +1267,184 @@
         }
       ]
     },
+    "I113": {
+      "title": "I113: fresh sealed targets, second draw, by commit-reveal (HUMAN_ANSWERS Q54, Q55, Q86): 2 of 9 preregistered public systems drawn by sha256(salt || blockhash) over the first Ethereum mainnet block at or after T, pinned by ls-remote, and sealed in spec/heldout3/commitment.json until the reveal after I114's prereg",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I113)",
+      "prompt": "prompts/I113_sealed_targets.md",
+      "tests": [
+        "tests_m6/test_i113_sealed.py"
+      ],
+      "outcome_paths": [
+        "spec/heldout3/"
+      ],
+      "predictions": [
+        {
+          "id": "I113-P1",
+          "claim": "The seal (c): spec/heldout3/commitment.json is committed with sha256(target.json), the salt_sha256 of this key, T, and the beacon block (number, hash, timestamp, source), the block being the first Ethereum mainnet block whose timestamp is >= T; spec/heldout3/README.md states the sealed state and the sole-reader rule, including that no subagent reads a drawn target (Q71). Neither the salt nor the plaintext is committed before the reveal.",
+          "check": "tests_m6/test_i113_sealed.py::TestSeal::test_s1_commitment and tests_m6/test_i113_sealed.py::TestSeal::test_s1_readme",
+          "expected": {
+            "beacon_timestamp_at_least": 1794512700
+          }
+        },
+        {
+          "id": "I113-P2",
+          "claim": "The reveal (d), after I114's prereg: spec/heldout3/target.json and salt.txt are committed; sha256(target.json) and sha256(salt bytes) equal the commitment's and this key's; `python3 spec/M6/lib/I113_draw.py verify` recomputes the seed, the order and the draw of 2 from the committed script and candidates and prints VERIFY OK; a check that imports nothing of the draw script recomputes both hashes and the draw.",
+          "check": "tests_m6/test_i113_sealed.py::TestReveal::test_r1_verify and tests_m6/test_i113_sealed.py::TestReveal::test_r1_targets",
+          "expected": {
+            "verify": "VERIFY OK",
+            "targets": 2
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I113-R1",
+          "claim": "The draw script imports only the standard library and is deterministic on a fixed test vector; the pin rule behaves as its docstring states (Q55 (2)); the candidate list meets its form rules (at least 8, unique ids, canonical github.com URLs, the snapshot date and criteria present, no excluded system, none of I106's candidates); the key pins both sidecars by sha256; I106's committed files are unchanged by this key.",
+          "check": "tests_m6/test_i113_sealed.py::TestDraw::test_d1_stdlib_only and tests_m6/test_i113_sealed.py::TestDraw::test_d1_test_vector and tests_m6/test_i113_sealed.py::TestDraw::test_d2_pin_rule and tests_m6/test_i113_sealed.py::TestCandidates::test_c1_candidates and tests_m6/test_i113_sealed.py::TestCandidates::test_k1_key_pins_the_sidecars"
+        }
+      ],
+      "thresholds": {
+        "counting": "P1 and P2 are construction checks of the procedure (they state that the sealer follows it, not a measured property of HOLON); they are reported, and do not count toward prediction accuracy.",
+        "seal": {
+          "T_unix": 1794512700,
+          "T_utc": "2026-11-12T19:45:00Z",
+          "beacon_rule": "the hash of the first Ethereum mainnet block whose timestamp is >= T_unix; T is at least 20 minutes after this prereg's push",
+          "seed_rule": "sha256(salt bytes || blockhash bytes), as spec/M6/lib/I113_draw.py defines",
+          "k": 2,
+          "salt_sha256": "4028e6d29269f58efb6942389bf6391db989e7d42f2b01bbe30b128587e8408d",
+          "candidates": "spec/M6/lib/I113_candidates.json",
+          "candidates_sha256": "6c9984e6de12cf8da4545ec6232b2d4f5ba14b601848aadf9afe1043e949c63a",
+          "draw": "spec/M6/lib/I113_draw.py",
+          "draw_sha256": "ceb9f22e89ac514ad6d0753e8de5d26130e431a86c5ac9df9897ec1bd155dfe7",
+          "pin_rule": "HUMAN_ANSWERS Q55 (2): the greatest strict MAJOR.MINOR.PATCH release tag (peeled) in a git ls-remote listing taken soon after T, else the default branch's HEAD; target.json records each listing's UTC time",
+          "heldout_dir": "spec/heldout3/",
+          "sole_reader": "From the candidate list's push until the reveal, only the sealer may read any candidate's repository, docs or audits, target.json or the salt (Q86 (3)), and the sealer reads nothing of the candidates beyond git ls-remote and what Q55 (1)'s membership check needs. No builder, not the coordinator and not the lead reads them. No subagent reads a drawn target (Q71). The reveal comes only after I114's prereg is committed (Q54 (d))."
+        }
+      }
+    },
+    "I115": {
+      "title": "I115: the binding wall (HUMAN_ANSWERS Q88 (2), Q87): (1) the milestone runner checks each law's binding (the kernel cone of its statement over its model) before deciding it, and a law that cannot be bound is UNKNOWN with the error (holon run --unbound unknown; protocol run_unbound \"unknown\"); the composed route binds its own milestone with holon bind over the derived statements (protocol bind \"derived\"; holon bind --unbound skip), and a binding check admits a decided record only when its law is bound with the record's statement hash and model; (2) Q87: every go_set release pins its installed bin/go sha256 and the preflight checks it (protocol preflight_go \"bin_sha256\"), a refusal recorded. Run through holon eval holon --compose with I112's protocol plus the three opt-ins",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I115)",
+      "prompt": "prompts/I115_binding_wall.md",
+      "tests": [
+        "tests_m6/test_i115_binding_wall.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I115/",
+        "docs/iterations/I115.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P6 are on planted fixtures (tests_m6/fixtures/i115) and unit inputs. P7-P10 are smoke measures on I51's corpus, contaminated by I51, I103-I112 and I107. P11 is a measurement on I106's targets, contaminated: post-I107. I114 scores generality on the sealed pair. Laws are reported as aggregates only, never splitting PROVED from REFUTED (Q56, Q89); stage reasons only for stages before any decision (Q72).",
+        "instruments": "spec/M6/lib/i115_run.json (the run protocol: I112's plus run_unbound \"unknown\", bind \"derived\" and preflight_go \"bin_sha256\"; the tier typed.sort_budget is I110's 5000000, unchanged) and tests_m6/test_i115_binding_wall.py (every check)",
+        "base": "claude/i112-run-wall at a5db40d6 (I112, #190 not yet landed); the lead's I112 landing is merged by a merge commit before the first measured run",
+        "baseline": "I112's counted composed run (results/M6/I112/holon/corpus.json): entries ok at extract 14, sorts 14, types 14, model 14, disch 14, derive 14, run 0; 107 laws derived, 1 decided (PROVED and REFUTED together, Q56); the milestone runner wrote 0 records for its 93 PAR laws (a BindingError in holon.codecrun.decide stops the runner: holon.bindings.kernel_cone, a statement naming a Go-op definition the component's model leaves out)",
+        "diagnosis": "Found on the planted fixture before this prereg (tests_m6/fixtures/i115, reproduced at the base): the Go-op model (holon.gen.goloop) models an op only in its loop class (one loop body over the carrier's cells); any other op is Unsupported, its definitions ok_<op> and <op> are not generated, and goloop.decide leaves the laws naming it UNKNOWN. holon.codecrun.decide then computes the law's kernel cone over that model (for the deps index and the record), kernel_cone raises BindingError (M.ok_<op> resolves to no kernel entry), and the exception stops the whole milestone runner, so no law of the run gets a record, the decidable ones included. The binding route A's milestones get from spec/bindings is never made either: the composed route runs no holon bind, so G2 could not check any decided law of it.",
+        "counting": "Q80, Q76, Q69: the counted run is the first measured run of holon eval holon --protocol spec/M6/lib/i115_run.json --compose over the corpus that finishes; every prediction is scored on it. A re-run counts only if the first attempt never finished; any other re-run is reported beside it as not counted. No started run's output is ever deleted. The preflight (I112's plus Q87's go pins) must pass before it.",
+        "unbound": "The definition (fixed here, before any build commit). Opt-in only: holon run ... --unbound unknown (holon.mpipeline's run and holon.codecrun.decide; the composed driver passes it to the milestone runner under protocol run_unbound \"unknown\"). Without it every output is as before, and a BindingError stops the runner as before. Under it, before a law of the milestone runner is decided, its binding is computed: the kernel cone (holon.bindings.kernel_cone) of the law's statement roots (holon.records.ir_roots_text) over the kernel entries of the model the law is decided over. If that raises holon.bindings.BindingError, nothing is attempted for the law: its record has status UNKNOWN, kernel verdict not_run, checker not_run, no witness, no law or proof file, attempts [{kind: binding, error: <the error's text>}] and bound \"not decided: the statement cannot be bound to its model: <the error's text>\"; its deps entry has an empty cone. If the cone of the decided statement text (after the decision) raises BindingError, the decision is dropped the same way (status UNKNOWN, its law and proof files removed). Every other law is decided as before. Only BindingError is caught.",
+        "bind": "The definition (fixed here, before any build commit). Opt-in only: protocol bind \"derived\". After the run step, the composed driver runs holon bind --milestone M --root <scratch root> --unbound skip (stage bind): every derived law is bound by holon.bindings.bind_law, as route A's milestones are, into the scratch root's spec/bindings/<M>.json (written fresh: the scratch root's copy of spec/bindings holds no <M>.json, and nothing is written to the repository's spec/bindings); a law whose bind_law raises BindingError is left out and listed in spec/bindings/<M>.unbound.json {law id: error}. --unbound skip is refused on a milestone whose spec/bindings/<M>.json already exists (an existing binding only changes through the statement lifecycle, unchanged). Then the binding check (holon.eval.holon_run.binding_check): a PROVED or REFUTED record is admitted only when its law is bound and the binding's statement_hash equals the record's statement_hash and the binding's model equals the record's artifacts.model; any other decided record is rewritten UNKNOWN (kernel and checker not_run, witness and difference null, artifacts laws and proof null, attempts + [{kind: binding_check, error}], bound \"not decided: the binding check refuses the record: <why>\"). An UNKNOWN record is left as it is. No family is exempt: every derived law, whatever its runner, goes through holon bind and the check (G2 binds every law of a milestone: holon.bindings.derive over ir.load_laws_any). The stage's detail holds aggregates only: laws, bound, unbound, decided records refused. The bindings and the unbound list name law ids, so they go to the vault (Q56) and are never copied into the committed output.",
+        "go_pins": "(2) Q87. config/toolchains.json: each go_set release gains bin_sha256, the sha256 of its installed bin/go (1.24.7: /usr/local/go/bin/go, the go on PATH; 1.25.14: <goroot>/bin/go as tools/install_toolchain_sets.sh installs it from the pinned tarball). Under protocol preflight \"toolchain_sets\" with preflight_go \"bin_sha256\", the preflight checks every go_set release's bin/go present, its sha256 equal to bin_sha256 (a release without bin_sha256 fails) and its version line equal to version_line; any failure refuses the run: exit 2, the refusal recorded in <out>/preflight.json (the preflight with status failed and every binary checked) and nothing else written. Without preflight_go (I112's protocol) the go check is the version line alone, unchanged: I112's basis stands for I112's run.",
+        "soundness": "(1) The binding check can only remove decisions: a law that cannot be bound is UNKNOWN with nothing attempted; a decided record the binding check refuses is rewritten UNKNOWN; no record is ever made PROVED or REFUTED by it. A law that can be bound is decided exactly as before (the same decider, the same model). The bindings are holon bind's own (holon.bindings.bind_law, unchanged), over the scratch root. (2) decides nothing.",
+        "amendment_to_brief": "none"
+      },
+      "predictions": [
+        {
+          "id": "I115-P1",
+          "claim": "(1) holon run --unbound unknown, unit level on the planted fixture tests_m6/fixtures/i115 (the composed route's typed part and route C under spec/M6/lib/i115_run.json): the milestone runner exits 0 and writes a record for each of its laws; the totality law over Counter's Bump (an op the Go-op model leaves out) is UNKNOWN with exactly one attempt, kind binding, and no witness; at least one PAR law over Blob is decided. Without --unbound (I112's protocol) the milestone runner exits non-zero with a BindingError and the Counter law has no record.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestUnbound"
+        },
+        {
+          "id": "I115-P2",
+          "claim": "(1) The bind stage on the planted fixture: stage bind ok; spec/bindings/M9.json (the scratch root's) binds every derived law but the Counter totality law, which is the only entry of spec/bindings/M9.unbound.json; bound plus unbound equals derived; every PROVED or REFUTED record passes the binding check (its law bound with its statement hash and model), and no record the check admits is UNKNOWN by it; the repository's spec/bindings is unchanged.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestBind"
+        },
+        {
+          "id": "I115-P3",
+          "claim": "(1) The planted control of the binding check, unit level (holon_run.binding_check over a planted milestone directory): a REFUTED record whose law is missing from the bindings, one whose binding names another model, and one whose binding's statement hash differs are each rewritten UNKNOWN with an attempt kind binding_check; a correctly bound PROVED record and an UNKNOWN record are left byte-identical. holon bind --unbound skip refuses (exit 1) when spec/bindings/<M>.json exists.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestBindingCheck"
+        },
+        {
+          "id": "I115-P4",
+          "claim": "(1) No family is routed around the binding: every derived law of the planted run (DISCH and PAR) is in the bindings or the unbound list, and the DISCH records are unchanged by the check. Every derived record carries roles_source (the composed row's laws, before withholding).",
+          "check": "tests_m6/test_i115_binding_wall.py::TestBind::test_p4_every_family_bound"
+        },
+        {
+          "id": "I115-P5",
+          "claim": "(2) Q87: every go_set release of config/toolchains.json has bin_sha256; under the I115 protocol the preflight passes on a planted set whose bin/go matches, and refuses (exit 2) when a bin/go's sha256 differs or a release has no bin_sha256, recording the refusal in <out>/preflight.json (status failed) and writing nothing else; under I112's protocol the same planted sets are checked by version line alone (I112's results unchanged).",
+          "check": "tests_m6/test_i115_binding_wall.py::TestGoPins"
+        },
+        {
+          "id": "I115-P6",
+          "claim": "(1) Without the opt-ins every output is as before: I112's protocol names none of run_unbound, bind, preflight_go; holon run without --unbound on Morph's milestones is untouched (TestRegressions, P12).",
+          "check": "tests_m6/test_i115_binding_wall.py::TestRegressions::test_p6_earlier_protocols_name_no_opt_in"
+        },
+        {
+          "id": "I115-P7",
+          "claim": "(Corpus) holon eval holon --protocol spec/M6/lib/i115_run.json --compose, the counted run: the preflight is recorded ok with the go pins (go checked 2, ok 2); entries whose stage is ok at least extract 14, sorts 14, types 14, model 14, derive 14, and bind ok on every entry that derives a law; the run stage ok (every runner exits 0) on at least 5 of the 6 entries that derive laws in I112's run.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestCorpusSmoke::test_p7_stage_reach",
+          "expected": {
+            "entries_at_least": {
+              "extract": 14,
+              "sorts": 14,
+              "types": 14,
+              "model": 14,
+              "derive": 14,
+              "run": 5
+            }
+          }
+        },
+        {
+          "id": "I115-P8",
+          "claim": "(Corpus) the milestone runner: every one of its laws gets a record (records = laws on every entry); at least 80 of its laws are UNKNOWN by the binding (their Go-op op outside goloop's loop class, attempt kind binding), aggregated; the binding check refuses no decided record.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestCorpusSmoke::test_p8_milestone_runner",
+          "expected": {
+            "unbound_unknown_at_least": 80,
+            "refused": 0
+          }
+        },
+        {
+          "id": "I115-P9",
+          "claim": "(Corpus) laws as aggregates (Q56, Q89; never PROVED split from REFUTED): at least 100 derived, at least 1 decided, derived = decided + unknown per family; PAR laws decided: at most 5 (the corpus's Go ops are rarely in goloop's loop class); per-law rows withheld.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestCorpusSmoke::test_p9_laws_aggregate",
+          "expected": {
+            "derived_at_least": 100,
+            "decided_at_least": 1,
+            "par_decided_at_most": 5
+          }
+        },
+        {
+          "id": "I115-P10",
+          "claim": "(Corpus, Q56) no committed file under results/M6/I115/holon names a law id; no bindings or unbound list is committed; every entry with laws has a laws_bundle_sha256.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestCorpusSmoke::test_p10_nothing_per_law_committed"
+        },
+        {
+          "id": "I115-P11",
+          "claim": "(Spent targets, contaminated: post-I107) through --compose with --vault: no law is derived on either target (this key changes no stage before the run: EigenLayer stops at evidence and derive, Aave V3 at disch, as I112 measured), so Q88 (1)'s gate is not met by this key's counted runs (corpus decided at least 1, spent targets 0); aggregates only, one bundle commitment per target.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestSealedContaminated::test_p11_spent_targets"
+        },
+        {
+          "id": "I115-P12",
+          "claim": "Morph moves only by re-stamp: no M0-M3 sidecar names run_unbound, bind or preflight_go; every JSON under results/M0-M3 and laws/M0-M3 equals the lead's once generator_sha256 and every seconds are removed (G1_EXCLUDED skipped). The gates M0, M1, M2 and partial M3 and holon land dirty are run locally and reported.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestRegressions"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I115-R1",
+          "claim": "Every earlier tests_m6 CI job still passes on this branch with no test dropped; an earlier key's test that this key breaks is amended with its amendment line first.",
+          "check": "tests_m6/test_i115_binding_wall.py::TestRegressions::test_r1_earlier_jobs_listed"
+        },
+        {
+          "id": "I115-R2",
+          "claim": "holon/ names no target (tests_m2.test_target_agnostic and its exhaustive form).",
+          "check": "tests_m2/test_target_agnostic.py"
+        },
+        {
+          "id": "I115-R3",
+          "claim": "I112's contract classes TestRouting, TestRoutingPlanted, TestSectionErrors, TestUnsupportedClass, TestMemberLayoutClass, TestMilestoneWide and TestWithholdPreflight pass unchanged (I112's protocol names none of the opt-ins).",
+          "check": "tests_m6/test_i112_run_wall.py"
+        }
+      ]
+    },
     "I116": {
       "title": "I116: per-document fallbacks (HUMAN_ANSWERS Q83, Q88 (3)): (D) a DISCH refusal for one document makes that document's DISCH laws UNKNOWN (no DISCH claim over it, a recorded miss naming the document and the refusal) while every other document's DISCH runs; (E) an evidence refusal for one adopted transitions document makes that document's evidence UNKNOWN (no atom, anchors kept, a recorded miss), and derive, which rebuilds the evidence set, reads the same set, so the document's derive refusal falls back with it. A milestone-wide input error stays a refusal. Run through holon eval holon --compose with I112's protocol plus document_fallback, and I115's binding keys once I115 lands",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I116)",

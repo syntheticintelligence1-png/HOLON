@@ -94,17 +94,19 @@
     }
   },
   "go_set": {
-    "doc": "I103: the pinned go releases a Go frontend config with toolchain \"go_directive\" chooses from (holon.frontends.go.toolchains: the lowest release at or above the go directive). 1.24.7 is replay.go_version's toolchain (installed by CI's setup-go; goroot null: the go on PATH or /usr/local/go, checked by its version line); 1.25.14 is the go.dev tarball with its sha256, installed by tools/install_toolchain_sets.sh. A config without toolchain never reads this set.",
+    "doc": "I103: the pinned go releases a Go frontend config with toolchain \"go_directive\" chooses from (holon.frontends.go.toolchains: the lowest release at or above the go directive). 1.24.7 is replay.go_version's toolchain (installed by CI's setup-go; goroot null: the go on PATH or /usr/local/go, checked by its version line); 1.25.14 is the go.dev tarball with its sha256, installed by tools/install_toolchain_sets.sh. A config without toolchain never reads this set. I115 (Q87): bin_sha256 is the sha256 of each release's installed bin/go (1.24.7: the go on PATH, /usr/local/go/bin/go; 1.25.14: <goroot>/bin/go from the pinned tarball), checked by a preflight under preflight_go \"bin_sha256\".",
     "releases": {
       "1.24.7": {
         "goroot": null,
-        "version_line": "go version go1.24.7 linux/amd64"
+        "version_line": "go version go1.24.7 linux/amd64",
+        "bin_sha256": "5e997f6088bfb2ae7e7025f32900977755cae16484dd346e6f3fc2d1007b9ffc"
       },
       "1.25.14": {
         "goroot": "/root/.holon/tools/go-1.25.14",
         "version_line": "go version go1.25.14 linux/amd64",
         "sha256": "a21ae5633a269bcd7e90cf767e48225633795e99d831742cbf3397064fee7712",
-        "url": "https://go.dev/dl/go1.25.14.linux-amd64.tar.gz"
+        "url": "https://go.dev/dl/go1.25.14.linux-amd64.tar.gz",
+        "bin_sha256": "9347e73e5188af1ef4c2046cbc9c985473f0155c187d4005ae44c21b300062eb"
       }
     }
   }
