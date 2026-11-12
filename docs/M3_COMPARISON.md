@@ -147,7 +147,7 @@ None.
 
 | Path | sha256 |
 |---|---|
-| `docs/BUILD_PLAN.md` | `3f6f5dfef09216d3e633aeb46247f59d3c329f116ce8f3a381f1ad98fcd11905` |
+| `docs/BUILD_PLAN.md` | `1b81a03a16ed7c8ea1e02a6ffeb23f68ed9396033bad872f20a531f1b556f588` |
 | `predictions/M0.json` | `b3a52a4f4f88e90476c6d80a113d94eea53ee6c0a0fd45bf05f2261674e4531c` |
 | `results/M2/hypotheses.json` | `3009f14230cfdb6d295dc9fb192d1d7cec9eef962124c2b0c5ddb3653fa1960d` |
 | `results/M3/backtest.json` | `167759a65c42951fe77c9d11c0286d8817a18bd0a66cb00822a9ee1feef5e12b` |

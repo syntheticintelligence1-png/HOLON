@@ -153,7 +153,8 @@ def _compile(cfg: dict, side: dict, source: Path, storage_layout: bool = False) 
     settings = dict(comp.get("settings") or {})
     if comp.get("version") == T.PRAGMA_WORD:
         # I103: the newest pinned release the units' pragmas admit; evmVersion is that release's own default
-        chosen = T.choose(T.load_sets(cfg_root(cfg)), source, list(side["sources"]), include)
+        chosen = T.choose(T.load_sets(cfg_root(cfg)), source, list(side["sources"]), include,
+                          list(settings.get("remappings") or []))
         settings.pop("evmVersion", None)
     try:
         return _compile_with(cfg, side, source, storage_layout, comp, include, chosen, settings)

@@ -1078,7 +1078,12 @@ class Walker:
             return None
         if mode == "builtin":
             b = c.get("callee")
-            if b == "len" and args:
+            if b == "len" and args and not _bytes_like(self.tv.T, _otype(fr.fn, (c.get("args") or [None])[0])):
+                # I109 (a) A2: len of a slice, map, channel or array the rendering holds as an opaque word: an opaque
+                # call of len (A-env: a function of its argument), never the byte length of the word
+                r = ["call", "len", self.term(args[0], pos)]
+                self.member("len", [_otype(fr.fn, (c.get("args") or [None])[0]) or "*"], [ins.type])
+            elif b == "len" and args:
                 r = ["len", self.term(args[0], pos)]
             elif b == "append" and len(args) == 2 and self.tv.T.is_byte_slice(ins.type):
                 r = ["abi.encodePacked", self.term(args[0], pos), self.term(args[1], pos)]
@@ -1160,7 +1165,12 @@ class Walker:
         else:
             name = callee or f"dynamic.{c.get('signature')}"
             r = ["call", name, *[self.term(a, pos) for a in args]]
-            self.member(name, list(sig.get("params") or []), list(sig.get("results") or []))
+            params = list(sig.get("params") or [])
+            if mode == "static" and _is_method(self.prog, callee) and len(args) == len(params) + 1:
+                # I109 (a) A1: go/ssa passes a static method call's receiver as its first argument (the method's
+                # Function has it as Params[0]; its signature type does not list it): the receiver is an input
+                params = ["*"] + params
+            self.member(name, params, list(sig.get("results") or []))
         res = self.tv.T.tuple_elems(ins.type) if self.tv.T.is_tuple(ins.type) else None
         # a value that an opaque call derives from a KV family or a state field handle (a store handle held in a field)
         kvsrc = [x.fam for x in ([recv] + args) if isinstance(x, KVRef)]
@@ -1267,6 +1277,120 @@ def _root_field(fn: Func, o, fnames, typ, tv, depth):
             if r:
                 return r
     return None
+
+
+NIL_MAPS = ("unknown", "zero")
+
+
+def nil_maps_mode(cfg: dict) -> str:
+    """I109 (Q64): machines.nil_maps, "unknown" unless the config says "zero" (the explicit opt-out)."""
+    mode = (cfg.get("machines") or {}).get("nil_maps", "unknown")
+    if mode not in NIL_MAPS:
+        raise Refused(f"machines.nil_maps is {mode!r}, not one of {', '.join(NIL_MAPS)}")
+    return mode
+
+
+def constructors(prog: Program, tv: "TypeView", typ: str, pkset: set) -> list:
+    """Q60: T's constructors, the functions of the document's packages (not methods, closures or wrappers, with a body)
+    that return T or *T, sorted by id."""
+    out = []
+    for fid, fn in sorted(prog.funcs.items()):
+        if fn.method or fn.package not in pkset or fn.synthetic or fn.parent or not fn.has_body:
+            continue
+        if any(r == typ or tv.T.pointer_elem(r) == typ for r in fn.results):
+            out.append(fn)
+    return out
+
+
+def _uses(fn: Func, name: str) -> list:
+    """Every (instruction, role) that uses the register name: an operand, a call argument or a call's value."""
+    out = []
+    for ins in fn.instrs:
+        for k, o in enumerate(ins.operands or []):
+            if isinstance(o, dict) and o.get("v") == name:
+                out.append((ins, f"op{k}"))
+        c = ins.call or {}
+        for o in (c.get("args") or []) + ([c.get("value")] if c.get("value") else []):
+            if isinstance(o, dict) and o.get("v") == name:
+                out.append((ins, "call"))
+    return out
+
+
+def _dominates(fn: Func, a, b) -> bool:
+    """Instruction a dominates instruction b (same block: a comes first; else a's block is on b's idom chain)."""
+    if a.block.index == b.block.index:
+        return a.idx < b.idx
+    i = b.block.index
+    while i >= 0:
+        i = fn.blocks[i].idom
+        if i == a.block.index:
+            return True
+    return False
+
+
+def made_by_constructors(prog: Program, tv: "TypeView", typ: str, fnames: list, pkset: set) -> set:
+    """Q60's constructor rule: the fields of T that hold a made map in R0. With no constructor, R0 is T's zero value:
+    none. Otherwise a field counts iff, for every constructor, every return that yields a T (a nil pointer yields
+    none) returns an allocation a of T (a pointer to it, or its value loaded) such that: a is used only to address
+    its fields, be returned or be loaded (it does not escape); the field's address is used only as a store address;
+    every store to it stores a MakeMap result; and one such store dominates the return. Anything else counts as nil:
+    the rule may only add nil_map debt where the code might write a nil map."""
+    cons = constructors(prog, tv, typ, pkset)
+    if not cons:
+        return set()
+    made = set(fnames)
+    for fn in cons:
+        rets = [ins for ins in fn.instrs if ins.op == "Return"]
+        idx = [j for j, r in enumerate(fn.results) if r == typ or tv.T.pointer_elem(r) == typ]
+        for ret in rets:
+            for j in idx:
+                o = (ret.operands or [None] * (j + 1))[j] if j < len(ret.operands or []) else None
+                if isinstance(o, dict) and "const" in o:
+                    continue   # a nil pointer: no T
+                d = fn.defs.get(o.get("v")) if isinstance(o, dict) else None
+                if d is not None and d.op == "UnOp" and d.operands and isinstance(d.operands[0], dict):
+                    d = fn.defs.get(d.operands[0].get("v"))
+                if d is None or d.op != "Alloc":
+                    return set()
+                ok_alloc = all(ins.op in ("FieldAddr", "Return", "UnOp", "DebugRef") and role in ("op0",) or
+                               ins.op == "Return" for ins, role in _uses(fn, d.name))
+                if not ok_alloc:
+                    return set()
+                here = set()
+                for i, f in enumerate(fnames):
+                    fas = [x for x in fn.instrs if x.op == "FieldAddr" and x.get("field") == i and x.operands
+                           and isinstance(x.operands[0], dict) and x.operands[0].get("v") == d.name]
+                    stores, good = [], True
+                    for fa in fas:
+                        for ins, role in _uses(fn, fa.name):
+                            if ins.op == "Store" and role == "op0":
+                                v = ins.operands[1] if len(ins.operands) > 1 else None
+                                vd = fn.defs.get(v.get("v")) if isinstance(v, dict) and v.get("v") else None
+                                if vd is None or vd.op != "MakeMap":
+                                    good = False
+                                stores.append(ins)
+                            elif ins.op not in ("UnOp", "DebugRef"):
+                                good = False
+                    if good and any(_dominates(fn, st, ret) for st in stores):
+                        here.add(f)
+                made &= here
+    return made
+
+
+def _is_method(prog: Program, callee) -> bool:
+    """A static callee that is a method with a receiver (go/ssa names it "(T).M" or "(*T).M"; a bound closure or a
+    thunk carries "$" and no receiver parameter of its own)."""
+    if not callee:
+        return False
+    g = prog.funcs.get(callee)
+    if g is not None:
+        return bool(g.method)
+    return callee.startswith("(") and "$" not in callee
+
+
+def _bytes_like(T, k: str) -> bool:
+    """A string or a byte slice: the values the rendering holds as bytes, whose len is their byte length."""
+    return bool(k) and (T.is_string(k) or T.is_byte_slice(k))
 
 
 def _otype(fn: Func, o) -> str:
@@ -1401,20 +1525,25 @@ def machine_document(prog: Program, tv: TypeView, cfg: dict, prov: dict, typ: st
                               "inputs": [dict(tv.abi(pt), name=pn) for pn, pt in fn.params[1:]],
                               "outputs": [dict(tv.abi(t), name="") for t in fn.results if t != "error"],
                               "declared_in": short}
-    if ((cfg.get("machines") or {}).get("nil_maps")) == "unknown":
-        # I108 (Q60), under the config's opt-in: a Go map field is nil until it is made (a struct's zero value, or a
-        # constructor that leaves it nil), and a write into a nil map panics. Without a constructor rule the frontend
-        # cannot tell which state made it, so every element write into a map field (a KV store is not a Go map) is
-        # nil_map debt, and the typed model refuses the document (holon.sorts.model3): every law over it is UNKNOWN.
+    mode = nil_maps_mode(cfg)
+    if mode == "unknown":
+        # I108 (Q60), I109 (Q64: the default; the only opt-out is the config's explicit nil_maps "zero", recorded in the
+        # document): a write into a nil Go map panics. R0 is what T's constructors return (Q60's constructor rule; the
+        # zero value only when T has none): a map field is non-nil in R0 iff every return of every constructor stores
+        # a made map into it (holon.frontends.go_machines.made_by_constructors), and no action writes the field whole.
+        # Every element write into any other map field (a KV store is not a Go map) is nil_map debt, and the typed
+        # model refuses the document (holon.sorts.model3): every law over it is UNKNOWN.
         gomaps = {f["name"] for f in fields if f["name"] not in kv
                   and types[next(x["type"] for x in layout if x["label"] == f["name"])]["encoding"] == "mapping"}
+        whole = {w["family"] for rec in actions for w in rec["writes"] if not w.get("path")}
+        made = made_by_constructors(prog, tv, typ, [f["name"] for f in fields], pkset) - whole
         for rec in actions:
             for w in rec["writes"]:
-                if w["family"] in gomaps and w.get("path") and isinstance(w["path"][0], list) \
+                if w["family"] in gomaps - made and w.get("path") and isinstance(w["path"][0], list) \
                         and w["path"][0][:1] == ["map"]:
                     debt.append({"action": rec["name"], "kind": "nil_map", "src": w["src"],
                                  "what": f"a write into the map field {w['family']}, which may be nil (Q60: a nil-map "
-                                         "write panics; no constructor rule)"})
+                                         "write panics; no constructor of the type makes it on every return)"})
         debt = [json.loads(x) for x in sorted({json.dumps(d, sort_keys=True) for d in debt})]
     sels: dict = {}
     for k, (v,) in sorted(members.items()):
@@ -1433,7 +1562,7 @@ def machine_document(prog: Program, tv: TypeView, cfg: dict, prov: dict, typ: st
         "target": {"repo": cfg["target"]["repo"], "commit": cfg["target"]["commit"], "scope": f"go machine {typ}"},
         "extraction": {"method": "extracted", "frontend": "go", "kind": "transitions",
                        "frontend_version": FRONTEND_VERSION, "config": prov["config"], "tool": prov["tool"],
-                       "inputs": prov["inputs"]},
+                       "inputs": prov["inputs"], "machines": {"nil_maps": mode}},
         "contract": typ, "constants": {}, "storage": storage, "inherited_storage": [],
         "actions": sorted(actions, key=lambda a: a["name"]), "assumptions": assumptions,
         "debt": sorted(debt, key=lambda d: (d["action"], d["kind"], d["src"], d["what"])),
@@ -1452,11 +1581,18 @@ def extract(config_path, src=None, root=None) -> dict:
     src = Path(src) if src else GX.resolve_src(cfg, root)
     if not src.is_dir():
         raise Refused(f"source tree {src} is missing")
+    chosen = None
     try:
-        go, go_ver = GX.check_go(root)
+        if cfg.get("toolchain") == GX.TC.RULE:
+            # I109 (b): I103's rule, as the codec frontend runs it: the lowest pinned release of config/toolchains.json
+            # go_set at or above the source's go directive
+            chosen = GX.choose_go(root, src)
+            go, go_ver = GX.check_chosen(chosen)
+        else:
+            go, go_ver = GX.check_go(root)
         digest = GX.ssadump_digest()
         xt = GX.x_tools_version()
-        binary = GX.build_ssadump(go, digest)
+        binary = GX.build_ssadump(go, digest, chosen)
     except GX.Refused as e:
         raise Refused(str(e))
     patterns = sorted({p for pk in cfg["documents"].values() for p in pk})
@@ -1466,10 +1602,13 @@ def extract(config_path, src=None, root=None) -> dict:
         ws.mkdir()
         GX.make_workspace(src, ws)
         try:
-            dump = GX.run_ssadump(binary, ws.resolve(), patterns)
+            dump = GX.run_ssadump(binary, ws.resolve(), patterns, chosen)
             prog = Program(dump)
         except (DumpError, GX.Refused) as e:
-            raise Refused(str(e))
+            if chosen is None:
+                raise Refused(str(e))
+            raise Refused(f"{e}{GX.go_list_causes(go, ws.resolve(), patterns, chosen)}\n"
+                          f"[go {chosen['version']} (go directive {chosen['directive']} of {chosen['file']})]")
         missing = [p for p in patterns if p not in prog.packages]
         if missing:
             raise Refused(f"packages did not load: {missing}")
