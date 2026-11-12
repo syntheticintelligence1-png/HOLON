@@ -414,7 +414,16 @@ def render(summary: dict, mx: dict, cal: dict | None) -> str:
           "I52b's primary tier, a degenerate budget since HOLON's own route took under a second (its 3600 s tier is a "
           "sensitivity row in results/eval/" + held + "/secondary/, not compared here); the labels are obligation labels, "
           "so held-out recall is undefined and only detections against them are reported; halmos is vacuous there "
-          "(its frozen harness never calls the initializer, so every path reverts).", ""]
+          "(its frozen harness never calls the initializer, so every path reverts).",
+          f"- Scope of the {dev} numbers (docs/HUMAN_ANSWERS.md Q51): HOLON and the baselines saw the same input surface; a "
+          "submodule left uninitialized in the pinned checkout is reached by both only through the checkout's own "
+          "dependencies. Nothing is rerun.",
+          "- two_cycle is a same-language 2-cycle (codec pairs within one language; Q52); a cross-language variant is a "
+          "future key.",
+          f"- halmos is vacuous on {dev} too (most of its checks revert on every path under the frozen harness, which "
+          "never initializes; Q53); its numbers are reported with this threat, and an initializing harness is a future key.",
+          "- The rulings used here and in docs/iterations/I53.md are docs/HUMAN_ANSWERS.md Q45-Q53 (the lead's, delegated "
+          "by the human).", ""]
     return "\n".join(L)
 
 
