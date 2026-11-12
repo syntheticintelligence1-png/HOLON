@@ -301,7 +301,11 @@ class TestPins(unittest.TestCase):
             [f"spec/M{i}/" for i in range(4)] + ["laws/", "replay/", "audit/"]
         # I52's own commits: the non-merge commits of the first-parent history after BASE (a merge of the lead is not
         # I52's change; amendment spec/M4/amendments/I52.jsonl)
-        own = git("rev-list", "--first-parent", "--no-merges", f"{BASE}..HEAD").split()
+        # ending at R52, the oldest commit in HEAD's history that adds docs/iterations/I52.md (I52's report commit), so
+        # later first-parent landings are not I52's (second amendment, spec/M4/amendments/I52.jsonl)
+        adds = git("log", "--diff-filter=A", "--format=%H", "HEAD", "--", "docs/iterations/I52.md").split()
+        r52 = adds[-1] if adds else "HEAD"
+        own = git("rev-list", "--first-parent", "--no-merges", f"{BASE}..{r52}").split()
         changed = sorted({f for c in own for f in git("diff-tree", "--no-commit-id", "--name-only", "-r", c).split()})
         self.assertEqual([p for p in changed if any(p.startswith(x) for x in prefixes)], [])
 

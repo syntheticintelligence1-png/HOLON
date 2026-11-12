@@ -1,0 +1,316 @@
+{
+  "baseline": "echidna",
+  "budget": {
+    "cpus": 1,
+    "setup_cap_s": 3600,
+    "wall_s": 10620
+  },
+  "protocol_sha256": "2289c62bb90173f781320a9e65c3ac9452e2e192eea80dd2d451846fde117d27",
+  "schema": "holon-baseline-findings/0.1",
+  "system": "morph",
+  "targets": {
+    "morph": {
+      "adjudications": [],
+      "budget_exhausted": false,
+      "commands": [
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_L1CrossDomainMessenger --test-mode assertion --workers 1 --timeout 1770 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_L1MessageQueueWithGasPriceOracle --test-mode assertion --workers 1 --timeout 1765 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_L1Sequencer --test-mode assertion --workers 1 --timeout 1767 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_MultipleVersionRollupVerifier --test-mode assertion --workers 1 --timeout 1767 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_Rollup --test-mode assertion --workers 1 --timeout 1768 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_Submitter --test-mode assertion --workers 1 --timeout 1768 --test-limit 1000000000000 --format text --crytic-args --ignore-compile"
+      ],
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "detected": [],
+      "findings": [],
+      "located": [],
+      "matches": [],
+      "reason": null,
+      "scope": {
+        "dirs": [
+          "common/batch",
+          "contracts/contracts/l1",
+          "contracts/contracts/l1/rollup",
+          "contracts/contracts/libraries/codec",
+          "node/derivation"
+        ],
+        "files": [
+          "common/batch/batch_cache.go",
+          "common/batch/batch_data.go",
+          "common/batch/batch_header.go",
+          "common/batch/batch_query.go",
+          "common/batch/batch_storage.go",
+          "common/batch/blob.go",
+          "common/batch/encoding.go",
+          "common/batch/interfaces.go",
+          "common/batch/l2_gov.go",
+          "contracts/contracts/l1/IL1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/L1Sequencer.sol",
+          "contracts/contracts/l1/rollup/IL1MessageQueue.sol",
+          "contracts/contracts/l1/rollup/IL1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/IRollup.sol",
+          "contracts/contracts/l1/rollup/ISubmitter.sol",
+          "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "contracts/contracts/l1/rollup/Rollup.sol",
+          "contracts/contracts/l1/rollup/Submitter.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "node/derivation/base_client.go",
+          "node/derivation/batch_info.go",
+          "node/derivation/beacon.go",
+          "node/derivation/blob_type.go",
+          "node/derivation/blobs.go",
+          "node/derivation/config.go",
+          "node/derivation/database.go",
+          "node/derivation/derivation.go",
+          "node/derivation/finalizer.go",
+          "node/derivation/metrics.go",
+          "node/derivation/reorg.go",
+          "node/derivation/tag_advance.go",
+          "node/derivation/verify.go",
+          "node/derivation/verify_local.go"
+        ],
+        "harness": {
+          "L1CrossDomainMessenger": {
+            "forward": {
+              "check_initialize_4": "initialize(address,address,address)",
+              "check_proveAndRelayMessage_12": "proveAndRelayMessage(address,address,uint256,uint256,bytes,bytes32[32],bytes32)",
+              "check_renounceOwnership_13": "renounceOwnership()",
+              "check_replayMessage_14": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+              "check_sendMessage_17": "sendMessage(address,uint256,bytes,uint256,address)",
+              "check_sendMessage_18": "sendMessage(address,uint256,bytes,uint256)",
+              "check_setPause_19": "setPause(bool)",
+              "check_transferOwnership_20": "transferOwnership(address)",
+              "check_updateFeeVault_21": "updateFeeVault(address)",
+              "check_updateMaxReplayTimes_22": "updateMaxReplayTimes(uint256)",
+              "check_updateRollup_23": "updateRollup(address)",
+              "initialize(address,address,address)": "initialize(address,address,address)",
+              "proveAndRelayMessage(address,address,uint256,uint256,bytes,bytes32[32],bytes32)": "proveAndRelayMessage(address,address,uint256,uint256,bytes,bytes32[32],bytes32)",
+              "renounceOwnership()": "renounceOwnership()",
+              "replayMessage(address,address,uint256,uint256,bytes,uint32,address)": "replayMessage(address,address,uint256,uint256,bytes,uint32,address)",
+              "sendMessage(address,uint256,bytes,uint256)": "sendMessage(address,uint256,bytes,uint256)",
+              "sendMessage(address,uint256,bytes,uint256,address)": "sendMessage(address,uint256,bytes,uint256,address)",
+              "setPause(bool)": "setPause(bool)",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateFeeVault(address)": "updateFeeVault(address)",
+              "updateMaxReplayTimes(uint256)": "updateMaxReplayTimes(uint256)",
+              "updateRollup(address)": "updateRollup(address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "L1MessageQueueWithGasPriceOracle": {
+            "forward": {
+              "appendCrossDomainMessage(address,uint256,bytes)": "appendCrossDomainMessage(address,uint256,bytes)",
+              "appendEnforcedTransaction(address,address,uint256,uint256,bytes)": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+              "check_appendCrossDomainMessage_3": "appendCrossDomainMessage(address,uint256,bytes)",
+              "check_appendEnforcedTransaction_4": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+              "check_initialize_11": "initialize(uint256,address)",
+              "check_popCrossDomainMessage_19": "popCrossDomainMessage(uint256,uint256)",
+              "check_renounceOwnership_20": "renounceOwnership()",
+              "check_setL2BaseFee_21": "setL2BaseFee(uint256)",
+              "check_transferOwnership_22": "transferOwnership(address)",
+              "check_updateMaxGasLimit_23": "updateMaxGasLimit(uint256)",
+              "check_updateWhitelistChecker_24": "updateWhitelistChecker(address)",
+              "initialize(uint256,address)": "initialize(uint256,address)",
+              "popCrossDomainMessage(uint256,uint256)": "popCrossDomainMessage(uint256,uint256)",
+              "renounceOwnership()": "renounceOwnership()",
+              "setL2BaseFee(uint256)": "setL2BaseFee(uint256)",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateMaxGasLimit(uint256)": "updateMaxGasLimit(uint256)",
+              "updateWhitelistChecker(address)": "updateWhitelistChecker(address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "L1Sequencer": {
+            "forward": {
+              "check_initialize_4": "initialize(address)",
+              "check_renounceOwnership_6": "renounceOwnership()",
+              "check_setFirstSequencer_8": "setFirstSequencer(address)",
+              "check_transferOwnership_9": "transferOwnership(address)",
+              "check_updateSequencer_10": "updateSequencer(address,uint64)",
+              "initialize(address)": "initialize(address)",
+              "renounceOwnership()": "renounceOwnership()",
+              "setFirstSequencer(address)": "setFirstSequencer(address)",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateSequencer(address,uint64)": "updateSequencer(address,uint64)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "MultipleVersionRollupVerifier": {
+            "forward": {
+              "check_initialize_1": "initialize(address)",
+              "check_renounceOwnership_6": "renounceOwnership()",
+              "check_transferOwnership_8": "transferOwnership(address)",
+              "check_updateVerifier_9": "updateVerifier(uint256,uint64,address)",
+              "initialize(address)": "initialize(address)",
+              "renounceOwnership()": "renounceOwnership()",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateVerifier(uint256,uint64,address)": "updateVerifier(uint256,uint64,address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "Rollup": {
+            "forward": {
+              "addChallenger(address)": "addChallenger(address)",
+              "challengeState(uint64,bytes32)": "challengeState(uint64,bytes32)",
+              "check_addChallenger_2": "addChallenger(address)",
+              "check_challengeState_11": "challengeState(uint64,bytes32)",
+              "check_claimProveRemaining_13": "claimProveRemaining(address)",
+              "check_claimReward_14": "claimReward(address)",
+              "check_commitBatchWithProof_16": "commitBatchWithProof(tuple,bytes,bytes)",
+              "check_commitBatch_15": "commitBatch(tuple)",
+              "check_commitState_17": "commitState(tuple)",
+              "check_finalizeBatch_21": "finalizeBatch(bytes)",
+              "check_importGenesisBatch_23": "importGenesisBatch(bytes)",
+              "check_initialize2_26": "initialize2(bytes32)",
+              "check_initialize3_27": "initialize3(uint256)",
+              "check_initialize4_28": "initialize4(address,uint256)",
+              "check_initialize_25": "initialize(address,address,address,uint256,uint256,uint256)",
+              "check_proveState_41": "proveState(bytes,bytes)",
+              "check_removeChallenger_42": "removeChallenger(address)",
+              "check_renounceOwnership_43": "renounceOwnership()",
+              "check_revertBatch_44": "revertBatch(bytes,uint256)",
+              "check_setPause_47": "setPause(bool)",
+              "check_transferOwnership_49": "transferOwnership(address)",
+              "check_updateFinalizePeriodSeconds_50": "updateFinalizePeriodSeconds(uint256)",
+              "check_updateProofWindow_51": "updateProofWindow(uint256)",
+              "check_updateRewardPercentage_52": "updateRewardPercentage(uint256)",
+              "check_updateRollupDelayPeriod_53": "updateRollupDelayPeriod(uint256)",
+              "check_updateVerifier_54": "updateVerifier(address)",
+              "claimProveRemaining(address)": "claimProveRemaining(address)",
+              "claimReward(address)": "claimReward(address)",
+              "commitBatch(tuple)": "commitBatch(tuple)",
+              "commitBatchWithProof(tuple,bytes,bytes)": "commitBatchWithProof(tuple,bytes,bytes)",
+              "commitState(tuple)": "commitState(tuple)",
+              "finalizeBatch(bytes)": "finalizeBatch(bytes)",
+              "importGenesisBatch(bytes)": "importGenesisBatch(bytes)",
+              "initialize(address,address,address,uint256,uint256,uint256)": "initialize(address,address,address,uint256,uint256,uint256)",
+              "initialize2(bytes32)": "initialize2(bytes32)",
+              "initialize3(uint256)": "initialize3(uint256)",
+              "initialize4(address,uint256)": "initialize4(address,uint256)",
+              "proveState(bytes,bytes)": "proveState(bytes,bytes)",
+              "removeChallenger(address)": "removeChallenger(address)",
+              "renounceOwnership()": "renounceOwnership()",
+              "revertBatch(bytes,uint256)": "revertBatch(bytes,uint256)",
+              "setPause(bool)": "setPause(bool)",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateFinalizePeriodSeconds(uint256)": "updateFinalizePeriodSeconds(uint256)",
+              "updateProofWindow(uint256)": "updateProofWindow(uint256)",
+              "updateRewardPercentage(uint256)": "updateRewardPercentage(uint256)",
+              "updateRollupDelayPeriod(uint256)": "updateRollupDelayPeriod(uint256)",
+              "updateVerifier(address)": "updateVerifier(address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "Submitter": {
+            "forward": {
+              "addSubmitter(address)": "addSubmitter(address)",
+              "check_addSubmitter_0": "addSubmitter(address)",
+              "check_claimSlashRemaining_2": "claimSlashRemaining(address)",
+              "check_claimWithdrawal_3": "claimWithdrawal(address)",
+              "check_initialize_4": "initialize(address,address,uint256,uint256,uint256)",
+              "check_removeSubmitter_9": "removeSubmitter(address)",
+              "check_renounceOwnership_10": "renounceOwnership()",
+              "check_setMinimumStake_13": "setMinimumStake(uint256)",
+              "check_slash_14": "slash(address)",
+              "check_stake_16": "stake(address)",
+              "check_transferOwnership_18": "transferOwnership(address)",
+              "check_updateChallengeDeposit_19": "updateChallengeDeposit(uint256)",
+              "check_updateRewardPercentage_20": "updateRewardPercentage(uint256)",
+              "check_withdraw_21": "withdraw()",
+              "claimSlashRemaining(address)": "claimSlashRemaining(address)",
+              "claimWithdrawal(address)": "claimWithdrawal(address)",
+              "initialize(address,address,uint256,uint256,uint256)": "initialize(address,address,uint256,uint256,uint256)",
+              "removeSubmitter(address)": "removeSubmitter(address)",
+              "renounceOwnership()": "renounceOwnership()",
+              "setMinimumStake(uint256)": "setMinimumStake(uint256)",
+              "slash(address)": "slash(address)",
+              "stake(address)": "stake(address)",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateChallengeDeposit(uint256)": "updateChallengeDeposit(uint256)",
+              "updateRewardPercentage(uint256)": "updateRewardPercentage(uint256)",
+              "withdraw()": "withdraw()"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          }
+        },
+        "labelled_files": [
+          "common/batch/batch_cache.go",
+          "common/batch/batch_data.go",
+          "common/batch/batch_header.go",
+          "common/batch/blob.go",
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "contracts/contracts/l1/rollup/Rollup.sol",
+          "contracts/contracts/l1/rollup/Submitter.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "node/derivation/batch_info.go",
+          "node/derivation/derivation.go"
+        ]
+      },
+      "seeds": {
+        "echidna": "none: echidna 2.4.0 refuses --seed with --timeout (a wall-clock budget makes runs non-deterministic); the budget wins"
+      },
+      "status": "run",
+      "units": [
+        {
+          "exit": 0,
+          "name": "L1CrossDomainMessenger",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "L1MessageQueueWithGasPriceOracle",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "L1Sequencer",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "MultipleVersionRollupVerifier",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "Rollup",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "Submitter",
+          "timed_out": false
+        }
+      ]
+    }
+  },
+  "tool": {
+    "installed": true,
+    "missing_reason": null,
+    "model_tag": null,
+    "name": "echidna",
+    "pins": {
+      "archive": "a77a90501dd6269e12807156e9d409b160ce0c87fbb36fe323a896a4fb7a2d1d",
+      "binary": "a3f1ff5116839965524af797702c1fa4e57793ece8d9cd5365c0381fea1a6da4"
+    },
+    "same_family": null,
+    "version": "2.4.0"
+  }
+}

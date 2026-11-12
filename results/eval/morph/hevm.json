@@ -1,0 +1,174 @@
+{
+  "baseline": "hevm",
+  "budget": {
+    "cpus": 1,
+    "setup_cap_s": 3600,
+    "wall_s": 10620
+  },
+  "protocol_sha256": "2289c62bb90173f781320a9e65c3ac9452e2e192eea80dd2d451846fde117d27",
+  "schema": "holon-baseline-findings/0.1",
+  "system": "morph",
+  "targets": {
+    "morph": {
+      "adjudications": [],
+      "budget_exhausted": true,
+      "commands": [
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of L1CrossDomainMessenger> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of L1MessageQueueWithGasPriceOracle> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of L1Sequencer> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of MultipleVersionRollupVerifier> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of Rollup> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of Submitter> --solver cvc5"
+      ],
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "detected": [],
+      "findings": [
+        {
+          "evidence": {
+            "output": "n\": []\nTransaction Context:\n  TxValue: 0x0\nAddrs:\n  SymAddr \"caller\": 0x000000000000000000000000000000000000000A\n  SymAddr \"entrypoint\": 0x000000000000000000000000000000000000000E\n  SymAddr \"miner\": 0x000000000000000000000000000000000000000F\n  SymAddr \"origin\": 0x000000000000000000000000000000000000000C\n\nCalldata:\n  0xa3066aab000000000000000000000000ffffffffffffffffffffffffffffffffffffffff000000\nStorage:\n  Addr SymAddr \"entrypoint\": [(0xa,0xff)]\n  Addr SymAddr \"miner\": []\n  Addr SymAddr \"origin\": []\nTransaction Context:\n  TxValue: 0x0\nAddrs:\n  SymAddr \"caller\": 0x000000000000000000000000000000000000000A\n  SymAddr \"entrypoint\": 0x000000000000000000000000000000000000000E\n  SymAddr \"miner\": 0x000000000000000000000000000000000000000F\n  SymAddr \"origin\": 0x000000000000000000000000000000000000000C\n\nCalldata:\n  0xc36f41e20000000000000000000000000000000000000000000000000000000000000000000000\nStorage:\n  Addr SymAddr \"entrypoint\": [(0x0,0x0)]\n  Addr SymAddr \"miner\": []\n  Addr SymAddr \"origin\": []\nTransaction Context:\n  TxValue: 0x0\nAddrs:\n  SymAddr \"caller\": 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF\n  SymAddr \"entrypoint\": 0x000000000000000000000000000000000000000E\n  SymAddr \"miner\": 0x000000000000000000000000000000000000000F\n  SymAddr \"origin\": 0x000000000000000000000000000000000000000C\n\n\n   [WARNING] hevm was only able to partially explore symbolically due to: \n      1x -> CopySlice with a symbolically sized region not currently implemented, cannot execute SMT solver on this query\n\n"
+          },
+          "id": "f0001",
+          "kind": "assertion-violation",
+          "locations": [
+            {
+              "file": "contracts/contracts/l1/rollup/Submitter.sol",
+              "function": null,
+              "lines": [
+                120,
+                127
+              ]
+            },
+            {
+              "file": "contracts/contracts/l1/rollup/Submitter.sol",
+              "function": null,
+              "lines": [
+                129,
+                144
+              ]
+            },
+            {
+              "file": "contracts/contracts/l1/rollup/Submitter.sol",
+              "function": null,
+              "lines": [
+                83,
+                91
+              ]
+            }
+          ],
+          "message": "hevm: counterexample to the default assertion check in Submitter",
+          "severity": null
+        }
+      ],
+      "located": [],
+      "matches": [],
+      "reason": null,
+      "scope": {
+        "dirs": [
+          "common/batch",
+          "contracts/contracts/l1",
+          "contracts/contracts/l1/rollup",
+          "contracts/contracts/libraries/codec",
+          "node/derivation"
+        ],
+        "files": [
+          "common/batch/batch_cache.go",
+          "common/batch/batch_data.go",
+          "common/batch/batch_header.go",
+          "common/batch/batch_query.go",
+          "common/batch/batch_storage.go",
+          "common/batch/blob.go",
+          "common/batch/encoding.go",
+          "common/batch/interfaces.go",
+          "common/batch/l2_gov.go",
+          "contracts/contracts/l1/IL1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/L1Sequencer.sol",
+          "contracts/contracts/l1/rollup/IL1MessageQueue.sol",
+          "contracts/contracts/l1/rollup/IL1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/IRollup.sol",
+          "contracts/contracts/l1/rollup/ISubmitter.sol",
+          "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "contracts/contracts/l1/rollup/Rollup.sol",
+          "contracts/contracts/l1/rollup/Submitter.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "node/derivation/base_client.go",
+          "node/derivation/batch_info.go",
+          "node/derivation/beacon.go",
+          "node/derivation/blob_type.go",
+          "node/derivation/blobs.go",
+          "node/derivation/config.go",
+          "node/derivation/database.go",
+          "node/derivation/derivation.go",
+          "node/derivation/finalizer.go",
+          "node/derivation/metrics.go",
+          "node/derivation/reorg.go",
+          "node/derivation/tag_advance.go",
+          "node/derivation/verify.go",
+          "node/derivation/verify_local.go"
+        ],
+        "labelled_files": [
+          "common/batch/batch_cache.go",
+          "common/batch/batch_data.go",
+          "common/batch/batch_header.go",
+          "common/batch/blob.go",
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "contracts/contracts/l1/rollup/Rollup.sol",
+          "contracts/contracts/l1/rollup/Submitter.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "node/derivation/batch_info.go",
+          "node/derivation/derivation.go"
+        ]
+      },
+      "seeds": {},
+      "status": "run",
+      "units": [
+        {
+          "exit": -9,
+          "name": "L1CrossDomainMessenger",
+          "timed_out": false
+        },
+        {
+          "exit": -15,
+          "name": "L1MessageQueueWithGasPriceOracle",
+          "timed_out": true
+        },
+        {
+          "exit": -15,
+          "name": "L1Sequencer",
+          "timed_out": true
+        },
+        {
+          "exit": -15,
+          "name": "MultipleVersionRollupVerifier",
+          "timed_out": true
+        },
+        {
+          "exit": -15,
+          "name": "Rollup",
+          "timed_out": true
+        },
+        {
+          "exit": 1,
+          "name": "Submitter",
+          "timed_out": false
+        }
+      ]
+    }
+  },
+  "tool": {
+    "installed": true,
+    "missing_reason": null,
+    "model_tag": null,
+    "name": "hevm",
+    "pins": {
+      "binary": "a99e85014c3d0925cbe26efd16279926db13ba8682b50c885fda4cffab704248",
+      "cvc5": "fae0038f9cbd1be5f5b32ff74a016b202fb6a2253374fc2e84451f9aa1af6261"
+    },
+    "same_family": null,
+    "version": "0.55.1"
+  }
+}
