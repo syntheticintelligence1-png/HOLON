@@ -189,6 +189,14 @@ jobs:
             # records are not rebuilt: mutation --check and hostile-input --check are never run unattended.
             timeout: 60
             run: python -m holon audit evidence --milestone M3 --rebuild
+          - name: tests-m3-i102
+            # I102 (audit M3/2 F-M3-07, M3/7 F-M3-30): holon audit regress compares each commit with its own parents.
+            # A synthetic history with a phantom change and a hidden one gives exactly its seven real changes, each
+            # covered on its edge (B1), and the base's regress shows both failures on it (B2). Round 7's range: no
+            # uncovered M3 change, and round 7's own hidden_check finds none unreported (B3). Round 2's range: no
+            # uncovered M3 change (B4). No target name (B5), this job (B6), no generator closure moves (B7).
+            timeout: 60
+            run: python -m unittest tests_m3.test_regress_parents_i102.TestBuild -v
           - name: tests-m3-par-record
             # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
             # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an
