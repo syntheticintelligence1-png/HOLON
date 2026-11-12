@@ -562,6 +562,9 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             stages["derive"] = {"status": "no_producer", "exit": None, "detail": proto["go_rules_doc"]}
         if sol:
             _rules(R, S, rel, M, proto, sol, stages, (lambda: _route_c(R, S, M, lib, stages)) if compose else None)
+            if getattr(R, "run_outputs", None) and VAULT is not None:   # I112: each runner's own output (law ids)
+                (VAULT / entry["id"]).mkdir(parents=True, exist_ok=True)
+                (VAULT / entry["id"] / "run_outputs.json").write_text(dumps(R.run_outputs))
         # copy the outputs
         for sub, frm in (("sidecars", S / rel / "sidecars"), ("facts", S / rel / "facts"), ("laws", S / "laws" / M),
                          ("gen", S / "gen" / M), ("records", S / "results" / M)):
@@ -585,6 +588,8 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     if compose:
         row["machines"] = machines
         row["compose"] = True
+    if isinstance(stages.get("run"), dict) and "runners" in stages["run"]:   # I112: per-runner aggregates
+        row["run_runners"] = stages["run"].pop("runners")
     row["stages"] = stages
     row["laws"] = law_rows(edir, entry["files"], row["locus"])
     if compose:   # I110 (b): every derived record carries the source of the role sidecars it was derived with
@@ -713,9 +718,53 @@ def withhold(row: dict, edir: Path) -> None:
     row["laws_aggregate"] = dict(sorted(fam.items()))
     row["laws_bundle_sha256"] = sha256_bytes(("".join(f"{x}\n" for x in sorted(lines))).encode())
     row["laws_bundle_files"] = len(lines)
+    withhold_gen(row, edir, [x["law_id"] for x in row["laws"] if x.get("law_id")])
     row["laws"] = []
     for k in ("detected", "detected_any", "label_rule_laws"):
         row[k] = None   # withheld with the verdicts (Q56); the adjudicator's run decides them
+
+
+def withhold_gen(row: dict, edir: Path, ids: list[str]) -> None:
+    """I112 (3): the per-law outputs withhold() did not cover (I111's tools/i111_withhold_gen.py, in the driver). Every
+    file under <id>/gen/ whose path or text names one of the entry's derived law ids is removed from the written
+    output (the vault keeps the whole gen/), and so is every large_files.json entry whose path names one. They are
+    recorded as <id>/gen_withheld.json {files, sha256}: the sha256 of the sorted lines "<sha256>  <path>" (I111's
+    canonical form), with no path or id. Every law id inside a stage's detail is replaced by "<law id withheld>"."""
+    if not ids:
+        return
+    by_len = sorted(set(ids), key=lambda x: (-len(x), x))
+    names = lambda t: any(i in t for i in by_len)   # noqa: E731
+    gone = []
+    g = edir / "gen"
+    if g.is_dir():
+        for p in sorted(g.rglob("*")):
+            if p.is_file():
+                rel = p.relative_to(edir).as_posix()
+                if names(rel) or names(p.read_text(encoding="utf-8", errors="ignore")):
+                    gone.append((rel, sha256_bytes(p.read_bytes())))
+                    p.unlink()
+        for d in sorted((q for q in g.rglob("*") if q.is_dir()), key=lambda q: -len(q.parts)):
+            if not any(d.iterdir()):
+                d.rmdir()
+    lf = edir / "large_files.json"
+    if lf.is_file():
+        rows = json.loads(lf.read_text(encoding="utf-8"))
+        keep = [r for r in rows if not names(r["path"])]
+        gone += [(r["path"], r["sha256"]) for r in rows if names(r["path"])]
+        if len(keep) != len(rows):
+            if keep:
+                lf.write_text(dumps(keep))
+            else:
+                lf.unlink()
+    if gone:
+        lines = "".join(f"{h}  {rel}\n" for rel, h in sorted(gone, key=lambda x: x[0].encode()))
+        (edir / "gen_withheld.json").write_text(dumps({"files": len(gone), "sha256": sha256_bytes(lines.encode())}))
+    for st in (row.get("stages") or {}).values():
+        d = st.get("detail")
+        if isinstance(d, str):
+            for i in by_len:
+                d = d.replace(i, "<law id withheld>")
+            st["detail"] = d
 
 
 def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages: dict, before_derive=None) -> None:
@@ -729,7 +778,10 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
              # I110 (a): the protocol's per-document sort budget (absent: the pass meters nothing, as before)
              **({"sort_budget": proto["typed"]["sort_budget"]} if "sort_budget" in proto["typed"] else {}),
              # I111 (Q77): the protocol's per-document types fallback (absent: holon types refuses as before)
-             **({"types_fallback": proto["typed"]["types_fallback"]} if "types_fallback" in proto["typed"] else {})}
+             **({"types_fallback": proto["typed"]["types_fallback"]} if "types_fallback" in proto["typed"] else {}),
+             # I112 (Q81): the refusal classes the fallback makes opaque (absent: I111's)
+             **({"types_opaque_classes": proto["typed"]["types_opaque_classes"]}
+                if "types_opaque_classes" in proto["typed"] else {})}
     disch = {**{k: proto["disch"][k] for k in ("disch_version", "binding", "hypotheses", "hypothesis_verdicts", "r0",
                                                 "search")},
              "doc": f"{tag(proto)[0]}: generated by holon eval holon ({tag(proto)[1]} disch)", "documents": docs,
@@ -767,6 +819,16 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
         stages["run"] = {"status": "not_applicable", "exit": None, "detail": "no law derived"}
         return
     out = ["--out", f"results/{M}", "--gen-dir", f"gen/{M}"]
+    if proto.get("run_routing") == "per_runner":   # I112 (Q82): each law to its rule family's runner, with its arguments
+        # the record writer reads gen/<M>/coverage.json for a law over a Solidity transitions document
+        # (holon.records.coverage_field); holon coverage reads the milestone's spec sidecars, so the composed route
+        # accounts for its own extraction sidecars (the frontend's walk, as for any milestone)
+        xs = sorted(p.relative_to(S).as_posix() for p in (S / rel / "sidecars").glob("extract_*.json"))
+        if xs:
+            stages["coverage"] = R.holon("coverage", ["coverage", "--milestone", M, "--root", str(S), "--sidecars",
+                                                      ",".join(xs)], timeout_key="derive")
+        _run_routed(R, S, M, proto, laws, stages, ts, ds, fs, out)
+        return
     r1 = R.holon("run", ["run", "--milestone", M, "--sidecar", ts, "--disch", ds, "--fact-sidecar", fs, *out])
     left = [lid for lid in laws if not (S / "results" / M / f"{lid}.json").is_file()]
     r2 = None
@@ -779,6 +841,81 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
                      f"{'not needed' if r2 is None else r2['status'] + ' (exit ' + str(r2['exit']) + ')'}; "
                      f"{len(still)} laws not decided" + ("" if r1["status"] == "ok" else "; run 1: " + r1["detail"][-600:])
                      + ("" if r2 is None or r2["status"] == "ok" else "; run 2: " + r2["detail"][-600:])}
+    stages["replay"] = {"status": "not_applicable", "exit": None, "detail": proto["replay"]}
+    stages["filter"] = {"status": "ok", "exit": None, "detail": proto["filter"]}
+
+
+# ---------------------------------------------------------------------------------------------- I112 (1): routing
+RUNNERS = ("disch", "fact", "typed", "milestone")
+TYPED_SORT_SUBFORMS = ("as_member", "realize", "reinterpret")
+
+
+def runner_of(entry: dict) -> str:
+    """The runner of a law's rule family, from its laws/<M>/DERIVATION.json entry (holon/__main__.py's dispatch): disch
+    (rule DISCH, holon.disch.run's sub-forms), fact (FACT), typed (SORT's typed sub-forms, UNDO, SYM), milestone (every
+    other law: PAR and route C's families, which holon run sends to holon.pipeline or to the runner its dispatch
+    names)."""
+    from ..disch.run import SUBFORMS as DISCH_SUBFORMS
+    rule, sub = entry.get("rule"), entry.get("subform")
+    if rule == "DISCH" and sub in DISCH_SUBFORMS:
+        return "disch"
+    if rule == "FACT":
+        return "fact"
+    if (rule == "SORT" and sub in TYPED_SORT_SUBFORMS) or rule in ("UNDO", "SYM"):
+        return "typed"
+    return "milestone"
+
+
+def route(derivation: dict, laws: list[str]) -> dict:
+    """{runner: [law id, ..]} for the given laws, in RUNNERS order, each list sorted; empty groups left out. A law with
+    no DERIVATION.json entry goes to milestone (holon run decides whether it knows it)."""
+    ent = {e.get("law_id"): e for e in derivation.get("laws") or [] if isinstance(e, dict)}
+    out: dict = {}
+    for lid in sorted(laws):
+        out.setdefault(runner_of(ent.get(lid) or {}), []).append(lid)
+    return {k: out[k] for k in RUNNERS if k in out}
+
+
+def runner_args(runner: str, proto: dict, ts: str, ds: str, fs: str) -> list[str]:
+    """The arguments a runner takes beyond --milestone, --laws, --out and --gen-dir."""
+    if runner == "disch":
+        se = (proto.get("disch") or {}).get("section_errors")
+        return ["--sidecar", ts, "--disch", ds] + (["--section-errors", se] if se else [])
+    if runner == "fact":
+        return ["--sidecar", ts, "--fact-sidecar", fs]
+    if runner == "typed":
+        return ["--sidecar", ts]
+    return []
+
+
+def _run_routed(R: Runner, S: Path, M: str, proto: dict, laws: list[str], stages: dict, ts: str, ds: str, fs: str,
+                out: list) -> None:
+    """One holon run --laws per runner group. The stage detail is aggregates only (Q72: the run decides laws): per
+    runner its laws, status, exit, records written and DISCH section errors; each runner's own output (which names
+    law ids) is kept in R.run_outputs for the vault, never in the row."""
+    der = common.load_json(S / "laws" / M / "DERIVATION.json")
+    groups = route(der, laws)
+    res: dict = {}
+    R.run_outputs = getattr(R, "run_outputs", {})
+    for k, ids in groups.items():
+        r = R.holon("run", ["run", "--milestone", M, *runner_args(k, proto, ts, ds, fs), "--laws", ",".join(ids), *out])
+        R.run_outputs[k] = r["detail"]
+        recs = [i for i in ids if (S / "results" / M / f"{i}.json").is_file()]
+        sec: set = set()   # the documents whose DISCH section is refused (each recorded on its laws, I112)
+        if k == "disch":
+            for i in recs:
+                rec = common.load_json(S / "results" / M / f"{i}.json")
+                if any(isinstance(a, dict) and a.get("kind") == "section" for a in rec.get("attempts") or []):
+                    sec.add((rec.get("disch") or {}).get("facts"))
+        res[k] = {"laws": len(ids), "status": r["status"], "exit": r["exit"], "records": len(recs),
+                  "section_errors": len(sec), "section_error_laws": sum(
+                      1 for i in recs if k == "disch" and any(isinstance(a, dict) and a.get("kind") == "section"
+                                                              for a in common.load_json(S / "results" / M / f"{i}.json")
+                                                              .get("attempts") or []))}
+    still = [lid for lid in laws if not (S / "results" / M / f"{lid}.json").is_file()]
+    stages["run"] = {"status": "ok" if all(v["status"] == "ok" for v in res.values()) else "failed", "exit": None,
+                     "detail": "per runner: " + json.dumps(res, sort_keys=True) + f"; {len(still)} laws with no record"}
+    stages["run"]["runners"] = res
     stages["replay"] = {"status": "not_applicable", "exit": None, "detail": proto["replay"]}
     stages["filter"] = {"status": "ok", "exit": None, "detail": proto["filter"]}
 
@@ -835,6 +972,40 @@ def _tree_bytes(d: Path) -> dict:
         if d.is_dir() else {}
 
 
+def preflight(proto: dict, sets: dict) -> dict | None:
+    """I112 (4), Q80: under the protocol's preflight "toolchain_sets", every binary of config/toolchains.json the
+    protocol can select: with solidity.compiler.version "pragma" every solc_set release (<dir>/solc-<v> present, its
+    sha256 the pin); with go.toolchain "go_directive" every go_set release (its go present and printing the pinned
+    version_line: go_set pins its tarballs, not the installed binaries). None without the key."""
+    if proto.get("preflight") != "toolchain_sets":
+        return None
+    from ..frontends.go.toolchains import vkey as gkey
+    from ..frontends.solidity.toolchains import vkey as skey
+    bins = []
+    if ((proto.get("solidity") or {}).get("compiler") or {}).get("version") == "pragma":
+        ss = sets.get("solc_set") or {}
+        for v in sorted(ss.get("releases") or {}, key=skey):
+            p = Path(ss["dir"]) / f"solc-{v}"
+            got = common.sha256_file(p) if p.is_file() else None
+            bins.append({"tool": "solc", "version": v, "path": str(p), "sha256": got,
+                         "ok": got == ss["releases"][v]})
+    if (proto.get("go") or {}).get("toolchain") == "go_directive":
+        for v, r in sorted(((sets.get("go_set") or {}).get("releases") or {}).items(), key=lambda kv: gkey(kv[0])):
+            go = str(Path(r["goroot"]) / "bin" / "go") if r.get("goroot") else (
+                shutil.which("go") or "/usr/local/go/bin/go")
+            line = None
+            if Path(go).is_file():
+                try:
+                    line = subprocess.run([go, "version"], capture_output=True, text=True, timeout=60).stdout.strip()
+                except (OSError, subprocess.TimeoutExpired):
+                    line = None
+            bins.append({"tool": "go", "version": v, "path": go, "version_line": line,
+                         "ok": line == r.get("version_line")})
+    count = lambda t: {"checked": sum(b["tool"] == t for b in bins), "ok": sum(b["tool"] == t and b["ok"] for b in bins)}   # noqa: E731
+    return {"status": "ok" if all(b["ok"] for b in bins) else "failed", "solc": count("solc"), "go": count("go"),
+            "binaries": bins}
+
+
 def cli_holon(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="holon eval holon")
     ap.add_argument("--root", default=str(common.ROOT))
@@ -850,6 +1021,7 @@ def cli_holon(argv: list[str]) -> int:
                          "diagram and evidence, then sorts .. derive, run and replay")
     ap.add_argument("--vault", help="with --roles: a directory outside the repository that keeps each entry's withheld "
                                     "laws/, records/ and gen/ (Q56: the plaintext stays in the session)")
+    ap.add_argument("--out", help="I112: write the run here instead of the protocol's out (absolute or root-relative)")
     a = ap.parse_args(argv)
     global VAULT
     VAULT = Path(a.vault).resolve() if a.vault else None
@@ -862,13 +1034,23 @@ def cli_holon(argv: list[str]) -> int:
         raise common.Refused(f"--compose: {a.protocol} has no compose key")
     if a.protocol != PROTOCOL_REL:
         proto["_path"] = a.protocol
+    # I112 (4), Q80: a run refuses to start unless every toolchain-set binary its protocol can select is installed
+    sets_p = Path(os.environ.get("HOLON_TOOLCHAINS") or root / "config" / "toolchains.json")
+    pf = preflight(proto, common.load_json(sets_p) if sets_p.is_file() else {})
+    if pf is not None and pf["status"] != "ok":
+        for b in pf["binaries"]:
+            if not b["ok"]:
+                print(f"holon eval holon: preflight: {b['tool']} {b['version']} at {b['path']} is missing or not its "
+                      f"pin ({b.get('sha256') or b.get('version_line')})", file=sys.stderr)
+        print(f"holon eval holon: preflight failed ({sets_p.name}): the run does not start", file=sys.stderr)
+        return 2
     cpath = root / proto["corpus"]
     entries = common.load_json(cpath)["entries"]
     want = [x for x in (a.entries or "").split(",") if x] or [e["id"] for e in entries]
     unknown = sorted(set(want) - {e["id"] for e in entries})
     if unknown:
         raise common.Refused(f"unknown entries: {unknown}")
-    out = root / proto["out"]
+    out = (Path(a.out) if Path(a.out).is_absolute() else root / a.out) if a.out else root / proto["out"]
     old = common.load_json(out / "corpus.json") if (out / "corpus.json").is_file() else None
     old_rows = {r["id"]: r for r in (old or {}).get("rows", [])}
     stage = Path(tempfile.mkdtemp(prefix="holon-i51-out-"))
@@ -911,6 +1093,8 @@ def cli_holon(argv: list[str]) -> int:
         doc = {"run_version": proto["run_version"], "corpus_sha256": common.sha256_file(cpath),
                "protocol_sha256": common.sha256_file(root / a.protocol), "holon_sha256": holon_sha256(root),
                "toolchain": toolchain(root), "rows": rows, "summary": summarize(rows)}
+        if pf is not None:   # I112 (4): the preflight, in the run's snapshot
+            doc["preflight"] = pf
         common.write_or_check(out / "corpus.json", dumps(doc), False)
         tp = out / "corpus_timing.json"
         tim = common.load_json(tp) if tp.is_file() else {}

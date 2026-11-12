@@ -62,15 +62,29 @@ def accounting_sidecars(m: str, root=ROOT) -> list[tuple[Path, dict, object]]:
     return out
 
 
-def compute(m: str, root=ROOT) -> dict:
-    """The coverage report of milestone m (module docstring)."""
+def given_sidecars(paths: list, root=ROOT) -> list:
+    """I112: (path, sidecar, frontend module) of the given extraction sidecars that account for statements (the
+    composed driver's own generated sidecars, which live beside its documents rather than under spec/*/lib)."""
+    from . import frontends
+    out = []
+    for sp in sorted(Path(p) if Path(p).is_absolute() else Path(root) / p for p in paths):
+        side = frontends.load_sidecar(sp)
+        mod = frontends._frontend(side["frontend"])
+        if mod is not None and callable(getattr(mod, "coverage_document", None)) and "transitions" in side:
+            out.append((sp, side, mod))
+    return out
+
+
+def compute(m: str, root=ROOT, sidecars: list | None = None) -> dict:
+    """The coverage report of milestone m (module docstring); with sidecars (I112), of those extraction sidecars."""
     root = Path(root)
     docs = []
-    for sp, side, mod in accounting_sidecars(m, root):
+    for sp, side, mod in (accounting_sidecars(m, root) if sidecars is None else given_sidecars(sidecars, root)):
         cov = mod.coverage_document(side, sp, root, None)
         if cov is not None:
             docs.append(dict(cov, document=side["output"]))
-    docs.extend(bundle_entries(m, root))
+    if sidecars is None:
+        docs.extend(bundle_entries(m, root))
     docs.sort(key=lambda d: d["document"])
     return {"documents": docs, "unaccounted": sum(len(d["unaccounted"]) for d in docs)}
 
@@ -113,11 +127,14 @@ def main(argv=None) -> int:
     ap.add_argument("--root")
     ap.add_argument("--out")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--sidecars", help="I112: comma-separated extraction sidecars to account for (the composed "
+                                       "driver's), instead of the milestone's")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else ROOT
     out = Path(a.out) if a.out else report_path(a.milestone, root)
     try:
-        data = render(compute(a.milestone, root))
+        data = render(compute(a.milestone, root,
+                              [x for x in a.sidecars.split(",") if x] if a.sidecars is not None else None))
     except Refused as e:
         print(f"holon coverage: refused: {e}", file=sys.stderr)
         return 2
