@@ -10,7 +10,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M3 | 52 | 326 | 288 | 52 |
 | M4 | 9 | 54 | 54 | 9 |
 | M5 | 8 | 41 | 22 | 6 |
-| M6 | 3 | 16 | 8 | 2 |
+| M6 | 4 | 20 | 11 | 3 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -112,6 +112,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I101 | M3 | I101: the post-exit fixes of three M3 audit findings: the counted-round evidence rule reads each record's content and C… | `prompts/I101_post_exit_audit_fixes.md` | 4 | 8 | 1 | `docs/iterations/I101.md` |
 | I102 | M3 | I102: holon audit regress compares each commit with its own parents, so it neither reports statement changes no commit … | `prompts/I102_regress_parents.md` | 3 | 8 | 1 | `docs/iterations/I102.md` |
 | I103 | M6 | I103: frontend reach: a pinned solc set chosen by pragma, go 1.25 next to 1.24.7 chosen by the go directive, a determin… | `prompts/I103_frontend_reach.md` | 6 | 6 | 1 | `docs/iterations/I103.md` |
+| I104 | M6 | I104: role inference. | `prompts/I104_role_inference.md` | 4 | 3 | 1 | `docs/iterations/I104.md` |
 | I105 | M6 | I105: Go state machines: the Go frontend emits transitions documents in the Solidity frontend's IR (struct-field machin… | `prompts/I105_go_machines.md` | 8 | 1 | 1 | `docs/iterations/I105.md` |
 | I106 | M6 | I106: fresh sealed targets by commit-reveal: 2 of 9 preregistered public systems drawn by sha256(salt \|\| blockhash) ove… | `prompts/I106_sealed_targets.md` | 2 | 1 | 1 | none |
 | I50b | M4 | Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term… | `prompts/I50b_heldout_rerun.md` | 5 | 6 | 1 | `docs/iterations/I50b.md` |
