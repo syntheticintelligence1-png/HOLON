@@ -70,6 +70,7 @@ import json
 import re
 from dataclasses import dataclass, field
 
+from . import budget as _B
 from . import grammar as G
 from .flow import Program
 
@@ -432,6 +433,7 @@ class Walker:
         return reads
 
     def _ex(self, t, ctx: Ctx):
+        _B.tick()   # I110 (a): one term node
         if isinstance(t, bool) or isinstance(t, int) or t is None:
             return None, frozenset()
         if isinstance(t, str):
@@ -815,6 +817,7 @@ class Walker:
 def build(model: str, walk: Walk) -> list[dict]:
     prog = walk.prog
     cs: list[dict] = []
+    memo: dict = {}
 
     def add(kind: str, vars_: list, src, txt: str, **extra) -> None:
         c = {"model": model, "kind": kind, "vars": list(vars_), "src": src, "text": txt}
@@ -836,10 +839,10 @@ def build(model: str, walk: Walk) -> list[dict]:
             add("flow", [a, b], ctx.src, f"{ctx.actor}: {a} flows into {b}")
         elif kind == "affine":
             _, op, lhs, rhs, out, node, ctx = e
-            add("affine", [lhs, rhs, out], ctx.src, f"{ctx.actor}: {text(node)} ({lhs} {op} {rhs} = {out})", op=op)
+            add("affine", [lhs, rhs, out], ctx.src, f"{ctx.actor}: {text(node, memo)} ({lhs} {op} {rhs} = {out})", op=op)
         elif kind == "compare":
             _, op, x, y, node, ctx, _via = e
-            add("compare", [x, y], ctx.src, f"{ctx.actor}: {text(node)} ({x} {op} {y})", op=op)
+            add("compare", [x, y], ctx.src, f"{ctx.actor}: {text(node, memo)} ({x} {op} {y})", op=op)
     for reg in sorted(prog.registers):
         ws = sorted(prog.writers.get(reg, ()))
         if ws:
@@ -850,8 +853,20 @@ def build(model: str, walk: Walk) -> list[dict]:
 _INFIX = {"+", "-", "*", "/", "%", "==", "!=", "<", "<=", ">", ">=", "&&", "||", "<<", ">>", "&", "|", "^"}
 
 
-def text(t) -> str:
-    """Readable text of a 0.3 term (constraint texts only)."""
+def text(t, memo: dict | None = None) -> str:
+    """Readable text of a 0.3 term (constraint texts only). memo (I110 (a), a speedup): a cache by node identity
+    for one build(), so a subterm nested under many affine nodes is rendered once; the text is the same string."""
+    if memo is not None and isinstance(t, list):
+        hit = memo.get(id(t))
+        if hit is not None:
+            return hit[1]
+        out = _text(t, memo)
+        memo[id(t)] = (t, out)   # holding t keeps its id unique while the cache lives
+        return out
+    return _text(t, memo)
+
+
+def _text(t, memo: dict | None) -> str:
     if isinstance(t, bool):
         return "true" if t else "false"
     if isinstance(t, int):
@@ -868,16 +883,16 @@ def text(t) -> str:
     if h in ("caller", "this"):
         return h
     if h == "member":
-        return f"{text(a[0])}.{a[1]}"
+        return f"{text(a[0], memo)}.{a[1]}"
     if h == "map":
-        return f"{text(a[0])}[{text(a[1])}]"
+        return f"{text(a[0], memo)}[{text(a[1], memo)}]"
     if h in _INFIX and len(a) == 2:
-        return f"({text(a[0])} {h} {text(a[1])})"
+        return f"({text(a[0], memo)} {h} {text(a[1], memo)})"
     if h == "!":
-        return "!" + text(a[0])
+        return "!" + text(a[0], memo)
     if h == "?":
-        return f"({text(a[0])} ? {text(a[1])} : {text(a[2])})"
-    return h + "(" + ", ".join(text(x) if not isinstance(x, str) else x for x in a) + ")"
+        return f"({text(a[0], memo)} ? {text(a[1], memo)} : {text(a[2], memo)})"
+    return h + "(" + ", ".join(text(x, memo) if not isinstance(x, str) else x for x in a) + ")"
 
 
 # ------------------------------------------------------------------------------------------------ sites (E4)
@@ -897,6 +912,7 @@ def build_sites(model: str, doc: dict, walk: Walk, system, active_ids: set, affi
     real = realization_checks(doc)
     groups: dict = {}
     for node, lhs, rhs, out, ctx in walk.subs:
+        _B.tick()   # I110 (a): one subtraction a site is built from
         k = ckey(node)
         p = real.get((ctx.actor, k))
         if p is not None:
