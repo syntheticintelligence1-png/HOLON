@@ -1,0 +1,206 @@
+{
+  "baseline": "go_fuzz",
+  "budget": {
+    "cpus": 1,
+    "setup_cap_s": 3600,
+    "wall_s": 10620
+  },
+  "protocol_sha256": "2289c62bb90173f781320a9e65c3ac9452e2e192eea80dd2d451846fde117d27",
+  "schema": "holon-baseline-findings/0.1",
+  "system": "morph",
+  "targets": {
+    "morph": {
+      "adjudications": [],
+      "budget_exhausted": true,
+      "commands": [
+        "go test -run ^$ -fuzz ^FuzzHolon_CompressBatchBytes$ -fuzztime 1175s -parallel 1 ./batch",
+        "go test -run ^$ -fuzz ^FuzzHolon_DecodeTxsFromBytes$ -fuzztime 1174s -parallel 1 ./batch",
+        "go test -run ^$ -fuzz ^FuzzHolon_HeightFromBlockContextBytes$ -fuzztime 1175s -parallel 1 ./batch",
+        "go test -run ^$ -fuzz ^FuzzHolon_MakeBlobCanonical$ -fuzztime 1175s -parallel 1 ./batch",
+        "go test -run ^$ -fuzz ^FuzzHolon_MakeBlobTxSidecar$ -fuzztime 1175s -parallel 1 ./batch",
+        "go test -run ^$ -fuzz ^FuzzHolon_NewBatchData$ -fuzztime 1175s -parallel 1 ./batch",
+        "go test -run ^$ -fuzz ^FuzzHolon_Uint16ToBigEndianBytes$ -fuzztime 1568s -parallel 1 ./batch",
+        "go test -run ^$ -fuzz ^FuzzHolon_Uint64ToBigEndianBytes$ -fuzztime 1568s -parallel 1 ./batch",
+        "go test -run ^$ -fuzz ^FuzzHolon_DefaultConfig$ -fuzztime 1570s -parallel 1 ./derivation"
+      ],
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "detected": [],
+      "findings": [
+        {
+          "evidence": {
+            "output": "--- FAIL: FuzzHolon_NewBatchData (0.00s)\npanic: testing: fuzz target must receive at least two arguments, where the first argument is a *T [recovered]\n\tpanic: testing: fuzz target must receive at least two arguments, where the first argument is a *T\n\ngoroutine 8387 [running]:\ntesting.fRunner.func1.2({0xf7ca80, 0x15c6f60})\n\t/usr/local/go1.24.7/src/testing/fuzz.go:694 +0x1c6\ntesting.fRunner.func1()\n\t/usr/local/go1.24.7/src/testing/fuzz.go:697 +0x20c\npanic({0xf7ca80?, 0x15c6f60?})\n\t/usr/local/go1.24.7/src/runtime/panic.go:792 +0x132\ntesting.(*F).Fuzz(0xc0003f4200, {0xf7ec00, 0x150a9a8})\n\t/usr/local/go1.24.7/src/testing/fuzz.go:228 +0xea8\nmorph-l2/common/batch.FuzzHolon_NewBatchData(0xc0003f4200?)\n\t/root/.holon/eval/baselines/work/morph/morph/src/common/batch/holon_fuzz_test.go:36 +0x3e\ntesting.fRunner(0xc0003f4200, 0x150a6e8)\n\t/usr/local/go1.24.7/src/testing/fuzz.go:735 +0xb9\ncreated by testing.runFuzzing in goroutine 1\n\t/usr/local/go1.24.7/src/testing/fuzz.go:620 +0x78c\nexit status 2\nFAIL\tmorph-l2/common/batch\t2.469s\n"
+          },
+          "id": "f0001",
+          "kind": "panic",
+          "locations": [
+            {
+              "file": "common/batch/batch_data.go",
+              "function": "NewBatchData",
+              "lines": [
+                23,
+                29
+              ]
+            }
+          ],
+          "message": "go_fuzz FuzzHolon_NewBatchData: panic: testing: fuzz target must receive at least two arguments, where the first argument is a *T [recovered]",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "output": "--- FAIL: FuzzHolon_DefaultConfig (0.00s)\npanic: testing: fuzz target must receive at least two arguments, where the first argument is a *T [recovered]\n\tpanic: testing: fuzz target must receive at least two arguments, where the first argument is a *T\n\ngoroutine 8418 [running]:\ntesting.fRunner.func1.2({0x1976520, 0x22432e0})\n\t/usr/local/go1.24.7/src/testing/fuzz.go:694 +0x1c6\ntesting.fRunner.func1()\n\t/usr/local/go1.24.7/src/testing/fuzz.go:697 +0x20c\npanic({0x1976520?, 0x22432e0?})\n\t/usr/local/go1.24.7/src/runtime/panic.go:792 +0x132\ntesting.(*F).Fuzz(0xc0001c1400, {0x1979960, 0x20fecd8})\n\t/usr/local/go1.24.7/src/testing/fuzz.go:228 +0xea8\nmorph-l2/node/derivation.FuzzHolon_DefaultConfig(0xc0001c1400?)\n\t/root/.holon/eval/baselines/work/morph/morph/src/node/derivation/holon_fuzz_test.go:6 +0x3e\ntesting.fRunner(0xc0001c1400, 0x20fea58)\n\t/usr/local/go1.24.7/src/testing/fuzz.go:735 +0xb9\ncreated by testing.runFuzzing in goroutine 1\n\t/usr/local/go1.24.7/src/testing/fuzz.go:620 +0x78c\nexit status 2\nFAIL\tmorph-l2/node/derivation\t2.472s\n"
+          },
+          "id": "f0002",
+          "kind": "panic",
+          "locations": [
+            {
+              "file": "node/derivation/config.go",
+              "function": "DefaultConfig",
+              "lines": [
+                104,
+                125
+              ]
+            }
+          ],
+          "message": "go_fuzz FuzzHolon_DefaultConfig: panic: testing: fuzz target must receive at least two arguments, where the first argument is a *T [recovered]",
+          "severity": null
+        }
+      ],
+      "located": [],
+      "matches": [],
+      "reason": null,
+      "scope": {
+        "dirs": [
+          "common/batch",
+          "contracts/contracts/l1",
+          "contracts/contracts/l1/rollup",
+          "contracts/contracts/libraries/codec",
+          "node/derivation"
+        ],
+        "files": [
+          "common/batch/batch_cache.go",
+          "common/batch/batch_data.go",
+          "common/batch/batch_header.go",
+          "common/batch/batch_query.go",
+          "common/batch/batch_storage.go",
+          "common/batch/blob.go",
+          "common/batch/encoding.go",
+          "common/batch/interfaces.go",
+          "common/batch/l2_gov.go",
+          "contracts/contracts/l1/IL1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/L1Sequencer.sol",
+          "contracts/contracts/l1/rollup/IL1MessageQueue.sol",
+          "contracts/contracts/l1/rollup/IL1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/IRollup.sol",
+          "contracts/contracts/l1/rollup/ISubmitter.sol",
+          "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "contracts/contracts/l1/rollup/Rollup.sol",
+          "contracts/contracts/l1/rollup/Submitter.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "node/derivation/base_client.go",
+          "node/derivation/batch_info.go",
+          "node/derivation/beacon.go",
+          "node/derivation/blob_type.go",
+          "node/derivation/blobs.go",
+          "node/derivation/config.go",
+          "node/derivation/database.go",
+          "node/derivation/derivation.go",
+          "node/derivation/finalizer.go",
+          "node/derivation/metrics.go",
+          "node/derivation/reorg.go",
+          "node/derivation/tag_advance.go",
+          "node/derivation/verify.go",
+          "node/derivation/verify_local.go"
+        ],
+        "labelled_files": [
+          "common/batch/batch_cache.go",
+          "common/batch/batch_data.go",
+          "common/batch/batch_header.go",
+          "common/batch/blob.go",
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "contracts/contracts/l1/rollup/Rollup.sol",
+          "contracts/contracts/l1/rollup/Submitter.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "node/derivation/batch_info.go",
+          "node/derivation/derivation.go"
+        ],
+        "packages": [
+          {
+            "module": "/root/.holon/eval/baselines/work/morph/morph/src/common",
+            "pkg": "common/batch",
+            "units": 8
+          },
+          {
+            "module": "/root/.holon/eval/baselines/work/morph/morph/src/node",
+            "pkg": "node/derivation",
+            "units": 1
+          }
+        ]
+      },
+      "seeds": {
+        "go": "Go's fuzz engine is not seedable; the 2-cycle filler is a deterministic function of each input"
+      },
+      "status": "run",
+      "units": [
+        {
+          "exit": -15,
+          "name": "FuzzHolon_CompressBatchBytes",
+          "timed_out": true
+        },
+        {
+          "exit": 0,
+          "name": "FuzzHolon_DecodeTxsFromBytes",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "FuzzHolon_HeightFromBlockContextBytes",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "FuzzHolon_MakeBlobCanonical",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "FuzzHolon_MakeBlobTxSidecar",
+          "timed_out": false
+        },
+        {
+          "exit": 1,
+          "name": "FuzzHolon_NewBatchData",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "FuzzHolon_Uint16ToBigEndianBytes",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "FuzzHolon_Uint64ToBigEndianBytes",
+          "timed_out": false
+        },
+        {
+          "exit": 1,
+          "name": "FuzzHolon_DefaultConfig",
+          "timed_out": false
+        }
+      ]
+    }
+  },
+  "tool": {
+    "installed": true,
+    "missing_reason": null,
+    "model_tag": null,
+    "name": "go test -fuzz",
+    "pins": {},
+    "same_family": null,
+    "version": "go1.24.7"
+  }
+}
