@@ -266,8 +266,15 @@ class TestBuild(unittest.TestCase):
         self.assertRegex(wf, r"holon audit evidence --milestone M3 --rebuild")
 
     def test_b9_no_generator_closure_moves(self):
-        base = _th()["base_commit"]
-        changed = set(I.git(ROOT, "diff", "--name-only", f"{base}..HEAD").split())
+        # Amended (spec/M3/amendments/I101.jsonl, test_defect): the files I101's own commits change, the first-parent
+        # non-merge commits from the base to I101's landed head (the second parent of the lead's merge 82134fff, #165),
+        # against the closure as it stood at that head. Diffing base..HEAD judged every later key's commits too.
+        base, landed = _th()["base_commit"], "40dbd2a5433a762424e2e94886ac10a15d303f5d"
+        own = I.git(ROOT, "rev-list", "--first-parent", "--no-merges", f"{base}..{landed}").split()
+        self.assertTrue(own)
+        changed = set()
+        for c in own:
+            changed |= set(I.git(ROOT, "diff-tree", "--no-commit-id", "--name-only", "-r", c).split())
         code = (
             "import json, sys\n"
             "from pathlib import Path\n"
@@ -289,7 +296,13 @@ class TestBuild(unittest.TestCase):
             "    if r.endswith('.py'):\n"
             "        todo.extend(sorted(_holon_imports(r, root) - seen))\n"
             "print(json.dumps(sorted(fs | seen)))\n")
-        p = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True, timeout=600)
+        with tempfile.TemporaryDirectory(prefix="i101-b9-") as tmp:
+            wt = Path(tmp) / "landed"
+            I.git(ROOT, "worktree", "add", "-q", "--detach", str(wt), landed)
+            try:
+                p = subprocess.run([sys.executable, "-c", code], cwd=wt, capture_output=True, text=True, timeout=600)
+            finally:
+                I.git(ROOT, "worktree", "remove", "--force", str(wt))
         self.assertEqual(p.returncode, 0, p.stderr[-1500:])
         closure = set(json.loads(p.stdout))
         self.assertTrue(closure)

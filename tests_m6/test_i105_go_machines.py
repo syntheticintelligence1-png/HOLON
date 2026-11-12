@@ -357,13 +357,19 @@ class TestRegressions(unittest.TestCase):
     construction)."""
 
     def test_r1_frontends_unchanged(self):
+        # Amended (spec/M6/amendments/I105.jsonl, test_defect): each pinned file is read at I105's landed head (#170's
+        # head, merged by the M6 landing), not at HEAD, where a later key (I103) may change the existing frontends.
         import hashlib
+        import subprocess
+        landed = "d13ab3285af0eb4ba7b56014b5803ad31c8a6acc"
         key = json.loads((ROOT / "spec" / "M6" / "predictions" / "I105.json").read_text(encoding="utf-8"))
         pins = key["thresholds"]["pins"]
         self.assertTrue(pins)
         for rel, sha in sorted(pins.items()):
             with self.subTest(path=rel):
-                self.assertEqual(hashlib.sha256((ROOT / rel).read_bytes()).hexdigest(), sha)
+                blob = subprocess.run(["git", "-C", str(ROOT), "show", f"{landed}:{rel}"], capture_output=True,
+                                      check=True).stdout
+                self.assertEqual(hashlib.sha256(blob).hexdigest(), sha)
 
 
 if __name__ == "__main__":
