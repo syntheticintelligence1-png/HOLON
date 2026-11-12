@@ -123,6 +123,117 @@
           "check": "tests_m6/test_i103_frontend_reach.py::TestSolcSelection and tests_m6/test_i103_frontend_reach.py::TestGoSelection and tests_m6/test_i103_frontend_reach.py::TestGoWork and tests_m6/test_i103_frontend_reach.py::TestTotalSortPass"
         }
       ]
+    },
+    "I104": {
+      "outcome_paths": [
+        "results/M6/I104/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#m6-generality",
+      "predictions": [
+        {
+          "check": "tests_m6/test_i104_roles.py::TestPredictions::test_p1_morph_role_precision_recall",
+          "claim": "Role precision and recall on Morph (holon roles, mode static, over the ten extracted Morph documents, against the 6 role items of the hand sidecars spec/M3/lib/{go_laws,link,go_ops}.json, compared by the facts they name): recall at least 0.5 and precision at least 0.25. Expected: both link roles (header_length by accepted (tag, length) pairs, zero_versioned_hash by equal value and width) and the blob Go-op carrier are found; the recompute role and the gox document are uncertain (no data-flow evidence pairs a Go hash with one Solidity store; several Go documents carry the same functions); precision is lowered by the extra Go-op carriers static inference cannot rule out (reach is a human judgement).",
+          "expected": {
+            "precision_min": 0.25,
+            "recall_min": 0.5
+          },
+          "id": "I104-P1"
+        },
+        {
+          "check": "tests_m6/test_i104_roles.py::TestPredictions::test_p2_m3_rederived",
+          "claim": "Under --roles auto in a scratch root, at least half of M3's role-dependent decided laws are re-derived (same id, same statement, same status), and every other decided M3 law is unchanged (it reads no role sidecar). New laws (ids the hand roles do not give) are reported with their statuses, never added to M3's record.",
+          "expected": {
+            "rederived_min": 0.5
+          },
+          "id": "I104-P2"
+        },
+        {
+          "check": "tests_m6/test_i104_roles.py::TestPredictions::test_p3_planted_wrong_roles_are_never_findings",
+          "claim": "Planted wrong roles (a link role pairing facts of different meaning, a Go-op component over a wrong carrier, a recompute role pairing a Go hash with a wrong Solidity store), fed through the proposal channel: no law derived through them is a finding. Each such law is UNKNOWN, PROVED (a true statement about the wrongly paired facts), or REFUTED with a replay that does not confirm, classified role_defect or model_defect; the finding count is 0.",
+          "expected": {
+            "findings": 0
+          },
+          "id": "I104-P3"
+        },
+        {
+          "check": "tests_m6/test_i104_roles.py::TestPredictions::test_p4_corpus_smoke",
+          "claim": "Smoke test, not a score: of I51's 9 extracted corpus entries, at least 5 get at least one role from holon roles and at least 2 derive at least one law (Go-op components are common in Go code; codec pairs and links are rare without a codec frontend match). c03 and c04 stored no document and count as neither.",
+          "expected": {
+            "with_law_min": 2,
+            "with_role_min": 5
+          },
+          "id": "I104-P4"
+        }
+      ],
+      "prompt": "prompts/I104_role_inference.md",
+      "regressions": [
+        {
+          "check": "tests_m6/test_i104_roles.py::TestBuild::test_b9_hand_sidecars_unchanged",
+          "claim": "Morph's hand sidecars are unchanged and stay authoritative for Morph's record.",
+          "id": "I104-R1"
+        },
+        {
+          "check": "tests_m6/test_i104_roles.py::TestBuild::test_b10_m0_m3_outputs_restamp_only",
+          "claim": "No M0-M3 law, record or generated output moves except generator_sha256 (re-stamp only).",
+          "id": "I104-R2"
+        },
+        {
+          "check": "tests_m6/test_i104_roles.py::TestBuild::test_b2_deterministic_and_recorded",
+          "claim": "holon roles is deterministic and its committed Morph output is what it writes.",
+          "id": "I104-R3"
+        }
+      ],
+      "tests": [
+        "tests_m6/test_i104_roles.py"
+      ],
+      "thresholds": {
+        "base": "5bae37d78fdd6511c400d569b094894dff9b66a8",
+        "corpus_entries": [
+          "c03",
+          "c04",
+          "c08",
+          "c09",
+          "c13",
+          "c14",
+          "c17",
+          "c18",
+          "c19"
+        ],
+        "hand_items": 6,
+        "hand_sidecars_sha256": {
+          "spec/M2/lib/link.json": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371",
+          "spec/M3/lib/go_laws.json": "edf41edad9001ffbd399e40ac2149a7f60faff53f2597053610549beebc04f1f",
+          "spec/M3/lib/go_ops.json": "f96c9ea8e652f00369dfcbcc2ab4cb37fac51aa9f14ab5b145eca3407306849d",
+          "spec/M3/lib/link.json": "b6bf12b1e31b85f1a440a83e8b32f356d917a1b8d3cb79f8d27c5cb32d8f8371"
+        },
+        "machine": "the session's container",
+        "morph_documents": [
+          "spec/M2/facts/morph_batch.go.extracted.json",
+          "spec/M2/facts/morph_blob.go.extracted.json",
+          "spec/M2/facts/morph_derivation.go.extracted.json",
+          "spec/M2/facts/morph_genesis.go.extracted.json",
+          "spec/M2/facts/morph_header.extracted.json",
+          "spec/M2/facts/morph_nodetypes.go.extracted.json",
+          "spec/M2/facts/morph_rollup.extracted.json",
+          "spec/M3/facts/morph_blob.go.extracted.json",
+          "spec/M3/facts/morph_derivation.extracted.json",
+          "spec/M3/facts/morph_go03.go.extracted.json"
+        ],
+        "planted_kinds": [
+          "link",
+          "go_ops",
+          "recompute"
+        ],
+        "precision_min": 0.25,
+        "recall_min": 0.5,
+        "rederived": "a role-dependent decided M3 law is re-derived when, in a scratch root whose spec/M3/lib/{go_laws,link,go_ops}.json are the generated ones (holon roles --install --roles auto), derive writes a law of the same id whose statement is canonically equal and holon run decides it with the hand record's status",
+        "rederived_min": 0.5,
+        "role_dependent": "an M3 law is role-dependent when its facts are under gen/M3/codec/ or gen/M3/goops/ (a link role's codec component or a Go-op component), or its subform is go_round_trip, go_branch, go_recompute or link_domain; every other M3 law reads no role sidecar",
+        "smoke_inputs": "the extracted documents I51 stored under results/eval/holon/<id>/facts/ (no re-extraction; an entry with no stored document counts as no role and no law)",
+        "smoke_with_law_min": 2,
+        "smoke_with_role_min": 5
+      },
+      "title": "I104: role inference. `holon roles` writes the role sidecars (go_laws, link, go_ops) and the typed sidecars for any target from its extracted documents, by a deterministic static inferencer (primary) and an AI proposal channel (data with its sha256, static wins on conflict); every role and every law derived through a generated role carries roles_source. Measured on Morph with --roles auto against the hand sidecars (reported, never substituted), on planted wrong roles (never a finding), and as a smoke test on I51's 9 extracted corpus entries"
     }
   }
 }
