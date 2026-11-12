@@ -220,6 +220,16 @@ class TestBuild(unittest.TestCase):
             self.assertEqual(hashlib.sha256((ROOT / rel).read_bytes()).hexdigest(), sha, rel)
 
     def test_b10_m0_m3_outputs_restamp_only(self):
+        # Amended (spec/M6/amendments/I104.jsonl, test_defect): a re-stamp also refreshes every record's `seconds` and
+        # the milestone's timing files, which G1 never compares (holon.gate: norm_records, G1_EXCLUDED); B10 skips the same.
+        from holon.gate import G1_EXCLUDED
+
+        def unstamp(x):
+            if isinstance(x, dict):
+                return {k: unstamp(v) for k, v in H.strip_stamp(x).items() if k != "seconds"}
+            if isinstance(x, list):
+                return [unstamp(v) for v in x]
+            return x
         base = TH["base"]
         paths = ["laws/M0", "laws/M1", "laws/M2", "laws/M3", "results/M0", "results/M1", "results/M2", "results/M3",
                  "gen/M0", "gen/M1", "gen/M2", "gen/M3"]
@@ -227,10 +237,12 @@ class TestBuild(unittest.TestCase):
                            text=True)
         self.assertEqual(r.returncode, 0, r.stderr)
         for f in r.stdout.split():
+            if f.rsplit("/", 1)[-1] in G1_EXCLUDED:
+                continue
             old = subprocess.run(["git", "show", f"{base}:{f}"], cwd=ROOT, capture_output=True).stdout
             new = (ROOT / f).read_bytes() if (ROOT / f).is_file() else b""
             try:
-                self.assertEqual(H.strip_stamp(json.loads(old)), H.strip_stamp(json.loads(new)), f)
+                self.assertEqual(unstamp(json.loads(old)), unstamp(json.loads(new)), f)
             except ValueError:
                 self.fail(f"{f}: a non-JSON M0-M3 output changed")
 
