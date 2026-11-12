@@ -178,6 +178,93 @@ def publish_morph(work: Path, vault: Path) -> None:
     (OUT / "bundles.json").write_text(dumps(dict(sorted(b.items()))))
 
 
+
+# ------------------------------------------------------------------------------------------- snapshot, AI channel, slither
+def snapshot(lead_ref: str) -> None:
+    def g(*a):
+        return subprocess.run(["git", "-C", str(ROOT), *a], capture_output=True, text=True, check=True).stdout.strip()
+    files = sorted(p for p in (ROOT / "holon").rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+    lines = "".join(f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(ROOT).as_posix()}\n" for p in files)
+    proto = load(ROOT / "spec" / "M6" / "lib" / "i107_protocol.json")
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "snapshot.json").write_text(dumps({
+        "doc": "I107 amendment A2: the tool snapshot of the measured runs, recorded at run start",
+        "lead": lead_ref, "lead_sha": g("rev-parse", lead_ref), "head_sha": g("rev-parse", "HEAD"),
+        "holon_files": len(files), "holon_sha256": hashlib.sha256(lines.encode()).hexdigest(),
+        "run_protocol_base": proto["base"]["snapshot"]["run_protocol_base_path"]}))
+
+
+def static_ai(entries: Path) -> None:
+    """The protocol's ai_channel.applicability: with no Go document in scope no proposed role can merge."""
+    doc = load(entries)
+    out = {}
+    for e in doc["entries"]:
+        gos = [f for f in e["files"] if f.endswith(".go")]
+        out[e["id"]] = ({"status": "not_applicable", "reason": "no Go document in scope (rule G1); every "
+                         "holon-roles-proposed/0.1 role kind (link, go_ops, recompute) names a Go document, so no "
+                         "proposed role can merge; the subagent is not run (fixed at the prereg)"}
+                        if not gos else {"status": "pending"})
+    (OUT / "sealed").mkdir(parents=True, exist_ok=True)
+    (OUT / "sealed" / "static_ai.json").write_text(dumps({"doc": "I107 (b) static+AI channel", "targets": out}))
+
+
+def slither(entries: Path, timing: Path, work: Path) -> None:
+    """I52's stock slither on each sealed target's checkout at the pin (no dependency tree), primary budget = HOLON's
+    wall clock on the target (60 * ceil(total / 60)); raw counts by detector and impact only (Q56 rule 2)."""
+    from holon.eval import common
+    import math
+    import time
+    doc, tm = load(entries), load(timing) or {}
+    py = Path.home() / ".holon" / "tools" / "baselines-py" / "bin"
+    res = {}
+    for e in doc["entries"]:
+        tot = sum(v for v in (tm.get(e["id"]) or {}).values() if isinstance(v, (int, float)))
+        budget = 60 * max(1, math.ceil(tot / 60))
+        d = common.repo_cache(e["repo"])
+        ck = work / e["id"]
+        if ck.exists():
+            subprocess.run(["git", "-C", str(d), "worktree", "remove", "--force", str(ck)], capture_output=True)
+        subprocess.run(["git", "-C", str(d), "worktree", "add", "--detach", "--force", str(ck), e["prefix_commit"]],
+                       check=True, capture_output=True)
+        tiers = {}
+        for tier, wall in (("primary", budget), ("secondary", 3600)):
+            js = work / f"{e['id']}_{tier}.json"
+            js.unlink(missing_ok=True)
+            t0 = time.monotonic()
+            try:
+                r = subprocess.run([str(py / "slither"), ".", "--json", str(js), "--foundry-compile-all"], cwd=ck,
+                                   capture_output=True, text=True, timeout=wall,
+                                   env=dict(os.environ, PATH=f"{py}:{Path.home() / 'holon-work' / 'foundry'}:{os.environ['PATH']}"))
+                out, timed = r.stdout + r.stderr, False
+            except subprocess.TimeoutExpired as ex:
+                out, timed = str(ex.stdout or "") + str(ex.stderr or ""), True
+            el = time.monotonic() - t0
+            data = load(js) if js.is_file() else None
+            dets = ((data or {}).get("results") or {}).get("detectors", []) if data else []
+            counts: dict = {}
+            for x in dets:
+                k = f"{x.get('check')}|{x.get('impact')}"
+                counts[k] = counts.get(k, 0) + 1
+            status = "timed_out" if timed else ("run" if data and data.get("success") else "compile_failed")
+            tiers[tier] = {"status": status, "wall_budget_s": wall, "findings": len(dets),
+                           "counts": dict(sorted(counts.items())),
+                           "high": sum(1 for x in dets if x.get("impact") == "High"),
+                           "error_kind": None if status == "run" else
+                           ("timeout" if timed else ("no JSON" if data is None else "slither error"))}
+            (work / f"{e['id']}_{tier}.log").write_text(out)
+            degenerate = status == "compile_failed" and el < 0.01 * wall
+            if tier == "primary" and not degenerate:
+                break
+        prim = tiers["primary"]
+        res[e["id"]] = {"status": prim["status"], "primary": prim, "secondary": tiers.get("secondary"),
+                        "invocation": "slither . --json <out> --foundry-compile-all (I52 stock, no triage)"}
+        subprocess.run(["git", "-C", str(d), "worktree", "remove", "--force", str(ck)], capture_output=True)
+    (OUT / "sealed").mkdir(parents=True, exist_ok=True)
+    (OUT / "sealed" / "slither.json").write_text(dumps({
+        "doc": "I107 (b) slither on the sealed targets: raw tool-output counts by detector|impact (Q56 rule 2); no "
+               "description or location is committed. Wall times vary run to run and are not recorded here.",
+        "targets": res}))
+
 # ------------------------------------------------------------------------------------------- assemble
 def furthest(stages: dict) -> dict | None:
     for s in STAGES:
@@ -288,6 +375,10 @@ def main(argv=None) -> int:
     p = sp.add_parser("assemble"); p.add_argument("--check", action="store_true")
     p = sp.add_parser("publish"); p.add_argument("--run", required=True); p.add_argument("--src", required=True)
     p.add_argument("--vault", required=True)
+    p = sp.add_parser("snapshot"); p.add_argument("--lead", default="origin/claude/holon-v2-bend2-c6z3cd")
+    p = sp.add_parser("static-ai"); p.add_argument("--entries", required=True)
+    p = sp.add_parser("slither"); p.add_argument("--entries", required=True); p.add_argument("--timing", required=True)
+    p.add_argument("--work", required=True)
     p = sp.add_parser("publish-morph"); p.add_argument("--work", required=True); p.add_argument("--vault", required=True)
     a = ap.parse_args(argv)
     sys.path.insert(0, str(ROOT))
@@ -296,6 +387,15 @@ def main(argv=None) -> int:
         return 0
     if a.cmd == "publish":
         publish(a.run, Path(a.src), Path(a.vault))
+        return 0
+    if a.cmd == "snapshot":
+        snapshot(a.lead)
+        return 0
+    if a.cmd == "static-ai":
+        static_ai(Path(a.entries))
+        return 0
+    if a.cmd == "slither":
+        slither(Path(a.entries), Path(a.timing), Path(a.work))
         return 0
     if a.cmd == "publish-morph":
         publish_morph(Path(a.work), Path(a.vault))
