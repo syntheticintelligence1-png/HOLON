@@ -1,0 +1,58 @@
+{
+  "beacon": {
+    "hash": "0x55f21e8e8c5229de6211594bb794550a0539b9250c2ead9e9c67fe1136ec82dc",
+    "number": 26396629,
+    "source": "number: Etherscan getblocknobytime (closest=after, timestamp=T); hash and timestamp: eth_getBlockByNumber on ethereum-rpc.publicnode.com, also Blockscout get_block_info; parent 26396628 has timestamp 1794459599 < T; finalized before use (finalized head 26396650)",
+    "timestamp": 1794459611
+  },
+  "draw": {
+    "k": 2,
+    "order": [
+      "eigenlayer",
+      "aave-v3",
+      "pendle",
+      "lido",
+      "linea",
+      "rocketpool",
+      "zksync-era",
+      "makerdao",
+      "etherfi"
+    ],
+    "skipped": []
+  },
+  "iteration": "I106",
+  "schema": "holon-heldout2-target/0.1",
+  "seed": {
+    "rule": "sha256(salt bytes || blockhash bytes)",
+    "salt_sha256": "8c0a8625bf8f60785a0dfdcdeff8f7c116d0a6afbdfc79021fb65ccaf50d3e3c",
+    "seed": "1af4d22630e9effc4a768d2d801b1674050bdbb97940ad92b6054ccd72e24a73"
+  },
+  "targets": [
+    {
+      "draw_key": "3e47b767944958951b43e25badf431c4ce99617c6f0c5c770cc91be7d8886815",
+      "id": "eigenlayer",
+      "listed_at_utc": "2026-11-12T05:17:52Z",
+      "name": "EigenLayer",
+      "pin": {
+        "commit": "ef8f97992241338cb88335b9d74295e33321b780",
+        "kind": "tag",
+        "ref": "refs/tags/v1.13.0",
+        "tag": "v1.13.0"
+      },
+      "repo": "https://github.com/Layr-Labs/eigenlayer-contracts"
+    },
+    {
+      "draw_key": "5a52adb9edce0980902a0e7941a667463e852873c1621036fcd0b6f0fc39dc3f",
+      "id": "aave-v3",
+      "listed_at_utc": "2026-11-12T05:17:52Z",
+      "name": "Aave V3",
+      "pin": {
+        "commit": "b74526a7bc67a3a117a1963fc871b3eb8cea8435",
+        "kind": "tag",
+        "ref": "refs/tags/v1.19.4",
+        "tag": "v1.19.4"
+      },
+      "repo": "https://github.com/aave/aave-v3-core"
+    }
+  ]
+}
