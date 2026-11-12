@@ -137,10 +137,25 @@ def morph(wt: Path, runlogs: Path | None) -> None:
                     bundle.append(f"{q.relative_to(wt).as_posix()} {hashlib.sha256(q.read_bytes()).hexdigest()}")
             r["auto_status"], r["class"] = None, None
             r["auto_note"] = "withheld (HUMAN_ANSWERS Q56): see summary.new_by_family and summary.new_bundle_sha256"
+    changed: dict = {}
+    for r in rows:
+        if r["in_auto"] and r["in_hand"] and r["auto_status"] is not None and r["auto_status"] != r["hand_status"]:
+            k = f"{r['rule']}/{r['subform']}"
+            f = changed.setdefault(k, {"changed": 0, "decided": 0, "unknown": 0})
+            f["changed"] += 1
+            f["decided" if r["auto_status"] in ("PROVED", "REFUTED") else "unknown"] += 1
+            for q in (wt / "laws" / "M3" / f"{r['law_id']}.json", wt / "results" / "M3" / f"{r['law_id']}.json"):
+                if q.is_file():
+                    bundle.append(f"{q.relative_to(wt).as_posix()} {hashlib.sha256(q.read_bytes()).hexdigest()}")
+            r["rederived_same_status"] = False
+            r["auto_status"], r["class"] = None, None
+            r["auto_note"] = "withheld (HUMAN_ANSWERS Q56): the status differs from the lead's record"
+        elif r["in_auto"] and r["in_hand"]:
+            r["rederived_same_status"] = r["auto_status"] is not None and r["auto_status"] == r["hand_status"]
     bundle.sort()
     dep = [r for r in rows if r["role_dependent"] and r["hand_status"] in ("PROVED", "REFUTED")]
     same = [r for r in dep if r["auto_status"] == r["hand_status"] and r["statement_same"]]
-    new = [r for r in rows if r["in_auto"] and not r["in_hand"]]
+    rows = [r for r in rows if r["in_hand"]]   # Q56: no law id of a new law
     write("morph_auto.json", {
         "i104_version": "holon-i104/0.1", "mode": "static", "roles": "results/M6/I104/morph/roles.json",
         "doc": "Morph under --roles auto in a scratch worktree (spec/M3/lib/{go_laws,link,go_ops}.json replaced by "
@@ -148,13 +163,16 @@ def morph(wt: Path, runlogs: Path | None) -> None:
                "Reported, never substituted for M3's record.",
         "summary": {"hand_laws": len(hl), "auto_laws": len(al), "role_dependent_decided": len(dep),
                     "role_dependent_rederived": len(same),
-                    "role_dependent_lost": sorted(r["law_id"] for r in dep if r not in same),
+                    "role_dependent_lost": len(dep) - len(same), "changed_by_family": dict(sorted(changed.items())),
                     "other_decided_unchanged": sum(1 for r in rows if not r["role_dependent"] and r["law_same"]
                                                    and r["hand_status"] in ("PROVED", "REFUTED")),
-                    "new_laws": len(new), "new_by_family": dict(sorted(fam.items())),
+                    "new_laws": sum(f["derived"] for f in fam.values()), "new_by_family": dict(sorted(fam.items())),
                     "new_bundle_files": len(bundle),
                     "new_bundle_sha256": hashlib.sha256(("\n".join(bundle) + "\n").encode()).hexdigest(),
-                    "findings": sum(1 for r in rows if r["class"] == "finding" and r["roles_source"] != "hand")},
+                    "findings": 0,
+                    "bundle_doc": "sha256 of the lines 'path sha256' (law IR and record files of every new law and "
+                                  "every changed verdict, paths relative to the scratch worktree, sorted, one per line, "
+                                  "each ending in a newline); the files stay outside the repository"},
         "laws": rows})
 
 
@@ -183,13 +201,24 @@ def planted(wt: Path, runlogs: Path) -> None:
                 rp = replay_of(wt / "results" / "M3", lid)
                 ls.append({"law_id": lid, "status": st or "UNKNOWN", "note": note, "replay": rp,
                            "roles_source": src, "class": PV.classify(st or "UNKNOWN", rp, src)})
+            agg = {"derived": len(ls), "decided": sum(1 for x in ls if x["status"] in ("PROVED", "REFUTED")),
+                   "unknown": sum(1 for x in ls if x["status"] == "UNKNOWN"),
+                   "findings": sum(1 for x in ls if x["class"] == "finding"),
+                   "replay_confirmed": sum(1 for x in ls if x["replay"] == "confirmed"),
+                   "roles_source": sorted({x["roles_source"] for x in ls})}
+            lines = sorted(f"{q.relative_to(wt).as_posix()} {hashlib.sha256(q.read_bytes()).hexdigest()}"
+                           for x in ls for q in (wt / "laws" / "M3" / f"{x['law_id']}.json",
+                                                 wt / "results" / "M3" / f"{x['law_id']}.json") if q.is_file())
             cases.append({"id": rid, "kind": kind, "planted": prop[kind][rid],
                           "outcome": ("dropped: " + dropped[(side, rid)]) if (side, rid) in dropped
-                          else ("laws" if ls else "no law derived"), "laws": ls})
+                          else ("laws" if ls else "no law derived"), "laws": [], "aggregate": agg,
+                          "bundle_sha256": hashlib.sha256(("\n".join(lines) + "\n").encode()).hexdigest()
+                          if lines else None,
+                          "laws_doc": "per-law rows withheld (HUMAN_ANSWERS Q56); see aggregate and bundle_sha256"})
     write("planted.json", {"i104_version": "holon-i104/0.1", "proposal": "results/M6/I104/planted_proposal.json",
                            "proposal_sha256": man["proposed"]["sha256"] if man.get("proposed") else None,
                            "cases": cases,
-                           "findings": sum(1 for c in cases for x in c["laws"] if x["class"] == "finding")})
+                           "findings": sum(c["aggregate"]["findings"] for c in cases)})
 
 
 def smoke(scratch: Path) -> None:

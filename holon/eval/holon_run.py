@@ -490,7 +490,35 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     row["detected"] = any(x["rule"] == entry["label"] for x in ref)
     row["detected_any"] = bool(ref)
     row["label_rule_laws"] = sum(1 for x in row["laws"] if x["rule"] == entry["label"])
+    if roles:
+        withhold(row, edir)
     return row
+
+
+def withhold(row: dict, edir: Path) -> None:
+    """I104 under HUMAN_ANSWERS Q56 (the --roles opt-in): no per-law verdict, law id or class of a law derived through
+    generated roles is written until a person adjudicates it. The row keeps per-family aggregates that never split
+    PROVED from REFUTED, and one commitment: the sha256 of the sorted lines "<path> <sha256>" (each ending in a newline)
+    of every file under the entry's laws/ and records/, which are then removed from the written output."""
+    fam: dict = {}
+    for x in row["laws"]:
+        k = f"{x.get('rule')}/{x.get('subform')}"
+        f = fam.setdefault(k, {"derived": 0, "decided": 0, "unknown": 0})
+        f["derived"] += 1
+        f["decided" if x.get("status") in ("PROVED", "REFUTED") else "unknown"] += 1
+    lines = []
+    for sub in ("laws", "records"):
+        d = edir / sub
+        if d.is_dir():
+            lines += [f"{sub}/{q.relative_to(d).as_posix()} {sha256_bytes(q.read_bytes())}"
+                      for q in sorted(d.rglob("*")) if q.is_file()]
+            shutil.rmtree(d)
+    row["laws_aggregate"] = dict(sorted(fam.items()))
+    row["laws_bundle_sha256"] = sha256_bytes(("".join(f"{x}\n" for x in sorted(lines))).encode())
+    row["laws_bundle_files"] = len(lines)
+    row["laws"] = []
+    for k in ("detected", "detected_any", "label_rule_laws"):
+        row[k] = None   # withheld with the verdicts (Q56); the adjudicator's run decides them
 
 
 def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages: dict) -> None:
