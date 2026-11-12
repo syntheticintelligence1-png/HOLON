@@ -1,0 +1,23 @@
+[profile.default]
+src = "src"
+test = "test"
+out = ".work/out"
+cache_path = ".work/cache"
+libs = [".work/across/node_modules", ".work/across/lib"]
+solc_version = "0.8.30"
+evm_version = "prague"
+via_ir = true
+optimizer = true
+optimizer_runs = 200
+allow_paths = [".work/across"]
+fs_permissions = [{ access = "read", path = "./" }]
+additional_compiler_profiles = [ { name = "legacy", via_ir = false } ]
+compilation_restrictions = [ { paths = "src/uma/**", via_ir = false } ]
+
+[fuzz]
+seed = "0x7a11"
+
+[invariant]
+runs = 512
+depth = 40
+fail_on_revert = false
