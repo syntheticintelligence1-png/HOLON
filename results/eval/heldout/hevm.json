@@ -1,0 +1,145 @@
+{
+  "baseline": "hevm",
+  "budget": {
+    "cpus": 1,
+    "setup_cap_s": 3600,
+    "wall_s": 60
+  },
+  "protocol_sha256": "2289c62bb90173f781320a9e65c3ac9452e2e192eea80dd2d451846fde117d27",
+  "schema": "holon-baseline-findings/0.1",
+  "system": "heldout",
+  "targets": {
+    "scroll": {
+      "adjudications": [],
+      "budget_exhausted": true,
+      "commands": [
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of L1MessageQueueV1> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of L1MessageQueueV1WithGasPriceOracle> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of L1MessageQueueV2> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of L2GasPriceOracle> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of MultipleVersionRollupVerifier> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of ScrollChain> --solver cvc5",
+        "/root/.holon/tools/hevm-0.55.1/hevm symbolic --code <runtime bytecode of ScrollChainCommitmentVerifier> --solver cvc5"
+      ],
+      "commit": "42de954bee237cfa478a5b443ac0aeb900aca5ad",
+      "detected": [],
+      "findings": [
+        {
+          "evidence": {
+            "output": "Using assertion code(s): 1\n\nDiscovered the following 1 counterexample(s):\n\nCalldata:\n  0xd99bc80e0000000000000000000000000000000000000000000000000000000000000000000000\nStorage:\n  Addr SymAddr \"miner\": []\n  Addr SymAddr \"origin\": []\nTransaction Context:\n  TxValue: 0x0\nAddrs:\n  SymAddr \"entrypoint\": 0x000000000000000000000000000000000000000E\n  SymAddr \"miner\": 0x000000000000000000000000000000000000000F\n  SymAddr \"origin\": 0x000000000000000000000000000000000000000C\n\n\n   [WARNING] hevm was only able to partially explore symbolically due to: \n      1x -> CopySlice with a symbolically sized region not currently implemented, cannot execute SMT solver on this query\n\n"
+          },
+          "id": "f0001",
+          "kind": "assertion-violation",
+          "locations": [
+            {
+              "file": "src/L1/rollup/L2GasPriceOracle.sol",
+              "function": null,
+              "lines": [
+                114,
+                121
+              ]
+            }
+          ],
+          "message": "hevm: counterexample to the default assertion check in L2GasPriceOracle",
+          "severity": null
+        }
+      ],
+      "located": [],
+      "matches": [],
+      "reason": null,
+      "scope": {
+        "dirs": [
+          "src/L1/rollup"
+        ],
+        "files": [
+          "src/L1/rollup/IL1MessageQueueV1.sol",
+          "src/L1/rollup/IL1MessageQueueV2.sol",
+          "src/L1/rollup/IL1MessageQueueWithGasPriceOracle.sol",
+          "src/L1/rollup/IL2GasPriceOracle.sol",
+          "src/L1/rollup/IScrollChain.sol",
+          "src/L1/rollup/L1MessageQueueV1.sol",
+          "src/L1/rollup/L1MessageQueueV1WithGasPriceOracle.sol",
+          "src/L1/rollup/L1MessageQueueV2.sol",
+          "src/L1/rollup/L2GasPriceOracle.sol",
+          "src/L1/rollup/MultipleVersionRollupVerifier.sol",
+          "src/L1/rollup/ScrollChain.sol",
+          "src/L1/rollup/ScrollChainCommitmentVerifier.sol"
+        ],
+        "labelled_files": [
+          "src/L1/rollup/ScrollChain.sol"
+        ],
+        "submodules": [
+          {
+            "commit": "978ac6fadb62f5f0b723c996f64be52eddba6801",
+            "fetched": true,
+            "path": "lib/forge-std",
+            "url": "https://github.com/foundry-rs/forge-std"
+          },
+          {
+            "commit": "c892309933b25c03d32b1b0d674df7ae292ba925",
+            "fetched": true,
+            "path": "lib/solmate",
+            "url": "https://github.com/transmissions11/solmate"
+          },
+          {
+            "commit": "e282159d5170298eb2455a6c05280ab5a73a4ef0",
+            "fetched": true,
+            "path": "lib/ds-test",
+            "url": "https://github.com/dapphub/ds-test"
+          }
+        ]
+      },
+      "seeds": {},
+      "status": "run",
+      "units": [
+        {
+          "exit": -15,
+          "name": "L1MessageQueueV1",
+          "timed_out": true
+        },
+        {
+          "exit": -15,
+          "name": "L1MessageQueueV1WithGasPriceOracle",
+          "timed_out": true
+        },
+        {
+          "exit": -15,
+          "name": "L1MessageQueueV2",
+          "timed_out": true
+        },
+        {
+          "exit": 1,
+          "name": "L2GasPriceOracle",
+          "timed_out": false
+        },
+        {
+          "exit": -15,
+          "name": "MultipleVersionRollupVerifier",
+          "timed_out": true
+        },
+        {
+          "exit": -15,
+          "name": "ScrollChain",
+          "timed_out": true
+        },
+        {
+          "exit": -15,
+          "name": "ScrollChainCommitmentVerifier",
+          "timed_out": true
+        }
+      ]
+    }
+  },
+  "tool": {
+    "installed": true,
+    "missing_reason": null,
+    "model_tag": null,
+    "name": "hevm",
+    "pins": {
+      "binary": "a99e85014c3d0925cbe26efd16279926db13ba8682b50c885fda4cffab704248",
+      "cvc5": "fae0038f9cbd1be5f5b32ff74a016b202fb6a2253374fc2e84451f9aa1af6261"
+    },
+    "same_family": null,
+    "version": "0.55.1"
+  }
+}

@@ -72,5 +72,78 @@
     "e1_rounds_max": 64,
     "hash_rounds_max": 32,
     "limits_doc": "I40 round 2 (lead ruling, docs/HUMAN_ANSWERS.md): the only search budget is the sidecar's rlimit per query, counted cumulatively over every check-sat of the query's session from the first check-sat on (holon.smt.run.Session). Registered beside it: memory_max_size_mb, z3's own accounting of the bytes it has allocated, which z3 reads from glibc's malloc (malloc_usable_size), so it is deterministic for this pinned single-threaded binary on the registered glibc, with z3 run in a fixed environment (no malloc tunables or preloads) and with no address-space or data rlimit and no strict overcommit (holon.smt.run.environment_check refuses to run otherwise); an overrun ends the query unknown, named in its reason. e1_rounds_max and hash_rounds_max, BMC's deterministic round caps for lazy E1 and hash concretization (a cap reached ends the query unknown, named in its reason); watchdog_s, a crash guard only: when it fires the run aborts, nothing is recorded and the question stays not run. A solver that ends without an answer is a crash too. No answer depends on wall-clock time, load or an environment variable."
+  },
+  "baselines": {
+    "doc": "I52 (Q16 allows the installs): the baseline tools of spec/M4/lib/I52_baselines.json, installed under ~/.holon/tools by .github/ci/install_baselines.sh and checked by .github/ci/verify_baselines.py. A separate set from the 13 toolchain pins: CI's toolchain job neither installs nor requires them (the gates never run a baseline; only `holon eval baselines` does). A tool whose pin cannot be met is recorded as missing (missing true, missing_reason), never substituted.",
+    "ci_required": false,
+    "tools": {
+      "slither": {
+        "version": "0.11.6",
+        "venv": "/root/.holon/tools/baselines-py",
+        "requirements": "config/baselines_requirements.txt",
+        "lock_sha256": "131fa966f30822418e9e0706c1fcbb9a5eb2518fefd298e4f8a6651bfb10474c",
+        "pins": {
+          "requirements": "131fa966f30822418e9e0706c1fcbb9a5eb2518fefd298e4f8a6651bfb10474c"
+        }
+      },
+      "halmos": {
+        "version": "0.3.3",
+        "venv": "/root/.holon/tools/baselines-py",
+        "requirements": "config/baselines_requirements.txt",
+        "lock_sha256": "131fa966f30822418e9e0706c1fcbb9a5eb2518fefd298e4f8a6651bfb10474c",
+        "pins": {
+          "requirements": "131fa966f30822418e9e0706c1fcbb9a5eb2518fefd298e4f8a6651bfb10474c"
+        }
+      },
+      "echidna": {
+        "version": "2.4.0",
+        "url": "https://github.com/crytic/echidna/releases/download/v2.4.0/echidna-2.4.0-x86_64-linux.tar.gz",
+        "archive_sha256": "a77a90501dd6269e12807156e9d409b160ce0c87fbb36fe323a896a4fb7a2d1d",
+        "path": "/root/.holon/tools/echidna-2.4.0/echidna",
+        "sha256": "a3f1ff5116839965524af797702c1fa4e57793ece8d9cd5365c0381fea1a6da4",
+        "pins": {
+          "archive": "a77a90501dd6269e12807156e9d409b160ce0c87fbb36fe323a896a4fb7a2d1d",
+          "binary": "a3f1ff5116839965524af797702c1fa4e57793ece8d9cd5365c0381fea1a6da4"
+        }
+      },
+      "medusa": {
+        "version": "1.5.1",
+        "url": "https://github.com/crytic/medusa/releases/download/v1.5.1/medusa-linux-x64.tar.gz",
+        "archive_sha256": "ddfe1517ae9028ef9fc331b00f5a6a9d5406f3fcd11a715d60c6b6fb3e4546d3",
+        "path": "/root/.holon/tools/medusa-1.5.1/medusa",
+        "sha256": "86e54c586e49e6bf9676f448218e10475afacb0a8bd5ca1aea234f66db7169d6",
+        "pins": {
+          "archive": "ddfe1517ae9028ef9fc331b00f5a6a9d5406f3fcd11a715d60c6b6fb3e4546d3",
+          "binary": "86e54c586e49e6bf9676f448218e10475afacb0a8bd5ca1aea234f66db7169d6"
+        }
+      },
+      "hevm": {
+        "version": "0.55.1",
+        "sha256": "a99e85014c3d0925cbe26efd16279926db13ba8682b50c885fda4cffab704248",
+        "same_as": "config hevm (the existing pin, unchanged)",
+        "pins": {
+          "binary": "a99e85014c3d0925cbe26efd16279926db13ba8682b50c885fda4cffab704248",
+          "cvc5": "fae0038f9cbd1be5f5b32ff74a016b202fb6a2253374fc2e84451f9aa1af6261"
+        }
+      },
+      "go_fuzz": {
+        "version": "go1.24.7",
+        "go_version": "go version go1.24.7 linux/amd64",
+        "same_as": "config replay.go_version (the existing pin, unchanged)",
+        "pins": {}
+      },
+      "spec_mining": {
+        "version": "holon gotool + slither 0.11.6",
+        "pins": {
+          "requirements": "131fa966f30822418e9e0706c1fcbb9a5eb2518fefd298e4f8a6651bfb10474c"
+        }
+      },
+      "agent_review": {
+        "version": "Claude Code CLI 2.1.322",
+        "cli": "/opt/node22/bin/claude",
+        "model_tag": "A",
+        "pins": {}
+      }
+    }
   }
 }

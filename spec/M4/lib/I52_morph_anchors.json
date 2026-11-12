@@ -1,0 +1,979 @@
+{
+  "commit": "3e44e795586af3e11285b603ab642c67823add51",
+  "doc": "I52 prereg sidecar: where each Morph obstruction of whitepaper §11.3 lives in morph-l2/morph @ 3e44e795586af3e11285b603ab642c67823add51, as function spans (1-based, inclusive, declaration line to closing brace). Drafted by a fresh research subagent from whitepaper §11 and Appendix A and the checkout, before any baseline ran; every span was re-checked mechanically (the named function on the first line, a closing brace on the last, balanced braces). Used only by the matcher (I52_baselines.json matching.morph_location) and to fix Morph's scope (the anchored files' directories); never shown to a baseline. An empty anchor list (O10) means the obstruction has no code site, so no finding can be located at it.",
+  "obstructions": {
+    "O1": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "function": "BatchHeaderCodecV0.loadAndValidate",
+          "lines": [
+            30,
+            39
+          ],
+          "why": "Solidity v0 header check is `length >= 249`, admitting longer headers."
+        },
+        {
+          "file": "common/batch/batch_header.go",
+          "function": "BatchHeaderBytes.validate",
+          "lines": [
+            37,
+            59
+          ],
+          "why": "Go requires len == 249 for version 0."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.importGenesisBatch",
+          "lines": [
+            226,
+            252
+          ],
+          "why": "Owner-supplied genesis header is loaded through the lenient v0 check."
+        }
+      ],
+      "rule": "PAR-domain",
+      "title": "Solidity v0 accepts len(h) ≥ 249; Go requires 249"
+    },
+    "O10": {
+      "anchors": [],
+      "note": "Documentation-versus-code disagreement (F12.8); no single code site, so no anchor.",
+      "rule": "PAR-weak",
+      "title": "Documentation–code disagreements"
+    },
+    "O11": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.revertBatch",
+          "lines": [
+            430,
+            468
+          ],
+          "why": "Revert clears committedBatches and challenges but leaves batchBlobVersionedHashes[i]."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitState",
+          "lines": [
+            273,
+            286
+          ],
+          "why": "Recommit reads the residual stored blob hash."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatch",
+          "lines": [
+            255,
+            269
+          ],
+          "why": "Fresh commit is refused while the residue exists."
+        }
+      ],
+      "rule": "UNDO",
+      "title": "BVH_i residue live"
+    },
+    "O12": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.setPause",
+          "lines": [
+            573,
+            588
+          ],
+          "why": "Pausing cancels the challenge without undoing +proofWindow extensions."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.revertBatch",
+          "lines": [
+            430,
+            468
+          ],
+          "why": "Reverting the challenged batch cancels the challenge, extensions stay."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.challengeState",
+          "lines": [
+            471,
+            496
+          ],
+          "why": "Applies the +proofWindow extension to every other unfinalized batch."
+        }
+      ],
+      "rule": "UNDO",
+      "title": "Cancellation leaves +W extensions"
+    },
+    "O13": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Submitter.sol",
+          "function": "Submitter.slash",
+          "lines": [
+            146,
+            159
+          ],
+          "why": "New registry has no stake for legacy submitters, so slashing pays 0."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._challengerWin",
+          "lines": [
+            803,
+            809
+          ],
+          "why": "Slashes batchDataStore submitter through the current submitterContract."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.initialize4",
+          "lines": [
+            209,
+            219
+          ],
+          "why": "Cutover switches submitterContract while pre-cutover batches are unfinalized."
+        }
+      ],
+      "rule": "NAT",
+      "title": "Cutover × slash"
+    },
+    "O14": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.proveState",
+          "lines": [
+            595,
+            622
+          ],
+          "why": "Defence is gated by onlyActiveSubmitter, evaluated against the new registry."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.initialize4",
+          "lines": [
+            209,
+            219
+          ],
+          "why": "Cutover replaces the registry with in-flight legacy batches."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Submitter.sol",
+          "function": "Submitter.isActive",
+          "lines": [
+            70,
+            72
+          ],
+          "why": "Legacy committers are not registered in the new Submitter."
+        }
+      ],
+      "rule": "NAT",
+      "title": "Cutover × defend"
+    },
+    "O15": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.initialize2",
+          "lines": [
+            188,
+            195
+          ],
+          "why": "Migration writes committedStateRoots only at lastCommittedBatchIndex."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatchWithBatchData",
+          "lines": [
+            288,
+            377
+          ],
+          "why": "Commit requires committedStateRoots[parent] == prevStateRoot."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.revertBatch",
+          "lines": [
+            430,
+            468
+          ],
+          "why": "Owner revert into (LFI, LCI] makes the parent an index with no CSR."
+        }
+      ],
+      "rule": "NAT",
+      "title": "η₂ × commit-after-revert"
+    },
+    "O16": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "function": "L1MessageQueueWithGasPriceOracle.getFirstUnfinalizedMessageEnqueueTime",
+          "lines": [
+            261,
+            268
+          ],
+          "why": "Messages enqueued before messageEnqueueTime existed read 0 and the function returns block.timestamp."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatch",
+          "lines": [
+            255,
+            269
+          ],
+          "why": "Delay predicate enqTime + rollupDelayPeriod < now is then never true for those messages."
+        }
+      ],
+      "note": "Historical: affects messages enqueued before messageEnqueueTime was added.",
+      "rule": "NAT",
+      "title": "η_enq × delay predicate"
+    },
+    "O17": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatch",
+          "lines": [
+            255,
+            269
+          ],
+          "why": "Batches committed before batchBlobVersionedHashes existed have no pin, so commitBatch is allowed after revert."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatchWithProof",
+          "lines": [
+            382,
+            425
+          ],
+          "why": "Falls back to computing a fresh blob hash when nothing is stored."
+        }
+      ],
+      "note": "Benign/historical: concerns batches committed before batchBlobVersionedHashes existed.",
+      "rule": "NAT (benign)",
+      "title": "η_BVH: migrated batches unpinned"
+    },
+    "O18": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.initialize3",
+          "lines": [
+            199,
+            203
+          ],
+          "why": "Only writer of rollupDelayPeriod at reinitializer(3); unreachable once version 4 is set."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.initialize4",
+          "lines": [
+            209,
+            219
+          ],
+          "why": "reinitializer(4) can run first, leaving rollupDelayPeriod = 0."
+        }
+      ],
+      "rule": "NAT-composition",
+      "title": "η₄ before η₃ leaves D = 0"
+    },
+    "O19": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.challengeState",
+          "lines": [
+            471,
+            496
+          ],
+          "why": "Adds proofWindow to finalizeTimestamp of all other batches, including proof-backed ones."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatchWithProof",
+          "lines": [
+            382,
+            425
+          ],
+          "why": "Sets finalizeTimestamp = block.timestamp for proof-backed batches."
+        }
+      ],
+      "rule": "SYM-ω",
+      "title": "Proof-backed commit and Challenge(j) do not commute on f_i"
+    },
+    "O2": {
+      "anchors": [
+        {
+          "file": "common/batch/batch_header.go",
+          "function": "BatchHeaderV1.Bytes",
+          "lines": [
+            240,
+            260
+          ],
+          "why": "Go v1 encoder hard-codes byte 0 = BatchHeaderVersion1; there is no V2 encoder type."
+        },
+        {
+          "file": "common/batch/batch_cache.go",
+          "function": "BatchCache.createBatchHeaderWithSequencerSetHash",
+          "lines": [
+            1684,
+            1737
+          ],
+          "why": "Version-2 headers are produced by patching byte 0 of the V1 encoding."
+        }
+      ],
+      "note": "At this commit a v2 header is built by patching byte 0 of the V1 encoding (batch_cache.go:1729-1730), so 'no v2 encoder' means no dedicated encoder.",
+      "rule": "PAR-domain",
+      "title": "Go v1 encoder hard-codes the version byte; no v2 encoder"
+    },
+    "O20": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatchWithProof",
+          "lines": [
+            382,
+            425
+          ],
+          "why": "Records submitter = address(0) for permissionless proof-backed batches."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Submitter.sol",
+          "function": "Submitter.slash",
+          "lines": [
+            146,
+            159
+          ],
+          "why": "Returns 0 for address(0): the slash is vacuous."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._challengerWin",
+          "lines": [
+            803,
+            809
+          ],
+          "why": "Calls slash on the stored submitter, possibly address(0)."
+        }
+      ],
+      "rule": "SYM-π",
+      "title": "Implicit address(0) role; vacuous slash"
+    },
+    "O21": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "function": "L1MessageQueueWithGasPriceOracle.getFirstUnfinalizedMessageEnqueueTime",
+          "lines": [
+            261,
+            268
+          ],
+          "why": "enq == 0 is treated as the 'no pending message' sentinel."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "function": "L1MessageQueueWithGasPriceOracle._queueTransaction",
+          "lines": [
+            366,
+            381
+          ],
+          "why": "Writes messageEnqueueTime only for messages enqueued after the upgrade."
+        }
+      ],
+      "rule": "SYM-τ",
+      "title": "Sentinel `enq = 0`"
+    },
+    "O22": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._computeBlobVersionedHash",
+          "lines": [
+            892,
+            918
+          ],
+          "why": "No blob maps to ZERO_VERSIONED_HASH, the same value as an all-zero blob."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitState",
+          "lines": [
+            273,
+            286
+          ],
+          "why": "Recommit reuses the stored hash, whichever meaning it had."
+        }
+      ],
+      "rule": "FACT",
+      "title": "Z conflates no-blob and zero-blob"
+    },
+    "O23": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._verifyProof",
+          "lines": [
+            756,
+            785
+          ],
+          "why": "Public input hash omits lastBlockNumber (parent's and own)."
+        }
+      ],
+      "rule": "FACT",
+      "title": "Parent lbn outside the public input"
+    },
+    "O24": {
+      "anchors": [
+        {
+          "file": "node/derivation/derivation.go",
+          "function": "Derivation.UnPackData",
+          "lines": [
+            612,
+            668
+          ],
+          "why": "v0 commitBatch calldata supplies blockContexts directly."
+        },
+        {
+          "file": "node/derivation/batch_info.go",
+          "function": "BatchInfo.ParseBatch",
+          "lines": [
+            87,
+            248
+          ],
+          "why": "Calldata block contexts are used as-is, unbound by any on-chain hash."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatch",
+          "lines": [
+            857,
+            885
+          ],
+          "why": "Data hash commits only lastBlockNumber, numL1Messages and L1 hashes, not contexts."
+        }
+      ],
+      "rule": "FACT",
+      "title": "v0 calldata contexts unbound"
+    },
+    "O25": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitState",
+          "lines": [
+            273,
+            286
+          ],
+          "why": "Recommitter must reuse the blob hash chosen by the original submitter."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatchWithBatchData",
+          "lines": [
+            288,
+            377
+          ],
+          "why": "Records the recommitter as the bonded submitter."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._challengerWin",
+          "lines": [
+            803,
+            809
+          ],
+          "why": "Slashes the recorded (recommitter's) bond."
+        }
+      ],
+      "rule": "FACT/SORT",
+      "title": "Bonded recommitter ≠ content chooser"
+    },
+    "O26": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitState",
+          "lines": [
+            273,
+            286
+          ],
+          "why": "Reads the stored hash without checking it matches the new version's meaning (VH vs aggregate)."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatchWithBatchData",
+          "lines": [
+            288,
+            377
+          ],
+          "why": "Accepts any version <= 2 for the reused hash."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.revertBatch",
+          "lines": [
+            430,
+            468
+          ],
+          "why": "Deletes the committed header that carried the version tag, keeping the hash."
+        }
+      ],
+      "rule": "SORT×UNDO",
+      "title": "Ghost tag VH vs Agg at the recommit read; tag erased by revert"
+    },
+    "O27": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatchWithBatchData",
+          "lines": [
+            288,
+            377
+          ],
+          "why": "proofWindow + startTime - block.timestamp underflows once the challenge is stale."
+        }
+      ],
+      "rule": "SORT-sign",
+      "title": "`realize(W + s − t)` unprovable once t > s + W"
+    },
+    "O28": {
+      "anchors": [
+        {
+          "file": "common/batch/batch_data.go",
+          "function": "BatchData.Append",
+          "lines": [
+            31,
+            42
+          ],
+          "why": "Σ L1 messages accumulated in uint16 l1TxNum."
+        },
+        {
+          "file": "common/batch/batch_data.go",
+          "function": "BatchData.calculateHash",
+          "lines": [
+            103,
+            111
+          ],
+          "why": "Encodes the uint16 l1TxNum into the data hash."
+        },
+        {
+          "file": "common/batch/batch_cache.go",
+          "function": "BatchCache.sealBatch",
+          "lines": [
+            1401,
+            1568
+          ],
+          "why": "Passes the uint16 sum as NumL1Messages while totalL1MessagePopped is uint64."
+        }
+      ],
+      "rule": "SORT-width",
+      "title": "Σ n_l1 realized in uint16"
+    },
+    "O29": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "function": "L1CrossDomainMessenger.replayMessage",
+          "lines": [
+            175,
+            244
+          ],
+          "why": "Fee is computed for _from (origin) while the caller pays."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "function": "L1MessageQueueWithGasPriceOracle.estimateCrossDomainMessageFee",
+          "lines": [
+            113,
+            119
+          ],
+          "why": "Whitelist waiver is keyed on the given sender."
+        }
+      ],
+      "rule": "SORT-payer",
+      "title": "Replay waiver keyed on origin; caller pays"
+    },
+    "O3": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatchWithBatchData",
+          "lines": [
+            288,
+            377
+          ],
+          "why": "Commit only checks version <= 2, not that the verifier router resolves (version, index)."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "function": "MultipleVersionRollupVerifier.getVerifier",
+          "lines": [
+            98,
+            123
+          ],
+          "why": "Router reverts or returns address(0) for an unregistered (version, index)."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._verifyProof",
+          "lines": [
+            756,
+            785
+          ],
+          "why": "Proof dispatch uses the committed header's version and index."
+        }
+      ],
+      "rule": "PAR-domain",
+      "title": "Commit admits (version, index) outside the router's domain"
+    },
+    "O30": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatch",
+          "lines": [
+            255,
+            269
+          ],
+          "why": "payable commit; msg.value is never recorded or refunded."
+        }
+      ],
+      "rule": "SORT-conservation",
+      "title": "Value attached to commit is unaccounted"
+    },
+    "O31": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatchWithBatchData",
+          "lines": [
+            288,
+            377
+          ],
+          "why": "Underflow while inChallenge reverts every commit."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatchWithProof",
+          "lines": [
+            382,
+            425
+          ],
+          "why": "Permissionless path goes through the same arithmetic."
+        }
+      ],
+      "rule": "DISCH-external",
+      "title": "Stale challenge blocks permissionless committers"
+    },
+    "O32": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitState",
+          "lines": [
+            273,
+            286
+          ],
+          "why": "Pinned recommit must reuse the stored blob hash."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatch",
+          "lines": [
+            255,
+            269
+          ],
+          "why": "Refuses a new blob while a hash is stored."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.revertBatch",
+          "lines": [
+            430,
+            468
+          ],
+          "why": "No path clears batchBlobVersionedHashes on revert."
+        }
+      ],
+      "rule": "DISCH-non-dischargeable",
+      "title": "BVH pin"
+    },
+    "O33": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitBatch",
+          "lines": [
+            255,
+            269
+          ],
+          "why": "Delay guard requires numL1Messages > 0 once the first unfinalized message is older than D."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.commitState",
+          "lines": [
+            273,
+            286
+          ],
+          "why": "Same delay guard."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "function": "L1MessageQueueWithGasPriceOracle.getFirstUnfinalizedMessageEnqueueTime",
+          "lines": [
+            261,
+            268
+          ],
+          "why": "Reads enq at pendingQueueIndex, the finalization cursor P."
+        }
+      ],
+      "rule": "DISCH-mixed",
+      "title": "Delay guard profile {(c_msg, 0), (0, Δ_fin)}"
+    },
+    "O34": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "function": "L1CrossDomainMessenger.replayMessage",
+          "lines": [
+            175,
+            244
+          ],
+          "why": "Anyone can consume the per-message replay budget."
+        },
+        {
+          "file": "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "function": "L1CrossDomainMessenger.updateMaxReplayTimes",
+          "lines": [
+            263,
+            269
+          ],
+          "why": "Only the owner can raise maxReplayTimes."
+        }
+      ],
+      "rule": "DISCH-external",
+      "title": "Replay budget: only the owner can raise it"
+    },
+    "O35": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.challengeState",
+          "lines": [
+            471,
+            496
+          ],
+          "why": "Loops over every unfinalized batch; gas grows with the backlog the submitter creates."
+        }
+      ],
+      "rule": "DISCH-self-controlled",
+      "title": "Challenge cost grows with a backlog the challenged class controls"
+    },
+    "O36": {
+      "anchors": [
+        {
+          "file": "common/batch/batch_data.go",
+          "function": "BatchData.TxsPayloadV2",
+          "lines": [
+            118,
+            120
+          ],
+          "why": "append on blockContexts returns a view sharing its spare capacity."
+        },
+        {
+          "file": "common/batch/batch_data.go",
+          "function": "BatchData.Append",
+          "lines": [
+            31,
+            42
+          ],
+          "why": "Later appends to blockContexts write into that shared capacity."
+        }
+      ],
+      "rule": "OWN-alias",
+      "title": "`TxsPayloadV2` view aliases buffer capacity later written by `Append`"
+    },
+    "O37": {
+      "anchors": [
+        {
+          "file": "common/batch/batch_header.go",
+          "function": "BatchHeaderV0.Bytes",
+          "lines": [
+            212,
+            230
+          ],
+          "why": "Value receiver: b.EncodedBytes = ... is written to a copy and lost."
+        },
+        {
+          "file": "common/batch/batch_header.go",
+          "function": "BatchHeaderV1.Bytes",
+          "lines": [
+            240,
+            260
+          ],
+          "why": "Same lost cache write on a value receiver."
+        }
+      ],
+      "rule": "OWN-lost-write",
+      "title": "Value-receiver cache write is lost"
+    },
+    "O4": {
+      "anchors": [
+        {
+          "file": "common/batch/blob.go",
+          "function": "RetrieveBlobBytes",
+          "lines": [
+            45,
+            54
+          ],
+          "why": "Error path formats data[i*32] on a 4096*31-byte buffer, out of bounds for i >= 3968."
+        },
+        {
+          "file": "node/derivation/batch_info.go",
+          "function": "BatchInfo.ParseBatch",
+          "lines": [
+            87,
+            248
+          ],
+          "why": "Derivation calls the cloned common/batch RetrieveBlobBytes on every blob."
+        }
+      ],
+      "note": "common/blob/payload.go has the correct version (indexes blob[i*32]); the defect is in the common/batch clone.",
+      "rule": "PAR-totality",
+      "title": "Clone panics on non-canonical element ≥ 3968"
+    },
+    "O5": {
+      "anchors": [
+        {
+          "file": "common/batch/batch_data.go",
+          "function": "BatchData.WillExceedCompressedSizeLimit",
+          "lines": [
+            149,
+            161
+          ],
+          "why": "Fast path returns false when raw size <= limit, assuming compression never expands."
+        },
+        {
+          "file": "common/batch/batch_data.go",
+          "function": "BatchData.EstimateCompressedSizeWithNewPayload",
+          "lines": [
+            124,
+            135
+          ],
+          "why": "Second estimator omits block contexts and has the same fast path."
+        },
+        {
+          "file": "common/batch/batch_cache.go",
+          "function": "BatchCache.CalculateCapWithProposalBlock",
+          "lines": [
+            1207,
+            1290
+          ],
+          "why": "Chooses between the two estimators by upgrade time."
+        }
+      ],
+      "rule": "PAR-branch",
+      "title": "Estimator fast path assumes non-expansion; second estimator omits contexts"
+    },
+    "O6": {
+      "anchors": [
+        {
+          "file": "common/batch/batch_data.go",
+          "function": "BatchData.DataHash",
+          "lines": [
+            68,
+            79
+          ],
+          "why": "Legacy Go data hash hashes 58-byte block-context prefixes plus L1 hashes."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatch",
+          "lines": [
+            857,
+            885
+          ],
+          "why": "On-chain data hash is keccak(lastBlockNumber || numL1Messages || L1 hashes) for every version."
+        },
+        {
+          "file": "common/batch/batch_cache.go",
+          "function": "BatchCache.handleBatchSealing",
+          "lines": [
+            1572,
+            1677
+          ],
+          "why": "Legacy (non-upgraded) path uses BatchData.DataHash."
+        }
+      ],
+      "rule": "PAR-recompute",
+      "title": "Legacy Go data hash ≠ on-chain formula for v0"
+    },
+    "O7": {
+      "anchors": [
+        {
+          "file": "node/derivation/batch_info.go",
+          "function": "BatchInfo.ParseBatch",
+          "lines": [
+            87,
+            248
+          ],
+          "why": "blockCount is derived from batch.LastBlockNumber but the last decoded context number is never checked against it, nor contiguity."
+        },
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup._commitBatchWithBatchData",
+          "lines": [
+            288,
+            377
+          ],
+          "why": "lastBlockNumber is stored without any relation to the parent header's lastBlockNumber."
+        }
+      ],
+      "rule": "PAR-cycle",
+      "title": "lastBlockNumber cycle has no closing check"
+    },
+    "O8": {
+      "anchors": [
+        {
+          "file": "node/derivation/batch_info.go",
+          "function": "BatchInfo.ParseBatch",
+          "lines": [
+            87,
+            248
+          ],
+          "why": "Undequeued transactions left in txQueue (trailing payload) are not rejected."
+        },
+        {
+          "file": "node/derivation/batch_info.go",
+          "function": "txQueue.dequeue",
+          "lines": [
+            314,
+            322
+          ],
+          "why": "Only checks sufficiency, never that the queue is exhausted."
+        }
+      ],
+      "rule": "PAR-consumer",
+      "title": "Trailing payload ignored by derivation; circuit unknown"
+    },
+    "O9": {
+      "anchors": [
+        {
+          "file": "contracts/contracts/l1/rollup/Rollup.sol",
+          "function": "Rollup.importGenesisBatch",
+          "lines": [
+            226,
+            252
+          ],
+          "why": "Genesis checks l1MessagePopped == 0 but leaves totalL1MessagePopped unconstrained against the queue cursor."
+        }
+      ],
+      "rule": "PAR-init",
+      "title": "P = total(h_LFI) unconstrained at genesis"
+    }
+  }
+}
