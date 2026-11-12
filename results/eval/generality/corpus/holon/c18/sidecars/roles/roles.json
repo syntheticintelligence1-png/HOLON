@@ -1,0 +1,55 @@
+{
+  "dropped": [],
+  "inputs": [
+    {
+      "kind": "go",
+      "path": "results/eval/generality/corpus/holon/c18/facts/go_2.go.extracted.json",
+      "sha256": "370acaa3c3ed64f31771b9ca1e930f61500936c28f736ba05006d243465283b1"
+    },
+    {
+      "kind": "go",
+      "path": "results/eval/generality/corpus/holon/c18/facts/go_3.go.extracted.json",
+      "sha256": "c0bcdb42a6e59182c10652d47e1d0781186ea6fed6accf0501cfdc192547d29e"
+    }
+  ],
+  "milestone": "T510",
+  "mode": "static",
+  "proposed": null,
+  "rejected": [
+    {
+      "carrier": "*cosmossdk.io/x/group.GroupInfo",
+      "document": "results/eval/generality/corpus/holon/c18/facts/go_2.go.extracted.json",
+      "reason": "Go function '(cosmossdk.io/x/group/keeper.Keeper).UpdateGroupAdmin$1' gives the model name 'keeper_Keeper_UpdateGroupAdmin$1', which is not an identifier"
+    },
+    {
+      "carrier": "*cosmossdk.io/x/group.GroupPolicyInfo",
+      "document": "results/eval/generality/corpus/holon/c18/facts/go_2.go.extracted.json",
+      "reason": "Go function '(cosmossdk.io/x/group/keeper.Keeper).UpdateGroupPolicyAdmin$1' gives the model name 'keeper_Keeper_UpdateGroupPolicyAdmin$1', which is not an identifier"
+    }
+  ],
+  "roles": [
+    {
+      "carrier": "[]github.com/cosmos/cosmos-sdk/types.Msg",
+      "detail": {
+        "ops": [
+          "cosmossdk.io/x/group/keeper.validateMsgs"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/eval/generality/corpus/holon/c18/facts/go_2.go.extracted.json#go.functions.cosmossdk.io/x/group/keeper.validateMsgs"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "msg_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    }
+  ],
+  "roles_version": "holon-roles/0.1",
+  "sidecars": {
+    "derive_extracted.json": "2c1f8181395d2ed2f79e969a438cb9f3a621f8fdc8fb023224f4ef001d691f83",
+    "go_ops.json": "1772ffb9113fa084710e0ffb94766b2f91607e06e70b0ba38c48adba6ef65898"
+  }
+}

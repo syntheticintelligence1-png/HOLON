@@ -167,3 +167,30 @@ class TestReveal(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRevealIndependent(unittest.TestCase):
+    """The reveal, rechecked without I106_draw.py: hashlib and the candidate file only."""
+
+    def test_r2_hashes_and_draw(self):
+        com = json.loads((H2 / "commitment.json").read_text(encoding="utf-8"))
+        raw = (H2 / "target.json").read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), com["target_sha256"])
+        salt_text = (H2 / "salt.txt").read_text(encoding="ascii")
+        self.assertRegex(salt_text, r"^[0-9a-f]{64}\n$")
+        salt = bytes.fromhex(salt_text.strip())
+        self.assertEqual(hashlib.sha256(salt).hexdigest(), com["salt_sha256"])
+        self.assertEqual(com["salt_sha256"], key_seal()["salt_sha256"])
+        self.assertEqual(com["beacon"]["number"], 26396629)
+        bh = com["beacon"]["hash"]
+        self.assertEqual(bh, "0x55f21e8e8c5229de6211594bb794550a0539b9250c2ead9e9c67fe1136ec82dc")
+        seed = hashlib.sha256(salt + bytes.fromhex(bh[2:])).digest()
+        cands = json.loads(CANDS.read_text(encoding="utf-8"))["candidates"]
+        order = sorted(cands, key=lambda c: (hashlib.sha256(seed + c["id"].encode("utf-8")).hexdigest(), c["id"]))
+        doc = json.loads(raw)
+        self.assertEqual(doc["seed"]["seed"], seed.hex())
+        self.assertEqual(doc["draw"]["order"], [c["id"] for c in order])
+        self.assertEqual(doc["draw"]["skipped"], [])
+        self.assertEqual([t["id"] for t in doc["targets"]], [c["id"] for c in order[:2]])
+        for t, c in zip(doc["targets"], order[:2]):
+            self.assertEqual((t["name"], t["repo"]), (c["name"], c["repo"]))
