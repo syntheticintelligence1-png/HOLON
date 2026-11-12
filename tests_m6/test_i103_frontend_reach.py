@@ -97,6 +97,15 @@ def first_guard(doc):
     raise AssertionError("the document has no guard")
 
 
+def first_check(doc):
+    """The first action (by name) with a check record: a check's expr is a term the sort pass walks (a guard's own
+    expr is not: the pass walks a guard through its reaches)."""
+    for a in sorted(doc["actions"], key=lambda x: x["name"]):
+        if a.get("checks"):
+            return a
+    raise AssertionError("the document has no check")
+
+
 # ---------------------------------------------------------------------------------------------- F1-F5: toolchains
 class TestSolcSelection(unittest.TestCase):
     def test_f1_pragmas_ignore_comments(self):
@@ -208,12 +217,12 @@ class TestTotalSortPass(unittest.TestCase):
         doc = load(C17_DOC)
         seeds = load(SEEDS)
         bad = copy.deepcopy(doc)
-        a = first_guard(bad)
-        a["guards"][0]["expr"] = ["i103_unknown_head", a["guards"][0]["expr"], ["i103_unknown_head", 7]]
+        a = first_check(bad)
+        a["checks"][0]["expr"] = ["i103_unknown_head", a["checks"][0]["expr"], ["i103_unknown_head", 7]]
         with self.assertRaises(E.ExtractedError):
             E.walk("c17", bad, seeds, E.SORT_TYPES_0_2)
         w = E.walk("c17", bad, seeds, "holon-sort-types/0.3")
-        self.assertEqual(w.debt, [{"head": "i103_unknown_head", "actor": a["name"], "where": "guards[0]",
+        self.assertEqual(w.debt, [{"head": "i103_unknown_head", "actor": a["name"], "where": "checks[0]",
                                    "count": 2}])
 
     def test_f6_no_unknown_term_no_change(self):

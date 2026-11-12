@@ -2118,7 +2118,7 @@ class Walk:
         bits, signed = info
         if op in ("/", "%"):
             self.panic(18, node, op, [a, b], fold("!=", b, 0))
-        checked = not self.frame.unchecked
+        checked = not (self.frame.unchecked or self.ix.wrapping)
         if checked and (op in ("+", "-", "*", "**") or (signed and op == "/")):
             eop = "sdiv" if op == "/" else op
             self.panic(17, node, op, [a, b], fits(bits, signed, (eop, a, b)))
@@ -2260,7 +2260,7 @@ class Walk:
         a = self.val(self.ev(sub))
         if op == "-":
             info = int_info(ts)
-            if info is not None and info[1] and not self.frame.unchecked:
+            if info is not None and info[1] and not (self.frame.unchecked or self.ix.wrapping):
                 self.panic(17, n, "neg", [a], fits(info[0], True, ("neg", a)))
         return fold({"-": "neg"}.get(op, op), a)
 
@@ -3613,6 +3613,14 @@ def walk_contract(compiled, side: dict):
     return index, contract, acts, coll
 
 
+def _selected(compiled) -> dict:
+    """I103: a pragma-selected compiler's record (selected_by, arithmetic); nothing for a sidecar that names its own."""
+    sel = getattr(compiled, "selection", None)
+    if not sel:
+        return {}
+    return {"selected_by": {"rule": sel["rule"], "pragmas": list(sel["pragmas"])}, "arithmetic": sel["arithmetic"]}
+
+
 def build(compiled, side: dict, sidecar_rel: str, sidecar_sha256: str) -> dict:
     """The transitions document of a sidecar with "transitions"."""
     import hashlib
@@ -3626,7 +3634,8 @@ def build(compiled, side: dict, sidecar_rel: str, sidecar_sha256: str) -> dict:
             "kind": "transitions",
             "frontend_version": TRANSITIONS_VERSION,
             "sidecar": {"path": sidecar_rel, "sha256": sidecar_sha256},
-            "toolchain": {"solc": {"version": compiled.version, "sha256": compiled.solc_sha256}},
+            "toolchain": {"solc": {"version": compiled.version, "sha256": compiled.solc_sha256,
+                                   **_selected(compiled)}},
             "settings": compiled.settings,
             "inputs": [{"unit": u, "sha256": hashlib.sha256(compiled.units[u]).hexdigest()}
                        for u in sorted(compiled.units)],
