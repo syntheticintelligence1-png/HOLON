@@ -144,11 +144,18 @@ class TestBuild(unittest.TestCase):
             self.assertTrue(bad, "a phantom or uncovered change of L_x")
 
     def test_b3_round7s_range(self):
+        """B3. (Amended, spec/M3/amendments/I102.jsonl: the merge 41c7e34 equals its first parent for the 136 laws round
+        7 recorded there, not for every law. It also migrates 8 laws the first parent does not hold, each covered.)"""
         frm, to = I.ROUND7
         rep = I.regress(ROOT, ROOT, frm, to)
         m3 = _m3(rep)
         self.assertEqual([h for h in m3 if not h["covered_by"]], [])
-        self.assertEqual([h for h in m3 if h["commit"] == "41c7e34"], [])
+        rec = json.loads((I.CHECKERS / "regress_fe1f88f2_to_target.summary.json").read_text(encoding="utf-8"))
+        named = {x["law_id"] for x in rec["uncovered"] if x["commit"] == "41c7e34"}
+        self.assertEqual(len(named), 136)
+        at = [h for h in m3 if h["commit"] == "41c7e34"]
+        self.assertEqual([h for h in at if h["law_id"] in named], [])
+        self.assertEqual([h for h in at if not h["covered_by"]], [])
         with tempfile.TemporaryDirectory(prefix="i102-b3-") as tmp:
             p = Path(tmp) / "rep.json"
             p.write_text(json.dumps({**rep, "hash_changes": m3}), encoding="utf-8")   # the findings are M3's
@@ -157,10 +164,18 @@ class TestBuild(unittest.TestCase):
         self.assertIn("real statement changes the tool does not report: 0", out)
 
     def test_b4_round2s_range(self):
+        """B4. (Amended, spec/M3/amendments/I102.jsonl: the merges 41c7e34 and ecbb695 equal their first parents for
+        round 1's 136 M3 laws, the ones F-M3-07 names, not for every law; 41c7e34 also makes 8 covered changes.)"""
         frm, to = I.ROUND2
         m3 = _m3(I.regress(ROOT, ROOT, frm, to))
         self.assertEqual([h for h in m3 if not h["covered_by"]], [])
-        self.assertEqual([h for h in m3 if h["commit"] in I.ROUND2_EQUAL_MERGES], [])
+        named = {p.split("/")[-1][:-len(".json")] for p in I.git(ROOT, "ls-tree", "-r", "--name-only", frm, "--",
+                                                                     "laws/M3/").split()
+                 if p.count("/") == 2 and p.split("/")[-1].startswith("L") and p.endswith(".json")}
+        self.assertEqual(len(named), 136)
+        at = [h for h in m3 if h["commit"] in I.ROUND2_EQUAL_MERGES]
+        self.assertEqual([h for h in at if h["law_id"] in named], [])
+        self.assertEqual([h for h in at if not h["covered_by"]], [])
         self.assertEqual([h for h in m3 if h["law_id"] ==
                           "L_pinit_Rollup_importGenesisBatch_committedBatches_17_9"
                           and h["commit"] in ("38d66f5", "4f0f51b")], [])
