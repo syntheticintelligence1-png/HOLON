@@ -1,0 +1,45 @@
+{
+  "doc": "I57 (frozen at the I57 prereg; pinned by sha256 in the key I57): the basis of I57's time-indexed environment laws. holon.m5.env generates, from this file and spec/M5/lib/I57_modules.json only, the environment model gen/M5/env/model/env.bend, each law in two forms (module: the environment term is the module's model with its pinned parameter; axiom: the same term is free, i.e. havoc, as A-env leaves it in the base records) and each form's proof from the per-class proof generator named here. A law id is a function of (rule, subform, module). One law per (rule, subform, module), never one per indexed base law: the laws do not read the base laws' models, so a copy per base law would add records with no content (the adversarial phase, G4). indexes names, by pattern over the law ids of results/M3/, the base laws whose obligation the law time-indexes; it is provenance only.",
+  "classes": [
+    {
+      "id": "L_env_fact_da_window",
+      "rule": "FACT",
+      "subform": "time_window",
+      "module": "env-da-retention",
+      "claim": "for every query age a = q - t (beacon slots) with a <= W and every committed blob x, the DA consumer at q delivers x (the factorization of the derivation consumer through the blob commitment holds inside the retention window)",
+      "module_form": "premise_rewrite",
+      "axiom_form": "counter_witness",
+      "indexes": "^L_fact_kernel_.*_blobhash$"
+    },
+    {
+      "id": "L_env_fact_da_always",
+      "rule": "FACT",
+      "subform": "time_any",
+      "module": "env-da-retention",
+      "claim": "for every query age a and every committed blob x, the DA consumer at q delivers x (the factorization holds at every query time)",
+      "module_form": "counter_witness",
+      "axiom_form": "counter_witness",
+      "indexes": "^L_fact_kernel_.*_blobhash$"
+    },
+    {
+      "id": "L_env_fact_fetch",
+      "rule": "FACT",
+      "subform": "fetcher",
+      "module": "env-fetch-archive",
+      "claim": "for every committed blob x, the fetcher delivers x (the factorization through the commitment holds through the fetcher at every query time)",
+      "module_form": "computation",
+      "axiom_form": "counter_witness",
+      "indexes": "^L_fact_kernel_.*_blobhash$"
+    },
+    {
+      "id": "L_env_undo_reorg",
+      "rule": "UNDO",
+      "subform": "reorg_residue",
+      "module": "env-l1-confirmations",
+      "claim": "for every L1 reorg depth k <= d and every commit that the derivation consumed at depth d + e, the reorg does not remove the commit (the environment's undo of a commit leaves no consumed residue)",
+      "module_form": "bounded_cases",
+      "axiom_form": "counter_witness",
+      "indexes": "^L_undo_pair_.*_revertBatch$"
+    }
+  ]
+}

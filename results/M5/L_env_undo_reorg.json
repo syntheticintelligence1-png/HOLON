@@ -1,0 +1,76 @@
+{
+  "artifacts": {
+    "laws": "gen/M5/env/module/L_env_undo_reorg/LAWS.bend",
+    "model": "gen/M5/env/model/env.bend",
+    "proof": "gen/M5/env/module/L_env_undo_reorg/PROOF.bend"
+  },
+  "axiom_form": {
+    "artifacts": {
+      "laws": "gen/M5/env/axiom/L_env_undo_reorg/LAWS.bend",
+      "model": "gen/M5/env/model/env.bend",
+      "proof": "gen/M5/env/axiom/L_env_undo_reorg/PROOF.bend"
+    },
+    "environment": {
+      "carriers": [
+        "l1_chain"
+      ],
+      "premises": [
+        {
+          "category": "l1_chain",
+          "form": "havoc",
+          "id": "havoc:l1_chain",
+          "module": null
+        }
+      ]
+    },
+    "evidence": {
+      "law": "cl_l_env_undo_reorg",
+      "law_present": true,
+      "marker": "ALL PROOFS CHECK"
+    },
+    "proof_class": "counter_witness",
+    "status": "REFUTED"
+  },
+  "claim": "for every L1 reorg depth k <= d and every commit that the derivation consumed at depth d + e, the reorg does not remove the commit (the environment's undo of a commit leaves no consumed residue)",
+  "environment": {
+    "carriers": [
+      "l1_chain"
+    ],
+    "premises": [
+      {
+        "category": "l1_chain",
+        "form": "module",
+        "id": "env-l1-confirmations",
+        "module": "env-l1-confirmations"
+      }
+    ]
+  },
+  "evidence": {
+    "law": "l_env_undo_reorg",
+    "law_present": true,
+    "marker": "ALL PROOFS CHECK"
+  },
+  "generator": "holon.m5.env",
+  "indexes": [
+    "L_undo_pair_Rollup_commitBatchWithProof_revertBatch",
+    "L_undo_pair_Rollup_commitBatch_revertBatch",
+    "L_undo_pair_Rollup_commitState_revertBatch"
+  ],
+  "law_id": "L_env_undo_reorg",
+  "ledger_assumptions": [],
+  "milestone": "M5",
+  "model_assumptions": [],
+  "module": {
+    "family": "finality_depth",
+    "id": "env-l1-confirmations",
+    "parameters": {
+      "d": 10
+    }
+  },
+  "premises": [],
+  "proof_class": "bounded_cases",
+  "provenance": "spec/M5/lib/I57_laws.json",
+  "rule": "UNDO",
+  "status": "PROVED",
+  "subform": "reorg_residue"
+}

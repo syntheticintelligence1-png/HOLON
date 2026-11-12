@@ -1,0 +1,1409 @@
+{
+  "milestone": "M5",
+  "doc": "Preregistration for M5 iterations (docs/BUILD_PLAN.md §0.1). One key per iteration under iterations, each in its own source spec/M5/predictions/<key>.json (holon.aggregate writes this aggregate from them). A key is written once, in its prereg commit, before any of its outcome_paths change; holon audit prereg checks the order and that the key is never edited afterwards. predictions count toward prediction accuracy; regressions are outcomes already recorded in the repo that must not change.",
+  "iterations": {
+    "I54": {
+      "title": "I54: L6, L9 and L10 defined and preregistered (Q11): bounded games scored against constructed and documented truth, environment coverage by validated time-indexed modules, intent-law coverage over a mechanical clause census",
+      "plan": "docs/BUILD_PLAN.md#i54-l6-l9-and-l10-definitions-preregistered-about-1-day",
+      "prompt": "prompts/I54_m5_definitions.md",
+      "tests": [
+        "tests_m5/test_m5_definitions.py"
+      ],
+      "outcome_paths": [
+        "spec/M5/preregistration.json",
+        "spec/M5/controls/",
+        "spec/M5/truth/",
+        "results/M5/",
+        "gen/M5/",
+        "laws/M5/",
+        "replay/M5/",
+        "docs/M5_REPORT.md"
+      ],
+      "predictions": [
+        {
+          "id": "I54-P1",
+          "claim": "The L10 census of M3's scope at the I54 base (the extracted facts documents' cited .sol and .go files at morph 3e44e79) holds between 100 and 1000 normative clauses.",
+          "check": "tests_m5/test_m5_definitions.py::TestPredictions::test_p1_census_size",
+          "expected": [
+            100,
+            1000
+          ]
+        },
+        {
+          "id": "I54-P2",
+          "claim": "contracts/contracts/l1/rollup/Rollup.sol contributes more census clauses than any other file in that scope.",
+          "check": "tests_m5/test_m5_definitions.py::TestPredictions::test_p2_census_largest_file",
+          "expected": "contracts/contracts/l1/rollup/Rollup.sol"
+        },
+        {
+          "id": "I54-P3",
+          "claim": "At least a quarter of that census's clauses come from .go files.",
+          "check": "tests_m5/test_m5_definitions.py::TestPredictions::test_p3_census_go_share",
+          "expected": 0.25
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I54-R1",
+          "claim": "F(M3) at the base holds 49 REFUTED findings outside model_defect, known_limitation and intended_bounded (19 finding, 30 pending), and they are base.l6_findings.",
+          "check": "tests_m5/test_m5_definitions.py::TestPreregistration::test_base_populations",
+          "expected": 49
+        },
+        {
+          "id": "I54-R2",
+          "claim": "Under the frozen classification, 222 of the M2 and M3 result records at the base are environment-dependent (A-env havoc in 222, the env: axiom in 4), none is covered, and no id is unclassified; they are base.l9_dependent.",
+          "check": "tests_m5/test_m5_definitions.py::TestPreregistration::test_base_populations",
+          "expected": 222
+        },
+        {
+          "id": "I54-R3",
+          "claim": "I54 changes no file under results/, gen/, laws/, replay/ or spec/ of M0-M4, no frozen file, and no module of a generator closure: the M2-M4 prereg audits stay PREREG OK and tools/freeze.py check stays FROZEN OK.",
+          "check": "git diff --stat 4fd64a52 HEAD -- results/M0 results/M1 results/M2 results/M3 gen/M0 gen/M1 gen/M2 gen/M3 laws replay spec/M1 spec/M2 spec/M3 spec/M4 is empty; python -m holon audit prereg --milestone M2|M3|M4; python tools/freeze.py check"
+        }
+      ],
+      "thresholds": {
+        "base_commit": "4fd64a52f030438cac06595f8673840d6c5c6525",
+        "definitions": {
+          "common": {
+            "doc": "Shared rules of L6, L9 and L10. A metric reads records and truth files and nothing else; it runs no checker and trusts no field it can recompute.",
+            "proportion": "every proportion is reported as {numerator, denominator, value, wilson95}; value is null when the denominator is 0 (never 0.0 or 1.0); wilson95 is the Wilson score interval at z = 1.96, rounded to 4 places, null when the denominator is 0",
+            "min_n": 5,
+            "labels": "a measure is 'measured' when its denominator is at least min_n, 'insufficient_n' when it is 1..min_n-1, 'not_measured' when it is 0 or an input is absent (with the reason). A threshold is judged 'meets' or 'misses' only for a measured measure; otherwise its verdict is the measure's label, never 'meets'",
+            "outcome_vocabulary": "statuses are exactly PROVED, REFUTED and UNKNOWN; a verdict counts as decided only when the record carries checker evidence: evidence.marker is 'ALL PROOFS CHECK' and evidence.law_present is true (AGENTS rule 6). A record that fails a validity rule is scored as UNKNOWN and listed with the rule it failed",
+            "one_record": "a finding, control, clause or law with more than one record is scored as UNKNOWN (no choice among runs); a population member with no record is UNKNOWN",
+            "truth_pinning": "a truth file (controls, corpus truth, observation sets) is read with its sha256, which the output reports; the key that measures L6, L9 or L10 pins those sha256 in its prereg, so truth cannot follow the outputs",
+            "independence": "no truth input is produced by the code it scores: controls by holon.m5.controls (fixed at I54, before any game or intent engine exists), corpus truth by spec/M5/lib/truth_protocol.json from the corpus's verbatim text, history by an observation set whose producer reads none of the module's parameters (L9 R3)",
+            "split_by_source": "accuracy against constructed truth (controls) and against documented truth (corpus, history) is reported separately and never pooled into one number",
+            "determinism": "outputs are json.dumps(obj, indent=2, sort_keys=True) + newline; sorted iteration; no timestamps",
+            "overall": "each metric's overall verdict is meets iff every one of its thresholds meets, misses iff some threshold misses, not_judged otherwise; a metric is reported as meeting its preregistered level only by its overall verdict",
+            "zero_counts": "a threshold of the form count == 0 is judged when its population is measured (at least min_n items); sensitivity_unreplayed is judged when at least one status changed",
+            "special_casing": "no module of holon/ other than holon/m5/controls.py may hold a control's id or name token; the engines that I55-I57 build are target-agnostic (BUILD_PLAN §2)"
+          },
+          "L6": {
+            "name": "can versus will: bounded games over the REFUTED findings (Q11)",
+            "population": "F(M): the result records results/<M>/L_*.json with status REFUTED and filter_bin not in {model_defect, known_limitation, intended_bounded}, for each measured milestone M (M3 at the I54 base; M5's when it has records); a record moved out of F after the I54 base is listed with its new bin (base_population)",
+            "base_population": "the law ids of F(M3) at the I54 base, frozen in spec/M5/preregistration.json (base.l6_findings)",
+            "record": "spec/M5/lib/inputs.schema.json#/$defs/game_record, one per finding, control or corpus item",
+            "actors": "the game's classes are the target's principal classes (holon.diagram principal_classes), each with its trusted flag; the trusted flags of a target are fixed by a sidecar preregistered before its first game record, and the controls' by their documents",
+            "ordinal_payoff": "a class's payoff under a strategy is the sign vector of its holdings' change per asset of the extracted value flows (transfers, rewards, deposits, slashing, protocol fees; transaction gas is outside the flows, premise P-gas): nonneg iff no component is negative; negative iff no component is positive and some is negative; incomparable otherwise. No exchange rate between assets is assumed",
+            "semantics": "a strategy of class X is a schedule of actions that X may call (others take no action, environment moves allowed), within the game's horizon H; it triggers the finding when the finding's state predicate holds after some step; its payoff is taken at the schedule's end",
+            "class_verdict": "rational: some triggering strategy has payoff nonneg; irrational: every triggering strategy has payoff negative (or none triggers), proved over every schedule (scope unbounded); irrational_bounded: the same proved only for schedules up to H; UNKNOWN otherwise (incomparable payoffs included)",
+            "finding_verdict": "rational iff some untrusted class is rational; irrational iff every untrusted class is irrational; irrational_bounded iff every untrusted class is irrational or irrational_bounded and some is bounded; UNKNOWN otherwise. Trusted classes are reported, never decide the verdict",
+            "validity": {
+              "V1": "checker evidence (common.outcome_vocabulary)",
+              "V2": "the record's classes are exactly the expected classes of its finding (the target's principal classes, or the control's actors), by id",
+              "V3": "each class's trusted flag equals the expected one",
+              "V4": "horizon >= witness_length, and witness_length equals the length of the finding's REFUTED witness (a control's witness)",
+              "V5": "witness_in_space is true: the finding's own witness is a strategy of the game (non-vacuity of the strategy space)",
+              "V6": "the record's verdict is the finding_verdict of its classes",
+              "V7": "a rational class has payoff nonneg and strategy_length between 1 and horizon",
+              "V8": "value_flows_sha256 equals the expected one: for a target, the sha256 of the value-flow facts document fixed in the sidecar of its trusted flags; for a control, the sha256 of the canonical JSON (sort_keys, separators ',' ':') of its actions"
+            },
+            "measures": {
+              "decided": "over F: records whose validated verdict is rational, irrational or irrational_bounded / |F| (headline, per milestone); also decided_unbounded, which does not count irrational_bounded",
+              "verdicts": "counts of rational, irrational, irrational_bounded and UNKNOWN over F, and the invalid records with their rules",
+              "accuracy": "per truth source (controls; corpus): over items with truth rational or irrational or UNKNOWN; an item is correct iff its validated verdict equals its truth, irrational_bounded counting as irrational. decided_accuracy = correct decided / decided; strict_accuracy = correct / items (an UNKNOWN verdict on a decided truth is wrong; on an UNKNOWN truth it is right)",
+              "majority_baseline": "per truth source: the number of items of the most frequent truth value; strict correct must exceed it",
+              "false_rational": "per truth source: items with truth irrational whose validated verdict is rational (the negative control of Q11)",
+              "false_irrational": "per truth source: items with truth rational whose validated verdict is irrational or irrational_bounded (the deep controls test bounded results read as global, L17)",
+              "decided_on_unknown": "per truth source: items with truth UNKNOWN whose validated verdict is decided"
+            },
+            "corpus_mapping": "a finding is a corpus item iff its record comes from a run on the entry's pre-fix commit (I51) and its law's source spans meet a line the entry's fix changes; each entry with a truth value contributes one item per mapped finding; an entry whose truth is undocumented contributes none; c13 never (spec/M5/lib/truth_protocol.json known_exclusions)",
+            "thresholds": {
+              "decided": {
+                "op": ">=",
+                "value": 0.5,
+                "of": "decided over F(M3)"
+              },
+              "controls_decided_accuracy": {
+                "op": ">=",
+                "value": 0.8
+              },
+              "controls_strict_accuracy": {
+                "op": ">=",
+                "value": 0.75
+              },
+              "controls_beats_majority": {
+                "op": ">",
+                "value": "majority_baseline",
+                "of": "strict correct, controls"
+              },
+              "false_rational": {
+                "op": "==",
+                "value": 0,
+                "of": "every truth source"
+              },
+              "false_irrational": {
+                "op": "==",
+                "value": 0,
+                "of": "controls"
+              },
+              "corpus_decided_accuracy": {
+                "op": ">=",
+                "value": 0.8,
+                "min_n": 5
+              }
+            }
+          },
+          "L9": {
+            "name": "environment: time-indexed environment modules (Q11)",
+            "classification": "spec/M5/lib/environment_classes.json (frozen at the I54 prereg)",
+            "environment_premises": "E(r) of a result record r: each ledger_assumptions or model_assumptions id, and each premise string with a listed prefix, that the classification marks environment (category, form); plus every premise of r's environment block (spec/M5/lib/inputs.schema.json#/$defs/environment_block). An id the classification does not list and no pattern matches is 'unclassified': it counts as an environment axiom of category unclassified",
+            "implicit": "a record of a law whose model reads an environment carrier (the diagram's carriers of class env, the blob-hash vector, or a fetcher call) without a premise for it gets, from the generator that writes its environment block, a premise of form axiom for that carrier's category. A record without an environment block has only its classified ids",
+            "population": "every result record results/<M>/L_*.json of each measured milestone (M2 and M3 at the I54 base, and M5's)",
+            "environment_dependent": "r is environment-dependent iff E(r) is not empty",
+            "covered": "an environment-dependent r is covered iff every element of E(r) has form module and names a module that is validated (R1-R5); axiom, havoc and unclassified are assumed, not modelled",
+            "module_families": {
+              "doc": "the parametric families a module may belong to; the metric recomputes every prediction from the module's parameters and the observation, so a module record carries no predictions of its own",
+              "window": "parameters {W}; an observation {t, q, observed}: predicted = (q - t <= W) (e.g. blob retrievable from the DA layer at query time q for a blob of time t)",
+              "finality_depth": "parameters {d}; an observation {t, head, observed}: scored only when head - t >= d, predicted true (the block at t stays canonical); observed is whether it did",
+              "availability": "parameters {}; an observation {t, committed, observed}: predicted = committed (a fetcher returns exactly the committed items)"
+            },
+            "validation": {
+              "R1": "every observation set the module cites is admissible: its reads share no name with the module's parameter names, and its producer is not one of the module's producers (non-circularity: e.g. a fetch that chose its source by the same retention window is not truth for that window)",
+              "R2": "the observations, ordered by t (then by set and position), are cut into K contiguous slices of equal size (the last takes the remainder); with provenance premise every slice is held out; with fit_slice_0 slice 0 is excluded and the others are held out",
+              "R3": "every held-out slice has at least slice_min_n scored observations",
+              "R4": "every held-out slice has accuracy (predicted == observed) at least slice_accuracy",
+              "R5": "the scored observations hold at least min_n observed true and min_n observed false (a module that is right only because history holds one class is not validated)",
+              "R6": "the module's parameters equal the values the measuring key pinned in its prereg, before its observations were scored (a parameter chosen from the evaluation data is a fit, whatever its declared provenance)"
+            },
+            "K": 8,
+            "slice_min_n": 30,
+            "slice_accuracy": 0.95,
+            "measures": {
+              "coverage": "covered / (environment-dependent plus the base laws that are no longer environment-dependent), over the population (headline, per milestone and in total): dropping a premise never raises it",
+              "base_coverage": "the same over the base population (the law ids environment-dependent at the I54 base, frozen in base.l9_dependent); a base law that is no longer environment-dependent is counted as uncovered and listed (dropping a premise never raises coverage)",
+              "by_category": "environment-dependent and covered counts per category (l1_chain, da, fetcher, unclassified) and per form",
+              "modules": "per module: admissible sets, per-slice n and accuracy, the worst held-out slice, R1-R5 and validated",
+              "sensitivity": "over the sensitivity pairs (spec/M5/lib/inputs.schema.json#/$defs/sensitivity_pair): a pair counts iff status_axiom != status_module, status_module is PROVED or REFUTED, its evidence passes common.outcome_vocabulary, and replay is passed. counted, unreplayed (a change without a passed replay), to_unknown (a decided status that became UNKNOWN; reported, never counted) and the list of counted laws",
+              "new_coverage": "covered / environment-dependent, over the environment-dependent laws outside the base population"
+            },
+            "thresholds": {
+              "coverage": {
+                "op": ">=",
+                "value": 0.25
+              },
+              "base_coverage": {
+                "op": ">=",
+                "value": 0.1
+              },
+              "validated_categories": {
+                "op": "==",
+                "value": [
+                  "da",
+                  "fetcher",
+                  "l1_chain"
+                ],
+                "of": "the categories with at least one validated module"
+              },
+              "sensitivity_unreplayed": {
+                "op": "==",
+                "value": 0
+              }
+            },
+            "known_inadmissible": {
+              "results/M2/historical/index.json source field": "holon/historical/fetch.py chose the beacon or the archive by its own retention constant (RETENTION_SLOTS, RETENTION_MARGIN), so which source served a blob is not truth for a retention window (R1). The index's retrievability of every committed blob (62 192 of 62 192, KZG-checked) is truth for an availability module, but it holds no observed false (R5)"
+            },
+            "extension": "the classification is extended only by a file whose sha256 the measuring key pins in its prereg, which adds ids (each naming the base id it splits, e.g. a split of A-env into its L1 and its call terms) and never changes a base entry; the output lists the extension's ids"
+          },
+          "L10": {
+            "name": "consistently wrong code: intent-law coverage (whitepaper L10 metric) and intent extraction quality (its residual risk)",
+            "census": {
+              "doc": "the denominator: every normative documentation clause in scope, computed mechanically before any intent law exists, so the atomizer cannot set it",
+              "scope": "for each extracted facts document of the measured milestone (spec/M2/facts/*.extracted.json and spec/M3/facts/*.extracted.json at the I54 base for M3), the paths it cites as <path>:<line> with a .sol or .go suffix, read from its target.repo at its target.commit (the checkout config/holon.json extract.sources names, through git, never its working tree); a cited path absent at that commit is listed as unresolved and excluded",
+              "comments": "Solidity: a run of consecutive lines whose first non-blank characters are ///, and each /** ... */ block. Go: a run of consecutive // lines whose next line (after the run) begins, after indentation, with func, type, var or const. The comment markers (///, //, /**, */, a leading *) and indentation are removed from each line",
+              "segments": "within a comment, a NatSpec tag (@ followed by letters, colons and hyphens) at the start of a line starts a new segment, and so does a blank line; a segment's text is its lines joined with one space, whitespace collapsed",
+              "sentences": "a segment is split after each '.', ';', '!' or '?' that is followed by whitespace or ends the segment",
+              "normative": "a sentence is a clause iff, lower-cased, it contains one of the markers as a whole word or phrase (bounded by non-letters): must, must not, shall, should, only, cannot, can not, never, always, revert, reverts, reverted, require, requires, required, ensure, ensures, guarantee, guarantees, at most, at least, exactly, invariant, forbidden, not allowed",
+              "id": "sha256 of '<file>:<first line>:<text>' in UTF-8, first 16 hex digits; lines are the 1-based first and last line of the segment the sentence came from",
+              "base": "results/M5/l10_census_base.json: the census of M3's scope on the target's pinned commit, written in I54's build",
+              "tag": "each clause records its segment's NatSpec tag (the leading @word), or null"
+            },
+            "atomized": "spec/M5/lib/inputs.schema.json#/$defs/atom_clause: the intent lane's clause records (I55), each with its exact span",
+            "intent_law": "spec/M5/lib/inputs.schema.json#/$defs/intent_law",
+            "covers": "an intent law covers a census clause iff one of its clauses is an atomized clause in the same file whose line range meets the census clause's",
+            "validity": {
+              "W1": "checker evidence (common.outcome_vocabulary) for status PROVED or REFUTED",
+              "W2": "review.verdict is faithful and review.reviewer differs from review.compiler",
+              "W3": "every clause it names is an atomized clause"
+            },
+            "measures": {
+              "coverage": "census clauses covered by a law that passes W1-W3 / census clauses (headline: intent-law coverage)",
+              "compiled_coverage": "census clauses covered by a law that passes W3 / census clauses",
+              "precision": "atomized clauses whose span meets some census clause / atomized clauses",
+              "recall": "census clauses met by some atomized clause / census clauses",
+              "review": "laws with review.verdict faithful and an independent reviewer / laws",
+              "control_recall": "intent controls with truth obstruction true that have a law passing W1-W2 with control set to the control's id and status REFUTED / such controls",
+              "false_obstruction": "intent controls with truth obstruction false that have a law passing W1-W2 with that control id and status REFUTED",
+              "corpus_recall": "corpus entries with l10 truth yes and an intent obstruction on their pre-fix commit / such entries (min_n applies; reported when I55 runs on the corpus)"
+            },
+            "thresholds": {
+              "coverage": {
+                "op": ">=",
+                "value": 0.3
+              },
+              "precision": {
+                "op": ">=",
+                "value": 0.8
+              },
+              "review": {
+                "op": ">=",
+                "value": 0.9
+              },
+              "control_recall": {
+                "op": ">=",
+                "value": 0.75
+              },
+              "false_obstruction": {
+                "op": "==",
+                "value": 0
+              }
+            }
+          },
+          "controls": {
+            "doc": "constructed truth, written by holon.m5.controls into spec/M5/controls/ in I54's build, equal to tests_m5/_i54.py's documents; truth recomputed by the instrument's interpreter (K1-K3 of tests_m5/test_m5_definitions.py)",
+            "game_families": {
+              "free_trigger": "an untrusted actor triggers with no value flow: rational",
+              "profit": "anyone triggers and gains: rational",
+              "recoup": "an untrusted actor deposits, triggers and withdraws: payoff nonneg at the end, rational (a payoff read at the trigger says irrational)",
+              "deep": "an untrusted actor triggers only after horizon + 1 steps: rational beyond the horizon (irrational_bounded is wrong)",
+              "trusted_only": "only a trusted actor can trigger: irrational (negative control)",
+              "costly": "an untrusted actor triggers only by paying a deposit it cannot recover: irrational (negative control)",
+              "incomparable": "an untrusted actor triggers, gaining one asset and losing another: UNKNOWN"
+            },
+            "game_instances": 2,
+            "game_semantics": "single deviator: one class acts, the others take no action; each action at most once per schedule; holdings start at 0; payoff at the schedule's end",
+            "intent_families": {
+              "bound": "a documented upper bound on a returned fee; the code's rate exceeds it (obstruction) or does not",
+              "access": "a documented 'only the owner' restriction; the code checks the owner (no obstruction) or does not (obstruction)",
+              "monotone": "a documented 'never decreases' counter; the code adds (no obstruction) or subtracts (obstruction)"
+            },
+            "intent_instances": 2,
+            "seed": "the instance number and family name; names are the first 6 hex digits of sha256('<family>/<n>/<role>')"
+          }
+        },
+        "base": "4fd64a52 (the lead after #131), the parent of I54's prereg commit; base populations are read from this commit's tree through git",
+        "instruments": [
+          "tests_m5/_i54.py",
+          "tests_m5/_m5.py",
+          "tests_m5/__init__.py",
+          "spec/M5/lib/environment_classes.json",
+          "spec/M5/lib/inputs.schema.json",
+          "spec/M5/lib/truth_protocol.json",
+          "spec/M5/lib/truth_prompt.md",
+          "prompts/I54_m5_definitions.md"
+        ]
+      }
+    },
+    "I54b": {
+      "title": "I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every text, packet and rule pinned before any labeller answers",
+      "plan": "docs/BUILD_PLAN.md#i54-l6-l9-and-l10-definitions-preregistered-about-1-day",
+      "prompt": "prompts/I54b_m5_truth_key.md",
+      "tests": [
+        "tests_m5/test_m5_truth_key.py"
+      ],
+      "outcome_paths": [
+        "spec/M5/truth/",
+        "docs/iterations/I54b.md"
+      ],
+      "predictions": [
+        {
+          "id": "I54b-P1",
+          "claim": "In the same-family truth, at least 5 entries other than c13 get an L6 truth (rational or irrational), so L6's corpus accuracy can reach min_n.",
+          "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p1_l6_decided",
+          "expected": 5
+        },
+        {
+          "id": "I54b-P2",
+          "claim": "In the same-family truth, at most 3 entries other than c13 get L6 truth irrational (the corpus negative control of false_rational stays small).",
+          "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p2_l6_irrational",
+          "expected": 3
+        },
+        {
+          "id": "I54b-P3",
+          "claim": "In the same-family truth, between 1 and 3 entries get L10 truth yes.",
+          "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p3_l10_yes",
+          "expected": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "I54b-P4",
+          "claim": "Labellers a and b give the same raw trigger value (before Q1-Q2) for at least 14 of the 20 entries.",
+          "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p4_trigger_agreement",
+          "expected": 14
+        },
+        {
+          "id": "I54b-P5",
+          "claim": "At most 4 of the 120 same-family answers (20 entries x 2 labellers x 3 questions) fail Q2 (a quote that is not an exact substring of the text).",
+          "check": "tests_m5/test_m5_truth_key.py::TestPredictions::test_p5_q2_failures",
+          "expected": 4
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I54b-R1",
+          "claim": "spec/eval/corpus.json, truth_protocol.json, truth_prompt.md and the frozen invocation's source are byte-identical to the pins (I48's corpus and I54's protocol are unchanged).",
+          "check": "tests_m5/test_m5_truth_key.py::TestPins::test_inputs_match_the_pins",
+          "expected": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d"
+        },
+        {
+          "id": "I54b-R2",
+          "claim": "truth_protocol.json and truth_prompt.md hash to I54's own instrument pins.",
+          "check": "tests_m5/test_m5_truth_key.py::TestPins::test_protocol_is_i54s",
+          "expected": [
+            "015ea6d9641ca5690835615e8704dc1e16e8b23edec588e0c7bc749a6a758930",
+            "75a1445a7f17f325047f222ad3cc92bfee9ea55344a4fbc2612a54e1ba17f762"
+          ]
+        },
+        {
+          "id": "I54b-R3",
+          "claim": "Between the base commit and HEAD only I54b's paths change: no file of M0-M4, no frozen file, nothing in holon/ or tools/.",
+          "check": "tests_m5/test_m5_truth_key.py::TestScope::test_only_i54b_paths_change",
+          "expected": 0
+        }
+      ],
+      "thresholds": {
+        "base_commit": "95a2288c72e4e476dc1620f2db905ecc42e98de3",
+        "instruments": {
+          "tests_m5/_i54b.py": "2c37dda834aa3c36760f99f6c3b8c8607869432fd3c2713889bda85d6ea22877",
+          "spec/M5/lib/truth_labels.schema.json": "ae92a0ce311405cf5f7b80715595032254d7a39cd4ec301c67672999ccc4f9e4",
+          "prompts/I54b_m5_truth_key.md": "c830879b952d076a859f2cdb29b62751a88b2362e01ce976c6db2c27c39e3be4"
+        },
+        "pins": {
+          "corpus_sha256": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+          "protocol_sha256": "015ea6d9641ca5690835615e8704dc1e16e8b23edec588e0c7bc749a6a758930",
+          "prompt_sha256": "75a1445a7f17f325047f222ad3cc92bfee9ea55344a4fbc2612a54e1ba17f762",
+          "schema_sha256": "ae92a0ce311405cf5f7b80715595032254d7a39cd4ec301c67672999ccc4f9e4",
+          "invocation_source_sha256": "600be4809044ae9a13b727a042aeb95960b038d0e74c0511f8910cfdd3148f05",
+          "texts": {
+            "c01": "2c0a32e59e48927a43e6535b0453d733ba833522c1dc4796982d20bcccf36872",
+            "c02": "13d42e680d6da5d8600b9b360cd4448c626eb1a83cc9cb5cd3fbc58bfe5c8409",
+            "c03": "18c5be89ed062c249d0e4d2f82c457a4fe535b4f56fdb3d900ddc42b4d69599e",
+            "c04": "7b25f54cd7bc9a70ad2244a0bc292261df8132535cb4054151425b711e0a56d2",
+            "c05": "c5f9a9fde9238a0a6b19dc9de5470814a1e5392292c10b65dba2643a30e9f8f6",
+            "c06": "a7b49ae98b4f05eb391dfc6a62a549645143eec26cf37e9cf980cbeec578d77b",
+            "c07": "2140939e6ba1350b73e64f26a9a6dca20f1d768947de1ea44ef8491049e803ce",
+            "c08": "44ead58b05bd87464059736e7c1a19dab02191aa2d46cc7a25653a5289e45164",
+            "c09": "84b2737b93709d252023e990a8feefff02d5cb45a313618041d66278a24fd0a4",
+            "c10": "81d03f4fbb2c49104766c7138db7ca36aff338ac1ce91645a67934018a1e97e9",
+            "c11": "b24449de3dd5692884c8d2727356586d11ae664adbd423d3bc5c76ac6fc8665a",
+            "c12": "5b6762ff26b14f03c1dc0dce975dd9376d3ce5101e8502b191a9fcfde760c821",
+            "c13": "d03332259ee5b77010fa41c5e77a0f1cdb11130745f3550f02e757882a5ec608",
+            "c14": "b0c94ad757da18d88c26b9fc7a470e082fbf3714838511d47f2e328542c920c1",
+            "c15": "2326e934d9cdfd6cbc8131048ebd64c639307809298e1f37c8a9fd5aa9d7c9a5",
+            "c16": "0596ad8bd8b07495f142e645aaf18e412632c5e1dec2071571be8c08263d57e7",
+            "c17": "a1c2ae99a368dea88ee88d41589413b448add729f04b85136ce80c947f37132e",
+            "c18": "8da38e05d955d06bbbe731c2beecb20455960946572cad5e5fe05f02df0027e9",
+            "c19": "b86e827b10568bfdb588782152d3af480f27125f6344cc1935b73aebcf016790",
+            "c20": "78bb2e8872c4df65ec6def9bd39515d59ec4168c73024c99753c8594f9e3d09a"
+          },
+          "packets": {
+            "c01.a": "499d441f09a6a6696d7eec16148c9f8ba35af5a63dd0ad10665f6e05e989fda1",
+            "c01.b": "499d441f09a6a6696d7eec16148c9f8ba35af5a63dd0ad10665f6e05e989fda1",
+            "c02.a": "1f8b9515a579d78f549947249152b678cff567980fada1b1edb7a6e8db81a141",
+            "c02.b": "1f8b9515a579d78f549947249152b678cff567980fada1b1edb7a6e8db81a141",
+            "c03.a": "0f73eae3f7dc1eeae36706f5ea89eb99f282394c48e58a2b1af806378a9bcd09",
+            "c03.b": "0f73eae3f7dc1eeae36706f5ea89eb99f282394c48e58a2b1af806378a9bcd09",
+            "c04.a": "f9497f2970edd9b86af57ff594fc8fc72d881f6f1453c3863da1954a6d8b76e5",
+            "c04.b": "f9497f2970edd9b86af57ff594fc8fc72d881f6f1453c3863da1954a6d8b76e5",
+            "c05.a": "c2e5ba676ba98eb3b4970a3699699dd0c414c8b25a9166b51e59bed1cc07e060",
+            "c05.b": "c2e5ba676ba98eb3b4970a3699699dd0c414c8b25a9166b51e59bed1cc07e060",
+            "c06.a": "5a8c02198f696a9f0c21cc21a7baca45ed2f32e6c67cdfdc9c58b1c10ba3d5a4",
+            "c06.b": "5a8c02198f696a9f0c21cc21a7baca45ed2f32e6c67cdfdc9c58b1c10ba3d5a4",
+            "c07.a": "739cd6be9c5e5061c7006941687b57ee11872bacfb09142133ebcdaafaede2c2",
+            "c07.b": "739cd6be9c5e5061c7006941687b57ee11872bacfb09142133ebcdaafaede2c2",
+            "c08.a": "b7534124eec13afef6633f0a3b91badce15122e688004013255a96501b22f164",
+            "c08.b": "b7534124eec13afef6633f0a3b91badce15122e688004013255a96501b22f164",
+            "c09.a": "bc5ddaabcb0d992571954e571df5331109ccac0b572feb2edd4060045c78eb75",
+            "c09.b": "bc5ddaabcb0d992571954e571df5331109ccac0b572feb2edd4060045c78eb75",
+            "c10.a": "1cc7222ac8d967e9c285e529ba09feb59bd01d7b21c33985d1986761e4a2c52b",
+            "c10.b": "1cc7222ac8d967e9c285e529ba09feb59bd01d7b21c33985d1986761e4a2c52b",
+            "c11.a": "8a610b267eba70f995ef2e0097960e277423ffb581574e9a9bc3b6438e12dbf9",
+            "c11.b": "8a610b267eba70f995ef2e0097960e277423ffb581574e9a9bc3b6438e12dbf9",
+            "c12.a": "0bf9ad3a11a2340533d7194ac1443230fa81e24868c2023d42a0e83e3029836d",
+            "c12.b": "0bf9ad3a11a2340533d7194ac1443230fa81e24868c2023d42a0e83e3029836d",
+            "c13.a": "fc811fbc09431acf0042c904ad26cbc695a2ccde30d951aefd53c56561773691",
+            "c13.b": "fc811fbc09431acf0042c904ad26cbc695a2ccde30d951aefd53c56561773691",
+            "c14.a": "ab8f6512ac3ef9da972bf7b4f83df2d77612b298dfc9bcd4e36fed57e75ab6bf",
+            "c14.b": "ab8f6512ac3ef9da972bf7b4f83df2d77612b298dfc9bcd4e36fed57e75ab6bf",
+            "c15.a": "f4691f821c49dc6c7c1a095897fa74757671a3a02dbd693d183190ae9b53f753",
+            "c15.b": "f4691f821c49dc6c7c1a095897fa74757671a3a02dbd693d183190ae9b53f753",
+            "c16.a": "42af9929b2ab5b22d278cc9dbc770d5a7214dba2d5921169d8d729a9a2136793",
+            "c16.b": "42af9929b2ab5b22d278cc9dbc770d5a7214dba2d5921169d8d729a9a2136793",
+            "c17.a": "0f97b1d515124c3bef15f17803aea61bc876a3f4ada1e809d2c5b92f2e3fceaf",
+            "c17.b": "0f97b1d515124c3bef15f17803aea61bc876a3f4ada1e809d2c5b92f2e3fceaf",
+            "c18.a": "e76212d2ac7912c7c3edc9b67dc87dc353d7e79a6f7edd465137242de3e7d52f",
+            "c18.b": "e76212d2ac7912c7c3edc9b67dc87dc353d7e79a6f7edd465137242de3e7d52f",
+            "c19.a": "9c52785a451d66c917903ef2c9257e66905b932ca5d112af7a73d1189668c057",
+            "c19.b": "9c52785a451d66c917903ef2c9257e66905b932ca5d112af7a73d1189668c057",
+            "c20.a": "d5472504303f9722d781d1e760b9fcff4de70fb92102a18e739ef86a240af31c",
+            "c20.b": "d5472504303f9722d781d1e760b9fcff4de70fb92102a18e739ef86a240af31c"
+          }
+        },
+        "texts": "truth_protocol.json inputs.text: entry title + \"\\n\" + description, verbatim from spec/eval/corpus.json; pins.texts holds the sha256 of each entry's UTF-8 text, for all 20 entries (c13 included: it is labelled like every entry; known_exclusions removes it from scoring, not from labelling)",
+        "packets": {
+          "path": "spec/M5/truth/packets/<id>.<role>.txt, role a or b, with spec/M5/truth/packets/index.json (truth_labels.schema.json#/$defs/packet_index)",
+          "content": "spec/M5/lib/truth_prompt.md with its one {{TEXT}} slot replaced, in one pass, by the entry's text; nothing else (no entry id, system, repository, source URL, fix commit, file list, label or justification beyond what the verbatim text itself holds). The packets of roles a and b of one entry are byte-identical; each is pinned on its own",
+          "count": 40,
+          "pins": "pins.packets: the sha256 of each packet's UTF-8 bytes, computed at the prereg from the pinned prompt and texts"
+        },
+        "answer": {
+          "message": "the labeller's final message is one JSON object (truth_labels.schema.json#/$defs/answer_object), the whole message or the whole message inside one fenced block (``` or ```json first line, ``` last line): I48's parse_response. Values are strings and quotes strings or null; a value outside its list is not a shape error (Q1 makes it undocumented)",
+          "file": "spec/M5/truth/answers/<family>/<id>.<role>.json (truth_labels.schema.json#/$defs/answer_file), one per entry and labeller, written only by python -m tests_m5._i54b answer (sessions) or run (the frozen invocation); every attempt is kept with its outcome",
+          "commit": "no answer file is committed or pushed before every one of its family's 40 answers is recorded: the 40 same-family answer files are added in exactly one commit (and the different-family ones, if any, in one commit), so no labeller can read another's committed answer (T5). A different-family labeller is never given access to the repository",
+          "retry": "I48's rule (corpus_protocol.json labelling_invocation.retry) with this protocol's answer: an attempt that gave no answer (cli_error, or no_response for a session) is retried, at most 5; an attempt that is not an answer (turns, unparsable, invalid) is followed by exactly one more; the answer is the last attempt's when ok, else null (every question undocumented). A retry is a new fresh process or session, never a follow-up message"
+        },
+        "agreement": {
+          "Q1": "a value outside its question's list, or a non-null quote with undocumented, makes that answer undocumented",
+          "Q2": "a quote that is not a string, or whose whitespace-collapsed form (Python re \\s+ to one space, nothing stripped) is not a substring of the text's collapsed form, makes that answer undocumented (a non-undocumented value with a null quote fails Q2)",
+          "Q3": "per question, the final value is a's when a and b both answered, both pass Q1-Q2 and give the same value; otherwise undocumented. There is no adjudicator; every disagreement and rule failure is listed in the run sidecar and never resolved",
+          "derived": "l6 and l10 exactly as truth_protocol.json derived",
+          "empty_quote": "Q2 is applied literally: a quote that is empty or whitespace only is a substring of every text and passes; the run sidecar lists every such quote (empty_quotes) so the measuring key and the human see them; they are never dropped or rewritten by the builder",
+          "builder": "the builder runs no labeller, writes no answer and resolves nothing"
+        },
+        "outputs": {
+          "same": "spec/M5/truth/corpus.json (the protocol's output path and format, truth_labels.schema.json#/$defs/truth_file) and spec/M5/truth/corpus.run.json (invocations, protocol_exact_invocation, model_check, disagreements, rule_failures, tally, per-answer outcomes and file sha256)",
+          "different": "spec/M5/truth/corpus_different.json and corpus_different.run.json, the same rules over answers/different/",
+          "comparison": "spec/M5/truth/family_comparison.json: per entry and per question the two families' final values, and equal/differ counts; pooled false",
+          "scoring_truth": "the key that measures L6 or L10 on the corpus pins the sha256 of the truth file it reads (I54 common.truth_pinning). The same-family file is the protocol's; a different-family file is reported beside it and never pooled with it",
+          "collector": "python -m tests_m5._i54b collect --family F [--check]: refuses, writing nothing, unless every frozen input hashes to its pin and every one of the 40 answer files of F passes truth_labels.schema.json, its path, role tag, invocation, packet path and packet_sha256 (the pin and the packet file's bytes), every attempt's recomputed outcome, the retry rule, and answer = the last ok attempt's parsed message. Deterministic"
+        },
+        "labellers": {
+          "per_entry": 2,
+          "roles": {
+            "a": "model tag A: the family's most capable model available",
+            "b": "model tag B: a smaller model of the same family, different from A"
+          },
+          "independence": "truth_protocol.json invocation, I48's labelling_invocation unchanged: one fresh process per prompt (an entry and a role), nothing else run in it. So the labelling takes exactly 40 fresh labellers (20 entries x 2 roles); no labeller sees two packets, another's answer, a label or a HOLON output",
+          "model_names": "never recorded in the repository; only the tags A and B",
+          "family_default": "same-family (Q9 default, the Q9b precedent): recorded as family same, and disclosed wherever corpus truth is reported as a limitation: the labellers share the builders' model family, so their independence comes from fresh contexts only",
+          "family_different": "if the human has an external agent of another family label (Q9a), it reads the same 40 packets, its answers go to answers/different/ (invocation external, tags A and B for its two labellers), its truth is corpus_different.json, and it is compared with the same-family truth (family_comparison.json), never pooled",
+          "launcher": "the coordinator launches every labeller; the builder launches none"
+        },
+        "invocation": {
+          "cli": "protocol-exact: python -m tests_m5._i54b run --role a --model <A> then --role b --model <B>, from a checkout: each packet in its own fresh `claude -p` process with corpus_protocol.json labelling_invocation's argv, system prompt, environment (env_removed dropped), fresh empty working directory under /tmp, stdin and timeout; tool-less; the model each call reports (modelUsage) is checked per tag outside the repository (one_model_per_role, a_differs_from_b). 40 processes, no cloud session",
+          "cloud_session": "a deviation from the frozen invocation, admitted only as disclosed: one fresh cloud session per packet (40), with no repository, whose first and only user message is the packet's bytes and whose appended system prompt is labelling_invocation.system_prompt; model per role as the tags say; the final message is recorded verbatim with python -m tests_m5._i54b answer --invocation cloud_session. It departs from the frozen invocation in that the session has tools (web access, and the account's repositories), num_turns is not checked, and the model is declared, not observed; the run sidecar records protocol_exact_invocation false and model_check declared",
+          "external": "the different-family path only: an external agent at the human's request (Q9a), one fresh context per packet, recorded with --invocation external",
+          "recommended": "cli: the only invocation that is the frozen one, and the only one in which a labeller cannot reach the corpus's labels or sources"
+        }
+      }
+    },
+    "I55": {
+      "outcome_paths": [
+        "laws/INTENT/",
+        "gen/M5/intent/",
+        "results/M5/intent/",
+        "spec/M5/intent/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i55-intent-lane-about-3-days",
+      "predictions": [
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p1_clause_count",
+          "claim": "The atomizer emits between 80 and 110 atoms over the target scope (the clause count).",
+          "expected": [
+            80,
+            110
+          ],
+          "id": "I55-P1"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p2_precision",
+          "claim": "L10 precision (atoms meeting a census clause / atoms) is at least 0.8 and measured: its threshold meets.",
+          "expected": 0.8,
+          "id": "I55-P2"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p3_recall",
+          "claim": "L10 recall (census clauses met by an atom / 82) is at least 0.9.",
+          "expected": 0.9,
+          "id": "I55-P3"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p4_controls_compile",
+          "claim": "Each of the 12 control files yields exactly one atom, and each compiles to one intent law (4 bound, 4 access, 4 monotone).",
+          "expected": {
+            "atoms": 12,
+            "laws": 12
+          },
+          "id": "I55-P4"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p5_control_recall",
+          "claim": "The six controls whose truth is obstruction true get REFUTED intent laws, all reviewed faithful: control_recall is 6/6 and its threshold meets.",
+          "expected": 1.0,
+          "id": "I55-P5"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p6_right_controls",
+          "claim": "Of the six controls whose truth is obstruction false, the two access controls are PROVED by bool_cases and the two bound and two monotone controls are UNKNOWN; false_obstruction is empty and its threshold meets.",
+          "expected": {
+            "PROVED": [
+              "i_access_right_1",
+              "i_access_right_2"
+            ],
+            "UNKNOWN": [
+              "i_bound_right_1",
+              "i_bound_right_2",
+              "i_monotone_right_1",
+              "i_monotone_right_2"
+            ]
+          },
+          "id": "I55-P6"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p7_trivially_true_controls",
+          "claim": "No PROVED control law is trivially true (TT over the control laws: 0 of 2).",
+          "expected": [
+            0,
+            2
+          ],
+          "id": "I55-P7"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p8_target",
+          "claim": "On the target, between 1 and 5 atoms match a template and none compiles: no target intent law, coverage 0 of 82 (misses), compiled_coverage 0, the covering trivially-true share not_measured, and no target intent obstruction.",
+          "expected": {
+            "laws": 0,
+            "matched": [
+              1,
+              5
+            ]
+          },
+          "id": "I55-P8"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p9_o10",
+          "claim": "O10's doc-drift candidates, read by the builder in the census before this prereg, each yield an atom and no intent obstruction: Rollup.sol's '@notice Only an active submitter is allowed.' (decl_not_function: it documents a modifier), tag_advance.go's 'finalized never moves backwards' (not_solidity) and Rollup.sol's 'At most one blob is allowed: extra blobs are ignored by this hash ...' (no_template; the builder reads it as drift against `require(blobhash(1) == bytes32(0))`). O10 stays not mechanized.",
+          "expected": {
+            "contracts/contracts/l1/rollup/Rollup.sol:at most one blob is allowed": "no_template",
+            "contracts/contracts/l1/rollup/Rollup.sol:only an active submitter": "decl_not_function",
+            "node/derivation/tag_advance.go:finalized never moves backwards": "not_solidity"
+          },
+          "id": "I55-P9"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p10_review_overall",
+          "claim": "The review rate is at least 0.9 (meets), and L10's overall verdict is misses (coverage misses).",
+          "expected": {
+            "overall": "misses",
+            "review": 0.9
+          },
+          "id": "I55-P10"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestPredictions::test_p11_route_i",
+          "claim": "SYM route (i) promotes no split of results/M3/sym (their break sets are empty).",
+          "expected": 0,
+          "id": "I55-P11"
+        }
+      ],
+      "prompt": "prompts/I55_intent_lane.md",
+      "regressions": [
+        {
+          "check": "tests_m5/test_m5_intent.py::TestRegressions::test_i54_outputs",
+          "claim": "I54's outputs do not move: results/M5/l10_census_base.json, results/M5/definitions_base.json and spec/M5/preregistration.json keep their sha256 (census_sha256 and the two below).",
+          "expected": {
+            "results/M5/definitions_base.json": "5fd522ba6052d4a568c837ec1aeae2f1ea1d2af23eb63dfe5871fbc440dd0c21",
+            "results/M5/l10_census_base.json": "2b763add1fa1b02574865dc0be2539039bbe9ef07eee41cb875c400590285e6d",
+            "spec/M5/preregistration.json": "df6c36c3ec9db2d8fc127c456b9ddb01984594af86b1f5f01632c967e9cce994"
+          },
+          "id": "I55-R1"
+        },
+        {
+          "check": "tests_m5/test_m5_intent.py::TestRegressions::test_no_earlier_milestone_changes",
+          "claim": "I55 changes no file of M0-M4 (results, gen, laws other than laws/INTENT/, replay, spec/M1-M4), no frozen file and no file of I54's controls or instruments.",
+          "id": "I55-R2"
+        },
+        {
+          "check": "python -m unittest tests_m5.test_m5_definitions; python -m holon audit prereg --milestone M2|M3|M4|M5; python tools/freeze.py check",
+          "claim": "tests_m5.test_m5_definitions keeps exactly its two I54 failures (test_p1_census_size, test_p2_census_largest_file); the M2-M5 prereg audits print PREREG OK and tools/freeze.py check prints FROZEN OK.",
+          "id": "I55-R3"
+        }
+      ],
+      "tests": [
+        "tests_m5/test_m5_intent.py"
+      ],
+      "thresholds": {
+        "base_commit": "95a2288c72e4e476dc1620f2db905ecc42e98de3",
+        "census_sha256": "2b763add1fa1b02574865dc0be2539039bbe9ef07eee41cb875c400590285e6d",
+        "controls_sha256": {
+          "spec/M5/controls/intent/i_access_right_1.json": "f7230d1176409a383b230b77ef7f6a1dda1f430de10af7a989c36bc0d7526f3f",
+          "spec/M5/controls/intent/i_access_right_1.sol": "6e0e6a6b2005780ac16abba05f80c8862cdf628b2648f6aadb3594c2f84f79dc",
+          "spec/M5/controls/intent/i_access_right_2.json": "d61d09f566276b1eb6778c6849a41650cd3a79d94512c652c577ce8148c8486a",
+          "spec/M5/controls/intent/i_access_right_2.sol": "45b7da1fa709aff3d9fe61ef5da906984e28df83421a54ac4bf8c3a895904d30",
+          "spec/M5/controls/intent/i_access_wrong_1.json": "eceb634a239164bd7ff7541760f5ed44d39ffa06ef1fc2ab025470e120c2651b",
+          "spec/M5/controls/intent/i_access_wrong_1.sol": "4ef2911a10c54235f3ded9f56777b88ee8723438a510bfa389d7be76999ec7ea",
+          "spec/M5/controls/intent/i_access_wrong_2.json": "ee15f79c77a9f91e1446de5c77de0fac1c01409dabfba67b2664c328d7623e13",
+          "spec/M5/controls/intent/i_access_wrong_2.sol": "b0d3cc62789c6a62c74b6cc73aabd1d5cfe79ea94f4d603ca7a26310b0348bb0",
+          "spec/M5/controls/intent/i_bound_right_1.json": "8321f093d4103913e41edcd1ed1ba833943c9c946747c7ff7c8204410b22444b",
+          "spec/M5/controls/intent/i_bound_right_1.sol": "86cce3d285a4324eac4e7071f176444a8015bb94fc5e5cd117ec2f126db03a9d",
+          "spec/M5/controls/intent/i_bound_right_2.json": "a7bccc3bf083ee11e072b173cf9c56e75e13281996288ed1ba36a9da93dacd69",
+          "spec/M5/controls/intent/i_bound_right_2.sol": "25dcccf7fb2dd32d7eef960328896144cf511af98ce8beff122a97ac584aeb7b",
+          "spec/M5/controls/intent/i_bound_wrong_1.json": "bbfdde4a73e7545bd1047d19e40b180926bc9dfe965949d2166b56698458c011",
+          "spec/M5/controls/intent/i_bound_wrong_1.sol": "750d5eda7f03c98cca296d2740c6acc49aa1a7ba5ddf7a8ee12ace83d99dd4eb",
+          "spec/M5/controls/intent/i_bound_wrong_2.json": "254b20c6fbbbb9b65a7c177913ad8fe9252c01afa12423da6c33a50f5b19dfae",
+          "spec/M5/controls/intent/i_bound_wrong_2.sol": "b676ac234d143efc68762b5d5f14923ec11c55c9a6775f14348bcd0bef8f60a3",
+          "spec/M5/controls/intent/i_monotone_right_1.json": "d871954009fd3005aac1eca786f3603734727b0d787390e6c42dca2f48b4df4d",
+          "spec/M5/controls/intent/i_monotone_right_1.sol": "4954e17d4160a3b58424023c30afffef79562362f304cc10fe23d2023664a19f",
+          "spec/M5/controls/intent/i_monotone_right_2.json": "1d503b8aea1994d1b0c328e77e205f8b29306892dcda4a7f5902a0d74f765361",
+          "spec/M5/controls/intent/i_monotone_right_2.sol": "6b62b05dfc195d8aad58d1dc6f90e521e644e9f229da2f18e4f4bb2280ec3521",
+          "spec/M5/controls/intent/i_monotone_wrong_1.json": "b915c3c1261ad06a825dba65d853f091c2bdc875ffabeb9309ca63e0e37f3856",
+          "spec/M5/controls/intent/i_monotone_wrong_1.sol": "ab87faf14fd787cc611e294f9368fb39a071ec518d89ce7ed1c03467794fd4d0",
+          "spec/M5/controls/intent/i_monotone_wrong_2.json": "16840dcfca25e4e62d79e501e183760bec4d633b47e346705b15f086417bb7bd",
+          "spec/M5/controls/intent/i_monotone_wrong_2.sol": "d751371f7d38d747f3222b74e715fa994e2e5bfeb954bc4acbe811a19022dd81"
+        },
+        "design": {
+          "A1_comments": "Solidity: a run of consecutive lines whose first non-blank characters are /// (not ////), and each /** ... */ block; Go: a run of consecutive // lines immediately followed (no blank line) by a line beginning, after indentation, with func, type, var or const. Comment markers, a leading * and indentation are removed, keeping each kept character's column in the raw line",
+          "A2_segments": "a NatSpec tag (@ then letters, colons, hyphens) at the start of a stripped line, or a blank stripped line, starts a new segment; a segment's tag is its leading @word or null",
+          "A3_sentences": "a segment's text (its lines joined by one space, whitespace collapsed) is cut after each '.', ';', '!' or '?' followed by whitespace or the segment's end, except a '.' that ends one of e.g, i.e, etc, vs, cf (case-insensitive) or sits between two digits",
+          "A4_normative": "a sentence is an atom iff, lower-cased, it holds a counted marker as a whole word or phrase (bounded by non-letters). ATOM_MARKERS: must, must not, shall, shall not, should, should not, may only, can only, may not, cannot, can not, never, always, only, at most, at least, exactly, no more than, no less than, not allowed, is allowed, are allowed, forbidden, invariant, enforce, enforces, enforced, require, requires, required, ensure, ensures, guarantee, guarantees, revert, reverts, reverted. Noun-use filter: a marker among revert, reverts, reverted, require, requires, required, ensure, ensures, guarantee, guarantees, enforce, enforces, enforced does not count when the word right before it is one of the, a, an, this, that, these, those, its, their, each, any, no",
+          "A5_record": "spec/M5/lib/intent.schema.json#/$defs/atom: id = first 16 hex of sha256('<repo>:<file>:<first line>:<sentence index>:<text>'), repo, commit (null for a control), file, lines [first, last] of the sentence's own pieces, text, tag, pieces [[line, start, end], ...] (columns into the raw UTF-8-decoded line, end exclusive) whose contents joined by one space and whitespace-collapsed give text, the sentence's index in its segment, decl (the declaration line the comment run documents: the next non-comment, non-blank line, its kind (function, modifier, contract, interface, library, event, error, struct, enum, func, type, var, const, other) and name) and the markers counted",
+          "A6_output": "results/M5/intent/atoms.json (atoms_document): scope_commit, scope {repo: {commit, files, unresolved}}, atoms (the target scope, sorted by file, lines, id) and controls (the control atoms, each with control set to its id). `python -m holon intent atomize [--check]`",
+          "I1_independence": "(a) the static import closure of holon.intent.atomize (tests_m5/_i55.closure) holds no holon.m5 module and no file naming l10_census or holon.m5; (b) under an audit hook, `python -m holon intent atomize` opens no path, passes no argument and writes no subprocess input that names l10_census; (c) in a git worktree of HEAD with results/M5/l10_census_base.json deleted, the atomizer writes bytes identical to results/M5/intent/atoms.json",
+          "I2_truth_blind": "under an audit hook, `python -m holon intent compile` and `python -m holon intent run` open no spec/M5/controls/intent/*.json and no results/M5/l10_census* file; only `python -m holon intent metrics` reads them",
+          "L1_inputs": "results/M5/intent/l10_inputs.json: census = results/M5/l10_census_base.json's clauses (read here only); atomized = the target-scope atoms projected to atom_clause (the census's scope: control atoms are not in it); laws = every record projected to intent_law (law = law_id); controls = the 12 control documents of spec/M5/controls/intent/i_*.json. tests_m5/_i55.l10_inputs assembles the same document",
+          "L2_output": "results/M5/intent/l10.json: {l10: holon.m5.metrics.l10(inputs) (equal to tests_m5/_i54.l10), trivially_true: {covering, controls} (TT), pooled_precision (precision with the control atoms added to atomized, secondary), corpus_recall: {label: not_measured, reason: no corpus-truth key}, inputs_sha256, census_sha256, controls_sha256}. `python -m holon intent metrics [--check]`",
+          "M1_model": "gen/M5/intent/model/<C>.bend, generated from C's transitions document: Base, the factory's 256-bit word prelude (holon.sorts.prelude3.PRELUDE, raw), St, X_<a>, chk_<a>, post_<a>, ret_<a>, and the lane's statement helpers. Supported terms: param, caller, scalar storage, env, integer literals, + - * / % (Solidity's checked semantics through their fits-256 panics), == != < <= > >=, !, &&, ||, ?, and fits 256 of + - *. Anything else (mappings, arrays, external calls, assembly, other widths) is model_unsupported for the actions that hold it",
+          "O_obstruction": "an intent obstruction is a record with status REFUTED that passes W1 and W2 (faithful, reviewer other than compiler). An unreviewed or unfaithful REFUTED law is not an obstruction and produces no finding (the plan's risk). results/M5/intent/obstructions.json lists them, target and controls apart",
+          "R1_prove": "gen/M5/intent/<law_id>/LAWS.bend holds exactly the law <law_id lower-cased> and imports the model; PROOF.bend comes from the first proof class that Bend accepts: computation (open s and every x_<a>, then {==}), then bool_cases (the maximal stuck Bool atoms of holds after unfolding the model, at most 12, abstracted into a lemma proved by exhaustive match, then instantiated). PROVED iff Bend prints ALL PROOFS CHECK first, exits 0 and the law is present",
+          "R2_refute": "the witness search evaluates holds on the compiled lane model (bend -o .mjs, run by node), never on the controls' truth or any oracle: every W field of s and of each x_<a> ranges over V = {0, 1, 2, 3, 100, 2^160 - 1, 2^256 - 1} with every integer literal k of C's actions and k - 1, k + 1 (mod 2^256), in lexicographic order of the fields, at most 50000 candidates per law. The first candidate where holds is False becomes the counter-law cl_<law_id lower-cased> (exs form, BEND_PRIMER 5.4); REFUTED iff Bend accepts it",
+          "R3_unknown": "otherwise UNKNOWN, with the bound (candidates searched) and the attempts (each proof class's failure); its proof directory is removed",
+          "R4_record": "results/M5/intent/records/<law_id>.json (spec/M5/lib/intent.schema.json#/$defs/record): status, evidence {law, marker, law_present}, verdict (BendTT's marker when the second kernel is available, else null), proof_class, witness, bound, attempts, trivial, review, statement_hash, paths, obstruction. `python -m holon intent run [--check]`",
+          "S0_scope": "the measured scope is L10's census.scope, recomputed by the lane itself (holon.intent.scope): the .sol and .go paths cited as <path>:<line> by spec/M2/facts/*.extracted.json and spec/M3/facts/*.extracted.json at scope_commit, read through git at each document's target.commit in the checkout config/holon.json extract.sources names; an absent path is unresolved. The controls are spec/M5/controls/intent/i_*.sol at the bytes pinned in controls_sha256 (a control's id is its file stem). The lane reads a control's .sol only: never its .json (which holds the truth), except in the metric stage (L1). A control's file stem carries its truth (_right_ / _wrong_): the lane uses an id only as an opaque label, and no module of holon/intent names either word",
+          "S_statement": "binders: s: M.St (every scalar of C's storage, one W each: A-env makes the pre-transaction storage free) and x_<a>: M.X_<a> per action a (its parameters, the caller and the env terms it reads, one W each). holds is a Bool term (tests_m5/_i55.term_problems): bound: or(not(chk_f(s, x) == 0), le_pct(ret_f(s, x), n, x.<of>)), le_pct(r, n, a) the exact r * 100 <= n * a on 288-bit products; access: or(not(chk_f(s, x) == 0), w_eq(x.caller, s.<role>)); monotone: the conjunction over the actions a of or(not(chk_a(s, x_a) == 0), w_ge(post_a(s, x_a).<var>, s.<var>)). The law is {holds == True{} : Bool} for all binders. chk_a is 0 when every check, guard and panic of a's order holds, else 1 + the index of the first that fails; post_a and ret_a are a's post-state and return value",
+          "T1_templates": "a sentence is matched after removing its leading NatSpec tag, lower-casing, collapsing whitespace and removing one trailing '.', ';', '!' or '?'. bound: ^(the )?<subj> (is|are) (at most|no more than) <n> percent of (the )?<of>$; access: ^only (the |an? )?<role> (can|may) <verb>( .*)?$ or ^only (the |an? )?<role> (is |are )?allowed$; monotone: ^(the )?<var> (never decreases|never moves backwards|is non-decreasing)$ (<subj>, <of>, <role>, <var>: letters and spaces; <n>: digits; <verb>: letters). At most one template matches (they are disjoint by their first words); no other sentence compiles",
+          "T2_binding": "a matched atom compiles only when its file is a .sol file, its decl is a function of a contract C in that file, C's transitions document is extracted by the factory's frontend (holon.frontends.solidity, a generated transitions sidecar: target.commit the atom's commit, null for a control) and the lane model (M1) supports every action the law needs. Names are normalized (lower case, non-alphanumerics removed). bound: the function returns exactly one value, the first word of <subj> is the function's normalized name, <of> normalizes to one parameter's name; the law is over that function. access: <role> normalizes to one address scalar of C's storage; the law is over the documented function. monotone: <var> normalizes to one uint scalar of C's storage; the law is over every external or public non-view action of C. A failure is recorded with its reason: no_template, not_solidity, decl_not_function, extraction_failed, binding_failed, model_unsupported",
+          "T3_law": "laws/INTENT/L_intent_<atom id>.json (spec/M5/lib/intent.schema.json#/$defs/intent_law, holon-intent/0.1): exactly one clause (the atom it was compiled from), the template, the binding {noun, name, percent}, the actions, the facts document and its sha256, the model, the statement {binders, holds} and a generated plain reading. statement_hash = 'sha256:' + sha256(canonical_json({ir_version, law_id, template, clauses, facts_sha256, statement})); laws/INTENT/REGISTRY.json maps each law to it. results/M5/intent/compile.json holds one compile_entry per atom (target and control). `python -m holon intent compile [--check]`",
+          "TT_trivially_true": "a PROVED law is trivially true iff (a) its twin, the same statement with every action function (chk_<a>, post_<a>, ret_<a>) replaced by a universally quantified function binder of the same type, is PROVED by a proof class of R1, or (b) no inhabitant is accepted: the lane cannot show, by an exs law that Bend accepts at a witness from R2's search, a state and arguments at which every action of the law succeeds (chk_<a> == 0). trivial.twin is PROVED, UNKNOWN or not_run (a law that is not PROVED); trivial.inhabited is null when not PROVED. Reported beside coverage: the share of the laws that make coverage (pass W1-W3 and cover a census clause) that are PROVED and trivially true, and the same share over the control laws that pass W1 and W2 (tests_m5/_i55.trivially_true)",
+          "V_review": "results/M5/intent/review_requests.json lists, per law, exactly {law_id, clause (verbatim), documents (the decl line), reading, statement (LAWS.bend's law)}; it holds no control id and no truth. Exactly one fresh reviewer, with no context beyond spec/M5/lib/intent_review_prompt.md followed by the requests, answers once; the answer is recorded verbatim in spec/M5/intent/reviews.json (reviews: reviewer 'fresh-reviewer-1', compiler 'holon.intent.compile', the prompt's and the requests' sha256, a disclosure). A law gets verdict absent when it is missing from the verdicts or when the requests' sha256 differs from the recorded one. The reviewer is disclosed as a fresh session of the builder's family",
+          "Y_route_i": "results/M5/intent/sym_route_i.json (route_i): one entry per split of results/M3/sym/pi.json and tau.json; a split is promoted by route (i) iff its break set is non-empty, its family is pi, and an access law whose role normalizes to the split's role, whose actions meet the split's, and whose record is PROVED and passes W1-W3 marks it; tau has no intent template. tests_m5/_i55.route_i recomputes it. Nothing under results/M3/ changes",
+          "determinism": "every output is json.dumps(obj, indent=2, sort_keys=True) + newline or generated Bend; sorted iteration, no timestamps; --check regenerates and compares bytes (run --check into a temporary directory)",
+          "doc": "How the intent lane (holon/intent/) is built and scored. Fixed before the build; the contract tests in tests_m5/test_m5_intent.py check each rule. A rule that turns out wrong is reported under Surprises, never edited."
+        },
+        "instruments": {
+          "prompts/I55_intent_lane.md": "f5dc0292e5d1c20e0d13fbce829cb4066b38682fec440173b0d4b43375ac80c2",
+          "spec/M5/lib/intent.schema.json": "26d12c7f306120723445d004bd16a6284e1c4ecfeeefb5df49b864ebbf6ea104",
+          "spec/M5/lib/intent_review_prompt.md": "7635edd86a9bf9222af93e7b110f15f02e6931f21d1dd749d3aacd3b26af1d04",
+          "tests_m5/_i55.py": "b93bc8ba30d013fb29f0b21c4ec68312bff5212de3288c0e9565d9403de44720"
+        },
+        "measured_by": "spec/M5/preregistration.json definitions.L10 (key I54); its thresholds are I54's and are not restated or moved here",
+        "scope_commit": "4fd64a52f030438cac06595f8673840d6c5c6525"
+      },
+      "title": "I55: the intent lane: doc comments atomized with exact spans, reviewed clauses compiled to laws/INTENT/ over the factory's extracted model, intent obstructions, SYM route (i), and L10 computed by I54's definition"
+    },
+    "I55b": {
+      "outcome_paths": [
+        "results/M5/intent/corpus/",
+        "laws/INTENT/corpus/",
+        "gen/M5/intent/corpus/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i55-intent-lane-about-3-days",
+      "predictions": [
+        {
+          "check": "tests_m5/test_m5_intent_corpus.py::TestPredictions::test_p1_atoms",
+          "claim": "c17's file (src/osp/OneStepProverHostIo.sol at its prefix_commit) yields at least one atom.",
+          "expected": 1,
+          "id": "I55b-P1"
+        },
+        {
+          "check": "tests_m5/test_m5_intent_corpus.py::TestPredictions::test_p2_none_compiles",
+          "claim": "None of the corpus atoms compiles to an intent law.",
+          "expected": 0,
+          "id": "I55b-P2"
+        },
+        {
+          "check": "tests_m5/test_m5_intent_corpus.py::TestPredictions::test_p3_recall",
+          "claim": "corpus_recall is 0 of 1, labelled insufficient_n (never judged).",
+          "expected": [
+            0,
+            1
+          ],
+          "id": "I55b-P3"
+        }
+      ],
+      "prompt": "prompts/I55b_intent_corpus.md",
+      "regressions": [
+        {
+          "check": "tests_m5/test_m5_intent_corpus.py::TestRegressions::test_i55_outputs",
+          "claim": "I55's outputs do not move.",
+          "expected": {
+            "laws/INTENT/REGISTRY.json": "5d1e6602ddffdce81bcf6742cdac49f2527ba16cdc133cd11d298683cde02549",
+            "results/M5/intent/atoms.json": "fe35f20ed0d91d2eca236d583e00bd1b5be102bc2a992f0eccf85ca794e4055a",
+            "results/M5/intent/compile.json": "cc16dbebc924dbdf347552e34ecc2ed178d1c292d34434c3486c6e8c5c099b7f",
+            "results/M5/intent/l10.json": "1f8be648be5d3c1555d91cb1141eb60dac8a0af8dfc9d2967a91ca854d01f101",
+            "results/M5/intent/l10_inputs.json": "7b651489fe121a3f56dcf8583aa3cbf6c84fb46b88b23e2f210e0f48db2c3dde",
+            "results/M5/intent/obstructions.json": "ab1bd07cb7567ecc38a6d301657ddae6e71679edb85fd84f071a383af70e208a"
+          },
+          "id": "I55b-R1"
+        },
+        {
+          "check": "tests_m5/test_m5_intent_corpus.py::TestPreregistration::test_pins",
+          "claim": "The scored population is the truth's: c17 (yes) alone; the 18 other undocumented entries and the excluded c13 are not scored. The builder read the truth's l10 field before this prereg to list it.",
+          "expected": [
+            "c17"
+          ],
+          "id": "I55b-R2"
+        }
+      ],
+      "tests": [
+        "tests_m5/test_m5_intent_corpus.py"
+      ],
+      "thresholds": {
+        "base_commit": "c5cbd28e7138f3b253be0b235e5561e7b3133ca3",
+        "corpus_sha256": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+        "design": {
+          "C0_population": "the scored entries are those of spec/M5/truth/corpus.json (at truth_sha256) whose l10 is yes or no, less spec/M5/lib/truth_protocol.json known_exclusions (c13): listed in scored. An undocumented entry (no truth item, a disagreement included: Q3 of the protocol) is never scored, never adjudicated and never re-labelled",
+          "C1_scope": "an entry's scope is its files (spec/eval/corpus.json entries[].files) at its prefix_commit, read through git in the checkout spec/M5/lib/intent_corpus_sources.json names for its repo; a missing checkout or file fails, never skips",
+          "C2_lane": "I55's lane, unchanged: holon.intent.atomize.atoms_of (repo = the entry's repo URL, commit = prefix_commit), holon.intent.compile's templates and binding, holon.intent.model and holon.intent.run. Extraction checks the checkout out at prefix_commit (outside this repository) only when an atom matches a template. Laws compiled from corpus atoms go to laws/INTENT/corpus/ and their generated files to gen/M5/intent/corpus/, never into I55's laws/INTENT/ set",
+          "C3_review": "a compiled corpus law can be an obstruction only after a review under I55's design V (one fresh reviewer, recorded verbatim under spec/M5/intent/); with no compiled law there is no review",
+          "C4_truth_blind": "`python -m holon intent corpus [--check]` reads the key, spec/eval/corpus.json, the sources sidecar and the checkouts; never spec/M5/truth/ or the census. Only `python -m holon intent corpus-score [--check]` reads the truth file, at its pinned sha256",
+          "C5_score": "an entry is obstructed iff one of its laws is REFUTED and passes W1 and W2. corpus_recall = proportion(obstructed scored yes entries, scored yes entries) (I54 common.proportion), labelled by min_n (I54 common.labels): a measure with denominator 1..4 is insufficient_n and is never judged meets. results/M5/intent/corpus/l10_corpus.json: {truth_sha256, corpus_sha256, entries: {id: {l10, atoms, compiled, obstructions}}, corpus_recall, label}",
+          "doc": "How I55's lane runs on the corpus and how corpus_recall is scored. Fixed before any corpus record; tests_m5/test_m5_intent_corpus.py checks each rule.",
+          "outputs": "results/M5/intent/corpus/atoms.json ({entries: {id: {repo, prefix_commit, files, atoms}}}), compile.json ({entries: [compile_entry]}) and l10_corpus.json; json.dumps(obj, indent=2, sort_keys=True) + newline"
+        },
+        "instruments": {
+          "prompts/I55b_intent_corpus.md": "353cc2479d34055e8ff4c65e7dce4fec35163ac5b0698c8dd80e65e769235bcf",
+          "spec/M5/lib/intent_corpus_sources.json": "aada973431046581799ee2d6ffbec4645c4dbbf1580729a7527d561ed905d1ad"
+        },
+        "measured_by": "spec/M5/preregistration.json definitions.L10.measures.corpus_recall (key I54); I55's lane (key I55 design)",
+        "scored": [
+          "c17"
+        ],
+        "truth_sha256": "12df4efaf1a8575d37e6f13a3d04c281c361922cb5d578c40fdbcf18f1cc09cb"
+      },
+      "title": "I55b: the intent lane on the corpus: L10's corpus_recall over the corpus-truth key I54b's scored entries (c17), the truth pinned before any corpus record"
+    },
+    "I56": {
+      "outcome_paths": [
+        "results/M5/games/",
+        "gen/M5/games/",
+        "laws/M5/games/",
+        "spec/M5/lib/games_M3_flows.json"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i56-bounded-games-about-3-days",
+      "predictions": [
+        {
+          "check": "tests_m5/test_m5_games.py::TestPredictions::test_p1_n3_recommit",
+          "claim": "O25/N3, the economic reading of I26's attribution law (a rational recommitter refuses): on the witness of L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter (G-W2), run on the Rollup's extracted model from the deployment state, the bonded recommitter's payoff over the full schedule (prefix, its recommit y, the continuation t) is negative and its payoff over the prefix alone (it refuses) is nonneg, under premises P-gas and P-bond; the law L_econ_n3_recommit_<that law> is PROVED by Bend.",
+          "expected": "PROVED",
+          "id": "I56-P1"
+        },
+        {
+          "check": "tests_m5/test_m5_games.py::TestPredictions::test_p2_n3_continuation",
+          "claim": "On the same witness, every caller of the continuation t other than the recommitter (the challenger and the chooser), taken alone as the deviator over the full schedule, has a nonneg payoff (the slash path is rational for those who run it); the law L_econ_n3_continuation_<that law> is PROVED by Bend.",
+          "expected": "PROVED",
+          "id": "I56-P2"
+        },
+        {
+          "check": "tests_m5/test_m5_games.py::TestPredictions::test_p3_o35_backlog",
+          "claim": "O35's economic reading: the backlog writers of L_disch_self_Rollup_challengeState_489_493's loop (O35 rule) are exactly commitBatch, commitBatchWithProof and commitState, and for each the law that k calls at msg.value 0 move no value to or from any party, for every k (a Nat induction), is PROVED by Bend: the self-controlled disabling of challengeState is payoff-free under P-gas, so only gas, which the ordinal payoffs exclude, stands between can and will.",
+          "expected": [
+            "commitBatch",
+            "commitBatchWithProof",
+            "commitState"
+          ],
+          "id": "I56-P3"
+        },
+        {
+          "check": "tests_m5/test_m5_games.py::TestPredictions::test_p4_controls",
+          "claim": "The game engine decides the 14 I54 game controls (spec/M5/controls/games/, sha256 pinned here) with checker evidence and no invalid record: strict accuracy 14 of 14, false_rational 0 and false_irrational 0 (deep's rational strategy beyond the documents' horizon found, recoup read at the schedule's end).",
+          "expected": 14,
+          "id": "I56-P4"
+        },
+        {
+          "check": "tests_m5/test_m5_games.py::TestPredictions::test_p5_decided",
+          "claim": "L6's decided count over F(M3) (I54's base.l6_findings, 49) is between 1 and 10, so L6's decided threshold (0.5) is not met; every decided finding is rational, through a witness that one untrusted class runs alone.",
+          "expected": [
+            1,
+            10
+          ],
+          "id": "I56-P5"
+        }
+      ],
+      "prompt": "prompts/I56_games.md",
+      "regressions": [
+        {
+          "check": "tests_m5/test_m5_games.py::TestRegressions::test_r1_m0_m4_unchanged",
+          "claim": "I56 changes no file under results/, gen/, laws/, replay/ or spec/ of M0-M4, no frozen file and no module of a generator closure: the M2-M5 prereg audits print PREREG OK and tools/freeze.py check prints FROZEN OK.",
+          "id": "I56-R1"
+        },
+        {
+          "check": "tests_m5/test_m5_games.py::TestRegressions::test_r2_i54_unchanged",
+          "claim": "I54's outputs do not move: spec/M5/preregistration.json, spec/M5/controls/, results/M5/definitions_base.json and results/M5/l10_census_base.json are byte-identical to the base, and python -m holon m5 prereg|controls|census|metrics --base --check print CHECK OK.",
+          "id": "I56-R2"
+        },
+        {
+          "check": "tests_m5/test_m5_games.py::TestRegressions::test_r3_population",
+          "claim": "F(M3) at the base is base.l6_findings: 49 findings.",
+          "expected": 49,
+          "id": "I56-R3"
+        }
+      ],
+      "tests": [
+        "tests_m5/test_m5_games.py"
+      ],
+      "thresholds": {
+        "base_commit": "95a2288c72e4e476dc1620f2db905ecc42e98de3",
+        "base_note": "95a2288c, the head of I54's branch claude/i54-m5-definitions (PR #134, not landed); I54's definitions (key I54, prereg bc319c60) are the measure and are not restated here",
+        "definitions": {
+          "V9": "the lead's condition 1: the value-flow document covers every value-moving action of the deployment's documents (VM1-VM4, as tests_m5/_i56.py's value_moving computes them independently of holon/games): its entry exists, is complete and lists each of the action's constructs. Coverage {numerator, denominator, missing} is reported in results/M5/games/v9.json and in L6's report. V9 holds iff numerator = denominator > 0. V9 is applied before I54's V1-V8 and only to target records: when it does not hold, every target record is invalid with rule V9 (its finding UNKNOWN), and L6's decided threshold is reported not_judged, never meets",
+          "assets": {
+            "G-A1": "a storage family F of a member is a claim ledger iff some call of an action of that member transfers exactly the term [\"map\", [\"storage\", F], K]",
+            "G-A2": "a claim ledger's asset is eth when such an action has a null principal and K is [\"caller\"] (its holder redeems it by its own call), else 'ledger:<member>.<F>'; the native asset is eth. No exchange rate between assets is assumed (I54)"
+          },
+          "bend": {
+            "B1": "each game (control or target) is one generated module gen/M5/games/bend/<game>/game.bend with LAWS.bend holding exactly one law, l_game_<game> : {G.verdicts == [the class verdicts in class order] : List<&2, G.V>}, which Bend checks by computing every class's verdict: for a control by fuelled depth-first search over every schedule inside the module (fuel = the number of actions + 1, each action at most once), for a target from the witness game (legal and nonneg gives rational, anything else UNKNOWN)",
+            "B2": "a rational class's strategy is a checked program: the module's law set also holds l_strategy_<game>_<k> : exs s. {G.wins_<k>(s, ...) == True}, its proof returning the strategy",
+            "B3": "PROVED / evidence means bend prints ALL PROOFS CHECK on PROOF.bend with the expected law names present in LAWS.bend; anything else leaves the record's evidence marker null (V1 fails)",
+            "B4": "no escape hatch (?, @unsafe, def f?, foreign import), deterministic files, BendTT (--verdict) run where the toolchain has it and reported per module",
+            "B5": "a game law whose verdict vector the engine and the module disagree on is never committed: the run fails"
+          },
+          "classes": {
+            "G-C1": "an action's permission group is 'anyone' when its extracted principal is null, else '<contract>.<modifier>' (the guard's modifier, which holon.frontends extracts with its predicate); actions are grouped by group, never by name",
+            "G-C2": "the target's game classes are every group of the deployment's documents (spec/M5/lib/games_M3.json documents, sha256 pinned) except the member-caller groups the sidecar lists (a predicate comparing the caller with another member contract's address: code of the deployment, not a principal)",
+            "G-C3": "each class's trusted flag is the sidecar's (a member's onlyOwner group is trusted; every other class is untrusted), fixed here before any game record; I54's V2 and V3 read them"
+          },
+          "controls_engine": {
+            "G-K1": "a control document (spec/M5/controls/games/, I54) is solved by depth-first search over every schedule of distinct actions of each actor (others take no action; each action at most once; holdings from 0; payoff at the schedule's end), so the search is complete and the record's horizon is the document's number of actions, not its horizon field",
+            "G-K2": "rational iff some triggering schedule has payoff nonneg (strategy_length its shortest length); irrational iff every triggering schedule has payoff negative or none triggers (unbounded: the search is complete); UNKNOWN otherwise",
+            "G-K3": "the engine reads only the document's fields, never its truth, its id, its family or its file name"
+          },
+          "econ_laws": {
+            "N3": "for each law the sidecar's n3 names whose witness is G-W2 with a non-empty continuation t: L_econ_n3_recommit_<law> (holon-game-law/0.1 in laws/M5/games/): with D = {bonded} and premises P-gas, P-bond, the payoff over prefix + [y] + t is negative and the payoff over the prefix is nonneg; and L_econ_n3_continuation_<law>: for each caller c of t other than bonded, with D = {c}, the payoff over the full schedule is nonneg. Each is decided by a generated Bend module over the run's flows: PROVED when Bend checks it; REFUTED when the run's classifications certainly contradict it (no classification it reads is undetermined) and Bend checks the negation; UNKNOWN otherwise; a witness with an empty t has no N3 law (UNKNOWN, reason recorded)",
+            "O35": "the backlog writers of the sidecar's o35 law: the actions of its member that write a storage register with a positive coefficient in the count term of the law's loop, callable by an untrusted class; for each writer b, L_econ_o35_backlog_<b>: for every k : Nat, the payoff to every party of k calls of b at msg.value 0 is the zero vector, stated in Bend as for k: Nat {G.zero == G.pay(k)} with pay's step the writer's flows at msg.value 0 (zero iff the writer has no construct other than VM1), proved by induction; a writer with another construct has no such law (UNKNOWN)",
+            "premises": "every econ law's IR lists its premises (P-gas, and for N3 P-bond); they are rationality and accounting assumptions, never facts"
+          },
+          "l6": {
+            "L6-C1": "results/M5/games/l6.json is holon.m5.metrics.l6 (I54's definition, unchanged) over: population = base.l6_findings; expect = {classes and trusted flags from the sidecar, witness_length by G-W, value_flows_sha256 the pin}; records = every target and control game record; controls = I54's 14 control documents; corpus_truth none",
+            "L6-C2": "V9 first (definitions.V9), then I54's validity rules",
+            "L6-C3": "the lead's condition 5: no corpus item is scored until a separate corpus-truth key exists; the corpus section is not_measured with reason 'pending the corpus-truth key (the lead's condition 5): no corpus item is scored'",
+            "L6-C4": "the report adds v9 {numerator, denominator, holds}; I54's overall is recomputed from the thresholds after V9"
+          },
+          "payoff": {
+            "G-P1": "a component (one asset of D's holdings) is a concrete integer plus counts of atoms credited and debited; atoms never cancel; an atom is positive only by a premise of the law that reads it",
+            "G-P2": "nonneg iff every component is certainly >= 0; negative iff every component is certainly <= 0 and one certainly < 0; incomparable iff one is certainly > 0 and another certainly < 0; otherwise undetermined",
+            "G-P3": "I54's ordinal payoff: nonneg, negative and incomparable as G-P2; undetermined is reported as payoff null"
+          },
+          "records": {
+            "attempts": "results/M5/games/attempts.json: every member of F(M3) without a game record, and every UNKNOWN class of a target record, with the reason and what was tried",
+            "determinism": "python -m holon games run --check regenerates every file under gen/M5/games/, laws/M5/games/ and results/M5/games/ byte for byte (json.dumps(indent=2, sort_keys=True) + newline)",
+            "econ_record": "results/M5/games/econ/<law_id>.json: {law_id, statement_hash, status, premises, checker: {marker, law_present}, values}",
+            "game_record": "results/M5/games/records/<game>.json, I54's game_record (spec/M5/lib/inputs.schema.json), kind target (game = the finding's law id) or control (game = the control's id)"
+          },
+          "run": {
+            "G-R1": "a step's env is the witness's, with msg.data.length from its calldata and this from the initial state's target when absent",
+            "G-R2": "every schedule runs on the run member's extracted model (holon.extracted_eval over the sidecar's run document) from the sidecar's initial state (sha256 pinned), each step from the state the previous one left; a schedule with a step that is not ok, or not an action of the run member, has no game",
+            "G-R3": "the flows to a set D of deviator addresses: VM1 the caller pays env msg.value; VM2 receiver, value and condition evaluated at the pre-state; VM3 a written ledger entry moves by its post-state value minus its pre-state value, its key evaluated at the pre-state; VM4 for each ok answer in the step's env calls that names a callee VM4 matches, its parameters decoded from the call's data by the callee's parameter types, a callee ledger write F[k] = 0 debits an atom, F[k] = F[k] +/- t credits or debits t, any other value credits and debits an atom, and a callee transfer credits its receiver; a term the run cannot evaluate is an atom (an unknown amount >= 0) and an unresolved party is possibly in D (a credit an atom credited, a debit an atom debited)"
+          },
+          "schedules": {
+            "G-W1": "{steps: [...]} (DISCH, SORT realize): the steps",
+            "G-W2": "{prefix, y, t, bonded, chooser} (FACT attribution): prefix + [y] + t",
+            "G-W3": "{prefix, x, y, t} without bonded (UNDO): prefix + [x, y] + t",
+            "G-W4": "{prefix, x} without y (PAR link_domain, SYM tau): prefix + [x]",
+            "G-W5": "anything else has no schedule, and neither has a witness any element of which is not an explicit step ({action, args, env}): a reference into a corpus trace, a frame index, a migration move or a pure function's input; such a finding has no game record and is listed in results/M5/games/attempts.json with the reason",
+            "witness_length": "the number of steps of the schedule (I54's V4); a finding without a schedule has none"
+          },
+          "target_games": {
+            "G-T1": "a finding of F(M3) has a witness game iff its record's witness has a schedule (G-W1..G-W4) that runs (G-R2)",
+            "G-T2": "a class X may run the schedule iff every step's action's group is X or anyone (single deviator, I54's semantics: one class acts, the others take no action); D is the set of the schedule's callers",
+            "G-T3": "X's verdict is rational iff X may run the schedule and D's payoff over it is nonneg (strategy_length = the number of steps, horizon = the witness length); otherwise UNKNOWN, with the payoff when X may run it. A witness game under-approximates X's strategy space, so a target class is never irrational or irrational_bounded: the bounded universal search a target would need is not attempted (each UNKNOWN is listed with what was tried)",
+            "G-T4": "the finding's verdict is I54's finding_verdict of its classes; the record's evidence is the game law (B1) of its module"
+          },
+          "value_flows": {
+            "VM1": "payable: the caller pays msg.value (eth) to the member",
+            "VM2": "a call whose value term is not the literal 0: its receiver is credited that value (eth)",
+            "VM3": "a write to a claim ledger of the action's member: the keyed holder's claim moves",
+            "VM4": "a non-view call of another member's action that is value-moving by VM1-VM3: the callee is the unique other member that has an action named as the call's fn after its last '.', and whose document's extraction inputs include a unit named <I>.sol, where <I> is the call's fn before its last '.' (the interface the call is typed by); without a unique such member the call is not matched. The callee's ledger writes and transfers move",
+            "document": "gen/M5/games/value_flows.json (holon-value-flows/0.1), generated by holon/games from the documents only: {documents: {member: sha256}, ledgers: [{member, family, asset}], entries: [{action: '<member>.<action>', class, constructs, complete, flows: [{construct, party, asset, amount, direction, src, cond}]}]}, one entry per value-moving action, sorted; an entry is complete iff every party and amount term is one the run evaluates (G-R3) or an atom",
+            "evaluation": "the engine evaluates every flow from the value-flow document's entries (their party, amount and condition terms are the documents' terms, G-R3), never from the documents directly, so an entry that is missing or incomplete changes the payoffs and fails V9",
+            "pin": "the document's sha256 is written to spec/M5/lib/games_M3_flows.json ({value_flows_sha256, coverage}) in a build commit that changes no file under results/M5/games/ and precedes every commit that adds a game record; I54's V8 compares a target record's value_flows_sha256 with that pin",
+            "views": "a view or pure action is never value-moving"
+          }
+        },
+        "gaps": {
+          "E-G1": "Same author: tests_m5/_i56.py and holon/games are written by the same session; their agreement is not independent evidence. The independent truths are I54's controls (an enumeration of every schedule, fixed at I54) and the model's run",
+          "E-G2": "Payoffs are evaluated by holon.extracted_eval (the extracted model refined against the real code in I20) on the witness's run, not inside the Bend model; Bend checks the classification and the strategies over the evaluated flows, and the trigger rests on the finding's own REFUTED counter-law",
+          "E-G3": "A witness game under-approximates a target's strategy space: only rational is sound on a target, so no target class is irrational; L6's decided fraction over F(M3) is a lower bound",
+          "E-G4": "Cross-member flows (VM4) read the callee's document, not its state: amounts over the callee's storage are atoms, and N3's negativity needs premise P-bond",
+          "E-G5": "Corpus accuracy is not scored (the lead's condition 5); L6's overall cannot meet while its corpus threshold is not_measured",
+          "E-G6": "The trusted flags are a judgment (G-C3), fixed before results; a different flag on a submitter or challenger class would change which classes decide"
+        },
+        "instruments": [
+          "tests_m5/_i56.py",
+          "spec/M5/lib/games_M3.json",
+          "prompts/I56_games.md"
+        ],
+        "lead_conditions": "the lead's review of I54 (PR #134, comment 6800406794), conditions 1 and 5, and Q11's delegation (docs/HUMAN_ANSWERS.md: the stricter option)",
+        "pins": {
+          "controls": {
+            "spec/M5/controls/games/g_costly_1.json": "67ccfeef0eaf995b13427e0840049a657b5eb6bb1a5fcb740c54c2763b274e7c",
+            "spec/M5/controls/games/g_costly_2.json": "8c5b5fac47cca20c947c0020761e4615d004700359a7cd4b2a63d2edd47f6248",
+            "spec/M5/controls/games/g_deep_1.json": "d9dcafcbf8e2b8e18739467098ac6925d5e5ec6ca6bfb53890da968bef5352f9",
+            "spec/M5/controls/games/g_deep_2.json": "47b62cdacd3ae20278734db9713686501299c9221dad187ea02227c3cfd7450b",
+            "spec/M5/controls/games/g_free_trigger_1.json": "134b62cc3acb04939670a0ee50f33722421d77ee76b069a8011a5ad34a3792de",
+            "spec/M5/controls/games/g_free_trigger_2.json": "d986d27771b9b716d5a680a3225bb40d94c0dd71a8d062ed52d396e0a4fce03f",
+            "spec/M5/controls/games/g_incomparable_1.json": "2b9a744fc81fc80e120d5140c0fe0a906dfd13ef9252f1d3c45d5adb18c7b644",
+            "spec/M5/controls/games/g_incomparable_2.json": "04e87cfb830b8d4f7bb22b7becb8a560dc89fdf3412f9377403e7531770b530b",
+            "spec/M5/controls/games/g_profit_1.json": "adfecb347dc9c6e1bb38c0ae908e88ead21f4da42af7045f88d9515d4fbfbb1f",
+            "spec/M5/controls/games/g_profit_2.json": "eae61326baf1e74cf235980b261066d19ab7661d061bef0ae8f150485ad9fbca",
+            "spec/M5/controls/games/g_recoup_1.json": "c75eeb154549cc4fc2703f526a0ea9c3b9ca453034f74f9b08fc1a96977337e4",
+            "spec/M5/controls/games/g_recoup_2.json": "c75e728d494e45ef1e072454e4f51e1ed2278e7e6698777540285fd890749629",
+            "spec/M5/controls/games/g_trusted_only_1.json": "eb12c29eb9daf357d832dd580db83b57a99bf4a748b94aaa8a4fdde9906a48a7",
+            "spec/M5/controls/games/g_trusted_only_2.json": "6790094fd45e27e669287c7fd740f3f6d9fbc78d31f43877192ed5b1fec117b8"
+          },
+          "sidecar": {
+            "spec/M5/lib/games_M3.json": "78967599ce56d713b3adb8c5160505bb2602b1956f6f2ecf1760833517b8e2da"
+          }
+        }
+      },
+      "title": "I56: bounded games over F(M3) (M5, L6): payoff facts as a generated value-flow document with V9 coverage, strategies as checked programs over every schedule of a game, DISCH-econ laws for O25/N3 and O35, and L6 computed by I54's definition"
+    },
+    "I56b": {
+      "outcome_paths": [
+        "results/M5/corpus/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#i56-bounded-games-about-3-days",
+      "predictions": [],
+      "prompt": "prompts/I56b_corpus.md",
+      "regressions": [
+        {
+          "check": "tests_m5/test_m5_corpus.py::TestRegressions::test_r1_i56_unchanged",
+          "claim": "I56's outputs do not move: python -m holon games run --check prints CHECK OK, and no file under results/M5/games/, gen/M5/games/ or laws/M5/games/ changes in I56b's own commits.",
+          "id": "I56b-R1"
+        },
+        {
+          "check": "tests_m5/test_m5_corpus.py::TestRegressions::test_r2_truth_pinned",
+          "claim": "The truth is the pinned one: spec/M5/truth/corpus.json and spec/M5/truth/corpus.run.json hash to thresholds.pins, and I54b's audit stays PREREG OK.",
+          "id": "I56b-R2"
+        },
+        {
+          "check": "tests_m5/test_m5_corpus.py::TestRegressions::test_r3_truth_counts",
+          "claim": "The truth's L6 values are 1 irrational (c05) and 19 undocumented.",
+          "expected": {
+            "irrational": 1,
+            "undocumented": 19
+          },
+          "id": "I56b-R3"
+        }
+      ],
+      "tests": [
+        "tests_m5/test_m5_corpus.py"
+      ],
+      "thresholds": {
+        "base_commit": "06e9979b86edc259a02fcb16711cee2b6715a573",
+        "base_note": "the I56 branch after merging I54b's corpus-truth commit 29526bea (PR #136) as the lead allowed; I56's key and outputs are not changed",
+        "definitions": {
+          "determinism": "python -m holon games corpus --check regenerates both files byte for byte",
+          "mapping": "I54's definitions.L6.corpus_mapping, unchanged: a finding is a corpus item iff its record comes from a run on the entry's pre-fix commit (I51) and its law's source spans meet a line the entry's fix changes; each entry with truth rational or irrational contributes one item per mapped finding; an undocumented entry contributes none",
+          "pre_fix_runs": "I51's runs are the rows of results/eval/holon/corpus.json (BUILD_PLAN I51's exit file) and the result records they name. When that file does not exist, no entry maps any finding, and the corpus has 0 items",
+          "score": "L6 by holon.games.metric.l6_v9 (I54's l6 after V9) with corpus_truth = {item: truth} over the mapped items and corpus_expect their expectations; results/M5/corpus/l6_corpus.json holds that report, and results/M5/corpus/mapping.json holds per entry its truth, its pre-fix commit (the fix_commit's first parent, named, not resolved), its mapped findings and the reason when none",
+          "truth": "an entry's L6 truth is spec/M5/truth/corpus.json entries[<id>].l6, read as given: rational, irrational or undocumented. An undocumented answer, or one the labellers disagreed on (which the truth file records as undocumented), is never resolved here; c13 is excluded (spec/M5/lib/truth_protocol.json known_exclusions)"
+        },
+        "pins": {
+          "spec/M5/truth/corpus.json": "12df4efaf1a8575d37e6f13a3d04c281c361922cb5d578c40fdbcf18f1cc09cb",
+          "spec/M5/truth/corpus.run.json": "98ed3353ec880260446abdeadbca17a0580e38a2d247d5fbcb27d94b3ba5a10b",
+          "spec/eval/corpus.json": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d"
+        }
+      },
+      "title": "I56b: L6's corpus accuracy scored against the corpus-truth key I54b (the lead's condition 5), with the truth pinned before the score"
+    },
+    "I57": {
+      "title": "I57: environment modules (L1 reorg depth, the DA retention window, the blob-archive fetcher) validated against observations from one pinned tool, time-indexed FACT and UNDO laws in module and axiom forms, and L9 computed by I54's definition",
+      "plan": "docs/BUILD_PLAN.md#i57-environment-modules-about-3-days",
+      "prompt": "prompts/I57_environment_modules.md",
+      "tests": [
+        "tests_m5/test_i57_environment.py"
+      ],
+      "outcome_paths": [
+        "results/M5/env/",
+        "results/M5/l9_I57.json",
+        "results/M5/L_env_",
+        "gen/M5/env/",
+        "laws/M5/"
+      ],
+      "predictions": [
+        {
+          "id": "I57-P1",
+          "claim": "INFORMED, NOT COUNTED (thresholds.counting). The DA module env-da-retention (window, W = 131072 slots, the consensus minimum) is not validated on obs-da-beacon: R4 fails (some held-out slice has accuracy below 0.95, because the beacon serves blobs older than W), while R1, R2, R3, R5 and R6 hold.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p1_da_not_validated_by_r4",
+          "expected": {
+            "validated": false,
+            "R1": true,
+            "R2": true,
+            "R3": true,
+            "R4": false,
+            "R5": true,
+            "R6": true
+          }
+        },
+        {
+          "id": "I57-P2",
+          "claim": "The fetcher module env-fetch-archive (availability) is validated on obs-fetch-archive: R1-R6 all hold. Every sampled committed blob is served with the bytes I59 KZG-checked, and no flipped hash is served (accuracy 1.0 on every slice).",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p2_fetch_validated",
+          "expected": {
+            "validated": true,
+            "worst": 1.0
+          }
+        },
+        {
+          "id": "I57-P3",
+          "claim": "The L1 module env-l1-confirmations (finality_depth, d = 10 blocks, the target's derivation default) is not validated on obs-l1-depth, and R5 is the only rule that fails: no scored observation (depth >= 10) is observed false, so the history holds one class; R1, R2, R3, R4 and R6 hold.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p3_l1_not_validated_by_r5_only",
+          "expected": {
+            "validated": false,
+            "failed_rules": [
+              "R5"
+            ],
+            "scored_false": 0
+          }
+        },
+        {
+          "id": "I57-P4",
+          "claim": "INFORMED, NOT COUNTED. On obs-da-beacon at least 90% of the sampled blocks with W < q - t <= 2W are observed retrievable (the served retention exceeds the consensus minimum), and at least 5 sampled blocks with q - t <= 4W are observed not retrievable.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p4_served_retention_exceeds_minimum",
+          "expected": {
+            "beyond_w_within_2w_retrievable_at_least": 0.9,
+            "unretrievable_at_least": 5
+          }
+        },
+        {
+          "id": "I57-P5",
+          "claim": "On obs-l1-depth no observation at depth >= 1 is observed false: a block seen below the head of an observed view always stays canonical; a non-canonical sighting, if any, is of a head itself (depth 0).",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p5_no_false_below_the_head",
+          "expected": 0
+        },
+        {
+          "id": "I57-P6",
+          "claim": "Every sensitivity pair whose status changes (axiom form REFUTED, module form PROVED: L_env_fact_da_window, L_env_fact_fetch, L_env_undo_reorg) replays as passed on the admitted observations (definitions.replay): every sampled blob with q - t <= W is retrievable, every sampled committed blob is fetched, and every observation at depth >= d is canonical. So sensitivity counts 3 and unreplayed is 0.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p6_sensitivity_replays",
+          "expected": {
+            "count": 3,
+            "unreplayed": 0
+          }
+        },
+        {
+          "id": "I57-P7",
+          "claim": "L9 computed by I54's definition (results/M5/l9_I57.json) misses overall: coverage 1 of 226 (the one covered law is L_env_fact_fetch; the 222 base laws stay A-env havoc), base_coverage 0 of 222, new_coverage 1 of 4 (insufficient_n), validated_categories ['fetcher'], sensitivity_unreplayed meets.",
+          "check": "tests_m5/test_i57_environment.py::TestPredictions::test_p7_l9_outcome",
+          "expected": {
+            "coverage": [
+              1,
+              226
+            ],
+            "base_coverage": [
+              0,
+              222
+            ],
+            "new_coverage": [
+              1,
+              4
+            ],
+            "validated_categories": [
+              "fetcher"
+            ],
+            "thresholds": {
+              "coverage": "misses",
+              "base_coverage": "misses",
+              "validated_categories": "misses",
+              "sensitivity_unreplayed": "meets"
+            },
+            "overall": "misses"
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I57-R1",
+          "claim": "I57 changes no file of M0-M4 (results, gen, laws, replay, spec), no frozen file, no I54 instrument, key or output, and no module of a generator closure: the M2-M5 prereg audits stay PREREG OK, tools/freeze.py check stays FROZEN OK, and python -m holon m5 prereg|controls|census|metrics --base --check stay CHECK OK.",
+          "check": "tests_m5/test_i57_environment.py::TestRegressions::test_r1_nothing_earlier_changes"
+        },
+        {
+          "id": "I57-R2",
+          "claim": "Which existing laws change outcome under retention and reorg: none. The 222 environment-dependent M2 and M3 laws of I54's base keep their statuses and records. Their statements read the block, msg and tx members and blobhash at execution time; the modules constrain only the query-time availability of a blob, the canonicity of an observed block and a fetcher's answer, none of which a base statement reads, so a module premise adds no constraint on any base witness and removes none from any base proof. None of them is covered: covering one needs its record regenerated with a module premise in place of A-env, which I57 may not do (M0-M3 unchanged).",
+          "check": "tests_m5/test_i57_environment.py::TestRegressions::test_r2_existing_laws_keep_their_outcomes",
+          "expected": 0
+        }
+      ],
+      "thresholds": {
+        "base_commit": "95a2288c72e4e476dc1620f2db905ecc42e98de3",
+        "base_doc": "the head of claude/i54-m5-definitions (PR #134) when I57 branched; M0-M4 and I54's files are compared against it",
+        "measured_by": "I54's definitions.L9 (spec/M5/preregistration.json), unchanged: holon.m5.metrics.l9 computes results/M5/l9_I57.json, and the instrument tests_m5/_i54.py l9 recomputes it from inputs that tests_m5/_i57.py assembles on its own",
+        "pinned_parameters": {
+          "env-da-retention": {
+            "W": 131072
+          },
+          "env-fetch-archive": {},
+          "env-l1-confirmations": {
+            "d": 10
+          }
+        },
+        "observation_tool": {
+          "path": "spec/M5/lib/I57_observe.py",
+          "producer": "spec/M5/lib/I57_observe.py",
+          "sha256": "9ffac5405dfa6cb0fe6770eab280ef64c602bbfe8e6c00f9a4920a820c700b98",
+          "plan": "spec/M5/lib/I57_observe_plan.json",
+          "rule": "the lead's condition G3 (PR #134): an observation set is admitted iff its producer equals observation_tool.producer and its source_sha256 equals observation_tool.sha256, and every one of its reads is a read the tool records (FILE or GET or RPC of the plan's sources); a set that is not admitted is not passed to the metric, so every module citing it fails R1 (I54: a missing set fails R1). producer, reads and source_sha256 are written by the tool from its own run, never by hand. Network: the tool reads only the plan's three sources, all I23a hosts of docs/HUMAN_ANSWERS.md (Q5)."
+        },
+        "modules": "spec/M5/lib/I57_modules.json (the three module records, as the metric reads them)",
+        "laws": "spec/M5/lib/I57_laws.json",
+        "replay": {
+          "doc": "definitions of a sensitivity pair's replay (I54 sensitivity_pair.replay), over the admitted observation sets of the law's module; 'absent' when no admitted observation lies in the region",
+          "L_env_fact_da_window": "region: obs-da-beacon items with q - t <= W; passed iff every one is observed true",
+          "L_env_fact_da_always": "region: obs-da-beacon items with q - t > W; passed iff some one is observed false (the module form's witness region shows a non-delivery)",
+          "L_env_fact_fetch": "region: obs-fetch-archive items with committed true; passed iff every one is observed true",
+          "L_env_undo_reorg": "region: obs-l1-depth items with head - t >= d; passed iff every one is observed true"
+        },
+        "statuses": {
+          "doc": "construction checks (C1), not predictions: the laws are written by the generator over a model whose outcome follows from its definitions; the checker's verdict still decides each one",
+          "module": {
+            "L_env_fact_da_window": "PROVED",
+            "L_env_fact_da_always": "REFUTED",
+            "L_env_fact_fetch": "PROVED",
+            "L_env_undo_reorg": "PROVED"
+          },
+          "axiom": {
+            "L_env_fact_da_window": "REFUTED",
+            "L_env_fact_da_always": "REFUTED",
+            "L_env_fact_fetch": "REFUTED",
+            "L_env_undo_reorg": "REFUTED"
+          }
+        },
+        "counting": {
+          "counted": [
+            "I57-P2",
+            "I57-P3",
+            "I57-P5",
+            "I57-P6",
+            "I57-P7"
+          ],
+          "informed": {
+            "ids": [
+              "I57-P1",
+              "I57-P4"
+            ],
+            "why": "before this prereg the builder made 36 requests of the beacon's /eth/v1/beacon/blob_sidecars/{slot} and /eth/v1/beacon/blobs/{slot} at ages 1000 to 3000000 slots (200 at ages 1000, 130000, 133000, 140000 and 300000; 404 at 120000; 403 at 400000 and beyond), and smoke-ran the tool with n = 3 into a scratch directory: obs-da-beacon ages 87295 (retrievable), 261961 (retrievable) and 436845 (403, not retrievable); obs-fetch-archive 3 committed blobs served with I59's bytes and 1 flipped hash answered 404. The DA outcome was known in part, so P1 and P4 are reported, never counted. P2's first 4 items were seen in the smoke."
+          },
+          "smoke": "the tool's smoke run before the prereg (n = 3 for obs-da-beacon and obs-fetch-archive, 30 s for obs-l1-depth, into a scratch directory) is disclosed in docs/iterations/I57.md; none of its items is in any committed set"
+        },
+        "volume": "the law set is exactly the four classes of spec/M5/lib/I57_laws.json, one record each in results/M5/; coverage's denominator grows by 4, never by more (G4)",
+        "instruments": [
+          "tests_m5/_i57.py",
+          "spec/M5/lib/I57_modules.json",
+          "spec/M5/lib/I57_laws.json",
+          "spec/M5/lib/I57_observe.py",
+          "spec/M5/lib/I57_observe_plan.json",
+          "prompts/I57_environment_modules.md"
+        ],
+        "adversarial_prereg": {
+          "doc": "attacks tried on this prereg before it was frozen, and what was folded in (the build's attacks are in docs/iterations/I57.md)",
+          "A1_volume": "coverage = covered / (222 + new): about 74 covered copies of one law would lift the headline to 0.25. Folded: one law per (rule, subform, module), the law set fixed at four (thresholds.volume), and the copy-per-indexed-base-law design dropped.",
+          "A2_fitted_parameter": "W could be chosen from the probe (the beacon served age 300000). Folded: W is the consensus minimum and d the target's default, both cited; R6 compares them with pinned_parameters.",
+          "A3_self_declared_provenance": "a hand-written set can carry the pinned producer and sha256 (I54 G3 again, one level down). Not closable without re-running the network: the sets are committed alone, by the tool's command, and the residual risk is E-G8 and a question for the human.",
+          "A4_shallow_depth": "a finality module with d = 0 (the head never reorgs) predicts true for every observation and is wrong only on reorged heads; with 5 such sightings it would pass R5 and, at a reorg rate far below 5%, R4. I54's R4 bar cannot tell it from a sound module. Not a module of this key: the build reports the computation on obs-l1-depth as an analysis, never as a record.",
+          "A5_family_mismatch": "a correct finality_depth module predicts only true, so R5 holds only if the module errs at least 5 times; a window module predicts an exact edge, so a server that keeps more than the minimum fails R4. Neither can be fixed in this key (I54's definitions are immutable); both are questions for the human, and P1 and P3 predict them.",
+          "A6_constructed_negatives": "obs-fetch-archive's negative class is flipped hashes (E-G9): it only shows the archive does not fabricate. Kept, disclosed, and P2 is read with it."
+        }
+      }
+    },
+    "I58": {
+      "title": "I58: the M5 report: L6, L9 and L10 reported as measured in results/M5/metrics.json, each computed by I54's stub (holon.m5.metrics) from the iterations' committed records, with its truth pins, and docs/M5_REPORT.md generated from it with every M5 prediction's outcome, the lead's conditions and the disclosed limitations",
+      "plan": "docs/BUILD_PLAN.md#i58-m5-report-about-1-day",
+      "prompt": "prompts/I58_m5_report.md",
+      "tests": [
+        "tests_m5/test_m5_report.py"
+      ],
+      "outcome_paths": [
+        "results/M5/metrics.json",
+        "results/M5/metrics_timing.json",
+        "docs/M5_REPORT.md"
+      ],
+      "predictions": [
+        {
+          "id": "I58-P1",
+          "claim": "INFORMED, NOT COUNTED (thresholds.counting). L6 in results/M5/metrics.json, by I54's definition with I56's V9 applied (V9 holds, 23 of 23): decided 0 of 49 (misses); every control threshold meets (decided accuracy 12/12, strict accuracy 14/14, strict correct 14 > majority 8, false_rational 0, false_irrational 0); corpus_decided_accuracy not_measured (0 corpus items: I51 has not run); overall misses.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p1_l6_status",
+          "expected": {
+            "overall": "misses",
+            "thresholds": {
+              "decided": "misses",
+              "controls_decided_accuracy": "meets",
+              "controls_strict_accuracy": "meets",
+              "controls_beats_majority": "meets",
+              "false_rational": "meets",
+              "false_irrational": "meets",
+              "corpus_decided_accuracy": "not_measured"
+            },
+            "decided": [
+              0,
+              49
+            ]
+          }
+        },
+        {
+          "id": "I58-P2",
+          "claim": "INFORMED, NOT COUNTED. L9 in results/M5/metrics.json: coverage 1 of 226 (misses), base_coverage 0 of 222 (misses), validated_categories ['fetcher'] (misses), sensitivity_unreplayed 0 with 3 counted (meets), new_coverage 1 of 4 labelled insufficient_n; overall misses.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p2_l9_status",
+          "expected": {
+            "overall": "misses",
+            "thresholds": {
+              "coverage": "misses",
+              "base_coverage": "misses",
+              "validated_categories": "misses",
+              "sensitivity_unreplayed": "meets"
+            },
+            "coverage": [
+              1,
+              226
+            ],
+            "base_coverage": [
+              0,
+              222
+            ],
+            "new_coverage": [
+              1,
+              4,
+              "insufficient_n"
+            ]
+          }
+        },
+        {
+          "id": "I58-P3",
+          "claim": "INFORMED, NOT COUNTED. L10 in results/M5/metrics.json: coverage 0 of 82 (misses), precision 81 of 82 (meets), review 12 of 12 (meets), control_recall 6 of 6 (meets), false_obstruction empty (meets); overall misses; corpus_recall 0 of 1 labelled insufficient_n (never judged); the trivially-true share of covering laws 0 of 0, not_measured.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p3_l10_status",
+          "expected": {
+            "overall": "misses",
+            "thresholds": {
+              "coverage": "misses",
+              "precision": "meets",
+              "review": "meets",
+              "control_recall": "meets",
+              "false_obstruction": "meets"
+            },
+            "coverage": [
+              0,
+              82
+            ],
+            "corpus_recall": [
+              0,
+              1,
+              "insufficient_n"
+            ]
+          }
+        },
+        {
+          "id": "I58-P4",
+          "claim": "INFORMED, NOT COUNTED. On the merged M5 tree (I57 with I55, I56 and I54b merged in), each metric holon reports equals the measuring iteration's committed output: L6 equals results/M5/corpus/l6_corpus.json, L9 equals results/M5/l9_I57.json's L9, and L10 equals results/M5/intent/l10.json's l10. (The builder ran the iterations' own --check commands on the merged tree before this prereg: CHECK OK.)",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p4_agrees_with_iterations"
+        },
+        {
+          "id": "I58-P5",
+          "claim": "L6 recomputed by I54's reference implementation (tests_m5/_i54.py l6), over inputs tests_m5/_i58.py assembles from the committed records without holon, equals results/M5/metrics.json's L6 value on every field the reference reports (population, decided, decided_unbounded, verdicts, invalid, controls, corpus, thresholds, overall), the corpus block included (0 items).",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p5_l6_reference"
+        },
+        {
+          "id": "I58-P6",
+          "claim": "L10 recomputed by I54's reference implementation (tests_m5/_i54.py l10), over inputs tests_m5/_i58.py assembles from the committed records and the controls at I55's pins, equals results/M5/metrics.json's L10 value on every field the reference reports, and corpus_recall recomputed from the truth file at I55b's pin equals the reported one.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p6_l10_reference"
+        },
+        {
+          "id": "I58-P7",
+          "claim": "INFORMED, NOT COUNTED (thresholds.counting: its test ran before this prereg). V4 does not rest on the game records themselves: recomputing each finding's expected witness_length from its M3 REFUTED record (I56's witness forms G-W1..G-W4), not from its game record, leaves all 9 target game records valid (no finding gains rule V4), so L6 is unchanged under that expectation.",
+          "check": "tests_m5/test_m5_report.py::TestPredictions::test_p7_v4_independent"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I58-R1",
+          "claim": "I58 changes no output of M0-M4 and no generator closure: holon.metrics.compute renders M0-M3's committed results/<M>/metrics.json byte for byte, holon.records.generator_files names neither holon/m5 nor holon/metrics.py for any IR version, no frozen file changes (tools/freeze.py check: FROZEN OK), and I58's own commits touch no path under results/M0-M4, gen/M0-M4, laws/M0-M4 or replay/.",
+          "check": "tests_m5/test_m5_report.py::TestRegressions::test_r1_nothing_earlier_changes"
+        },
+        {
+          "id": "I58-R2",
+          "claim": "The M5 iterations' outputs are unchanged on the merged tree: python -m holon m5 prereg|controls|census|l9 --check, m5 metrics --base --check, intent metrics --check, intent corpus-score --check and games corpus --check all print CHECK OK.",
+          "check": "tests_m5/test_m5_report.py::TestRegressions::test_r2_iteration_outputs_unchanged"
+        },
+        {
+          "id": "I58-R3",
+          "claim": "The M5 keys' counted predictions, as their iteration reports record them: I54 1 of 3 held, I54b 4 of 5, I55 10 of 11, I55b 2 of 3, I56 2 of 5, I56b none, I57 5 of 5 counted (its 2 informed ones held): 24 of 32 counted predictions held, 8 missed.",
+          "check": "tests_m5/test_m5_report.py::TestRegressions::test_r3_prediction_tally",
+          "expected": {
+            "I54": [
+              1,
+              3
+            ],
+            "I54b": [
+              4,
+              5
+            ],
+            "I55": [
+              10,
+              11
+            ],
+            "I55b": [
+              2,
+              3
+            ],
+            "I56": [
+              2,
+              5
+            ],
+            "I56b": [
+              0,
+              0
+            ],
+            "I57": [
+              5,
+              5
+            ]
+          }
+        }
+      ],
+      "thresholds": {
+        "base": "claude/i57-m5-environment-modules at f8842357 (PR #147), with claude/i55-m5-intent (2d8f42a1, #138), claude/i56-m5-games (d3af7179, #139) and claude/i54b-m5-truth-key (d4a09349, #136) merged in as merge commits; all stacked on claude/i54-m5-definitions (#134)",
+        "measured_by": "I54 definitions (spec/M5/preregistration.json) through holon.m5.metrics, unchanged; I56's V9 wrapper (holon.games.metric.l6_v9) for L6",
+        "metrics_path": "results/M5/metrics.json: I54's definitions name no path, so the milestone's metrics file (holon.metrics, which holon land regenerates) carries L6, L9 and L10 beside its section-13 block",
+        "report_path": "docs/M5_REPORT.md, generated by python -m holon m5 report and checked by its --check",
+        "rules": {
+          "never_round_up": "a measure labelled insufficient_n or not_measured is never judged; each metric's overall is common.overall of its thresholds, and the report prints it verbatim; the generator refuses a document in which any of this fails",
+          "no_pooling": "constructed truth (controls) and documented truth (corpus, history) are reported apart; I55's pooled precision is not reported",
+          "pins": "every truth file a metric reads is reported with its sha256, and the generator refuses unless it equals the measuring key's pin",
+          "agreement": "the generator refuses unless each metric equals the measuring iteration's committed output",
+          "evidence": "a condition or limitation is printed only when every evidence check in spec/M5/lib/I58_report.json holds"
+        },
+        "counting": {
+          "counted": [
+            "I58-P5",
+            "I58-P6"
+          ],
+          "informed": {
+            "ids": [
+              "I58-P1",
+              "I58-P2",
+              "I58-P3",
+              "I58-P4",
+              "I58-P7"
+            ],
+            "why": "each metric's status is already recorded in the measuring iteration's committed outputs (results/M5/corpus/l6_corpus.json, results/M5/l9_I57.json, results/M5/intent/l10.json and intent/corpus/l10_corpus.json), which the builder read before this prereg, and the builder ran the iterations' --check commands on the merged tree; BUILD_PLAN 0.1 counts only claims whose outcome is recorded nowhere; I58-P7: one run of the then-red contract tests, before this prereg commit, executed test_p7_v4_independent, which needs no holon output, and it passed. The runs of test_p5 and test_p6 computed the reference but stopped at the missing results/M5/metrics.json, so their outcomes were not seen (disclosed as BUILD_PLAN 0.1's undetectable-local-run risk)"
+          }
+        },
+        "instruments": {
+          "tests_m5/_i58.py": "43144025cf48e85697d98d80c251c5791d53e50ed57f77d0528c880ea86776b1",
+          "tests_m5/_i54.py": "024caa738f1280680bc41a5050f262162cf8f94988c3dc1196e74757bb6721e3",
+          "spec/M5/lib/I58_report.json": "a509d78d6b6f3db02bf3391bbc46514fbd7c3dbc21976f2303fe5e18444dd905",
+          "prompts/I58_m5_report.md": "97430c76911c205e56302eca3eba29c096f96f52e82d1d03beebfd413e068584"
+        },
+        "pins": {
+          "spec/M5/truth/corpus.json": "12df4efaf1a8575d37e6f13a3d04c281c361922cb5d578c40fdbcf18f1cc09cb",
+          "spec/M5/truth/corpus.run.json": "98ed3353ec880260446abdeadbca17a0580e38a2d247d5fbcb27d94b3ba5a10b",
+          "spec/eval/corpus.json": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+          "results/M5/l10_census_base.json": "2b763add1fa1b02574865dc0be2539039bbe9ef07eee41cb875c400590285e6d",
+          "spec/M5/lib/I57_observe.py": "9ffac5405dfa6cb0fe6770eab280ef64c602bbfe8e6c00f9a4920a820c700b98",
+          "spec/M5/lib/games_M3.json": "78967599ce56d713b3adb8c5160505bb2602b1956f6f2ecf1760833517b8e2da",
+          "spec/M5/preregistration.json": "df6c36c3ec9db2d8fc127c456b9ddb01984594af86b1f5f01632c967e9cce994"
+        }
+      }
+    }
+  }
+}

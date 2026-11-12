@@ -1,0 +1,94 @@
+{
+  "actions": [
+    "step"
+  ],
+  "binding": {
+    "name": "count",
+    "noun": "count",
+    "percent": null
+  },
+  "clauses": [
+    "025e2587d56f6954"
+  ],
+  "contract": "Ce8b53f",
+  "control": "i_monotone_right_1",
+  "facts": "gen/M5/intent/facts/Ce8b53f.extracted.json",
+  "facts_sha256": "3ab79ee41aeb41f7f11c50f43140aa28f26cfd55807574e77247df4d295d156a",
+  "file": "spec/M5/controls/intent/i_monotone_right_1.sol",
+  "ir_version": "holon-intent/0.1",
+  "law_id": "L_intent_025e2587d56f6954",
+  "model": "gen/M5/intent/model/Ce8b53f.bend",
+  "notes": "compiled by holon.intent.compile from the monotone template; one clause, the atom 025e2587d56f6954",
+  "reading": "For every pre-transaction state of Ce8b53f and every call of each of its state-changing functions (step()) that does not revert, count after the call is at least count before it.",
+  "statement": {
+    "binders": [
+      {
+        "name": "s",
+        "type": "St"
+      },
+      {
+        "name": "x",
+        "type": "X_step"
+      }
+    ],
+    "holds": {
+      "args": [
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "act": "chk_step",
+                  "args": [
+                    {
+                      "var": "s"
+                    },
+                    {
+                      "var": "x"
+                    }
+                  ]
+                },
+                {
+                  "u32": 0
+                }
+              ],
+              "fn": "U32.is_eq"
+            }
+          ],
+          "fn": "Bool.not"
+        },
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "act": "post_step",
+                  "args": [
+                    {
+                      "var": "s"
+                    },
+                    {
+                      "var": "x"
+                    }
+                  ]
+                }
+              ],
+              "m": "st_count"
+            },
+            {
+              "args": [
+                {
+                  "var": "s"
+                }
+              ],
+              "m": "st_count"
+            }
+          ],
+          "m": "w_ge"
+        }
+      ],
+      "fn": "Bool.or"
+    }
+  },
+  "template": "monotone"
+}

@@ -1,0 +1,673 @@
+{
+  "$defs": {
+    "atom": {
+      "additionalProperties": false,
+      "properties": {
+        "commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "control": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "decl": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "line": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "line",
+                "kind",
+                "name",
+                "text"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "file": {
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[0-9a-f]{16}$",
+          "type": "string"
+        },
+        "lines": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "markers": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "pieces": {
+          "items": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "sentence": {
+          "type": "integer"
+        },
+        "tag": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "repo",
+        "commit",
+        "file",
+        "lines",
+        "text",
+        "tag",
+        "pieces",
+        "sentence",
+        "decl",
+        "markers",
+        "control"
+      ],
+      "type": "object"
+    },
+    "atoms_document": {
+      "additionalProperties": false,
+      "properties": {
+        "atoms": {
+          "items": {
+            "$ref": "#/$defs/atom"
+          },
+          "type": "array"
+        },
+        "atoms_version": {
+          "const": "holon-intent-atoms/0.1"
+        },
+        "controls": {
+          "items": {
+            "$ref": "#/$defs/atom"
+          },
+          "type": "array"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "scope_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "atoms_version",
+        "scope_commit",
+        "scope",
+        "atoms",
+        "controls"
+      ],
+      "type": "object"
+    },
+    "binder": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "type": "object"
+    },
+    "compile_entry": {
+      "additionalProperties": false,
+      "properties": {
+        "atom": {
+          "pattern": "^[0-9a-f]{16}$",
+          "type": "string"
+        },
+        "control": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detail": {
+          "type": "string"
+        },
+        "law_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "compiled",
+            "no_template",
+            "not_solidity",
+            "decl_not_function",
+            "extraction_failed",
+            "binding_failed",
+            "model_unsupported"
+          ]
+        },
+        "template": {
+          "enum": [
+            null,
+            "bound",
+            "access",
+            "monotone"
+          ]
+        }
+      },
+      "required": [
+        "atom",
+        "control",
+        "template",
+        "outcome",
+        "law_id",
+        "detail"
+      ],
+      "type": "object"
+    },
+    "evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "law": {
+          "type": "string"
+        },
+        "law_present": {
+          "type": "boolean"
+        },
+        "marker": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "law",
+        "marker",
+        "law_present"
+      ],
+      "type": "object"
+    },
+    "intent_law": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "binding": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "noun": {
+              "type": "string"
+            },
+            "percent": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "noun",
+            "name",
+            "percent"
+          ],
+          "type": "object"
+        },
+        "clauses": {
+          "items": {
+            "pattern": "^[0-9a-f]{16}$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "contract": {
+          "type": "string"
+        },
+        "control": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "facts": {
+          "type": "string"
+        },
+        "facts_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "ir_version": {
+          "const": "holon-intent/0.1"
+        },
+        "law_id": {
+          "pattern": "^L_intent_[0-9a-f]{16}$",
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "reading": {
+          "type": "string"
+        },
+        "statement": {
+          "additionalProperties": false,
+          "properties": {
+            "binders": {
+              "items": {
+                "$ref": "#/$defs/binder"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "holds": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "binders",
+            "holds"
+          ],
+          "type": "object"
+        },
+        "template": {
+          "enum": [
+            "bound",
+            "access",
+            "monotone"
+          ]
+        }
+      },
+      "required": [
+        "actions",
+        "binding",
+        "clauses",
+        "contract",
+        "control",
+        "facts",
+        "facts_sha256",
+        "file",
+        "ir_version",
+        "law_id",
+        "model",
+        "notes",
+        "reading",
+        "statement",
+        "template"
+      ],
+      "type": "object"
+    },
+    "record": {
+      "additionalProperties": false,
+      "properties": {
+        "attempts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "bound": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "clauses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "control": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "file": {
+          "type": "string"
+        },
+        "law": {
+          "type": "string"
+        },
+        "law_id": {
+          "type": "string"
+        },
+        "obstruction": {
+          "type": "boolean"
+        },
+        "paths": {
+          "type": "object"
+        },
+        "proof_class": {
+          "enum": [
+            null,
+            "computation",
+            "bool_cases"
+          ]
+        },
+        "record_version": {
+          "const": "holon-intent-record/0.1"
+        },
+        "review": {
+          "additionalProperties": false,
+          "properties": {
+            "compiler": {
+              "type": "string"
+            },
+            "reviewer": {
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "faithful",
+                "unfaithful",
+                "absent"
+              ]
+            }
+          },
+          "required": [
+            "reviewer",
+            "compiler",
+            "verdict"
+          ],
+          "type": "object"
+        },
+        "statement_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "PROVED",
+            "REFUTED",
+            "UNKNOWN"
+          ]
+        },
+        "trivial": {
+          "additionalProperties": false,
+          "properties": {
+            "inhabited": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "trivially_true": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "twin": {
+              "enum": [
+                "PROVED",
+                "UNKNOWN",
+                "not_run"
+              ]
+            }
+          },
+          "required": [
+            "twin",
+            "inhabited",
+            "trivially_true"
+          ],
+          "type": "object"
+        },
+        "verdict": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "witness": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "record_version",
+        "law_id",
+        "law",
+        "clauses",
+        "control",
+        "file",
+        "status",
+        "evidence",
+        "verdict",
+        "proof_class",
+        "witness",
+        "bound",
+        "attempts",
+        "trivial",
+        "review",
+        "statement_hash",
+        "paths",
+        "obstruction"
+      ],
+      "type": "object"
+    },
+    "review_request": {
+      "additionalProperties": false,
+      "properties": {
+        "clause": {
+          "type": "string"
+        },
+        "documents": {
+          "type": "string"
+        },
+        "law_id": {
+          "type": "string"
+        },
+        "reading": {
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "law_id",
+        "clause",
+        "documents",
+        "reading",
+        "statement"
+      ],
+      "type": "object"
+    },
+    "reviews": {
+      "additionalProperties": false,
+      "properties": {
+        "compiler": {
+          "type": "string"
+        },
+        "disclosure": {
+          "type": "string"
+        },
+        "prompt_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "requests_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "review_version": {
+          "const": "holon-intent-reviews/0.1"
+        },
+        "reviewer": {
+          "type": "string"
+        },
+        "verdicts": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "verdict": {
+                "enum": [
+                  "faithful",
+                  "unfaithful"
+                ]
+              },
+              "why": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "verdict",
+              "why"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "review_version",
+        "reviewer",
+        "compiler",
+        "prompt_sha256",
+        "requests_sha256",
+        "disclosure",
+        "verdicts"
+      ],
+      "type": "object"
+    },
+    "route_i": {
+      "additionalProperties": false,
+      "properties": {
+        "route_version": {
+          "const": "holon-intent-route-i/0.1"
+        },
+        "splits": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "break": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "document": {
+                "type": "string"
+              },
+              "family": {
+                "type": "string"
+              },
+              "laws": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "promoted": {
+                "type": "boolean"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "role": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "document",
+              "family",
+              "role",
+              "break",
+              "promoted",
+              "reason",
+              "laws"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "route_version",
+        "splits"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "doc": "Atoms (holon.intent.atomize), intent laws (laws/INTENT/, holon-intent/0.1), compile outcomes, result records, review requests, reviews, the L10 output and SYM route (i). Projections to spec/M5/lib/inputs.schema.json (atom_clause, intent_law) are what L10 reads.",
+  "title": "I55 intent lane documents (frozen at the I55 prereg)"
+}

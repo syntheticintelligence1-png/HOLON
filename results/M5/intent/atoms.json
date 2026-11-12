@@ -1,0 +1,3421 @@
+{
+  "atoms": [
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "var",
+        "line": 110,
+        "name": "ErrBatchCacheNotInitialized",
+        "text": "var ErrBatchCacheNotInitialized = errors.New(\"batch cache is not initialized\")"
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "826cc0c9ade47487",
+      "lines": [
+        107,
+        109
+      ],
+      "markers": [
+        "must",
+        "never"
+      ],
+      "pieces": [
+        [
+          107,
+          62,
+          78
+        ],
+        [
+          108,
+          3,
+          78
+        ],
+        [
+          109,
+          3,
+          19
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "In particular, a failed legacy transition validation must never leak an unvalidated batch to the commit path."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 783,
+        "name": "validateCommittedTip",
+        "text": "func (bc *BatchCache) validateCommittedTip(index uint64, header *BatchHeaderBytes) error {"
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "d6f0e4416ac4b947",
+      "lines": [
+        780,
+        781
+      ],
+      "markers": [
+        "revert"
+      ],
+      "pieces": [
+        [
+          780,
+          3,
+          76
+        ],
+        [
+          781,
+          3,
+          23
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "validateCommittedTip closes the same-index reorg/revert window left by an FI/CI/K tuple check."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 884,
+        "name": "validateLegacyTransitionWindow",
+        "text": "func validateLegacyTransitionWindow("
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "d5b0fd0d0b17689a",
+      "lines": [
+        882,
+        883
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          882,
+          42,
+          78
+        ],
+        [
+          883,
+          3,
+          78
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "in that case the persisted canonical window must begin at FI+1, whose embedded parent header is validated below."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 1164,
+        "name": "ClearCurrent",
+        "text": "func (bc *BatchCache) ClearCurrent() {"
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "5d089aa02ad65aa3",
+      "lines": [
+        1162,
+        1163
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          1162,
+          3,
+          41
+        ],
+        [
+          1163,
+          3,
+          53
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "ClearCurrent clears current block data Note: lock must be held before calling this method"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 1301,
+        "name": "PackCurrentBlock",
+        "text": "func (bc *BatchCache) PackCurrentBlock(blockNumber uint64) error {"
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "741e3c1ac3af79fc",
+      "lines": [
+        1300,
+        1300
+      ],
+      "markers": [
+        "should"
+      ],
+      "pieces": [
+        [
+          1300,
+          3,
+          112
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "Note: This method should be called after block is confirmed, appending data from currentBlockContext to batch"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 1401,
+        "name": "sealBatch",
+        "text": "func (bc *BatchCache) sealBatch("
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "2ba76f99b6d92156",
+      "lines": [
+        1397,
+        1399
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          1397,
+          51,
+          77
+        ],
+        [
+          1398,
+          3,
+          72
+        ],
+        [
+          1399,
+          3,
+          11
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "sequencerSetBytes/hash are accepted only for replay of canonical batches at or before the legacy cutover."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 1401,
+        "name": "sealBatch",
+        "text": "func (bc *BatchCache) sealBatch("
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "523fd967240164d6",
+      "lines": [
+        1399,
+        1400
+      ],
+      "markers": [
+        "always"
+      ],
+      "pieces": [
+        [
+          1399,
+          12,
+          79
+        ],
+        [
+          1400,
+          3,
+          64
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "The live SealBatch path (nil replay index) always supplies an empty set and therefore always produces a zero sequencer-set field."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 1746,
+        "name": "ParsingTxs",
+        "text": "func ParsingTxs(transactions []*ethtypes.Transaction, totalL1MessagePoppedBefore uint64) ("
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "ef9ac489260ba4c6",
+      "lines": [
+        1744,
+        1745
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          1744,
+          3,
+          86
+        ],
+        [
+          1745,
+          3,
+          78
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "Exported for derivation local verify (SPEC-005), which must rebuild blob bytes from local L2 blocks using the same encoding the sequencer applied at seal time."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 1799,
+        "name": "effectiveMaxBlobCount",
+        "text": "func (bc *BatchCache) effectiveMaxBlobCount(blockTimestamp uint64) int {"
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "6e4b7b1d1ed1c204",
+      "lines": [
+        1798,
+        1798
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          1798,
+          3,
+          71
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "V2 multi-blob is only permitted when isBatchV2Upgraded returns true;"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 2092,
+        "name": "Delete",
+        "text": "func (bc *BatchCache) Delete(batchIndex uint64) error {"
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "d0875a273d5c851d",
+      "lines": [
+        2089,
+        2091
+      ],
+      "markers": [
+        "must",
+        "must not"
+      ],
+      "pieces": [
+        [
+          2089,
+          3,
+          89
+        ],
+        [
+          2090,
+          3,
+          83
+        ],
+        [
+          2091,
+          3,
+          43
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "Must NOT be used for finalize cleanup: it delegates to BatchStorage.DeleteSealedBatch, which rejects interior-index deletes because they punch holes into the persisted indices and crash the next restart load."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 2092,
+        "name": "Delete",
+        "text": "func (bc *BatchCache) Delete(batchIndex uint64) error {"
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "34d2fc1485317b8e",
+      "lines": [
+        2091,
+        2091
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          2091,
+          44,
+          82
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "Finalize cleanup must use DeleteUntil."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 2115,
+        "name": "DeleteUntil",
+        "text": "func (bc *BatchCache) DeleteUntil(maxIndex uint64) error {"
+      },
+      "file": "common/batch/batch_cache.go",
+      "id": "de042dc20499022f",
+      "lines": [
+        2110,
+        2114
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          2110,
+          51,
+          81
+        ],
+        [
+          2111,
+          3,
+          79
+        ],
+        [
+          2112,
+          3,
+          76
+        ],
+        [
+          2113,
+          3,
+          78
+        ],
+        [
+          2114,
+          3,
+          61
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "Finalize cleanup must use this range-based form: the finalize target can jump (multiple submitters, several batches finalized at once), so deleting a single index leaves stale lower indices behind and punches holes into the persisted indices snapshot, which breaks the contiguity assumption of the startup load path."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 111,
+        "name": "BlobVersionedHash",
+        "text": "func (b BatchHeaderBytes) BlobVersionedHash() (common.Hash, error) {"
+      },
+      "file": "common/batch/batch_header.go",
+      "id": "8f0ec73c785fa342",
+      "lines": [
+        108,
+        109
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          108,
+          19,
+          77
+        ],
+        [
+          109,
+          3,
+          42
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "This is only meaningful for V0/V1 batches, where the field holds the single blob's versioned hash."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 111,
+        "name": "BlobVersionedHash",
+        "text": "func (b BatchHeaderBytes) BlobVersionedHash() (common.Hash, error) {"
+      },
+      "file": "common/batch/batch_header.go",
+      "id": "d6c849f680cda3ef",
+      "lines": [
+        110,
+        110
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          110,
+          29,
+          69
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 3,
+      "tag": null,
+      "text": "callers must use BlobHashesHash instead."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 20,
+        "name": "getLastFinalizeBatchHeaderFromRollupByIndex",
+        "text": "func (bc *BatchCache) getLastFinalizeBatchHeaderFromRollupByIndex(index uint64) (*BatchHeaderBytes, error) {"
+      },
+      "file": "common/batch/batch_query.go",
+      "id": "e98d834fe0bfceed",
+      "lines": [
+        17,
+        19
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          17,
+          3,
+          140
+        ],
+        [
+          18,
+          3,
+          127
+        ],
+        [
+          19,
+          3,
+          118
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "getLastFinalizeBatchHeaderFromRollupByIndex gets the batch header with the specified index from the rollup contract's FinalizeBatch event The finalizeBatch function only receives one parameter: batchHeader bytes, so it can be parsed directly from the transaction Query is limited to 10000 block heights, starting from the latest height and querying backwards until data is found"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "const",
+        "line": 224,
+        "name": "preSubmitterCommitABI",
+        "text": "const preSubmitterCommitABI = `["
+      },
+      "file": "common/batch/batch_query.go",
+      "id": "4c58d1efae97a34a",
+      "lines": [
+        220,
+        221
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          220,
+          3,
+          80
+        ],
+        [
+          221,
+          3,
+          18
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "These two compact ABIs freeze the only historical/current commit methods this query supports."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "const",
+        "line": 224,
+        "name": "preSubmitterCommitABI",
+        "text": "const preSubmitterCommitABI = `["
+      },
+      "file": "common/batch/batch_query.go",
+      "id": "c87c02ff6895d8e5",
+      "lines": [
+        221,
+        223
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          221,
+          19,
+          75
+        ],
+        [
+          222,
+          3,
+          76
+        ],
+        [
+          223,
+          3,
+          55
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "The pre-Submitter ABI deliberately includes the complete BatchSignatureInput tuple so historical calldata is decoded with its real layout even though callers only need BatchDataInput."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 41,
+        "name": "StoreSealedBatch",
+        "text": "func (s *BatchStorage) StoreSealedBatch(batchIndex uint64, batch *eth.RPCRollupBatch) error {"
+      },
+      "file": "common/batch/batch_storage.go",
+      "id": "653c25d260b2de2b",
+      "lines": [
+        39,
+        40
+      ],
+      "markers": [
+        "never"
+      ],
+      "pieces": [
+        [
+          39,
+          3,
+          78
+        ],
+        [
+          40,
+          3,
+          29
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "Batch data and the indices snapshot are written in one atomic batch so they can never get out of sync;"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 235,
+        "name": "DeleteSealedBatch",
+        "text": "func (s *BatchStorage) DeleteSealedBatch(batchIndex uint64) error {"
+      },
+      "file": "common/batch/batch_storage.go",
+      "id": "46802b26747debf4",
+      "lines": [
+        230,
+        231
+      ],
+      "markers": [
+        "must",
+        "must not"
+      ],
+      "pieces": [
+        [
+          230,
+          3,
+          78
+        ],
+        [
+          231,
+          3,
+          71
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "Must NOT be used for finalize cleanup: deleting an interior index punches a hole into sealed_batch_indices, which crashes the startup load path."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 235,
+        "name": "DeleteSealedBatch",
+        "text": "func (s *BatchStorage) DeleteSealedBatch(batchIndex uint64) error {"
+      },
+      "file": "common/batch/batch_storage.go",
+      "id": "ebeca8480b3920dc",
+      "lines": [
+        231,
+        232
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          231,
+          72,
+          81
+        ],
+        [
+          232,
+          3,
+          80
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "This call only permits removing a window boundary (the lowest or highest stored index);"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 235,
+        "name": "DeleteSealedBatch",
+        "text": "func (s *BatchStorage) DeleteSealedBatch(batchIndex uint64) error {"
+      },
+      "file": "common/batch/batch_storage.go",
+      "id": "244f103de8d04cf7",
+      "lines": [
+        233,
+        234
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          233,
+          34,
+          75
+        ],
+        [
+          234,
+          3,
+          52
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 3,
+      "tag": null,
+      "text": "Finalize cleanup must use the range-based DeleteSealedBatchesUpTo / BatchCache.DeleteUntil."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 261,
+        "name": "ensureBoundaryDelete",
+        "text": "func (s *BatchStorage) ensureBoundaryDelete(batchIndex uint64) error {"
+      },
+      "file": "common/batch/batch_storage.go",
+      "id": "3e21cba4327a3977",
+      "lines": [
+        257,
+        258
+      ],
+      "markers": [
+        "is allowed"
+      ],
+      "pieces": [
+        [
+          257,
+          25,
+          78
+        ],
+        [
+          258,
+          3,
+          47
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "Removing the lowest or highest stored index keeps the surviving indices contiguous and is allowed;"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 360,
+        "name": "ForceDeleteAllSealedBatches",
+        "text": "func (s *BatchStorage) ForceDeleteAllSealedBatches() error {"
+      },
+      "file": "common/batch/batch_storage.go",
+      "id": "095d43382f07ae7c",
+      "lines": [
+        358,
+        358
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          358,
+          33,
+          60
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 4,
+      "tag": null,
+      "text": "It is a recovery-only path;"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 379,
+        "name": "ValidateExactKeySet",
+        "text": "func (s *BatchStorage) ValidateExactKeySet(indices []uint64) error {"
+      },
+      "file": "common/batch/batch_storage.go",
+      "id": "1055f884bfabfdb5",
+      "lines": [
+        377,
+        378
+      ],
+      "markers": [
+        "ensures"
+      ],
+      "pieces": [
+        [
+          377,
+          3,
+          78
+        ],
+        [
+          378,
+          3,
+          80
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "ValidateExactKeySet ensures the indices snapshot enumerates every persisted sealed-batch data/header key and no orphan key can bypass startup validation."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 545,
+        "name": "DeleteSealedBatchHeader",
+        "text": "func (s *BatchStorage) DeleteSealedBatchHeader(batchIndex uint64) error {"
+      },
+      "file": "common/batch/batch_storage.go",
+      "id": "ba1c9c0b782927f7",
+      "lines": [
+        544,
+        544
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          544,
+          15,
+          65
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 4,
+      "tag": null,
+      "text": "Finalize cleanup must use DeleteSealedBatchesUpTo."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "type",
+        "line": 40,
+        "name": "L1HeaderClient",
+        "text": "type L1HeaderClient interface {"
+      },
+      "file": "common/batch/interfaces.go",
+      "id": "81e964888c550f6e",
+      "lines": [
+        39,
+        39
+      ],
+      "markers": [
+        "required"
+      ],
+      "pieces": [
+        [
+          39,
+          3,
+          86
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "L1HeaderClient is the L1 RPC surface required to recover batch headers from events."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "type",
+        "line": 53,
+        "name": "SingleL2Client",
+        "text": "type SingleL2Client struct {"
+      },
+      "file": "common/batch/interfaces.go",
+      "id": "70fe982cdb0cefae",
+      "lines": [
+        52,
+        52
+      ],
+      "markers": [
+        "always"
+      ],
+      "pieces": [
+        [
+          52,
+          3,
+          84
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "SingleL2Client adapts a single L2 RPC backend as L2MultiClient (Len is always 1)."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 49,
+        "name": "GetSequencerSetBytes",
+        "text": "func (c *L2Gov) GetSequencerSetBytes(opts *bind.CallOpts) ([]byte, common.Hash, error) {"
+      },
+      "file": "common/batch/l2_gov.go",
+      "id": "1aeda19de28467a7",
+      "lines": [
+        47,
+        48
+      ],
+      "markers": [
+        "never"
+      ],
+      "pieces": [
+        [
+          47,
+          24,
+          80
+        ],
+        [
+          48,
+          3,
+          56
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "The two contract reads are checked against each other so replay never accepts bytes from a different L2 state."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "type",
+        "line": 45,
+        "name": "BlobConfig",
+        "text": "type BlobConfig struct {"
+      },
+      "file": "common/blob/fee.go",
+      "id": "dfd9fcd0c7a5f933",
+      "lines": [
+        44,
+        44
+      ],
+      "markers": [
+        "required"
+      ],
+      "pieces": [
+        [
+          44,
+          3,
+          72
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "BlobConfig contains the parameters required for blob fee calculation."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "modifier",
+        "line": 119,
+        "name": "onlyActiveSubmitter",
+        "text": "modifier onlyActiveSubmitter() {"
+      },
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "10688db1737347e7",
+      "lines": [
+        118,
+        118
+      ],
+      "markers": [
+        "is allowed",
+        "only"
+      ],
+      "pieces": [
+        [
+          118,
+          8,
+          52
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice Only an active submitter is allowed."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "modifier",
+        "line": 125,
+        "name": "onlyChallenger",
+        "text": "modifier onlyChallenger() {"
+      },
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "efbcf1d35b208bbc",
+      "lines": [
+        124,
+        124
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          124,
+          8,
+          40
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice Only challenger allowed."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "modifier",
+        "line": 131,
+        "name": "nonReqRevert",
+        "text": "modifier nonReqRevert() {"
+      },
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "f89fe27f244e6786",
+      "lines": [
+        130,
+        130
+      ],
+      "markers": [
+        "ensure",
+        "revert"
+      ],
+      "pieces": [
+        [
+          130,
+          8,
+          75
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice Modifier to ensure that there is no pending revert request."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 273,
+        "name": "commitState",
+        "text": "function commitState("
+      },
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "74717ef4812e7100",
+      "lines": [
+        272,
+        272
+      ],
+      "markers": [
+        "revert"
+      ],
+      "pieces": [
+        [
+          272,
+          8,
+          105
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice Commit batch state when blob hash is already stored (recommit after revert without blob)."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 382,
+        "name": "commitBatchWithProof",
+        "text": "function commitBatchWithProof("
+      },
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "0ea242dfb054c885",
+      "lines": [
+        381,
+        381
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          381,
+          13,
+          82
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": "@dev",
+      "text": "Entry conditions: rollup delay OR L1 message queue delay must be met."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 430,
+        "name": "revertBatch",
+        "text": "function revertBatch(bytes calldata _batchHeader, uint256 _count) external onlyOwner {"
+      },
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "e5fcf77dc5cde788",
+      "lines": [
+        428,
+        429
+      ],
+      "markers": [
+        "revert"
+      ],
+      "pieces": [
+        [
+          428,
+          8,
+          97
+        ],
+        [
+          429,
+          13,
+          54
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@dev",
+      "text": "@dev If the owner wants to revert a sequence of batches by sending multiple transactions, make sure to revert recent batches first."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 892,
+        "name": "_computeBlobVersionedHash",
+        "text": "function _computeBlobVersionedHash(uint256 _version) internal view returns (bytes32 _blobVersionedHash) {"
+      },
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "237df1e68ce66f2e",
+      "lines": [
+        889,
+        890
+      ],
+      "markers": [
+        "at most",
+        "is allowed"
+      ],
+      "pieces": [
+        [
+          889,
+          13,
+          82
+        ],
+        [
+          890,
+          13,
+          85
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": "@dev",
+      "text": "At most one blob is allowed: extra blobs are ignored by this hash but would still be delivered to L2 derivation, which concatenates all blobs."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 892,
+        "name": "_computeBlobVersionedHash",
+        "text": "function _computeBlobVersionedHash(uint256 _version) internal view returns (bytes32 _blobVersionedHash) {"
+      },
+      "file": "contracts/contracts/l1/rollup/Rollup.sol",
+      "id": "2f0248ffdc0dae01",
+      "lines": [
+        891,
+        891
+      ],
+      "markers": [
+        "at least",
+        "requires"
+      ],
+      "pieces": [
+        [
+          891,
+          46,
+          90
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 4,
+      "tag": "@dev",
+      "text": "|| blobhash(N-1)), requires at least 1 blob."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 142,
+        "name": "storeBatchIndex",
+        "text": "function storeBatchIndex(uint256 batchPtr, uint256 _batchIndex) internal pure {"
+      },
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "id": "a5fba48104cb1185",
+      "lines": [
+        138,
+        139
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          138,
+          8,
+          96
+        ],
+        [
+          139,
+          8,
+          81
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@dev",
+      "text": "@dev Because this function can overwrite the subsequent fields, it must be called before `storeL1MessagePopped`, `storeTotalL1MessagePopped`, and `storeDataHash`."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 153,
+        "name": "storeL1MessagePopped",
+        "text": "function storeL1MessagePopped(uint256 batchPtr, uint256 _l1MessagePopped) internal pure {"
+      },
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "id": "6dc2c09e1a6298c1",
+      "lines": [
+        149,
+        150
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          149,
+          8,
+          96
+        ],
+        [
+          150,
+          8,
+          56
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@dev",
+      "text": "@dev Because this function can overwrite the subsequent fields, it must be called before `storeTotalL1MessagePopped` and `storeDataHash`."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 164,
+        "name": "storeTotalL1MessagePopped",
+        "text": "function storeTotalL1MessagePopped(uint256 batchPtr, uint256 _totalL1MessagePopped) internal pure {"
+      },
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "id": "3810dd868560e8f7",
+      "lines": [
+        160,
+        161
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          160,
+          8,
+          96
+        ],
+        [
+          161,
+          8,
+          24
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@dev",
+      "text": "@dev Because this function can overwrite the subsequent fields, it must be called before `storeDataHash`."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "function",
+        "line": 239,
+        "name": "computeBatchHash",
+        "text": "function computeBatchHash(uint256 batchPtr, uint256 length) internal pure returns (bytes32 _batchHash) {"
+      },
+      "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+      "id": "2090a4150b9e4740",
+      "lines": [
+        234,
+        234
+      ],
+      "markers": [
+        "should"
+      ],
+      "pieces": [
+        [
+          234,
+          8,
+          78
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": "@dev",
+      "text": "@dev Caller should make sure that the encoded batch header is correct."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 263,
+        "name": "blockContentMatches",
+        "text": "func blockContentMatches(local *eth.Block, sd *catalyst.SafeL2Data) bool {"
+      },
+      "file": "node/derivation/batch_info.go",
+      "id": "1ed405f777e16107",
+      "lines": [
+        261,
+        261
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          261,
+          3,
+          59
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "The batch has no parent hashes, so this is content-only;"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 193,
+        "name": "dataAndHashesFromTxs",
+        "text": "func dataAndHashesFromTxs(txs types.Transactions, targetTx *types.Transaction) []IndexedBlobHash {"
+      },
+      "file": "node/derivation/beacon.go",
+      "id": "0acdd1a837350f92",
+      "lines": [
+        190,
+        192
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          190,
+          103,
+          105
+        ],
+        [
+          191,
+          3,
+          98
+        ],
+        [
+          192,
+          3,
+          55
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "It creates a placeholder blobOrCalldata element for each returned blob hash that must be populated by fillBlobPointers after blob bodies are retrieved."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "type",
+        "line": 225,
+        "name": "FallbackBeaconClient",
+        "text": "type FallbackBeaconClient struct {"
+      },
+      "file": "node/derivation/beacon.go",
+      "id": "3a305e0d6e5fcb34",
+      "lines": [
+        214,
+        216
+      ],
+      "markers": [
+        "cannot"
+      ],
+      "pieces": [
+        [
+          214,
+          3,
+          76
+        ],
+        [
+          215,
+          3,
+          76
+        ],
+        [
+          216,
+          3,
+          47
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "FallbackBeaconClient queries several beacon nodes in order and rotates to the next one when an endpoint cannot serve verified blobs (error, missing data, or content failing hash verification)."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "type",
+        "line": 225,
+        "name": "FallbackBeaconClient",
+        "text": "type FallbackBeaconClient struct {"
+      },
+      "file": "node/derivation/beacon.go",
+      "id": "cad0fec3b2d40204",
+      "lines": [
+        219,
+        220
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          219,
+          3,
+          78
+        ],
+        [
+          220,
+          3,
+          31
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "Scope: fallback only covers per-endpoint data faults (corruption, pruned or unsynced data, client bugs)."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "type",
+        "line": 225,
+        "name": "FallbackBeaconClient",
+        "text": "type FallbackBeaconClient struct {"
+      },
+      "file": "node/derivation/beacon.go",
+      "id": "bda2e31de6b1daf5",
+      "lines": [
+        220,
+        224
+      ],
+      "markers": [
+        "should",
+        "should not"
+      ],
+      "pieces": [
+        [
+          220,
+          32,
+          76
+        ],
+        [
+          221,
+          3,
+          70
+        ],
+        [
+          222,
+          3,
+          73
+        ],
+        [
+          223,
+          3,
+          72
+        ],
+        [
+          224,
+          3,
+          23
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "It is not a consistency mechanism and should not grow into one — safety against bad data comes from the KZG hash verification itself, and EL/CL fork mismatches near the chain head are eliminated by running derivation with confirmations=finalized, not by trying more beacons."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 273,
+        "name": "GetVerifiedBlobSidecar",
+        "text": "func (c *FallbackBeaconClient) GetVerifiedBlobSidecar(ctx context.Context, ref L1BlockRef, wantHashes []common.Hash, indexHints []IndexedBlobHash) (types.BlobTxSidecar, error) {"
+      },
+      "file": "node/derivation/beacon.go",
+      "id": "7229f5e9a1a6b36a",
+      "lines": [
+        270,
+        272
+      ],
+      "markers": [
+        "cannot"
+      ],
+      "pieces": [
+        [
+          270,
+          3,
+          73
+        ],
+        [
+          271,
+          3,
+          76
+        ],
+        [
+          272,
+          3,
+          72
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "indexHints is an optional fetch optimization (?indices= filter), not a correctness input: verification is purely by hash, so callers that cannot build indices may pass nil and the whole slot is fetched and matched."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 530,
+        "name": "enforceBatchRootVerification",
+        "text": "func enforceBatchRootVerification(verifyMode string) bool {"
+      },
+      "file": "node/derivation/derivation.go",
+      "id": "405cf2f2af422885",
+      "lines": [
+        526,
+        527
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          526,
+          3,
+          80
+        ],
+        [
+          527,
+          3,
+          19
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "enforceBatchRootVerification reports whether a root verification failure must stop derivation."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 530,
+        "name": "enforceBatchRootVerification",
+        "text": "func enforceBatchRootVerification(verifyMode string) bool {"
+      },
+      "file": "node/derivation/derivation.go",
+      "id": "ccac45e438f07931",
+      "lines": [
+        527,
+        529
+      ],
+      "markers": [
+        "must",
+        "must not"
+      ],
+      "pieces": [
+        [
+          527,
+          66,
+          79
+        ],
+        [
+          528,
+          3,
+          81
+        ],
+        [
+          529,
+          3,
+          50
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "local mode is used by regular nodes, which still verify roots for observability but must not lose sync when historical state is unavailable."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 682,
+        "name": "unpackModernRollupCall",
+        "text": "func unpackModernRollupCall(contractABI *abi.ABI, data []byte) (geth.RPCRollupBatch, bool, error) {"
+      },
+      "file": "node/derivation/derivation.go",
+      "id": "8ce3b1356f6a1117",
+      "lines": [
+        680,
+        681
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          680,
+          3,
+          76
+        ],
+        [
+          681,
+          3,
+          44
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "unpackModernRollupCall intentionally recognizes only the two methods that derivation supported before this upgrade."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 731,
+        "name": "handleL1Message",
+        "text": "func (d *Derivation) handleL1Message(rollupData *BatchInfo, parentTotalL1MessagePopped uint64) error {"
+      },
+      "file": "node/derivation/derivation.go",
+      "id": "187f305a11f2e566",
+      "lines": [
+        728,
+        729
+      ],
+      "markers": [
+        "always"
+      ],
+      "pieces": [
+        [
+          728,
+          56,
+          76
+        ],
+        [
+          729,
+          3,
+          67
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "We rely on snapshots shipping the full DB so historical L1 messages are always local;"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 805,
+        "name": "withReactorsQuiesced",
+        "text": "func (d *Derivation) withReactorsQuiesced(batchIndex uint64, body func() error) error {"
+      },
+      "file": "node/derivation/derivation.go",
+      "id": "af0b6e901e049918",
+      "lines": [
+        798,
+        800
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          798,
+          26,
+          72
+        ],
+        [
+          799,
+          3,
+          70
+        ],
+        [
+          800,
+          3,
+          38
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "The restart height comes from the L2 EL latest (truth source for what was actually applied — body may have written only N of M blocks before failing);"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 805,
+        "name": "withReactorsQuiesced",
+        "text": "func (d *Derivation) withReactorsQuiesced(batchIndex uint64, body func() error) error {"
+      },
+      "file": "node/derivation/derivation.go",
+      "id": "0b8f541bb12abb1c",
+      "lines": [
+        800,
+        802
+      ],
+      "markers": [
+        "never"
+      ],
+      "pieces": [
+        [
+          800,
+          39,
+          73
+        ],
+        [
+          801,
+          3,
+          70
+        ],
+        [
+          802,
+          3,
+          62
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "on EL read failure we fall back to the pre-write height we captured before stopping reactors, never to zero (which would tell blocksync to re-fetch from genesis)."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 858,
+        "name": "deriveForce",
+        "text": "func (d *Derivation) deriveForce(rollupData *BatchInfo) (*eth.Header, error) {"
+      },
+      "file": "node/derivation/derivation.go",
+      "id": "bcf0f93d63e90c69",
+      "lines": [
+        852,
+        855
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          852,
+          69,
+          75
+        ],
+        [
+          853,
+          3,
+          74
+        ],
+        [
+          854,
+          3,
+          77
+        ],
+        [
+          855,
+          3,
+          58
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "A kept block is canonical by induction: matching content on a canonical parent reproduces the canonical block (the batch has no parent hashes, so content is the only signal — and it suffices given the anchor)."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 35,
+        "name": "finalizerTick",
+        "text": "func (d *Derivation) finalizerTick() {"
+      },
+      "file": "node/derivation/finalizer.go",
+      "id": "de0200e8d9eefe85",
+      "lines": [
+        13,
+        18
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          13,
+          3,
+          75
+        ],
+        [
+          14,
+          3,
+          74
+        ],
+        [
+          15,
+          3,
+          76
+        ],
+        [
+          16,
+          3,
+          75
+        ],
+        [
+          17,
+          3,
+          77
+        ],
+        [
+          18,
+          3,
+          74
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "Originally a separate goroutine (with its own ticker / stopped channel), folded into the derivation main loop because the only justification for a separate goroutine was \"L1 RPC could be slow\" -- which was already true for the main loop's eth_getLogs / eth_getTransactionByHash calls, so the extra goroutine bought nothing and introduced cross-goroutine state writes (cursor / tagAdvancer) that complicated the canonicality recovery path."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 35,
+        "name": "finalizerTick",
+        "text": "func (d *Derivation) finalizerTick() {"
+      },
+      "file": "node/derivation/finalizer.go",
+      "id": "c6ce0e4a1f1cdc86",
+      "lines": [
+        26,
+        28
+      ],
+      "markers": [
+        "always"
+      ],
+      "pieces": [
+        [
+          26,
+          3,
+          68
+        ],
+        [
+          27,
+          3,
+          70
+        ],
+        [
+          28,
+          3,
+          73
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "on every finalize, so an older batchIndex returns zero -- but the LATEST committed batch index (queried at the L1 finalized block) is always populated, since at that block its delete has not yet happened."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 45,
+        "name": "detectReorg",
+        "text": "func (d *Derivation) detectReorg(ctx context.Context) (*uint64, error) {"
+      },
+      "file": "node/derivation/reorg.go",
+      "id": "d458f85fdaeeef68",
+      "lines": [
+        42,
+        44
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          42,
+          48,
+          74
+        ],
+        [
+          43,
+          3,
+          74
+        ],
+        [
+          44,
+          3,
+          20
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "Only when the newest block mismatches does it do a full oldest-to-newest scan to find the earliest divergence point."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 151,
+        "name": "recordL1Blocks",
+        "text": "func (d *Derivation) recordL1Blocks(ctx context.Context, from, to uint64) error {"
+      },
+      "file": "node/derivation/reorg.go",
+      "id": "de443060c94b828a",
+      "lines": [
+        147,
+        150
+      ],
+      "markers": [
+        "must",
+        "must not"
+      ],
+      "pieces": [
+        [
+          147,
+          35,
+          71
+        ],
+        [
+          148,
+          3,
+          74
+        ],
+        [
+          149,
+          3,
+          68
+        ],
+        [
+          150,
+          3,
+          14
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "Returns an error if any header fetch fails -- the caller must NOT advance the derivation cursor in that case to avoid permanent gaps in the L1 hash record (which would defeat detection)."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "type",
+        "line": 31,
+        "name": "tagAdvancer",
+        "text": "type tagAdvancer struct {"
+      },
+      "file": "node/derivation/tag_advance.go",
+      "id": "1ef323a69896e6dd",
+      "lines": [
+        25,
+        27
+      ],
+      "markers": [
+        "enforces",
+        "invariant"
+      ],
+      "pieces": [
+        [
+          25,
+          23,
+          76
+        ],
+        [
+          26,
+          3,
+          70
+        ],
+        [
+          27,
+          3,
+          45
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 3,
+      "tag": null,
+      "text": "Both paths converge on `flushTags` which enforces the `finalized <= safe <= unsafe` invariant before calling the existing `RetryableClient.SetBlockTags` engine RPC."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "type",
+        "line": 31,
+        "name": "tagAdvancer",
+        "text": "type tagAdvancer struct {"
+      },
+      "file": "node/derivation/tag_advance.go",
+      "id": "513634649b89440c",
+      "lines": [
+        29,
+        30
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          29,
+          3,
+          83
+        ],
+        [
+          30,
+          3,
+          55
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "In-memory only by design: SPEC-005 section 4.7.7 -- restart starts from zero and derivation refills naturally as it walks its cursor."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 101,
+        "name": "advanceFinalized",
+        "text": "func (t *tagAdvancer) advanceFinalized(ctx context.Context, batchIndex uint64, hash common.Hash, number uint64) {"
+      },
+      "file": "node/derivation/tag_advance.go",
+      "id": "74216ea6f9baeae6",
+      "lines": [
+        94,
+        95
+      ],
+      "markers": [
+        "never"
+      ],
+      "pieces": [
+        [
+          94,
+          60,
+          75
+        ],
+        [
+          95,
+          3,
+          19
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "finalized never moves backwards;"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 162,
+        "name": "flushTags",
+        "text": "func (t *tagAdvancer) flushTags(ctx context.Context) {"
+      },
+      "file": "node/derivation/tag_advance.go",
+      "id": "aa27bb4cf2720014",
+      "lines": [
+        158,
+        159
+      ],
+      "markers": [
+        "enforces",
+        "exactly",
+        "invariant"
+      ],
+      "pieces": [
+        [
+          158,
+          3,
+          73
+        ],
+        [
+          159,
+          3,
+          46
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "flushTags enforces the finalized <= safe <= unsafe invariant and calls SetBlockTags exactly once per state change."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 162,
+        "name": "flushTags",
+        "text": "func (t *tagAdvancer) flushTags(ctx context.Context) {"
+      },
+      "file": "node/derivation/tag_advance.go",
+      "id": "d1bbaca4ae67d672",
+      "lines": [
+        159,
+        161
+      ],
+      "markers": [
+        "invariant"
+      ],
+      "pieces": [
+        [
+          159,
+          47,
+          76
+        ],
+        [
+          160,
+          3,
+          60
+        ],
+        [
+          161,
+          3,
+          36
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "On invariant violation we log error and skip -- no panic, no halt -- matching op-node's tryUpdateEngineInternal behavior."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "var",
+        "line": 26,
+        "name": "ErrBatchVerifyDivergence",
+        "text": "var ErrBatchVerifyDivergence = errors.New(\"batch verify: divergence verdict\")"
+      },
+      "file": "node/derivation/verify.go",
+      "id": "8a3f352a2a07b424",
+      "lines": [
+        19,
+        21
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          19,
+          3,
+          61
+        ],
+        [
+          20,
+          3,
+          61
+        ],
+        [
+          21,
+          3,
+          29
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "Only the verifyBatchRoots call site in derivation.go gates `metrics.SetBatchStatus(stateException)` on errors.Is(err, ErrBatchVerifyDivergence);"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "var",
+        "line": 26,
+        "name": "ErrBatchVerifyDivergence",
+        "text": "var ErrBatchVerifyDivergence = errors.New(\"batch verify: divergence verdict\")"
+      },
+      "file": "node/derivation/verify.go",
+      "id": "eb1aa13a2ee9f894",
+      "lines": [
+        22,
+        25
+      ],
+      "markers": [
+        "must",
+        "must not"
+      ],
+      "pieces": [
+        [
+          22,
+          36,
+          63
+        ],
+        [
+          23,
+          3,
+          73
+        ],
+        [
+          24,
+          3,
+          75
+        ],
+        [
+          25,
+          3,
+          70
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "Transient or runtime errors (RPC down, tx parsing failure, encoding bug, ...) intentionally do NOT wrap this sentinel: they reflect \"verifier could not run\", not \"verifier determined divergence\", and must not light up the divergence alert."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 40,
+        "name": "verifyBatchRoots",
+        "text": "func (d *Derivation) verifyBatchRoots(batchInfo *BatchInfo, lastHeader *eth.Header) error {"
+      },
+      "file": "node/derivation/verify.go",
+      "id": "272ec89efa6799fc",
+      "lines": [
+        31,
+        34
+      ],
+      "markers": [
+        "invariant"
+      ],
+      "pieces": [
+        [
+          31,
+          3,
+          81
+        ],
+        [
+          32,
+          3,
+          76
+        ],
+        [
+          33,
+          3,
+          74
+        ],
+        [
+          34,
+          3,
+          61
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "SPEC-005 section 3.4 invariant: this check is independent of blob data -- both batchInfo.root (postStateRoot) and batchInfo.withdrawalRoot are extracted from L1 calldata at parse time, so this function runs identically under layer1 (beacon blob) and local-rebuild verification modes."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 53,
+        "name": "fetchBatchInfoOutline",
+        "text": "func (d *Derivation) fetchBatchInfoOutline(ctx context.Context, txHash common.Hash, blockNumber uint64) (*BatchInfo, error) {"
+      },
+      "file": "node/derivation/verify_local.go",
+      "id": "59bd86162b19b35a",
+      "lines": [
+        42,
+        44
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          42,
+          3,
+          75
+        ],
+        [
+          43,
+          3,
+          75
+        ],
+        [
+          44,
+          3,
+          21
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "fetchBatchInfoOutline pulls the L1 commitBatch tx, decodes its calldata, and populates a BatchInfo using only the calldata + tx blob hashes -- no beacon blob fetch."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 53,
+        "name": "fetchBatchInfoOutline",
+        "text": "func (d *Derivation) fetchBatchInfoOutline(ctx context.Context, txHash common.Hash, blockNumber uint64) (*BatchInfo, error) {"
+      },
+      "file": "node/derivation/verify_local.go",
+      "id": "610b13d6df3e7c16",
+      "lines": [
+        47,
+        48
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          47,
+          3,
+          78
+        ],
+        [
+          48,
+          3,
+          16
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "Only the new commitBatch ABI (rollupABI commitBatch / commitBatchWithProof) is supported."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 53,
+        "name": "fetchBatchInfoOutline",
+        "text": "func (d *Derivation) fetchBatchInfoOutline(ctx context.Context, txHash common.Hash, blockNumber uint64) (*BatchInfo, error) {"
+      },
+      "file": "node/derivation/verify_local.go",
+      "id": "dd65c082b1e6ac21",
+      "lines": [
+        49,
+        52
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          49,
+          62,
+          72
+        ],
+        [
+          50,
+          3,
+          75
+        ],
+        [
+          51,
+          3,
+          69
+        ],
+        [
+          52,
+          3,
+          13
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "Legacy-ABI batches (calldata BlockContexts + V1 blob encoding) are not handled here -- they only exist on historical batches that have long since been finalized."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 130,
+        "name": "rebuildBlob",
+        "text": "func (d *Derivation) rebuildBlob(ctx context.Context, batchInfo *BatchInfo) ([]common.Hash, error) {"
+      },
+      "file": "node/derivation/verify_local.go",
+      "id": "58dd95181469a465",
+      "lines": [
+        121,
+        123
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          121,
+          5,
+          72
+        ],
+        [
+          122,
+          7,
+          72
+        ],
+        [
+          123,
+          7,
+          34
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "- kind=blob_count_mismatch wraps ErrBatchVerifyDivergence, but this function's call site in derivation.go only logs and retries -- it does not read the sentinel."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 130,
+        "name": "rebuildBlob",
+        "text": "func (d *Derivation) rebuildBlob(ctx context.Context, batchInfo *BatchInfo) ([]common.Hash, error) {"
+      },
+      "file": "node/derivation/verify_local.go",
+      "id": "2162788099d9fd83",
+      "lines": [
+        123,
+        124
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          123,
+          35,
+          73
+        ],
+        [
+          124,
+          7,
+          68
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "BatchStatus=stateException is set only on verifyBatchRoots failures (state / withdrawal root vs L1)."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 126,
+        "name": "BlobVersionedHash",
+        "text": "func (b BatchHeaderBytes) BlobVersionedHash() (common.Hash, error) {"
+      },
+      "file": "node/types/batch_header.go",
+      "id": "e45f1bb29ae935e3",
+      "lines": [
+        123,
+        124
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          123,
+          19,
+          77
+        ],
+        [
+          124,
+          3,
+          42
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "This is only meaningful for V0/V1 batches, where the field holds the single blob's versioned hash."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 126,
+        "name": "BlobVersionedHash",
+        "text": "func (b BatchHeaderBytes) BlobVersionedHash() (common.Hash, error) {"
+      },
+      "file": "node/types/batch_header.go",
+      "id": "b3a9515d2f04be77",
+      "lines": [
+        125,
+        125
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          125,
+          29,
+          69
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 3,
+      "tag": null,
+      "text": "callers must use BlobHashesHash instead."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "var",
+        "line": 51,
+        "name": "GethRetryMaxElapsedTime",
+        "text": "var GethRetryMaxElapsedTime = 30 * time.Minute"
+      },
+      "file": "node/types/retryable_client.go",
+      "id": "43d4e4a036f5bc82",
+      "lines": [
+        49,
+        50
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          49,
+          30,
+          78
+        ],
+        [
+          50,
+          3,
+          31
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "fullnodes keep the long window because they only need to catch up eventually."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 301,
+        "name": "retryableError",
+        "text": "func retryableError(err error) bool {"
+      },
+      "file": "node/types/retryable_client.go",
+      "id": "7ec859c7bbca6794",
+      "lines": [
+        280,
+        282
+      ],
+      "markers": [
+        "should"
+      ],
+      "pieces": [
+        [
+          280,
+          3,
+          78
+        ],
+        [
+          281,
+          3,
+          76
+        ],
+        [
+          282,
+          3,
+          40
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "currently we want every error retryable, except the DiscontinuousBlockError retryableError reports whether an RPC error should trigger an exponential backoff retry inside RetryableClient."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 301,
+        "name": "retryableError",
+        "text": "func retryableError(err error) bool {"
+      },
+      "file": "node/types/retryable_client.go",
+      "id": "048b0d06a5492c34",
+      "lines": [
+        297,
+        297
+      ],
+      "markers": [
+        "should"
+      ],
+      "pieces": [
+        [
+          297,
+          3,
+          75
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "retryableError returns true for transient errors that should be retried."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 301,
+        "name": "retryableError",
+        "text": "func retryableError(err error) bool {"
+      },
+      "file": "node/types/retryable_client.go",
+      "id": "c5679301ab846cad",
+      "lines": [
+        298,
+        300
+      ],
+      "markers": [
+        "always",
+        "only"
+      ],
+      "pieces": [
+        [
+          298,
+          3,
+          72
+        ],
+        [
+          299,
+          3,
+          77
+        ],
+        [
+          300,
+          3,
+          76
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "Permanent logic errors (wrong block number, missing parent) and block validation errors (hash mismatch, invalid NextL1MsgIndex) are not retried, because the same payload will always fail and only delay error surfacing."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 139,
+        "name": "GetDeployedAddresses",
+        "text": "func (d *DeployConfig) GetDeployedAddresses(hh *hardhat.Hardhat) error {"
+      },
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/config.go",
+      "id": "b7eeff43d39fb125",
+      "lines": [
+        135,
+        136
+      ],
+      "markers": [
+        "required"
+      ],
+      "pieces": [
+        [
+          135,
+          3,
+          80
+        ],
+        [
+          136,
+          3,
+          40
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "GetDeployedAddresses will get the deployed addresses of deployed L1 contracts required for the L2 genesis creation."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 72,
+        "name": "SetDevnetTestTokens",
+        "text": "func SetDevnetTestTokens(db vm.StateDB) error {"
+      },
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/devnet_tokens.go",
+      "id": "d9373bdd6ae00b37",
+      "lines": [
+        71,
+        71
+      ],
+      "markers": [
+        "must"
+      ],
+      "pieces": [
+        [
+          71,
+          3,
+          96
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "The contract owner must activate the tokens and allow the oracle signer before price updates."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 65,
+        "name": "AddressToCodeNamespace",
+        "text": "func AddressToCodeNamespace(addr common.Address) (common.Address, error) {"
+      },
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/helpers.go",
+      "id": "13b89054f12f2ca5",
+      "lines": [
+        63,
+        64
+      ],
+      "markers": [
+        "should"
+      ],
+      "pieces": [
+        [
+          63,
+          3,
+          64
+        ],
+        [
+          64,
+          3,
+          75
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 0,
+      "tag": null,
+      "text": "AddressToCodeNamespace takes a predeploy address and computes the implementation address that the implementation should be deployed at"
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 40,
+        "name": "SetL2Proxies",
+        "text": "func SetL2Proxies(db vm.StateDB) error {"
+      },
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/setters.go",
+      "id": "2214b3858e8e426e",
+      "lines": [
+        36,
+        39
+      ],
+      "markers": [
+        "requires"
+      ],
+      "pieces": [
+        [
+          36,
+          59,
+          70
+        ],
+        [
+          37,
+          3,
+          71
+        ],
+        [
+          38,
+          3,
+          72
+        ],
+        [
+          39,
+          3,
+          9
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 1,
+      "tag": null,
+      "text": "It requires a Proxy and ProxyAdmin deployment present so that the Proxy bytecode can be set in state and the ProxyAdmin can be set as the admin of the Proxy."
+    },
+    {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "control": null,
+      "decl": {
+        "kind": "func",
+        "line": 139,
+        "name": "SetPrecompileBalances",
+        "text": "func SetPrecompileBalances(db vm.StateDB) {"
+      },
+      "file": "ops/l2-genesis/morph-chain-ops/genesis/setters.go",
+      "id": "b519945441eb6f00",
+      "lines": [
+        137,
+        138
+      ],
+      "markers": [
+        "only",
+        "should"
+      ],
+      "pieces": [
+        [
+          137,
+          57,
+          73
+        ],
+        [
+          138,
+          3,
+          23
+        ]
+      ],
+      "repo": "morph-l2/morph",
+      "sentence": 2,
+      "tag": null,
+      "text": "This should only be used for devnets."
+    }
+  ],
+  "atoms_version": "holon-intent-atoms/0.1",
+  "controls": [
+    {
+      "commit": null,
+      "control": "i_access_right_1",
+      "decl": {
+        "kind": "function",
+        "line": 13,
+        "name": "pause",
+        "text": "function pause() external {"
+      },
+      "file": "spec/M5/controls/intent/i_access_right_1.sol",
+      "id": "b91c19550edb31c4",
+      "lines": [
+        12,
+        12
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          12,
+          8,
+          54
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice Only the owner can pause the contract."
+    },
+    {
+      "commit": null,
+      "control": "i_access_right_2",
+      "decl": {
+        "kind": "function",
+        "line": 13,
+        "name": "pause",
+        "text": "function pause() external {"
+      },
+      "file": "spec/M5/controls/intent/i_access_right_2.sol",
+      "id": "a485355f19d5905c",
+      "lines": [
+        12,
+        12
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          12,
+          8,
+          54
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice Only the owner can pause the contract."
+    },
+    {
+      "commit": null,
+      "control": "i_access_wrong_1",
+      "decl": {
+        "kind": "function",
+        "line": 13,
+        "name": "pause",
+        "text": "function pause() external {"
+      },
+      "file": "spec/M5/controls/intent/i_access_wrong_1.sol",
+      "id": "030faa7bb342d83f",
+      "lines": [
+        12,
+        12
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          12,
+          8,
+          54
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice Only the owner can pause the contract."
+    },
+    {
+      "commit": null,
+      "control": "i_access_wrong_2",
+      "decl": {
+        "kind": "function",
+        "line": 13,
+        "name": "pause",
+        "text": "function pause() external {"
+      },
+      "file": "spec/M5/controls/intent/i_access_wrong_2.sol",
+      "id": "ce4c4710f619fb00",
+      "lines": [
+        12,
+        12
+      ],
+      "markers": [
+        "only"
+      ],
+      "pieces": [
+        [
+          12,
+          8,
+          54
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice Only the owner can pause the contract."
+    },
+    {
+      "commit": null,
+      "control": "i_bound_right_1",
+      "decl": {
+        "kind": "function",
+        "line": 6,
+        "name": "fee",
+        "text": "function fee(uint256 amount) external pure returns (uint256) {"
+      },
+      "file": "spec/M5/controls/intent/i_bound_right_1.sol",
+      "id": "8173dd8517e21792",
+      "lines": [
+        5,
+        5
+      ],
+      "markers": [
+        "at most"
+      ],
+      "pieces": [
+        [
+          5,
+          8,
+          67
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice The fee charged is at most 1 percent of the amount."
+    },
+    {
+      "commit": null,
+      "control": "i_bound_right_2",
+      "decl": {
+        "kind": "function",
+        "line": 6,
+        "name": "fee",
+        "text": "function fee(uint256 amount) external pure returns (uint256) {"
+      },
+      "file": "spec/M5/controls/intent/i_bound_right_2.sol",
+      "id": "8fe1e536a876ba0c",
+      "lines": [
+        5,
+        5
+      ],
+      "markers": [
+        "at most"
+      ],
+      "pieces": [
+        [
+          5,
+          8,
+          67
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice The fee charged is at most 2 percent of the amount."
+    },
+    {
+      "commit": null,
+      "control": "i_bound_wrong_1",
+      "decl": {
+        "kind": "function",
+        "line": 6,
+        "name": "fee",
+        "text": "function fee(uint256 amount) external pure returns (uint256) {"
+      },
+      "file": "spec/M5/controls/intent/i_bound_wrong_1.sol",
+      "id": "116d44eab1f4176c",
+      "lines": [
+        5,
+        5
+      ],
+      "markers": [
+        "at most"
+      ],
+      "pieces": [
+        [
+          5,
+          8,
+          67
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice The fee charged is at most 1 percent of the amount."
+    },
+    {
+      "commit": null,
+      "control": "i_bound_wrong_2",
+      "decl": {
+        "kind": "function",
+        "line": 6,
+        "name": "fee",
+        "text": "function fee(uint256 amount) external pure returns (uint256) {"
+      },
+      "file": "spec/M5/controls/intent/i_bound_wrong_2.sol",
+      "id": "9df661f22096f75c",
+      "lines": [
+        5,
+        5
+      ],
+      "markers": [
+        "at most"
+      ],
+      "pieces": [
+        [
+          5,
+          8,
+          67
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice The fee charged is at most 2 percent of the amount."
+    },
+    {
+      "commit": null,
+      "control": "i_monotone_right_1",
+      "decl": {
+        "kind": "function",
+        "line": 8,
+        "name": "step",
+        "text": "function step() external {"
+      },
+      "file": "spec/M5/controls/intent/i_monotone_right_1.sol",
+      "id": "025e2587d56f6954",
+      "lines": [
+        7,
+        7
+      ],
+      "markers": [
+        "never"
+      ],
+      "pieces": [
+        [
+          7,
+          8,
+          42
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice The count never decreases."
+    },
+    {
+      "commit": null,
+      "control": "i_monotone_right_2",
+      "decl": {
+        "kind": "function",
+        "line": 8,
+        "name": "step",
+        "text": "function step() external {"
+      },
+      "file": "spec/M5/controls/intent/i_monotone_right_2.sol",
+      "id": "8575ff954005099c",
+      "lines": [
+        7,
+        7
+      ],
+      "markers": [
+        "never"
+      ],
+      "pieces": [
+        [
+          7,
+          8,
+          42
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice The count never decreases."
+    },
+    {
+      "commit": null,
+      "control": "i_monotone_wrong_1",
+      "decl": {
+        "kind": "function",
+        "line": 8,
+        "name": "step",
+        "text": "function step() external {"
+      },
+      "file": "spec/M5/controls/intent/i_monotone_wrong_1.sol",
+      "id": "6010a3810679998f",
+      "lines": [
+        7,
+        7
+      ],
+      "markers": [
+        "never"
+      ],
+      "pieces": [
+        [
+          7,
+          8,
+          42
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice The count never decreases."
+    },
+    {
+      "commit": null,
+      "control": "i_monotone_wrong_2",
+      "decl": {
+        "kind": "function",
+        "line": 8,
+        "name": "step",
+        "text": "function step() external {"
+      },
+      "file": "spec/M5/controls/intent/i_monotone_wrong_2.sol",
+      "id": "da2c82011f3019d2",
+      "lines": [
+        7,
+        7
+      ],
+      "markers": [
+        "never"
+      ],
+      "pieces": [
+        [
+          7,
+          8,
+          42
+        ]
+      ],
+      "repo": "holon-controls",
+      "sentence": 0,
+      "tag": "@notice",
+      "text": "@notice The count never decreases."
+    }
+  ],
+  "scope": {
+    "morph-l2/morph": {
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "files": [
+        "common/batch/batch_cache.go",
+        "common/batch/batch_data.go",
+        "common/batch/batch_header.go",
+        "common/batch/batch_query.go",
+        "common/batch/batch_storage.go",
+        "common/batch/blob.go",
+        "common/batch/encoding.go",
+        "common/batch/interfaces.go",
+        "common/batch/l2_gov.go",
+        "common/blob/fee.go",
+        "common/blob/payload.go",
+        "common/codec/zstd/codec.go",
+        "contracts/contracts/l1/rollup/Rollup.sol",
+        "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+        "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+        "node/derivation/base_client.go",
+        "node/derivation/batch_info.go",
+        "node/derivation/beacon.go",
+        "node/derivation/blob_type.go",
+        "node/derivation/blobs.go",
+        "node/derivation/config.go",
+        "node/derivation/derivation.go",
+        "node/derivation/finalizer.go",
+        "node/derivation/metrics.go",
+        "node/derivation/reorg.go",
+        "node/derivation/tag_advance.go",
+        "node/derivation/verify.go",
+        "node/derivation/verify_local.go",
+        "node/types/batch.go",
+        "node/types/batch_header.go",
+        "node/types/config.go",
+        "node/types/consensus_message.go",
+        "node/types/converter.go",
+        "node/types/errors.go",
+        "node/types/networks.go",
+        "node/types/retryable_client.go",
+        "node/types/types.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/batch.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/check.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/config.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/devnet_tokens.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/genesis.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/helpers.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/layer_two.go",
+        "ops/l2-genesis/morph-chain-ops/genesis/setters.go"
+      ],
+      "unresolved": [
+        "openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+        "openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
+        "openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol"
+      ]
+    }
+  },
+  "scope_commit": "4fd64a52f030438cac06595f8673840d6c5c6525"
+}
