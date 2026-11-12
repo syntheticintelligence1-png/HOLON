@@ -409,6 +409,7 @@ def render(summary: dict, mx: dict, cal: dict | None) -> str:
         for r in mx["baseline_deltas"]:
             L.append(f"| {r['system']} | {r['name']} | {r['metric']} | {_f(r['holon'])} | {_f(r['baseline'])} | "
                      f"{_f(r['delta'])} | {r['run_targets']} |")
+    L += corpus_asymmetry(corp, mx)
     L += ["", "## Threats to validity", ""] + [f"- {t}" for t in P["threats"]]
     L += [f"- The {held} rows follow the lead's ruling on I52b (2026-11-11): the baselines' equal-budget figure is "
           "I52b's primary tier, a degenerate budget since HOLON's own route took under a second (its 3600 s tier is a "
@@ -425,6 +426,34 @@ def render(summary: dict, mx: dict, cal: dict | None) -> str:
           "- The rulings used here and in docs/iterations/I53.md are docs/HUMAN_ANSWERS.md Q45-Q53 (the lead's, delegated "
           "by the human).", ""]
     return "\n".join(L)
+
+
+def corpus_asymmetry(corp: str, mx: dict) -> list[str]:
+    """The compiler asymmetry beside the corpus deltas, from I51's recorded rows and the baselines' detections: HOLON's
+    corpus run had one pinned compiler per language, so its not_run rows never reached extraction, while a baseline
+    whose runner selects the compiler by pragma read that code."""
+    rows = A.load(ROOT / OUT / "holon" / "corpus.json")["rows"]
+    nr = [r for r in rows if r.get("status") == "not_run"]
+    if not nr:
+        return []
+    L = ["", f"**Compiler asymmetry on the {corp}** (generated from results/eval/holon/corpus.json and the baselines' files). "
+         f"HOLON's run (I51) had one pinned compiler per language, so {len(nr)} of {len(rows)} entries never reached "
+         "extraction (not_run); the baselines' Solidity runner selects the compiler by pragma, so a baseline detection "
+         "on these entries is on code HOLON never read.", "",
+         "| entry | why HOLON did not run it |", "|---|---|"]
+    for r in nr:
+        why = " ".join((r.get("reason") or "").split()).replace("|", "/")
+        L.append(f"| {r['id']} | {why[:220]} |")
+    ids = {r["id"] for r in nr}
+    hits = []
+    for b in mx["baselines_present"].get(corp) or []:
+        doc = A.load(ROOT / OUT / corp / f"{b}.json")
+        det = sorted({x for t in (doc.get("targets") or {}).values() if t.get("status") == "run"
+                      for x in t.get("detected") or []} & ids)
+        if det:
+            hits.append(f"{b}: {', '.join(det)}")
+    L += ["", "Baseline detections on those entries: " + ("; ".join(hits) if hits else "none") + "."]
+    return L
 
 
 def report(check: bool) -> int:
