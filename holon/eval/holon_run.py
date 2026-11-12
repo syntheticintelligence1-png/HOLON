@@ -42,6 +42,7 @@ RULES = ("PAR", "SORT", "DISCH", "UNDO", "NAT", "FACT", "SYM", "OWN")
 CLASSES = ("true_defect", "intended_asymmetry", "model_defect", "unreplayed")
 COPY_DIRS = ("holon", "config", "spec", "bend", "schemas")
 _IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", "node_modules", "heldout")
+VAULT: Path | None = None   # I110 (--vault DIR): where withhold() keeps the withheld per-law outputs, outside the repo
 
 
 # ---------------------------------------------------------------------------------------------- small helpers
@@ -435,8 +436,11 @@ def summarize(rows: list[dict]) -> dict:
 
 
 # ---------------------------------------------------------------------------------------------- one entry
-def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dict, roles: dict | None = None) -> dict:
-    """Run one entry; write its <id>/ directory into stage_dir; return its row."""
+def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dict, roles: dict | None = None,
+              compose: bool = False) -> dict:
+    """Run one entry; write its <id>/ directory into stage_dir; return its row. compose (I110 (b), the --compose
+    opt-in): also the Go machines of every extracted Go package, the inferred roles installed, and route C's stages
+    (codecs or the Go-op documents, diagram, evidence) before route A's sorts .. derive, run and replay."""
     rel = f"{proto['out']}/{entry['id']}"
     edir = stage_dir / entry["id"]
     edir.mkdir(parents=True)
@@ -446,6 +450,7 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     row = {k: entry[k] for k in ("id", "system", "repo", "prefix_commit", "fix_commit", "label", "files")}
     stages: dict = {}
     docs: list = []
+    machines: list = []
     clone = None
     subs: list = []
     try:
@@ -507,6 +512,8 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             d.update({"status": "extracted" if res["status"] == "ok" else "failed", "exit": res["exit"],
                       "reason": None if res["status"] == "ok" else res["detail"], "source": how})
             docs.append(d)
+            if compose:   # I110 (b): I105's Go machines of the same package, from the same source
+                machines += go_machines(R, S, rel, proto, entry, d, cfg, src, tmp)
         for d in docs:
             d["toolchain"] = toolchain_text(d, S / rel / "facts")
             if d.get("status") == "extracted":
@@ -520,12 +527,26 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
                              "detail": f"{len(ext)} of {len(docs)} documents extracted"}
         sol = [d for d in ext if d["language"] == "solidity"]
         M = proto["milestone"]
-        if roles and ext:   # I104 opt-in (--roles): the role sidecars holon roles infers from the stored documents
+        if compose:
+            mx = [m for m in machines if m["status"] == "extracted"]
+            stages["machines"] = {"status": "ok" if mx else ("not_applicable" if not machines else "failed"),
+                                  "exit": None, "detail": f"{len(mx)} machine documents from {len(machines)} "
+                                  "Go packages" if machines else "no Go package extracted"}
+            sol = sol + [{"file": f} for m in mx for f in m["files"]]
+        lib = S / "spec" / M / "lib"
+        before = sorted(p.name for p in lib.iterdir()) if lib.is_dir() else []
+        # I104 opt-in (--roles): the role sidecars holon roles infers from the stored documents; under --compose also when
+        # only machine documents exist (I110: the counted run's c12 showed derive then has no adoption sidecar)
+        if roles and (ext or (compose and any("language" not in d for d in sol))):
             rels = [f"{rel}/facts/{d['file']}" for d in ext if (S / rel / "facts" / d["file"]).is_file()]
+            if compose:
+                rels += [f"{rel}/facts/{d['file']}" for d in sol if "language" not in d]
             args = ["roles", "--milestone", M, "--root", str(S), "--documents", ",".join(rels), "--out-dir",
                     str(S / rel / "sidecars" / "roles"), "--mode", roles["mode"]]
             if roles.get("proposed"):
                 args += ["--proposed", roles["proposed"]]
+            if compose:   # I110 (b): installed where no hand sidecar exists (holon.roles.cli.install, mode hand)
+                args += ["--install", "--roles", "hand"]
             stages["roles"] = R.holon("roles", args)
             mp = S / rel / "sidecars" / "roles" / "roles.json"
             if mp.is_file():
@@ -535,16 +556,20 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
                     kinds[f"{x['sidecar']}:{x['roles_source']}"] = kinds.get(f"{x['sidecar']}:{x['roles_source']}", 0) + 1
                 row["roles"] = {"mode": roles["mode"], "count": len(man["roles"]), "kinds": dict(sorted(kinds.items())),
                                 "proposed": man.get("proposed")}
+        if compose:
+            row["roles_sources"] = roles_sources(lib, before, roles)
         if ext and not sol:
             stages["derive"] = {"status": "no_producer", "exit": None, "detail": proto["go_rules_doc"]}
         if sol:
-            _rules(R, S, rel, M, proto, sol, stages)
+            _rules(R, S, rel, M, proto, sol, stages, (lambda: _route_c(R, S, M, lib, stages)) if compose else None)
         # copy the outputs
         for sub, frm in (("sidecars", S / rel / "sidecars"), ("facts", S / rel / "facts"), ("laws", S / "laws" / M),
                          ("gen", S / "gen" / M), ("records", S / "results" / M)):
             if frm.is_dir() and any(frm.iterdir()):
                 shutil.copytree(frm, edir / sub, ignore=_IGNORE)
         _scrub(edir, ctx)
+        if compose:
+            store_large(edir, proto["go"]["store_max_bytes"])
     finally:
         if subs:
             from . import layout as LY
@@ -557,8 +582,20 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     if proto["run_version"] != "holon-corpus-run/0.1":
         keys += ("toolchain",)
     row["documents"] = [{k: d.get(k) for k in keys} for d in docs]
+    if compose:
+        row["machines"] = machines
+        row["compose"] = True
     row["stages"] = stages
     row["laws"] = law_rows(edir, entry["files"], row["locus"])
+    if compose:   # I110 (b): every derived record carries the source of the role sidecars it was derived with
+        for x in row["laws"]:
+            x["roles_source"] = law_roles_source(row["roles_sources"])
+    sb = edir / "gen" / "sorts" / "budget.json"
+    if sb.is_file():   # I110 (a): the documents over the per-document sort budget (a stage reason, before any decision)
+        b = json.loads(sb.read_text())
+        row["sort_budget"] = {"sort_budget": b["sort_budget"], "documents": len(b["documents"]),
+                              "over_budget": b["over_budget"],
+                              "work": {x["model"]: x["work"] for x in b["documents"]}}
     if proto.get("stop_after") == "derive":   # I108: no law is run, so none is decided
         for x in row["laws"]:
             x["status"] = "not_run"
@@ -576,6 +613,72 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     return row
 
 
+# ---------------------------------------------------------------------------------------------- I110 (b): compose
+def go_machines(R: Runner, S: Path, rel: str, proto: dict, entry: dict, d: dict, cfg: dict, src: Path,
+                tmp: Path) -> list:
+    """I105's Go machine frontend over one Go package, from the source and config its codec extraction used, with the
+    protocol's nil-map rule (compose.nil_maps; I109's default "unknown"). Each machine document is stored next to the
+    codec documents as <stem>_<machine file> (one model per file, no two sharing a stem)."""
+    mc = json.loads(json.dumps(cfg))
+    mc["doc"] = f"{tag(proto)[0]}: generated from corpus entry {entry['id']} by holon eval holon --compose (Go machines)"
+    mc["machines"] = {"nil_maps": proto["compose"]["nil_maps"]}
+    cp = S / rel / "sidecars" / f"{d['stem']}_machines.json"
+    cp.write_text(dumps(mc))
+    out = tmp / "machines" / d["stem"]
+    res = R.holon("machines", ["extract", "go_machines", "--root", str(S), "--config", str(cp), "--src", str(src),
+                               "--out-dir", str(out)], timeout_key="extract")
+    files = []
+    if res["status"] == "ok":
+        for p in sorted(out.glob("*.extracted.json")):
+            name = f"{d['stem']}_{p.name}"
+            shutil.copy(p, S / rel / "facts" / name)
+            files.append(name)
+    return [{"unit": d["unit"], "status": "extracted" if res["status"] == "ok" else "failed", "exit": res["exit"],
+             "reason": None if res["status"] == "ok" else res["detail"], "files": files,
+             "nil_maps": mc["machines"]["nil_maps"]}]
+
+
+def roles_sources(lib: Path, before: list, roles: dict | None) -> dict:
+    """The source of every role sidecar under spec/<M>/lib at derive: "hand" when it was there before holon roles ran
+    (a hand sidecar always wins: install never replaces it), else the inference mode that wrote it."""
+    from ..roles.cli import ROLE_SIDECARS
+    out = {}
+    for n in ROLE_SIDECARS:
+        if (lib / n).is_file():
+            out[n] = "hand" if n in before else (roles or {}).get("mode", "static")
+    return out
+
+
+def law_roles_source(sources: dict) -> str:
+    """A law's roles_source: "none" when no role sidecar exists; "hand" when every one is a hand sidecar; else the
+    inferred modes, sorted and joined with "+" (with "hand" when some are hand). Conservative: a law is attributed to
+    every role sidecar of its milestone, whether or not its rule read one."""
+    vals = sorted(set(sources.values()))
+    return "none" if not vals else "+".join(vals)
+
+
+def _route_c(R: Runner, S: Path, M: str, lib: Path, stages: dict) -> None:
+    """I104's route C stages before the typed ones: holon codecs over a link role, else the Go-op documents a go_ops
+    role names (holon.diagram.goops.render_all); then holon diagram and holon evidence. A stage that fails is recorded
+    and the next one runs (derive decides whether it can go on)."""
+    if (lib / "link.json").is_file():
+        stages["codecs"] = R.holon("codecs", ["codecs", "--milestone", M], timeout_key="derive")
+    elif (lib / "go_ops.json").is_file():
+        t0 = time.monotonic()
+        try:
+            from ..diagram import goops as GO
+            gd = GO.goops_dir(M, str(S))
+            gd.mkdir(parents=True, exist_ok=True)
+            for n, t in GO.render_all(str(S), M).items():
+                (gd / n).write_text(t)
+            stages["goops"] = {"status": "ok", "exit": 0, "detail": ""}
+        except Exception as e:  # noqa: BLE001: a Go-op document the role cannot render is a recorded failure
+            stages["goops"] = {"status": "failed", "exit": None, "detail": R.ctx.norm(f"{type(e).__name__}: {e}")}
+        R.timing["goops"] = round(time.monotonic() - t0, 1)
+    stages["diagram"] = R.holon("diagram", ["diagram", "--milestone", M], timeout_key="derive")
+    stages["evidence"] = R.holon("evidence", ["evidence", "--milestone", M], timeout_key="derive")
+
+
 def withhold(row: dict, edir: Path) -> None:
     """I104 under HUMAN_ANSWERS Q56 (the --roles opt-in): no per-law verdict, law id or class of a law derived through
     generated roles is written until a person adjudicates it. The row keeps per-family aggregates that never split
@@ -584,10 +687,16 @@ def withhold(row: dict, edir: Path) -> None:
     fam: dict = {}
     for x in row["laws"]:
         k = f"{x.get('rule')}/{x.get('subform')}"
+        if "roles_source" in x:   # I110 (b): the composed driver's aggregates keep the law's roles_source
+            k += f" roles_source={x['roles_source']}"
         f = fam.setdefault(k, {"derived": 0, "decided": 0, "unknown": 0})
         f["derived"] += 1
         f["decided" if x.get("status") in ("PROVED", "REFUTED") else "unknown"] += 1
     lines = []
+    if VAULT is not None:   # I110: the withheld per-law outputs kept outside the repository (--vault), never committed
+        for sub in ("laws", "records", "gen"):
+            if (edir / sub).is_dir():
+                shutil.copytree(edir / sub, VAULT / edir.name / sub, dirs_exist_ok=True)
     for sub in ("laws", "records"):
         d = edir / sub
         if d.is_dir():
@@ -602,13 +711,16 @@ def withhold(row: dict, edir: Path) -> None:
         row[k] = None   # withheld with the verdicts (Q56); the adjudicator's run decides them
 
 
-def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages: dict) -> None:
-    """H3-H4 over the transitions documents."""
+def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages: dict, before_derive=None) -> None:
+    """H3-H4 over the transitions documents. before_derive (I110 (b), --compose): route C's stages, run after disch
+    and before derive (derive checks that the evidence it reads is what holon evidence writes over the final tree)."""
     sd = S / rel / "sidecars"
     docs = [f"{rel}/facts/{d['file']}" for d in sol]
     typed = {"sort_types_version": proto["typed"]["sort_types_version"],
              "doc": f"{tag(proto)[0]}: generated by holon eval holon ({tag(proto)[1]} typed)", "documents": docs,
-             "seeds": proto["typed"]["seeds"], "binding": proto["typed"]["binding"], "search": proto["typed"]["search"]}
+             "seeds": proto["typed"]["seeds"], "binding": proto["typed"]["binding"], "search": proto["typed"]["search"],
+             # I110 (a): the protocol's per-document sort budget (absent: the pass meters nothing, as before)
+             **({"sort_budget": proto["typed"]["sort_budget"]} if "sort_budget" in proto["typed"] else {})}
     disch = {**{k: proto["disch"][k] for k in ("disch_version", "binding", "hypotheses", "hypothesis_verdicts", "r0",
                                                 "search")},
              "doc": f"{tag(proto)[0]}: generated by holon eval holon ({tag(proto)[1]} disch)", "documents": docs,
@@ -632,6 +744,8 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
                          "--disch", ds, "--undo-sidecar", us, "--fact-sidecar", fs, "--out", f"laws/{M}",
                          "--obstructions", f"{sorts}/obstructions.json"])]
     for name, args in steps:
+        if name == "derive" and before_derive is not None:
+            before_derive()
         stages[name] = R.holon(name, args)
         if stages[name]["status"] != "ok":
             return
@@ -658,6 +772,23 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
                      + ("" if r2 is None or r2["status"] == "ok" else "; run 2: " + r2["detail"][-600:])}
     stages["replay"] = {"status": "not_applicable", "exit": None, "detail": proto["replay"]}
     stages["filter"] = {"status": "ok", "exit": None, "detail": proto["filter"]}
+
+
+def store_large(edir: Path, limit: int) -> list:
+    """I110 (--compose): route A's storage rule (go.store_max_bytes) applied to every output file of the entry. A file
+    over the limit (machine documents, large sort outputs) is recorded in <id>/large_files.json by path, sha256 and
+    size, and removed from the written output; everything else is kept."""
+    rows = []
+    for p in sorted(edir.rglob("*")):
+        if p.is_file() and p.name != "large_files.json" and p.stat().st_size > limit:
+            rows.append({"path": p.relative_to(edir).as_posix(), "sha256": common.sha256_file(p),
+                         "bytes": p.stat().st_size})
+            p.unlink()
+    if rows:
+        prev = json.loads((edir / "large_files.json").read_text()) if (edir / "large_files.json").is_file() else []
+        allr = {r["path"]: r for r in prev + rows}
+        (edir / "large_files.json").write_text(dumps([allr[k] for k in sorted(allr)]))
+    return rows
 
 
 def _drop_seconds(x):
@@ -704,10 +835,22 @@ def cli_holon(argv: list[str]) -> int:
     ap.add_argument("--roles", choices=("off", "static", "static+ai"), default="off",
                     help="I104 opt-in: also run holon roles over each entry's stored documents (default off: I51's run)")
     ap.add_argument("--proposed", help="with --roles static+ai: the proposal file (holon-roles-proposed/0.1)")
+    ap.add_argument("--compose", action="store_true",
+                    help="I110 opt-in: the composed route A (the protocol's compose key): Go machines, the inferred roles "
+                         "installed where no hand sidecar exists (--roles, default static), codecs or Go-op documents, "
+                         "diagram and evidence, then sorts .. derive, run and replay")
+    ap.add_argument("--vault", help="with --roles: a directory outside the repository that keeps each entry's withheld "
+                                    "laws/, records/ and gen/ (Q56: the plaintext stays in the session)")
     a = ap.parse_args(argv)
+    global VAULT
+    VAULT = Path(a.vault).resolve() if a.vault else None
+    if a.compose and a.roles == "off":
+        a.roles = "static"
     roles = None if a.roles == "off" else {"mode": a.roles, "proposed": a.proposed}
     root = Path(a.root).resolve()
     proto = common.load_json(root / a.protocol)
+    if a.compose and not proto.get("compose"):
+        raise common.Refused(f"--compose: {a.protocol} has no compose key")
     if a.protocol != PROTOCOL_REL:
         proto["_path"] = a.protocol
     cpath = root / proto["corpus"]
@@ -728,7 +871,7 @@ def cli_holon(argv: list[str]) -> int:
                 continue
             print(f"holon eval holon: {e['id']} ({e['repo']} {e['prefix_commit'][:12]})", flush=True)
             t = {}
-            new_rows[e["id"]] = run_entry(e, proto, root, stage, t, roles)
+            new_rows[e["id"]] = run_entry(e, proto, root, stage, t, roles, a.compose)
             timing[e["id"]] = t
             r = new_rows[e["id"]]
             print(f"  {r['status']}: {sum(d['status'] == 'extracted' for d in r['documents'])}/{len(r['documents'])} "

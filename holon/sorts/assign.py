@@ -28,6 +28,7 @@ import json
 from pathlib import Path
 
 from ..gen.targetlib import Library, lib_files
+from . import budget as B
 from . import constraints as C
 from . import flow as F
 from . import grammar as G
@@ -83,10 +84,16 @@ def _culprit(core: list[dict]) -> dict:
     return core[-1]
 
 
-def find_conflicts(model: str, cs: list[dict]) -> tuple[list[dict], list[dict]]:
+def find_conflicts(model: str, cs: list[dict]) -> tuple[list[dict], list[dict], System]:
+    """The conflicts, the active constraints and (I110 (a), a speedup) the System of the final active set: the one
+    satisfiable() built to stop the loop, so solve() does not build the same System a second time (System is a pure
+    function of its constraint list, and its only state, Component's role cache, is filled lazily the same way)."""
     active = list(cs)
     conflicts = []
-    while not satisfiable(active):
+    while True:
+        system = System(active)
+        if system.ok:
+            break
         core = minimal_core(active, satisfiable)
         kinds = {c["kind"] for c in core}
         kind = "affine" if kinds & {"affine", "compare"} else "base"
@@ -99,7 +106,7 @@ def find_conflicts(model: str, cs: list[dict]) -> tuple[list[dict], list[dict]]:
                           "culprit": cul["id"],
                           "text": f"{what}: {cul['text']} (core: " + "; ".join(c["text"] for c in core) + ")"})
         active = [c for c in active if c is not cul]
-    return active, conflicts
+    return active, conflicts, system
 
 
 # ------------------------------------------------------------------ sites
@@ -251,8 +258,7 @@ class Model:
 
     def solve(self, numbered: list[dict], writer_labels: dict) -> None:
         self.constraints = numbered
-        self.active, self.conflicts = find_conflicts(self.name, numbered)
-        self.system = System(self.active)
+        self.active, self.conflicts, self.system = find_conflicts(self.name, numbered)
         active_ids = {c["id"] for c in self.active}
         self.assignment, self.provenance, self.unresolved = {}, {}, []
         fams = {k: self.system.family(self.name, k) for k in sorted(self.keys)}
@@ -279,6 +285,14 @@ class Model:
         else:
             self.sites, self.unions = [], []
 
+    def over_budget(self) -> None:
+        """I110 (a): the budget ran out while solving: every variable unrefined, no conflict, site or union."""
+        why = "sort budget exceeded (holon.sorts.budget): the document is a recorded miss, its terms opaque"
+        self.conflicts, self.sites, self.unions, self.provenance = [], [], [], {}
+        self.assignment = {k: G.render(G.UNREFINED) for k in sorted(self.keys)}
+        self.unresolved = [{"model": self.name, "var": k, "base_type": self.keys[k]["type"], "why": why}
+                           for k in sorted(self.keys)]
+
     def _sort(self, k: str, info: dict, fam: str | None, labels: dict):
         if info.get("ghost") and info["type"] not in ("Bool", "List<Bool>"):
             return G.UNREFINED, "ghost: hand-written ghost state is not read by the solver (honesty)"
@@ -297,6 +311,17 @@ class Model:
         return s, None
 
 
+class Opaque:
+    """I110 (a): a document whose walk ran over the sort budget: its model has no variable (every term opaque), no
+    constraint, conflict, site or union."""
+
+    def __init__(self, name: str, rel: str):
+        self.name, self.rel = name, rel
+        self.assignment, self.provenance, self.unresolved = {}, {}, []
+        self.conflicts, self.sites, self.unions = [], [], []
+        self.walk03 = None
+
+
 # ------------------------------------------------------------------ the pass
 def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Path | None = None,
              sidecar_path: Path | None = None) -> dict[str, dict]:
@@ -305,8 +330,14 @@ def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Pa
     root = Path(root).resolve()
     inputs = Inputs(root)
     stv = None
+    budget = None
     if sidecar_path is not None:
-        stv = inputs.read_json(Path(sidecar_path)).get("sort_types_version")
+        sdoc = inputs.read_json(Path(sidecar_path))
+        stv = sdoc.get("sort_types_version")
+        try:   # I110 (a): the per-document sort budget (absent: nothing is metered, every output as before)
+            budget = B.parse(sdoc.get("sort_budget"))
+        except ValueError as e:
+            raise PassError(f"{inputs.rel(Path(sidecar_path))}: {e}") from None
     if seeds_path is None:
         seeds_path = root / SEEDS
         seeds = inputs.read_json(seeds_path)
@@ -322,16 +353,36 @@ def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Pa
     dup = sorted({s for s in stems if stems.count(s) > 1})
     if dup:
         raise PassError(f"two fact documents name the same model: {dup}")
+    meters: dict = {}
+    misses: dict = {}   # I110 (a): model -> the phase its budget ran out in
+    opaque: list = []   # documents over budget in the walk: (stem, rel)
     for p in sorted(docs, key=lambda p: p.stem):
-        models.append(Model(p, inputs, seeds, stv))
+        meters[p.stem] = B.start(budget) if budget is not None else None
+        try:
+            models.append(Model(p, inputs, seeds, stv))
+        except B.OverBudget:
+            misses[p.stem] = "walk"
+            opaque.append((p.stem, inputs.rel(p)))
+        finally:
+            B.stop()
     numbered = C.number([c for m in models for c in m.raw])
     bymodel: dict[str, list] = {}
     for c in numbered:
         bymodel.setdefault(c["model"], []).append(c)
     wl = seeds.get("writer_labels", {})
     for m in models:
-        m.solve(bymodel.get(m.name, []), wl)
+        B.resume(meters[m.name])
+        try:
+            m.solve(bymodel.get(m.name, []), wl)
+        except B.OverBudget:
+            misses[m.name] = "solve"
+            m.over_budget()
+        finally:
+            B.stop()
 
+    for stem, rel in opaque:   # a document over budget in its walk: a model with no variable, no site, no union
+        models.append(Opaque(stem, rel))
+    models.sort(key=lambda m: m.name)
     header = {"sorts_version": SORTS_VERSION, "milestone": milestone, "inputs": inputs.listing()}
 
     def doc(name: str, body: dict) -> dict:
@@ -363,6 +414,14 @@ def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Pa
                 heads[e["head"]] = heads.get(e["head"], 0) + e["count"]
             debt.append({"model": m.name, "facts": m.rel, "debt_heads": dict(sorted(heads.items())), "debt": ds})
         extra["coverage_debt"] = doc("coverage_debt", {"sort_types_version": stv, "documents": debt})
+    if budget is not None:
+        # I110 (a): every document's work units and status; a miss is never dropped silently
+        extra["budget"] = doc("budget", {
+            "sort_budget": budget, "unit": "holon.sorts.budget work units (deterministic)",
+            "documents": [{"model": m.name, "facts": m.rel, "work": meters[m.name].used,
+                           "status": "over_budget" if m.name in misses else "ok", "phase": misses.get(m.name)}
+                          for m in models],
+            "over_budget": sorted(misses)})
     return {**extra,
         "constraints": doc("constraints", {"constraints": numbered}),
         "assignment": assignment,

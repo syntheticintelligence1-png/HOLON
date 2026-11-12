@@ -134,6 +134,12 @@ def linked_diagrams(milestone: str, root: Path) -> dict[str, str]:
         dg["provenance"] = {}
         dg["inputs"] = []
         out[model] = dumps(dg)
+    from .linked import default_sidecars
+    if not out and not (root / default_sidecars(milestone)[1]).exists():
+        # I110 (b), HUMAN_ANSWERS Q62 carried through: with no link sidecar the codec layer is empty, so a milestone
+        # with no Go-op or OWN component either has no component diagram (an empty set, not a refusal). A link
+        # sidecar that exists with no codec document written is still refused (holon codecs has not run)
+        return out
     if not out:
         raise DiagramError(f"no linked codec documents under gen/{milestone}/codec (run `holon codecs --milestone "
                            f"{milestone}`)")

@@ -265,6 +265,14 @@ jobs:
             toolsets: true
             timeout: 30
             run: python -m unittest tests_m6.test_i109_pipeline_totality_3.TestTypesGaps tests_m6.test_i109_pipeline_totality_3.TestGoToolchain tests_m6.test_i109_pipeline_totality_3.TestSignedSign tests_m6.test_i109_pipeline_totality_3.TestStringKeys tests_m6.test_i109_pipeline_totality_3.TestTermBudget tests_m6.test_i109_pipeline_totality_3.TestNilMapDefault tests_m6.test_i109_pipeline_totality_3.TestNoLinkSidecar tests_m6.test_i109_pipeline_totality_3.TestRemappedPragmas tests_m6.test_i109_pipeline_totality_3.TestRegressions -v
+          - name: tests-m6-i110
+            # I110 (M6, the scale wall and the composed driver): the per-document sort budget B1-B4 (P2), the sort
+            # outputs byte-identical under the speedups (P3), machines.nil_maps in go-machines' output (P1), the
+            # composed driver's units (P6), the regressions R1-R3 and HUMAN_ANSWERS Q74/Q75's old-vs-new strategy check
+            # (byte-identity on the coverage set, Morph and the planted documents; unit counts). The corpus and sealed measures (P4-P8,
+            # results/M6/I110) are the key's measured outcome and are not run here.
+            timeout: 30
+            run: python -m unittest tests_m6.test_i110_scale_composed.TestSortBudget tests_m6.test_i110_scale_composed.TestByteIdentity tests_m6.test_i110_scale_composed.TestNilMapsRecorded.test_p1_go_machines_output_names_nil_maps tests_m6.test_i110_scale_composed.TestComposedUnits tests_m6.test_i110_scale_composed.TestRegressions tests_m6.test_i110_scale_composed.TestQ74SpeedupIdentity -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

@@ -1028,7 +1028,10 @@ def build_milestone(milestone: str, root: Path | str = ROOT) -> dict:
         comps += [(p, None) for p in GO.committed(milestone, root)]   # I67: the Go-op components (rule Y4)
         from .. import own as OW
         comps += [(p, None) for p in OW.committed(milestone, root)]   # I35: the OWN carrier documents (rule W7)
-        if not comps:
+        from .linked import default_sidecars
+        if not comps and (root / default_sidecars(milestone)[1]).exists():
+            # I110 (b), Q62: only a milestone with a link sidecar needs codec documents; without one the evidence is
+            # built over no component (an empty codec layer)
             raise EvidenceError(f"no linked codec documents under gen/{milestone}/codec (run `holon codecs "
                                 f"--milestone {milestone}`)")
         return build([], root, milestone=milestone, components=comps)

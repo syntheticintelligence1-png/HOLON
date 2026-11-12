@@ -105,6 +105,11 @@ def run(milestone: str, root: str | None, out: str | None, facts: list[str] | No
         (out_p / f"{name}.json").write_text(texts[name], encoding="utf-8")
     if "coverage_debt" in texts:   # I103: holon-sort-types/0.3 only
         (out_p / "coverage_debt.json").write_text(texts["coverage_debt"], encoding="utf-8")
+    if "budget" in texts:   # I110 (a): only when the sidecar names a sort_budget
+        (out_p / "budget.json").write_text(texts["budget"], encoding="utf-8")
+        b = json.loads(texts["budget"])
+        print(f"holon sorts: {len(b['over_budget'])} of {len(b['documents'])} documents over the sort budget "
+              f"{b['sort_budget']}: {', '.join(b['over_budget']) or 'none'}")
     c = json.loads(texts["conflicts"])["conflicts"]
     u = json.loads(texts["unresolved"])["count"]
     print(f"holon sorts: {len(c)} conflicts, {u} unresolved variables -> {out_p}")

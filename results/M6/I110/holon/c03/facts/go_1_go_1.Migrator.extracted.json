@@ -1,0 +1,628 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "keeper.Migrator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "call",
+              "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v2.MigrateStore",
+              [
+                "param",
+                "ctx"
+              ],
+              [
+                "storage",
+                "keeper"
+              ]
+            ],
+            0
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "==",
+                [
+                  "call",
+                  "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v2.MigrateStore",
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "storage",
+                    "keeper"
+                  ]
+                ],
+                0
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "x/distribution/keeper/migrations.go:23"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Migrate1to2",
+      "order": [
+        [
+          "guard",
+          "x/distribution/keeper/migrations.go:23",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "x/distribution/keeper/migrations.go:22",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "keeper.Migrator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "call",
+              "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v3.MigrateStore",
+              [
+                "param",
+                "ctx"
+              ],
+              [
+                "storage",
+                "keeper"
+              ],
+              [
+                "storage",
+                "legacySubspace"
+              ],
+              [
+                "storage",
+                "keeper"
+              ]
+            ],
+            0
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "==",
+                [
+                  "call",
+                  "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v3.MigrateStore",
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "storage",
+                    "keeper"
+                  ],
+                  [
+                    "storage",
+                    "legacySubspace"
+                  ],
+                  [
+                    "storage",
+                    "keeper"
+                  ]
+                ],
+                0
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "x/distribution/keeper/migrations.go:31"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Migrate2to3",
+      "order": [
+        [
+          "guard",
+          "x/distribution/keeper/migrations.go:31",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "x/distribution/keeper/migrations.go:30",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/cosmos/cosmos-sdk/x/distribution/keeper.Migrator",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I110/holon/c03/sidecars/go_1_machines.json",
+      "sha256": "3998482df286a5bb7b83f1254711315e268b1b0de524927e6dbf45fe2388270b"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "2334759801a0a585f3ac2a4fbbe5e6c29f6dc84f7e3dcd8e759b7e63a866ee11",
+        "unit": "x/distribution/keeper/abci.go"
+      },
+      {
+        "sha256": "5acab34de2b05a0ce83f7b911836dcff442df9ac68edd415841bd1b1815c03ed",
+        "unit": "x/distribution/keeper/alias_functions.go"
+      },
+      {
+        "sha256": "345667563680b2aaa15ed81c9314ac5970858342df76d9bda2ade62f1c72e3e0",
+        "unit": "x/distribution/keeper/allocation.go"
+      },
+      {
+        "sha256": "43b4cab01ee98ee742e4c265b7f9d90bdc9723f419e8b37c420df38f78b6748e",
+        "unit": "x/distribution/keeper/delegation.go"
+      },
+      {
+        "sha256": "40b1ba2512af3926bfb49653db24c10b790c36916f0f3b360e72c0e309a92006",
+        "unit": "x/distribution/keeper/fee_pool.go"
+      },
+      {
+        "sha256": "f8a79618ff23d592d92c30d60d20c7244fdd068614482ad294c42433ee7d011a",
+        "unit": "x/distribution/keeper/genesis.go"
+      },
+      {
+        "sha256": "e0ff21f96c8f8e79ba40c08831f8ad9b7c873279bf54622314a0c2dde6141f15",
+        "unit": "x/distribution/keeper/grpc_query.go"
+      },
+      {
+        "sha256": "33f378793782a760ffd04d6798c9bb34f8ae2570874d07213c741527eeb655a4",
+        "unit": "x/distribution/keeper/hooks.go"
+      },
+      {
+        "sha256": "ca048eb6f09ef910d568059d7603fcac3d6f71714b26ffa091f10c8bd0d069eb",
+        "unit": "x/distribution/keeper/keeper.go"
+      },
+      {
+        "sha256": "24829fdc682fbc7af0468f0f5d3de4d9a84859a75b6036c223c79f38cc283b44",
+        "unit": "x/distribution/keeper/migrations.go"
+      },
+      {
+        "sha256": "d0e77518182c51aee332aee0d99162c610ab6bf94c478e333ac6b458de5d797c",
+        "unit": "x/distribution/keeper/msg_server.go"
+      },
+      {
+        "sha256": "0c5bedbf93cecf48933219a447874ceb24f0add719fc7f6642145c6d212be5c7",
+        "unit": "x/distribution/keeper/params.go"
+      },
+      {
+        "sha256": "d486faa16f9f191e239dc604f8a317306c344dbc78fa26802f14014f7be70538",
+        "unit": "x/distribution/keeper/store.go"
+      },
+      {
+        "sha256": "5d4b659ec4760913022e56d392b1aeb6036d01ca869b50c52c43a70519635bd0",
+        "unit": "x/distribution/keeper/validator.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "keeper.Migrator",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Migrate1to2": {
+        "declared_in": "keeper.Migrator",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "baseCtx",
+                "type": "uint256"
+              },
+              {
+                "name": "ms",
+                "type": "uint256"
+              },
+              {
+                "name": "header",
+                "type": "uint256"
+              },
+              {
+                "name": "headerHash",
+                "type": "bytes"
+              },
+              {
+                "name": "chainID",
+                "type": "string"
+              },
+              {
+                "name": "txBytes",
+                "type": "bytes"
+              },
+              {
+                "name": "logger",
+                "type": "uint256"
+              },
+              {
+                "name": "voteInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "gasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "blockGasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "checkTx",
+                "type": "bool"
+              },
+              {
+                "name": "recheckTx",
+                "type": "bool"
+              },
+              {
+                "name": "sigverifyTx",
+                "type": "bool"
+              },
+              {
+                "name": "execMode",
+                "type": "uint8"
+              },
+              {
+                "name": "minGasPrice",
+                "type": "uint256"
+              },
+              {
+                "name": "consParams",
+                "type": "uint256"
+              },
+              {
+                "name": "eventManager",
+                "type": "uint256"
+              },
+              {
+                "name": "priority",
+                "type": "int64"
+              },
+              {
+                "name": "kvGasConfig",
+                "type": "uint256"
+              },
+              {
+                "name": "transientKVGasConfig",
+                "type": "uint256"
+              },
+              {
+                "name": "streamingManager",
+                "type": "uint256"
+              },
+              {
+                "name": "cometInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "headerInfo",
+                "type": "uint256"
+              }
+            ],
+            "name": "ctx",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Migrate1to2",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Migrate2to3": {
+        "declared_in": "keeper.Migrator",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "baseCtx",
+                "type": "uint256"
+              },
+              {
+                "name": "ms",
+                "type": "uint256"
+              },
+              {
+                "name": "header",
+                "type": "uint256"
+              },
+              {
+                "name": "headerHash",
+                "type": "bytes"
+              },
+              {
+                "name": "chainID",
+                "type": "string"
+              },
+              {
+                "name": "txBytes",
+                "type": "bytes"
+              },
+              {
+                "name": "logger",
+                "type": "uint256"
+              },
+              {
+                "name": "voteInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "gasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "blockGasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "checkTx",
+                "type": "bool"
+              },
+              {
+                "name": "recheckTx",
+                "type": "bool"
+              },
+              {
+                "name": "sigverifyTx",
+                "type": "bool"
+              },
+              {
+                "name": "execMode",
+                "type": "uint8"
+              },
+              {
+                "name": "minGasPrice",
+                "type": "uint256"
+              },
+              {
+                "name": "consParams",
+                "type": "uint256"
+              },
+              {
+                "name": "eventManager",
+                "type": "uint256"
+              },
+              {
+                "name": "priority",
+                "type": "int64"
+              },
+              {
+                "name": "kvGasConfig",
+                "type": "uint256"
+              },
+              {
+                "name": "transientKVGasConfig",
+                "type": "uint256"
+              },
+              {
+                "name": "streamingManager",
+                "type": "uint256"
+              },
+              {
+                "name": "cometInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "headerInfo",
+                "type": "uint256"
+              }
+            ],
+            "name": "ctx",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Migrate2to3",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "keeper.Migrator",
+          "label": "keeper",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "keeper.Migrator",
+          "label": "legacySubspace",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "keeper.Migrator"
+    ],
+    "members": {
+      "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v2.MigrateStore": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v2.MigrateStore",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xaf690386",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v3.MigrateStore": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            },
+            {
+              "name": "a3",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v3.MigrateStore",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xe08cc0ab",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "x/distribution/keeper/abci.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "keeper",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "legacySubspace",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "c1ece303dda957e3ec5b859b727f882b30282d01",
+    "repo": "cosmos/cosmos-sdk",
+    "scope": "go machine github.com/cosmos/cosmos-sdk/x/distribution/keeper.Migrator"
+  }
+}
