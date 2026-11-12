@@ -340,6 +340,17 @@ class TestCorpusSmoke(unittest.TestCase):
 
 class TestRegressions(unittest.TestCase):
     def test_r1_morph_record_moves_only_by_restamp(self):
+        # Amended (spec/M6/amendments/I108.jsonl, test_defect, as the lead amended I103-R1 and I104-B10): a re-stamp
+        # also refreshes every record's `seconds` and the milestone's timing files, which G1 never compares
+        # (holon.gate: norm_records, G1_EXCLUDED); R1 skips the same.
+        from holon.gate import G1_EXCLUDED
+
+        def unstamp(x):
+            if isinstance(x, dict):
+                return {k: unstamp(v) for k, v in strip_stamp(x).items() if k != "seconds"}
+            if isinstance(x, list):
+                return [unstamp(v) for v in x]
+            return x
         moved = []
         for d in MORPH_DIRS:
             base = {ln.split("\t", 1)[1]: ln.split()[2] for ln in git("ls-tree", "-r", BASE, "--", d)
@@ -347,14 +358,14 @@ class TestRegressions(unittest.TestCase):
             head = {ln.split("\t", 1)[1]: ln.split()[2] for ln in git("ls-tree", "-r", "HEAD", "--", d)
                     .decode().splitlines()}
             for p in sorted(set(base) | set(head)):
-                if base.get(p) == head.get(p):
+                if base.get(p) == head.get(p) or p.rsplit("/", 1)[-1] in G1_EXCLUDED:
                     continue
                 if p not in base or p not in head or not p.endswith(".json"):
                     moved.append(p)
                     continue
                 a = json.loads(git("cat-file", "blob", base[p]))
                 b = json.loads(git("cat-file", "blob", head[p]))
-                if strip_stamp(a) != strip_stamp(b):
+                if unstamp(a) != unstamp(b):
                     moved.append(p)
         self.assertEqual(moved, [])
 
