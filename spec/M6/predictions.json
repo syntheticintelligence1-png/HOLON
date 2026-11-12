@@ -777,6 +777,121 @@
           "check": "tests_m6/test_i108_pipeline_totality.py::TestRegressions::test_r2_morph_documents_have_no_signed_heads"
         }
       ]
+    },
+    "I109": {
+      "title": "I109: pipeline totality, pass 3: the Go machine rendering's types gaps (method-call arity with the receiver, len of a word, whole-string writes as havocs), the go-directive toolchain rule in the Go machine frontend, D9's sign rule SG1 for signed comparisons of non-negative operands, Q61's opaque-key fallback for string/bytes-keyed Go maps, a recorded term-size budget with an M6 tier, Q60's constructor rule with Q64's nil-map default, and Q62's empty codec layer without a link sidecar",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I109)",
+      "prompt": "prompts/I109_pipeline_totality_3.md",
+      "tests": [
+        "tests_m6/test_i109_pipeline_totality_3.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I109/",
+        "docs/iterations/I109.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P8-P13 are smoke measures on I51's corpus, already contaminated by I51/I103/I105/I108; I107 does the scored run. Laws are reported as aggregates only (Q56).",
+        "instruments": "spec/M6/lib/i109_run.json (the run protocol) and tests_m6/test_i109_pipeline_totality_3.py (every check)",
+        "base": "claude/i108-pipeline-totality at cf1a536c (I108, #177/#178 not yet landed), which holds the lead's M6 tools landing 55c679df"
+      },
+      "predictions": [
+        {
+          "id": "I109-P1",
+          "claim": "(a) On the planted fixture (tests_m6/fixtures/i109): every call term of Counter has exactly as many arguments as its info.members signature has inputs, the receiver of the static call to dep.Coins.IsZero counted (A1); len of the non-byte slice cs is an opaque call of len, never [\"len\", w] (A2); Counter and Named (a whole-string write, compiled as a havoc of the field's slot: an environment member go.string.*) run sorts, types and model ok (A3); a whole-map write stays refused (A4).",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestTypesGaps"
+        },
+        {
+          "id": "I109-P2",
+          "claim": "(b) A Go machine config with toolchain go_directive over a module whose go directive is 1.25 runs the lowest go_set release at or above 1.25, and the document's extraction.tool.go names it; without the key the pin (config/holon.json replay.go_version) runs, as before.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestGoToolchain"
+        },
+        {
+          "id": "I109-P3",
+          "claim": "(c) D9's sign gives a signed comparison of two operands provably below 2^255 (a trunc to at most 255 bits, a small literal) the unsigned comparison's sign, and '?' for every other signed comparison (a sext operand, an untruncated register, a literal at or above 2^255, a trunc to 256 bits); the rule's premise is checked exact on 20000 random words.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestSignedSign"
+        },
+        {
+          "id": "I109-P4",
+          "claim": "(d) The fixture's Names (map[string]uint64, made by its constructor) runs sorts, types and model ok with opaque key words (environment members go.key.*), and the Solidity SP_b refusal is unchanged.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestStringKeys"
+        },
+        {
+          "id": "I109-P5",
+          "claim": "(e) A transitions sidecar's term_budget is the walker's budget: 5 refuses the planted Wide contract naming 'size budget of 5 nodes'; 4000000 extracts it and records extraction.term_budget 4000000; a sidecar without the key extracts it with no term_budget key; the I109 protocol names the tier 4000000.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestTermBudget"
+        },
+        {
+          "id": "I109-P6",
+          "claim": "(g) With no machines key (the default, Q64), Bare (no constructor) and Loose (a constructor path leaves Bal nil) carry nil_map debt for Credit, Made and Names (every constructor return has the map made) carry none, and every document records extraction.machines {nil_maps: unknown}; under the explicit opt-out nil_maps zero no document carries nil_map debt and each records {nil_maps: zero}; types compiles Made and refuses Bare naming a nil map; I105's demo Vault (no constructor) now carries nil_map debt and is refused at types, so its DISCH law is re-decided UNKNOWN.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestNilMapDefault"
+        },
+        {
+          "id": "I109-P7",
+          "claim": "(h) Q62: holon.diagram.linked.load_sidecars over a missing link sidecar gives no roles (and does not list it as read), so render_all gives no codec component; a link sidecar that exists but is malformed is still refused.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestNoLinkSidecar"
+        },
+        {
+          "id": "I109-P8",
+          "claim": "No Go machine entry of the I109 go-machines run is refused for its go directive (I108: c01, c07 and c12 were, 'go.mod requires go >= 1.25').",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestCorpusSmoke::test_p8_no_go_directive_refusal_on_go_machines"
+        },
+        {
+          "id": "I109-P9",
+          "claim": "No Go machine entry's types stage stops on the gaps I108 named: a call arity mismatch, 'the length of a w value' or 'a write of a whole string' (I108: c03 c08 c09 c14 c16 c18 c19).",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestCorpusSmoke::test_p9_no_named_types_gap_remains"
+        },
+        {
+          "id": "I109-P10",
+          "claim": "Under the M6 tier (4000000 nodes) no Solidity document of the corpus fails on the term-size budget (I108 run 2: c10 c15 c20, and c02's CErc20 and CToken, at 400000).",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestCorpusSmoke::test_p10_no_budget_refusal_under_the_tier"
+        },
+        {
+          "id": "I109-P11",
+          "claim": "At least one Go machine entry passes the types stage (I108: none). The remaining refusals past types are expected among: whole-map writes (A4), I105's tuple rendering gap, nil-map writes without a constructor (Q64's default), sdiv/smod/sar.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestCorpusSmoke::test_p11_go_machine_entries_past_types",
+          "expected": {
+            "past_types_at_least": 1
+          }
+        },
+        {
+          "id": "I109-P12",
+          "claim": "Every remaining miss is recorded with its stage and reason, and the run records no verdict (stop_after derive; laws reported as aggregates only, Q56).",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestCorpusSmoke::test_p12_every_miss_has_stage_and_reason_and_no_verdict"
+        },
+        {
+          "id": "I109-P13",
+          "claim": "Extraction reach does not fall: at least 14 of 20 entries extract at least one document or one Go machine (I108 run 2: 14).",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestCorpusSmoke::test_p13_extraction_reach",
+          "expected": {
+            "at_least": 14
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I109-R1",
+          "claim": "Morph's M0-M3 record (results/M0-M3, laws/M0-M3) moves only by re-stamp: every JSON file equals the lead's M6 landing's (55c679df) with generator_sha256 and every seconds removed, G1_EXCLUDED skipped; with the CI gates and holon land dirty in docs/iterations/I109.md.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestRegressions::test_r1_morph_record_moves_only_by_restamp",
+          "expected": {
+            "moved": []
+          }
+        },
+        {
+          "id": "I109-R2",
+          "claim": "No Morph sidecar names a term_budget, so every Morph document renders under TERM_BUDGET exactly as before.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestRegressions::test_r2_morph_sidecars_name_no_term_budget"
+        },
+        {
+          "id": "I109-R3",
+          "claim": "Every Morph milestone with an adoption sidecar has its link sidecar, so Q62's rule never applies to Morph.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestRegressions::test_r3_morph_has_its_link_sidecars"
+        },
+        {
+          "id": "I109-R4",
+          "claim": "No Morph document is a Go machine document, so (a), (d) and (g) cannot move Morph's models.",
+          "check": "tests_m6/test_i109_pipeline_totality_3.py::TestRegressions::test_r4_morph_documents_are_solidity"
+        }
+      ]
     }
   }
 }

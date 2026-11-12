@@ -640,7 +640,8 @@ def _committed_par_inputs(milestone: str, root: Path, inputs: Inputs):
                       f"{milestone}` writes now")
     ev = inputs.json(ev_p)
     inputs.read(root / ad_rel)
-    inputs.read(root / link_rel)
+    if (root / link_rel).exists():   # I109 (h), Q62: a missing link sidecar is no codec component, and no input
+        inputs.read(root / link_rel)
     inputs.read(root / "spec" / "M2" / "lib" / "evidence_lexical.json")
     for rel in json.loads((root / ad_rel).read_text(encoding="utf-8")).get("documents") or []:
         inputs.read(root / rel)

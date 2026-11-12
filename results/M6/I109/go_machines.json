@@ -1,0 +1,3507 @@
+{
+  "doc": "python -m holon eval go-machines [--root DIR] [--entries ID,..] [--out PATH] (I105): the smoke measure of the Go\nmachine frontend on the corpus entries that I51 extracted Go documents from.",
+  "milestone": "T510",
+  "rows": [
+    {
+      "actions": 0,
+      "documents": [
+        {
+          "machines": [],
+          "reason": "holon extract go_machines: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/arbos||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+          "status": "failed",
+          "unit": "github.com/offchainlabs/nitro/arbos"
+        }
+      ],
+      "id": "c01",
+      "laws": 0,
+      "machines": 0,
+      "pipeline": "refused",
+      "prefix_commit": "c4de7385249f35881417afc555dc355439e44984",
+      "refused_at": "extract",
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "stages": {},
+      "submodules": [
+        {
+          "commit": "f4153a09f87cbb9c826d8fc12c74642bb2d879ea",
+          "path": "brotli",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/google/brotli"
+        },
+        {
+          "commit": "4341b132cfbdcc980ead03765ca5224ff6cb5d97",
+          "path": "contracts",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-contracts"
+        },
+        {
+          "commit": "e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+          "path": "contracts/lib/forge-std",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/foundry-rs/forge-std"
+        },
+        {
+          "commit": "e282159d5170298eb2455a6c05280ab5a73a4ef0",
+          "path": "contracts/lib/forge-std/lib/ds-test",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/dapphub/ds-test"
+        },
+        {
+          "commit": "f49a4889b486fd804a7901203f5f663cfd1581c8",
+          "path": "contracts/src/precompiles",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-precompile-interfaces"
+        },
+        {
+          "commit": "68a8efc587e51813755d746f53d2cda9a4c16311",
+          "path": "contracts-legacy",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-contracts"
+        },
+        {
+          "commit": "e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+          "path": "contracts-legacy/lib/forge-std",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/foundry-rs/forge-std"
+        },
+        {
+          "commit": "e282159d5170298eb2455a6c05280ab5a73a4ef0",
+          "path": "contracts-legacy/lib/forge-std/lib/ds-test",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/dapphub/ds-test"
+        },
+        {
+          "commit": "b438cb695a1ac520cee6678610b161b1d5df4d9c",
+          "path": "contracts-local/lib/openzeppelin-contracts",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OpenZeppelin/openzeppelin-contracts"
+        },
+        {
+          "commit": "7e88c8cc53c2e96201a23c638f1536557b9cb68b",
+          "path": "contracts-local/src/precompiles",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-precompile-interfaces"
+        },
+        {
+          "commit": "398b522785aaa475757aeaa3ed447529732da061",
+          "path": "crates/langs/bf",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-bf"
+        },
+        {
+          "commit": "46ef0fccb60222ee6b1e7cdb440b2f8dcb9e0a33",
+          "path": "crates/langs/c",
+          "reason": "git worktree add --detach --force <checkout>/crates/langs/c 46ef0fccb60222ee6b1e7cdb440b2f8dcb9e0a33 in <home>/.holon/eval/repos/OffchainLabs__stylus-sdk-c.git: Preparing worktree (detached HEAD 46ef0fc)\nerror: unable to read sha1 file of .github/pull_request_template.md (430fd37cc9e57dc6d82cab3cf9e9f2712f4b3823)\nerror: unable to read sha1 file of README.md (1e4c6160a896445d96767be1b85afb1b8c13304f)\nerror: unable to read sha1 file of examples/erc20/.gitignore (c3f1b4646b28a",
+          "status": "refused",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-c"
+        },
+        {
+          "commit": "f8b7500e765913334e9d8ddd46d32698353639b9",
+          "path": "crates/langs/rust",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-rs"
+        },
+        {
+          "commit": "1c2d13dbc8b3d0af8eedd0c7d43f0108c15bf332",
+          "path": "crates/tools/wasmer",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/wasmer"
+        },
+        {
+          "commit": "9d2dae0ea425788dfa7c5a31d184686d616235bb",
+          "path": "crates/tools/wasmer/lib/napi",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/wasmerio/napi"
+        },
+        {
+          "commit": "7e0b83aba9dbbb6e0623c9334b0f73b3bb584b90",
+          "path": "crates/tools/wasmer/tests/wast/spec",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/WebAssembly/testsuite"
+        },
+        {
+          "commit": "7bf03222ad094ec3441f5c3935eeb1b41ee470ba",
+          "path": "crates/wasm-libraries/soft-float/SoftFloat",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/SoftFloat"
+        },
+        {
+          "commit": "e25ae159357c055b3a6fac99043644e208d26d2a",
+          "path": "crates/wasm-testsuite/testsuite",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/WebAssembly/testsuite"
+        },
+        {
+          "commit": "461e5177cdbb8d237702dbb889ed2db19515f8c7",
+          "path": "go-ethereum",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/go-ethereum"
+        },
+        {
+          "commit": "d8b88f4046a87d6b902378cef752591f95427b43",
+          "path": "go-ethereum/tests/evm-benchmarks",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ipsilon/evm-benchmarks"
+        },
+        {
+          "commit": "81862e4848585a438d64f911a19b3825f0f4cd95",
+          "path": "go-ethereum/tests/testdata",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/tests"
+        },
+        {
+          "commit": "b3f67fe9e056396ac56619edb2a2c1fb0edbe5ce",
+          "path": "go-ethereum/tests/testdata/LegacyTests",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/legacytests"
+        },
+        {
+          "commit": "a8f87ada672eaaea6f9e9c508d439dfd85f471b3",
+          "path": "nitro-testnode",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-testnode"
+        },
+        {
+          "commit": "b087b69504999758275c71d645995a7c5ef9cf7d",
+          "path": "nitro-testnode/blockscout",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/blockscout"
+        },
+        {
+          "commit": "dc437e8fba8b4805d76bcbd1c668c9fd3d1e83be",
+          "path": "safe-smart-account",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/safe-global/safe-smart-account"
+        }
+      ],
+      "system": "arbitrum"
+    },
+    {
+      "actions": 87,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 11,
+              "contract": "github.com/cosmos/cosmos-sdk/x/distribution/keeper.Hooks",
+              "debt": {
+                "loop": 2,
+                "path_limit": 3
+              },
+              "families": 1,
+              "file": "go_1.Hooks.extracted.json",
+              "guards": 14,
+              "havoc": 131,
+              "kv_families": [],
+              "sha256": "b5e2a46afb73e554b1f77c8b83ddf6edd40a98c0d37355f0b2d3c19dc1336d2c",
+              "writes": 131
+            },
+            {
+              "actions": 57,
+              "contract": "github.com/cosmos/cosmos-sdk/x/distribution/keeper.Keeper",
+              "debt": {
+                "defer": 20,
+                "loop": 27,
+                "path_limit": 4
+              },
+              "families": 11,
+              "file": "go_1.Keeper.extracted.json",
+              "guards": 23,
+              "havoc": 4555,
+              "kv_families": [
+                "storeService"
+              ],
+              "sha256": "db3cf867bab03eac42b0e5f4e0df69e4be808dc87b93b2a8bcc590675ce2f196",
+              "writes": 5265
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/cosmos/cosmos-sdk/x/distribution/keeper.Migrator",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.Migrator.extracted.json",
+              "guards": 2,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "021f786ed680a79ebde6ee43b8167b23f930fddf6f6e0493b9fc854fdb5f1d4f",
+              "writes": 0
+            },
+            {
+              "actions": 10,
+              "contract": "github.com/cosmos/cosmos-sdk/x/distribution/keeper.Querier",
+              "debt": {
+                "loop": 3,
+                "path_limit": 2
+              },
+              "families": 1,
+              "file": "go_1.Querier.extracted.json",
+              "guards": 32,
+              "havoc": 2,
+              "kv_families": [],
+              "sha256": "caccd77d87f1e72225c0bc0baed63748793c56ae3a4a562fda97e7d7c78962b6",
+              "writes": 2
+            },
+            {
+              "actions": 7,
+              "contract": "github.com/cosmos/cosmos-sdk/x/distribution/keeper.msgServer",
+              "debt": {
+                "defer": 1,
+                "path_limit": 3
+              },
+              "families": 1,
+              "file": "go_1.msgServer.extracted.json",
+              "guards": 17,
+              "havoc": 3,
+              "kv_families": [],
+              "sha256": "3748fae048ccc18aba3648d80cbcf145cd4dd9cb0245c023913a2e5a3b9e5d24",
+              "writes": 3
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+        }
+      ],
+      "id": "c03",
+      "laws": 0,
+      "machines": 5,
+      "pipeline": "refused",
+      "prefix_commit": "c1ece303dda957e3ec5b859b727f882b30282d01",
+      "refused_at": "types",
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 321 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: AllocateTokens: a write of a whole mapping(bytes => bytes) (storeService) (at x/distribution/keeper/allocation.go:80)",
+          "status": "failed"
+        }
+      },
+      "submodules": [],
+      "system": "cosmos"
+    },
+    {
+      "actions": 96,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 13,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.Freezer",
+              "debt": {
+                "defer": 12,
+                "loop": 17,
+                "path_limit": 3
+              },
+              "families": 8,
+              "file": "go_1.Freezer.extracted.json",
+              "guards": 3,
+              "havoc": 295,
+              "kv_families": [],
+              "sha256": "017399e994c2b5c6bad9c4e009ab72ab0b35c3ca8fae3c52c960be9bf11b7c4b",
+              "writes": 295
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.KeyLengthIterator",
+              "debt": {
+                "loop": 1
+              },
+              "families": 2,
+              "file": "go_1.KeyLengthIterator.extracted.json",
+              "guards": 0,
+              "havoc": 2,
+              "kv_families": [],
+              "sha256": "9e6a6d1719a7d5fab479794e8e8632440d17cb2a521738d32053280b8de18e5c",
+              "writes": 2
+            },
+            {
+              "actions": 14,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer",
+              "debt": {
+                "defer": 27,
+                "loop": 15,
+                "path_limit": 2
+              },
+              "families": 4,
+              "file": "go_1.ResettableFreezer.extracted.json",
+              "guards": 0,
+              "havoc": 1645,
+              "kv_families": [],
+              "sha256": "66c54d9fd23d3fc8fcad084015c05f471a3fcc482e7169c1dee0644c6f25c4a3",
+              "writes": 1645
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.chainFreezer",
+              "debt": {
+                "channel": 1,
+                "defer": 1
+              },
+              "families": 4,
+              "file": "go_1.chainFreezer.extracted.json",
+              "guards": 0,
+              "havoc": 16,
+              "kv_families": [],
+              "sha256": "419c8454acbdcdf0d4d005863cb327a294126b279fc12b9e5653caf046434b60",
+              "writes": 16
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.freezerBatch",
+              "debt": {
+                "defer": 2,
+                "path_limit": 2
+              },
+              "families": 1,
+              "file": "go_1.freezerBatch.extracted.json",
+              "guards": 0,
+              "havoc": 2,
+              "kv_families": [],
+              "sha256": "c9fc7c363a924e2fefe7c1d0280041deac254f2d7d6c6adf5a0d50a09712d9b4",
+              "writes": 2
+            },
+            {
+              "actions": 4,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.freezerTable",
+              "debt": {
+                "defer": 4,
+                "loop": 6,
+                "path_limit": 2
+              },
+              "families": 20,
+              "file": "go_1.freezerTable.extracted.json",
+              "guards": 0,
+              "havoc": 4903,
+              "kv_families": [],
+              "sha256": "24a255b8de0013f7db7d1f6642a6fbbe92b3aa12eedfbd9f09414816263d4f2f",
+              "writes": 4903
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.freezerTableBatch",
+              "debt": {
+                "defer": 2,
+                "path_limit": 2
+              },
+              "families": 7,
+              "file": "go_1.freezerTableBatch.extracted.json",
+              "guards": 0,
+              "havoc": 14,
+              "kv_families": [],
+              "sha256": "358df0d16f6f55eb2c4dcf14a54ba6347462bc7e9db1d5c71401d9c6076f4c07",
+              "writes": 14
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.freezerdb",
+              "debt": {
+                "channel": 2
+              },
+              "families": 3,
+              "file": "go_1.freezerdb.extracted.json",
+              "guards": 2,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "7458f5d92245ecf6b0e84fde0a63d4e61be3fcc944b71dc987f1266609eb1031",
+              "writes": 0
+            },
+            {
+              "actions": 13,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.nofreezedb",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.nofreezedb.extracted.json",
+              "guards": 12,
+              "havoc": 1,
+              "kv_families": [],
+              "sha256": "1795998e5f014c568ef2d51b65911a7fbb28f5c0fe288830daee5ee045e58309",
+              "writes": 1
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.receiptLogs",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.receiptLogs.extracted.json",
+              "guards": 1,
+              "havoc": 1,
+              "kv_families": [],
+              "sha256": "759eea6c289ad05c3627d8780cebeeb40060016ee0af528c950f6a616a518407",
+              "writes": 1
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.stat",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.stat.extracted.json",
+              "guards": 0,
+              "havoc": 1,
+              "kv_families": [],
+              "sha256": "c332a2c12e52eaa19615c83c4b1a7af890c8aa1d301f784a1f762edda106c4c3",
+              "writes": 2
+            },
+            {
+              "actions": 24,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.table",
+              "debt": {
+                "loop": 1
+              },
+              "families": 2,
+              "file": "go_1.table.extracted.json",
+              "guards": 2,
+              "havoc": 29,
+              "kv_families": [
+                "db"
+              ],
+              "sha256": "5d5c3cd6ced01209deebb406e1bb93242d9ae5bf5022257ba6dcd40dea3958fe",
+              "writes": 30
+            },
+            {
+              "actions": 6,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.tableBatch",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.tableBatch.extracted.json",
+              "guards": 0,
+              "havoc": 5,
+              "kv_families": [
+                "batch"
+              ],
+              "sha256": "ac7757d5db80825bd3aedb4f345363edaa74d1dd0dfc55dcd33e5060cdca010a",
+              "writes": 6
+            },
+            {
+              "actions": 5,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.tableIterator",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.tableIterator.extracted.json",
+              "guards": 1,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "5ab37c5019c51bc8e8c310d953182df5f0adb19395f7f18e72fd255752e5b7fe",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.tableReplayer",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.tableReplayer.extracted.json",
+              "guards": 0,
+              "havoc": 1,
+              "kv_families": [
+                "w"
+              ],
+              "sha256": "a0c4da9330a6cf1077ca2b8887c7db8d3c1e30cbca41def0fdd3281c92d8da46",
+              "writes": 2
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/core/rawdb.writeBuffer",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.writeBuffer.extracted.json",
+              "guards": 0,
+              "havoc": 1,
+              "kv_families": [],
+              "sha256": "fe4c8cd99c897351e011eb70f59c3911536e7ebfb6e067164107c4e3b9d31ee5",
+              "writes": 2
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/ethereum/go-ethereum/core/rawdb"
+        }
+      ],
+      "id": "c04",
+      "laws": 0,
+      "machines": 16,
+      "pipeline": "refused",
+      "prefix_commit": "3705acd1a97b2cc9bbb092b326a9d8cfbc42037a",
+      "refused_at": "types",
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 176 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: Ancient: a write of a whole mapping(string => bytes32) (tables) (at core/rawdb/freezer.go:195)",
+          "status": "failed"
+        }
+      },
+      "submodules": [
+        {
+          "commit": "d8b88f4046a87d6b902378cef752591f95427b43",
+          "path": "tests/evm-benchmarks",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ipsilon/evm-benchmarks"
+        },
+        {
+          "commit": "fa51c5c164f79140730ccb8fe26a46c3d3994338",
+          "path": "tests/testdata",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/tests"
+        },
+        {
+          "commit": "97de5bce3a257a4b219666134df15b6d4d47f1f5",
+          "path": "tests/testdata/LegacyTests",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/legacytests"
+        }
+      ],
+      "system": "go-ethereum"
+    },
+    {
+      "actions": 20,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 20,
+              "contract": "github.com/certusone/wormhole/node/pkg/governor.ChainGovernor",
+              "debt": {
+                "channel": 2,
+                "defer": 24,
+                "loop": 33,
+                "path_limit": 1
+              },
+              "families": 15,
+              "file": "go_1.ChainGovernor.extracted.json",
+              "guards": 1,
+              "havoc": 6435,
+              "kv_families": [],
+              "sha256": "30ca4daaed24fc03f47d3a366ed873169bc956aed774da3f8ec223868fa3264f",
+              "writes": 6459
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/certusone/wormhole/node/pkg/governor"
+        }
+      ],
+      "id": "c06",
+      "laws": 0,
+      "machines": 1,
+      "pipeline": "refused",
+      "prefix_commit": "478ea22a3fee43d1079b9555ca9696dfc2608632",
+      "refused_at": "types",
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 59 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: CheckPending: a write of a whole mapping(string => bytes32) (tokensByCoinGeckoId) (at node/pkg/governor/governor.go:501)",
+          "status": "failed"
+        }
+      },
+      "submodules": [],
+      "system": "wormhole"
+    },
+    {
+      "actions": 0,
+      "documents": [
+        {
+          "machines": [],
+          "reason": "ELOG.md' -> '<tmp>/src/CHANGELOG.md'\"), ('<checkout>/arbos', '<tmp>/src/arbos', \"[Errno 28] No space left on device: '<tmp>/src/arbos'\"), ('<checkout>/rust-toolchain.toml', '<tmp>/src/rust-toolchain.toml', \"[Errno 28] No space left on device: '<checkout>/rust-toolchain.toml' -> '<tmp>/src/rust-toolchain.toml'\"), ('<checkout>/contracts', '<tmp>/src/contracts', \"[Errno 28] No space left on device: '<tmp>/src/contracts'\"), ('<checkout>/wavmio', '<tmp>/src/wavmio', \"[Errno 28] No space left on device: '<tmp>/src/wavmio'\"), ('<checkout>/bold', '<tmp>/src/bold', \"[Errno 28] No space left on device: '<tmp>/src/bold'\"), ('<checkout>/docs', '<tmp>/src/docs', \"[Errno 28] No space left on device: '<tmp>/src/docs'\"), ('<checkout>/changelog', '<tmp>/src/changelog', \"[Errno 28] No space left on device: '<tmp>/src/changelog'\"), ('<checkout>/.gitmodules', '<tmp>/src/.gitmodules', \"[Errno 28] No space left on device: '<checkout>/.gitmodules' -> '<tmp>/src/.gitmodules'\"), ('<checkout>/timeboost', '<tmp>/src/timeboost', \"[Errno 28] No space left on device: '<tmp>/src/timeboost'\"), ('<checkout>/CONTRIBUTING.md', '<tmp>/src/CONTRIBUTING.md', \"[Errno 28] No space left on device: '<checkout>/CONTRIBUTING.md' -> '<tmp>/src/CONTRIBUTING.md'\"), ('<checkout>/execution', '<tmp>/src/execution', \"[Errno 28] No space left on device: '<tmp>/src/execution'\"), ('<checkout>/.golangci.yml', '<tmp>/src/.golangci.yml', \"[Errno 28] No space left on device: '<checkout>/.golangci.yml' -> '<tmp>/src/.golangci.yml'\")]",
+          "status": "failed",
+          "unit": "github.com/offchainlabs/nitro/precompiles"
+        }
+      ],
+      "id": "c07",
+      "laws": 0,
+      "machines": 0,
+      "pipeline": "refused",
+      "prefix_commit": "35986d4c606dbc28a821a0bb5922721ca48ed0cf",
+      "refused_at": "extract",
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "stages": {},
+      "submodules": [
+        {
+          "commit": "f4153a09f87cbb9c826d8fc12c74642bb2d879ea",
+          "path": "brotli",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/google/brotli"
+        },
+        {
+          "commit": "4341b132cfbdcc980ead03765ca5224ff6cb5d97",
+          "path": "contracts",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-contracts"
+        },
+        {
+          "commit": "e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+          "path": "contracts/lib/forge-std",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/foundry-rs/forge-std"
+        },
+        {
+          "commit": "e282159d5170298eb2455a6c05280ab5a73a4ef0",
+          "path": "contracts/lib/forge-std/lib/ds-test",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/dapphub/ds-test"
+        },
+        {
+          "commit": "f49a4889b486fd804a7901203f5f663cfd1581c8",
+          "path": "contracts/src/precompiles",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-precompile-interfaces"
+        },
+        {
+          "commit": "68a8efc587e51813755d746f53d2cda9a4c16311",
+          "path": "contracts-legacy",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-contracts"
+        },
+        {
+          "commit": "e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+          "path": "contracts-legacy/lib/forge-std",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/foundry-rs/forge-std"
+        },
+        {
+          "commit": "e282159d5170298eb2455a6c05280ab5a73a4ef0",
+          "path": "contracts-legacy/lib/forge-std/lib/ds-test",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/dapphub/ds-test"
+        },
+        {
+          "commit": "b438cb695a1ac520cee6678610b161b1d5df4d9c",
+          "path": "contracts-local/lib/openzeppelin-contracts",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OpenZeppelin/openzeppelin-contracts"
+        },
+        {
+          "commit": "96885283fa1f1384bc6345f3c6d0726fa044212e",
+          "path": "contracts-local/src/precompiles",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-precompile-interfaces"
+        },
+        {
+          "commit": "398b522785aaa475757aeaa3ed447529732da061",
+          "path": "crates/langs/bf",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-bf"
+        },
+        {
+          "commit": "46ef0fccb60222ee6b1e7cdb440b2f8dcb9e0a33",
+          "path": "crates/langs/c",
+          "reason": "git worktree add --detach --force <checkout>/crates/langs/c 46ef0fccb60222ee6b1e7cdb440b2f8dcb9e0a33 in <home>/.holon/eval/repos/OffchainLabs__stylus-sdk-c.git: Preparing worktree (detached HEAD 46ef0fc)\nerror: unable to read sha1 file of .github/pull_request_template.md (430fd37cc9e57dc6d82cab3cf9e9f2712f4b3823)\nerror: unable to read sha1 file of README.md (1e4c6160a896445d96767be1b85afb1b8c13304f)\nerror: unable to read sha1 file of examples/erc20/.gitignore (c3f1b4646b28a",
+          "status": "refused",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-c"
+        },
+        {
+          "commit": "a0e17ad3e8abbccb0b58d961ac1ee8b746aacc0b",
+          "path": "crates/langs/rust",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-rs"
+        },
+        {
+          "commit": "6b15433d83f951555c24f0c56dc05e4751b0cc76",
+          "path": "crates/tools/wasmer",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/wasmer"
+        },
+        {
+          "commit": "7bf03222ad094ec3441f5c3935eeb1b41ee470ba",
+          "path": "crates/wasm-libraries/soft-float/SoftFloat",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/SoftFloat"
+        },
+        {
+          "commit": "e25ae159357c055b3a6fac99043644e208d26d2a",
+          "path": "crates/wasm-testsuite/testsuite",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/WebAssembly/testsuite"
+        },
+        {
+          "commit": "cdd2f031221f853f9b521c4fddd7e2217153951c",
+          "path": "go-ethereum",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/go-ethereum"
+        },
+        {
+          "commit": "d8b88f4046a87d6b902378cef752591f95427b43",
+          "path": "go-ethereum/tests/evm-benchmarks",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ipsilon/evm-benchmarks"
+        },
+        {
+          "commit": "81862e4848585a438d64f911a19b3825f0f4cd95",
+          "path": "go-ethereum/tests/testdata",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/tests"
+        },
+        {
+          "commit": "b3f67fe9e056396ac56619edb2a2c1fb0edbe5ce",
+          "path": "go-ethereum/tests/testdata/LegacyTests",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/legacytests"
+        },
+        {
+          "commit": "dd3216e56232ef56f0bb879d12c84de81eaa3472",
+          "path": "nitro-testnode",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-testnode"
+        },
+        {
+          "commit": "b087b69504999758275c71d645995a7c5ef9cf7d",
+          "path": "nitro-testnode/blockscout",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/blockscout"
+        },
+        {
+          "commit": "dc437e8fba8b4805d76bcbd1c668c9fd3d1e83be",
+          "path": "safe-smart-account",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/safe-global/safe-smart-account"
+        }
+      ],
+      "system": "arbitrum"
+    },
+    {
+      "actions": 37,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 36,
+              "contract": "cosmossdk.io/x/group/keeper.Keeper",
+              "debt": {
+                "loop": 29,
+                "path_limit": 4
+              },
+              "families": 19,
+              "file": "go_1.Keeper.extracted.json",
+              "guards": 92,
+              "havoc": 14611,
+              "kv_families": [],
+              "sha256": "f36f174b1a70d4420ca9b9b46c39842d0532c300018d7a105e295b81d10eb695",
+              "writes": 14611
+            },
+            {
+              "actions": 1,
+              "contract": "cosmossdk.io/x/group/keeper.Migrator",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.Migrator.extracted.json",
+              "guards": 1,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "2b362f344266acb9e153397598e5a4c52b27326b14ba8781537ce320aa7eae8e",
+              "writes": 0
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "cosmossdk.io/x/group/keeper"
+        }
+      ],
+      "id": "c08",
+      "laws": 0,
+      "machines": 2,
+      "pipeline": "refused",
+      "prefix_commit": "548ca00b11f89145fc112e54e680f6710172bb5a",
+      "refused_at": "types",
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 149 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: CreateGroup: the length of a w value (at x/group/keeper/msg_server.go:99)",
+          "status": "failed"
+        }
+      },
+      "submodules": [],
+      "system": "cosmos"
+    },
+    {
+      "actions": 51,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/p2p.Cap",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.Cap.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "24eb828fc956e0d90ac10770d58d3ce705bfc898bdf81e12766697447f3d437b",
+              "writes": 0
+            },
+            {
+              "actions": 4,
+              "contract": "github.com/ethereum/go-ethereum/p2p.Msg",
+              "debt": {},
+              "families": 7,
+              "file": "go_1.Msg.extracted.json",
+              "guards": 3,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "dc0bf16063e22c596e286327261f53a2228b91abebdb9230fe4b14701c07a35a",
+              "writes": 0
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/p2p.MsgPipeRW",
+              "debt": {
+                "channel": 3
+              },
+              "families": 4,
+              "file": "go_1.MsgPipeRW.extracted.json",
+              "guards": 0,
+              "havoc": 52,
+              "kv_families": [],
+              "sha256": "d9a38bd6688a402764d47efcafda21c30a177e50f880fd47a3bcbdddc5f3f646",
+              "writes": 52
+            },
+            {
+              "actions": 13,
+              "contract": "github.com/ethereum/go-ethereum/p2p.Peer",
+              "debt": {
+                "channel": 1,
+                "loop": 3
+              },
+              "families": 10,
+              "file": "go_1.Peer.extracted.json",
+              "guards": 1,
+              "havoc": 30,
+              "kv_families": [],
+              "sha256": "ec3e00a90f4b57e8bb3104c2446d6eb2a61f5ab4839998d7b7523bf4eb4acded",
+              "writes": 30
+            },
+            {
+              "actions": 14,
+              "contract": "github.com/ethereum/go-ethereum/p2p.Server",
+              "debt": {
+                "channel": 13,
+                "defer": 2,
+                "goroutine": 4,
+                "loop": 6,
+                "path_limit": 2
+              },
+              "families": 27,
+              "file": "go_1.Server.extracted.json",
+              "guards": 6,
+              "havoc": 465,
+              "kv_families": [],
+              "sha256": "a39af34d40b7b4ca913ee3e2854f5b15709caa51982155197e679aaa8bea0c5b",
+              "writes": 467
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.conn",
+              "debt": {},
+              "families": 7,
+              "file": "go_1.conn.extracted.json",
+              "guards": 0,
+              "havoc": 448,
+              "kv_families": [],
+              "sha256": "5bdcb677fcd02319bff758d56866c84bed353f7842a894661fbbd680ae3f3efe",
+              "writes": 448
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.eofSignal",
+              "debt": {
+                "channel": 2
+              },
+              "families": 3,
+              "file": "go_1.eofSignal.extracted.json",
+              "guards": 1,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "d0456ddee999111d964ed8df475feec5f05f2f9d499ef00b9bb762469051c68c",
+              "writes": 15
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/p2p.meteredConn",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.meteredConn.extracted.json",
+              "guards": 2,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "7952efe2f3bcd592a82b752372570e637c90db82c1d8438061a6e45f0173221d",
+              "writes": 0
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/p2p.msgEventer",
+              "debt": {},
+              "families": 6,
+              "file": "go_1.msgEventer.extracted.json",
+              "guards": 3,
+              "havoc": 12,
+              "kv_families": [],
+              "sha256": "92e2553d559e4d83ae243651a184817afe577f4931e6b9e80e40fe8a57c38781",
+              "writes": 12
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.peerError",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.peerError.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "5fe477a0e5580585066fbdfb2e5eb32e0e58090cc94b1541f87fcde00703373e",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/p2p.protoRW",
+              "debt": {
+                "channel": 3
+              },
+              "families": 7,
+              "file": "go_1.protoRW.extracted.json",
+              "guards": 6,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "c3b3bfd250e2e72741e450c56015b3886bf1037ecee61189da492c6741550de3",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/p2p.rlpxTransport",
+              "debt": {
+                "defer": 2
+              },
+              "families": 4,
+              "file": "go_1.rlpxTransport.extracted.json",
+              "guards": 0,
+              "havoc": 26,
+              "kv_families": [],
+              "sha256": "f09ccb51933c6955296f116c84cbf717d3429acc0e2bd0753ebe6197207421a0",
+              "writes": 26
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/p2p.sharedUDPConn",
+              "debt": {
+                "channel": 1
+              },
+              "families": 2,
+              "file": "go_1.sharedUDPConn.extracted.json",
+              "guards": 1,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "53dbe866638f172cc152c12a0c017191b6c47608ed1b16557ec2ece36f2d9888",
+              "writes": 0
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.tcpDialer",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.tcpDialer.extracted.json",
+              "guards": 0,
+              "havoc": 1,
+              "kv_families": [],
+              "sha256": "409b24ff7c2f6c6f86d59105818d93bf0c730fee9a562902384b786834bf855b",
+              "writes": 1
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/ethereum/go-ethereum/p2p"
+        }
+      ],
+      "id": "c09",
+      "laws": 0,
+      "machines": 14,
+      "pipeline": "refused",
+      "prefix_commit": "e13fa32cea3497aa311226c62daf21c5847c8e4f",
+      "refused_at": "types",
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 124 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: Inbound: a write of a whole mapping(string => bytes32) (running) (at p2p/peer.go:224)",
+          "status": "failed"
+        }
+      },
+      "submodules": [
+        {
+          "commit": "d8b88f4046a87d6b902378cef752591f95427b43",
+          "path": "tests/evm-benchmarks",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ipsilon/evm-benchmarks"
+        },
+        {
+          "commit": "ee3fa4c86d05f99f2717f83a6ad08008490ddf07",
+          "path": "tests/testdata",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/tests"
+        },
+        {
+          "commit": "97de5bce3a257a4b219666134df15b6d4d47f1f5",
+          "path": "tests/testdata/LegacyTests",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/legacytests"
+        }
+      ],
+      "system": "go-ethereum"
+    },
+    {
+      "actions": 0,
+      "documents": [
+        {
+          "machines": [],
+          "reason": "holon extract go_machines: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\n[go 1.24.7 (go directive 1.19 of go.work)]",
+          "status": "failed",
+          "unit": "github.com/certusone/wormhole/node/pkg/watchers/algorand"
+        }
+      ],
+      "id": "c11",
+      "laws": 0,
+      "machines": 0,
+      "pipeline": "refused",
+      "prefix_commit": "91fd0e05172b5e237b55b1029d705bc51a3006e8",
+      "refused_at": "extract",
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "stages": {},
+      "submodules": [],
+      "system": "wormhole"
+    },
+    {
+      "actions": 8,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 1,
+              "contract": "github.com/offchainlabs/nitro/daprovider.CertificateValidationError",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.CertificateValidationError.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "3e0b2ded792035fd834f2487a43342d20d8fccf2a15b732f5613f3786396bc80",
+              "writes": 0
+            },
+            {
+              "actions": 7,
+              "contract": "github.com/offchainlabs/nitro/daprovider.DAProviderRegistry",
+              "debt": {
+                "loop": 7
+              },
+              "families": 1,
+              "file": "go_1.DAProviderRegistry.extracted.json",
+              "guards": 6,
+              "havoc": 24,
+              "kv_families": [],
+              "sha256": "28c658f04402d979b0f44e57798ebfbbaa6b8a0501921085bc94684cd6c8b68f",
+              "writes": 24
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/offchainlabs/nitro/daprovider"
+        },
+        {
+          "machines": [],
+          "reason": "holon extract go_machines: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/daprovider/anytrust/util||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+          "status": "failed",
+          "unit": "github.com/offchainlabs/nitro/daprovider/anytrust/util"
+        }
+      ],
+      "id": "c12",
+      "laws": 0,
+      "machines": 2,
+      "pipeline": "complete",
+      "prefix_commit": "b4178a009b07d61be26c46e9b77be591cf599675",
+      "refused_at": null,
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "stages": {
+        "derive": {
+          "detail": "holon derive: 0 laws, 0 obstructions -> laws/T510",
+          "status": "ok"
+        },
+        "disch": {
+          "detail": "holon disch: closure.json, conjuncts.json -> <root>/gen/T510/disch",
+          "status": "ok"
+        },
+        "model": {
+          "detail": "wrote <root>/gen/T510/sorts/models/go_1.CertificateValidationError.extracted.bend\nwrote <root>/gen/T510/sorts/models/go_1.DAProviderRegistry.extracted.bend",
+          "status": "ok"
+        },
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 13 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: go_1.CertificateValidationError.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: go_1.DAProviderRegistry.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards",
+          "status": "ok"
+        }
+      },
+      "submodules": [
+        {
+          "commit": "92420f8f34b53f3c1d47047f9f894820d506c565",
+          "path": "arbitrator/langs/bf",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-bf"
+        },
+        {
+          "commit": "29fe05d68672797572080084b0f5f0a282e298ef",
+          "path": "arbitrator/langs/c",
+          "reason": "git worktree add --detach --force <checkout>/arbitrator/langs/c 29fe05d68672797572080084b0f5f0a282e298ef in <home>/.holon/eval/repos/OffchainLabs__stylus-sdk-c.git: Preparing worktree (detached HEAD 29fe05d)\nerror: unable to read sha1 file of .github/pull_request_template.md (430fd37cc9e57dc6d82cab3cf9e9f2712f4b3823)\nerror: unable to read sha1 file of README.md (1e4c6160a896445d96767be1b85afb1b8c13304f)\nerror: unable to read sha1 file of examples/erc20/.gitignore (c3f1b4646",
+          "status": "refused",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-c"
+        },
+        {
+          "commit": "a0e17ad3e8abbccb0b58d961ac1ee8b746aacc0b",
+          "path": "arbitrator/langs/rust",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/stylus-sdk-rs"
+        },
+        {
+          "commit": "6b15433d83f951555c24f0c56dc05e4751b0cc76",
+          "path": "arbitrator/tools/wasmer",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/wasmer"
+        },
+        {
+          "commit": "7bf03222ad094ec3441f5c3935eeb1b41ee470ba",
+          "path": "arbitrator/wasm-libraries/soft-float/SoftFloat",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/SoftFloat"
+        },
+        {
+          "commit": "e25ae159357c055b3a6fac99043644e208d26d2a",
+          "path": "arbitrator/wasm-testsuite/testsuite",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/WebAssembly/testsuite"
+        },
+        {
+          "commit": "f4153a09f87cbb9c826d8fc12c74642bb2d879ea",
+          "path": "brotli",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/google/brotli"
+        },
+        {
+          "commit": "ac952f66a6e90b2bdf717acd598b39620cfb0503",
+          "path": "contracts",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-contracts"
+        },
+        {
+          "commit": "e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+          "path": "contracts/lib/forge-std",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/foundry-rs/forge-std"
+        },
+        {
+          "commit": "e282159d5170298eb2455a6c05280ab5a73a4ef0",
+          "path": "contracts/lib/forge-std/lib/ds-test",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/dapphub/ds-test"
+        },
+        {
+          "commit": "f49a4889b486fd804a7901203f5f663cfd1581c8",
+          "path": "contracts/src/precompiles",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-precompile-interfaces"
+        },
+        {
+          "commit": "1fb793f19c33213e5992f1793931512d5e40abb8",
+          "path": "contracts-legacy",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-contracts"
+        },
+        {
+          "commit": "e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+          "path": "contracts-legacy/lib/forge-std",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/foundry-rs/forge-std"
+        },
+        {
+          "commit": "e282159d5170298eb2455a6c05280ab5a73a4ef0",
+          "path": "contracts-legacy/lib/forge-std/lib/ds-test",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/dapphub/ds-test"
+        },
+        {
+          "commit": "b438cb695a1ac520cee6678610b161b1d5df4d9c",
+          "path": "contracts-local/lib/openzeppelin-contracts",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OpenZeppelin/openzeppelin-contracts"
+        },
+        {
+          "commit": "acb12a8bcc5db8eea36a5ad641b6687a7be0e7ed",
+          "path": "contracts-local/src/precompiles",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-precompile-interfaces"
+        },
+        {
+          "commit": "9db354781776766033914bdcec72f23f0f1e5b38",
+          "path": "go-ethereum",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/go-ethereum"
+        },
+        {
+          "commit": "d8b88f4046a87d6b902378cef752591f95427b43",
+          "path": "go-ethereum/tests/evm-benchmarks",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ipsilon/evm-benchmarks"
+        },
+        {
+          "commit": "81862e4848585a438d64f911a19b3825f0f4cd95",
+          "path": "go-ethereum/tests/testdata",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/tests"
+        },
+        {
+          "commit": "b3f67fe9e056396ac56619edb2a2c1fb0edbe5ce",
+          "path": "go-ethereum/tests/testdata/LegacyTests",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/legacytests"
+        },
+        {
+          "commit": "dfcc6b2e0f2abc1c889f2123c0a8ce0a6166a306",
+          "path": "nitro-testnode",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/nitro-testnode"
+        },
+        {
+          "commit": "a934912f25a091230ec51f056947e4c28f6ea5d3",
+          "path": "nitro-testnode/blockscout",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/OffchainLabs/blockscout"
+        },
+        {
+          "commit": "dc437e8fba8b4805d76bcbd1c668c9fd3d1e83be",
+          "path": "safe-smart-account",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/safe-global/safe-smart-account"
+        }
+      ],
+      "system": "arbitrum"
+    },
+    {
+      "actions": 28,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 10,
+              "contract": "github.com/cosmos/ibc-go/v7/modules/apps/transfer.AppModule",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.AppModule.extracted.json",
+              "guards": 2,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "bc574d9dea2e8ce88c5f396f3ba7fe5d6618fe09c1e49ecef2864246fb971773",
+              "writes": 0
+            },
+            {
+              "actions": 8,
+              "contract": "github.com/cosmos/ibc-go/v7/modules/apps/transfer.AppModuleBasic",
+              "debt": {},
+              "families": 0,
+              "file": "go_1.AppModuleBasic.extracted.json",
+              "guards": 3,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "47f975abcec1dfc5dd377b3d50207544a631b9610906b86bb4a89d4c36e640a6",
+              "writes": 0
+            },
+            {
+              "actions": 10,
+              "contract": "github.com/cosmos/ibc-go/v7/modules/apps/transfer.IBCModule",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.IBCModule.extracted.json",
+              "guards": 14,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "a82db7f2a5f97c6f57338e1f39ed5609e9882849d3f01bc177f94e8c8ae9cb44",
+              "writes": 0
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+        }
+      ],
+      "id": "c13",
+      "laws": 0,
+      "machines": 3,
+      "pipeline": "refused",
+      "prefix_commit": "37ab926637aab78892aed61952fbb4b49da48ccd",
+      "refused_at": "types",
+      "repo": "https://github.com/cosmos/ibc-go",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 86 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: a r:S_tuple value used as a word (at modules/apps/transfer/module.go:69)",
+          "status": "failed"
+        }
+      },
+      "submodules": [],
+      "system": "cosmos"
+    },
+    {
+      "actions": 51,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.Cap",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.Cap.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "d0ed1b90bf46c9aebb5c177ea39152964208534f4091f195710b344cfd48b3c2",
+              "writes": 0
+            },
+            {
+              "actions": 4,
+              "contract": "github.com/ethereum/go-ethereum/p2p.Msg",
+              "debt": {},
+              "families": 7,
+              "file": "go_1.Msg.extracted.json",
+              "guards": 3,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "3b22680241bfbef0267c22aeba34058af81f6f654314dbe8636357bacf81ae01",
+              "writes": 0
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/p2p.MsgPipeRW",
+              "debt": {
+                "channel": 3
+              },
+              "families": 4,
+              "file": "go_1.MsgPipeRW.extracted.json",
+              "guards": 0,
+              "havoc": 52,
+              "kv_families": [],
+              "sha256": "89eec566e9383e07e44d320352a314fdb2e4c013de0fb18dfb6063095ad27757",
+              "writes": 52
+            },
+            {
+              "actions": 13,
+              "contract": "github.com/ethereum/go-ethereum/p2p.Peer",
+              "debt": {
+                "channel": 1,
+                "loop": 3
+              },
+              "families": 10,
+              "file": "go_1.Peer.extracted.json",
+              "guards": 1,
+              "havoc": 30,
+              "kv_families": [],
+              "sha256": "38483dcc8cceb319965e77e45d601a452fe401859092f20c13fe9b47a31646d7",
+              "writes": 30
+            },
+            {
+              "actions": 14,
+              "contract": "github.com/ethereum/go-ethereum/p2p.Server",
+              "debt": {
+                "channel": 13,
+                "defer": 2,
+                "goroutine": 3,
+                "loop": 7,
+                "path_limit": 1
+              },
+              "families": 26,
+              "file": "go_1.Server.extracted.json",
+              "guards": 6,
+              "havoc": 8610,
+              "kv_families": [],
+              "sha256": "1f97f8d455af6444ee66cafc647152060a0a79b75a48cc6e791542f873ea8d8e",
+              "writes": 8612
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.conn",
+              "debt": {},
+              "families": 7,
+              "file": "go_1.conn.extracted.json",
+              "guards": 0,
+              "havoc": 448,
+              "kv_families": [],
+              "sha256": "07df63fda106c01e34ab05cd70018971124577d4c628d22c4673d0b44e6b93a1",
+              "writes": 448
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.eofSignal",
+              "debt": {
+                "channel": 2
+              },
+              "families": 3,
+              "file": "go_1.eofSignal.extracted.json",
+              "guards": 1,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "5d653d701d703408ee7b9854979b1e1fde9319022accc33d067d8be33ccce33d",
+              "writes": 15
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/p2p.meteredConn",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.meteredConn.extracted.json",
+              "guards": 3,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "e93936eeff8dc7475318e2d5fe496b8adc0ad96772eae97a15cf7f7cd23512fe",
+              "writes": 0
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/p2p.msgEventer",
+              "debt": {},
+              "families": 6,
+              "file": "go_1.msgEventer.extracted.json",
+              "guards": 3,
+              "havoc": 12,
+              "kv_families": [],
+              "sha256": "3fc76125169866fc54353c48c1d2f12a2ce1c88d361e58f08b2fea525d8e459c",
+              "writes": 12
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.peerError",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.peerError.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "1ed2992f0913ecec3ef6b3996b9c73cd4aac1ecf0dd13419aefc2b768f7bad10",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/p2p.protoRW",
+              "debt": {
+                "channel": 3
+              },
+              "families": 7,
+              "file": "go_1.protoRW.extracted.json",
+              "guards": 6,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "983d87543ca2bc95a5b5ff560392282d13f4c918922925ed57f75eb2716b1dff",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/p2p.rlpxTransport",
+              "debt": {
+                "defer": 2
+              },
+              "families": 4,
+              "file": "go_1.rlpxTransport.extracted.json",
+              "guards": 0,
+              "havoc": 26,
+              "kv_families": [],
+              "sha256": "1909b9f901e41f0ec55fc3c80c0ee5307cb6c09ac7c801ec82cce7405c7243f8",
+              "writes": 26
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/p2p.sharedUDPConn",
+              "debt": {
+                "channel": 1
+              },
+              "families": 2,
+              "file": "go_1.sharedUDPConn.extracted.json",
+              "guards": 1,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "cd9ca84a287b3e4e892eb43fda51b2e11fbd5aac7ee29dbd23c780a7c87c2839",
+              "writes": 0
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/p2p.tcpDialer",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.tcpDialer.extracted.json",
+              "guards": 0,
+              "havoc": 1,
+              "kv_families": [],
+              "sha256": "aaa078dd139b8dfe95217e45aeb1bc3edcda91d6154a9ef64b5c54ed14b4c69e",
+              "writes": 1
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/ethereum/go-ethereum/p2p"
+        }
+      ],
+      "id": "c14",
+      "laws": 0,
+      "machines": 14,
+      "pipeline": "refused",
+      "prefix_commit": "a79afd9ac325e12021ae56928ba4af32bb3cc78f",
+      "refused_at": "types",
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 131 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: Inbound: a write of a whole mapping(string => bytes32) (running) (at p2p/peer.go:224)",
+          "status": "failed"
+        }
+      },
+      "submodules": [
+        {
+          "commit": "849b3e239a28f236dc99574b2e10e0c720895105",
+          "path": "tests/evm-benchmarks",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ipsilon/evm-benchmarks"
+        },
+        {
+          "commit": "092a8834dc445e683103689d6f0e75a5d380a190",
+          "path": "tests/testdata",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/tests"
+        }
+      ],
+      "system": "go-ethereum"
+    },
+    {
+      "actions": 26,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 1,
+              "contract": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.BlockPollConnector",
+              "debt": {},
+              "families": 7,
+              "file": "go_1.BlockPollConnector.extracted.json",
+              "guards": 0,
+              "havoc": 2,
+              "kv_families": [],
+              "sha256": "c4a315a8d339184d1fea32e742efb01af026a33323895abe02f9649d3b62a426",
+              "writes": 2
+            },
+            {
+              "actions": 10,
+              "contract": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.CeloConnector",
+              "debt": {
+                "loop": 4
+              },
+              "families": 7,
+              "file": "go_1.CeloConnector.extracted.json",
+              "guards": 0,
+              "havoc": 98,
+              "kv_families": [],
+              "sha256": "f79a025cd110143bc7aaf0e38cdea3a5cb7c4b522abadf96841f7f325a610040",
+              "writes": 98
+            },
+            {
+              "actions": 11,
+              "contract": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.EthereumConnector",
+              "debt": {},
+              "families": 7,
+              "file": "go_1.EthereumConnector.extracted.json",
+              "guards": 0,
+              "havoc": 70,
+              "kv_families": [],
+              "sha256": "092344bb1c267a2a050e04593eb6e669a40eeb0217665037177805268c2d72e2",
+              "writes": 70
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.LogPollConnector",
+              "debt": {},
+              "families": 5,
+              "file": "go_1.LogPollConnector.extracted.json",
+              "guards": 0,
+              "havoc": 2,
+              "kv_families": [],
+              "sha256": "009984ac099d09b2ad6284a6838ba956603596f5382619d7cb3524beb04a5459",
+              "writes": 2
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.PollSubscription",
+              "debt": {},
+              "families": 4,
+              "file": "go_1.PollSubscription.extracted.json",
+              "guards": 0,
+              "havoc": 4,
+              "kv_families": [],
+              "sha256": "06545f7e0432a7d8254dd3929ce78ba093d1f435f87e06252d5d1359aea76849",
+              "writes": 4
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.PolygonConnector",
+              "debt": {
+                "channel": 1
+              },
+              "families": 6,
+              "file": "go_1.PolygonConnector.extracted.json",
+              "guards": 0,
+              "havoc": 216,
+              "kv_families": [],
+              "sha256": "46053167a857980c946f5bd621692943a8decf2cec01a8da09025c1d4f23d284",
+              "writes": 216
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors"
+        }
+      ],
+      "id": "c16",
+      "laws": 0,
+      "machines": 6,
+      "pipeline": "complete",
+      "prefix_commit": "100a01b4b17fbf396a9e7b3ffde2733a5086d1aa",
+      "refused_at": null,
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "stages": {
+        "derive": {
+          "detail": "holon derive: 0 laws, 0 obstructions -> laws/T510",
+          "status": "ok"
+        },
+        "disch": {
+          "detail": "holon disch: closure.json, conjuncts.json -> <root>/gen/T510/disch",
+          "status": "ok"
+        },
+        "model": {
+          "detail": "wrote <root>/gen/T510/sorts/models/go_1.BlockPollConnector.extracted.bend\nwrote <root>/gen/T510/sorts/models/go_1.CeloConnector.extracted.bend\nwrote <root>/gen/T510/sorts/models/go_1.EthereumConnector.extracted.bend\nwrote <root>/gen/T510/sorts/models/go_1.LogPollConnector.extracted.bend\nwrote <root>/gen/T510/sorts/models/go_1.PollSubscription.extracted.bend\nwrote <root>/gen/T510/sorts/models/go_1.PolygonConnector.extracted.bend",
+          "status": "ok"
+        },
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 93 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: go_1.BlockPollConnector.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: go_1.CeloConnector.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: go_1.EthereumConnector.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: go_1.LogPollConnector.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: go_1.PollSubscription.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: go_1.PolygonConnector.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards",
+          "status": "ok"
+        }
+      },
+      "submodules": [],
+      "system": "wormhole"
+    },
+    {
+      "actions": 1370,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.DecisionPolicyWindows",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.DecisionPolicyWindows.extracted.json",
+              "guards": 4,
+              "havoc": 126,
+              "kv_families": [],
+              "sha256": "c14f81461abe9e7a39e4a6eaa574edb9c02b20000c20db439b29f8dbe27a6429",
+              "writes": 126
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.EventCreateGroup",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.EventCreateGroup.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "fadb869de3d6fe41fb0f104fc8c10839131d461dd3e91bf5bd17ab451d37397c",
+              "writes": 37
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.EventCreateGroupPolicy",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.EventCreateGroupPolicy.extracted.json",
+              "guards": 0,
+              "havoc": 43,
+              "kv_families": [],
+              "sha256": "b1b35cc0dede945bac61ad57cd980b7e77fd9ac3734e0c15b6a958b3691abdb2",
+              "writes": 43
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.EventExec",
+              "debt": {
+                "loop": 6
+              },
+              "families": 3,
+              "file": "go_1.EventExec.extracted.json",
+              "guards": 0,
+              "havoc": 399,
+              "kv_families": [],
+              "sha256": "3115d755e07f66c058c25217b5a9649c033acd0f11b9419bb33a2a7d71e55996",
+              "writes": 399
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.EventLeaveGroup",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.EventLeaveGroup.extracted.json",
+              "guards": 0,
+              "havoc": 134,
+              "kv_families": [],
+              "sha256": "abf5031a62d11c5c3540184151e72e122599af64b2f6d0259542f7d28f3ab7a1",
+              "writes": 134
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.EventProposalPruned",
+              "debt": {
+                "loop": 10,
+                "path_limit": 2
+              },
+              "families": 3,
+              "file": "go_1.EventProposalPruned.extracted.json",
+              "guards": 0,
+              "havoc": 897,
+              "kv_families": [],
+              "sha256": "c50a33a713e6a9083eb2c98f064c6cf566ea703f2a90c20e3d41ab583f820c09",
+              "writes": 897
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.EventSubmitProposal",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.EventSubmitProposal.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "f4bd4f155805af132886a64fdf019f909b187b18ee3d712c042fd46b202eba63",
+              "writes": 37
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.EventUpdateGroup",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.EventUpdateGroup.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "7bef7b65f87abae6e41b1e56b1943a2ac091cd78c72f7718751aadb1b321f2dc",
+              "writes": 37
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.EventUpdateGroupPolicy",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.EventUpdateGroupPolicy.extracted.json",
+              "guards": 0,
+              "havoc": 43,
+              "kv_families": [],
+              "sha256": "36ee883996ead346c21a54f7937ad50d6e86de3f4aca0b7e0429de5510320b52",
+              "writes": 43
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.EventVote",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.EventVote.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "125cb1261fdf2a9fd760c7a7345667382198863a240dcb51132930f26747a85f",
+              "writes": 37
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.EventWithdrawProposal",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.EventWithdrawProposal.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "f382dfb8508dd677f3421f4000a3a136c71b24ef52c898043f06e00555f22c35",
+              "writes": 37
+            },
+            {
+              "actions": 24,
+              "contract": "cosmossdk.io/x/group.GenesisState",
+              "debt": {
+                "loop": 15,
+                "path_limit": 3
+              },
+              "families": 8,
+              "file": "go_1.GenesisState.extracted.json",
+              "guards": 0,
+              "havoc": 7888,
+              "kv_families": [],
+              "sha256": "3de0610d4df921ec05aaa59d5de242bc1c6306fecce27637fccd098dc2a7aefb",
+              "writes": 7888
+            },
+            {
+              "actions": 22,
+              "contract": "cosmossdk.io/x/group.GroupInfo",
+              "debt": {
+                "loop": 6,
+                "path_limit": 2
+              },
+              "families": 6,
+              "file": "go_1.GroupInfo.extracted.json",
+              "guards": 6,
+              "havoc": 1110,
+              "kv_families": [],
+              "sha256": "e6ad69438003a7581360c6a3429c8a09a01925c72c719f16ab34aff96d0dc781",
+              "writes": 1110
+            },
+            {
+              "actions": 18,
+              "contract": "cosmossdk.io/x/group.GroupMember",
+              "debt": {
+                "loop": 6,
+                "path_limit": 2
+              },
+              "families": 2,
+              "file": "go_1.GroupMember.extracted.json",
+              "guards": 6,
+              "havoc": 256,
+              "kv_families": [],
+              "sha256": "eafbe84f4103f7d74a31bde4d2b48b5add64bad902397b7ecf90bd19f8a6a782",
+              "writes": 256
+            },
+            {
+              "actions": 20,
+              "contract": "cosmossdk.io/x/group.GroupPolicyInfo",
+              "debt": {
+                "loop": 6,
+                "path_limit": 2
+              },
+              "families": 7,
+              "file": "go_1.GroupPolicyInfo.extracted.json",
+              "guards": 8,
+              "havoc": 2640,
+              "kv_families": [],
+              "sha256": "d78446f9ecf99bbe7b6e5663132010de11cff58d8a0c8384191e9b1793a89a9a",
+              "writes": 2640
+            },
+            {
+              "actions": 18,
+              "contract": "cosmossdk.io/x/group.Member",
+              "debt": {
+                "loop": 6
+              },
+              "families": 4,
+              "file": "go_1.Member.extracted.json",
+              "guards": 4,
+              "havoc": 684,
+              "kv_families": [],
+              "sha256": "a93d87dc116cc23ba811ef624c432c442dfef98105fdb2d0ac6214bcb58fbb21",
+              "writes": 684
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.MemberRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 3,
+              "file": "go_1.MemberRequest.extracted.json",
+              "guards": 0,
+              "havoc": 435,
+              "kv_families": [],
+              "sha256": "91fd544b64757d3c50f60023aa3a9a0108d1d12a7ef0222cb42038b376010472",
+              "writes": 435
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.MsgCreateGroup",
+              "debt": {
+                "loop": 14
+              },
+              "families": 3,
+              "file": "go_1.MsgCreateGroup.extracted.json",
+              "guards": 0,
+              "havoc": 837,
+              "kv_families": [],
+              "sha256": "e12aee9f7f33aa4c2dc1975d95a3df6394beeb2187f86c9ad3279ef71a911f67",
+              "writes": 837
+            },
+            {
+              "actions": 20,
+              "contract": "cosmossdk.io/x/group.MsgCreateGroupPolicy",
+              "debt": {
+                "loop": 6,
+                "path_limit": 1
+              },
+              "families": 4,
+              "file": "go_1.MsgCreateGroupPolicy.extracted.json",
+              "guards": 1,
+              "havoc": 1669,
+              "kv_families": [],
+              "sha256": "1d0f99960eda5e174eade6c3fce714911567545c0ccfe6b1d33d09b77aacf375",
+              "writes": 1669
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.MsgCreateGroupPolicyResponse",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.MsgCreateGroupPolicyResponse.extracted.json",
+              "guards": 0,
+              "havoc": 43,
+              "kv_families": [],
+              "sha256": "58788cad38f633d01dfd336c892523496b6e04b2f120f44741192eb80021384b",
+              "writes": 43
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.MsgCreateGroupResponse",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.MsgCreateGroupResponse.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "0f7a588dc23923994c7697b338e43e23570531c0d06a8ef55cd0e2027fb27bab",
+              "writes": 37
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.MsgCreateGroupWithPolicy",
+              "debt": {
+                "loop": 14,
+                "path_limit": 2
+              },
+              "families": 6,
+              "file": "go_1.MsgCreateGroupWithPolicy.extracted.json",
+              "guards": 1,
+              "havoc": 3145,
+              "kv_families": [],
+              "sha256": "096cfe018393e4a6172f0ca8b56ddd76f99d4ea4c45a477fb41246c076532ede",
+              "writes": 3145
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.MsgCreateGroupWithPolicyResponse",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.MsgCreateGroupWithPolicyResponse.extracted.json",
+              "guards": 0,
+              "havoc": 134,
+              "kv_families": [],
+              "sha256": "a49bfcf6d70cbee64753b63fee83391c30eba879220283b73e4ba0628e94cf95",
+              "writes": 134
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.MsgExec",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.MsgExec.extracted.json",
+              "guards": 0,
+              "havoc": 134,
+              "kv_families": [],
+              "sha256": "e7a56f11a23e697d367c948f6da97234f54c21cd37b5c2520e3e4d443c0631b7",
+              "writes": 134
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.MsgExecResponse",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.MsgExecResponse.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "4e947af8d63e16f56675cd96a0c13a369c1d4c43f0a6d375ea009672b8f714fd",
+              "writes": 37
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.MsgLeaveGroup",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.MsgLeaveGroup.extracted.json",
+              "guards": 0,
+              "havoc": 134,
+              "kv_families": [],
+              "sha256": "b3d173d719f66dd4584a09b745c2596bd9b26392e82000869c333815f8f8c544",
+              "writes": 134
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgLeaveGroupResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgLeaveGroupResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "999e40852d5df8780b280bd7402428082e0ed07efee084e5e09d357881bc65b1",
+              "writes": 0
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.MsgSubmitProposal",
+              "debt": {
+                "loop": 22,
+                "path_limit": 2
+              },
+              "families": 7,
+              "file": "go_1.MsgSubmitProposal.extracted.json",
+              "guards": 1,
+              "havoc": 4474,
+              "kv_families": [],
+              "sha256": "a0d75d1b3b222ad3ece325f9eecaaf25d28e64caf0fd60e6285e122622612e2e",
+              "writes": 4474
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.MsgSubmitProposalResponse",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.MsgSubmitProposalResponse.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "55ddd43dbd78328a36e0a61eb9f0f572ca921d0756f5101ffcdfa0a981c54d54",
+              "writes": 37
+            },
+            {
+              "actions": 18,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupAdmin",
+              "debt": {
+                "loop": 6
+              },
+              "families": 3,
+              "file": "go_1.MsgUpdateGroupAdmin.extracted.json",
+              "guards": 0,
+              "havoc": 417,
+              "kv_families": [],
+              "sha256": "84ec4565b10feb1e1863bf8e1bb3b4816412f8f425ce0823069c2ae257c7596e",
+              "writes": 417
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupAdminResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgUpdateGroupAdminResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "eb48a0ea2df987f64e3a830e7d698ceec34923a423a0062dc660d518f32ab0b4",
+              "writes": 0
+            },
+            {
+              "actions": 18,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupMembers",
+              "debt": {
+                "loop": 14
+              },
+              "families": 3,
+              "file": "go_1.MsgUpdateGroupMembers.extracted.json",
+              "guards": 0,
+              "havoc": 729,
+              "kv_families": [],
+              "sha256": "a03420b3d5401ee83607422cc95be3b287379a08744e1c3927df612a74ee8dcb",
+              "writes": 729
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupMembersResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgUpdateGroupMembersResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "bf83de0ca79c2d11a046e331de6b804d114f609f4a9d1fc1963c65b6274fc806",
+              "writes": 0
+            },
+            {
+              "actions": 18,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupMetadata",
+              "debt": {
+                "loop": 6
+              },
+              "families": 3,
+              "file": "go_1.MsgUpdateGroupMetadata.extracted.json",
+              "guards": 0,
+              "havoc": 417,
+              "kv_families": [],
+              "sha256": "38cc24de033d50dd8d482ca5e3633a172e713c4c468bb154385913685704ecd2",
+              "writes": 417
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupMetadataResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgUpdateGroupMetadataResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "2b5e43a2a30ab7d81300bdddca152ee9dd70e48ec8dc56405d0117863df2c0b8",
+              "writes": 0
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupPolicyAdmin",
+              "debt": {
+                "loop": 6
+              },
+              "families": 3,
+              "file": "go_1.MsgUpdateGroupPolicyAdmin.extracted.json",
+              "guards": 0,
+              "havoc": 435,
+              "kv_families": [],
+              "sha256": "810a2aaac3f84e1a3f2e096d4daec226c845449c4536289db780cf7c4f0c9b45",
+              "writes": 435
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupPolicyAdminResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgUpdateGroupPolicyAdminResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "1d4076a2c9a3bc706a09784a96585630cdf08e44c0a561604a1bcf596af3b256",
+              "writes": 0
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupPolicyDecisionPolicy",
+              "debt": {
+                "loop": 6
+              },
+              "families": 3,
+              "file": "go_1.MsgUpdateGroupPolicyDecisionPolicy.extracted.json",
+              "guards": 2,
+              "havoc": 889,
+              "kv_families": [],
+              "sha256": "c32b50be921cfe582a09f585f223f51897c672bce29068c75d080dfcd113e79b",
+              "writes": 889
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupPolicyDecisionPolicyResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgUpdateGroupPolicyDecisionPolicyResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "03bf86fa5d2b44c1ed7d63b244f56f800310ac40e5d338bffdda1092a451a25d",
+              "writes": 0
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupPolicyMetadata",
+              "debt": {
+                "loop": 6
+              },
+              "families": 3,
+              "file": "go_1.MsgUpdateGroupPolicyMetadata.extracted.json",
+              "guards": 0,
+              "havoc": 435,
+              "kv_families": [],
+              "sha256": "f9542840c1e89d07103ed07673911133644279ed7addb861ff0271ad4c98aad9",
+              "writes": 435
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgUpdateGroupPolicyMetadataResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgUpdateGroupPolicyMetadataResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "09594a45e513711427760b345290933cff0661b7726d2467bff5b5d4b71e1323",
+              "writes": 0
+            },
+            {
+              "actions": 19,
+              "contract": "cosmossdk.io/x/group.MsgVote",
+              "debt": {
+                "loop": 6,
+                "path_limit": 2
+              },
+              "families": 5,
+              "file": "go_1.MsgVote.extracted.json",
+              "guards": 0,
+              "havoc": 810,
+              "kv_families": [],
+              "sha256": "71a2a34a5c716850be216b90a27df516d79dd21fe39aa7db6d2eed806a4b0f24",
+              "writes": 810
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgVoteResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgVoteResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "23abb9465c92358aeea3a9a7103b701780c0189b0506245fd4c6c7bc2e8df6ef",
+              "writes": 0
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.MsgWithdrawProposal",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.MsgWithdrawProposal.extracted.json",
+              "guards": 0,
+              "havoc": 134,
+              "kv_families": [],
+              "sha256": "01c84eab9bb159c474c554b1829a75e497b931c212739700e797685872bb66dc",
+              "writes": 134
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.MsgWithdrawProposalResponse",
+              "debt": {
+                "loop": 2
+              },
+              "families": 0,
+              "file": "go_1.MsgWithdrawProposalResponse.extracted.json",
+              "guards": 10,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "363de7325852f2dd10c963a109197ecc5e4531bf919f9f1aaaf3f674564120ca",
+              "writes": 0
+            },
+            {
+              "actions": 21,
+              "contract": "cosmossdk.io/x/group.PercentageDecisionPolicy",
+              "debt": {
+                "loop": 6,
+                "path_limit": 1
+              },
+              "families": 2,
+              "file": "go_1.PercentageDecisionPolicy.extracted.json",
+              "guards": 8,
+              "havoc": 284,
+              "kv_families": [],
+              "sha256": "602ebd011cfc4099878da457bbe8ab0838fc6b7adf2130b56a54b8c5501e4462",
+              "writes": 284
+            },
+            {
+              "actions": 19,
+              "contract": "cosmossdk.io/x/group.Proposal",
+              "debt": {
+                "loop": 18,
+                "path_limit": 6
+              },
+              "families": 14,
+              "file": "go_1.Proposal.extracted.json",
+              "guards": 9,
+              "havoc": 2493,
+              "kv_families": [],
+              "sha256": "b020a6dbcf5ae8c8bb2379a0956c9bf1951fef03e6dddfb9092ca724472c81da",
+              "writes": 2493
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryGroupInfoRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.QueryGroupInfoRequest.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "8c78f701dcee77369102c1500eb2228523eaf2ebbe504abcb994965359cbb751",
+              "writes": 37
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryGroupInfoResponse",
+              "debt": {
+                "loop": 10,
+                "path_limit": 2
+              },
+              "families": 1,
+              "file": "go_1.QueryGroupInfoResponse.extracted.json",
+              "guards": 2,
+              "havoc": 236,
+              "kv_families": [],
+              "sha256": "aa87d116e05b06ec0c72d28cc261a25e261dd9602481f84e844957d968efdaa9",
+              "writes": 236
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupMembersRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupMembersRequest.extracted.json",
+              "guards": 0,
+              "havoc": 242,
+              "kv_families": [],
+              "sha256": "bd17ee1f12dfcd2c8b9a84ab08b1a6ad1e3dadce21a47bdbacd002cfa9d2e799",
+              "writes": 242
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupMembersResponse",
+              "debt": {
+                "loop": 14
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupMembersResponse.extracted.json",
+              "guards": 0,
+              "havoc": 352,
+              "kv_families": [],
+              "sha256": "a9df7e126b35c080d167de3de4911b1c81cf9e7ee948faeb741ea62289eac78d",
+              "writes": 352
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupPoliciesByAdminRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupPoliciesByAdminRequest.extracted.json",
+              "guards": 0,
+              "havoc": 254,
+              "kv_families": [],
+              "sha256": "d80808f8081ca6bf4bf9ec5a7e6666ceaa7c9f5c0200112e7c8044019f9fc1d3",
+              "writes": 254
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.QueryGroupPoliciesByAdminResponse",
+              "debt": {
+                "loop": 15
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupPoliciesByAdminResponse.extracted.json",
+              "guards": 0,
+              "havoc": 356,
+              "kv_families": [],
+              "sha256": "0752f2587c3c3c8859b8b2095a47e726f78eb420ae877028cf6a86a14f9e7fc6",
+              "writes": 356
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupPoliciesByGroupRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupPoliciesByGroupRequest.extracted.json",
+              "guards": 0,
+              "havoc": 242,
+              "kv_families": [],
+              "sha256": "8747f5185cf693f720d7f1813db0f6de3ca2fbea6608b46f9016931628bdc33e",
+              "writes": 242
+            },
+            {
+              "actions": 17,
+              "contract": "cosmossdk.io/x/group.QueryGroupPoliciesByGroupResponse",
+              "debt": {
+                "loop": 15
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupPoliciesByGroupResponse.extracted.json",
+              "guards": 0,
+              "havoc": 356,
+              "kv_families": [],
+              "sha256": "08e9b5970a833fce2d268e55b0e5bc7680d3e4d46e1a579d6782a7950313068d",
+              "writes": 356
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryGroupPolicyInfoRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.QueryGroupPolicyInfoRequest.extracted.json",
+              "guards": 0,
+              "havoc": 43,
+              "kv_families": [],
+              "sha256": "c7decd7050602c1c0f48648fc405f7200d8049014371465c4f269722432fe295",
+              "writes": 43
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryGroupPolicyInfoResponse",
+              "debt": {
+                "loop": 10,
+                "path_limit": 2
+              },
+              "families": 1,
+              "file": "go_1.QueryGroupPolicyInfoResponse.extracted.json",
+              "guards": 2,
+              "havoc": 434,
+              "kv_families": [],
+              "sha256": "a4336fd993fa2428c5d2b0e3da6b8a8d978fdcfa6a65cd103a71eba26bc2c856",
+              "writes": 434
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupsByAdminRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupsByAdminRequest.extracted.json",
+              "guards": 0,
+              "havoc": 254,
+              "kv_families": [],
+              "sha256": "a115052887e9d0a39cc43069bbf001d3161debb065a7d07cdbdf73c15b1eb92f",
+              "writes": 254
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupsByAdminResponse",
+              "debt": {
+                "loop": 14
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupsByAdminResponse.extracted.json",
+              "guards": 0,
+              "havoc": 352,
+              "kv_families": [],
+              "sha256": "51a62bda4e864ef12a900941f2d729c9637f2b01e279c50d7407e1a520bfab67",
+              "writes": 352
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupsByMemberRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupsByMemberRequest.extracted.json",
+              "guards": 0,
+              "havoc": 254,
+              "kv_families": [],
+              "sha256": "4f2d7e4bd5ebb23a7f3e9d141bd98e1a99f83115ae153753654b4b34e8baffb4",
+              "writes": 254
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupsByMemberResponse",
+              "debt": {
+                "loop": 14
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupsByMemberResponse.extracted.json",
+              "guards": 0,
+              "havoc": 352,
+              "kv_families": [],
+              "sha256": "cd677462abc3f491ba7cb917073edb28bf8c0aac4dbcfff6796b07bab091b98f",
+              "writes": 352
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryGroupsRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.QueryGroupsRequest.extracted.json",
+              "guards": 0,
+              "havoc": 68,
+              "kv_families": [],
+              "sha256": "acc23a9e59adde2ef2a17240c52a348a23796de5197c6a09c5b5efa18492a8e8",
+              "writes": 68
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryGroupsResponse",
+              "debt": {
+                "loop": 14
+              },
+              "families": 2,
+              "file": "go_1.QueryGroupsResponse.extracted.json",
+              "guards": 0,
+              "havoc": 352,
+              "kv_families": [],
+              "sha256": "828883757e76a1aa09737818180ef0770d834013677328f0b2f56bb5f28a96cd",
+              "writes": 352
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryProposalRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.QueryProposalRequest.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "03187ffbb33a1d9973da919fab6bdec711bc36d0be0378c9b4c03690b7c5697b",
+              "writes": 37
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryProposalResponse",
+              "debt": {
+                "loop": 22,
+                "path_limit": 6
+              },
+              "families": 1,
+              "file": "go_1.QueryProposalResponse.extracted.json",
+              "guards": 0,
+              "havoc": 44,
+              "kv_families": [],
+              "sha256": "e3b3cd6ce085069ad771bc509bfc04c9cfe26f1d23c4edb05df2560ccdfc1e80",
+              "writes": 44
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryProposalsByGroupPolicyRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryProposalsByGroupPolicyRequest.extracted.json",
+              "guards": 0,
+              "havoc": 254,
+              "kv_families": [],
+              "sha256": "846a84dddbb381703973882c426340edf7132670a96606c9b189ea081ec8649e",
+              "writes": 254
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryProposalsByGroupPolicyResponse",
+              "debt": {
+                "loop": 14
+              },
+              "families": 2,
+              "file": "go_1.QueryProposalsByGroupPolicyResponse.extracted.json",
+              "guards": 0,
+              "havoc": 352,
+              "kv_families": [],
+              "sha256": "31ed22ef521f8c89618edbd7ed6ee2a76b6059dc41a4ad33e6905c20a74c45a0",
+              "writes": 352
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryTallyResultRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 1,
+              "file": "go_1.QueryTallyResultRequest.extracted.json",
+              "guards": 0,
+              "havoc": 37,
+              "kv_families": [],
+              "sha256": "ba11d7c62e9c2fbdd4d6972ff390cf9ba0ca45ea1749e469c5019b85ca699c8a",
+              "writes": 37
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryTallyResultResponse",
+              "debt": {
+                "loop": 10,
+                "path_limit": 2
+              },
+              "families": 1,
+              "file": "go_1.QueryTallyResultResponse.extracted.json",
+              "guards": 0,
+              "havoc": 134,
+              "kv_families": [],
+              "sha256": "758ef1381ef46a4c6f11bb62d8dbcddbfe6a3dd310ed82cb07108f3505bcdf65",
+              "writes": 134
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryVoteByProposalVoterRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryVoteByProposalVoterRequest.extracted.json",
+              "guards": 0,
+              "havoc": 134,
+              "kv_families": [],
+              "sha256": "a4ec2aef8ad05e8e95e1a909d0061b2c9f39c25e7c1ac7d5eb671fbc580ca3e9",
+              "writes": 134
+            },
+            {
+              "actions": 15,
+              "contract": "cosmossdk.io/x/group.QueryVoteByProposalVoterResponse",
+              "debt": {
+                "loop": 10,
+                "path_limit": 2
+              },
+              "families": 1,
+              "file": "go_1.QueryVoteByProposalVoterResponse.extracted.json",
+              "guards": 2,
+              "havoc": 140,
+              "kv_families": [],
+              "sha256": "ba1b42eda7d1dc89055966f0293a96d9302333676d98f1a41701e57c483e8557",
+              "writes": 140
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryVotesByProposalRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryVotesByProposalRequest.extracted.json",
+              "guards": 0,
+              "havoc": 242,
+              "kv_families": [],
+              "sha256": "33456c88d4ab8d6439b73dbe5888913402ec7abf5f678d572c4827bc0dd3b8dc",
+              "writes": 242
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryVotesByProposalResponse",
+              "debt": {
+                "loop": 14
+              },
+              "families": 2,
+              "file": "go_1.QueryVotesByProposalResponse.extracted.json",
+              "guards": 0,
+              "havoc": 352,
+              "kv_families": [],
+              "sha256": "3df936f209bdf8527876e8d2320b0f4699a029782c6bf6c7c9b587b844d9c26a",
+              "writes": 352
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryVotesByVoterRequest",
+              "debt": {
+                "loop": 6
+              },
+              "families": 2,
+              "file": "go_1.QueryVotesByVoterRequest.extracted.json",
+              "guards": 0,
+              "havoc": 254,
+              "kv_families": [],
+              "sha256": "d368bbd95946d4ade7d762bf649e94e6e7a06053b11fadfa73b01acf34089270",
+              "writes": 254
+            },
+            {
+              "actions": 16,
+              "contract": "cosmossdk.io/x/group.QueryVotesByVoterResponse",
+              "debt": {
+                "loop": 14
+              },
+              "families": 2,
+              "file": "go_1.QueryVotesByVoterResponse.extracted.json",
+              "guards": 0,
+              "havoc": 352,
+              "kv_families": [],
+              "sha256": "639b1cd8680fb33f23f76162558f97fcd85c8dc50ee4b9f43f76c1d41677f05f",
+              "writes": 352
+            },
+            {
+              "actions": 20,
+              "contract": "cosmossdk.io/x/group.TallyResult",
+              "debt": {
+                "loop": 6,
+                "path_limit": 1
+              },
+              "families": 4,
+              "file": "go_1.TallyResult.extracted.json",
+              "guards": 13,
+              "havoc": 1496,
+              "kv_families": [],
+              "sha256": "70526942c85c5f00cc7051067d921f43b190846e65d50689d9c000858795df17",
+              "writes": 1624
+            },
+            {
+              "actions": 21,
+              "contract": "cosmossdk.io/x/group.ThresholdDecisionPolicy",
+              "debt": {
+                "loop": 6,
+                "path_limit": 1
+              },
+              "families": 2,
+              "file": "go_1.ThresholdDecisionPolicy.extracted.json",
+              "guards": 9,
+              "havoc": 284,
+              "kv_families": [],
+              "sha256": "78c4490a2fae198316a8cc1c893d5824ce5fef4be461281bb338abf9f3035508",
+              "writes": 284
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.UnimplementedMsgServer",
+              "debt": {},
+              "families": 0,
+              "file": "go_1.UnimplementedMsgServer.extracted.json",
+              "guards": 14,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "f8cf35e39e4aa5a84a8aaa851b32617dc7de41b9c3e2805b64247362b19d1e2f",
+              "writes": 0
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.UnimplementedQueryServer",
+              "debt": {},
+              "families": 0,
+              "file": "go_1.UnimplementedQueryServer.extracted.json",
+              "guards": 14,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "83206ae52fe06b58269ccac73ffb4c6f9a78a5df7f9721a391d057f4b0394005",
+              "writes": 0
+            },
+            {
+              "actions": 21,
+              "contract": "cosmossdk.io/x/group.Vote",
+              "debt": {
+                "loop": 6,
+                "path_limit": 1
+              },
+              "families": 5,
+              "file": "go_1.Vote.extracted.json",
+              "guards": 8,
+              "havoc": 1980,
+              "kv_families": [],
+              "sha256": "d260a649d64b84d64cbd7805b4f77f51d589ae8a868caa44cfaf377a2e1ca47a",
+              "writes": 1980
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.msgClient",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.msgClient.extracted.json",
+              "guards": 14,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "3f40f2e5df0c8d1c6b63ce6c8b7646b508e262928831ebb4f22be9583b9c9b3c",
+              "writes": 0
+            },
+            {
+              "actions": 14,
+              "contract": "cosmossdk.io/x/group.queryClient",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.queryClient.extracted.json",
+              "guards": 14,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "1faa391b2158b664512b28215d8b5430153da24b85d80e9be1efdfa050275add",
+              "writes": 0
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "cosmossdk.io/x/group"
+        },
+        {
+          "machines": [
+            {
+              "actions": 36,
+              "contract": "cosmossdk.io/x/group/keeper.Keeper",
+              "debt": {
+                "loop": 29,
+                "path_limit": 4
+              },
+              "families": 19,
+              "file": "go_2.Keeper.extracted.json",
+              "guards": 92,
+              "havoc": 14611,
+              "kv_families": [],
+              "sha256": "15e25743e5b609ea57f7b6e2894e393f32ceb9d8bbaf9b74ca7032dcc48732bc",
+              "writes": 14611
+            },
+            {
+              "actions": 1,
+              "contract": "cosmossdk.io/x/group/keeper.Migrator",
+              "debt": {},
+              "families": 1,
+              "file": "go_2.Migrator.extracted.json",
+              "guards": 1,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "c83a5bf24126a904222e048f51de5c5ab145d57a4de2bf5e21d243b036eb8055",
+              "writes": 0
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "cosmossdk.io/x/group/keeper"
+        },
+        {
+          "machines": [],
+          "reason": null,
+          "status": "extracted",
+          "unit": "cosmossdk.io/x/group/simulation"
+        }
+      ],
+      "id": "c18",
+      "laws": 0,
+      "machines": 84,
+      "pipeline": "refused",
+      "prefix_commit": "a01cb3ba66ac66efa9d30534cbba5e17d55c3182",
+      "refused_at": "types",
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 1067 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: MarshalTo: the length of a v:Address value (at x/group/events.pb.go:646)",
+          "status": "failed"
+        }
+      },
+      "submodules": [],
+      "system": "cosmos"
+    },
+    {
+      "actions": 133,
+      "documents": [
+        {
+          "machines": [
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.AccountRangePacket",
+              "debt": {
+                "loop": 1
+              },
+              "families": 3,
+              "file": "go_1.AccountRangePacket.extracted.json",
+              "guards": 0,
+              "havoc": 6,
+              "kv_families": [],
+              "sha256": "a21fe330c8ffea763e73a0a586c76c0c20ae61e3129a2bdf10d557361559b731",
+              "writes": 6
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.ByteCodesPacket",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.ByteCodesPacket.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "65195f8f1a1700e8292c78ca95f303c870bffae5d0f3f46b030dd2929fe85401",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.GetAccountRangePacket",
+              "debt": {},
+              "families": 5,
+              "file": "go_1.GetAccountRangePacket.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "71571a846986ff169ca0bc009fa8f5a20c164cef272217dd7b3656f0c13a8a2c",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.GetByteCodesPacket",
+              "debt": {},
+              "families": 3,
+              "file": "go_1.GetByteCodesPacket.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "b4e560cc365f8ddb4a51c9df9cbda9fdd1f13a1b030dbb12f19545c1c3c0883e",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.GetStorageRangesPacket",
+              "debt": {},
+              "families": 6,
+              "file": "go_1.GetStorageRangesPacket.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "699c714bad0a0c4c1d405c01a751f2ed1bd4ac4ebd56c53636cf9ad4c4088be5",
+              "writes": 0
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.GetTrieNodesPacket",
+              "debt": {},
+              "families": 4,
+              "file": "go_1.GetTrieNodesPacket.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "b25cc366ba3ec6c1d9da6a86dd4268fedf13eeaa385961943b6a7612b8fb6355",
+              "writes": 0
+            },
+            {
+              "actions": 7,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.Peer",
+              "debt": {},
+              "families": 5,
+              "file": "go_1.Peer.extracted.json",
+              "guards": 4,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "28214b893f1a30eed602b30e9fc17193309dab8e4adeb872b6f722b66dc379d4",
+              "writes": 0
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.StorageRangesPacket",
+              "debt": {
+                "loop": 1
+              },
+              "families": 3,
+              "file": "go_1.StorageRangesPacket.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "b936e0450eee99db6fb00c8086b5f031ca2e142424b2cc6deac647a3c5547daf",
+              "writes": 0
+            },
+            {
+              "actions": 7,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.Syncer",
+              "debt": {
+                "channel": 15,
+                "defer": 5,
+                "loop": 16,
+                "nil_map": 12
+              },
+              "families": 44,
+              "file": "go_1.Syncer.extracted.json",
+              "guards": 0,
+              "havoc": 12912,
+              "kv_families": [
+                "db"
+              ],
+              "sha256": "2822d3a25cdcfa81588f20f7c98a54df2f11ae1869d472a743bba8e0ab12f63a",
+              "writes": 13624
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.TrieNodesPacket",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.TrieNodesPacket.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "42de5b910e58773ec2d86fa94681628c4a18dfd463e0944a1c6cafdca41969ae",
+              "writes": 0
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.capacitySort",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.capacitySort.extracted.json",
+              "guards": 0,
+              "havoc": 2,
+              "kv_families": [],
+              "sha256": "55cd3d69165435af3ee52d253aa65ee829dcfeb79e2a714d35f1481a2f1be230",
+              "writes": 2
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.enrEntry",
+              "debt": {},
+              "families": 1,
+              "file": "go_1.enrEntry.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "8c8ba072c1d104a9718228566fca3d54fd9941a3ba52b253565767eae44c1806",
+              "writes": 0
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.hashRange",
+              "debt": {},
+              "families": 2,
+              "file": "go_1.hashRange.extracted.json",
+              "guards": 0,
+              "havoc": 10,
+              "kv_families": [],
+              "sha256": "e5d0260b12dfbf08eb6ea4ddd9e321744a9883f6b45a4c3fbfdc93bb67f098d4",
+              "writes": 10
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/ethereum/go-ethereum/eth/protocols/snap"
+        },
+        {
+          "machines": [
+            {
+              "actions": 10,
+              "contract": "github.com/ethereum/go-ethereum/trie.Database",
+              "debt": {
+                "defer": 9,
+                "loop": 8,
+                "path_limit": 1
+              },
+              "families": 16,
+              "file": "go_2.Database.extracted.json",
+              "guards": 1,
+              "havoc": 8368,
+              "kv_families": [],
+              "sha256": "c825db1541bba2edbaca8446238f206116ac1e0b491a469869ba064b30830934",
+              "writes": 9160
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/trie.Iterator",
+              "debt": {
+                "loop": 1
+              },
+              "families": 4,
+              "file": "go_2.Iterator.extracted.json",
+              "guards": 0,
+              "havoc": 3,
+              "kv_families": [],
+              "sha256": "486577a8535e7e67ad7d291f3940cb3161cbc939a7182461441d7a08ef43bdc7",
+              "writes": 7
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/trie.MissingNodeError",
+              "debt": {},
+              "families": 2,
+              "file": "go_2.MissingNodeError.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "169fe48fd28b4aafb7fffd45ef64a28060f8c78db19512c0885aad728dad6d36",
+              "writes": 0
+            },
+            {
+              "actions": 14,
+              "contract": "github.com/ethereum/go-ethereum/trie.SecureTrie",
+              "debt": {
+                "channel": 1,
+                "defer": 4,
+                "goroutine": 1,
+                "loop": 22,
+                "path_limit": 6
+              },
+              "families": 4,
+              "file": "go_2.SecureTrie.extracted.json",
+              "guards": 0,
+              "havoc": 2635,
+              "kv_families": [],
+              "sha256": "3bced4839fa96818546b51c1a8224117ac1eda036c4e79a32828ba8442d86cd3",
+              "writes": 2635
+            },
+            {
+              "actions": 7,
+              "contract": "github.com/ethereum/go-ethereum/trie.StackTrie",
+              "debt": {
+                "defer": 16,
+                "loop": 23,
+                "path_limit": 2
+              },
+              "families": 6,
+              "file": "go_2.StackTrie.extracted.json",
+              "guards": 2,
+              "havoc": 2033,
+              "kv_families": [],
+              "sha256": "0e38a8f67ddb77958be74a538cf9508984bd0001f4f8c855eb4033c36f04d9b5",
+              "writes": 2440
+            },
+            {
+              "actions": 6,
+              "contract": "github.com/ethereum/go-ethereum/trie.Sync",
+              "debt": {
+                "loop": 8,
+                "nil_map": 2,
+                "path_limit": 1
+              },
+              "families": 7,
+              "file": "go_2.Sync.extracted.json",
+              "guards": 2,
+              "havoc": 655,
+              "kv_families": [],
+              "sha256": "2f25b59f542c31a4b7cd68847fce0e21295e5e1dd7c387124f1194f072ee6b8f",
+              "writes": 655
+            },
+            {
+              "actions": 3,
+              "contract": "github.com/ethereum/go-ethereum/trie.SyncBloom",
+              "debt": {},
+              "families": 6,
+              "file": "go_2.SyncBloom.extracted.json",
+              "guards": 0,
+              "havoc": 26,
+              "kv_families": [],
+              "sha256": "47cd874bdb75044758184eb6b767d79aab7cebeb021bdb56c47355406d55c7fa",
+              "writes": 26
+            },
+            {
+              "actions": 13,
+              "contract": "github.com/ethereum/go-ethereum/trie.Trie",
+              "debt": {
+                "channel": 1,
+                "defer": 5,
+                "goroutine": 1,
+                "loop": 26,
+                "path_limit": 7
+              },
+              "families": 3,
+              "file": "go_2.Trie.extracted.json",
+              "guards": 4,
+              "havoc": 1317,
+              "kv_families": [],
+              "sha256": "c8eed6e04b8a24ec280a74c41b49cd27de7990d940dfa3e4cfd57b438250dd25",
+              "writes": 1400
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/trie.cleaner",
+              "debt": {},
+              "families": 1,
+              "file": "go_2.cleaner.extracted.json",
+              "guards": 1,
+              "havoc": 12,
+              "kv_families": [],
+              "sha256": "1e8b5d54da63af373a01f97b7ab841b0380ddc670fd4644a3ef8b7fcbb5eb4aa",
+              "writes": 12
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/trie.committer",
+              "debt": {
+                "channel": 1,
+                "loop": 4,
+                "path_limit": 1
+              },
+              "families": 4,
+              "file": "go_2.committer.extracted.json",
+              "guards": 0,
+              "havoc": 4,
+              "kv_families": [],
+              "sha256": "fa30f8187ee1c70a4ccea6ab273083c368bf267e57af655a10192a3ba7de29ff",
+              "writes": 4
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/trie.decodeError",
+              "debt": {},
+              "families": 2,
+              "file": "go_2.decodeError.extracted.json",
+              "guards": 0,
+              "havoc": 2,
+              "kv_families": [],
+              "sha256": "a5159e0ecc02a2d9b3ab7ca2ab913f120aea0f0fa67b7c3086955bfb4a1ad8ea",
+              "writes": 2
+            },
+            {
+              "actions": 10,
+              "contract": "github.com/ethereum/go-ethereum/trie.differenceIterator",
+              "debt": {
+                "loop": 1
+              },
+              "families": 4,
+              "file": "go_2.differenceIterator.extracted.json",
+              "guards": 3,
+              "havoc": 16,
+              "kv_families": [],
+              "sha256": "8003162b06d4a2b954a2a3fb8d379e59d05be9f783d9a1f22bcfd0600bdd0c81",
+              "writes": 23
+            },
+            {
+              "actions": 2,
+              "contract": "github.com/ethereum/go-ethereum/trie.fullNode",
+              "debt": {
+                "loop": 2
+              },
+              "families": 2,
+              "file": "go_2.fullNode.extracted.json",
+              "guards": 1,
+              "havoc": 1,
+              "kv_families": [],
+              "sha256": "547d7d2aae3492961bbd1786d0fe3360fd808cd0d35a30380dc8b5dac05da3bd",
+              "writes": 1
+            },
+            {
+              "actions": 10,
+              "contract": "github.com/ethereum/go-ethereum/trie.nodeIterator",
+              "debt": {
+                "defer": 1,
+                "loop": 5,
+                "path_limit": 1
+              },
+              "families": 5,
+              "file": "go_2.nodeIterator.extracted.json",
+              "guards": 5,
+              "havoc": 11,
+              "kv_families": [
+                "resolver"
+              ],
+              "sha256": "4a44908ef87606f059479167fb1c7966ee1a78bfc1d75ba55e219c69a2d0476a",
+              "writes": 11
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/trie.seekError",
+              "debt": {},
+              "families": 2,
+              "file": "go_2.seekError.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "ba7e80058a365d5e5e2ee601fd47121d107579ee7bd897f45331b2409af41470",
+              "writes": 0
+            },
+            {
+              "actions": 1,
+              "contract": "github.com/ethereum/go-ethereum/trie.shortNode",
+              "debt": {},
+              "families": 3,
+              "file": "go_2.shortNode.extracted.json",
+              "guards": 0,
+              "havoc": 0,
+              "kv_families": [],
+              "sha256": "cbc9f296a1737d1489b448ce95ccaa42ba63ddf1aefa80a385e42fe875e1d8f3",
+              "writes": 0
+            },
+            {
+              "actions": 10,
+              "contract": "github.com/ethereum/go-ethereum/trie.unionIterator",
+              "debt": {
+                "loop": 2
+              },
+              "families": 2,
+              "file": "go_2.unionIterator.extracted.json",
+              "guards": 1,
+              "havoc": 10,
+              "kv_families": [],
+              "sha256": "c2cd2c7a5bbf1b8b68820d66fefa165e2eb92a29f1fc5c522321b39cb3d42ec0",
+              "writes": 12
+            }
+          ],
+          "reason": null,
+          "status": "extracted",
+          "unit": "github.com/ethereum/go-ethereum/trie"
+        }
+      ],
+      "id": "c19",
+      "laws": 0,
+      "machines": 30,
+      "pipeline": "refused",
+      "prefix_commit": "42bc1944a17260d75dc1e33e1571c804b9a4a88a",
+      "refused_at": "types",
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "stages": {
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 337 unresolved variables -> gen/T510/sorts",
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: ill-sorted: OnAccounts: a write into a map that may be a nil map (12 such writes; Q60, holon.frontends.go_machines machines.nil_maps unknown): not compiled",
+          "status": "failed"
+        }
+      },
+      "submodules": [
+        {
+          "commit": "092a8834dc445e683103689d6f0e75a5d380a190",
+          "path": "tests/testdata",
+          "reason": null,
+          "status": "initialized",
+          "url": "https://github.com/ethereum/tests"
+        }
+      ],
+      "system": "go-ethereum"
+    }
+  ],
+  "run_version": "holon-eval-go-machines/0.1",
+  "summary": {
+    "actions": 1907,
+    "complete": [
+      "c12",
+      "c16"
+    ],
+    "entries": 14,
+    "laws": 0,
+    "machines": 177,
+    "refused_at": {
+      "c01": "extract",
+      "c03": "types",
+      "c04": "types",
+      "c06": "types",
+      "c07": "extract",
+      "c08": "types",
+      "c09": "types",
+      "c11": "extract",
+      "c13": "types",
+      "c14": "types",
+      "c18": "types",
+      "c19": "types"
+    }
+  }
+}

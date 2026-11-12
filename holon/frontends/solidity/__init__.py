@@ -57,7 +57,10 @@ def _check_sidecar(side: dict, path) -> None:
         tr = side["transitions"]
         if edges is not None:
             bad.append("a sidecar has either edges (a layout document) or transitions (a transitions document)")
-        if not isinstance(tr, dict) or sorted(tr) != ["commit_interfaces", "contract"] \
+        tb = tr.get("term_budget") if isinstance(tr, dict) else None
+        if tb is not None and (not isinstance(tb, int) or isinstance(tb, bool) or tb < 1):
+            bad.append("transitions.term_budget is not a positive integer (I109 (e))")
+        if not isinstance(tr, dict) or sorted(k for k in tr if k != "term_budget") != ["commit_interfaces", "contract"] \
                 or not isinstance(tr.get("contract"), str) or not tr["contract"] \
                 or not isinstance(tr.get("commit_interfaces"), list) \
                 or not all(isinstance(x, str) and x for x in tr["commit_interfaces"]):

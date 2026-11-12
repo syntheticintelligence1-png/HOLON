@@ -1092,6 +1092,11 @@
         },
         "kind": {
           "const": "transitions"
+        },
+        "term_budget": {
+          "description": "I109 (e): the term-size budget the sidecar's transitions.term_budget named (absent: TERM_BUDGET)",
+          "type": "integer",
+          "minimum": 1
         }
       }
     },
@@ -2586,6 +2591,22 @@
               "sha256": {
                 "$ref": "#/$defs/sha256"
               }
+            }
+          }
+        },
+        "machines": {
+          "description": "I109 (Q64): the Go machine frontend's nil-map mode: unknown (the default; Q60's constructor rule) or zero (the config's explicit opt-out)",
+          "type": "object",
+          "required": [
+            "nil_maps"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "nil_maps": {
+              "enum": [
+                "unknown",
+                "zero"
+              ]
             }
           }
         }

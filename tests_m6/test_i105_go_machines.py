@@ -255,14 +255,22 @@ class TestTypedPipeline(_Docs):
 class TestDemo(unittest.TestCase):
     """Not a prediction (added after the prereg; docs/iterations/I105.md): Bank's shape with integer keys
     (tests_m6/fixtures/i105_demo), which the typed model's structural mode compiles, runs sorts through derive and
-    derives DISCH laws from a Go-only machine."""
+    derives DISCH laws from a Go-only machine.
+
+    Amended (Q64, Q67; spec/M6/amendments/I105.jsonl): it exercises the Go machine pipeline on the explicit nil-map
+    opt-out path (machines.nil_maps "zero"), which Q60 marks unsound for decisions (the Vault has no constructor, so its
+    map is nil in R0). On the default path ("unknown") the demo is re-decided UNKNOWN: I109's
+    TestNilMapDefault.test_p6_i105_demo_redecided_unknown."""
 
     def test_demo_vault_end_to_end(self):
         from holon.eval import common, holon_run as H
         demo = ROOT / "tests_m6" / "fixtures" / "i105_demo"
         tmp = Path(tempfile.mkdtemp(prefix="holon-i105-demo-"))
         try:
-            p = run_holon(["extract", "go_machines", "--root", str(ROOT), "--config", str(demo / "go_config.json"),
+            cfg = json.loads((demo / "go_config.json").read_text(encoding="utf-8"))
+            cfg["machines"] = {"nil_maps": "zero"}   # the explicit opt-out (Q64, Q67), in a temp copy
+            (tmp / "go_config_zero.json").write_text(json.dumps(cfg, indent=2, sort_keys=True) + "\n")
+            p = run_holon(["extract", "go_machines", "--root", str(ROOT), "--config", str(tmp / "go_config_zero.json"),
                            "--src", str(demo / "src"), "--out-dir", str(tmp / "docs")])
             self.assertEqual(p.returncode, 0, p.stderr[-3000:])
             (doc,) = sorted((tmp / "docs").glob("*.extracted.json"))

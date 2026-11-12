@@ -187,7 +187,9 @@ def solidity_sidecars(entry: dict, proto: dict, ck: Path, base_rel: str) -> list
                                "scope": f"contract {c} of {f}"},
                     "output": f"{base_rel}/facts/{fname}", "sources": [f],
                     "compiler": _compiler(sol["compiler"], proto, ck, f),
-                    "transitions": {"contract": c, "commit_interfaces": list(sol["commit_interfaces"])}}
+                    "transitions": {"contract": c, "commit_interfaces": list(sol["commit_interfaces"]),
+                                    # I109 (e): the protocol's recorded term budget (absent: the frontend's default)
+                                    **({"term_budget": int(sol["term_budget"])} if sol.get("term_budget") else {})}}
             out.append({"language": "solidity", "source_file": f, "unit": c, "stem": stem, "file": fname,
                         "sidecar": side})
     return out

@@ -103,7 +103,12 @@ class _Fixture(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = Path(tempfile.mkdtemp(prefix="holon-i108-"))
-        cls.plain = extract(FIX / "go_config.json", cls.tmp / "plain")
+        # amended (Q64, Q67; spec/M6/amendments/I108.jsonl): the plain arm names the mode it was written for, the
+        # explicit opt-out machines.nil_maps "zero", in a temp copy of the fixture's config (Q64 made "unknown" the default)
+        zero = json.loads((FIX / "go_config.json").read_text(encoding="utf-8"))
+        zero["machines"] = {"nil_maps": "zero"}
+        (cls.tmp / "go_config_zero.json").write_text(json.dumps(zero, indent=2, sort_keys=True) + "\n")
+        cls.plain = extract(cls.tmp / "go_config_zero.json", cls.tmp / "plain")
         cls.nil = extract(FIX / "go_config_nil.json", cls.tmp / "nil")
 
     @classmethod
@@ -158,7 +163,8 @@ class TestSigned(_Fixture):
 
 
 class TestSymPerModel(_Fixture):
-    """P2: SYM derives per model in a milestone of two models (Acct and Book, no nil-map opt-in)."""
+    """P2: SYM derives per model in a milestone of two models (Acct and Book, under the explicit nil-map opt-out
+    machines.nil_maps "zero"; Q64, Q67)."""
 
     def test_p2_two_models_derive(self):
         tmp = Path(tempfile.mkdtemp(prefix="holon-i108-two-"))

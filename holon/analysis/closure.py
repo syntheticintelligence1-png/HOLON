@@ -144,6 +144,7 @@ class Layout:
         self.paths = set()
         self.bools = set()
         self.scalars = set()
+        narrow = set()   # I109 (c), SG1: register paths whose declared type holds only words below 2^255
         for d in decls:
             if d["name"] == "__gap":
                 continue
@@ -152,12 +153,17 @@ class Layout:
                     self.paths.add(d["name"] + "." + f["name"])
                     if f.get("type") == "bool":
                         self.bools.add(d["name"] + "." + f["name"])
+                    if _NARROW_TYPE.match(str(f.get("type") or "")):
+                        narrow.add(d["name"] + "." + f["name"])
             else:
                 self.paths.add(d["name"])
                 if d.get("value") == "bool":
                     self.bools.add(d["name"])
                 if d.get("kind") == "scalar":
                     self.scalars.add(d["name"])
+                if _NARROW_TYPE.match(str(d.get("value") or "")):
+                    narrow.add(d["name"])
+        self.narrow = frozenset(narrow)
 
     def written(self, w: dict) -> list[tuple[str, object]]:
         """D3: (path, contribution) of a write record: a literal integer contributes itself, a struct literal each
@@ -377,6 +383,28 @@ def blocked_term(atoms: list):
 
 
 # ================================================================================================ D9 signs
+SIGNED_CMP = ("s<", "s<=", "s>", "s>=")
+_BOOL_HEADS = ("<", "<=", ">", ">=", "==", "!=", "!", "&&", "||") + SIGNED_CMP
+_NARROW_TYPE = re.compile(r"^(bool|address|uint(8|16|24|32|40|48|56|64|72|80|88|96|104|112|120|128|136|144|152|160|"
+                          r"168|176|184|192|200|208|216|224|232|240|248))$")
+
+
+def _below_sign_bit(t, narrow: frozenset) -> bool:
+    """SG1's premise: t is provably below 2^255 as an unsigned word: a literal below it, a truncation to at most 255
+    bits, a length, a boolean operator (0 or 1), or a register read of a narrow path (its declared type is bool, address
+    or uint<N>, N < 256)."""
+    if type(t) is int:
+        return 0 <= t < 2 ** 255
+    h = _head(t)
+    if h == "trunc" and len(t) == 3 and type(t[1]) is int:
+        return 0 < t[1] <= 255
+    if h == "len" or h in _BOOL_HEADS:
+        return True
+    if h in ("storage", "map", "index", "member"):
+        return register_path(t) in narrow
+    return False
+
+
 def _combine(signs) -> str:
     moving = [s for s in signs if s != "0"]
     if not moving:
@@ -397,8 +425,9 @@ def _reads(t, target: str) -> bool:
     return False
 
 
-def sign(t, target: str) -> str:
-    """D9's sign(t, p) (p a register path, or "time"): +, -, 0 or ?."""
+def sign(t, target: str, narrow: frozenset = frozenset()) -> str:
+    """D9's sign(t, p) (p a register path, or "time"): +, -, 0 or ?. narrow: the register paths whose declared type
+    holds only words below 2^255 (rule SG1)."""
     if not _reads(t, target):
         return "0"
     if target == "time" and t == CLOCK:
@@ -412,19 +441,24 @@ def sign(t, target: str) -> str:
         return "+"
     h = _head(t)
     if h == "!":
-        return _opp(sign(t[1], target))
+        return _opp(sign(t[1], target, narrow))
     if h in ("&&", "||", "+"):
-        return _combine([sign(x, target) for x in t[1:]])
+        return _combine([sign(x, target, narrow) for x in t[1:]])
     if h in ("<", "<="):
-        return _combine([_opp(sign(t[1], target)), sign(t[2], target)])
+        return _combine([_opp(sign(t[1], target, narrow)), sign(t[2], target, narrow)])
     if h in (">", ">="):
-        return _combine([sign(t[1], target), _opp(sign(t[2], target))])
+        return _combine([sign(t[1], target, narrow), _opp(sign(t[2], target, narrow))])
     if h == "-":
-        return _combine([sign(t[1], target), _opp(sign(t[2], target))])
+        return _combine([sign(t[1], target, narrow), _opp(sign(t[2], target, narrow))])
     if h == "fits" and _head(t[2]) == "-":       # as a >= b
-        return _combine([sign(t[2][1], target), _opp(sign(t[2][2], target))])
+        return _combine([sign(t[2][1], target, narrow), _opp(sign(t[2][2], target, narrow))])
     if h == "fits" and _head(t[2]) == "+":       # as a + b < 2^n
-        return _opp(_combine([sign(t[2][1], target), sign(t[2][2], target)]))
+        return _opp(_combine([sign(t[2][1], target, narrow), sign(t[2][2], target, narrow)]))
+    if h in SIGNED_CMP and len(t) == 3 and _below_sign_bit(t[1], narrow) and _below_sign_bit(t[2], narrow):
+        # I109 (c), rule SG1: below 2^255 the two's-complement order of 256-bit words is their unsigned order, so a
+        # signed comparison of two such operands is the unsigned comparison, sign for sign. Any other signed
+        # comparison stays "?": a signed order is not monotone under an unsigned increase (crossing 2^255 flips it)
+        return sign([h[1:], t[1], t[2]], target, narrow)
     return "?"
 
 
@@ -555,7 +589,7 @@ class Analysis:
             for p, v in self.layout.written(w):
                 if p not in reads or p in bad:
                     continue
-                s = sign(B, p)
+                s = sign(B, p, self.layout.narrow)
                 if s == "0" or (s == "-" and v == 0) or (s == "+" and v == 1 and p in self.layout.bools):
                     continue
                 bad.append(p)

@@ -323,6 +323,11 @@ def load_sidecars(root: Path, adoption_rel: str, link_rel: str) -> tuple[dict, d
     shas[adoption_rel] = sha256_bytes(raw)
     if not isinstance(ad.get("documents"), list) or not all(isinstance(d, str) for d in ad["documents"]):
         raise SidecarError(f"{adoption_rel}: no list of documents")
+    if not (root / link_rel).exists():
+        # I109 (h), HUMAN_ANSWERS Q62: a missing link sidecar means no codec components (the linked codec layer is
+        # empty, not refused): an empty layer derives no codec law, so nothing is PROVED through it. A link sidecar
+        # that exists is read and checked as before
+        return ad, {}, shas
     raw, ln = _read(root, link_rel)
     shas[link_rel] = sha256_bytes(raw)
     roles = ln.get("roles")
