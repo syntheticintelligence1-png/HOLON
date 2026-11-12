@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON A4 record (audit/rounds/<M>/round<n>/a4.json, holon-audit-a4/0.1; holon/audit/vacuity.py): the vacuity classification of every law of the milestone at the round's target commit, its canaries, the in-flight check, the oracle tables and every input read. I101 (F-M3-37): a counted round's a4.json is valid against this schema, its laws are exactly its packet.json's, and its counts are the tally of its laws' classes (spec/<M>/lib/audit_evidence.json, which names this schema).",
+  "type": "object",
+  "required": [
+    "a4_version",
+    "milestone",
+    "round",
+    "target_commit",
+    "policy",
+    "inputs",
+    "laws",
+    "counts",
+    "canaries",
+    "in_flight",
+    "oracles"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "a4_version": {
+      "const": "holon-audit-a4/0.1"
+    },
+    "milestone": {
+      "type": "string",
+      "pattern": "^M[0-9]+$"
+    },
+    "round": {
+      "type": "integer"
+    },
+    "target_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "laws": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "class",
+          "representative",
+          "rule",
+          "rules",
+          "status",
+          "subform",
+          "why"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "class": {
+            "enum": [
+              "ok",
+              "vacuous",
+              "degenerate",
+              "counter_witness",
+              "no_premises",
+              "not_decided",
+              "unreadable"
+            ]
+          },
+          "representative": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "rule": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string"
+          },
+          "subform": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "why": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": [
+        "ok",
+        "vacuous",
+        "degenerate",
+        "counter_witness",
+        "no_premises",
+        "not_decided",
+        "unreadable"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "type": "integer"
+        },
+        "vacuous": {
+          "type": "integer"
+        },
+        "degenerate": {
+          "type": "integer"
+        },
+        "counter_witness": {
+          "type": "integer"
+        },
+        "no_premises": {
+          "type": "integer"
+        },
+        "not_decided": {
+          "type": "integer"
+        },
+        "unreadable": {
+          "type": "integer"
+        }
+      }
+    },
+    "canaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "detected",
+          "kind",
+          "what",
+          "why"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "detected": {
+            "type": "boolean"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "what": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "in_flight": {
+      "type": "object",
+      "required": [
+        "ok",
+        "detail"
+      ],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "detail": {
+          "type": "string"
+        }
+      }
+    },
+    "oracles": {
+      "type": "object",
+      "required": [
+        "hypotheses",
+        "parameters",
+        "tables"
+      ],
+      "properties": {
+        "hypotheses": {
+          "type": "object"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "tables": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
