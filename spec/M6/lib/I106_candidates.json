@@ -1,0 +1,22 @@
+{
+  "doc": "I106's candidate list (docs/BUILD_PLAN.md §4 I106, HUMAN_ANSWERS Q54 as relayed in the I106 brief). Written before any draw, from names and URLs only: no candidate repository was opened, listed or fetched to write it. spec/M6/lib/I106_draw.py draws 2 of these by commit-reveal; the list's order plays no part in the draw.",
+  "criteria": {
+    "C1_well_known": "Listed in DefiLlama's top 30 protocols by TVL, or in L2BEAT's top 20 rollups by total value secured, at the snapshot 2025-01-01. Membership is asserted from the sealer's knowledge of those public lists and was not fetched for this file; the human can check it against the lists' archives (reported under Questions for the human).",
+    "C2_multi_component": "The on-chain system is several contracts that call each other (not a single contract or a single token).",
+    "C3_upgrade_history": "Its mainnet deployment has been upgraded at least once after launch: a proxy implementation change, or a governance-executed module replacement.",
+    "C4_public_repo": "Its source is in a public GitHub repository under the project's own organisation; the URL is the canonical one.",
+    "C5_frontend_language": "The system's core is written in Solidity or Go, the two languages HOLON's frontends read.",
+    "excluded": "Morph; Scroll; I48's corpus systems (arbitrum, compound, cosmos, go-ethereum, optimism, wormhole, spec/eval/corpus.json) and their forks (OP-stack chains, Arbitrum Orbit chains, geth forks, Cosmos-SDK chains, Compound forks); across-protocol (analysed earlier in this repo); Aave forks (Spark). Systems that meet C1 but fail another criterion are left out, e.g. Uniswap and Morpho Blue (immutable core: no C3), Curve (Vyper: no C5), Starknet (Cairo: no C5)."
+  },
+  "candidates": [
+    {"id": "aave-v3", "name": "Aave V3", "repo": "https://github.com/aave/aave-v3-core"},
+    {"id": "eigenlayer", "name": "EigenLayer", "repo": "https://github.com/Layr-Labs/eigenlayer-contracts"},
+    {"id": "etherfi", "name": "ether.fi", "repo": "https://github.com/etherfi-protocol/smart-contracts"},
+    {"id": "lido", "name": "Lido", "repo": "https://github.com/lidofinance/core"},
+    {"id": "linea", "name": "Linea", "repo": "https://github.com/Consensys/linea-monorepo"},
+    {"id": "makerdao", "name": "MakerDAO (Sky) Multi-Collateral Dai", "repo": "https://github.com/makerdao/dss"},
+    {"id": "pendle", "name": "Pendle V2", "repo": "https://github.com/pendle-finance/pendle-core-v2-public"},
+    {"id": "rocketpool", "name": "Rocket Pool", "repo": "https://github.com/rocket-pool/rocketpool"},
+    {"id": "zksync-era", "name": "ZKsync Era", "repo": "https://github.com/matter-labs/era-contracts"}
+  ]
+}
