@@ -8,7 +8,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 |---|---|---|---|---|
 | M2 | 27 | 242 | 126 | 27 |
 | M3 | 51 | 323 | 280 | 51 |
-| M4 | 6 | 29 | 35 | 6 |
+| M4 | 9 | 54 | 54 | 8 |
 | M5 | 8 | 41 | 22 | 6 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
@@ -67,6 +67,8 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I49 | M4 | Held-out target I: extraction, facts and the diagram of the sealed target (blind prereg) | `prompts/I49_heldout_extraction.md` | 6 | 6 | 1 | `docs/iterations/I49.md` |
 | I50 | M4 | Held-out target II: the pinned catalog's rules, the run, replay and metrics on the sealed target | `prompts/I50_heldout_rules.md` | 5 | 5 | 1 | `docs/iterations/I50.md` |
 | I51 | M4 | HOLON on the corpus pre-fix commits: every one of the 20 I48 entries cloned at its pre-fix commit and run through HOLON… | `prompts/I51_corpus_holon.md` | 4 | 6 | 1 | `docs/iterations/I51.md` |
+| I52 | M4 | Baselines on Morph and the corpus pre-fix commits: slither, echidna, medusa, hevm and halmos (pinned under ~/.holon/too… | `prompts/I52_baselines.md` | 8 | 6 | 1 | none |
+| I53 | M4 | Ablations, UNKNOWN calibration and the §13 metrics: each of the nine §13 ablations switches off one component in a scra… | `prompts/I53_ablations_metrics.md` | 11 | 6 | 1 | `docs/iterations/I53.md` |
 | I54 | M5 | I54: L6, L9 and L10 defined and preregistered (Q11): bounded games scored against constructed and documented truth, env… | `prompts/I54_m5_definitions.md` | 3 | 3 | 1 | `docs/iterations/I54.md` |
 | I55 | M5 | I55: the intent lane: doc comments atomized with exact spans, reviewed clauses compiled to laws/INTENT/ over the factor… | `prompts/I55_intent_lane.md` | 11 | 3 | 1 | `docs/iterations/I55.md` |
 | I56 | M5 | I56: bounded games over F(M3) (M5, L6): payoff facts as a generated value-flow document with V9 coverage, strategies as… | `prompts/I56_games.md` | 5 | 3 | 1 | `docs/iterations/I56.md` |
@@ -108,6 +110,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I100 | M3 | I100: rule PAR_record_round_trip: the record law over an encoder into a byte record and its getter family, the constant… | `prompts/I100_par_record_round_trip.md` | 9 | 14 | 1 | `docs/iterations/I100.md` |
 | I101 | M3 | I101: the post-exit fixes of three M3 audit findings: the counted-round evidence rule reads each record's content and C… | `prompts/I101_post_exit_audit_fixes.md` | 4 | 8 | 1 | `docs/iterations/I101.md` |
 | I50b | M4 | Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term… | `prompts/I50b_heldout_rerun.md` | 5 | 6 | 1 | `docs/iterations/I50b.md` |
+| I52b | M4 | Baselines on the held-out target (I52's held-out half): the nine I52 baselines at I52's equal budget on ScrollChain (th… | `prompts/I52b_heldout_baselines.md` | 6 | 7 | 1 | `docs/iterations/I52b.md` |
 | I54b | M5 | I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every… | `prompts/I54b_m5_truth_key.md` | 5 | 3 | 1 | `docs/iterations/I54b.md` |
 | I55b | M5 | I55b: the intent lane on the corpus: L10's corpus_recall over the corpus-truth key I54b's scored entries (c17), the tru… | `prompts/I55b_intent_corpus.md` | 3 | 2 | 1 | none |
 | I56b | M5 | I56b: L6's corpus accuracy scored against the corpus-truth key I54b (the lead's condition 5), with the truth pinned bef… | `prompts/I56b_corpus.md` | 0 | 3 | 1 | none |
