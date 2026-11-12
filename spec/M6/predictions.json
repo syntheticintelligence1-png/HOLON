@@ -1,5 +1,128 @@
 {
   "milestone": "M6",
   "doc": "Preregistration for M6 iterations (docs/BUILD_PLAN.md §0.1, §4 \"M6: generality\"). One key per iteration under iterations, each in its own source spec/M6/predictions/<key>.json (holon.aggregate writes this aggregate from them). A key is written once, in its prereg commit, before any of its outcome_paths change; holon audit prereg checks the order and that the key is never edited afterwards. predictions count toward prediction accuracy; regressions are outcomes already recorded in the repo that must not change.",
-  "iterations": {}
+  "iterations": {
+    "I103": {
+      "title": "I103: frontend reach: a pinned solc set chosen by pragma, go 1.25 next to 1.24.7 chosen by the go directive, a deterministic go.work replace rule, and a total sort pass (holon-sort-types/0.3) whose unknown terms are opaque fresh variables and coverage debt; Morph's M0-M3 record moves only by re-stamp",
+      "plan": "docs/BUILD_PLAN.md (§3, the map row I103; §4 \"M6: generality\")",
+      "prompt": "prompts/I103_frontend_reach.md",
+      "tests": [
+        "tests_m6/test_i103_frontend_reach.py"
+      ],
+      "outcome_paths": [
+        "results/M6/i103/",
+        "docs/iterations/I103.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced.",
+        "instruments": "spec/M6/lib/i103_run.json (the run protocol) and tests_m6/test_i103_frontend_reach.py (every check)"
+      },
+      "predictions": [
+        {
+          "id": "I103-P1",
+          "claim": "No document of I51's 11 not_run entries (c01 c02 c05 c06 c07 c10 c11 c12 c15 c16 c20) is refused for its toolchain any more under the I103 protocol: no reason carries solc's 'requires different compiler version', go's 'go.mod requires go >=' or 'conflicting replacements for'.",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestPredictions::test_p1_no_toolchain_refusal_remains",
+          "expected": {
+            "toolchain_refusals": 0
+          }
+        },
+        {
+          "id": "I103-P2",
+          "claim": "Extraction reach: of the 11, exactly the three wormhole Go entries (c06 c11 c16, once the go.work replace conflict is settled by the main module's replace) extract at least one document. The four optimism entries still fail (solc 0.8.15 compiles, but their imports need the monorepo's remappings and submodules, which no protocol rule supplies); the three nitro entries still fail under go 1.25.14 (their packages import generated code the tree does not hold); compound c02 compiles under 0.5.17 and the transitions walker refuses its 0.5 AST on a construct it does not know.",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestPredictions::test_p2_extraction_reach",
+          "expected": {
+            "extracts": [
+              "c06",
+              "c11",
+              "c16"
+            ]
+          }
+        },
+        {
+          "id": "I103-P3",
+          "claim": "Every document of the 11 that does not extract carries a non-empty reason that is not a Python traceback: it names the missing import, package, toolchain or construct.",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestPredictions::test_p3_every_failure_names_its_cause",
+          "expected": {
+            "unnamed_failures": 0
+          }
+        },
+        {
+          "id": "I103-P4",
+          "claim": "The toolchain each entry's documents select, read from the row's toolchain text or reason: compound 0.5.17 (newest pinned release satisfying ^0.5.16), optimism 0.8.15 (an exact pragma), nitro go 1.25.14 (go directive 1.25), wormhole go 1.24.7 (its go directive is at most 1.24.7).",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestPredictions::test_p4_selected_toolchains",
+          "expected": {
+            "c01": "1.25.14",
+            "c02": "0.5.17",
+            "c05": "0.8.15",
+            "c06": "1.24.7",
+            "c07": "1.25.14",
+            "c10": "0.8.15",
+            "c11": "1.24.7",
+            "c12": "1.25.14",
+            "c15": "0.8.15",
+            "c16": "1.24.7",
+            "c20": "0.8.15"
+          }
+        },
+        {
+          "id": "I103-P5",
+          "claim": "The total sort pass (holon-sort-types/0.3) completes on every committed transitions document (results/M6/i103/sorts_coverage.json: Morph's, I50's and I50b's held-out documents, I51's c17, M5's twelve intent documents and any the I103 corpus run extracts): none is refused.",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestPredictions::test_p5_sort_pass_completes_everywhere",
+          "expected": {
+            "refused": []
+          }
+        },
+        {
+          "id": "I103-P6",
+          "claim": "Coverage debt per head: both held-out documents (I50's and I50b's) carry exactly one unknown head, calldataload, 132 times (I50b's count of its occurrences); Morph's rollup document and c17's carry none.",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestPredictions::test_p6_debt_on_known_documents",
+          "expected": {
+            "gen/targets/scroll/facts/ScrollChain.extracted.json": {
+              "calldataload": 132
+            },
+            "gen/targets/scroll_i50b/facts/ScrollChain.extracted.json": {
+              "calldataload": 132
+            },
+            "spec/M2/facts/morph_rollup.extracted.json": {},
+            "results/eval/holon/c17/facts/onestepproverhostio.extracted.json": {}
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I103-R1",
+          "claim": "Morph's M0-M3 record (results/M0-M3, laws/M0-M3) moves only by re-stamp: every JSON file equals the M6 skeleton commit's with generator_sha256 fields removed, and no other file is added, removed or changed. With the CI gates (M0, M1, M2, partial M3) and holon land dirty showing no law re-made.",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestRegressions::test_r1_morph_record_moves_only_by_restamp",
+          "expected": {
+            "moved": []
+          }
+        },
+        {
+          "id": "I103-R2",
+          "claim": "Hand sidecars stay authoritative: no committed sidecar outside spec/M6 asks for pragma selection or a go toolchain rule, so every Morph document is extracted by exactly the toolchain it names today (solc 0.8.24, go 1.24.7).",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestRegressions::test_r2_hand_sidecars_name_their_toolchain"
+        },
+        {
+          "id": "I103-R3",
+          "claim": "No silent 0.8 semantics: a committed document compiled by a release below 0.8.0 says arithmetic unchecked and holds no overflow panic (code 17).",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestRegressions::test_r3_pre_08_documents_say_unchecked"
+        },
+        {
+          "id": "I103-R4",
+          "claim": "Determinism: the coverage file is reproduced by re-walking each document (status, debt, debt_heads).",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestRegressions::test_r4_coverage_is_recomputed"
+        },
+        {
+          "id": "I103-R5",
+          "claim": "The coverage file covers every git-tracked transitions document under gen/, spec/ and results/, sorted.",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestRegressions::test_r5_coverage_covers_every_transitions_document"
+        },
+        {
+          "id": "I103-R6",
+          "claim": "Contracts F1-F6: solc pragma selection, the pinned solc and go sets, go selection by directive, the go.work main-module rule and the total sort pass behave as the test file's docstring states.",
+          "check": "tests_m6/test_i103_frontend_reach.py::TestSolcSelection and tests_m6/test_i103_frontend_reach.py::TestGoSelection and tests_m6/test_i103_frontend_reach.py::TestGoWork and tests_m6/test_i103_frontend_reach.py::TestTotalSortPass"
+        }
+      ]
+    }
+  }
 }
