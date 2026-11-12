@@ -28,7 +28,7 @@ tests from the stages' semantics:
   - Twice has two writing actions that check msg.sender == owner inline, at two spans. D2 names an inline permission
     class by its check's span, so the document has two classes with one predicate, which D2 refuses.
   - TwiceKept is Twice without its second guarded action (the control).
-  - Listed has a dynamic storage array written by index, a path segment Z1 does not map.
+  - Listed has a static storage array of words written by index, a path segment Z1 does not map.
   - ListedKept is Listed without the array (the control).
 Their expectations are known by construction.
 
@@ -55,6 +55,7 @@ FIX = ROOT / "tests_m6" / "fixtures" / "i116"
 SOL = FIX / "sol"
 PROTO = "spec/M6/lib/i116_run.json"
 PROTO_I112 = "spec/M6/lib/i112_run.json"
+NO_FALLBACK = "i116 without document_fallback"
 OUT = ROOT / "results" / "M6" / "I116"
 HOLON_CORPUS = OUT / "holon" / "corpus.json"
 SEALED = OUT / "sealed.json"
@@ -139,7 +140,10 @@ class _Sol(unittest.TestCase):
             return self.runs[k]
         t = self.tmp / f"run{len(list(self.tmp.glob('run*')))}"
         t.mkdir()
-        proto = protocol(proto_name)
+        # amended (spec/M6/amendments/I116.jsonl): NO_FALLBACK is I116's protocol without document_fallback
+        proto = protocol(PROTO if proto_name == NO_FALLBACK else proto_name)
+        if proto_name == NO_FALLBACK:
+            proto.pop("document_fallback")
         S, rel, R = scratch(t, proto, self.src)
         files = self.extract(S, rel, R, names)
         st = T12.typed_part(S, rel, R, proto, files)
@@ -262,7 +266,8 @@ class TestEvidenceUnit(_Sol):
         self.assertIn("does not map", st0["evidence"]["detail"])
 
     def test_p3_no_fallback_same_set(self):
-        _a, A, _r, M = self.run_of(("Counter",), PROTO_I112)
+        # amended (spec/M6/amendments/I116.jsonl): without the opt-in is I116's protocol without document_fallback
+        _a, A, _r, M = self.run_of(("Counter",), NO_FALLBACK)
         _b, B, _r, _M = self.run_of(("Counter",))
         ea, eb = self.evidence(A, M), self.evidence(B, M)
         self.assertNotIn("fallback", eb)

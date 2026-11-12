@@ -6,9 +6,10 @@
 //               classes with one predicate, which D2 refuses (holon.analysis.closure.ClassError): a per-document
 //               DISCH refusal.
 //   TwiceKept   Twice without its second inline-guarded action (drain): the DISCH control.
-//   Listed      a dynamic storage array written by index; E2 over a transitions document maps map and member path
-//               segments only (holon.diagram.transitions, rule Z1), so its evidence refuses the document
-//               (TransitionsError): a per-document evidence refusal, which derive meets when it rebuilds the set.
+//   Listed      a static storage array of words written by index (the typed model compiles static arrays of words);
+//               E2 over a transitions document maps map and member path segments only (holon.diagram.transitions,
+//               rule Z1), so its evidence refuses the document (TransitionsError): a per-document evidence refusal,
+//               which derive meets when it rebuilds the set.
 //   ListedKept  Listed without the array: the evidence control.
 pragma solidity 0.8.24;
 
@@ -79,7 +80,7 @@ contract TwiceKept {
 contract Listed {
     address public owner;
     uint256 public count;
-    uint256[] public items;
+    uint256[3] public items;
 
     constructor() {
         owner = msg.sender;
@@ -96,7 +97,7 @@ contract Listed {
     }
 
     function put(uint256 i, uint256 v) external {
-        require(i < items.length, "range");
+        require(i < 3, "range");
         items[i] = v;
     }
 }
