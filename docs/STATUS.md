@@ -10,7 +10,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M3 | 52 | 326 | 288 | 52 |
 | M4 | 9 | 54 | 54 | 9 |
 | M5 | 8 | 41 | 22 | 6 |
-| M6 | 4 | 20 | 11 | 3 |
+| M6 | 5 | 30 | 13 | 4 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -115,6 +115,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I104 | M6 | I104: role inference. | `prompts/I104_role_inference.md` | 4 | 3 | 1 | `docs/iterations/I104.md` |
 | I105 | M6 | I105: Go state machines: the Go frontend emits transitions documents in the Solidity frontend's IR (struct-field machin… | `prompts/I105_go_machines.md` | 8 | 1 | 1 | `docs/iterations/I105.md` |
 | I106 | M6 | I106: fresh sealed targets by commit-reveal: 2 of 9 preregistered public systems drawn by sha256(salt \|\| blockhash) ove… | `prompts/I106_sealed_targets.md` | 2 | 1 | 1 | none |
+| I108 | M6 | I108: pipeline totality, pass 2: sort rules S1-S3 for the IR's signed operators (holon-sort-types/0.4) and their typed-… | `prompts/I108_pipeline_totality.md` | 10 | 2 | 1 | `docs/iterations/I108.md` |
 | I50b | M4 | Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term… | `prompts/I50b_heldout_rerun.md` | 5 | 6 | 1 | `docs/iterations/I50b.md` |
 | I52b | M4 | Baselines on the held-out target (I52's held-out half): the nine I52 baselines at I52's equal budget on ScrollChain (th… | `prompts/I52b_heldout_baselines.md` | 6 | 7 | 1 | `docs/iterations/I52b.md` |
 | I54b | M5 | I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every… | `prompts/I54b_m5_truth_key.md` | 5 | 3 | 1 | `docs/iterations/I54b.md` |
