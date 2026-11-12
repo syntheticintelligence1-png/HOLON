@@ -2,7 +2,7 @@
 tests_m6/test_i103_frontend_reach.py, rules F3-F4).
 
 A frontend config with "toolchain": "go_directive" asks the frontend to choose its go: the lowest release of
-config/holon.json go_set at or above the go directive of the source's go.work (when the source has one) or go.mod. The
+config/toolchains.json go_set at or above the go directive of the source's go.work (when the source has one) or go.mod. The
 directive is the module's own statement of the least toolchain that builds it (since go 1.21 a go older than the
 directive refuses the module), and the lowest such release is the one Go's own GOTOOLCHAIN=auto would move to. None at
 or above it: Refused with the directive and the set. A config without "toolchain" (every hand config, Morph's among
@@ -45,7 +45,7 @@ def choose(holon_cfg: dict, src: Path) -> dict:
     """{version, goroot, version_line, directive, file, rule} of the release a go_directive config runs."""
     rel = ((holon_cfg or {}).get("go_set") or {}).get("releases") or {}
     if not rel:
-        raise Refused("toolchain \"go_directive\": config/holon.json has no go_set")
+        raise Refused("toolchain \"go_directive\": config/toolchains.json has no go_set")
     d, f = directive(src)
     if d is None:
         raise Refused(f"toolchain \"go_directive\": the source has no go directive ({f})")

@@ -11,12 +11,12 @@ Rules.
         `||` a disjunction; ^ and ~ on 0.x.y (and on partial versions) bound the minor version; = < <= > >= compare;
         a bare version is =;
       - select_solc(exprs, releases) is the newest release (by numeric version) satisfying every expression, or None.
-  F2  the pinned solc set. config/holon.json solc_set.releases maps every pinned release to its sha256: every final
+  F2  the pinned solc set. config/toolchains.json (amended from config/holon.json) solc_set.releases maps every pinned release to its sha256: every final
       0.8.x from 0.8.0 to 0.8.38 and the last release of 0.5, 0.6 and 0.7 (0.5.17, 0.6.12, 0.7.6); 0.8.24's sha256 is
       replay.solc_sha256; replay.solc and replay.solc_sha256 are unchanged.
   F3  go by directive. holon.frontends.go.toolchains.select_go(directive, releases) is the lowest pinned release at or
       above the go directive (a directive "1.N" means 1.N.0), or None.
-  F4  the pinned go set. config/holon.json go_set.releases holds 1.24.7 (replay.go_version's toolchain, unchanged) and
+  F4  the pinned go set. config/toolchains.json (amended from config/holon.json) go_set.releases holds 1.24.7 (replay.go_version's toolchain, unchanged) and
       1.25.14 with the sha256 of go1.25.14.linux-amd64.tar.gz.
   F5  go.work. holon.eval.gowork.generate(checkout, module_dir) (rule main_module) returns {"text", "uses", "go",
       "replaces", "conflicts"}: uses the closure of module_dir under relative replaces (paths "./rel", sorted); go the
@@ -140,7 +140,7 @@ class TestSolcSelection(unittest.TestCase):
 
     def test_f2_pinned_solc_set(self):
         cfg = load("config/holon.json")
-        rel = cfg["solc_set"]["releases"]
+        rel = load("config/toolchains.json")["solc_set"]["releases"]
         self.assertEqual(sorted(rel, key=lambda v: tuple(map(int, v.split(".")))), SOLC_SET)
         for v, sha in rel.items():
             self.assertRegex(sha, r"^[0-9a-f]{64}$", v)
@@ -160,7 +160,7 @@ class TestGoSelection(unittest.TestCase):
 
     def test_f4_pinned_go_set(self):
         cfg = load("config/holon.json")
-        rel = cfg["go_set"]["releases"]
+        rel = load("config/toolchains.json")["go_set"]["releases"]
         self.assertEqual(sorted(rel), ["1.24.7", "1.25.14"])
         self.assertEqual(rel[GO_1_25[0]]["sha256"], GO_1_25[1])
         self.assertEqual(cfg["replay"]["go_version"], "go version go1.24.7 linux/amd64")

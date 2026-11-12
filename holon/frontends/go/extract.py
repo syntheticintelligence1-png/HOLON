@@ -177,7 +177,7 @@ def check_chosen(chosen: dict) -> tuple[str, str]:
         raise Refused(f"`{go} version` failed: {e}")
     if p.stdout.strip() != chosen["version_line"]:
         raise Refused(f"`{go} version` prints {p.stdout.strip()!r}, the pinned line is {chosen['version_line']!r} "
-                      f"(config/holon.json go_set)")
+                      f"(config/toolchains.json go_set)")
     return go, p.stdout.split()[2]
 
 
@@ -185,7 +185,7 @@ def choose_go(root: Path, src: Path) -> dict:
     """The go_set release a go_directive config runs (holon.frontends.go.toolchains), Refused as this frontend's."""
     from .. import Refused as FrontendRefused
     try:
-        return TC.choose(_load_json(root / "config" / "holon.json", "config/holon.json"), src)
+        return TC.choose(_load_json(root / "config" / "toolchains.json", "config/toolchains.json"), src)
     except FrontendRefused as e:
         raise Refused(str(e))
 

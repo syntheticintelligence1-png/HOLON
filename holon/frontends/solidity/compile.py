@@ -41,9 +41,19 @@ class Compiled:
 def load_config(root: Path) -> dict:
     p = Path(root) / "config" / "holon.json"
     try:
-        return json.loads(p.read_text(encoding="utf-8"))
+        cfg = json.loads(p.read_text(encoding="utf-8"))
     except (OSError, ValueError) as e:
         raise Refused(f"cannot read {p}: {e}") from e
+    _ROOTS[id(cfg)] = Path(root)
+    return cfg
+
+
+_ROOTS: dict = {}   # id(config dict) -> the root it was read from (the pragma rule reads <root>/config/toolchains.json)
+
+
+def cfg_root(cfg: dict) -> Path:
+    from .. import ROOT
+    return _ROOTS.get(id(cfg), ROOT)
 
 
 def _sha256(p: Path) -> str:
@@ -131,7 +141,7 @@ def compile_sources(cfg: dict, side: dict, source: Path, storage_layout: bool = 
     settings = dict(comp.get("settings") or {})
     if comp.get("version") == T.PRAGMA_WORD:
         # I103: the newest pinned release the units' pragmas admit; evmVersion is that release's own default
-        chosen = T.choose(cfg, source, list(side["sources"]), include)
+        chosen = T.choose(T.load_sets(cfg_root(cfg)), source, list(side["sources"]), include)
         settings.pop("evmVersion", None)
     solc, sha, version = check_solc(cfg, chosen["version"] if chosen else comp.get("version"), chosen)
     check_checkout(source, side["target"]["commit"])

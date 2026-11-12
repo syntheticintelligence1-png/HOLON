@@ -2,7 +2,7 @@
 tests_m6/test_i103_frontend_reach.py, rules F1-F2).
 
 A sidecar whose compiler.version is the word "pragma" asks the frontend to choose its compiler: the newest release of
-config/holon.json solc_set (each pinned with its sha256) that satisfies every `pragma solidity` expression of every unit
+config/toolchains.json solc_set (each pinned with its sha256) that satisfies every `pragma solidity` expression of every unit
 solc will read (the sidecar's sources and, transitively, the units they import that the source tree or the include path
 holds). The pragma is the source's own statement of which compilers may build it, so the choice is the language's, not
 HOLON's. No pinned release satisfies them: Refused, naming the expressions and the set. A sidecar that names a version
@@ -171,13 +171,24 @@ def unit_pragmas(source: Path, units: list[str], include: Path | None) -> dict:
     return {u: seen[u] for u in sorted(seen)}
 
 
+def load_sets(root: Path) -> dict:
+    """config/toolchains.json (I103): the pinned solc_set and go_set. Not config/holon.json, whose bytes every Morph
+    law record reads as an input."""
+    import json
+    p = Path(root) / "config" / "toolchains.json"
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        raise Refused(f"cannot read {p}: {e}") from e
+
+
 def choose(cfg: dict, source: Path, units: list[str], include: Path | None) -> dict:
     """{version, path, sha256, pragmas, rule} of the pinned release a "pragma" sidecar compiles with; Refused when no
     pinned release satisfies the units' pragmas or the set is not configured."""
     s = cfg.get("solc_set") or {}
     rel = s.get("releases") or {}
     if not rel or not s.get("dir"):
-        raise Refused("compiler.version \"pragma\": config/holon.json has no solc_set")
+        raise Refused("compiler.version \"pragma\": config/toolchains.json has no solc_set")
     by_unit = unit_pragmas(source, units, include)
     exprs = sorted({e for es in by_unit.values() for e in es})
     v = select_solc(exprs, rel)

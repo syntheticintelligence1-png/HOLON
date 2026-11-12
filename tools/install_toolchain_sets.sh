@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The I103 toolchain sets (config/holon.json solc_set and go_set), next to the CI pins, which this script never
+# The I103 toolchain sets (config/toolchains.json solc_set and go_set), next to the CI pins, which this script never
 # touches. Every binary is checked against its pinned sha256; a mismatch stops the script.
 #   solc_set: <solc_set.dir>/solc-<version>   (binaries.soliditylang.org linux-amd64 static builds)
 #   go_set:   <goroot> of every release with a url (go.dev tarballs); 1.24.7 is replay.go_version's toolchain (CI's
@@ -7,7 +7,7 @@
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
-python3 - "$REPO/config/holon.json" > "$TMP/plan" <<'PY'
+python3 - "$REPO/config/toolchains.json" > "$TMP/plan" <<'PY'
 import json, sys
 c = json.load(open(sys.argv[1]))
 s = c["solc_set"]
