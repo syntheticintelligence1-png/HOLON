@@ -535,7 +535,9 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             sol = sol + [{"file": f} for m in mx for f in m["files"]]
         lib = S / "spec" / M / "lib"
         before = sorted(p.name for p in lib.iterdir()) if lib.is_dir() else []
-        if roles and ext:   # I104 opt-in (--roles): the role sidecars holon roles infers from the stored documents
+        # I104 opt-in (--roles): the role sidecars holon roles infers from the stored documents; under --compose also when
+        # only machine documents exist (I110: the counted run's c12 showed derive then has no adoption sidecar)
+        if roles and (ext or (compose and any("language" not in d for d in sol))):
             rels = [f"{rel}/facts/{d['file']}" for d in ext if (S / rel / "facts" / d["file"]).is_file()]
             if compose:
                 rels += [f"{rel}/facts/{d['file']}" for d in sol if "language" not in d]
@@ -566,6 +568,8 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             if frm.is_dir() and any(frm.iterdir()):
                 shutil.copytree(frm, edir / sub, ignore=_IGNORE)
         _scrub(edir, ctx)
+        if compose:
+            store_large(edir, proto["go"]["store_max_bytes"])
     finally:
         if subs:
             from . import layout as LY
@@ -768,6 +772,23 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
                      + ("" if r2 is None or r2["status"] == "ok" else "; run 2: " + r2["detail"][-600:])}
     stages["replay"] = {"status": "not_applicable", "exit": None, "detail": proto["replay"]}
     stages["filter"] = {"status": "ok", "exit": None, "detail": proto["filter"]}
+
+
+def store_large(edir: Path, limit: int) -> list:
+    """I110 (--compose): route A's storage rule (go.store_max_bytes) applied to every output file of the entry. A file
+    over the limit (machine documents, large sort outputs) is recorded in <id>/large_files.json by path, sha256 and
+    size, and removed from the written output; everything else is kept."""
+    rows = []
+    for p in sorted(edir.rglob("*")):
+        if p.is_file() and p.name != "large_files.json" and p.stat().st_size > limit:
+            rows.append({"path": p.relative_to(edir).as_posix(), "sha256": common.sha256_file(p),
+                         "bytes": p.stat().st_size})
+            p.unlink()
+    if rows:
+        prev = json.loads((edir / "large_files.json").read_text()) if (edir / "large_files.json").is_file() else []
+        allr = {r["path"]: r for r in prev + rows}
+        (edir / "large_files.json").write_text(dumps([allr[k] for k in sorted(allr)]))
+    return rows
 
 
 def _drop_seconds(x):
