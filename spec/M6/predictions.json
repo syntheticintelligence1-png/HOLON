@@ -659,6 +659,112 @@
           "check": "tests_m6/test_i109_pipeline_totality_3.py::TestRegressions::test_r4_morph_documents_are_solidity"
         }
       ]
+    },
+    "I110": {
+      "title": "I110: the scale wall (a deterministic per-document sort budget with a preregistered tier, and two byte-identical speedups of the sort pass) and the composed route-A driver (holon eval holon --compose: Go machines, installed roles, route C's stages, derive with Q62's empty codec layer, run and replay), with machines.nil_maps recorded by holon eval go-machines",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I110)",
+      "prompt": "prompts/I110_scale_composed_driver.md",
+      "tests": [
+        "tests_m6/test_i110_scale_composed.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I110/",
+        "docs/iterations/I110.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P4-P7 are smoke measures on I51's corpus, contaminated by I51, I103-I109 and I107; P8 is a measurement on I106's targets, contaminated: post-I107. A later sealed draw scores generality. Laws are reported as aggregates only (Q56); stage reasons only for stages before any decision (Q72).",
+        "instruments": "spec/M6/lib/i110_run.json (the run protocol; typed.sort_budget is the tier) and tests_m6/test_i110_scale_composed.py (every check)",
+        "base": "claude/i109-pipeline-totality-3 at 224f9b81 (I109, #179 not yet landed), on the lead at b65a863c (I108's landing, #178)",
+        "calibration": "before this prereg, on planted documents only (scratch, not committed): a generated contract of nested internal calls, depth 6 and 10 with 4 actions (1.9 MB and 45 MB transitions documents), sorted in 0.3 s and 7.2-10.2 s; about 1e5 work units per second on the larger. Morph's transitions document (spec/M2/facts/morph_rollup.extracted.json): 34,412 units, 0.1 s. The tier 5000000 is about 50 s per document at that rate."
+      },
+      "predictions": [
+        {
+          "id": "I110-P1",
+          "claim": "(c) holon eval go-machines writes machines.nil_maps into its output: the protocol's go_machines.nil_maps under --protocol (\"unknown\" for i110_run.json, \"zero\" for a copy that says so), and the frontend's default \"unknown\" without one; the committed I110 run names \"unknown\".",
+          "check": "tests_m6/test_i110_scale_composed.py::TestNilMapsRecorded::test_p1_go_machines_output_names_nil_maps and tests_m6/test_i110_scale_composed.py::TestNilMapsRecorded::test_p1_committed_run_names_it"
+        },
+        {
+          "id": "I110-P2",
+          "claim": "(a) The per-document sort budget behaves as rules B1-B4 of the contract on planted inputs (I109's committed c02, c05 and c17 documents in one pass): no key, no meter and every output as committed; a generous budget changes nothing but the sidecar's input entry and adds budget.json with every document ok; a budget below the heaviest document's work makes exactly that document an over_budget miss with every variable unrefined and no conflict, site or union, every other assignment unchanged; outputs deterministic; a non-positive or non-integer budget refused. The protocol names the tier 5000000.",
+          "check": "tests_m6/test_i110_scale_composed.py::TestSortBudget",
+          "expected": {
+            "tier": 5000000
+          }
+        },
+        {
+          "id": "I110-P3",
+          "claim": "(a) The speedups (find_conflicts hands solve the System it built for the final active set instead of building it again; constraint texts rendered with a per-build cache by node identity) change no sort output: every committed gen/sorts output of I108's and I109's corpus entries re-made at this head is byte-identical, and Morph's M2 and M3 sort passes equal gen/M2/sorts and gen/M3/sorts (CI's gates).",
+          "check": "tests_m6/test_i110_scale_composed.py::TestByteIdentity::test_p3_corpus_and_morph_sort_outputs_unchanged"
+        },
+        {
+          "id": "I110-P4",
+          "claim": "(a) The sort profile (results/M6/I110/sort_profile.json) records, per document, the work units and the seconds of each phase (walk, constraints, numbering, conflicts and system, assignment, sites, unions) on Morph's transitions document, every transitions document of the composed corpus run that sorted, and the two planted documents, with the base's and this head's wall-clock for the planted 45 MB one. At least 12 documents; every corpus and Morph document is under the tier (share 1.0 of all documents profiled); the planted 45 MB document sorts in at most 0.8 of the base's wall-clock with identical outputs.",
+          "check": "tests_m6/test_i110_scale_composed.py::TestCorpusSmoke::test_p4_profile_recorded",
+          "expected": {
+            "documents_at_least": 12,
+            "share_under_tier_at_least": 1.0,
+            "planted_speedup_at_most": 0.8
+          }
+        },
+        {
+          "id": "I110-P5",
+          "claim": "(b) holon eval holon --protocol spec/M6/lib/i110_run.json --compose on the 20 corpus entries: entries whose stage is ok at least extract 14, machines 10, roles 12, sorts 10, types 3, model 3, derive 2; every stage that is not ok has a reason; every row is marked compose.",
+          "check": "tests_m6/test_i110_scale_composed.py::TestCorpusSmoke::test_p5_stage_reach and tests_m6/test_i110_scale_composed.py::TestCorpusSmoke::test_p5_every_miss_has_a_reason",
+          "expected": {
+            "entries_at_least": {
+              "extract": 14,
+              "machines": 10,
+              "roles": 12,
+              "sorts": 10,
+              "types": 3,
+              "model": 3,
+              "derive": 2
+            }
+          }
+        },
+        {
+          "id": "I110-P6",
+          "claim": "(b) Every derived record of the composed run carries roles_source: the per-law rows are withheld (Q56) and every key of laws_aggregate names its roles_source; none is hand (the corpus has no hand role sidecar). holon_run.roles_sources and law_roles_source follow their rules, --compose needs the protocol's compose key, and the protocol's compose.nil_maps is \"unknown\" with no stop_after.",
+          "check": "tests_m6/test_i110_scale_composed.py::TestCorpusSmoke::test_p6_aggregates_carry_roles_source_and_withhold and tests_m6/test_i110_scale_composed.py::TestComposedUnits"
+        },
+        {
+          "id": "I110-P7",
+          "claim": "(a, b) On the composed corpus run no sorts stage times out, at most 100 laws are derived and at most 10 decided over all entries (aggregates).",
+          "check": "tests_m6/test_i110_scale_composed.py::TestCorpusSmoke::test_p7_laws_aggregate",
+          "expected": {
+            "derived_at_most": 100,
+            "decided_at_most": 10
+          }
+        },
+        {
+          "id": "I110-P8",
+          "claim": "(a) Measurement on I106's targets as I107 pinned them (spec/heldout2/target.json; contaminated: post-I107, aggregates only): with the composed driver and the tier, the sorts stage finishes on both targets (no timeout), and at least 0.9 of the documents sorted are under the tier on each. If it is not run, the test skips and the report says so under Not done.",
+          "check": "tests_m6/test_i110_scale_composed.py::TestSealedContaminated::test_p8_sorts_finish_under_the_tier",
+          "expected": {
+            "share_under_tier_at_least": 0.9
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I110-R1",
+          "claim": "Morph's M0-M3 record (results/M0-M3, laws/M0-M3) moves only by re-stamp: every JSON file equals the lead's b65a863c with generator_sha256 and every seconds removed, G1_EXCLUDED skipped; with the CI gates and holon land dirty in docs/iterations/I110.md.",
+          "check": "tests_m6/test_i110_scale_composed.py::TestRegressions::test_r1_morph_record_moves_only_by_restamp",
+          "expected": {
+            "moved": []
+          }
+        },
+        {
+          "id": "I110-R2",
+          "claim": "No Morph sidecar names a sort_budget, so every Morph sort pass is unmetered and its outputs are as before.",
+          "check": "tests_m6/test_i110_scale_composed.py::TestRegressions::test_r2_morph_sidecars_name_no_sort_budget"
+        },
+        {
+          "id": "I110-R3",
+          "claim": "No earlier run protocol names compose or typed.sort_budget, so every earlier key's run is unchanged.",
+          "check": "tests_m6/test_i110_scale_composed.py::TestRegressions::test_r3_earlier_protocols_name_no_budget_or_compose"
+        }
+      ]
     }
   }
 }
