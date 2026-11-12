@@ -453,6 +453,239 @@
           "sole_reader": "Before the reveal nobody reads the plaintext, not the lead and not a builder; after it, only I107 reads the targets (docs/iterations/I49.md's rule)."
         }
       }
+    },
+    "I107": {
+      "outcome_paths": [
+        "results/eval/generality/"
+      ],
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I107)",
+      "predictions": [
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p1_corpus_extraction_reach",
+          "claim": "Corpus (contaminated): at least 14 of the 20 entries extract at least one document under route A (I51's 11 plus I103's c02, c06 and c16), and no entry is refused only for its toolchain (every failed document's reason names something other than a missing pinned compiler or go release).",
+          "expected": {
+            "extracted_at_least": 14,
+            "toolchain_refused_entries": 0
+          },
+          "id": "I107-P1"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p2_corpus_laws",
+          "claim": "Corpus: at most 2 entries derive any law over routes A, B and C together, and route A decides at most 5 laws. Reason: route A's generic sidecars carry zero storage and no binding (I51, I103: 0 laws); route B pins I105's own protocol, whose 0.2 sort pass refused 7 of 8 Go machines on s> and sext (I105 run 2); route C derived 0 laws on 9 entries (I104 P4).",
+          "expected": {
+            "decided_laws_at_most": 5,
+            "entries_with_law_at_most": 2
+          },
+          "id": "I107-P2"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p3_corpus_detections",
+          "claim": "Corpus: 0 of 20 entries are detected against I48's labels (I51's instrument). The deltas are therefore -5 against the agent reviewer (c15, c17-c20) and -1 against slither (c05), the same as I51's.",
+          "expected": {
+            "delta_agent_review": -5,
+            "delta_slither": -1,
+            "detected": 0
+          },
+          "id": "I107-P3"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p4_corpus_findings_unreplayed",
+          "claim": "Corpus: every REFUTED law, if any, is unreplayed (binding null), so the true_defect count is 0.",
+          "expected": {
+            "true_defect": 0
+          },
+          "id": "I107-P4"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p5_sealed_extraction",
+          "claim": "Sealed: at least 1 of the 2 targets extracts at least one document (a contract whose imports stay inside the target's own tree), and on every target fewer than half of the attempted documents extract (no dependency tree is fetched: an import of a package or submodule fails the compile).",
+          "expected": {
+            "extracting_targets_at_least": 1,
+            "extraction_rate_below": 0.5
+          },
+          "id": "I107-P5"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p6_sealed_derive_completes",
+          "claim": "Sealed: on every target with an extracted document, route A's derive completes without refusal (status ok): the total sort pass (holon-sort-types/0.3) turns an unknown term into an opaque variable, where I50's 0.2 pass refused Scroll's whole document on 'update'.",
+          "expected": {
+            "derive_ok_on_every_extracting_target": true
+          },
+          "id": "I107-P6"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p7_sealed_decided",
+          "claim": "Sealed: at least 1 law is decided (PROVED or REFUTED, the checker's word) on at least 1 target, with zero hand-written target files (no sidecar, role, fact, law, scope list or target file written by hand).",
+          "expected": {
+            "decided_laws_at_least": 1,
+            "decided_on_targets_at_least": 1,
+            "hand_written_target_files": 0
+          },
+          "id": "I107-P7"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p8_sealed_refuted_classified",
+          "claim": "Sealed: every REFUTED law is unreplayed (binding null) and adjudicated, and none is classified potential_defect: 0 findings are withheld. Reason: zero storage and no hypotheses make a REFUTED law's witness a behaviour from a state the deployment never reaches or a model artifact.",
+          "expected": {
+            "unadjudicated_refuted": 0,
+            "withheld": 0
+          },
+          "id": "I107-P8"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p9_sealed_static_ai",
+          "claim": "Sealed: static+AI is not_applicable on both targets (no Go document in scope, and every holon-roles-proposed/0.1 role kind names a Go document), so its decided laws equal static's by construction; the subagent is not run.",
+          "expected": {
+            "static_ai": "not_applicable"
+          },
+          "id": "I107-P9"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p10_sealed_slither",
+          "claim": "Sealed baselines: slither's compile fails on at least 1 of the 2 targets at the primary budget (the same tree as route A, no dependency tree).",
+          "expected": {
+            "slither_compile_failed_targets_at_least": 1
+          },
+          "id": "I107-P10"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p11_morph_roles",
+          "claim": "Morph (contaminated) under the merged tools: role precision 4/11 and recall 4/6, equal to I104's (the merges change no file holon roles reads).",
+          "expected": {
+            "precision": [
+              4,
+              11
+            ],
+            "recall": [
+              4,
+              6
+            ]
+          },
+          "id": "I107-P11"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestPredictions::test_p12_morph_auto",
+          "claim": "Morph under --roles auto, every law of the auto set run: 95 of the 99 decided role-dependent laws are re-derived with the same statement and status (I104's count, with I104's harness artifact on L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned possibly resolved, so at least 95), and the 330 new laws are all UNKNOWN (0 decided).",
+          "expected": {
+            "new_decided": 0,
+            "new_laws": 330,
+            "role_dependent_decided": 99,
+            "role_dependent_rederived_at_least": 95
+          },
+          "id": "I107-P12"
+        }
+      ],
+      "prompt": "prompts/I107_generality_run.md",
+      "regressions": [
+        {
+          "check": "tests_m6/test_i107_generality.py::TestRegressions::test_r1_morph_outputs_untouched",
+          "claim": "Morph's M0-M3 outputs are byte-identical: no non-merge commit after the prereg touches laws/M0-M3, gen/M0-M3, results/M0-M3, replay/ or spec/M0-M3 (I107 adds only results/eval/generality/, docs/iterations/I107*, tools/i107_generality.py and its key, tests and prompt).",
+          "id": "I107-R1"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestRegressions::test_r2_disclosure",
+          "claim": "Disclosure: every line of results/eval/generality/sealed/withheld.jsonl (if any) has a 64-hex commitment, a class and status 'withheld: pending coordinated disclosure', and no committed file under results/eval/generality/sealed/ names a withheld id outside withheld.jsonl and adjudication.json.",
+          "id": "I107-R2"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestRegressions::test_r3_no_hand_target_files",
+          "claim": "No hand-written target file: after the prereg, no commit of this key adds a file under targets/ or under spec/ outside spec/M6/predictions*, spec/M6/amendments*.",
+          "id": "I107-R3"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestRegressions::test_r4_summary_regenerates",
+          "claim": "Determinism: python tools/i107_generality.py assemble --check regenerates results/eval/generality/summary.json byte for byte.",
+          "id": "I107-R4"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestRegressions::test_r5_no_model_identifiers",
+          "claim": "No model identifier appears in any file under results/eval/generality/ or in docs/iterations/I107.md.",
+          "id": "I107-R5"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestRegressions::test_r6_commitment_verified",
+          "claim": "The reveal is verified before run (b): results/eval/generality/sealed/verify.json records VERIFY OK, and sha256 of spec/heldout2/target.json and salt.txt equal the key's commitment.",
+          "id": "I107-R6"
+        },
+        {
+          "check": "tests_m6/test_i107_generality.py::TestProtocol::test_run_protocols_are_i103s and tests_m6/test_i107_generality.py::TestProtocol::test_scope_rule",
+          "claim": "Construction (green at the prereg): the run protocols are I103's except corpus, doc, iteration and out; the scope rule G1 keeps source contracts and drops tests, mocks, scripts and dependency trees.",
+          "id": "I107-R7"
+        }
+      ],
+      "tests": [
+        "tests_m6/test_i107_generality.py"
+      ],
+      "thresholds": {
+        "commitment": {
+          "block": 26396629,
+          "path": "spec/heldout2/commitment.json",
+          "salt_sha256": "8c0a8625bf8f60785a0dfdcdeff8f7c116d0a6afbdfc79021fb65ccaf50d3e3c",
+          "target_sha256": "f74d45b02f0613f3a701beb24294df6fa53231bbd75ffb021ed5868696a78273"
+        },
+        "corpus": {
+          "baselines": {
+            "agent_review": [
+              "c15",
+              "c17",
+              "c18",
+              "c19",
+              "c20"
+            ],
+            "slither": [
+              "c05"
+            ]
+          },
+          "decided_laws_at_most": 5,
+          "detected": 0,
+          "entries": 20,
+          "entries_with_law_at_most": 2,
+          "extracted_at_least": 14,
+          "toolchain_refused_entries": 0,
+          "true_defect": 0
+        },
+        "model_id_pattern": "(?i)(claude-(opus|sonnet|haiku|fable)|\\bopus[- ]?[0-9]|\\bsonnet[- ]?[0-9]|\\bhaiku[- ]?[0-9]|gpt-[0-9])",
+        "morph": {
+          "new_decided": 0,
+          "new_laws": 330,
+          "precision": [
+            4,
+            11
+          ],
+          "recall": [
+            4,
+            6
+          ],
+          "role_dependent_decided": 99,
+          "role_dependent_rederived": 95
+        },
+        "protocol": "spec/M6/lib/i107_protocol.json",
+        "run_protocols": {
+          "corpus": "spec/M6/lib/i107_corpus_run.json",
+          "differ_only_in": [
+            "corpus",
+            "doc",
+            "iteration",
+            "out"
+          ],
+          "from": "spec/M6/lib/i103_run.json",
+          "sealed": "spec/M6/lib/i107_sealed_run.json"
+        },
+        "sealed": {
+          "decided_laws_at_least": 1,
+          "decided_on_targets_at_least": 1,
+          "derive_ok_on_every_extracting_target": true,
+          "extracting_targets_at_least": 1,
+          "extraction_rate_below": 0.5,
+          "hand_written_target_files": 0,
+          "slither_compile_failed_targets_at_least": 1,
+          "static_ai": "not_applicable",
+          "targets": 2,
+          "withheld": 0
+        },
+        "sealed_entries": "spec/M6/lib/i107_sealed_entries.py"
+      },
+      "title": "I107 (M6 exit): the generality run. The corpus rerun (contaminated: post-I51), the fresh sealed targets of I106 (the honest test) and Morph under --roles auto, with the merged I103-I105 tools unchanged, scored against I48's labels and I51, I52/I52b and I53's records. No number is a gate: a miss is a result."
     }
   }
 }

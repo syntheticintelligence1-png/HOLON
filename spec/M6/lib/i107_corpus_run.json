@@ -1,0 +1,140 @@
+{
+ "catalog": "holon-rules/1.15",
+ "clones": "~/.holon/eval/repos",
+ "commit": "per entry under <out>/<id>/: sidecars/ (every generated input), facts/ (every extracted document; a Go document over store_max_bytes is recorded by sha256 and size only), laws/ (laws/<milestone>), gen/ (gen/<milestone>: models, proofs), records/ (results/<milestone>); and <out>/corpus.json; timings only in <out>/corpus_timing.json",
+ "corpus": "spec/eval/corpus.json",
+ "disch": {
+  "binding": null,
+  "disch_version": "holon-disch/0.1",
+  "hypotheses": {},
+  "hypothesis_verdicts": null,
+  "r0": {
+   "doc": "the zero storage (no deployment)",
+   "keys": {},
+   "proxy_slots": [],
+   "values": {}
+  },
+  "search": {
+   "max_prefixes": 3000,
+   "neighbourhood_insertion_length_max": 2,
+   "neighbourhood_prefixes_per_entry_point_max": 20000,
+   "prefix_depth": 3
+  }
+ },
+ "doc": "I107 prereg instrument, run (a) route A, the corpus rerun (contaminated: post-I51). It is I103's protocol (spec/M6/lib/i103_run.json) unchanged in every stage, toolchain and producer rule; only iteration, out and this doc differ. holon eval holon runs it with --roles static (I104's opt-in: holon roles over each entry's stored documents, recorded per row).",
+ "fact": {
+  "binding": null,
+  "fact_version": "holon-fact/0.1",
+  "hypotheses": {},
+  "measure": {
+   "fresh": [
+    "0x0100000000000000000000000000000000000000000000000000000000000001",
+    "0x0100000000000000000000000000000000000000000000000000000000000002"
+   ],
+   "max_length": 3
+  },
+  "search": {
+   "continuation_depth": 2,
+   "max_candidates": 200000,
+   "max_prefixes": 3000,
+   "prefix_depth": 3,
+   "time_candidates": "E - 1, E and E + 1 for every term E an atom of a check of the candidate step compares with block.timestamp, evaluated on the candidate state, and the trace's own times (never 0, never decreasing)"
+  },
+  "term_size": "spec/M3/lib/term_size.json",
+  "verdicts": {}
+ },
+ "filter": "the record's replay status decides the class of a finding (REFUTED record): failed is model_defect; otherwise localized is true_defect; passed and not localized is intended_asymmetry; anything else unreplayed",
+ "go": {
+  "config_version": "holon-go-frontend/0.3",
+  "files": "every entry file ending in .go",
+  "limits": {
+   "flow_depth": 3,
+   "inline_depth": 4,
+   "max_paths": 512
+  },
+  "package": "the directory of the file; its module is the nearest directory at or above it holding go.mod; its import path is the module path (go.mod's module line) joined with the directory relative to the module",
+  "primitives": {},
+  "source": "the module directory, when its go.mod has no replace directive with a relative path that leaves it; otherwise a scratch copy of the whole checkout with a generated go.work whose use list is the closure of the module directory under its relative replace targets that hold a go.mod (a checkout that has its own go.work keeps it, unchanged); under work_replace main_module the generated go.work also carries a replace for each module path two used modules replace differently, taken from the package's own module (paths rewritten relative to the workspace root), and its go line is the highest go directive among the used modules",
+  "stem": "go_<n>, n the 1-based index of the package in the sorted list of the entry's import paths",
+  "store_max_bytes": 1000000,
+  "toolchain": "go_directive",
+  "work_replace": "main_module"
+ },
+ "go_rules_doc": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+ "iteration": "I107",
+ "milestone": "T510",
+ "normalize": "every path inside a scratch directory, the checkout or the home directory in a recorded message is written <scratch>, <checkout> or <home>; a message keeps its last 1500 characters",
+ "out": "results/eval/generality/corpus/holon",
+ "replay": "the binding is null: no deployment of a foreign contract is generated, so no witness is replayed on real code (record replay.status not_applicable); stage replay records that",
+ "run": "holon run over the whole milestone (the DISCH runner), then holon run --laws <every derived law without a record> (the typed runners: SORT, UNDO, FACT, SYM); a law with no record after both is UNKNOWN with reason not_decided",
+ "run_version": "holon-corpus-run/0.2",
+ "solidity": {
+  "commit_interfaces": [],
+  "compiler": {
+   "settings": {
+    "optimizer": {
+     "enabled": false
+    }
+   },
+   "version": "pragma"
+  },
+  "compiler_doc": "version \"pragma\": holon.frontends.solidity.toolchains selects the newest pinned release (config solc_set) satisfying every `pragma solidity` of every unit solc reads; none satisfies: Refused with the pragmas and the pinned set; the selection is recorded in the document's extraction.toolchain.solc.selected_by. A release below 0.8.0 has no checked arithmetic: the walker reads every arithmetic operation as unchecked (wrapping, as in an unchecked block), and the document says so in extraction.toolchain.solc.arithmetic",
+  "contract_pattern": "^\\s*(?:abstract\\s+)?contract\\s+([A-Za-z_$][A-Za-z0-9_$]*)",
+  "contracts": "one transitions document per contract a file declares: every match of contract_pattern on the file's lines at the pre-fix commit, in file order (interfaces and libraries are not contracts); a file that declares none contributes no document and is recorded",
+  "files": "every entry file ending in .sol",
+  "sol_deps": null,
+  "sol_deps_doc": "the scratch configuration names no dependency tree: the pinned sol_deps are the development target's, never a foreign target's; an import the target's own tree does not hold fails the compile (an extraction failure, a miss)",
+  "stem": "<contract lowercased>.extracted.json; a second contract of the same lowercased name in one entry gets _2, _3 in file order"
+ },
+ "stages": [
+  "checkout",
+  "extract",
+  "sorts",
+  "types",
+  "model",
+  "disch",
+  "derive",
+  "run",
+  "replay",
+  "filter",
+  "score"
+ ],
+ "timeouts_s": {
+  "checkout": 3600,
+  "derive": 1800,
+  "disch": 1800,
+  "extract": 3600,
+  "model": 1800,
+  "run": 7200,
+  "sorts": 1800,
+  "types": 1800
+ },
+ "typed": {
+  "binding": null,
+  "search": {
+   "max_prefixes": 3000,
+   "neighbourhood_insertion_length_max": 2,
+   "neighbourhood_prefixes_per_entry_point_max": 20000,
+   "prefix_depth": 3
+  },
+  "seeds": "spec/M3/lib/sort_seeds.json",
+  "sort_types_version": "holon-sort-types/0.3"
+ },
+ "typed_doc": "0.3 is 0.2 (update rules U1-U3) plus T1: a term whose head has no sorts rule is walked like the documented opaque heads (its non-string operands walked, a fresh variable returned, nothing flowing in or out) and counted in the walk's coverage debt (head, action, record, count); the sorts stage writes the debt to <out>/coverage_debt.json",
+ "undo": {
+  "observation": [
+   "status",
+   "ret",
+   "logs",
+   "calls"
+  ],
+  "premise": "nz",
+  "search": {
+   "continuation_depth": 2,
+   "max_candidates": 200000,
+   "max_prefixes": 3000,
+   "prefix_depth": 3
+  },
+  "undo_version": "holon-undo/0.1"
+ }
+}
