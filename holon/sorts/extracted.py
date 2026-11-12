@@ -54,6 +54,12 @@ only when the value is assigned back to a storage variable.
       member's value; of ["?", c, X, Y], ["?", c, X.m, Y.m]. An update at a deeper path or of an element leaves the
       read unresolved (a fresh variable).
   U3  a write of such a value into a whole struct family (an empty path) writes every field f, with U2's value of f.
+"holon-sort-types/0.4" (I108) is 0.3 plus rules S1-S3 for the signed operators the IR defines for intN (two's-complement
+words; holon.frontends.solidity.transitions), and walks a document without them exactly as 0.3 does:
+  S1  ["s<" | "s<=" | "s>" | "s>=", a, b] is a comparison event of a and b, as the unsigned operator is.
+  S2  ["sext", bits, t] is t's value: t flows into a fresh result (the same quantity, read as signed).
+  S3  ["sdiv" | "smod" | "sar", a, b] is an opaque fresh variable with its operands walked, as "/" "%" ">>" are.
+None of them is a coverage-debt entry.
 
 Nothing here names a target: every name comes from the document, the seeds file and the sidecar.
 """
@@ -71,6 +77,9 @@ SEEDS_VERSION = "holon-sort-seeds/0.2"
 SORT_TYPES_0_1 = "holon-sort-types/0.1"   # the pinned pass (holon.sorts.typed_sidecar.VERSION)
 SORT_TYPES_0_2 = "holon-sort-types/0.2"   # 0.1 plus rules U1-U3 (I50b)
 SORT_TYPES_0_3 = "holon-sort-types/0.3"   # 0.2 plus rule T1, the total pass (I103)
+SORT_TYPES_0_4 = "holon-sort-types/0.4"   # 0.3 plus rules S1-S3, the IR's signed operators (I108)
+SIGNED_CMP = {"s<": "<", "s<=": "<=", "s>": ">", "s>=": ">="}   # S1
+SIGNED_OPAQUE = ("sdiv", "smod", "sar")                           # S3
 KAPPA = "kappa"          # an obstruction's antecedent (I15's R11 format)
 TAG_HEAD = "tag"         # a companion read in a tag term (rule G2): ["tag", family, key]
 CMP = ("<", "<=", ">", ">=", "==", "!=")
@@ -243,10 +252,11 @@ def resolve_member(x, m: str):
 # ------------------------------------------------------------------------------------------------ the walk
 class Walker:
     def __init__(self, model: str, doc: dict, seeds: dict, sort_types_version: str = SORT_TYPES_0_1):
-        if sort_types_version not in (SORT_TYPES_0_1, SORT_TYPES_0_2, SORT_TYPES_0_3):
+        if sort_types_version not in (SORT_TYPES_0_1, SORT_TYPES_0_2, SORT_TYPES_0_3, SORT_TYPES_0_4):
             raise ExtractedError(f"sort_types_version {sort_types_version!r} has no sorts adapter")
-        self.update_rules = sort_types_version in (SORT_TYPES_0_2, SORT_TYPES_0_3)   # rules U1-U3
-        self.total = sort_types_version == SORT_TYPES_0_3                          # rule T1
+        self.update_rules = sort_types_version in (SORT_TYPES_0_2, SORT_TYPES_0_3, SORT_TYPES_0_4)   # rules U1-U3
+        self.total = sort_types_version in (SORT_TYPES_0_3, SORT_TYPES_0_4)                          # rule T1
+        self.signed = sort_types_version == SORT_TYPES_0_4                                          # rules S1-S3
         self.debt_count: dict = {}
         self.model = model
         self.doc = doc
@@ -453,6 +463,24 @@ class Walker:
             if va is not None and vb is not None:
                 self.ev("compare", h, va, vb, t, ctx, None)
             return None, ra | rb
+        if self.signed and h in SIGNED_CMP and len(a) == 2:
+            # S1: a signed comparison relates its operands as the unsigned one does (two's complement changes the
+            # order of the words, not what they measure)
+            (va, ra), (vb, rb) = self.ex(a[0], ctx), self.ex(a[1], ctx)
+            if va is not None and vb is not None:
+                self.ev("compare", SIGNED_CMP[h], va, vb, t, ctx, None)
+            return None, ra | rb
+        if self.signed and h == "sext" and len(a) == 2:
+            # S2: ["sext", bits, t] is t's value read as a signed intN (the same quantity): t flows into the result
+            v, r = self.ex(a[1], ctx)
+            if v is None:
+                return self.fresh(), r
+            out = self.fresh()
+            self.flow(v, out, ctx)
+            return out, r
+        if self.signed and h in SIGNED_OPAQUE and len(a) == 2:
+            # S3: as "/", "%" and ">>": an opaque fresh variable, the operands walked, no debt
+            return self.fresh(), self.walk_all(a, ctx)
         if h in ("&&", "||", "!"):
             return None, self.walk_all(a, ctx)
         if h == "?":

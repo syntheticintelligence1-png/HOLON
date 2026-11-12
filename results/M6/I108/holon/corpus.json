@@ -1,0 +1,1722 @@
+{
+  "corpus_sha256": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+  "holon_sha256": "55f0efa71cf0fb709f3c58827c00a1ea50940af0c0d345b760a4b13045251009",
+  "protocol_sha256": "e59cd1f26e3a1e882b8baff2e512ce22e7f2ba47e9dc4112544270c304d0b553",
+  "rows": [
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": null,
+          "exit": 2,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/arbos||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+          "sha256": null,
+          "source": "module",
+          "source_file": "arbos/block_processor.go",
+          "status": "failed",
+          "stem": "go_1",
+          "stored": null,
+          "toolchain": "go 1.25.14 (go directive 1.25 of go.mod)",
+          "unit": "github.com/offchainlabs/nitro/arbos"
+        }
+      ],
+      "files": [
+        "arbos/block_processor.go"
+      ],
+      "fix_commit": "fb4e3b9bd256e9e69af81600b6b2471c49265a7c",
+      "id": "c01",
+      "label": "UNDO",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "arbos/block_processor.go": [
+          [
+            499,
+            500
+          ],
+          [
+            510,
+            516
+          ]
+        ]
+      },
+      "prefix_commit": "c4de7385249f35881417afc555dc355439e44984",
+      "reason": "no document extracted: github.com/offchainlabs/nitro/arbos: holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/arbos||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "0 of 1 documents extracted",
+          "exit": null,
+          "status": "failed"
+        }
+      },
+      "status": "not_run",
+      "system": "arbitrum",
+      "tree": "970b183602f0896284be6bed3823d9a297bc3489"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "cerc20.extracted.json",
+          "language": "solidity",
+          "reason": "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.5.17 (selected by pragma ['^0.5.16'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "contracts/CErc20.sol",
+          "status": "failed",
+          "stem": "cerc20",
+          "stored": null,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16'])",
+          "unit": "CErc20"
+        },
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "cerc20delegator.extracted.json",
+          "language": "solidity",
+          "reason": "holon extract solidity: extraction error: inline assembly at 20251:128:0 has no Yul AST (this compiler writes assembly as text): the walker cannot read it\n[compiled by solc 0.5.17 (selected by pragma ['^0.5.16'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "contracts/CErc20Delegator.sol",
+          "status": "failed",
+          "stem": "cerc20delegator",
+          "stored": null,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16'])",
+          "unit": "CErc20Delegator"
+        },
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "ctoken.extracted.json",
+          "language": "solidity",
+          "reason": "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.5.17 (selected by pragma ['^0.5.16'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "contracts/CToken.sol",
+          "status": "failed",
+          "stem": "ctoken",
+          "stored": null,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16'])",
+          "unit": "CToken"
+        },
+        {
+          "bytes": 7010,
+          "exit": 0,
+          "file": "ctokenstorage.extracted.json",
+          "language": "solidity",
+          "reason": null,
+          "sha256": "3b0b51dae1dbb29aa3b1a0f782657a1ac5f6b31e1141307810653706a2846768",
+          "source": null,
+          "source_file": "contracts/CTokenInterfaces.sol",
+          "status": "extracted",
+          "stem": "ctokenstorage",
+          "stored": true,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16']; arithmetic unchecked)",
+          "unit": "CTokenStorage"
+        },
+        {
+          "bytes": 7620,
+          "exit": 0,
+          "file": "ctokeninterface.extracted.json",
+          "language": "solidity",
+          "reason": null,
+          "sha256": "87eb283f4f018322ee3c791559d02811a9205d865691a2f44c60bb1202a4ffa7",
+          "source": null,
+          "source_file": "contracts/CTokenInterfaces.sol",
+          "status": "extracted",
+          "stem": "ctokeninterface",
+          "stored": true,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16']; arithmetic unchecked)",
+          "unit": "CTokenInterface"
+        },
+        {
+          "bytes": 3889,
+          "exit": 0,
+          "file": "cerc20storage.extracted.json",
+          "language": "solidity",
+          "reason": null,
+          "sha256": "02e31557da8ac34b00a12918d0532745302a7e43d055b92943d43dde4169cd53",
+          "source": null,
+          "source_file": "contracts/CTokenInterfaces.sol",
+          "status": "extracted",
+          "stem": "cerc20storage",
+          "stored": true,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16']; arithmetic unchecked)",
+          "unit": "CErc20Storage"
+        },
+        {
+          "bytes": 3933,
+          "exit": 0,
+          "file": "cerc20interface.extracted.json",
+          "language": "solidity",
+          "reason": null,
+          "sha256": "9481441c206d7c92ee0aa842ce4b3e70d8addb60ded0ddc8201f10b009e6616b",
+          "source": null,
+          "source_file": "contracts/CTokenInterfaces.sol",
+          "status": "extracted",
+          "stem": "cerc20interface",
+          "stored": true,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16']; arithmetic unchecked)",
+          "unit": "CErc20Interface"
+        },
+        {
+          "bytes": 3908,
+          "exit": 0,
+          "file": "cdelegationstorage.extracted.json",
+          "language": "solidity",
+          "reason": null,
+          "sha256": "87a3b8a165abc6494dfc82cd4665a539a1fdd227eb328fde37007247aba3f183",
+          "source": null,
+          "source_file": "contracts/CTokenInterfaces.sol",
+          "status": "extracted",
+          "stem": "cdelegationstorage",
+          "stored": true,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16']; arithmetic unchecked)",
+          "unit": "CDelegationStorage"
+        },
+        {
+          "bytes": 3954,
+          "exit": 0,
+          "file": "cdelegatorinterface.extracted.json",
+          "language": "solidity",
+          "reason": null,
+          "sha256": "163089b77d3e7bc5a7aa12d2f5eca83df519c43066f817803ef7c436bb159a20",
+          "source": null,
+          "source_file": "contracts/CTokenInterfaces.sol",
+          "status": "extracted",
+          "stem": "cdelegatorinterface",
+          "stored": true,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16']; arithmetic unchecked)",
+          "unit": "CDelegatorInterface"
+        },
+        {
+          "bytes": 3951,
+          "exit": 0,
+          "file": "cdelegateinterface.extracted.json",
+          "language": "solidity",
+          "reason": null,
+          "sha256": "16bc146efb31af38874c9af08ad90ebbc84d8d86620d245672c27b7aea94624b",
+          "source": null,
+          "source_file": "contracts/CTokenInterfaces.sol",
+          "status": "extracted",
+          "stem": "cdelegateinterface",
+          "stored": true,
+          "toolchain": "solc 0.5.17 (selected by pragma ['^0.5.16']; arithmetic unchecked)",
+          "unit": "CDelegateInterface"
+        }
+      ],
+      "files": [
+        "contracts/CErc20.sol",
+        "contracts/CErc20Delegator.sol",
+        "contracts/CToken.sol",
+        "contracts/CTokenInterfaces.sol"
+      ],
+      "fix_commit": "b198cb4dac977c61fa793ffe441c932438e83cdc",
+      "id": "c02",
+      "label": "NAT",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "contracts/CErc20.sol": [
+          [
+            111,
+            112
+          ]
+        ],
+        "contracts/CErc20Delegator.sol": [
+          [
+            329,
+            330
+          ]
+        ],
+        "contracts/CToken.sol": [
+          [
+            8,
+            8
+          ],
+          [
+            124,
+            124
+          ],
+          [
+            558,
+            558
+          ],
+          [
+            796,
+            796
+          ],
+          [
+            913,
+            913
+          ],
+          [
+            1017,
+            1017
+          ],
+          [
+            1088,
+            1088
+          ]
+        ],
+        "contracts/CTokenInterfaces.sol": [
+          [
+            4,
+            5
+          ],
+          [
+            260,
+            261
+          ]
+        ]
+      },
+      "prefix_commit": "c5fcc34222693ad5f547b14ed01ce719b5f4b000",
+      "reason": null,
+      "repo": "https://github.com/compound-finance/compound-protocol",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "holon derive: 0 laws, 0 obstructions -> laws/T510",
+          "exit": 0,
+          "status": "ok"
+        },
+        "disch": {
+          "detail": "holon disch: closure.json, conjuncts.json -> <root>/gen/T510/disch",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "7 of 10 documents extracted",
+          "exit": null,
+          "status": "ok"
+        },
+        "model": {
+          "detail": "wrote <root>/gen/T510/sorts/models/ctokenstorage.extracted.bend\nwrote <root>/gen/T510/sorts/models/ctokeninterface.extracted.bend\nwrote <root>/gen/T510/sorts/models/cerc20storage.extracted.bend\nwrote <root>/gen/T510/sorts/models/cerc20interface.extracted.bend\nwrote <root>/gen/T510/sorts/models/cdelegationstorage.extracted.bend\nwrote <root>/gen/T510/sorts/models/cdelegatorinterface.extracted.bend\nwrote <root>/gen/T510/sorts/models/cdelegateinterface.extracted.bend",
+          "exit": 0,
+          "status": "ok"
+        },
+        "run": {
+          "detail": "the protocol stops after derive (stop_after): 0 laws derived, none run",
+          "exit": null,
+          "status": "not_run"
+        },
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 41 unresolved variables -> gen/T510/sorts",
+          "exit": 0,
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: cdelegateinterface.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: cdelegationstorage.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: cdelegatorinterface.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: cerc20interface.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: cerc20storage.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: ctokeninterface.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\nholon types: ctokenstorage.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards",
+          "exit": 0,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "compound",
+      "tree": "0224132e999b28ec905643cf9e0351a16d221019"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 4066398,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "bdea9523d695a143167d04d4d522a7558d2f2ec9536fcb5a2a1ce0ec8990ec89",
+          "source": "module",
+          "source_file": "x/distribution/keeper/msg_server.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": false,
+          "toolchain": "go 1.24.7 (go directive 1.23.2 of go.mod)",
+          "unit": "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+        }
+      ],
+      "files": [
+        "x/distribution/keeper/msg_server.go"
+      ],
+      "fix_commit": "c4a14fa7b6828432fdabdb8b4af68ade9403ce49",
+      "id": "c03",
+      "label": "SORT",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "x/distribution/keeper/msg_server.go": [
+          [
+            4,
+            5
+          ],
+          [
+            210,
+            211
+          ]
+        ]
+      },
+      "prefix_commit": "c1ece303dda957e3ec5b859b727f882b30282d01",
+      "reason": null,
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "cosmos",
+      "tree": "64a0eea678e0c2fa4a5a1bad6b7de781526430a1"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 7203810,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "df2dd7341c435fa8d62ffde10a5cd42cf7b9b26ff56f71e620268337d760d7aa",
+          "source": "module",
+          "source_file": "core/rawdb/accessors_chain.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": false,
+          "toolchain": "go 1.24.7 (go directive 1.21 of go.mod)",
+          "unit": "github.com/ethereum/go-ethereum/core/rawdb"
+        }
+      ],
+      "files": [
+        "core/rawdb/accessors_chain.go"
+      ],
+      "fix_commit": "84b12df09e0a67e99a3943f26ccf1b6e6c19a85a",
+      "id": "c04",
+      "label": "none",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "core/rawdb/accessors_chain.go": [
+          [
+            319,
+            320
+          ]
+        ]
+      },
+      "prefix_commit": "3705acd1a97b2cc9bbb092b326a9d8cfbc42037a",
+      "reason": null,
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "go-ethereum",
+      "tree": "cd80910d430da4e72ab5a304534011a864284ce7"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "superpermissioneddisputegame.extracted.json",
+          "language": "solidity",
+          "reason": "lowing locations: \"<checkout>/.\".\n --> packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:5:1:\n  |\n5 | import { Clone } from \"@solady/utils/Clone.sol\";\n  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IAnchorStateRegistry.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:13:1:\n   |\n13 | import { IAnchorStateRegistry } from \"interfaces/dispute/IAnchorStateRegistry.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IDisputeGame.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:14:1:\n   |\n14 | import { IDisputeGame } from \"interfaces/dispute/IDisputeGame.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesuniversal/ISemver.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:15:1:\n   |\n15 | import { ISemver } from \"interfaces/universal/ISemver.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol",
+          "status": "failed",
+          "stem": "superpermissioneddisputegame",
+          "stored": null,
+          "toolchain": "solc 0.8.15 (selected by pragma ['0.8.15'])",
+          "unit": "SuperPermissionedDisputeGame"
+        }
+      ],
+      "files": [
+        "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol"
+      ],
+      "fix_commit": "44eb9547baef1331df04b826a15ca0e05ddedc1f",
+      "id": "c05",
+      "label": "PAR",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol": [
+          [
+            7,
+            7
+          ],
+          [
+            25,
+            26
+          ],
+          [
+            47,
+            48
+          ]
+        ]
+      },
+      "prefix_commit": "38e7aa89894f64287558c84548fee259ed5d359e",
+      "reason": "no document extracted: SuperPermissionedDisputeGame: lowing locations: \"<checkout>/.\".\n --> packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:5:1:\n  |\n5 | import { Clone } from \"@solady/utils/Clone.sol\";\n  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IAnchorStateRegistry.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:13:1:\n   |\n13 | import { IAnchorStateRegistry } from \"interfaces/dispute/IAnchorStateRegistry.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IDisputeGame.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:14:1:\n   |\n14 | import { IDisputeGame } from \"interfaces/dispute/IDisputeGame.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesuniversal/ISemver.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:15:1:\n   |\n15 | import { ISemver } from \"interfaces/universal/ISemver.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+      "repo": "https://github.com/ethereum-optimism/optimism",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "0 of 1 documents extracted",
+          "exit": null,
+          "status": "failed"
+        }
+      },
+      "status": "not_run",
+      "system": "optimism",
+      "tree": "9bf5a236a76287306295129cad0768804c8df378"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 368703,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "22f309cb677da28c5c8d916404a703b18b248df7063150fbc02a3fd866aac6a4",
+          "source": "generated go.work: ./node ./sdk ./wormchain; replace github.com/cosmos/cosmos-sdk => github.com/wormhole-foundation/cosmos-sdk v0.45.9-wormhole (from ./node)",
+          "source_file": "node/pkg/governor/governor_prices.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.19 of go.work)",
+          "unit": "github.com/certusone/wormhole/node/pkg/governor"
+        }
+      ],
+      "files": [
+        "node/pkg/governor/governor_prices.go"
+      ],
+      "fix_commit": "a5092db9822da1b3d66156c83f7332a4854d2b1c",
+      "id": "c06",
+      "label": "SORT",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "node/pkg/governor/governor_prices.go": [
+          [
+            159,
+            160
+          ]
+        ]
+      },
+      "prefix_commit": "478ea22a3fee43d1079b9555ca9696dfc2608632",
+      "reason": null,
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "wormhole",
+      "tree": "df5cd1b86a79eef97c222c74302797b4c3d06f42"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": null,
+          "exit": 2,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": " github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: \"github.com/offchainlabs/nitro/solgen/go/precompilesgen\" imported as util and not used\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/precompiles||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+          "sha256": null,
+          "source": "module",
+          "source_file": "precompiles/ArbGasInfo.go",
+          "status": "failed",
+          "stem": "go_1",
+          "stored": null,
+          "toolchain": "go 1.25.14 (go directive 1.25 of go.mod)",
+          "unit": "github.com/offchainlabs/nitro/precompiles"
+        }
+      ],
+      "files": [
+        "precompiles/ArbGasInfo.go"
+      ],
+      "fix_commit": "90213f9de796ead5ed864643825f2063892ea398",
+      "id": "c07",
+      "label": "PAR",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "precompiles/ArbGasInfo.go": [
+          [
+            9,
+            10
+          ],
+          [
+            360,
+            364
+          ]
+        ]
+      },
+      "prefix_commit": "35986d4c606dbc28a821a0bb5922721ca48ed0cf",
+      "reason": "no document extracted: github.com/offchainlabs/nitro/precompiles:  github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: \"github.com/offchainlabs/nitro/solgen/go/precompilesgen\" imported as util and not used\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/precompiles||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "0 of 1 documents extracted",
+          "exit": null,
+          "status": "failed"
+        }
+      },
+      "status": "not_run",
+      "system": "arbitrum",
+      "tree": "822fe499a91219bd754b4a62bb5166b7898e7932"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 429711,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "6260f155a4fcb3df01e1e793832199688facdd766241bd47c124d6a144b0f996",
+          "source": "generated go.work: . ./client/v2 ./x/bank ./x/gov ./x/group ./x/protocolpool ./x/staking",
+          "source_file": "x/group/keeper/msg_server.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.23.5 of go.work)",
+          "unit": "cosmossdk.io/x/group/keeper"
+        }
+      ],
+      "files": [
+        "x/group/keeper/msg_server.go"
+      ],
+      "fix_commit": "cbd69fb1f4fac418c1f8c6253f5f91fb1263776a",
+      "id": "c08",
+      "label": "DISCH",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "x/group/keeper/msg_server.go": [
+          [
+            793,
+            793
+          ],
+          [
+            799,
+            801
+          ],
+          [
+            803,
+            804
+          ],
+          [
+            806,
+            806
+          ],
+          [
+            811,
+            812
+          ],
+          [
+            815,
+            815
+          ],
+          [
+            817,
+            817
+          ],
+          [
+            819,
+            819
+          ]
+        ]
+      },
+      "prefix_commit": "548ca00b11f89145fc112e54e680f6710172bb5a",
+      "reason": null,
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "cosmos",
+      "tree": "281e06b2b266e3fc40dc7453321ce92bd487319f"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 387265,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "bf263d160fc1d82fd2a6410f60be7e82d647828119ecc07b60113cf142408bc0",
+          "source": "module",
+          "source_file": "p2p/peer.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.19 of go.mod)",
+          "unit": "github.com/ethereum/go-ethereum/p2p"
+        }
+      ],
+      "files": [
+        "p2p/peer.go"
+      ],
+      "fix_commit": "7ec60d5f0c45bc68fd4e814479df065acec95d60",
+      "id": "c09",
+      "label": "none",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "p2p/peer.go": [
+          [
+            114,
+            115
+          ],
+          [
+            235,
+            236
+          ],
+          [
+            296,
+            299
+          ],
+          [
+            306,
+            307
+          ],
+          [
+            333,
+            333
+          ]
+        ]
+      },
+      "prefix_commit": "e13fa32cea3497aa311226c62daf21c5847c8e4f",
+      "reason": null,
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "go-ethereum",
+      "tree": "92028619794a733c3a45839ddd2748051b8698d9"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "opcontractsmanagerstandardvalidator.extracted.json",
+          "language": "solidity",
+          "reason": "ound. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:26:1:\n   |\n26 | import { IAnchorStateRegistry } from \"interfaces/dispute/IAnchorStateRegistry.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IDisputeGameFactory.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:27:1:\n   |\n27 | import { IDisputeGameFactory } from \"interfaces/dispute/IDisputeGameFactory.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IL1CrossDomainMessenger.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:28:1:\n   |\n28 | import { IL1CrossDomainMessenger } from \"interfaces/L1/IL1CrossDomainMessenger.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/ISuperchainConfig.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol",
+          "status": "failed",
+          "stem": "opcontractsmanagerstandardvalidator",
+          "stored": null,
+          "toolchain": "solc 0.8.15 (selected by pragma ['0.8.15'])",
+          "unit": "OPContractsManagerStandardValidator"
+        },
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "standardvalidatorutils.extracted.json",
+          "language": "solidity",
+          "reason": "om \"interfaces/L1/IL1StandardBridge.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IOptimismPortal2.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:16:1:\n   |\n16 | import { IOptimismPortal2 } from \"interfaces/L1/IOptimismPortal2.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacescannon/IPreimageOracle.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:17:1:\n   |\n17 | import { IPreimageOracle } from \"interfaces/cannon/IPreimageOracle.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacescannon/IMIPS64.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:18:1:\n   |\n18 | import { IMIPS64 } from \"interfaces/cannon/IMIPS64.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesuniversal/ISemver.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol",
+          "status": "failed",
+          "stem": "standardvalidatorutils",
+          "stored": null,
+          "toolchain": "solc 0.8.15 (selected by pragma ['0.8.15'])",
+          "unit": "StandardValidatorUtils"
+        }
+      ],
+      "files": [
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol",
+        "packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol"
+      ],
+      "fix_commit": "ef695a353f8fd71ad03220a7b9e20f05d5c1715f",
+      "id": "c10",
+      "label": "PAR",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol": [
+          [
+            49,
+            50
+          ]
+        ],
+        "packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol": [
+          [
+            397,
+            398
+          ]
+        ]
+      },
+      "prefix_commit": "6eef20dd9c23d5849ca261a2308ff9a25242067c",
+      "reason": "no document extracted: OPContractsManagerStandardValidator: ound. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:26:1:\n   |\n26 | import { IAnchorStateRegistry } from \"interfaces/dispute/IAnchorStateRegistry.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IDisputeGameFactory.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:27:1:\n   |\n27 | import { IDisputeGameFactory } from \"interfaces/dispute/IDisputeGameFactory.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IL1CrossDomainMessenger.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:28:1:\n   |\n28 | import { IL1CrossDomainMessenger } from \"interfaces/L1/IL1CrossDomainMessenger.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/ISuperchainConfig.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]; StandardValidatorUtils: om \"interfaces/L1/IL1StandardBridge.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IOptimismPortal2.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:16:1:\n   |\n16 | import { IOptimismPortal2 } from \"interfaces/L1/IOptimismPortal2.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacescannon/IPreimageOracle.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:17:1:\n   |\n17 | import { IPreimageOracle } from \"interfaces/cannon/IPreimageOracle.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacescannon/IMIPS64.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:18:1:\n   |\n18 | import { IMIPS64 } from \"interfaces/cannon/IMIPS64.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesuniversal/ISemver.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+      "repo": "https://github.com/ethereum-optimism/optimism",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "0 of 2 documents extracted",
+          "exit": null,
+          "status": "failed"
+        }
+      },
+      "status": "not_run",
+      "system": "optimism",
+      "tree": "98e1dc30c824f73ce69d0529433559928b43b18e"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": null,
+          "exit": 2,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\n[go 1.24.7 (go directive 1.19 of go.work)]",
+          "sha256": null,
+          "source": "generated go.work: ./node ./sdk ./wormchain; replace github.com/cosmos/cosmos-sdk => github.com/wormhole-foundation/cosmos-sdk v0.45.9-wormhole (from ./node)",
+          "source_file": "node/pkg/watchers/algorand/watcher.go",
+          "status": "failed",
+          "stem": "go_1",
+          "stored": null,
+          "toolchain": "go 1.24.7 (go directive 1.19 of go.work)",
+          "unit": "github.com/certusone/wormhole/node/pkg/watchers/algorand"
+        }
+      ],
+      "files": [
+        "node/pkg/watchers/algorand/watcher.go"
+      ],
+      "fix_commit": "b5f1622129cba472d95672f5c9b461d2b322f7a3",
+      "id": "c11",
+      "label": "DISCH",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "node/pkg/watchers/algorand/watcher.go": [
+          [
+            121,
+            121
+          ],
+          [
+            174,
+            174
+          ],
+          [
+            198,
+            198
+          ],
+          [
+            207,
+            207
+          ]
+        ]
+      },
+      "prefix_commit": "91fd0e05172b5e237b55b1029d705bc51a3006e8",
+      "reason": "no document extracted: github.com/certusone/wormhole/node/pkg/watchers/algorand: holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\n[go 1.24.7 (go directive 1.19 of go.work)]",
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "0 of 1 documents extracted",
+          "exit": null,
+          "status": "failed"
+        }
+      },
+      "status": "not_run",
+      "system": "wormhole",
+      "tree": "aa486c0a91604c4aa7f49c8016b2176add4d061e"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 33272,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "34b0fd488e86cf75ba572574f28f97c810927838974265cf81f4ac8f222c3de2",
+          "source": "module",
+          "source_file": "daprovider/reader.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": true,
+          "toolchain": "go 1.25.14 (go directive 1.25 of go.mod)",
+          "unit": "github.com/offchainlabs/nitro/daprovider"
+        },
+        {
+          "bytes": null,
+          "exit": 2,
+          "file": "go_2.go.extracted.json",
+          "language": "go",
+          "reason": "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/daprovider/anytrust/util||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+          "sha256": null,
+          "source": "module",
+          "source_file": "daprovider/anytrust/util/util.go",
+          "status": "failed",
+          "stem": "go_2",
+          "stored": null,
+          "toolchain": "go 1.25.14 (go directive 1.25 of go.mod)",
+          "unit": "github.com/offchainlabs/nitro/daprovider/anytrust/util"
+        }
+      ],
+      "files": [
+        "daprovider/anytrust/util/util.go",
+        "daprovider/reader.go"
+      ],
+      "fix_commit": "8dff9a2c011395031366f76c9faeb80852207a81",
+      "id": "c12",
+      "label": "PAR",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "daprovider/anytrust/util/util.go": [
+          [
+            201,
+            202
+          ]
+        ],
+        "daprovider/reader.go": [
+          [
+            89,
+            90
+          ]
+        ]
+      },
+      "prefix_commit": "b4178a009b07d61be26c46e9b77be591cf599675",
+      "reason": null,
+      "repo": "https://github.com/OffchainLabs/nitro",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 2 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "arbitrum",
+      "tree": "e1dccf3179918a7a06c5b8308ee4e9fc3d312421"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 171546,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "db235014e20557231a7527b7efa0543eb8e1169a47fac7c38c32d8a3c564fa1f",
+          "source": "module",
+          "source_file": "modules/apps/transfer/ibc_module.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.19 of go.mod)",
+          "unit": "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+        }
+      ],
+      "files": [
+        "modules/apps/transfer/ibc_module.go"
+      ],
+      "fix_commit": "9869b3c6f7eb05a935b1eb33611c5406f68438a5",
+      "id": "c13",
+      "label": "PAR",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "modules/apps/transfer/ibc_module.go": [
+          [
+            191,
+            196
+          ]
+        ]
+      },
+      "prefix_commit": "37ab926637aab78892aed61952fbb4b49da48ccd",
+      "reason": null,
+      "repo": "https://github.com/cosmos/ibc-go",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "cosmos",
+      "tree": "3714767702c90a0102372f6e29e294cd3db4db53"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 360283,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "cdc5db032d750d522b296c2b888957dae9f6ac124c542e0b0cb578cdab74d397",
+          "source": "module",
+          "source_file": "p2p/peer.go,p2p/peer_error.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.15 of go.mod)",
+          "unit": "github.com/ethereum/go-ethereum/p2p"
+        }
+      ],
+      "files": [
+        "p2p/peer.go",
+        "p2p/peer_error.go"
+      ],
+      "fix_commit": "870b4505a05cd8b3604078ed4afcd3012bf72a47",
+      "id": "c14",
+      "label": "SORT",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "p2p/peer.go": [
+          [
+            335,
+            335
+          ],
+          [
+            338,
+            339
+          ]
+        ],
+        "p2p/peer_error.go": [
+          [
+            57,
+            57
+          ]
+        ]
+      },
+      "prefix_commit": "a79afd9ac325e12021ae56928ba4af32bb3cc78f",
+      "reason": null,
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "go-ethereum",
+      "tree": "8921f9eb1cb63b93fd78b9c4a4ae09c796705dc9"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "opcontractsmanagerstandardvalidator.extracted.json",
+          "language": "solidity",
+          "reason": "ound. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:26:1:\n   |\n26 | import { IAnchorStateRegistry } from \"interfaces/dispute/IAnchorStateRegistry.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IDisputeGameFactory.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:27:1:\n   |\n27 | import { IDisputeGameFactory } from \"interfaces/dispute/IDisputeGameFactory.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IL1CrossDomainMessenger.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:28:1:\n   |\n28 | import { IL1CrossDomainMessenger } from \"interfaces/L1/IL1CrossDomainMessenger.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/ISuperchainConfig.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol",
+          "status": "failed",
+          "stem": "opcontractsmanagerstandardvalidator",
+          "stored": null,
+          "toolchain": "solc 0.8.15 (selected by pragma ['0.8.15'])",
+          "unit": "OPContractsManagerStandardValidator"
+        },
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "standardvalidatorutils.extracted.json",
+          "language": "solidity",
+          "reason": "om \"interfaces/L1/IL1StandardBridge.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IOptimismPortal2.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:16:1:\n   |\n16 | import { IOptimismPortal2 } from \"interfaces/L1/IOptimismPortal2.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacescannon/IPreimageOracle.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:17:1:\n   |\n17 | import { IPreimageOracle } from \"interfaces/cannon/IPreimageOracle.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacescannon/IMIPS64.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:18:1:\n   |\n18 | import { IMIPS64 } from \"interfaces/cannon/IMIPS64.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesuniversal/ISemver.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol",
+          "status": "failed",
+          "stem": "standardvalidatorutils",
+          "stored": null,
+          "toolchain": "solc 0.8.15 (selected by pragma ['0.8.15'])",
+          "unit": "StandardValidatorUtils"
+        }
+      ],
+      "files": [
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol",
+        "packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol"
+      ],
+      "fix_commit": "283bb456cf5b17f407f8f72826820d3852d966fe",
+      "id": "c15",
+      "label": "FACT",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol": [
+          [
+            49,
+            50
+          ],
+          [
+            1124,
+            1125
+          ]
+        ],
+        "packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol": [
+          [
+            423,
+            424
+          ],
+          [
+            496,
+            497
+          ]
+        ]
+      },
+      "prefix_commit": "b15448f66b1470d16a3fb38978369c48ba91842e",
+      "reason": "no document extracted: OPContractsManagerStandardValidator: ound. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:26:1:\n   |\n26 | import { IAnchorStateRegistry } from \"interfaces/dispute/IAnchorStateRegistry.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IDisputeGameFactory.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:27:1:\n   |\n27 | import { IDisputeGameFactory } from \"interfaces/dispute/IDisputeGameFactory.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IL1CrossDomainMessenger.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:28:1:\n   |\n28 | import { IL1CrossDomainMessenger } from \"interfaces/L1/IL1CrossDomainMessenger.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/ISuperchainConfig.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]; StandardValidatorUtils: om \"interfaces/L1/IL1StandardBridge.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IOptimismPortal2.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:16:1:\n   |\n16 | import { IOptimismPortal2 } from \"interfaces/L1/IOptimismPortal2.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacescannon/IPreimageOracle.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:17:1:\n   |\n17 | import { IPreimageOracle } from \"interfaces/cannon/IPreimageOracle.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacescannon/IMIPS64.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/opcm/StandardValidatorUtils.sol:18:1:\n   |\n18 | import { IMIPS64 } from \"interfaces/cannon/IMIPS64.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesuniversal/ISemver.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+      "repo": "https://github.com/ethereum-optimism/optimism",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "0 of 2 documents extracted",
+          "exit": null,
+          "status": "failed"
+        }
+      },
+      "status": "not_run",
+      "system": "optimism",
+      "tree": "8ded9ce0b247ef879fdaafd627a2cc1609d209fd"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 200729,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "e9d35bf02ac8037799827b4bc6fef4fccbd9918e92a02f9b97b77b945df6e2a8",
+          "source": "generated go.work: ./node ./sdk ./wormchain; replace github.com/cosmos/cosmos-sdk => github.com/wormhole-foundation/cosmos-sdk v0.45.9-wormhole (from ./node)",
+          "source_file": "node/pkg/watchers/evm/connectors/common.go,node/pkg/watchers/evm/connectors/polygon.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.19 of go.work)",
+          "unit": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors"
+        }
+      ],
+      "files": [
+        "node/pkg/watchers/evm/connectors/common.go",
+        "node/pkg/watchers/evm/connectors/polygon.go"
+      ],
+      "fix_commit": "5d137b6d88d093d00ae4d569f24be6a9c10c0a80",
+      "id": "c16",
+      "label": "DISCH",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "node/pkg/watchers/evm/connectors/common.go": [
+          [
+            40,
+            42
+          ]
+        ],
+        "node/pkg/watchers/evm/connectors/polygon.go": [
+          [
+            121,
+            122
+          ],
+          [
+            128,
+            129
+          ]
+        ]
+      },
+      "prefix_commit": "100a01b4b17fbf396a9e7b3ffde2733a5086d1aa",
+      "reason": null,
+      "repo": "https://github.com/wormhole-foundation/wormhole",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "wormhole",
+      "tree": "f4911e6e3d365c8b2aeffcb7962e2a003760cb0c"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 22793,
+          "exit": 0,
+          "file": "onestepproverhostio.extracted.json",
+          "language": "solidity",
+          "reason": null,
+          "sha256": "e15f7f09a8cc521e63893cbb011e50d47caaca6a1c00f75fb36a8ee2ff889e76",
+          "source": null,
+          "source_file": "src/osp/OneStepProverHostIo.sol",
+          "status": "extracted",
+          "stem": "onestepproverhostio",
+          "stored": true,
+          "toolchain": "solc 0.8.38 (selected by pragma ['>=0.4.21 <0.9.0', '>=0.6.9 <0.9.0', '^0.8.0']; arithmetic checked)",
+          "unit": "OneStepProverHostIo"
+        }
+      ],
+      "files": [
+        "src/osp/OneStepProverHostIo.sol"
+      ],
+      "fix_commit": "76c5e0a0b95cb9f54e6a4527d82eb1b92ac67f45",
+      "id": "c17",
+      "label": "PAR",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "src/osp/OneStepProverHostIo.sol": [
+          [
+            284,
+            285
+          ],
+          [
+            301,
+            301
+          ]
+        ]
+      },
+      "prefix_commit": "4341b132cfbdcc980ead03765ca5224ff6cb5d97",
+      "reason": null,
+      "repo": "https://github.com/OffchainLabs/nitro-contracts",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "holon derive: 0 laws, 0 obstructions -> laws/T510",
+          "exit": 0,
+          "status": "ok"
+        },
+        "disch": {
+          "detail": "holon disch: closure.json, conjuncts.json -> <root>/gen/T510/disch",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "1 of 1 documents extracted",
+          "exit": null,
+          "status": "ok"
+        },
+        "model": {
+          "detail": "wrote <root>/gen/T510/sorts/models/onestepproverhostio.extracted.bend",
+          "exit": 0,
+          "status": "ok"
+        },
+        "run": {
+          "detail": "the protocol stops after derive (stop_after): 0 laws derived, none run",
+          "exit": null,
+          "status": "not_run"
+        },
+        "sorts": {
+          "detail": "holon sorts: 0 conflicts, 26 unresolved variables -> gen/T510/sorts",
+          "exit": 0,
+          "status": "ok"
+        },
+        "types": {
+          "detail": "holon types: onestepproverhostio.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards",
+          "exit": 0,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "arbitrum",
+      "tree": "d1fb1038340260b167b71909bc66982433bcaaee"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 3907258818,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "38640b8bbf0e74a90dd725880002662a5bd8d803f3a3bf42f9866c2fc35033c4",
+          "source": "generated go.work: . ./client/v2 ./x/bank ./x/gov ./x/group ./x/protocolpool ./x/staking",
+          "source_file": "x/group/types.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": false,
+          "toolchain": "go 1.24.7 (go directive 1.23.5 of go.work)",
+          "unit": "cosmossdk.io/x/group"
+        },
+        {
+          "bytes": 429174,
+          "exit": 0,
+          "file": "go_2.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "e7e3db604df5469bc7197e4ca21c5399f8a2086bb5295747eb54e8837bdb4540",
+          "source": "generated go.work: . ./client/v2 ./x/bank ./x/gov ./x/group ./x/protocolpool ./x/staking",
+          "source_file": "x/group/keeper/msg_server.go",
+          "status": "extracted",
+          "stem": "go_2",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.23.5 of go.work)",
+          "unit": "cosmossdk.io/x/group/keeper"
+        },
+        {
+          "bytes": 212325,
+          "exit": 0,
+          "file": "go_3.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "55cda2a46148fb2bd66596486a9733af59fe3d1fe85b6408c7b45852277e4af1",
+          "source": "generated go.work: . ./client/v2 ./x/bank ./x/gov ./x/group ./x/protocolpool ./x/staking",
+          "source_file": "x/group/simulation/msg_factory.go",
+          "status": "extracted",
+          "stem": "go_3",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.23.5 of go.work)",
+          "unit": "cosmossdk.io/x/group/simulation"
+        }
+      ],
+      "files": [
+        "x/group/keeper/msg_server.go",
+        "x/group/simulation/msg_factory.go",
+        "x/group/types.go"
+      ],
+      "fix_commit": "0a98b65b24900a0e608866c78f172cf8e4140aea",
+      "id": "c18",
+      "label": "SORT",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "x/group/keeper/msg_server.go": [
+          [
+            203,
+            204
+          ],
+          [
+            1135,
+            1135
+          ],
+          [
+            1138,
+            1138
+          ]
+        ],
+        "x/group/simulation/msg_factory.go": [
+          [
+            332,
+            332
+          ]
+        ],
+        "x/group/types.go": [
+          [
+            214,
+            214
+          ]
+        ]
+      },
+      "prefix_commit": "a01cb3ba66ac66efa9d30534cbba5e17d55c3182",
+      "reason": null,
+      "repo": "https://github.com/cosmos/cosmos-sdk",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "3 of 3 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "cosmos",
+      "tree": "6c2ff7442ca21fca31bf877904cbcae583994c98"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": 653019,
+          "exit": 0,
+          "file": "go_1.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "9f34a6c733c9908fc3a246f17d06999a93b2db2f4f9b2b3121683e1c53c05823",
+          "source": "module",
+          "source_file": "eth/protocols/snap/handler.go",
+          "status": "extracted",
+          "stem": "go_1",
+          "stored": true,
+          "toolchain": "go 1.24.7 (go directive 1.15 of go.mod)",
+          "unit": "github.com/ethereum/go-ethereum/eth/protocols/snap"
+        },
+        {
+          "bytes": 3793685,
+          "exit": 0,
+          "file": "go_2.go.extracted.json",
+          "language": "go",
+          "reason": null,
+          "sha256": "79be8b7e2da72f04850d0d0389213095165e61b51d9679f70a82e7db39066864",
+          "source": "module",
+          "source_file": "trie/trie.go",
+          "status": "extracted",
+          "stem": "go_2",
+          "stored": false,
+          "toolchain": "go 1.24.7 (go directive 1.15 of go.mod)",
+          "unit": "github.com/ethereum/go-ethereum/trie"
+        }
+      ],
+      "files": [
+        "eth/protocols/snap/handler.go",
+        "trie/trie.go"
+      ],
+      "fix_commit": "3a6fe69f2356c50d1819be3417fcb89abc6e9cfe",
+      "id": "c19",
+      "label": "SORT",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "eth/protocols/snap/handler.go": [
+          [
+            472,
+            472
+          ]
+        ],
+        "trie/trie.go": [
+          [
+            178,
+            179
+          ],
+          [
+            198,
+            201
+          ]
+        ]
+      },
+      "prefix_commit": "42bc1944a17260d75dc1e33e1571c804b9a4a88a",
+      "reason": null,
+      "repo": "https://github.com/ethereum/go-ethereum",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "derive": {
+          "detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+          "exit": null,
+          "status": "no_producer"
+        },
+        "extract": {
+          "detail": "2 of 2 documents extracted",
+          "exit": null,
+          "status": "ok"
+        }
+      },
+      "status": "run",
+      "system": "go-ethereum",
+      "tree": "2c8eea9e8106a72748584d2c370ec804da310bc5"
+    },
+    {
+      "detected": false,
+      "detected_any": false,
+      "documents": [
+        {
+          "bytes": null,
+          "exit": 3,
+          "file": "opcontractsmanagerstandardvalidator.extracted.json",
+          "language": "solidity",
+          "reason": "ound. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:26:1:\n   |\n26 | import { IAnchorStateRegistry } from \"interfaces/dispute/IAnchorStateRegistry.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IDisputeGameFactory.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:27:1:\n   |\n27 | import { IDisputeGameFactory } from \"interfaces/dispute/IDisputeGameFactory.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IL1CrossDomainMessenger.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:28:1:\n   |\n28 | import { IL1CrossDomainMessenger } from \"interfaces/L1/IL1CrossDomainMessenger.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/ISuperchainConfig.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+          "sha256": null,
+          "source": null,
+          "source_file": "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol",
+          "status": "failed",
+          "stem": "opcontractsmanagerstandardvalidator",
+          "stored": null,
+          "toolchain": "solc 0.8.15 (selected by pragma ['0.8.15'])",
+          "unit": "OPContractsManagerStandardValidator"
+        }
+      ],
+      "files": [
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol"
+      ],
+      "fix_commit": "cba37e86e44a6bc4fb414da62f2bb1d5b906502a",
+      "id": "c20",
+      "label": "PAR",
+      "label_rule_laws": 0,
+      "laws": [],
+      "locus": {
+        "packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol": [
+          [
+            49,
+            50
+          ],
+          [
+            283,
+            283
+          ],
+          [
+            307,
+            308
+          ],
+          [
+            899,
+            899
+          ]
+        ]
+      },
+      "prefix_commit": "6456cd0e1d812137cc54376d62403b538020c04d",
+      "reason": "no document extracted: OPContractsManagerStandardValidator: ound. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:26:1:\n   |\n26 | import { IAnchorStateRegistry } from \"interfaces/dispute/IAnchorStateRegistry.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesdispute/IDisputeGameFactory.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:27:1:\n   |\n27 | import { IDisputeGameFactory } from \"interfaces/dispute/IDisputeGameFactory.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/IL1CrossDomainMessenger.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol:28:1:\n   |\n28 | import { IL1CrossDomainMessenger } from \"interfaces/L1/IL1CrossDomainMessenger.sol\";\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n\nParserError: Source \"packages/contracts-bedrock/interfacesL1/ISuperchainConfig.sol\" not found: File not found. Searched the following locations: \"<checkout>/.\".\n  --> packages/contracts-bedrock/src/L1/OPContractsManagerStandardValidator.sol\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+      "repo": "https://github.com/ethereum-optimism/optimism",
+      "stages": {
+        "checkout": {
+          "detail": "",
+          "exit": 0,
+          "status": "ok"
+        },
+        "extract": {
+          "detail": "0 of 1 documents extracted",
+          "exit": null,
+          "status": "failed"
+        }
+      },
+      "status": "not_run",
+      "system": "optimism",
+      "tree": "316342a2420f24e67a26e77d3d7f022a2fb838b1"
+    }
+  ],
+  "run_version": "holon-corpus-run/0.2",
+  "summary": {
+    "classes": {
+      "intended_asymmetry": 0,
+      "model_defect": 0,
+      "true_defect": 0,
+      "unreplayed": 0
+    },
+    "detected_any": [],
+    "findings": 0,
+    "precision": null,
+    "recall": {
+      "DISCH": {
+        "detected": [],
+        "entries": 3,
+        "recall": 0.0
+      },
+      "FACT": {
+        "detected": [],
+        "entries": 1,
+        "recall": 0.0
+      },
+      "NAT": {
+        "detected": [],
+        "entries": 1,
+        "recall": 0.0
+      },
+      "PAR": {
+        "detected": [],
+        "entries": 7,
+        "recall": 0.0
+      },
+      "SORT": {
+        "detected": [],
+        "entries": 5,
+        "recall": 0.0
+      },
+      "UNDO": {
+        "detected": [],
+        "entries": 1,
+        "recall": 0.0
+      }
+    }
+  },
+  "toolchain": {
+    "bend": "2.0.36",
+    "go": "go version go1.24.7 linux/amd64",
+    "go_pinned": "go version go1.24.7 linux/amd64",
+    "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+  }
+}

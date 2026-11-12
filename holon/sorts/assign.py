@@ -353,8 +353,8 @@ def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Pa
     assignment["sorts_sha256"] = hashlib.sha256(canonical(body)).hexdigest()
     unresolved = [u for m in models for u in m.unresolved]
     extra = {}
-    if stv == "holon-sort-types/0.3":
-        # I103 (T1): the coverage debt of the total pass, every unknown construct of every document
+    if stv in ("holon-sort-types/0.3", "holon-sort-types/0.4"):
+        # I103 (T1; I108: and 0.4): the coverage debt of the total pass, every unknown construct of every document
         debt = []
         for m in models:
             ds = (m.walk03.debt if m.walk03 is not None else [])

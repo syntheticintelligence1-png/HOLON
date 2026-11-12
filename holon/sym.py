@@ -49,13 +49,7 @@ def sym_dir(root: Path, milestone: str) -> Path:
 
 
 # ---------------------------------------------------------------------------------------------------- inputs
-def typed_inputs(root: Path, milestone: str) -> tuple[str, dict, dict]:
-    """(facts path, facts, the model's assignment) of a typed milestone's one sorted document."""
-    a = _load(Path(root) / "gen" / milestone / "sorts" / "assignment.json")
-    models = a.get("models") or {}
-    if len(models) != 1:
-        raise SymError(f"gen/{milestone}/sorts/assignment.json has {len(models)} models; SYM states one")
-    (name, m), = models.items()
+def _model_inputs(root: Path, name: str, m: dict, a: dict) -> tuple[str, dict, dict]:
     rel = (m.get("facts") or {}).get("path") if isinstance(m.get("facts"), dict) else m.get("facts")
     if not isinstance(rel, str):
         rel = next((d.get("path") for d in a.get("inputs") or [] if str(d.get("path", "")).endswith(".extracted.json")),
@@ -63,6 +57,40 @@ def typed_inputs(root: Path, milestone: str) -> tuple[str, dict, dict]:
     if not isinstance(rel, str):
         raise SymError(f"the assignment of {name} names no facts document")
     return rel, _load(Path(root) / rel), dict(m.get("assignment") or {})
+
+
+def typed_models(root: Path, milestone: str) -> list[tuple[str, dict, dict]]:
+    """I108 (Q58): [(facts path, facts, the model's assignment)] of every model of a typed milestone, sorted by model
+    name. SYM's laws are per component, so a multi-model milestone derives each model's elements (never split)."""
+    a = _load(Path(root) / "gen" / milestone / "sorts" / "assignment.json")
+    models = a.get("models") or {}
+    if not models:
+        raise SymError(f"gen/{milestone}/sorts/assignment.json has 0 models; SYM states one per model")
+    if len(models) == 1:
+        # a one-model milestone: the facts fallback through the inputs is the pre-I108 rule, unchanged
+        (name, m), = models.items()
+        return [_model_inputs(root, name, m, a)]
+    out = []
+    for name, m in sorted(models.items()):
+        rel = (m.get("facts") or {}).get("path") if isinstance(m.get("facts"), dict) else m.get("facts")
+        if not isinstance(rel, str):
+            raise SymError(f"the assignment of {name} names no facts document (several models: no fallback)")
+        out.append((rel, _load(Path(root) / rel), dict(m.get("assignment") or {})))
+    return out
+
+
+def typed_inputs(root: Path, milestone: str, facts: str | None = None) -> tuple[str, dict, dict]:
+    """(facts path, facts, the model's assignment) of a typed milestone's one sorted document; with facts, of the model
+    whose document that is (I108: one of several, typed_models)."""
+    ms = typed_models(root, milestone)
+    if facts is None:
+        if len(ms) != 1:
+            raise SymError(f"gen/{milestone}/sorts/assignment.json has {len(ms)} models; SYM states one")
+        return ms[0]
+    hit = [x for x in ms if x[0] == facts]
+    if not hit:
+        raise SymError(f"no model of gen/{milestone}/sorts/assignment.json has the facts {facts}")
+    return hit[0]
 
 
 def _walk(e):

@@ -108,6 +108,7 @@ def run_entry(entry: dict, proto: dict, root: Path) -> dict:
     ctx = H.Ctx(tmp, ck)
     row = {k: entry[k] for k in ("id", "system", "repo", "prefix_commit")}
     clone = None
+    subs: list = []
     try:
         clone, _tree = H.checkout(entry, ck)
         owner, name = common.gh_slug(entry["repo"])
@@ -117,16 +118,32 @@ def run_entry(entry: dict, proto: dict, root: Path) -> dict:
         (S / rel / "facts").mkdir(parents=True)
         R = H.Runner(ctx, S, proto, {})
         docs, files = [], []
+        if proto.get("layout"):   # I108: the submodules at their gitlinked commits (holon.eval.layout L3)
+            from . import layout as LY
+            subs = LY.submodules(ck, entry["prefix_commit"], entry["repo"], init=True, root=root)
+            row["submodules"] = [{k: ctx.norm(v) if isinstance(v, str) else v for k, v in r.items()} for r in subs]
         for d in H.go_inputs(entry, proto, ck):
             if "stem" not in d:
                 docs.append({"unit": d.get("unit"), "status": "failed", "reason": d.get("reason"), "machines": []})
                 continue
-            src, _how = H.go_source(ck, d.pop("module_dir"), tmp)
+            if proto.get("go_machines"):
+                # I108 (--protocol): the protocol's go rules (toolchain, work_replace) and the nil-map opt-in
+                src, _how = H.go_source(ck, d.pop("module_dir"), tmp, proto["go"].get("work_replace"))
+                if src is None:
+                    docs.append({"unit": d.get("unit"), "status": "failed", "reason": _how, "machines": []})
+                    continue
+            else:
+                src, _how = H.go_source(ck, d.pop("module_dir"), tmp)
             cfg = {"config_version": proto["go"]["config_version"],
                    "doc": f"I105: generated from corpus entry {entry['id']} by holon eval go-machines (I51's go config)",
                    "target": {"repo": f"{owner}/{name}", "commit": entry["prefix_commit"]},
                    "source": {"path": "<given by --src>"}, "documents": {d["stem"]: [d["unit"]]},
                    "primitives": dict(proto["go"]["primitives"]), "limits": dict(proto["go"]["limits"])}
+            if proto.get("go_machines"):
+                cfg["doc"] = f"{proto['iteration']}: generated from corpus entry {entry['id']} by holon eval go-machines"
+                if proto["go"].get("toolchain"):
+                    cfg["toolchain"] = proto["go"]["toolchain"]
+                cfg["machines"] = {"nil_maps": proto["go_machines"]["nil_maps"]}
             cp = S / rel / "sidecars" / f"{d['stem']}.json"
             cp.write_text(dumps(cfg))
             out = tmp / "machines" / d["stem"]
@@ -153,6 +170,9 @@ def run_entry(entry: dict, proto: dict, root: Path) -> dict:
         row["refused_at"] = None if row["pipeline"] == "complete" else (bad[0] if files else "extract")
         row["laws"] = len(list((S / "laws" / proto["milestone"]).glob("L*.json")))
     finally:
+        if subs:
+            from . import layout as LY
+            LY.drop_submodules(ck, subs)
         if clone is not None:
             H.drop_worktree(clone, ck)
         shutil.rmtree(tmp, ignore_errors=True)
@@ -165,11 +185,21 @@ def cli(argv: list[str]) -> int:
     ap.add_argument("--entries")
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--protocol", help="a run protocol with a go_machines key (I108); default I51's, as I105 ran")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve()
-    proto = common.load_json(root / "spec" / "M4" / "lib" / "i51_run.json")
+    proto = common.load_json(root / (a.protocol or "spec/M4/lib/i51_run.json"))
     corpus = {e["id"]: e for e in common.load_json(root / "spec" / "eval" / "corpus.json")["entries"]}
-    ids = a.entries.split(",") if a.entries else default_entries(root)
+    if a.protocol:
+        if not proto.get("go_machines"):
+            raise common.Refused(f"{a.protocol} has no go_machines key")
+        proto["_path"] = a.protocol
+        if a.out == OUT:
+            a.out = proto["go_machines"]["out"]
+        ids = a.entries.split(",") if a.entries else sorted(
+            i for i, e in corpus.items() if any(f.endswith(".go") for f in e["files"]))
+    else:
+        ids = a.entries.split(",") if a.entries else default_entries(root)
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max(1, a.jobs)) as ex:
         rows = list(ex.map(lambda i: run_entry(corpus[i], proto, root), ids))

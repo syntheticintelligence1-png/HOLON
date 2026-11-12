@@ -195,6 +195,13 @@ class Gen:
                  binding: str | None = None, storage: str = "raw"):
         if storage not in STORAGE_MODES:
             raise GenError(f"storage mode {storage!r} (one of {', '.join(STORAGE_MODES)})")
+        nil = [d for d in (m.doc.get("debt") or []) if isinstance(d, dict) and d.get("kind") == "nil_map"] \
+            if ((m.doc.get("extraction") or {}).get("frontend")) == "go" else []
+        if nil:
+            # I108 (Q60): a Go machine whose step may write a nil map (a panic the document cannot rule out) is not
+            # compiled: every law over it is UNKNOWN, never PROVED as completing
+            raise GenError(f"{nil[0]['action']}: a write into a map that may be a nil map ({len(nil)} such writes; "
+                           "Q60, holon.frontends.go_machines machines.nil_maps unknown): not compiled")
         self.m = m
         self.storage = storage
         self.sk = storage == "structural"
@@ -1030,6 +1037,38 @@ class Gen:
     def t_ge(self, t, sc):
         return self.compare(">=", t, sc)
 
+    # I108: the IR's signed operators over two's-complement words (holon.frontends.solidity.transitions)
+    def signed_compare(self, op: str, t, sc):
+        """a s<op> b: the unsigned order of the words with the sign bit flipped (two's complement); the operands are
+        their machine words (a typed value's sort is erased, as for any raw comparison)."""
+        (ac, ak), (bcode, bk) = self.value(t[1], sc), self.value(t[2], sc)
+        a = self.to_w(*self.unsigned_kind(ac, ak))
+        b = self.to_w(*self.unsigned_kind(bcode, bk))
+        sign = wlit(1 << 255)
+        return _RAW_CMP[op](f"w_xor({a}, {sign})", f"w_xor({b}, {sign})"), "bool"
+
+    def t_slt(self, t, sc):
+        return self.signed_compare("<", t, sc)
+
+    def t_sle(self, t, sc):
+        return self.signed_compare("<=", t, sc)
+
+    def t_sgt(self, t, sc):
+        return self.signed_compare(">", t, sc)
+
+    def t_sge(self, t, sc):
+        return self.signed_compare(">=", t, sc)
+
+    def t_sext(self, t, sc):
+        """["sext", bits, t]: the low bits of t sign-extended, ((t & mask) ^ m) - m with m = 2^(bits-1), mod 2^256."""
+        bits = int(t[1])
+        if bits >= 256:
+            return self.w(t[2], sc), "w"
+        if bits < 1:
+            raise GenError(f"{sc.action}: sext of {bits} bits")
+        m = wlit(1 << (bits - 1))
+        return f"w_sub(w_xor(w_and({self.w(t[2], sc)}, {self.mask(bits)}), {m}), {m})", "w"
+
     def t_land(self, t, sc):
         xs = [self.cond(x, sc) for x in t[1:]]
         if not xs:
@@ -1350,7 +1389,7 @@ def _param_var(t, action: str) -> str | None:
 _NAMES = {"+": "add", "-": "sub", "*": "mul", "/": "div", "%": "mod", "&": "and", "|": "or", "^": "xor",
           "~": "bnot", "not": "bnot", "<<": "shl", ">>": "shr", "==": "eq", "!=": "ne", "<": "lt", "<=": "le",
           ">": "gt", ">=": "ge", "&&": "land", "||": "lor", "!": "lnot", "?": "ite", "abi.encode": "abi_encode",
-          "abi.encodePacked": "abi_encodePacked"}
+          "abi.encodePacked": "abi_encodePacked", "s<": "slt", "s<=": "sle", "s>": "sgt", "s>=": "sge"}
 _CMP_NAMES = {"==": "eq", "!=": "ne", "<": "lt", "<=": "le", ">": "gt", ">=": "ge"}
 _RAW_CMP = {"==": lambda a, b: f"w_eq({a}, {b})", "!=": lambda a, b: f"Bool.not(w_eq({a}, {b}))",
             "<": lambda a, b: f"w_lt({a}, {b})", "<=": lambda a, b: f"w_le({a}, {b})",
