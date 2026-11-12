@@ -1,0 +1,128 @@
+{
+  "components": {
+    "batch_cache_ops": {
+      "carrier": "*morph-l2/common/batch.BatchCache",
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).AssembleCurrentBatchHeader",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).DeleteBatchStorageAndInitFromRollup",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).Init",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).InitAndSyncFromDatabase",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).InitAndSyncFromRollup",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).InitFromRollupByRange",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).LatestBatchIndex",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).assembleUnFinalizeBatchHeaderFromL2Blocks",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).deleteBatchStorageAndInitFromRollupLocked",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).getBatchStatusFromContract",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).getUnFinalizeBlockRange",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).initAndSyncFromRollupLocked"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "batch_data_ops": {
+      "carrier": "*morph-l2/common/batch.BatchData",
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchData).DataHashV2",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchData).Encode"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "batch_header_bytes_ops": {
+      "carrier": "morph-l2/common/batch.BatchHeaderBytes",
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).BlobCommitHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).BlobHashesHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).BlobVersionedHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).DataHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).Hash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).L1MessagePopped",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).ParentBatchHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).PostStateRoot",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).PrevStateRoot",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).SequencerSetVerifyHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).Version",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).WithdrawalRoot",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).validate"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "batch_storage_ops": {
+      "carrier": "*morph-l2/common/batch.BatchStorage",
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).DeleteAllSealedBatches",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).ForceDeleteAllSealedBatches",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatchHeaders",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatches",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatchesAndHeader",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).loadBatchIndices"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "blob_ops": {
+      "carrier": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob",
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/batch.RetrieveBlobBytes",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/blob.RetrieveBlobBytes"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "blob_ops_1": {
+      "carrier": "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob",
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/blob.MakeCellProof"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "blob_tx_sidecar_ops": {
+      "carrier": "*github.com/morph-l2/go-ethereum/core/types.BlobTxSidecar",
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/blob.BlobSidecarVersionToV1"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "contract_caller_ops": {
+      "carrier": "github.com/morph-l2/go-ethereum/accounts/abi/bind.ContractCaller",
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/batch.NewL2Gov"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    }
+  },
+  "doc": "Generated by holon roles (I104): Go-op components over every carrier type (rule go_ops_carrier) or proposed; reach is not inferred.",
+  "document": "spec/M3/facts/morph_blob.go.extracted.json",
+  "go_ops_version": "holon-go-ops/0.1"
+}
