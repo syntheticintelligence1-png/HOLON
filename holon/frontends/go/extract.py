@@ -190,6 +190,22 @@ def choose_go(root: Path, src: Path) -> dict:
         raise Refused(str(e))
 
 
+def go_list_causes(go: str, ws: Path, patterns: list[str], chosen: dict) -> str:
+    """I103, a go_directive config only: when ssadump names no cause, `go list -e` names each pattern's own error and
+    its dependencies' errors (diagnostics of a refusal; nothing here reaches a document)."""
+    fmt = "{{.ImportPath}}|{{with .Error}}{{.Err}}{{end}}|{{range .DepsErrors}}{{.Err}};{{end}}"
+    try:
+        p = subprocess.run([go, "list", "-e", "-f", fmt, *patterns], cwd=ws, capture_output=True, text=True,
+                           timeout=1800, env=go_env(GOFLAGS="-mod=readonly", GOTOOLCHAIN="local",
+                                                    **_goroot_env(chosen)))
+    except (OSError, subprocess.TimeoutExpired) as e:
+        return f"\ngo list -e: {e}"
+    lines = [ln for ln in p.stdout.splitlines() if ln.split("|", 1)[-1].strip("|;")]
+    if not lines and not p.stdout.strip():
+        return f"\ngo list -e matched no package (exit {p.returncode}): {p.stderr.strip()[-800:]}"
+    return "".join(f"\ngo list -e: {ln}" for ln in lines)[:1500]
+
+
 def _goroot_env(chosen: dict | None) -> dict:
     """PATH and GOROOT for a chosen release with its own goroot (go/packages runs `go list` from PATH)."""
     if not chosen or not chosen.get("goroot"):
@@ -366,7 +382,8 @@ def extract(config_path, src=None, root=None) -> dict:
         except Refused as e:
             if chosen is None:
                 raise
-            raise Refused(f"go {chosen['version']} (go directive {chosen['directive']} of {chosen['file']}): {e}")
+            raise Refused(f"{e}{go_list_causes(go, ws.resolve(), patterns, chosen)}\n"
+                          f"[go {chosen['version']} (go directive {chosen['directive']} of {chosen['file']})]")
         try:
             prog = Program(dump)
         except DumpError as e:
