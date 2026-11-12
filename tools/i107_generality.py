@@ -57,7 +57,7 @@ def roles_derive(src: Path, ids: list[str], scratch: Path, out: Path) -> None:
     X.smoke(scratch / "work")
     doc = json.loads((X.OUT / "corpus_smoke.json").read_text())
     doc["doc"] = ("I107 route C (spec/M6/lib/i107_protocol.json routes.C): I104's smoke route, its stage list unchanged, "
-                  f"over the documents route A stored under {src.relative_to(ROOT)}/<id>/facts/. " + doc["doc"])
+                  f"over the documents route A stored under {src.resolve().relative_to(ROOT) if src.resolve().is_relative_to(ROOT) else src.name}/<id>/facts/. " + doc["doc"])
     for e in doc["entries"]:
         e["documents"] = sorted(e["documents"])
     out.parent.mkdir(parents=True, exist_ok=True)
