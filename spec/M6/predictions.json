@@ -1266,6 +1266,128 @@
           "check": "tests_m6/test_i111_types_totality.py"
         }
       ]
+    },
+    "I116": {
+      "title": "I116: per-document fallbacks (HUMAN_ANSWERS Q83, Q88 (3)): (D) a DISCH refusal for one document makes that document's DISCH laws UNKNOWN (no DISCH claim over it, a recorded miss naming the document and the refusal) while every other document's DISCH runs; (E) an evidence refusal for one adopted transitions document makes that document's evidence UNKNOWN (no atom, anchors kept, a recorded miss), and derive, which rebuilds the evidence set, reads the same set, so the document's derive refusal falls back with it. A milestone-wide input error stays a refusal. Run through holon eval holon --compose with I112's protocol plus document_fallback, and I115's binding keys once I115 lands",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I116)",
+      "prompt": "prompts/I116_per_document_fallbacks.md",
+      "tests": [
+        "tests_m6/test_i116_per_document_fallbacks.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I116/",
+        "docs/iterations/I116.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P6 are on planted fixtures (tests_m6/fixtures/i116, written from the stages' semantics, never from a spent target's document) and unit inputs. P7-P9 are smoke measures on I51's corpus, contaminated by I51, I103-I112 and I107. P10 is a measurement on I106's targets, contaminated: post-I107. I114 scores generality on the sealed pair. Laws are reported as aggregates only, decided counts never split (Q56, Q89); stage reasons only for stages before any decision (Q72).",
+        "instruments": "spec/M6/lib/i116_run.json (the run protocol: I112's plus document_fallback {disch: unknown, evidence: unknown}; once I115 lands, I115's binding keys exactly as I115's landed protocol names them are added in one commit before the counted run, and nothing else changes) and tests_m6/test_i116_per_document_fallbacks.py (every check)",
+        "base": "claude/i112-run-wall at a5db40d6 (I112, #190 not yet landed); the counted run waits for I115's landing on the lead, merged into this branch by a merge commit whose sha the report records",
+        "baseline": "I112's counted composed run (results/M6/I112/holon/corpus.json): entries ok at extract 14, sorts 14, types 14, model 14, disch 14, derive 14, run 0; 107 laws derived, 1 decided (PROVED and REFUTED together, Q56). I112's spent-target run (results/M6/I112/sealed.json): EigenLayer refused at evidence and derive (an E2 construct over one transitions document), Aave V3 refused at disch (D2: one predicate for two classes); no law derived on either",
+        "counting": "Q80, Q76, Q69: the counted run is the first measured run of holon eval holon --protocol spec/M6/lib/i116_run.json --compose over the corpus that finishes, after I115's landing is merged; every prediction is scored on it. A re-run counts only if the first attempt never finished; any other re-run is reported beside it as not counted. No started run's output is ever deleted. The spent-target run is a measurement (contaminated: post-I107), scored on its first finished attempt the same way.",
+        "disch_fallback": "The definition (D), fixed here before any build commit. Opt-in only: a DISCH sidecar (holon-disch/0.1) names document_fallback \"unknown\" (the only accepted value; any other value, or a non-string, is refused when the sidecar is read, exit 2). The composed driver writes it into every DISCH sidecar it generates when the protocol names document_fallback.disch \"unknown\". Absent, every output of holon disch, derive and holon run is as before, byte for byte. Under it, holon.analysis.closure.Sidecar.analyses, which holon disch, derive's rule DISCH and holon run's DISCH runner all read, analyses each document on its own: a document whose analysis (rules D1-D10) raises holon.analysis.closure.ClassError (class class_error) or a KeyError, TypeError or IndexError (class malformed; before, the refusal 'malformed') falls back. A fallen-back document has no DISCH analysis: no class, closure, basis element or DISCH law is derived over it (its DISCH laws are UNKNOWN: no DISCH claim over it is made, so none is decided), and it is a recorded miss in <out>/fallback.json {document: disch_fallback, milestone, sidecar {path, sha256}, documents: [{document, sha256, model, class, error}]} beside closure.json and conjuncts.json, which list the analysed documents only. fallback.json is written only under the opt-in (holon disch --check compares it too). What a fallen-back document contributes to later stages: nothing to DISCH (no law, no section, no search seed); its typed model, its laws of every other rule family and its evidence are unchanged (the fallback is DISCH's only). What other documents may assume about it: nothing; each document's analysis reads its own document and the sidecar's r0 only (an external call is an A-env unknown), so every other document's analysis, its laws and their records are exactly as without the fallen-back document. Milestone-wide input errors stay refusals of the milestone (exit 2, nothing written): the sidecar missing, not JSON, of another version, without documents, or with an inputs sha256 that does not match; a document missing, not JSON or not a transitions document; two documents naming one model; r0 naming a path a document does not declare; the hypothesis verdicts unreadable. Every other exception propagates as before.",
+        "evidence_fallback": "The definition (E), fixed here before any build commit. Opt-in only: the milestone's adoption sidecar (spec/<M>/lib/derive_extracted.json, holon-derive-extracted/0.1) names document_fallback \"unknown\" (the only accepted value; any other is an EvidenceError when the set is built). The composed driver adds it, when the protocol names document_fallback.evidence \"unknown\", to the adoption sidecar holon roles installed for the entry in this run (one that did not exist before roles ran), never to a hand sidecar. Absent, every evidence document is as before, byte for byte. Under it, holon.diagram.evidence.build, for an adopted transitions document whose E2 atoms (holon.diagram.evidence.transitions_atoms, rule Z1-Z3) raise for a construct the rule over transitions documents does not map (holon.diagram.transitions.TransitionsError, class e2_unmapped), keeps the document's model with its anchors (transitions_anchors, unchanged) and gives it no atom: exactly the model a build that reads no committed diagram gives an adopted document (its laws' evidence levels [], the computed default triage). The miss is recorded in the evidence document under fallback: [{document, sha256, model, class, error}], a key written only when a document falls back (so a set with no fallen-back document is byte-identical to one without the opt-in). Derive (holon.rules._committed_par_inputs) rebuilds the evidence set with holon.diagram.evidence.build_milestone over the same adoption sidecar, so it reads the same set and the derive refusal 'the evidence set cannot be rebuilt' for that document falls back with it: that is the per-document derive refusal this key takes down. What a fallen-back document contributes to later stages: its anchors and no atom. Evidence is triage, not a premise: no law's statement, proof or verdict reads an atom of a transitions model (PAR's components take the atoms of their own component model only, and a transitions model is never a PAR component), so a law over the document has the evidence levels [] and every law's claim and verdict is as the checker decides it. What other documents may assume about it: nothing; E2 pairs are pairs of one document's own actions, so every other model's anchors and atoms are byte-identical. Milestone-wide input errors stay refusals: the adoption sidecar, the lexicon, a component document or its diagram missing, malformed or stale; two documents sharing a model name; a component's (codec, Go-op, count or OWN document's) construct the pass cannot map; a transitions document's anchors that cannot be read. Every one of them still refuses holon evidence (exit non-zero, nothing written) and derive.",
+        "derive_scope": "Derive refusals for one document other than the evidence rebuild (a PAR component's ParError, a typed producer's rule error) are not in this key: they stay refusals of the milestone, and are reported under Not done.",
+        "row": "The composed row carries fallbacks {disch: {documents, classes: {class: n}}, evidence: {documents, classes}} (counts and classes only, no document name), for the corpus and the spent targets alike; DISCH and evidence run before any decision (Q72).",
+        "soundness": "A fallback only removes constraints, never adds them. (D) removes every DISCH claim over the fallen-back document and adds none; no other document's analysis reads it, so no other DISCH law changes; its other laws are derived and decided exactly as without the fallback. (E) removes atoms only, and atoms are triage: no statement, premise or verdict reads a transitions model's atom. So neither fallback can turn a law that would be REFUTED, or that holds only under a constraint of the fallen-back document, into PROVED. Every REFUTED still needs its replay, and on a deployed system follows Q56."
+      },
+      "predictions": [
+        {
+          "id": "I116-P1",
+          "claim": "(D) unit: holon disch over the planted Twice (two writing actions checking msg.sender == owner inline at two spans: D2 refuses it with 'one predicate for two classes') exits 3 without the opt-in, as before; under document_fallback \"unknown\" it exits 0, fallback.json names Twice with class class_error and that error, and closure.json and conjuncts.json have no model for it. document_fallback with any other value is refused (exit 2).",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestDischUnit"
+        },
+        {
+          "id": "I116-P2",
+          "claim": "(D) three shapes, end to end through the composed route's typed part (holon_run._rules with route C, I116's protocol): alone: the disch and derive stages are ok, no DISCH law is derived over Twice (the planted contracts derive DISCH laws only, so none is derived over it at all); cross-document with Counter: Counter's laws are byte-identical and its records equal to Counter alone; constrained (the control TwiceKept, Twice without its second inline-guarded action): at least one DISCH law over it is decided, while over Twice no DISCH law is derived or decided, and no record over Twice is PROVED that the same law (same rule, subform and statement) over TwiceKept is not. Under I112's protocol the same Twice input refuses the disch stage (no law derived).",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestDischShapes"
+        },
+        {
+          "id": "I116-P3",
+          "claim": "(E) unit: holon.diagram.evidence over the planted Listed (a dynamic storage array written by index, whose E2 path segment the rule over transitions documents does not map) raises EvidenceError without the opt-in, as before; under it the set is built, Listed's model has its anchors and no atom, and fallback names Listed with class e2_unmapped. With no document falling back the set has no fallback key and equals the set without the opt-in once evidence_sha256 and the adoption sidecar's own inputs entry (whose bytes name the opt-in) are removed.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestEvidenceUnit"
+        },
+        {
+          "id": "I116-P4",
+          "claim": "(E) three shapes, end to end: alone: the evidence and derive stages are ok (under I112's protocol both refuse), and every record over Listed has evidence_levels []; cross-document with Counter: Counter's laws byte-identical, its records equal to Counter alone, and its atoms in the evidence set identical; constrained (the control ListedKept, Listed without the array): its evidence model has at least one atom and at least one law over it is decided, while over Listed no record carries an evidence level.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestEvidenceShapes"
+        },
+        {
+          "id": "I116-P5",
+          "claim": "A milestone-wide input error stays a refusal under both opt-ins: DISCH: a sidecar whose r0 names a path no document declares, and a document that is not a transitions document, still refuse holon disch (exit 2, nothing written); evidence: a stale evidence.json still refuses derive, and an unknown document_fallback value in the adoption sidecar refuses holon evidence.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestMilestoneWide"
+        },
+        {
+          "id": "I116-P6",
+          "claim": "Byte-identity without the opt-ins: no committed sidecar under spec/M0-M3 names document_fallback; on the planted Counter (nothing falls back), holon disch writes no fallen-back document and its closure.json and conjuncts.json equal those without the opt-in once the DISCH sidecar's own sha256 is removed (P3 checks the evidence set the same way), and no earlier protocol names document_fallback.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestBytes"
+        },
+        {
+          "id": "I116-P7",
+          "claim": "(Corpus) the counted run (holon eval holon --protocol spec/M6/lib/i116_run.json --compose, I115's landing merged): the preflight is recorded ok; entries whose stage is ok at least extract 14, sorts 14, types 14, model 14, disch 14, derive 14; no corpus document falls back at DISCH or at evidence (I112's record: those stages passed on every entry that reached them).",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestCorpusSmoke::test_p7_stage_reach",
+          "expected": {
+            "entries_at_least": {
+              "extract": 14,
+              "sorts": 14,
+              "types": 14,
+              "model": 14,
+              "disch": 14,
+              "derive": 14
+            },
+            "disch_fallback_documents": 0,
+            "evidence_fallback_documents": 0
+          }
+        },
+        {
+          "id": "I116-P8",
+          "claim": "(Corpus) laws as aggregates, never split (Q56, Q89): at least 100 derived, at least 2 decided (PROVED and REFUTED together), derived = decided + unknown; the summary's findings, classes, recall and detected_any are withheld (zero by construction), never reported as measured.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestCorpusSmoke::test_p8_laws_aggregate",
+          "expected": {
+            "derived_at_least": 100,
+            "decided_at_least": 2
+          }
+        },
+        {
+          "id": "I116-P9",
+          "claim": "(Corpus, Q56) no committed file under results/M6/I116/holon names a law id; every entry with laws has a laws_bundle_sha256; every row carries fallbacks.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestCorpusSmoke::test_p9_nothing_per_law_committed"
+        },
+        {
+          "id": "I116-P10",
+          "claim": "(Spent targets, contaminated: post-I107; through --compose with --vault, aggregates only and one bundle commitment per target) Aave V3: the disch stage is ok, with at least one document fallen back at DISCH (class class_error); EigenLayer: the evidence and derive stages are ok, with at least one document fallen back at evidence (class e2_unmapped); each derives at least 1 law.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestSealedContaminated::test_p10_spent_targets",
+          "expected": {
+            "derived_at_least_each": 1
+          }
+        },
+        {
+          "id": "I116-P11",
+          "claim": "Q88 (1)'s gate for I114: the counted corpus run decides at least 1 law and the spent-target run decides at least 1 law on at least one target (decided = PROVED and REFUTED together). Predicted: met. Reported plainly either way; it is a check, never fitted.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestSealedContaminated::test_p11_gate"
+        },
+        {
+          "id": "I116-P12",
+          "claim": "Morph moves only by re-stamp: every JSON under results/M0-M3 and laws/M0-M3 equals the lead's once generator_sha256 and every seconds are removed (G1_EXCLUDED skipped). The gates M0, M1, M2 and partial M3 are run locally and reported; holon land dirty re-makes no law.",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestRegressions"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I116-R1",
+          "claim": "Every earlier tests_m6 CI job still passes on this branch with no test dropped; an earlier key's test that this key's protocol breaks is amended with its amendment line first (I112's test_p1_earlier_protocols_unrouted names the protocols it was written for).",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py::TestRegressions::test_r1_earlier_jobs_listed"
+        },
+        {
+          "id": "I116-R2",
+          "claim": "holon/ names no target (tests_m2.test_target_agnostic and its exhaustive form).",
+          "check": "tests_m2/test_target_agnostic.py"
+        },
+        {
+          "id": "I116-R3",
+          "claim": "I112's contract classes on planted fixtures (TestRouting, TestRoutingPlanted, TestSectionErrors, TestUnsupportedClass, TestMemberLayoutClass, TestMilestoneWide, TestWithholdPreflight) pass unchanged (I112's protocol names no document_fallback).",
+          "check": "tests_m6/test_i112_run_wall.py"
+        }
+      ]
     }
   }
 }
