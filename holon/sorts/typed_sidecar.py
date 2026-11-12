@@ -19,7 +19,8 @@ VERSION = "holon-sort-types/0.1"
 # is read and walked exactly as before.
 # I103: 0.3 is 0.2 plus rule T1, the total pass (an unknown term is an opaque fresh variable and coverage debt;
 # holon.sorts.extracted). Only a sidecar that names 0.3 gets it; no milestone sidecar does.
-VERSIONS = (VERSION, "holon-sort-types/0.2", "holon-sort-types/0.3")
+# I108: 0.4 is 0.3 plus rules S1-S3 for the IR's signed operators (holon.sorts.extracted). No milestone sidecar names it.
+VERSIONS = (VERSION, "holon-sort-types/0.2", "holon-sort-types/0.3", "holon-sort-types/0.4")
 
 
 class SidecarError(ValueError):

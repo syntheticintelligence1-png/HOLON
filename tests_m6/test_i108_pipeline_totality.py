@@ -262,7 +262,7 @@ class TestLayout(unittest.TestCase):
     def test_p4_submodule_excluded_refused_never_cloned(self):
         from holon.eval import common, layout as L
         pat = common.protocol()["excluded_repos"][0]["pattern"]
-        url = pat if pat.startswith("https://github.com/") else "https://github.com/" + pat.strip("/")
+        url = "https://" + pat.strip("/") + ("/dep" if pat.count("/") == 2 and pat.endswith("/") else "")
         d = self._repo(url)
         head = subprocess.run(["git", "-C", str(d), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
         (r,) = L.submodules(d, head, "https://github.com/holon/i108")

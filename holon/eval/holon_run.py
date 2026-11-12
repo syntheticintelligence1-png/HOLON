@@ -150,6 +150,18 @@ def contracts_of(text: str, pattern: str) -> list[str]:
     return [m.group(1) for line in text.splitlines() for m in [rx.match(line)] if m]
 
 
+def _compiler(comp: dict, proto: dict, ck: Path, unit: str) -> dict:
+    """The sidecar's compiler: the protocol's, plus (I108, holon.eval.layout L1-L2) the unit's Foundry project's
+    remappings as solc's settings.remappings when the protocol has a layout."""
+    c = json.loads(json.dumps(comp))
+    if proto.get("layout"):
+        from . import layout as LY
+        rs = [r["remapping"] for r in LY.remappings(ck, LY.project_of(ck, unit))]
+        if rs:
+            c.setdefault("settings", {})["remappings"] = rs
+    return c
+
+
 def solidity_sidecars(entry: dict, proto: dict, ck: Path, base_rel: str) -> list[dict]:
     """One transitions sidecar per contract each .sol file declares (in file order), or a none_declared record."""
     sol = proto["solidity"]
@@ -174,7 +186,7 @@ def solidity_sidecars(entry: dict, proto: dict, ck: Path, base_rel: str) -> list
                     "target": {"repo": f"{owner}/{name}", "commit": entry["prefix_commit"],
                                "scope": f"contract {c} of {f}"},
                     "output": f"{base_rel}/facts/{fname}", "sources": [f],
-                    "compiler": json.loads(json.dumps(sol["compiler"])),
+                    "compiler": _compiler(sol["compiler"], proto, ck, f),
                     "transitions": {"contract": c, "commit_interfaces": list(sol["commit_interfaces"])}}
             out.append({"language": "solidity", "source_file": f, "unit": c, "stem": stem, "file": fname,
                         "sidecar": side})
@@ -433,6 +445,7 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     stages: dict = {}
     docs: list = []
     clone = None
+    subs: list = []
     try:
         t0 = time.monotonic()
         try:
@@ -448,6 +461,15 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
         R = Runner(ctx, S, proto, timing)
         (S / rel / "sidecars").mkdir(parents=True)
         (S / rel / "facts").mkdir(parents=True)
+        if proto.get("layout"):
+            # I108 (holon.eval.layout L3): the submodules at their gitlinked commits, recorded in sidecars/layout.json
+            from . import layout as LY
+            t1 = time.monotonic()
+            subs = LY.submodules(ck, entry["prefix_commit"], entry["repo"], init=True, root=root)
+            timing["submodules"] = round(time.monotonic() - t1, 1)
+            (S / rel / "sidecars" / "layout.json").write_text(dumps(
+                {"layout_version": LY.LAYOUT_VERSION, "submodules": [{k: ctx.norm(v) if isinstance(v, str) else v
+                                                                      for k, v in r.items()} for r in subs]}))
         # H2 Solidity
         for d in solidity_sidecars(entry, proto, ck, rel):
             if "sidecar" not in d:
@@ -507,6 +529,9 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
                 shutil.copytree(frm, edir / sub, ignore=_IGNORE)
         _scrub(edir, ctx)
     finally:
+        if subs:
+            from . import layout as LY
+            LY.drop_submodules(ck, subs)
         if clone is not None:
             drop_worktree(clone, ck)
         shutil.rmtree(tmp, ignore_errors=True)
@@ -517,6 +542,9 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     row["documents"] = [{k: d.get(k) for k in keys} for d in docs]
     row["stages"] = stages
     row["laws"] = law_rows(edir, entry["files"], row["locus"])
+    if proto.get("stop_after") == "derive":   # I108: no law is run, so none is decided
+        for x in row["laws"]:
+            x["status"] = "not_run"
     ext = [d for d in docs if d.get("status") == "extracted"]
     row["status"] = "run" if ext else "not_run"
     row["reason"] = None if ext else "no document extracted: " + "; ".join(
@@ -563,6 +591,10 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
         if stages[name]["status"] != "ok":
             return
     laws = sorted(p.stem for p in (S / "laws" / M).glob("L*.json"))
+    if proto.get("stop_after") == "derive":   # I108: a smoke measure; I107 runs and scores
+        stages["run"] = {"status": "not_run", "exit": None,
+                         "detail": f"the protocol stops after derive (stop_after): {len(laws)} laws derived, none run"}
+        return
     if not laws:
         stages["run"] = {"status": "not_applicable", "exit": None, "detail": "no law derived"}
         return
