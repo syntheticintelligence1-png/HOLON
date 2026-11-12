@@ -1130,6 +1130,61 @@
           "check": "tests_m6/test_i110_scale_composed.py"
         }
       ]
+    },
+    "I113": {
+      "title": "I113: fresh sealed targets, second draw, by commit-reveal (HUMAN_ANSWERS Q54, Q55, Q86): 2 of 9 preregistered public systems drawn by sha256(salt || blockhash) over the first Ethereum mainnet block at or after T, pinned by ls-remote, and sealed in spec/heldout3/commitment.json until the reveal after I114's prereg",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I113)",
+      "prompt": "prompts/I113_sealed_targets.md",
+      "tests": [
+        "tests_m6/test_i113_sealed.py"
+      ],
+      "outcome_paths": [
+        "spec/heldout3/"
+      ],
+      "predictions": [
+        {
+          "id": "I113-P1",
+          "claim": "The seal (c): spec/heldout3/commitment.json is committed with sha256(target.json), the salt_sha256 of this key, T, and the beacon block (number, hash, timestamp, source), the block being the first Ethereum mainnet block whose timestamp is >= T; spec/heldout3/README.md states the sealed state and the sole-reader rule, including that no subagent reads a drawn target (Q71). Neither the salt nor the plaintext is committed before the reveal.",
+          "check": "tests_m6/test_i113_sealed.py::TestSeal::test_s1_commitment and tests_m6/test_i113_sealed.py::TestSeal::test_s1_readme",
+          "expected": {
+            "beacon_timestamp_at_least": 1794512700
+          }
+        },
+        {
+          "id": "I113-P2",
+          "claim": "The reveal (d), after I114's prereg: spec/heldout3/target.json and salt.txt are committed; sha256(target.json) and sha256(salt bytes) equal the commitment's and this key's; `python3 spec/M6/lib/I113_draw.py verify` recomputes the seed, the order and the draw of 2 from the committed script and candidates and prints VERIFY OK; a check that imports nothing of the draw script recomputes both hashes and the draw.",
+          "check": "tests_m6/test_i113_sealed.py::TestReveal::test_r1_verify and tests_m6/test_i113_sealed.py::TestReveal::test_r1_targets",
+          "expected": {
+            "verify": "VERIFY OK",
+            "targets": 2
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I113-R1",
+          "claim": "The draw script imports only the standard library and is deterministic on a fixed test vector; the pin rule behaves as its docstring states (Q55 (2)); the candidate list meets its form rules (at least 8, unique ids, canonical github.com URLs, the snapshot date and criteria present, no excluded system, none of I106's candidates); the key pins both sidecars by sha256; I106's committed files are unchanged by this key.",
+          "check": "tests_m6/test_i113_sealed.py::TestDraw::test_d1_stdlib_only and tests_m6/test_i113_sealed.py::TestDraw::test_d1_test_vector and tests_m6/test_i113_sealed.py::TestDraw::test_d2_pin_rule and tests_m6/test_i113_sealed.py::TestCandidates::test_c1_candidates and tests_m6/test_i113_sealed.py::TestCandidates::test_k1_key_pins_the_sidecars"
+        }
+      ],
+      "thresholds": {
+        "counting": "P1 and P2 are construction checks of the procedure (they state that the sealer follows it, not a measured property of HOLON); they are reported, and do not count toward prediction accuracy.",
+        "seal": {
+          "T_unix": 1794512700,
+          "T_utc": "2026-11-12T19:45:00Z",
+          "beacon_rule": "the hash of the first Ethereum mainnet block whose timestamp is >= T_unix; T is at least 20 minutes after this prereg's push",
+          "seed_rule": "sha256(salt bytes || blockhash bytes), as spec/M6/lib/I113_draw.py defines",
+          "k": 2,
+          "salt_sha256": "4028e6d29269f58efb6942389bf6391db989e7d42f2b01bbe30b128587e8408d",
+          "candidates": "spec/M6/lib/I113_candidates.json",
+          "candidates_sha256": "6c9984e6de12cf8da4545ec6232b2d4f5ba14b601848aadf9afe1043e949c63a",
+          "draw": "spec/M6/lib/I113_draw.py",
+          "draw_sha256": "ceb9f22e89ac514ad6d0753e8de5d26130e431a86c5ac9df9897ec1bd155dfe7",
+          "pin_rule": "HUMAN_ANSWERS Q55 (2): the greatest strict MAJOR.MINOR.PATCH release tag (peeled) in a git ls-remote listing taken soon after T, else the default branch's HEAD; target.json records each listing's UTC time",
+          "heldout_dir": "spec/heldout3/",
+          "sole_reader": "From the candidate list's push until the reveal, only the sealer may read any candidate's repository, docs or audits, target.json or the salt (Q86 (3)), and the sealer reads nothing of the candidates beyond git ls-remote and what Q55 (1)'s membership check needs. No builder, not the coordinator and not the lead reads them. No subagent reads a drawn target (Q71). The reveal comes only after I114's prereg is committed (Q54 (d))."
+        }
+      }
     }
   }
 }
