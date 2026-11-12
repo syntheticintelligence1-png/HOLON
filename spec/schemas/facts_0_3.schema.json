@@ -170,6 +170,33 @@
                 },
                 "sha256": {
                   "$ref": "#/$defs/sha256"
+                },
+                "selected_by": {
+                  "description": "I103: only when the sidecar's compiler.version is \"pragma\": the selection rule and the version pragmas of the units solc read",
+                  "type": "object",
+                  "required": [
+                    "rule",
+                    "pragmas"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "rule": {
+                      "type": "string"
+                    },
+                    "pragmas": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "arithmetic": {
+                  "description": "I103: only with selected_by; unchecked below 0.8.0 (every arithmetic operation wraps, no overflow panic)",
+                  "enum": [
+                    "checked",
+                    "unchecked"
+                  ]
                 }
               }
             }
@@ -749,6 +776,33 @@
                 },
                 "sha256": {
                   "$ref": "#/$defs/sha256"
+                },
+                "selected_by": {
+                  "description": "I103: only when the sidecar's compiler.version is \"pragma\": the selection rule and the version pragmas of the units solc read",
+                  "type": "object",
+                  "required": [
+                    "rule",
+                    "pragmas"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "rule": {
+                      "type": "string"
+                    },
+                    "pragmas": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "arithmetic": {
+                  "description": "I103: only with selected_by; unchecked below 0.8.0 (every arithmetic operation wraps, no overflow panic)",
+                  "enum": [
+                    "checked",
+                    "unchecked"
+                  ]
                 }
               }
             }
