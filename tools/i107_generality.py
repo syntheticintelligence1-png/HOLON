@@ -265,6 +265,19 @@ def slither(entries: Path, timing: Path, work: Path) -> None:
                "description or location is committed. Wall times vary run to run and are not recorded here.",
         "targets": res}))
 
+
+def route_b_provenance(out: Path, protocol: Path, command: str) -> None:
+    """Route B's driver output does not record the nil-map setting it ran with (holon/eval/go_machines_run.py sets
+    cfg["machines"]["nil_maps"] from the protocol's go_machines key); record the protocol it was given, its sha256 and
+    that key at the top level (A3, Q64). The driver's own keys are unchanged."""
+    d = load(out)
+    pr = load(protocol)
+    d["nil_maps"] = pr["go_machines"]["nil_maps"]
+    d["protocol"] = str(protocol)
+    d["protocol_sha256"] = hashlib.sha256(Path(protocol).read_bytes()).hexdigest()
+    d["command"] = command
+    out.write_text(dumps(d))
+
 # ------------------------------------------------------------------------------------------- assemble
 def furthest(stages: dict) -> dict | None:
     for s in STAGES:
@@ -379,6 +392,8 @@ def main(argv=None) -> int:
     p = sp.add_parser("static-ai"); p.add_argument("--entries", required=True)
     p = sp.add_parser("slither"); p.add_argument("--entries", required=True); p.add_argument("--timing", required=True)
     p.add_argument("--work", required=True)
+    p = sp.add_parser("route-b-provenance"); p.add_argument("--out", required=True); p.add_argument("--protocol", required=True)
+    p.add_argument("--command", required=True)
     p = sp.add_parser("publish-morph"); p.add_argument("--work", required=True); p.add_argument("--vault", required=True)
     a = ap.parse_args(argv)
     sys.path.insert(0, str(ROOT))
@@ -396,6 +411,9 @@ def main(argv=None) -> int:
         return 0
     if a.cmd == "slither":
         slither(Path(a.entries), Path(a.timing), Path(a.work))
+        return 0
+    if a.cmd == "route-b-provenance":
+        route_b_provenance(Path(a.out), Path(a.protocol), a.command)
         return 0
     if a.cmd == "publish-morph":
         publish_morph(Path(a.work), Path(a.vault))
