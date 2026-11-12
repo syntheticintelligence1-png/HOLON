@@ -1,0 +1,1863 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.msgEventer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "unknown",
+                "p2p/message.go:324",
+                "ok"
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "io.Closer.Close",
+                [
+                  "unknown",
+                  "p2p/message.go:324",
+                  "typeassert"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "unknown",
+                    "p2p/message.go:324",
+                    "ok"
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "call",
+                    "io.Closer.Close",
+                    [
+                      "unknown",
+                      "p2p/message.go:324",
+                      "typeassert"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "p2p/message.go:325"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Close",
+      "order": [
+        [
+          "guard",
+          "p2p/message.go:325",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "p2p/message.go:323",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.msgEventer",
+      "edges": [],
+      "effects": [
+        {
+          "family": "MsgReadWriter",
+          "src": "p2p/message.go:299"
+        },
+        {
+          "family": "Protocol",
+          "src": "p2p/message.go:299"
+        },
+        {
+          "family": "feed",
+          "src": "p2p/message.go:299"
+        },
+        {
+          "family": "localAddress",
+          "src": "p2p/message.go:299"
+        },
+        {
+          "family": "peerID",
+          "src": "p2p/message.go:299"
+        },
+        {
+          "family": "remoteAddress",
+          "src": "p2p/message.go:299"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                    [
+                      "storage",
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                        [
+                          "storage",
+                          "MsgReadWriter"
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "at",
+                    1,
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                      [
+                        "storage",
+                        "MsgReadWriter"
+                      ]
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "p2p/message.go:288"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "ReadMsg",
+      "order": [
+        [
+          "guard",
+          "p2p/message.go:288",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "MsgReadWriter": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "MsgReadWriter"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                    [
+                      "storage",
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:299",
+              "havoc"
+            ],
+            [
+              "storage",
+              "MsgReadWriter"
+            ]
+          ]
+        ],
+        "Protocol": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "Protocol"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                    [
+                      "storage",
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:299",
+              "havoc"
+            ],
+            [
+              "storage",
+              "Protocol"
+            ]
+          ]
+        ],
+        "feed": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "feed"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                    [
+                      "storage",
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:299",
+              "havoc"
+            ],
+            [
+              "storage",
+              "feed"
+            ]
+          ]
+        ],
+        "localAddress": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "localAddress"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                    [
+                      "storage",
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:299",
+              "havoc"
+            ],
+            [
+              "storage",
+              "localAddress"
+            ]
+          ]
+        ],
+        "peerID": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "peerID"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                    [
+                      "storage",
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:299",
+              "havoc"
+            ],
+            [
+              "storage",
+              "peerID"
+            ]
+          ]
+        ],
+        "remoteAddress": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "remoteAddress"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                    [
+                      "storage",
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:299",
+              "havoc"
+            ],
+            [
+              "storage",
+              "remoteAddress"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "!=",
+          [
+            "at",
+            1,
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+              [
+                "storage",
+                "MsgReadWriter"
+              ]
+            ]
+          ],
+          0
+        ],
+        [
+          "at",
+          0,
+          [
+            "call",
+            "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+            [
+              "storage",
+              "MsgReadWriter"
+            ]
+          ]
+        ],
+        [
+          "at",
+          0,
+          [
+            "call",
+            "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+            [
+              "storage",
+              "MsgReadWriter"
+            ]
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/message.go:285",
+      "writes": [
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "MsgReadWriter",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/message.go:299",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:299",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "Protocol",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/message.go:299",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:299",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "feed",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/message.go:299",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:299",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "localAddress",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/message.go:299",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:299",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "peerID",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/message.go:299",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:299",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "remoteAddress",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/message.go:299",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:299",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.msgEventer",
+      "edges": [],
+      "effects": [
+        {
+          "family": "MsgReadWriter",
+          "src": "p2p/message.go:318"
+        },
+        {
+          "family": "Protocol",
+          "src": "p2p/message.go:318"
+        },
+        {
+          "family": "feed",
+          "src": "p2p/message.go:318"
+        },
+        {
+          "family": "localAddress",
+          "src": "p2p/message.go:318"
+        },
+        {
+          "family": "peerID",
+          "src": "p2p/message.go:318"
+        },
+        {
+          "family": "remoteAddress",
+          "src": "p2p/message.go:318"
+        }
+      ],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ],
+                  [
+                    "param",
+                    "msg"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ],
+                [
+                  "param",
+                  "msg"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                      [
+                        "storage",
+                        "MsgReadWriter"
+                      ],
+                      [
+                        "param",
+                        "msg"
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                    [
+                      "storage",
+                      "MsgReadWriter"
+                    ],
+                    [
+                      "param",
+                      "msg"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "p2p/message.go:307"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "WriteMsg",
+      "order": [
+        [
+          "guard",
+          "p2p/message.go:307",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "msg",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "MsgReadWriter": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+              [
+                "storage",
+                "MsgReadWriter"
+              ],
+              [
+                "param",
+                "msg"
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "MsgReadWriter"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ],
+                  [
+                    "param",
+                    "msg"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:318",
+              "havoc"
+            ],
+            [
+              "storage",
+              "MsgReadWriter"
+            ]
+          ]
+        ],
+        "Protocol": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+              [
+                "storage",
+                "MsgReadWriter"
+              ],
+              [
+                "param",
+                "msg"
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "Protocol"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ],
+                  [
+                    "param",
+                    "msg"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:318",
+              "havoc"
+            ],
+            [
+              "storage",
+              "Protocol"
+            ]
+          ]
+        ],
+        "feed": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+              [
+                "storage",
+                "MsgReadWriter"
+              ],
+              [
+                "param",
+                "msg"
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "feed"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ],
+                  [
+                    "param",
+                    "msg"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:318",
+              "havoc"
+            ],
+            [
+              "storage",
+              "feed"
+            ]
+          ]
+        ],
+        "localAddress": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+              [
+                "storage",
+                "MsgReadWriter"
+              ],
+              [
+                "param",
+                "msg"
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "localAddress"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ],
+                  [
+                    "param",
+                    "msg"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:318",
+              "havoc"
+            ],
+            [
+              "storage",
+              "localAddress"
+            ]
+          ]
+        ],
+        "peerID": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+              [
+                "storage",
+                "MsgReadWriter"
+              ],
+              [
+                "param",
+                "msg"
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "peerID"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ],
+                  [
+                    "param",
+                    "msg"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:318",
+              "havoc"
+            ],
+            [
+              "storage",
+              "peerID"
+            ]
+          ]
+        ],
+        "remoteAddress": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+              [
+                "storage",
+                "MsgReadWriter"
+              ],
+              [
+                "param",
+                "msg"
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "remoteAddress"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                  [
+                    "storage",
+                    "MsgReadWriter"
+                  ],
+                  [
+                    "param",
+                    "msg"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:318",
+              "havoc"
+            ],
+            [
+              "storage",
+              "remoteAddress"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "p2p/message.go:304",
+      "writes": [
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ],
+                [
+                  "param",
+                  "msg"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "MsgReadWriter",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/message.go:318",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:318",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ],
+                [
+                  "param",
+                  "msg"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "Protocol",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/message.go:318",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:318",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ],
+                [
+                  "param",
+                  "msg"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "feed",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/message.go:318",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:318",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ],
+                [
+                  "param",
+                  "msg"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "localAddress",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/message.go:318",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:318",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ],
+                [
+                  "param",
+                  "msg"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "peerID",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/message.go:318",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:318",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+                [
+                  "storage",
+                  "MsgReadWriter"
+                ],
+                [
+                  "param",
+                  "msg"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "remoteAddress",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/message.go:318",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:318",
+            "havoc"
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/p2p.msgEventer",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I112/holon/c14/sidecars/go_1_machines.json",
+      "sha256": "5ed3b18f3e7f1881e5812e0bb89afc01c6409ad6c3e605372cdb854f9282718f"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "3efbd5df5999050da7ea115e9da333a3fbd86fb32970c784556a58d483fcb5ea",
+        "unit": "p2p/dial.go"
+      },
+      {
+        "sha256": "aeaaf70788bcb18cdffdd9bd44b33623509f6a66518e5b32ec472b48917f5dcb",
+        "unit": "p2p/message.go"
+      },
+      {
+        "sha256": "c93bdb10b12c21b7553f998154801015ed4e5477d8148b9cbe0872a4dd680070",
+        "unit": "p2p/metrics.go"
+      },
+      {
+        "sha256": "23b706bc28f140a52a48317ad569639096ccb48a1e74dd8667c378ba7aee84c7",
+        "unit": "p2p/peer.go"
+      },
+      {
+        "sha256": "df647e286ebcf851cd9484c3edbdf9ad34d64d177a973d933352290482c244eb",
+        "unit": "p2p/peer_error.go"
+      },
+      {
+        "sha256": "b064189b7e32f6b21827f2b3297af21b1b0810fc6da8e0dcd213e2c90db174a7",
+        "unit": "p2p/protocol.go"
+      },
+      {
+        "sha256": "2c4b9c5afac351dbc8ba4161341e600cd63c9ad64caea49d5e28596673d6ab4f",
+        "unit": "p2p/server.go"
+      },
+      {
+        "sha256": "0ce419526208aa40813e9b1f2fc71310f161fe3f2763099e4984d53026da4ac1",
+        "unit": "p2p/transport.go"
+      },
+      {
+        "sha256": "b60482127849d76e19346ef2f710dfe0e33434540bb70ea5b7698f65f760109c",
+        "unit": "p2p/util.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "p2p.msgEventer",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Close": {
+        "declared_in": "p2p.msgEventer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Close",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "ReadMsg": {
+        "declared_in": "p2p.msgEventer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "ReadMsg",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "Code",
+                "type": "uint64"
+              },
+              {
+                "name": "Size",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "uint256"
+              },
+              {
+                "name": "ReceivedAt",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCap",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCode",
+                "type": "uint64"
+              },
+              {
+                "name": "meterSize",
+                "type": "uint32"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "WriteMsg": {
+        "declared_in": "p2p.msgEventer",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "Code",
+                "type": "uint64"
+              },
+              {
+                "name": "Size",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "uint256"
+              },
+              {
+                "name": "ReceivedAt",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCap",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCode",
+                "type": "uint64"
+              },
+              {
+                "name": "meterSize",
+                "type": "uint32"
+              }
+            ],
+            "name": "msg",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "WriteMsg",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "p2p.msgEventer",
+          "label": "MsgReadWriter",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.msgEventer",
+          "label": "feed",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.msgEventer",
+          "label": "peerID",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.msgEventer",
+          "label": "Protocol",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_string_storage"
+        },
+        {
+          "contract": "p2p.msgEventer",
+          "label": "localAddress",
+          "offset": 0,
+          "slot": "4",
+          "type": "t_string_storage"
+        },
+        {
+          "contract": "p2p.msgEventer",
+          "label": "remoteAddress",
+          "offset": 0,
+          "slot": "5",
+          "type": "t_string_storage"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_string_storage": {
+          "encoding": "bytes",
+          "label": "string",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "p2p.msgEventer"
+    ],
+    "members": {
+      "(*github.com/ethereum/go-ethereum/event.Feed).Send": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/event.Feed).Send",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int64"
+            }
+          ],
+          "selector": "0x134be0d9",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.ReadMsg",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x505a8fc0",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/p2p.MsgReadWriter.WriteMsg",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x6ad9ceb2",
+          "visibility": "external"
+        }
+      ],
+      "io.Closer.Close": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "io.Closer.Close",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x97a1dee0",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "p2p/dial.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "MsgReadWriter",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "feed",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "peerID",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "Protocol",
+      "offset": 0,
+      "slot": 3,
+      "value": "string"
+    },
+    {
+      "kind": "scalar",
+      "name": "localAddress",
+      "offset": 0,
+      "slot": 4,
+      "value": "string"
+    },
+    {
+      "kind": "scalar",
+      "name": "remoteAddress",
+      "offset": 0,
+      "slot": 5,
+      "value": "string"
+    }
+  ],
+  "target": {
+    "commit": "a79afd9ac325e12021ae56928ba4af32bb3cc78f",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/p2p.msgEventer"
+  }
+}

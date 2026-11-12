@@ -316,6 +316,10 @@ class Run:
         self.deadline = None            # --deadline: a wall-clock time box on S3 (UNKNOWN by the time box)
         self.law_box = None             # --law-timebox: seconds per law for S1+S2's syntheses, and again for S3
         self.validations: dict = {}     # law id -> candidates checked against the deployment's answers
+        # I112 (Q82, --section-errors unknown): a document whose DISCH section is refused (SectionError) leaves its
+        # laws UNKNOWN, recorded with the error; None: the error stops the runner, as before
+        self.section_errors = None
+        self.doc_errors: dict = {}      # facts document -> the SectionError's text
 
     def doc_of(self, e: dict) -> Doc:
         doc_rel = e["facts"]
@@ -323,6 +327,54 @@ class Run:
             an = next(a for a in self.ans.values() if a["_doc"] == doc_rel)
             self.docs[doc_rel] = Doc(self, doc_rel, an)
         return self.docs[doc_rel]
+
+    def section_error(self, e: dict) -> str | None:
+        """I112: the text of the SectionError building e's document's section raised (under --section-errors unknown
+        only; else None and the error propagates from doc_of, as before)."""
+        if self.section_errors != "unknown":
+            return None
+        doc_rel = e["facts"]
+        if doc_rel in self.docs:
+            return None
+        if doc_rel not in self.doc_errors:
+            try:
+                self.doc_of(e)
+            except SEC.SectionError as x:
+                self.doc_errors[doc_rel] = str(x)
+        return self.doc_errors.get(doc_rel)
+
+    def section_record(self, lid: str, e: dict, error: str) -> dict:
+        """I112: the UNKNOWN record of a DISCH law whose document's section is refused. Nothing was attempted: no proof,
+        no search, no witness; the record names the error."""
+        from .. import records as R
+        ctx = self.ctx
+        law_ir = json.loads((ctx.laws_dir / f"{lid}.json").read_text())
+        sh = ctx.registry["statements"][lid]
+        mp = ctx.model_path(e["facts"])
+        model = law_ir.get("model") or e.get("model") or e["facts"]
+        rec = {"law_id": lid, "statement_hash": sh, "facts_sha256": law_ir["facts_sha256"], "status": "UNKNOWN",
+               "scope": "unbounded", "premises": [],
+               "kernel": {"name": "bend", "version": R3.bend_version(), "verdict": "not_run"},
+               "artifacts": {"laws": None, "proof": None, "model": rel(mp, ctx.root) if mp.is_file() else None,
+                             "disch": None, "law_name": law_name(lid, False)},
+               "checker": {"exit_code": None, "marker": "not_run"},
+               "triage": "none", "replay": {"status": "not_applicable", "detail": "UNKNOWN: no witness to replay"},
+               "attempts": [{"kind": "section", "error": error}],
+               "rule": "DISCH", "subform": e["subform"],
+               "disch": {k: v for k, v in e.items() if k != "statement_hash"},
+               "bound": f"the DISCH section of {model} is refused: {error}"}
+        rec.update({"record_version": R.RECORD_VERSION, "prover": "generator",
+                    "model_sha256": R3.sha256_file(mp) if mp.is_file() else None,
+                    "generator_sha256": generator_sha256(ctx.root), "cone": [], "ledger_match": "none",
+                    "model_assumptions": [], "scope_v2": R.scope_v2(law_ir, rec), "kernels": R.kernels(rec),
+                    "independence_class": R.independence_class(rec), "refinement_refs": [],
+                    "coverage": R.coverage_field(law_ir, ctx.root) if ctx.m.startswith("M") else None,
+                    "non_vacuity": {"status": "unknown", "law": None, "witness": None, "reachable": None,
+                                    "degenerate": None, "parent_statement_hash": sh, "bound": "no proof"},
+                    "witness_provenance": None, "filter_bin": None,
+                    **R.evidence_fields(law_ir, {"status": "UNKNOWN"}, ctx.root)})
+        rec["statement"] = law_ir.get("notes", "")
+        return rec
 
     def ids(self, laws: str | None) -> list[str]:
         ids = sorted(l for l, e in self.ctx.derivation.items() if e.get("rule") == "DISCH" and e.get("subform") in SUBFORMS)
@@ -510,6 +562,11 @@ class Run:
         self.decided = (list(ids), found)
         for lid in ids:
             e = self.ctx.derivation[lid]
+            err = self.section_error(e)
+            if err is not None:   # I112: the section is refused; nothing is attempted (never PROVED or REFUTED)
+                self.log(f"{lid}: UNKNOWN (the DISCH section is refused)")
+                out[lid] = ("SECTION", {"error": err})
+                continue
             d = self.doc_of(e)
             law = self.law_of(d, lid)
             t0 = time.time()
@@ -567,6 +624,8 @@ class Run:
         PROVED forall law and writes the record."""
         kind, info = outcome
         e = self.ctx.derivation[lid]
+        if kind == "SECTION":   # I112: the UNKNOWN record of a refused section (no witness, so no replay)
+            return self.section_record(lid, e, info["error"]), None
         d = self.doc_of(e)
         law = self.law_of(d, lid)
         sf = law["subform"]
@@ -818,6 +877,7 @@ def run_disch(a) -> int:
         r.deadline = parse_deadline(a.deadline)
     if getattr(a, "law_timebox", None):
         r.law_box = float(a.law_timebox)
+    r.section_errors = getattr(a, "section_errors", None)
     try:
         ids = r.ids(a.laws)
         if not ids:
@@ -935,8 +995,11 @@ def main(argv: list) -> int:
     ap.add_argument("--law-timebox", help="seconds: a wall-clock time box on each DISCH law's S1+S2 last-step syntheses "
                                            "(the shared exploration completed first) and again on its S3; a law it "
                                            "leaves undecided is UNKNOWN by the time box, recorded as such")
+    ap.add_argument("--section-errors", choices=["unknown"],
+                    help="I112 (Q82): a document whose DISCH section is refused (holon.disch.section.SectionError) "
+                         "leaves its DISCH laws UNKNOWN, each recorded with the error; every other section runs")
     a, _unknown = ap.parse_known_args(rest)
-    base = strip_args(rest, ("--disch", "--law-timebox"))
+    base = strip_args(rest, ("--disch", "--law-timebox", "--section-errors"))
     from ..undo import run as undo_run   # I30's laws (holon.sorts.run3) and I27's UNDO laws, as before the DISCH laws
     if cmd == "run":
         rc = 0

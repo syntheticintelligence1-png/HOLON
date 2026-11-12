@@ -1,0 +1,1146 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "snap.hashRange",
+      "edges": [],
+      "effects": [
+        {
+          "family": "current",
+          "src": "eth/protocols/snap/range.go:70"
+        },
+        {
+          "family": "step",
+          "src": "eth/protocols/snap/range.go:70"
+        },
+        {
+          "family": "current",
+          "src": "eth/protocols/snap/range.go:72"
+        },
+        {
+          "family": "step",
+          "src": "eth/protocols/snap/range.go:72"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "End",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "current": [
+          "?",
+          [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/holiman/uint256.Int).AddOverflow",
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ]
+            ]
+          ],
+          [
+            "unknown",
+            "eth/protocols/snap/range.go:70",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/holiman/uint256.Int).AddOverflow",
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:68",
+                    "ptr"
+                  ],
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:68",
+                    "ptr"
+                  ],
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:68",
+                    "ptr"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:72",
+              "havoc"
+            ],
+            [
+              "storage",
+              "current"
+            ]
+          ]
+        ],
+        "step": [
+          "?",
+          [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/holiman/uint256.Int).AddOverflow",
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ]
+            ]
+          ],
+          [
+            "unknown",
+            "eth/protocols/snap/range.go:70",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/holiman/uint256.Int).AddOverflow",
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:68",
+                    "ptr"
+                  ],
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:68",
+                    "ptr"
+                  ],
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:68",
+                    "ptr"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:72",
+              "havoc"
+            ],
+            [
+              "storage",
+              "step"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "at",
+          1,
+          [
+            "call",
+            "(*github.com/holiman/uint256.Int).AddOverflow",
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:68",
+              "ptr"
+            ],
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:68",
+              "ptr"
+            ],
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:68",
+              "ptr"
+            ]
+          ]
+        ],
+        [
+          "call",
+          "github.com/ethereum/go-ethereum/common.HexToHash",
+          [
+            "str",
+            "307866666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
+          ]
+        ],
+        [
+          "call",
+          "(*github.com/holiman/uint256.Int).Bytes32",
+          [
+            "call",
+            "(*github.com/holiman/uint256.Int).SubUint64",
+            [
+              "at",
+              0,
+              [
+                "call",
+                "(*github.com/holiman/uint256.Int).AddOverflow",
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ]
+              ]
+            ],
+            [
+              "at",
+              0,
+              [
+                "call",
+                "(*github.com/holiman/uint256.Int).AddOverflow",
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ]
+              ]
+            ],
+            1
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "eth/protocols/snap/range.go:66",
+      "writes": [
+        {
+          "cond": [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/holiman/uint256.Int).AddOverflow",
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ]
+            ]
+          ],
+          "family": "current",
+          "path": [],
+          "seq": 0,
+          "src": "eth/protocols/snap/range.go:70",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:70",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/holiman/uint256.Int).AddOverflow",
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:68",
+                "ptr"
+              ]
+            ]
+          ],
+          "family": "step",
+          "path": [],
+          "seq": 1,
+          "src": "eth/protocols/snap/range.go:70",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:70",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/holiman/uint256.Int).AddOverflow",
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ]
+              ]
+            ]
+          ],
+          "family": "current",
+          "path": [],
+          "seq": 2,
+          "src": "eth/protocols/snap/range.go:72",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:72",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/holiman/uint256.Int).AddOverflow",
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:68",
+                  "ptr"
+                ]
+              ]
+            ]
+          ],
+          "family": "step",
+          "path": [],
+          "seq": 3,
+          "src": "eth/protocols/snap/range.go:72",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:72",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "snap.hashRange",
+      "edges": [],
+      "effects": [
+        {
+          "family": "current",
+          "src": "eth/protocols/snap/range.go:54"
+        },
+        {
+          "family": "step",
+          "src": "eth/protocols/snap/range.go:54"
+        },
+        {
+          "family": "current",
+          "src": "eth/protocols/snap/range.go:57"
+        },
+        {
+          "family": "step",
+          "src": "eth/protocols/snap/range.go:57"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Next",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "current": [
+          "?",
+          [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/holiman/uint256.Int).AddOverflow",
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ]
+            ]
+          ],
+          [
+            "unknown",
+            "eth/protocols/snap/range.go:54",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/holiman/uint256.Int).AddOverflow",
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:52",
+                    "ptr"
+                  ],
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:52",
+                    "ptr"
+                  ],
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:52",
+                    "ptr"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:57",
+              "havoc"
+            ],
+            [
+              "storage",
+              "current"
+            ]
+          ]
+        ],
+        "step": [
+          "?",
+          [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/holiman/uint256.Int).AddOverflow",
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ]
+            ]
+          ],
+          [
+            "unknown",
+            "eth/protocols/snap/range.go:54",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/holiman/uint256.Int).AddOverflow",
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:52",
+                    "ptr"
+                  ],
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:52",
+                    "ptr"
+                  ],
+                  [
+                    "unknown",
+                    "eth/protocols/snap/range.go:52",
+                    "ptr"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:57",
+              "havoc"
+            ],
+            [
+              "storage",
+              "step"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "at",
+          1,
+          [
+            "call",
+            "(*github.com/holiman/uint256.Int).AddOverflow",
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:52",
+              "ptr"
+            ],
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:52",
+              "ptr"
+            ],
+            [
+              "unknown",
+              "eth/protocols/snap/range.go:52",
+              "ptr"
+            ]
+          ]
+        ],
+        0,
+        1
+      ],
+      "selector": null,
+      "src": "eth/protocols/snap/range.go:51",
+      "writes": [
+        {
+          "cond": [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/holiman/uint256.Int).AddOverflow",
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ]
+            ]
+          ],
+          "family": "current",
+          "path": [],
+          "seq": 0,
+          "src": "eth/protocols/snap/range.go:54",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:54",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/holiman/uint256.Int).AddOverflow",
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ],
+              [
+                "unknown",
+                "eth/protocols/snap/range.go:52",
+                "ptr"
+              ]
+            ]
+          ],
+          "family": "step",
+          "path": [],
+          "seq": 1,
+          "src": "eth/protocols/snap/range.go:54",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:54",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/holiman/uint256.Int).AddOverflow",
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:52",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:52",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:52",
+                  "ptr"
+                ]
+              ]
+            ]
+          ],
+          "family": "current",
+          "path": [],
+          "seq": 2,
+          "src": "eth/protocols/snap/range.go:57",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:57",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/holiman/uint256.Int).AddOverflow",
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:52",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:52",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "eth/protocols/snap/range.go:52",
+                  "ptr"
+                ]
+              ]
+            ]
+          ],
+          "family": "step",
+          "path": [],
+          "seq": 3,
+          "src": "eth/protocols/snap/range.go:57",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:57",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "snap.hashRange",
+      "edges": [],
+      "effects": [
+        {
+          "family": "current",
+          "src": "eth/protocols/snap/range.go:62"
+        },
+        {
+          "family": "step",
+          "src": "eth/protocols/snap/range.go:62"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Start",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "current": [
+          "unknown",
+          "eth/protocols/snap/range.go:62",
+          "havoc"
+        ],
+        "step": [
+          "unknown",
+          "eth/protocols/snap/range.go:62",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "call",
+        "(*github.com/holiman/uint256.Int).Bytes32",
+        [
+          "unknown",
+          "eth/protocols/snap/range.go:62",
+          "ptr"
+        ]
+      ],
+      "selector": null,
+      "src": "eth/protocols/snap/range.go:61",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "current",
+          "path": [],
+          "seq": 0,
+          "src": "eth/protocols/snap/range.go:62",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:62",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "step",
+          "path": [],
+          "seq": 1,
+          "src": "eth/protocols/snap/range.go:62",
+          "stack": [],
+          "value": [
+            "unknown",
+            "eth/protocols/snap/range.go:62",
+            "havoc"
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.hashRange",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I112/holon/c19/sidecars/go_1_machines.json",
+      "sha256": "4dbbe42ac4a825be0df4d6896baa6675c25441136c10bdb1960a2160687e5184"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "5ad90643189821d29b42e8a24361eda6140d792e42f3293fb17f7fd78f77a1bf",
+        "unit": "eth/protocols/snap/discovery.go"
+      },
+      {
+        "sha256": "582fab07ada10763cf8466b70b9cf8bb14191c1f0d05b2efdedd157a645dece7",
+        "unit": "eth/protocols/snap/handler.go"
+      },
+      {
+        "sha256": "cbc9a50fc0658a4f77c946682d61403bb3ad4b1bc128ebf8ffaee267b5c8ca5a",
+        "unit": "eth/protocols/snap/peer.go"
+      },
+      {
+        "sha256": "3d37e0434efbbec27fc94a2b78cb6222cd0e407154e1af90ce66f0b4d7fa4466",
+        "unit": "eth/protocols/snap/protocol.go"
+      },
+      {
+        "sha256": "a7d1341737c1d5d02cfc41a1d4a62b5cb0caac02662030491f9be4b2ac92a73c",
+        "unit": "eth/protocols/snap/range.go"
+      },
+      {
+        "sha256": "506305fb8d7e5ec3ddafd53c95e44e6d258293ee9e88b06c0fdadd957f746752",
+        "unit": "eth/protocols/snap/sync.go"
+      },
+      {
+        "sha256": "68d05c48d2b92120c6ee24aaa4262da00a2055587b12de2302d48e1e571fe92d",
+        "unit": "eth/protocols/snap/tracker.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "snap.hashRange",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "End": {
+        "declared_in": "snap.hashRange",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "End",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Next": {
+        "declared_in": "snap.hashRange",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Next",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Start": {
+        "declared_in": "snap.hashRange",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Start",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "snap.hashRange",
+          "label": "current",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "snap.hashRange",
+          "label": "step",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "snap.hashRange"
+    ],
+    "members": {
+      "(*github.com/holiman/uint256.Int).AddOverflow": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/holiman/uint256.Int).AddOverflow",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "selector": "0xca8e1528",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/holiman/uint256.Int).Bytes32": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/holiman/uint256.Int).Bytes32",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x026a73d3",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/holiman/uint256.Int).SubUint64": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint64"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/holiman/uint256.Int).SubUint64",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x9356e86c",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/common.HexToHash": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "string"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/common.HexToHash",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xb9c9396f",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "eth/protocols/snap/discovery.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "current",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "step",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "42bc1944a17260d75dc1e33e1571c804b9a4a88a",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/eth/protocols/snap.hashRange"
+  }
+}

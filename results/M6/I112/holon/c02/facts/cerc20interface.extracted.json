@@ -1,0 +1,98 @@
+{
+  "actions": [],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    }
+  ],
+  "constants": {},
+  "contract": "CErc20Interface",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.3",
+    "inputs": [
+      {
+        "sha256": "4b3b44d663633e1b52e5d9a8749972a3ff8c4bfe0ebbf92374d831cdf8d5d1d7",
+        "unit": "contracts/CTokenInterfaces.sol"
+      },
+      {
+        "sha256": "cb5865c24fbaf27a484b2d723172eede37694a4af38ff89a5c3447e22ad26170",
+        "unit": "contracts/ComptrollerInterface.sol"
+      },
+      {
+        "sha256": "8bba52751bf2ca58e1d47012d0879a69d73e49c3de841bee79e3dfb5387b2433",
+        "unit": "contracts/InterestRateModel.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      }
+    },
+    "sidecar": {
+      "path": "results/M6/I112/holon/c02/sidecars/extract_cerc20interface.json",
+      "sha256": "de6a42c607c556b54f1fb096ce1006d63cde8a6dc8d9762ed3013c9c52f01953"
+    },
+    "term_budget": 4000000,
+    "toolchain": {
+      "solc": {
+        "arithmetic": "unchecked",
+        "selected_by": {
+          "pragmas": [
+            "^0.5.16"
+          ],
+          "rule": "the newest pinned release (config solc_set) satisfying every version pragma of the units solc reads"
+        },
+        "sha256": "c35ce7a4d3ffa5747c178b1e24c8541b2e5d8a82c1db3719eb4433a1f19e16f3",
+        "version": "0.5.17+commit.d19bba13.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "inherited_storage": [
+    {
+      "declared_in": "CErc20Storage",
+      "kind": "scalar",
+      "name": "underlying",
+      "offset": 0,
+      "slot": 0,
+      "value": "address",
+      "width": 160
+    }
+  ],
+  "storage": [],
+  "target": {
+    "commit": "c5fcc34222693ad5f547b14ed01ce719b5f4b000",
+    "repo": "compound-finance/compound-protocol",
+    "scope": "contract CErc20Interface of contracts/CTokenInterfaces.sol"
+  }
+}

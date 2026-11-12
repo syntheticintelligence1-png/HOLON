@@ -1,0 +1,57 @@
+{
+  "carrier": {
+    "id": "msgEventer",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/p2p.msgEventer"
+  },
+  "component": "msg_eventer_ops",
+  "document": "results/M6/I112/holon/c09/facts/go_1.go.extracted.json",
+  "document_sha256": "653c8b6f75047a9413fc02af789dee90d2646105ab0f22d77ae875a49a6a6f3f",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_msgEventer_Close": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "ev",
+          "type": "*github.com/ethereum/go-ethereum/p2p.msgEventer"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.msgEventer).Close",
+      "span": "p2p/message.go:320"
+    },
+    "p2p_msgEventer_ReadMsg": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "ev",
+          "type": "*github.com/ethereum/go-ethereum/p2p.msgEventer"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "github.com/ethereum/go-ethereum/p2p.Msg",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.msgEventer).ReadMsg",
+      "span": "p2p/message.go:282"
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ],
+    "R_Msg_Error": [
+      "github.com/ethereum/go-ethereum/p2p.Msg",
+      "error"
+    ]
+  }
+}

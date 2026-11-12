@@ -282,6 +282,15 @@ jobs:
             # corpus and sealed measures (P7-P10, P14; results/M6/I111) are the key's measured outcome, not run here.
             timeout: 60
             run: python -m unittest tests_m6.test_i111_types_totality.TestFallback tests_m6.test_i111_types_totality.TestPlanted tests_m6.test_i111_types_totality.TestGoCoverage tests_m6.test_i111_types_totality.TestSearch tests_m6.test_i111_types_totality.TestSearchIdentity tests_m6.test_i111_types_totality.TestRegressions -v
+          - name: tests-m6-i112
+            # I112 (M6, the run wall): (1) the composed driver's per-runner routing (P1, P2) and the DISCH runner's
+            # section errors as UNKNOWN (P3, a planted Go section error); (2) O1 widened to the refusal classes
+            # gen_error, member_layout and unsupported, each in I111's three planted shapes (P4, P5), a milestone-wide
+            # input error still a refusal (P6); (3) withhold() over gen/ and the run details and (4) the toolchain-set
+            # preflight (P7); the regressions (P14, R1). The corpus and sealed measures (P8-P13; results/M6/I112) are
+            # the key's measured outcome, not run here. Nothing here analyses a sealed target (Q56 (5)).
+            timeout: 90
+            run: python -m unittest tests_m6.test_i112_run_wall.TestRouting tests_m6.test_i112_run_wall.TestRoutingPlanted tests_m6.test_i112_run_wall.TestSectionErrors tests_m6.test_i112_run_wall.TestUnsupportedClass tests_m6.test_i112_run_wall.TestMemberLayoutClass tests_m6.test_i112_run_wall.TestMilestoneWide tests_m6.test_i112_run_wall.TestWithholdPreflight tests_m6.test_i112_run_wall.TestRegressions -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

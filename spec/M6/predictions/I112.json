@@ -1,0 +1,136 @@
+{
+ "title": "I112: the run wall (HUMAN_ANSWERS Q80-Q85): (1) the composed driver's run step routes every law to the runner of its rule family with that runner's own arguments (protocol run_routing \"per_runner\"), and a DISCH section error makes that section's laws UNKNOWN, recorded with the error, every other section still running (--section-errors unknown); (2) O1 widened: extracted_eval.Unsupported and the member-layout refusal also make a document opaque (typed.types_opaque_classes), I111's O2-O7 unchanged; (3) withhold() in the driver covers gen/ and the run details; (4) Q80's toolchain-set preflight. Run through holon eval holon --compose with I111's protocol plus the four opt-ins",
+ "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I112)",
+ "prompt": "prompts/I112_run_wall.md",
+ "tests": [
+  "tests_m6/test_i112_run_wall.py"
+ ],
+ "outcome_paths": [
+  "results/M6/I112/",
+  "docs/iterations/I112.md"
+ ],
+ "thresholds": {
+  "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P7 are on planted fixtures (tests_m6/fixtures/i112, and I111's) and unit inputs. P8-P12 are smoke measures on I51's corpus, contaminated by I51, I103-I111 and I107. P13 is a measurement on I106's targets, contaminated: post-I107. A later sealed draw scores generality. Laws are reported as aggregates only (Q56); stage reasons only for stages before any decision (Q72).",
+  "instruments": "spec/M6/lib/i112_run.json (the run protocol: I111's plus run_routing \"per_runner\", disch.section_errors \"unknown\", typed.types_opaque_classes and preflight \"toolchain_sets\"; the tier typed.sort_budget is I110's 5000000, unchanged) and tests_m6/test_i112_run_wall.py (every check)",
+  "base": "claude/i111-types-totality at 3b36f18a (I111, #188 not yet landed)",
+  "baseline": "I111's counted composed run (results/M6/I111/holon/corpus.json; the toolchain sets missing): entries ok at extract 10, sorts 10, types 9, model 9, disch 9, derive 9, run 0; 107 laws derived, 0 decided",
+  "counting": "Q80, Q76, Q69: the counted run is the first measured run of holon eval holon --protocol spec/M6/lib/i112_run.json --compose over the corpus that finishes; every prediction is scored on it. A re-run counts only if the first attempt never finished; any other re-run is reported beside it as not counted. No tier is added. The lead's correction to Q80 (relayed before this prereg): no started run's output is ever deleted, counted or not; a run that extracts nothing, fails or is abandoned keeps its output, recorded or vaulted under Q56, and is reported.",
+  "routing": "The definition (fixed here, before any build commit). Opt-in only: the protocol names run_routing \"per_runner\". Without it the driver's run step is I110's two calls, unchanged. Under it, holon.eval.holon_run.route(derivation) groups the derived law ids, each by its laws/<M>/DERIVATION.json entry: disch: rule DISCH with a sub-form of holon.disch.run.SUBFORMS; fact: rule FACT; typed: rule SORT with sub-form as_member, realize or reinterpret, and rules UNDO and SYM; milestone: every other law (PAR and every route C family). Each non-empty group is one `holon run --milestone M --laws <ids> --out results/M --gen-dir gen/M` call, in the order disch, fact, typed, milestone, with only its runner's arguments: disch --sidecar <typed> --disch <disch> --section-errors unknown (when the protocol names disch.section_errors); fact --sidecar <typed> --fact-sidecar <fact>; typed --sidecar <typed>; milestone none. A call that fails is recorded (its exit) and the next one runs. A law with no record after every call is UNKNOWN with no record. The stage detail holds aggregates only (per runner: laws, status, exit, records, section errors).",
+  "section_errors": "The definition (fixed here, before any build commit). Opt-in only: `holon run ... --section-errors unknown` (holon.disch.run). Without it a holon.disch.section.SectionError raised while building one document's DISCH section propagates and stops the runner, as before. Under it, when building a document's section (holon.disch.run.Doc) raises SectionError, that document's section is in error: every DISCH law the run names whose facts document is that document gets a record with status UNKNOWN, kernel verdict not_run, checker not_run, no witness, attempts [{kind: section, error: <the error's text>}] and bound \"the DISCH section of <model> is refused: <the error's text>\"; no candidate, proof or search is attempted for it, so an error never yields PROVED or REFUTED. Every other document's section is built and its laws decided as before; S3's neighbourhood seeds are taken from the laws of the same document only (unchanged), so another section's error changes no verdict of a section without one. Only SectionError is caught: any other exception still stops the runner.",
+  "opaque_classes": "The definition (fixed here, before any build commit; Q81). Opt-in only: a typed-sorts sidecar under types_fallback \"opaque\" names types_opaque_classes, a non-empty sorted subset of [\"gen_error\", \"member_layout\", \"unsupported\"]; any other value is refused when the sidecar is read, and the key without types_fallback is refused. Absent, the classes are [\"gen_error\"] and every output is I111's byte for byte. A document's typed model generation that raises holon.sorts.model3.GenError, whatever the GenError (the lead's correction to Q81, relayed before this prereg: not only I111's ill-sorted case; I111's code already catches every GenError, so this names its class), is class gen_error; holon.machine.MemberLayoutError (a ModelError subclass raised exactly where holon.machine refuses a field whose slot or offset is not the compiler's member layout of its family's type, the refusal I111 recorded; its text is unchanged) is class member_layout; holon.extracted_eval.Unsupported is class unsupported. A document is opaque when its error's class is named; each miss then also records class (only when the sidecar names types_opaque_classes). I111's O2-O7 are unchanged: no model, no state, no action, no law; every later stage reads the typed documents only. A milestone-wide input error stays a refusal of the milestone: the assignment, the sidecar, the seeds or the binding unreadable (exit 1), a taint violation (exit 2), and every other exception, ModelError included (a family's slot or offset not in the compiler's layout at all, a document that cannot be loaded), refuse the milestone as before.",
+  "withhold": "(3) holon_run.withhold, which runs on every composed row (the --roles opt-in), also removes from the committed output every file under <id>/gen/ whose path or text names a law id the entry derived (kept in the vault under withheld_gen/), recorded as <id>/gen_withheld.json {files, sha256} (I111's tool's canonical form), and replaces every law id inside a stage's detail with \"<law id withheld>\". The run stage's detail (per_runner) is aggregates only. After it, no committed file of the entry names a derived law id, and no record, verdict or witness is committed.",
+  "preflight": "(4) Q80. Under the protocol's preflight \"toolchain_sets\", holon eval holon checks, before any entry runs, every binary of config/toolchains.json its protocol can select (solidity.compiler.version \"pragma\": every solc_set release, the file <dir>/solc-<v> present with the pinned sha256; go.toolchain \"go_directive\": every go_set release, its go binary present and printing the pinned version_line, the go_set pinning tarballs rather than binaries). Any missing or different: exit 2, nothing written, the failures named on stderr. Otherwise corpus.json records preflight {status: ok, solc: {checked, ok}, go: {checked, ok}, binaries: [{tool, version, path, sha256 or version_line, ok}]}.",
+  "soundness": "(1) routing changes which process decides a law, never how: each runner decides its laws as it does when holon run is called on them alone. A section error yields UNKNOWN with no attempt, so it can only remove decisions. (2) opacity under the new classes is I111's O2-O4: the document contributes no model, state, action or law, so it only removes constraints. (3) and (4) decide nothing.",
+  "amendment_to_brief": "The coordinator's message (queued 16:57:57Z, read 17:05:05Z, before the prereg was pushed): Q81 covers GenError whenever it is raised for one document, extracted_eval.Unsupported and the member-layout refusal, each with its own planted fixture in I111's three shapes; Q80: no started run's output is ever deleted; the committed HUMAN_ANSWERS rows win when they land."
+ },
+ "predictions": [
+  {
+   "id": "I112-P1",
+   "claim": "(1) Routing, unit level: holon.eval.holon_run.route over a planted DERIVATION.json with one law of each family (DISCH revert, FACT, SORT realize, UNDO, SYM, PAR totality, PAR domain_coherence) groups them as the definition says, and each group's argv carries exactly its runner's arguments (milestone: no --sidecar, --disch or --fact-sidecar; disch: --section-errors unknown only under disch.section_errors). Without run_routing the driver's run step issues I110's two calls (I111's fixtures decide as before).",
+   "check": "tests_m6/test_i112_run_wall.py::TestRouting"
+  },
+  {
+   "id": "I112-P2",
+   "claim": "(1) End to end on I111's planted milestone {Ledger, WiperKept} under the I112 protocol: the run stage is ok, every derived law has a record, and the verdicts equal I111's protocol's (the two-call route) law for law; the run detail names no law id.",
+   "check": "tests_m6/test_i112_run_wall.py::TestRoutingPlanted::test_p2_same_verdicts"
+  },
+  {
+   "id": "I112-P3",
+   "claim": "(1) A planted DISCH section error (tests_m6/fixtures/i112: a Go machine Gated whose guard reads the answer of an unknown call, which holon.disch.section refuses: a state condition reads more of the context than storage and time). On {Ledger, Gated} under --section-errors unknown: holon run exits 0; every DISCH law over Gated is UNKNOWN with attempts [{kind: section}] and the error's text in its bound, none PROVED or REFUTED; Ledger's records equal Ledger alone (seconds and model_sha256 removed). Without the option the same run fails as before (a SectionError, non-zero exit) and records no law of Ledger or Gated.",
+   "check": "tests_m6/test_i112_run_wall.py::TestSectionErrors"
+  },
+  {
+   "id": "I112-P4",
+   "claim": "(2) Class unsupported, three planted shapes (tests_m6/fixtures/i112: Solidity contracts compiled by the pinned solc 0.8.24): a document whose typed model generation raises extracted_eval.Unsupported is opaque with class unsupported under the widened classes, and the milestone is refused (types not ok) under I111's classes; alone: no law over it; cross-document with a typed neighbour: the neighbour's laws byte-identical and records equal to the neighbour alone; constrained-state control (the same contract without the refused term) decides at least one law, which the opaque document leaves UNKNOWN (no record over it PROVED or REFUTED).",
+   "check": "tests_m6/test_i112_run_wall.py::TestUnsupportedClass"
+  },
+  {
+   "id": "I112-P5",
+   "claim": "(2) Class member_layout, three planted shapes, as P4: a Solidity document whose storage declaration names a struct field at a slot or offset that is not the compiler's member layout of its type (planted by tools/i112_fixture.py from the compiled, well-formed document, by a stated edit) is opaque with class member_layout under the widened classes and refused under I111's; alone, cross-document and constrained-state as P4.",
+   "check": "tests_m6/test_i112_run_wall.py::TestMemberLayoutClass"
+  },
+  {
+   "id": "I112-P6",
+   "claim": "(2) A milestone-wide input error stays a refusal: under the widened classes, a family whose slot is not in the compiler's layout at all (a planted ModelError that is not MemberLayoutError) still refuses the milestone (holon types exits 1, nothing written); an unknown class name, or types_opaque_classes without types_fallback, is refused when the sidecar is read; without types_opaque_classes, opaque.json is byte-identical to I111's on I111's fixture (no class field).",
+   "check": "tests_m6/test_i112_run_wall.py::TestMilestoneWide"
+  },
+  {
+   "id": "I112-P7",
+   "claim": "(3) and (4): withhold on a planted entry directory removes every gen/ file naming a law id (recorded in gen_withheld.json with I111's canonical hash), redacts law ids in stage details, and leaves no committed file naming one; the preflight passes on a complete set, refuses (exit 2, nothing written) when a solc_set binary is missing or its sha256 differs, or a go_set binary's version line differs.",
+   "check": "tests_m6/test_i112_run_wall.py::TestWithholdPreflight"
+  },
+  {
+   "id": "I112-P8",
+   "claim": "(Corpus) holon eval holon --protocol spec/M6/lib/i112_run.json --compose, the counted run, with the toolchain sets installed: the preflight is recorded ok; entries whose stage is ok at least extract 13, sorts 13, types 12, model 12, derive 12, run 6; every stage not ok has a reason; every row is compose.",
+   "check": "tests_m6/test_i112_run_wall.py::TestCorpusSmoke::test_p8_stage_reach",
+   "expected": {
+    "entries_at_least": {
+     "extract": 13,
+     "sorts": 13,
+     "types": 12,
+     "model": 12,
+     "derive": 12,
+     "run": 6
+    }
+   }
+  },
+  {
+   "id": "I112-P9",
+   "claim": "(Corpus) laws as aggregates (Q56; never PROVED split from REFUTED): at least 100 derived, at least 10 decided, and derived = decided + unknown per family; per-law rows withheld; no sorts or types timeout.",
+   "check": "tests_m6/test_i112_run_wall.py::TestCorpusSmoke::test_p9_laws_aggregate",
+   "expected": {
+    "derived_at_least": 100,
+    "decided_at_least": 10
+   }
+  },
+  {
+   "id": "I112-P10",
+   "claim": "(Corpus) no run stage fails on argument routing (no run detail names unrecognized arguments), and DISCH section errors are counted per runner: at least 3 entries record at least one DISCH section error, and no other runner reports one.",
+   "check": "tests_m6/test_i112_run_wall.py::TestCorpusSmoke::test_p10_runners",
+   "expected": {
+    "section_error_entries_at_least": 3
+   }
+  },
+  {
+   "id": "I112-P11",
+   "claim": "(Corpus) documents opaque per refusal class, aggregated: gen_error at least 20, unsupported at least 1 (types_opaque misses carry class).",
+   "check": "tests_m6/test_i112_run_wall.py::TestCorpusSmoke::test_p11_opaque_classes",
+   "expected": {
+    "gen_error_at_least": 20,
+    "unsupported_at_least": 1
+   }
+  },
+  {
+   "id": "I112-P12",
+   "claim": "(Corpus, (3)) no committed file under results/M6/I112/holon names a law id (the pattern L_ followed by a law id's characters, as derived laws are named) outside the aggregates' family keys; every entry with laws has a laws_bundle_sha256.",
+   "check": "tests_m6/test_i112_run_wall.py::TestCorpusSmoke::test_p12_nothing_per_law_committed"
+  },
+  {
+   "id": "I112-P13",
+   "claim": "(Spent targets, contaminated: post-I107) through --compose with --vault: EigenLayer's types is ok (its member-layout refusal now an opaque document); Aave V3's types is ok and its disch still refuses the milestone (Q83: no per-document DISCH fallback here); aggregates only, one bundle commitment per target.",
+   "check": "tests_m6/test_i112_run_wall.py::TestSealedContaminated::test_p13_spent_targets"
+  },
+  {
+   "id": "I112-P14",
+   "claim": "Morph moves only by re-stamp: no M0-M3 sidecar names run_routing, section_errors or types_opaque_classes; every JSON under results/M0-M3 and laws/M0-M3 equals the lead's once generator_sha256 and every seconds are removed (G1_EXCLUDED skipped). The gates M0, M1, M2 and partial M3 are run locally and reported.",
+   "check": "tests_m6/test_i112_run_wall.py::TestRegressions"
+  }
+ ],
+ "regressions": [
+  {
+   "id": "I112-R1",
+   "claim": "Every earlier tests_m6 CI job still passes on this branch with no test dropped; an earlier key's test that this key's protocol breaks is amended with its amendment line first (I111's test_p6_earlier_protocols_name_no_types_fallback names the protocols it was written for).",
+   "check": "tests_m6/test_i112_run_wall.py::TestRegressions::test_r1_earlier_jobs_listed"
+  },
+  {
+   "id": "I112-R2",
+   "claim": "holon/ names no target (tests_m2.test_target_agnostic and its exhaustive form).",
+   "check": "tests_m2/test_target_agnostic.py"
+  },
+  {
+   "id": "I112-R3",
+   "claim": "I111's contract classes TestFallback, TestPlanted and TestGoCoverage pass unchanged (I111's protocol names none of the opt-ins).",
+   "check": "tests_m6/test_i111_types_totality.py"
+  }
+ ]
+}

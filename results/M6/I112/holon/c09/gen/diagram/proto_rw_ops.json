@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Msg_Error",
+      "cls": "rep",
+      "id": "R_Msg_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "protoRW",
+      "cls": "rep",
+      "domains": [
+        "ok_p2p_protoRW_ReadMsg"
+      ],
+      "id": "protoRW",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I112/holon/c09/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_protoRW_ReadMsg",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_protoRW_ReadMsg",
+      "kind": "CODEC",
+      "model_fn": "p2p_protoRW_ReadMsg",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/p2p.protoRW).ReadMsg"
+        }
+      ],
+      "src": "protoRW",
+      "tgt": "R_Msg_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/proto_rw_ops.json",
+  "facts_sha256": "6acce457a9e8d78b52788787ec422939ef0b1a320487d7c930c53af738b20317",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "proto_rw_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

@@ -85,6 +85,11 @@ class ModelError(ValueError):
     """A document the extracted model cannot be built from (named)."""
 
 
+class MemberLayoutError(ModelError):
+    """A field the document places at a slot or offset that is not the compiler's member layout of its family's type
+    (I112: a per-document refusal, so the types fallback's class member_layout; its text is unchanged)."""
+
+
 def dumps(obj) -> str:
     return json.dumps(obj, indent=2, sort_keys=True) + "\n"
 
@@ -643,8 +648,8 @@ class ExtractedModel:
             if "slot" in f:
                 mt = self._member(le["type"], f["name"])
                 if mt is None or int(mt["slot"]) != int(f["slot"]) or int(mt["offset"]) != int(f.get("offset", 0)):
-                    raise ModelError(f"family {s['name']}: field {f['name']} at slot {f['slot']} offset "
-                                     f"{f.get('offset')} is not the compiler's member layout")
+                    raise MemberLayoutError(f"family {s['name']}: field {f['name']} at slot {f['slot']} offset "
+                                            f"{f.get('offset')} is not the compiler's member layout")
         name = f"{s['declared_in']}.{s['name']}" if shared_name and s.get("declared_in") else s["name"]
         if name in self.families:
             raise ModelError(f"family {name}: declared twice")

@@ -1,0 +1,737 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "rawdb.freezerdb",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "AncientDatadir",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "storage",
+        "ancientRoot"
+      ],
+      "selector": null,
+      "src": "core/rawdb/database.go:45",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "rawdb.freezerdb",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/ethdb.AncientStore.Close",
+                  [
+                    "storage",
+                    "AncientStore"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Close",
+                  [
+                    "storage",
+                    "KeyValueStore"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!=",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "core/rawdb/database.go:57",
+                    "append"
+                  ]
+                ],
+                0
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/ethdb.AncientStore.Close",
+                      [
+                        "storage",
+                        "AncientStore"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Close",
+                      [
+                        "storage",
+                        "KeyValueStore"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "len",
+                      [
+                        "unknown",
+                        "core/rawdb/database.go:57",
+                        "append"
+                      ]
+                    ],
+                    0
+                  ]
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            },
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/ethdb.AncientStore.Close",
+                      [
+                        "storage",
+                        "AncientStore"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Close",
+                        [
+                          "storage",
+                          "KeyValueStore"
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "len",
+                      [
+                        "unknown",
+                        "core/rawdb/database.go:54",
+                        "append"
+                      ]
+                    ],
+                    0
+                  ]
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            },
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/ethdb.AncientStore.Close",
+                        [
+                          "storage",
+                          "AncientStore"
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Close",
+                      [
+                        "storage",
+                        "KeyValueStore"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "len",
+                      [
+                        "unknown",
+                        "core/rawdb/database.go:57",
+                        "append"
+                      ]
+                    ],
+                    0
+                  ]
+                ]
+              ],
+              "seq": 2,
+              "stack": []
+            },
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/ethdb.AncientStore.Close",
+                        [
+                          "storage",
+                          "AncientStore"
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Close",
+                        [
+                          "storage",
+                          "KeyValueStore"
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "len",
+                      0
+                    ],
+                    0
+                  ]
+                ]
+              ],
+              "seq": 3,
+              "stack": []
+            }
+          ],
+          "reason": "%v",
+          "src": "core/rawdb/database.go:60"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Close",
+      "order": [
+        [
+          "guard",
+          "core/rawdb/database.go:60",
+          0
+        ],
+        [
+          "guard",
+          "core/rawdb/database.go:60",
+          1
+        ],
+        [
+          "guard",
+          "core/rawdb/database.go:60",
+          2
+        ],
+        [
+          "guard",
+          "core/rawdb/database.go:60",
+          3
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "core/rawdb/database.go:51",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "rawdb.freezerdb",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "!",
+            [
+              "unknown",
+              "core/rawdb/database.go:69",
+              "load"
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "unknown",
+                  "core/rawdb/database.go:69",
+                  "load"
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": "read only",
+          "src": "core/rawdb/database.go:70"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Freeze",
+      "order": [
+        [
+          "guard",
+          "core/rawdb/database.go:70",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "core/rawdb/database.go:68",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/core/rawdb.freezerdb",
+  "debt": [
+    {
+      "action": "Freeze",
+      "kind": "channel",
+      "src": "core/rawdb/database.go:74",
+      "what": "send"
+    },
+    {
+      "action": "Freeze",
+      "kind": "channel",
+      "src": "core/rawdb/database.go:75",
+      "what": "receive"
+    }
+  ],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I112/holon/c04/sidecars/go_1_machines.json",
+      "sha256": "7e99e7e176a2b2a14735cfda74d6a67376522fca469d490ac0d1b36c5b02fa04"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "465595524f7aab55ed2de922471b58fe475e69c28f12f2299effbf430657d1df",
+        "unit": "core/rawdb/accessors_chain.go"
+      },
+      {
+        "sha256": "d08d1fa0ffe78060b5b3f02000c4058758774cd1b1f3cc73de1dd6ebf64a6911",
+        "unit": "core/rawdb/accessors_indexes.go"
+      },
+      {
+        "sha256": "5019be141463b9f9bbdf0c180082d91a368fb0b1e64d2929d236601f811402cc",
+        "unit": "core/rawdb/accessors_metadata.go"
+      },
+      {
+        "sha256": "d69c5e68c2efc0a3f83c888e8e473d659cb02951fa9569be14bee5ccf972c429",
+        "unit": "core/rawdb/accessors_snapshot.go"
+      },
+      {
+        "sha256": "d3418bef7787a4ac11c3b2a74583aabcd1741d33020c4988e17b7fb6435f14eb",
+        "unit": "core/rawdb/accessors_state.go"
+      },
+      {
+        "sha256": "79a57254002c822ebf8bca09c84bd9b5940c018df2e0b10c2a51318e2eadfa32",
+        "unit": "core/rawdb/accessors_sync.go"
+      },
+      {
+        "sha256": "e6cce9977cc65d655d4929ec7a2d5e0b60f4377b9f5460f63e5382d95cea06f0",
+        "unit": "core/rawdb/accessors_trie.go"
+      },
+      {
+        "sha256": "d95471576f7dcb62e8eddd9df9798c2c7304932b5edc6edec336087fe8e3e547",
+        "unit": "core/rawdb/ancient_scheme.go"
+      },
+      {
+        "sha256": "11c66e11a93567468ba30e5dabcc7389aef522b64e729fdaf74567108aae02c2",
+        "unit": "core/rawdb/ancient_utils.go"
+      },
+      {
+        "sha256": "5ab576a7635d0be0646538bee9c31f8d9a9c7db38edca78e058610ecb38c6770",
+        "unit": "core/rawdb/chain_freezer.go"
+      },
+      {
+        "sha256": "c29db509e1517bf3eda7d593a6c50bbee979567e2e0d92ef0739f7d7350ad90d",
+        "unit": "core/rawdb/chain_iterator.go"
+      },
+      {
+        "sha256": "88a4a6c469460f8eae8d186cef55a20eff2e254100344c2faa1a96360d719297",
+        "unit": "core/rawdb/database.go"
+      },
+      {
+        "sha256": "176d28ef6451b5720c9c73ab2a212423ccdd6ae72071aecea05cb65e85f9d53c",
+        "unit": "core/rawdb/freezer.go"
+      },
+      {
+        "sha256": "8d107f8cbce26e477583b018c52f220fc61acd79e93cbd49337a6e60b0218afa",
+        "unit": "core/rawdb/freezer_batch.go"
+      },
+      {
+        "sha256": "222c26d8c4456aaf242dc206b65a626d7759a62b04b8e5273d0cda475e56cd61",
+        "unit": "core/rawdb/freezer_meta.go"
+      },
+      {
+        "sha256": "c8eed3a58fdd72b01f756d500adeee1da9797374e77e589e520094a0aec88611",
+        "unit": "core/rawdb/freezer_resettable.go"
+      },
+      {
+        "sha256": "ae0c60c4129b156f23892ce717605ac7358f50b64d285a85e88ed79df25cd17d",
+        "unit": "core/rawdb/freezer_table.go"
+      },
+      {
+        "sha256": "0dd6d206360a80da6ea20086b71cde094589f641c637d9f477a38960c55eb46e",
+        "unit": "core/rawdb/freezer_utils.go"
+      },
+      {
+        "sha256": "b16bd0488e28f447c36a77a3c9577e3ce960f8a1cd1c6f38d0d9ff96f8c2cf04",
+        "unit": "core/rawdb/key_length_iterator.go"
+      },
+      {
+        "sha256": "a4ab78146eef832dce621693531cb21ab2440d16c70284140012e416e5a34fe9",
+        "unit": "core/rawdb/schema.go"
+      },
+      {
+        "sha256": "db40e600b282baddb77a42204242ba7793ec23d5113f6918fe2565afebc2420f",
+        "unit": "core/rawdb/table.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "rawdb.freezerdb",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "AncientDatadir": {
+        "declared_in": "rawdb.freezerdb",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "AncientDatadir",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Close": {
+        "declared_in": "rawdb.freezerdb",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Close",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Freeze": {
+        "declared_in": "rawdb.freezerdb",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Freeze",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "rawdb.freezerdb",
+          "label": "ancientRoot",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_string_storage"
+        },
+        {
+          "contract": "rawdb.freezerdb",
+          "label": "KeyValueStore",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "rawdb.freezerdb",
+          "label": "AncientStore",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_string_storage": {
+          "encoding": "bytes",
+          "label": "string",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "rawdb.freezerdb"
+    ],
+    "members": {
+      "fmt.Errorf": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "string"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "fmt.Errorf",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x86082f5f",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/ethdb.AncientStore.Close": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/ethdb.AncientStore.Close",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x5fe2e518",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Close": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Close",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x4f9c3472",
+          "visibility": "external"
+        }
+      ],
+      "len": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "len",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int64"
+            }
+          ],
+          "selector": "0xccc84848",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "core/rawdb/accessors_chain.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "ancientRoot",
+      "offset": 0,
+      "slot": 0,
+      "value": "string"
+    },
+    {
+      "kind": "scalar",
+      "name": "KeyValueStore",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "AncientStore",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "3705acd1a97b2cc9bbb092b326a9d8cfbc42037a",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/core/rawdb.freezerdb"
+  }
+}
