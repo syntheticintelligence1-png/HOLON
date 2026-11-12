@@ -1,0 +1,4542 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.rlpxTransport",
+      "edges": [],
+      "effects": [
+        {
+          "family": "conn",
+          "src": "p2p/transport.go:78"
+        },
+        {
+          "family": "rmu",
+          "src": "p2p/transport.go:78"
+        },
+        {
+          "family": "wbuf",
+          "src": "p2p/transport.go:78"
+        },
+        {
+          "family": "wmu",
+          "src": "p2p/transport.go:78"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "ReadMsg",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "conn": [
+          "?",
+          [
+            "==",
+            [
+              "at",
+              3,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                [
+                  "unknown",
+                  "p2p/transport.go:64",
+                  "havoc"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "at",
+                  3,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                    [
+                      "unknown",
+                      "p2p/transport.go:64",
+                      "havoc"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:78",
+              "havoc"
+            ],
+            [
+              "storage",
+              "conn"
+            ]
+          ]
+        ],
+        "rmu": [
+          "?",
+          [
+            "==",
+            [
+              "at",
+              3,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                [
+                  "unknown",
+                  "p2p/transport.go:64",
+                  "havoc"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "at",
+                  3,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                    [
+                      "unknown",
+                      "p2p/transport.go:64",
+                      "havoc"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:78",
+              "havoc"
+            ],
+            [
+              "storage",
+              "rmu"
+            ]
+          ]
+        ],
+        "wbuf": [
+          "?",
+          [
+            "==",
+            [
+              "at",
+              3,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                [
+                  "unknown",
+                  "p2p/transport.go:64",
+                  "havoc"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "at",
+                  3,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                    [
+                      "unknown",
+                      "p2p/transport.go:64",
+                      "havoc"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:78",
+              "havoc"
+            ],
+            [
+              "storage",
+              "wbuf"
+            ]
+          ]
+        ],
+        "wmu": [
+          "?",
+          [
+            "==",
+            [
+              "at",
+              3,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                [
+                  "unknown",
+                  "p2p/transport.go:64",
+                  "havoc"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "at",
+                  3,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                    [
+                      "unknown",
+                      "p2p/transport.go:64",
+                      "havoc"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:78",
+              "havoc"
+            ],
+            [
+              "storage",
+              "wmu"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "==",
+          [
+            "at",
+            3,
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+              [
+                "unknown",
+                "p2p/transport.go:64",
+                "havoc"
+              ]
+            ]
+          ],
+          0
+        ],
+        [
+          "unknown",
+          "p2p/transport.go:78",
+          "structv"
+        ],
+        [
+          "unknown",
+          "p2p/transport.go:78",
+          "structv"
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/transport.go:58",
+      "writes": [
+        {
+          "cond": [
+            "==",
+            [
+              "at",
+              3,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                [
+                  "unknown",
+                  "p2p/transport.go:64",
+                  "havoc"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "conn",
+          "path": [],
+          "seq": 0,
+          "src": "p2p/transport.go:78",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "==",
+            [
+              "at",
+              3,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                [
+                  "unknown",
+                  "p2p/transport.go:64",
+                  "havoc"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "rmu",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/transport.go:78",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "==",
+            [
+              "at",
+              3,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                [
+                  "unknown",
+                  "p2p/transport.go:64",
+                  "havoc"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "wbuf",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/transport.go:78",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "==",
+            [
+              "at",
+              3,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                [
+                  "unknown",
+                  "p2p/transport.go:64",
+                  "havoc"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "wmu",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/transport.go:78",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "at",
+                3,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                  [
+                    "unknown",
+                    "p2p/transport.go:64",
+                    "havoc"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "conn",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/transport.go:78",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "at",
+                3,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                  [
+                    "unknown",
+                    "p2p/transport.go:64",
+                    "havoc"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "rmu",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/transport.go:78",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "at",
+                3,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                  [
+                    "unknown",
+                    "p2p/transport.go:64",
+                    "havoc"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "wbuf",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/transport.go:78",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "at",
+                3,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+                  [
+                    "unknown",
+                    "p2p/transport.go:64",
+                    "havoc"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "wmu",
+          "path": [],
+          "seq": 7,
+          "src": "p2p/transport.go:78",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:78",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.rlpxTransport",
+      "edges": [],
+      "effects": [
+        {
+          "family": "conn",
+          "src": "p2p/transport.go:105"
+        },
+        {
+          "family": "rmu",
+          "src": "p2p/transport.go:105"
+        },
+        {
+          "family": "wbuf",
+          "src": "p2p/transport.go:105"
+        },
+        {
+          "family": "wmu",
+          "src": "p2p/transport.go:105"
+        },
+        {
+          "family": "wbuf",
+          "src": "p2p/transport.go:88"
+        },
+        {
+          "family": "wmu",
+          "src": "p2p/transport.go:88"
+        },
+        {
+          "family": "conn",
+          "src": "p2p/transport.go:95"
+        },
+        {
+          "family": "rmu",
+          "src": "p2p/transport.go:95"
+        },
+        {
+          "family": "wbuf",
+          "src": "p2p/transport.go:95"
+        },
+        {
+          "family": "wmu",
+          "src": "p2p/transport.go:95"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "WriteMsg",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "msg",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "conn": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "io.CopyN",
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "member"
+                ],
+                [
+                  "sext",
+                  64,
+                  [
+                    "unknown",
+                    "p2p/transport.go:87",
+                    "member"
+                  ]
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "conn"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "!=",
+                  [
+                    "at",
+                    1,
+                    [
+                      "call",
+                      "io.CopyN",
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "ptr"
+                      ],
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ],
+                      [
+                        "sext",
+                        64,
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "member"
+                        ]
+                      ]
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:95",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "io.CopyN",
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "ptr"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "member"
+                        ],
+                        [
+                          "sext",
+                          64,
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "member"
+                          ]
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                        [
+                          "unknown",
+                          "p2p/transport.go:93",
+                          "havoc"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/transport.go:93",
+                          "member"
+                        ],
+                        [
+                          "call",
+                          "(*bytes.Buffer).Bytes",
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "ptr"
+                          ]
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:100",
+                  "load"
+                ],
+                [
+                  "!=",
+                  [
+                    "keccak256",
+                    [
+                      "unknown",
+                      "p2p/transport.go:100",
+                      "member"
+                    ]
+                  ],
+                  [
+                    "keccak256",
+                    [
+                      "str",
+                      ""
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/transport.go:105",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "at",
+                        1,
+                        [
+                          "call",
+                          "io.CopyN",
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "ptr"
+                          ],
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "member"
+                          ],
+                          [
+                            "sext",
+                            64,
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "member"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "at",
+                        1,
+                        [
+                          "call",
+                          "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "havoc"
+                          ],
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "member"
+                          ],
+                          [
+                            "call",
+                            "(*bytes.Buffer).Bytes",
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "ptr"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:100",
+                    "load"
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "keccak256",
+                        [
+                          "unknown",
+                          "p2p/transport.go:100",
+                          "member"
+                        ]
+                      ],
+                      [
+                        "keccak256",
+                        [
+                          "str",
+                          ""
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:105",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "at",
+                          1,
+                          [
+                            "call",
+                            "io.CopyN",
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "ptr"
+                            ],
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "member"
+                            ],
+                            [
+                              "sext",
+                              64,
+                              [
+                                "unknown",
+                                "p2p/transport.go:87",
+                                "member"
+                              ]
+                            ]
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "at",
+                          1,
+                          [
+                            "call",
+                            "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "havoc"
+                            ],
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "member"
+                            ],
+                            [
+                              "call",
+                              "(*bytes.Buffer).Bytes",
+                              [
+                                "unknown",
+                                "p2p/transport.go:93",
+                                "ptr"
+                              ]
+                            ]
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "unknown",
+                        "p2p/transport.go:100",
+                        "load"
+                      ]
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:105",
+                    "havoc"
+                  ],
+                  [
+                    "storage",
+                    "conn"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "rmu": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "io.CopyN",
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "member"
+                ],
+                [
+                  "sext",
+                  64,
+                  [
+                    "unknown",
+                    "p2p/transport.go:87",
+                    "member"
+                  ]
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "storage",
+            "rmu"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "!=",
+                  [
+                    "at",
+                    1,
+                    [
+                      "call",
+                      "io.CopyN",
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "ptr"
+                      ],
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ],
+                      [
+                        "sext",
+                        64,
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "member"
+                        ]
+                      ]
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:95",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "io.CopyN",
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "ptr"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "member"
+                        ],
+                        [
+                          "sext",
+                          64,
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "member"
+                          ]
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                        [
+                          "unknown",
+                          "p2p/transport.go:93",
+                          "havoc"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/transport.go:93",
+                          "member"
+                        ],
+                        [
+                          "call",
+                          "(*bytes.Buffer).Bytes",
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "ptr"
+                          ]
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:100",
+                  "load"
+                ],
+                [
+                  "!=",
+                  [
+                    "keccak256",
+                    [
+                      "unknown",
+                      "p2p/transport.go:100",
+                      "member"
+                    ]
+                  ],
+                  [
+                    "keccak256",
+                    [
+                      "str",
+                      ""
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/transport.go:105",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "at",
+                        1,
+                        [
+                          "call",
+                          "io.CopyN",
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "ptr"
+                          ],
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "member"
+                          ],
+                          [
+                            "sext",
+                            64,
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "member"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "at",
+                        1,
+                        [
+                          "call",
+                          "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "havoc"
+                          ],
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "member"
+                          ],
+                          [
+                            "call",
+                            "(*bytes.Buffer).Bytes",
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "ptr"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:100",
+                    "load"
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "keccak256",
+                        [
+                          "unknown",
+                          "p2p/transport.go:100",
+                          "member"
+                        ]
+                      ],
+                      [
+                        "keccak256",
+                        [
+                          "str",
+                          ""
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:105",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "at",
+                          1,
+                          [
+                            "call",
+                            "io.CopyN",
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "ptr"
+                            ],
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "member"
+                            ],
+                            [
+                              "sext",
+                              64,
+                              [
+                                "unknown",
+                                "p2p/transport.go:87",
+                                "member"
+                              ]
+                            ]
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "at",
+                          1,
+                          [
+                            "call",
+                            "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "havoc"
+                            ],
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "member"
+                            ],
+                            [
+                              "call",
+                              "(*bytes.Buffer).Bytes",
+                              [
+                                "unknown",
+                                "p2p/transport.go:93",
+                                "ptr"
+                              ]
+                            ]
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "unknown",
+                        "p2p/transport.go:100",
+                        "load"
+                      ]
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:105",
+                    "havoc"
+                  ],
+                  [
+                    "storage",
+                    "rmu"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "wbuf": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "io.CopyN",
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "member"
+                ],
+                [
+                  "sext",
+                  64,
+                  [
+                    "unknown",
+                    "p2p/transport.go:87",
+                    "member"
+                  ]
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/transport.go:88",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "!=",
+                  [
+                    "at",
+                    1,
+                    [
+                      "call",
+                      "io.CopyN",
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "ptr"
+                      ],
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ],
+                      [
+                        "sext",
+                        64,
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "member"
+                        ]
+                      ]
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:95",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "io.CopyN",
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "ptr"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "member"
+                        ],
+                        [
+                          "sext",
+                          64,
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "member"
+                          ]
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                        [
+                          "unknown",
+                          "p2p/transport.go:93",
+                          "havoc"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/transport.go:93",
+                          "member"
+                        ],
+                        [
+                          "call",
+                          "(*bytes.Buffer).Bytes",
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "ptr"
+                          ]
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:100",
+                  "load"
+                ],
+                [
+                  "!=",
+                  [
+                    "keccak256",
+                    [
+                      "unknown",
+                      "p2p/transport.go:100",
+                      "member"
+                    ]
+                  ],
+                  [
+                    "keccak256",
+                    [
+                      "str",
+                      ""
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/transport.go:105",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "at",
+                        1,
+                        [
+                          "call",
+                          "io.CopyN",
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "ptr"
+                          ],
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "member"
+                          ],
+                          [
+                            "sext",
+                            64,
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "member"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "at",
+                        1,
+                        [
+                          "call",
+                          "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "havoc"
+                          ],
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "member"
+                          ],
+                          [
+                            "call",
+                            "(*bytes.Buffer).Bytes",
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "ptr"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:100",
+                    "load"
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "keccak256",
+                        [
+                          "unknown",
+                          "p2p/transport.go:100",
+                          "member"
+                        ]
+                      ],
+                      [
+                        "keccak256",
+                        [
+                          "str",
+                          ""
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:105",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "at",
+                          1,
+                          [
+                            "call",
+                            "io.CopyN",
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "ptr"
+                            ],
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "member"
+                            ],
+                            [
+                              "sext",
+                              64,
+                              [
+                                "unknown",
+                                "p2p/transport.go:87",
+                                "member"
+                              ]
+                            ]
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "at",
+                          1,
+                          [
+                            "call",
+                            "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "havoc"
+                            ],
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "member"
+                            ],
+                            [
+                              "call",
+                              "(*bytes.Buffer).Bytes",
+                              [
+                                "unknown",
+                                "p2p/transport.go:93",
+                                "ptr"
+                              ]
+                            ]
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "unknown",
+                        "p2p/transport.go:100",
+                        "load"
+                      ]
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:105",
+                    "havoc"
+                  ],
+                  [
+                    "storage",
+                    "wbuf"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "wmu": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "io.CopyN",
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "member"
+                ],
+                [
+                  "sext",
+                  64,
+                  [
+                    "unknown",
+                    "p2p/transport.go:87",
+                    "member"
+                  ]
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/transport.go:88",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "!=",
+                  [
+                    "at",
+                    1,
+                    [
+                      "call",
+                      "io.CopyN",
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "ptr"
+                      ],
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ],
+                      [
+                        "sext",
+                        64,
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "member"
+                        ]
+                      ]
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:95",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "io.CopyN",
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "ptr"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/transport.go:87",
+                          "member"
+                        ],
+                        [
+                          "sext",
+                          64,
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "member"
+                          ]
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "at",
+                      1,
+                      [
+                        "call",
+                        "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                        [
+                          "unknown",
+                          "p2p/transport.go:93",
+                          "havoc"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/transport.go:93",
+                          "member"
+                        ],
+                        [
+                          "call",
+                          "(*bytes.Buffer).Bytes",
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "ptr"
+                          ]
+                        ]
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:100",
+                  "load"
+                ],
+                [
+                  "!=",
+                  [
+                    "keccak256",
+                    [
+                      "unknown",
+                      "p2p/transport.go:100",
+                      "member"
+                    ]
+                  ],
+                  [
+                    "keccak256",
+                    [
+                      "str",
+                      ""
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/transport.go:105",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "at",
+                        1,
+                        [
+                          "call",
+                          "io.CopyN",
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "ptr"
+                          ],
+                          [
+                            "unknown",
+                            "p2p/transport.go:87",
+                            "member"
+                          ],
+                          [
+                            "sext",
+                            64,
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "member"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "at",
+                        1,
+                        [
+                          "call",
+                          "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "havoc"
+                          ],
+                          [
+                            "unknown",
+                            "p2p/transport.go:93",
+                            "member"
+                          ],
+                          [
+                            "call",
+                            "(*bytes.Buffer).Bytes",
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "ptr"
+                            ]
+                          ]
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:100",
+                    "load"
+                  ],
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "keccak256",
+                        [
+                          "unknown",
+                          "p2p/transport.go:100",
+                          "member"
+                        ]
+                      ],
+                      [
+                        "keccak256",
+                        [
+                          "str",
+                          ""
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:105",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "at",
+                          1,
+                          [
+                            "call",
+                            "io.CopyN",
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "ptr"
+                            ],
+                            [
+                              "unknown",
+                              "p2p/transport.go:87",
+                              "member"
+                            ],
+                            [
+                              "sext",
+                              64,
+                              [
+                                "unknown",
+                                "p2p/transport.go:87",
+                                "member"
+                              ]
+                            ]
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "at",
+                          1,
+                          [
+                            "call",
+                            "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "havoc"
+                            ],
+                            [
+                              "unknown",
+                              "p2p/transport.go:93",
+                              "member"
+                            ],
+                            [
+                              "call",
+                              "(*bytes.Buffer).Bytes",
+                              [
+                                "unknown",
+                                "p2p/transport.go:93",
+                                "ptr"
+                              ]
+                            ]
+                          ]
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "unknown",
+                        "p2p/transport.go:100",
+                        "load"
+                      ]
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:105",
+                    "havoc"
+                  ],
+                  [
+                    "storage",
+                    "wmu"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "p2p/transport.go:81",
+      "writes": [
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "io.CopyN",
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "member"
+                ],
+                [
+                  "sext",
+                  64,
+                  [
+                    "unknown",
+                    "p2p/transport.go:87",
+                    "member"
+                  ]
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "wbuf",
+          "path": [],
+          "seq": 0,
+          "src": "p2p/transport.go:88",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:88",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "io.CopyN",
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "ptr"
+                ],
+                [
+                  "unknown",
+                  "p2p/transport.go:87",
+                  "member"
+                ],
+                [
+                  "sext",
+                  64,
+                  [
+                    "unknown",
+                    "p2p/transport.go:87",
+                    "member"
+                  ]
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "wmu",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/transport.go:88",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:88",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                  [
+                    "unknown",
+                    "p2p/transport.go:93",
+                    "havoc"
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:93",
+                    "member"
+                  ],
+                  [
+                    "call",
+                    "(*bytes.Buffer).Bytes",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "ptr"
+                    ]
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "conn",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/transport.go:95",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:95",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                  [
+                    "unknown",
+                    "p2p/transport.go:93",
+                    "havoc"
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:93",
+                    "member"
+                  ],
+                  [
+                    "call",
+                    "(*bytes.Buffer).Bytes",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "ptr"
+                    ]
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "rmu",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/transport.go:95",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:95",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                  [
+                    "unknown",
+                    "p2p/transport.go:93",
+                    "havoc"
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:93",
+                    "member"
+                  ],
+                  [
+                    "call",
+                    "(*bytes.Buffer).Bytes",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "ptr"
+                    ]
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "wbuf",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/transport.go:95",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:95",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                  [
+                    "unknown",
+                    "p2p/transport.go:93",
+                    "havoc"
+                  ],
+                  [
+                    "unknown",
+                    "p2p/transport.go:93",
+                    "member"
+                  ],
+                  [
+                    "call",
+                    "(*bytes.Buffer).Bytes",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "ptr"
+                    ]
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "wmu",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/transport.go:95",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:95",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:100",
+              "load"
+            ],
+            [
+              "!=",
+              [
+                "keccak256",
+                [
+                  "unknown",
+                  "p2p/transport.go:100",
+                  "member"
+                ]
+              ],
+              [
+                "keccak256",
+                [
+                  "str",
+                  ""
+                ]
+              ]
+            ]
+          ],
+          "family": "conn",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:100",
+              "load"
+            ],
+            [
+              "!=",
+              [
+                "keccak256",
+                [
+                  "unknown",
+                  "p2p/transport.go:100",
+                  "member"
+                ]
+              ],
+              [
+                "keccak256",
+                [
+                  "str",
+                  ""
+                ]
+              ]
+            ]
+          ],
+          "family": "rmu",
+          "path": [],
+          "seq": 7,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:100",
+              "load"
+            ],
+            [
+              "!=",
+              [
+                "keccak256",
+                [
+                  "unknown",
+                  "p2p/transport.go:100",
+                  "member"
+                ]
+              ],
+              [
+                "keccak256",
+                [
+                  "str",
+                  ""
+                ]
+              ]
+            ]
+          ],
+          "family": "wbuf",
+          "path": [],
+          "seq": 8,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:100",
+              "load"
+            ],
+            [
+              "!=",
+              [
+                "keccak256",
+                [
+                  "unknown",
+                  "p2p/transport.go:100",
+                  "member"
+                ]
+              ],
+              [
+                "keccak256",
+                [
+                  "str",
+                  ""
+                ]
+              ]
+            ]
+          ],
+          "family": "wmu",
+          "path": [],
+          "seq": 9,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:100",
+              "load"
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "keccak256",
+                  [
+                    "unknown",
+                    "p2p/transport.go:100",
+                    "member"
+                  ]
+                ],
+                [
+                  "keccak256",
+                  [
+                    "str",
+                    ""
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "family": "conn",
+          "path": [],
+          "seq": 10,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:100",
+              "load"
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "keccak256",
+                  [
+                    "unknown",
+                    "p2p/transport.go:100",
+                    "member"
+                  ]
+                ],
+                [
+                  "keccak256",
+                  [
+                    "str",
+                    ""
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "family": "rmu",
+          "path": [],
+          "seq": 11,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:100",
+              "load"
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "keccak256",
+                  [
+                    "unknown",
+                    "p2p/transport.go:100",
+                    "member"
+                  ]
+                ],
+                [
+                  "keccak256",
+                  [
+                    "str",
+                    ""
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "family": "wbuf",
+          "path": [],
+          "seq": 12,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/transport.go:100",
+              "load"
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "keccak256",
+                  [
+                    "unknown",
+                    "p2p/transport.go:100",
+                    "member"
+                  ]
+                ],
+                [
+                  "keccak256",
+                  [
+                    "str",
+                    ""
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "family": "wmu",
+          "path": [],
+          "seq": 13,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "unknown",
+                "p2p/transport.go:100",
+                "load"
+              ]
+            ]
+          ],
+          "family": "conn",
+          "path": [],
+          "seq": 14,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "unknown",
+                "p2p/transport.go:100",
+                "load"
+              ]
+            ]
+          ],
+          "family": "rmu",
+          "path": [],
+          "seq": 15,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "unknown",
+                "p2p/transport.go:100",
+                "load"
+              ]
+            ]
+          ],
+          "family": "wbuf",
+          "path": [],
+          "seq": 16,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "io.CopyN",
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "ptr"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:87",
+                      "member"
+                    ],
+                    [
+                      "sext",
+                      64,
+                      [
+                        "unknown",
+                        "p2p/transport.go:87",
+                        "member"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "havoc"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/transport.go:93",
+                      "member"
+                    ],
+                    [
+                      "call",
+                      "(*bytes.Buffer).Bytes",
+                      [
+                        "unknown",
+                        "p2p/transport.go:93",
+                        "ptr"
+                      ]
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "unknown",
+                "p2p/transport.go:100",
+                "load"
+              ]
+            ]
+          ],
+          "family": "wmu",
+          "path": [],
+          "seq": 17,
+          "src": "p2p/transport.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/transport.go:105",
+            "havoc"
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/p2p.rlpxTransport",
+  "debt": [
+    {
+      "action": "ReadMsg",
+      "kind": "defer",
+      "src": "p2p/transport.go:60",
+      "what": "deferred call; havocked: rmu"
+    },
+    {
+      "action": "WriteMsg",
+      "kind": "defer",
+      "src": "p2p/transport.go:83",
+      "what": "deferred call; havocked: wmu"
+    }
+  ],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I112/holon/c09/sidecars/go_1_machines.json",
+      "sha256": "d81f84236c07815c653af95dcc9ac93de0dd393c30399e9167fa7be9b29875ee"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "552aafb2f900a4cfd4fd0f1abaf860ab28d07a4d5624d26824710f9913488548",
+        "unit": "p2p/dial.go"
+      },
+      {
+        "sha256": "9ed3661b0aa04ae025f40bf140bcd7373029ea3903476d27b8f9c4ab9ca94a4e",
+        "unit": "p2p/message.go"
+      },
+      {
+        "sha256": "bcbd485ed0a843602e73fdafcf88c4e8c700dd0f2ae006d5aae33d751c5a8f93",
+        "unit": "p2p/metrics.go"
+      },
+      {
+        "sha256": "c55cf31f788e70baa25b7bf5d35354b5be0aabb0ed4673b5ea55fda72d804a4f",
+        "unit": "p2p/peer.go"
+      },
+      {
+        "sha256": "0a8e6b992ea1df69f413055d172edfe15fdcc547bebdd2cd5bc0dcd4157b3e69",
+        "unit": "p2p/peer_error.go"
+      },
+      {
+        "sha256": "0d9a72573ce3b1e7c30bcfa14d34138dd4097b19ff18908e40c560ee5efae42e",
+        "unit": "p2p/protocol.go"
+      },
+      {
+        "sha256": "c4238dc625c78fd462bd45b76aede8d0db4267dca8661d354a2bd7893bbbad01",
+        "unit": "p2p/server.go"
+      },
+      {
+        "sha256": "2e0a158e585224e2c80c791e13d63ddb7c1427f882d16c6481c70a8263c3f250",
+        "unit": "p2p/server_nat.go"
+      },
+      {
+        "sha256": "2c81a97d985e7d181b64b2cf6356897092c246d2ca8f0d2182aa6a1fad629474",
+        "unit": "p2p/transport.go"
+      },
+      {
+        "sha256": "346bf0e408e7d39c8cbbe0b75d433400a3ba653ab5f40d3cb8aaab47c272fdcf",
+        "unit": "p2p/util.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "p2p.rlpxTransport",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "ReadMsg": {
+        "declared_in": "p2p.rlpxTransport",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "ReadMsg",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "Code",
+                "type": "uint64"
+              },
+              {
+                "name": "Size",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "uint256"
+              },
+              {
+                "name": "ReceivedAt",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCap",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCode",
+                "type": "uint64"
+              },
+              {
+                "name": "meterSize",
+                "type": "uint32"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "WriteMsg": {
+        "declared_in": "p2p.rlpxTransport",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "Code",
+                "type": "uint64"
+              },
+              {
+                "name": "Size",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "uint256"
+              },
+              {
+                "name": "ReceivedAt",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCap",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCode",
+                "type": "uint64"
+              },
+              {
+                "name": "meterSize",
+                "type": "uint32"
+              }
+            ],
+            "name": "msg",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "WriteMsg",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "p2p.rlpxTransport",
+          "label": "rmu",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.rlpxTransport",
+          "label": "wmu",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.rlpxTransport",
+          "label": "wbuf",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.rlpxTransport",
+          "label": "conn",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "p2p.rlpxTransport"
+    ],
+    "members": {
+      "(*bytes.Buffer).Bytes": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*bytes.Buffer).Bytes",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "selector": "0x2c9858b0",
+          "visibility": "external"
+        }
+      ],
+      "(*bytes.Buffer).Reset": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*bytes.Buffer).Reset",
+          "outputs": [],
+          "selector": "0xb9492201",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Read",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint64"
+            },
+            {
+              "name": "",
+              "type": "bytes"
+            },
+            {
+              "name": "",
+              "type": "int64"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x7a055616",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).SetReadDeadline": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).SetReadDeadline",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xc00538d8",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).SetWriteDeadline": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).SetWriteDeadline",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x780769da",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint64"
+            },
+            {
+              "name": "a2",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/rlpx.Conn).Write",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint32"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x355c5311",
+          "visibility": "external"
+        }
+      ],
+      "(*sync.Mutex).Lock": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*sync.Mutex).Lock",
+          "outputs": [],
+          "selector": "0x27a067da",
+          "visibility": "external"
+        }
+      ],
+      "(time.Time).Add": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "int64"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(time.Time).Add",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x106f2bbd",
+          "visibility": "external"
+        }
+      ],
+      "bytes.NewReader": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "bytes.NewReader",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x0d2e76a1",
+          "visibility": "external"
+        }
+      ],
+      "fmt.Sprintf": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "string"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "fmt.Sprintf",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0x0d8b86cf",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/common.CopyBytes": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/common.CopyBytes",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "selector": "0x2eee0fce",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/metrics.GetOrRegisterMeter": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "string"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/metrics.GetOrRegisterMeter",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x6af0ccf0",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/metrics.Meter.Mark": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "int64"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/metrics.Meter.Mark",
+          "outputs": [],
+          "selector": "0x182a4a8e",
+          "visibility": "external"
+        }
+      ],
+      "io.CopyN": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "int64"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "io.CopyN",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int64"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xb600e7d1",
+          "visibility": "external"
+        }
+      ],
+      "time.Now": [
+        {
+          "inputs": [],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "time.Now",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x9b2b0f0c",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "p2p/dial.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "rmu",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "wmu",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "wbuf",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "conn",
+      "offset": 0,
+      "slot": 3,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "e13fa32cea3497aa311226c62daf21c5847c8e4f",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/p2p.rlpxTransport"
+  }
+}
