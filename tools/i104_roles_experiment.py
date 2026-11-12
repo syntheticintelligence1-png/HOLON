@@ -13,6 +13,7 @@ run refuses ends UNKNOWN without hiding the others.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -119,13 +120,27 @@ def morph(wt: Path, runlogs: Path | None) -> None:
                      "hand_status": hs, "auto_status": as_, "auto_note": note,
                      "roles_source": src if a is not None else None,
                      "class": PV.classify(as_, "not_attempted", src) if a is not None else None})
+    # HUMAN_ANSWERS Q56 (the lead's disclosure ruling): a law the generated roles add (no verdict on the lead) gets no
+    # per-law verdict here, only per-family aggregates that never split PROVED from REFUTED, and one sha256 commitment
+    # over the bundle of those laws' outputs (sorted paths, a sha256 per file, then a sha256 of that list).
+    fam: dict = {}
+    bundle = []
+    for r in rows:
+        if r["in_auto"] and not r["in_hand"]:
+            k = f"{r['rule']}/{r['subform']}"
+            f = fam.setdefault(k, {"derived": 0, "decided": 0, "unknown": 0, "not_run": 0})
+            f["derived"] += 1
+            st = r["auto_status"]
+            f["decided" if st in ("PROVED", "REFUTED") else ("unknown" if st == "UNKNOWN" else "not_run")] += 1
+            for q in (wt / "laws" / "M3" / f"{r['law_id']}.json", wt / "results" / "M3" / f"{r['law_id']}.json"):
+                if q.is_file():
+                    bundle.append(f"{q.relative_to(wt).as_posix()} {hashlib.sha256(q.read_bytes()).hexdigest()}")
+            r["auto_status"], r["class"] = None, None
+            r["auto_note"] = "withheld (HUMAN_ANSWERS Q56): see summary.new_by_family and summary.new_bundle_sha256"
+    bundle.sort()
     dep = [r for r in rows if r["role_dependent"] and r["hand_status"] in ("PROVED", "REFUTED")]
     same = [r for r in dep if r["auto_status"] == r["hand_status"] and r["statement_same"]]
     new = [r for r in rows if r["in_auto"] and not r["in_hand"]]
-    by: dict = {}
-    for r in new:
-        k = r["auto_status"] or "not_run"
-        by[k] = by.get(k, 0) + 1
     write("morph_auto.json", {
         "i104_version": "holon-i104/0.1", "mode": "static", "roles": "results/M6/I104/morph/roles.json",
         "doc": "Morph under --roles auto in a scratch worktree (spec/M3/lib/{go_laws,link,go_ops}.json replaced by "
@@ -136,7 +151,9 @@ def morph(wt: Path, runlogs: Path | None) -> None:
                     "role_dependent_lost": sorted(r["law_id"] for r in dep if r not in same),
                     "other_decided_unchanged": sum(1 for r in rows if not r["role_dependent"] and r["law_same"]
                                                    and r["hand_status"] in ("PROVED", "REFUTED")),
-                    "new_laws": len(new), "new_by_status": dict(sorted(by.items())),
+                    "new_laws": len(new), "new_by_family": dict(sorted(fam.items())),
+                    "new_bundle_files": len(bundle),
+                    "new_bundle_sha256": hashlib.sha256(("\n".join(bundle) + "\n").encode()).hexdigest(),
                     "findings": sum(1 for r in rows if r["class"] == "finding" and r["roles_source"] != "hand")},
         "laws": rows})
 
