@@ -60,7 +60,7 @@ def run_typed(milestone: str, root_p: Path, facts: list[str] | None, sidecar: st
                 raise PassError(f"--facts {f}: not inside the root {root_p}") from None
             docs.append(p)
     else:
-        docs = sc.documents
+        docs = sc.all_documents   # I111: the sort pass reads every document (holon.sorts.opaque)
     return run_pass(docs, root_p, milestone, seeds_path=sc.seeds, sidecar_path=sc.path)
 
 

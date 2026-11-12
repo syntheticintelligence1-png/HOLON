@@ -105,11 +105,47 @@ def _propagate(doms: dict, cons: list) -> bool:
     return True
 
 
+# I111 (Q78): the search's evaluation strategy. True: after propagation the network left over is split into its
+# independent parts (holon.sorts.solve._parts), each searched on its own; False: I110's chronological backtracking
+# over the whole network (the old strategy, kept for the byte-identity test). Both decide the same question.
+DECOMPOSE = True
+
+
+def _parts(doms: dict, cons: list) -> list:
+    """The independent parts of a propagated network: the constraints that hold a variable with more than one role
+    left, grouped by the connected components of those variables (two such variables are connected when one
+    constraint holds both). A constraint whose variables all have one role is satisfied (propagation left it a
+    supporting row) and drops out. Each part is (its domains: every variable its constraints hold, its constraints),
+    sorted by its least open variable."""
+    open_ = {v for v, d in doms.items() if len(d) > 1}
+    uf = UF()
+    for _tab, trip in cons:
+        vs = [v for v in trip if v in open_]
+        for v in vs:
+            uf.add(v)
+        for v in vs[1:]:
+            uf.union(vs[0], v)
+    groups: dict = {}
+    for c in cons:
+        vs = [v for v in c[1] if v in open_]
+        if vs:
+            groups.setdefault(uf.find(vs[0]), []).append(c)
+    out = []
+    for key in sorted(groups, key=lambda r: min(v for c in groups[r] for v in c[1] if v in open_)):
+        pc = groups[key]
+        out.append(({v: doms[v] for c in pc for v in c[1]}, pc))
+    return out
+
+
 def _search(doms: dict, cons: list) -> bool:
     _B.tick()   # I110 (a): one search node
     doms = {v: set(d) for v, d in doms.items()}
     if not _propagate(doms, cons):
         return False
+    if DECOMPOSE:
+        parts = _parts(doms, cons)
+        if len(parts) > 1:   # independent: the network is satisfiable iff every part is
+            return all(_search(pd, pc) for pd, pc in parts)
     for v in sorted(doms):
         if len(doms[v]) > 1:
             for val in sorted(doms[v]):

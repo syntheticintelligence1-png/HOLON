@@ -1,0 +1,219 @@
+{
+  "carrier": {
+    "id": "AccountRangePacket",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/eth/protocols/snap.AccountRangePacket"
+  },
+  "component": "account_range_packet_ops",
+  "document": "results/M6/I111/holon/c19/facts/go_1.go.extracted.json",
+  "document_sha256": "8501078a72a203a174c1bdcb4b0610e9cca12217f9f41a8a7ec8de0ead1aea09",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "snap_AccountRangePacket_Unpack": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "p",
+          "type": "*github.com/ethereum/go-ethereum/eth/protocols/snap.AccountRangePacket"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "[]github.com/ethereum/go-ethereum/common.Hash",
+        "[][]byte",
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t11",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t11",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "p"
+                  ],
+                  "Accounts"
+                ]
+              ]
+            ]
+          ],
+          "id": "eth/protocols/snap/protocol.go:106:24:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t11",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t11",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "alloc",
+                  "eth/protocols/snap/protocol.go:104:18",
+                  [
+                    "len",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "p"
+                      ],
+                      "Accounts"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "id": "eth/protocols/snap/protocol.go:111:22:index",
+          "kind": "index",
+          "status": "open",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t11",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t11",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "alloc",
+                  "eth/protocols/snap/protocol.go:103:18",
+                  [
+                    "len",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "p"
+                      ],
+                      "Accounts"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "id": "eth/protocols/snap/protocol.go:111:9:index",
+          "kind": "index",
+          "status": "open",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/eth/protocols/snap.AccountRangePacket).Unpack",
+      "span": "eth/protocols/snap/protocol.go:101"
+    }
+  },
+  "results": {
+    "R_SliceHash_SliceSliceByte_Error": [
+      "[]github.com/ethereum/go-ethereum/common.Hash",
+      "[][]byte",
+      "error"
+    ]
+  }
+}

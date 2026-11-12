@@ -1,0 +1,362 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.tcpDialer",
+      "edges": [],
+      "effects": [
+        {
+          "family": "d",
+          "src": "p2p/dial.go:67"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Dial",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "dest",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "d": [
+          "unknown",
+          "p2p/dial.go:67",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "at",
+        0,
+        [
+          "call",
+          "(*net.Dialer).DialContext",
+          [
+            "unknown",
+            "p2p/dial.go:67",
+            "ptr"
+          ],
+          [
+            "param",
+            "ctx"
+          ],
+          [
+            "str",
+            "746370"
+          ],
+          [
+            "call",
+            "net.Addr.String",
+            [
+              "unknown",
+              "p2p/dial.go:67",
+              "ptr"
+            ]
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/dial.go:66",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "d",
+          "path": [],
+          "seq": 0,
+          "src": "p2p/dial.go:67",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/dial.go:67",
+            "havoc"
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/p2p.tcpDialer",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I111/holon/c14/sidecars/go_1_machines.json",
+      "sha256": "c045b65cf62a7f99e5e5878bf835401eb4b6fa6436291228540385556a1bdab1"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "3efbd5df5999050da7ea115e9da333a3fbd86fb32970c784556a58d483fcb5ea",
+        "unit": "p2p/dial.go"
+      },
+      {
+        "sha256": "aeaaf70788bcb18cdffdd9bd44b33623509f6a66518e5b32ec472b48917f5dcb",
+        "unit": "p2p/message.go"
+      },
+      {
+        "sha256": "c93bdb10b12c21b7553f998154801015ed4e5477d8148b9cbe0872a4dd680070",
+        "unit": "p2p/metrics.go"
+      },
+      {
+        "sha256": "23b706bc28f140a52a48317ad569639096ccb48a1e74dd8667c378ba7aee84c7",
+        "unit": "p2p/peer.go"
+      },
+      {
+        "sha256": "df647e286ebcf851cd9484c3edbdf9ad34d64d177a973d933352290482c244eb",
+        "unit": "p2p/peer_error.go"
+      },
+      {
+        "sha256": "b064189b7e32f6b21827f2b3297af21b1b0810fc6da8e0dcd213e2c90db174a7",
+        "unit": "p2p/protocol.go"
+      },
+      {
+        "sha256": "2c4b9c5afac351dbc8ba4161341e600cd63c9ad64caea49d5e28596673d6ab4f",
+        "unit": "p2p/server.go"
+      },
+      {
+        "sha256": "0ce419526208aa40813e9b1f2fc71310f161fe3f2763099e4984d53026da4ac1",
+        "unit": "p2p/transport.go"
+      },
+      {
+        "sha256": "b60482127849d76e19346ef2f710dfe0e33434540bb70ea5b7698f65f760109c",
+        "unit": "p2p/util.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "p2p.tcpDialer",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Dial": {
+        "declared_in": "p2p.tcpDialer",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "name": "r",
+                "type": "uint256"
+              },
+              {
+                "name": "id",
+                "type": "uint256"
+              }
+            ],
+            "name": "dest",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Dial",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "p2p.tcpDialer",
+          "label": "d",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "p2p.tcpDialer"
+    ],
+    "members": {
+      "(*github.com/ethereum/go-ethereum/p2p/enode.Node).IP": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/enode.Node).IP",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "selector": "0xf844732d",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/p2p/enode.Node).TCP": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/enode.Node).TCP",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int64"
+            }
+          ],
+          "selector": "0x2a37660c",
+          "visibility": "external"
+        }
+      ],
+      "(*net.Dialer).DialContext": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "string"
+            },
+            {
+              "name": "a3",
+              "type": "string"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*net.Dialer).DialContext",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x3de36b46",
+          "visibility": "external"
+        }
+      ],
+      "net.Addr.String": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "net.Addr.String",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0x37f1cbf6",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "p2p/dial.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "d",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "a79afd9ac325e12021ae56928ba4af32bb3cc78f",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/p2p.tcpDialer"
+  }
+}

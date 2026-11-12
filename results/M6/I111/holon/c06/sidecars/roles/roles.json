@@ -1,0 +1,87 @@
+{
+  "dropped": [],
+  "inputs": [
+    {
+      "kind": "go",
+      "path": "results/M6/I111/holon/c06/facts/go_1.go.extracted.json",
+      "sha256": "914d9d14a775a952ebbe3cc1d9dc919c8e734a53ab0cc1fdc9f703986c44ceec"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I111/holon/c06/facts/go_1_go_1.ChainGovernor.extracted.json",
+      "sha256": "6bd82134f106011c2b670a580eabddb313cae5862ec2c136da1326cb8d295242"
+    }
+  ],
+  "milestone": "M9",
+  "mode": "static",
+  "proposed": null,
+  "rejected": [],
+  "roles": [
+    {
+      "carrier": "*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor",
+      "detail": {
+        "ops": [
+          "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).CheckPending",
+          "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).Reload",
+          "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+          "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).loadFromDB",
+          "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).loadFromDBAlreadyLocked",
+          "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).queryCoinGecko"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I111/holon/c06/facts/go_1.go.extracted.json#go.functions.(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).CheckPending",
+          "results/M6/I111/holon/c06/facts/go_1.go.extracted.json#go.functions.(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).Reload",
+          "results/M6/I111/holon/c06/facts/go_1.go.extracted.json#go.functions.(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+          "results/M6/I111/holon/c06/facts/go_1.go.extracted.json#go.functions.(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).loadFromDB",
+          "results/M6/I111/holon/c06/facts/go_1.go.extracted.json#go.functions.(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).loadFromDBAlreadyLocked",
+          "results/M6/I111/holon/c06/facts/go_1.go.extracted.json#go.functions.(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).queryCoinGecko"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "chain_governor_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*go.uber.org/zap.Logger",
+      "detail": {
+        "ops": [
+          "github.com/certusone/wormhole/node/pkg/governor.CheckQuery"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I111/holon/c06/facts/go_1.go.extracted.json#go.functions.github.com/certusone/wormhole/node/pkg/governor.CheckQuery"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "logger_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "evidence": {
+        "facts": [
+          "results/M6/I111/holon/c06/facts/go_1_go_1.ChainGovernor.extracted.json"
+        ],
+        "rule": "transitions_documents"
+      },
+      "id": "documents",
+      "roles_source": "static",
+      "sidecar": "typed"
+    }
+  ],
+  "roles_version": "holon-roles/0.1",
+  "sidecars": {
+    "derive_extracted.json": "81e21953112ea5eb62d733859b7331ab1d654b32d7528209afb2ce2f8f60f188",
+    "disch.json": "598de05b1ebaf6125dd2937334e39808b7cc44975c5d07eee6cac7560fe0c3f4",
+    "fact.json": "44fa7e8488a4a0e3f58dca2ae8e0bc968c0460c2dd11f127c97e388e9adf79f4",
+    "go_ops.json": "76238728802d2cbd1113ff045bbbfb966c2b886798ac13c57a0123d5f8d0e836",
+    "sort_types.json": "29689d9eb7f77dce56726fd9479774b3ec7f4bd7551ea352c3b786b35c9e3d64",
+    "undo.json": "c3ee8bca15739a6c4f559289d18814dbb537b140dadcaf743c545c2171ae3ed4"
+  }
+}

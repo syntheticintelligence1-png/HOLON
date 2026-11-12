@@ -1,0 +1,132 @@
+{
+ "title": "I111: types totality (HUMAN_ANSWERS Q77, Q78): (1) a per-document holon types fallback under the typed sidecar's opt-in types_fallback \"opaque\". A document with an ill-sorted term is an opaque recorded miss (gen/<M>/sorts/opaque.json); every later stage of the typed part reads the typed documents only. Run through holon eval holon --compose with I110's protocol plus the opt-in. (2) The torsor-role search (holon.sorts.solve._search) rewritten by one exact evaluation strategy, dynamic decomposition: after propagation the leftover network is split into independent parts, each searched alone",
+ "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I111)",
+ "prompt": "prompts/I111_types_totality.md",
+ "tests": [
+  "tests_m6/test_i111_types_totality.py"
+ ],
+ "outcome_paths": [
+  "results/M6/I111/",
+  "docs/iterations/I111.md"
+ ],
+ "thresholds": {
+  "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P6 and P11-P13 are on planted fixtures (tests_m6/fixtures/i111), the coverage set and Morph. P7-P9 are smoke measures on I51's corpus, contaminated by I51, I103-I110 and I107. P10 and P14 are measurements on I106's targets, contaminated: post-I107. A later sealed draw scores generality. Laws are reported as aggregates only (Q56); stage reasons only for stages before any decision (Q72).",
+  "instruments": "spec/M6/lib/i111_run.json (the run protocol: I110's plus typed.types_fallback \"opaque\"; the tier typed.sort_budget is I110's 5000000, unchanged) and tests_m6/test_i111_types_totality.py (every check)",
+  "base": "claude/i110-scale-composed-driver at 1801dca1 (I110, #185 not yet landed), on the lead at a813b2b9 (#184)",
+  "baseline": "I110's counted composed run (results/M6/I110/holon/corpus.json): entries ok at extract 13, machines 11, roles 13, sorts 14, types 4, model 4, derive 3; 0 laws derived, 0 decided",
+  "opaque": "The definition (fixed here, before any build commit). Opt-in only: a typed-sorts sidecar names \"types_fallback\": \"opaque\" (the only value; anything else is refused). Without the key nothing changes: holon types refuses the milestone on an ill-sorted term (exit 2, nothing written), as N2 says. Under the key, holon types types each document of the sidecar on its own, in sorted order. A document whose typed model generation raises the ill-sorted error is OPAQUE: (O1) it is a recorded miss, one entry of gen/<M>/sorts/opaque.json {document, sha256, model, term, reason}, where term is the action and the operation named by the error (its first clause, before ': ') and reason is the error's whole text, which names the operation and its source span; the miss is never silent and the composed row counts it (types_opaque). (O2) Its STATE: it has no typed model, so no state variable of it exists in any model; nothing constrains it. (O3) Its ACTIONS: none is modelled; no law of any rule is derived over it (typed part, DISCH, FACT, UNDO, SORT, SYM), so every claim over it is UNKNOWN (counted at the document: one miss). (O4) What OTHER documents may assume about it: nothing new. Every typed model is one document's: another contract is reached only through an external call, whose answer is a free value (A-env) whether or not the callee is typed, so a typed document's model, laws and verdicts do not depend on whether an opaque document is in the milestone, apart from the milestone-wide assignment hash the model's header comment names (and so its model_sha256). (O5) Every stage after types (model, disch, derive, run) reads the typed documents only: the sidecar's documents minus the opaque ones; the sort pass and types read every document. The sort assignment is the sort pass's over all documents, unchanged. (O6) A taint violation (G4) still refuses the milestone, and an error that is not the ill-sorted one (an unreadable input) still exits 1. (O7) If every document is opaque, holon types writes types.json with no model and exits 0; the later stages then have no document and derive no typed law.",
+  "soundness": "Opacity only removes: an opaque document contributes no model, no state constraint, no action and no law, and it changes no typed document's model (O4). So the set of laws decided under the fallback is a subset of the laws the same milestone would decide without that document, each with the same verdict. No law can be PROVED or REFUTED through an opaque document.",
+  "amendment_to_brief": "The coordinator's relay of the lead's corrected rulings Q77 and Q78 (read before this commit): the torsor-role search is part (2) of this key, under Q74 (1)-(3) and (5); any cutoff is a preregistered tier under Q75 and Q76. Order of work: part (1) with its fixtures and soundness argument first, then part (2).",
+  "search": "Part (2), fixed here before any build commit. The search decides, for one affine component, whether the classes' role domains (subsets of {P, G}) admit an assignment satisfying every ternary table (+: (P,G,P) (G,P,P) (G,G,G); -: (P,P,G) (P,G,P) (G,G,G)); with P = 1 and G = 0 each table is 'out = lhs + rhs' or 'lhs = rhs + out' with no carry, a 1-in-3-type relation, so the problem is NP-complete with seeds and exponential in the worst case under any exact strategy. The old strategy (I110) propagates (generalized arc consistency), then branches on the least open variable, chronologically. On a network whose leftover parts are independent, a part that fails is re-discovered under every combination of choices in the parts sorted before it: exponential thrashing. The rewrite, D1: after each propagation, the constraints that hold a variable with more than one role left are grouped by the connected components of those variables; a constraint with every variable decided is satisfied (propagation left it a supporting row) and drops out; with two or more parts, the network is satisfiable iff every part is, each searched on its own (in order of its least open variable, stopping at the first that fails); with one part, the old branching is unchanged. D1 is an evaluation strategy only: _search returns the same boolean on every input, so the satisfiable verdict, every role set (Component.roles), role pair and difference sort, and so every sort output, are the same. Which roles are admissible is never changed. The flag holon.sorts.solve.DECOMPOSE (True; False is the old strategy) exists for the identity test only. No new cutoff and no new tier: the sort budget's tier stays I110's 5,000,000. The units keep I110's definition (one search node, one table row a propagation sweep reads, ...); D1's own scan of a node's constraints is not metered (one pass over the constraints that the same node's propagation reads at least three rows of each, so time stays within a constant factor of the metered work)."
+ },
+ "predictions": [
+  {
+   "id": "I111-P1",
+   "claim": "(a) Under the opt-in, holon types over the planted milestone {Ledger, Wiper, WiperKept} (tests_m6/fixtures/i111; I105's Go machines, nil_maps unknown) exits 0; gen/<M>/sorts/opaque.json names exactly Wiper, with term \"Reset: a write of a whole mapping(uint64 => uint64) (Seen)\" and a reason naming the span bank/bank.go:78; types.json and taint.json have exactly the models of Ledger and WiperKept. Without the key the same milestone is refused as before: exit 2, nothing written. An unknown types_fallback value is refused. Two runs are byte-identical.",
+   "check": "tests_m6/test_i111_types_totality.py::TestFallback"
+  },
+  {
+   "id": "I111-P2",
+   "claim": "(a) A law over an opaque document alone: the milestone {Wiper} under the opt-in passes types (Wiper opaque) and derives no law whose facts document is Wiper, so no record over it is PROVED or REFUTED. The constrained control {WiperKept} derives 4 DISCH laws and decides at least one PROVED and at least one REFUTED: those are the claims the opaque document leaves UNKNOWN.",
+   "check": "tests_m6/test_i111_types_totality.py::TestPlanted::test_p2_opaque_alone"
+  },
+  {
+   "id": "I111-P3",
+   "claim": "(a) A cross-document milestone, one typed and one opaque document {Ledger, Wiper} under the opt-in: Ledger's law files are byte-identical to those of {Ledger} alone, each record equal once every seconds and model_sha256 is removed, and its model file identical apart from the '# assignment sorts_sha256:' header line; no law, record or model names Wiper's model.",
+   "check": "tests_m6/test_i111_types_totality.py::TestPlanted::test_p3_cross_document"
+  },
+  {
+   "id": "I111-P4",
+   "claim": "(a) A law that holds only if the opaque document's state is constrained: every law WiperKept proves over Bump and SetPaused (Wiper's same actions, which read Count, Paused and Owner) has no PROVED counterpart over Wiper in {Ledger, Wiper, WiperKept} under the opt-in; WiperKept's and Ledger's verdicts there equal their verdicts alone (the P3 comparison). Over all planted milestones, no PROVED or REFUTED law names Wiper.",
+   "check": "tests_m6/test_i111_types_totality.py::TestPlanted::test_p4_constrained_law_unknown"
+  },
+  {
+   "id": "I111-P5",
+   "claim": "(b) A law over a Go document (extraction.frontend go: I105's machines, holon extract go) has a null coverage field, as a layout document's (I62): such a document carries its debt in itself and holon.coverage never lists it. So run decides the planted {Ledger}'s 4 laws (each with a record); before, the record writer raised for want of a gen/<M>/coverage.json entry.",
+   "check": "tests_m6/test_i111_types_totality.py::TestGoCoverage"
+  },
+  {
+   "id": "I111-P6",
+   "claim": "Morph moves only by re-stamp: no M0-M3 sidecar names types_fallback, holon types without the key is the code path it was (N2's refusal), and every JSON under results/M0-M3 and laws/M0-M3 equals the lead's once generator_sha256 and every seconds are removed (G1_EXCLUDED skipped). The gates M0, M1, M2 and partial M3 are run locally and reported.",
+   "check": "tests_m6/test_i111_types_totality.py::TestRegressions"
+  },
+  {
+   "id": "I111-P7",
+   "claim": "(c) holon eval holon --protocol spec/M6/lib/i111_run.json --compose on the 20 corpus entries: entries whose stage is ok at least extract 13, sorts 13, types 12, model 10, derive 6; every stage that is not ok has a reason; every row is marked compose.",
+   "check": "tests_m6/test_i111_types_totality.py::TestCorpusSmoke::test_p7_stage_reach",
+   "expected": {
+    "entries_at_least": {
+     "extract": 13,
+     "sorts": 13,
+     "types": 12,
+     "model": 10,
+     "derive": 6
+    }
+   }
+  },
+  {
+   "id": "I111-P8",
+   "claim": "(c) Per entry the row records types_opaque {documents, typed, opaque, misses: [{document, term}]}: for every entry whose types stage is ok, typed + opaque = documents, and every miss names its document and its term. Over the corpus at least 1 document is opaque and at least 10 are typed.",
+   "check": "tests_m6/test_i111_types_totality.py::TestCorpusSmoke::test_p8_typed_versus_opaque",
+   "expected": {
+    "opaque_at_least": 1,
+    "typed_at_least": 10
+   }
+  },
+  {
+   "id": "I111-P9",
+   "claim": "(c) Laws, as aggregates only (Q56): at least 10 derived and at least 1 decided over the corpus; every aggregate key carries roles_source; no sorts or types stage times out.",
+   "check": "tests_m6/test_i111_types_totality.py::TestCorpusSmoke::test_p9_laws_aggregate",
+   "expected": {
+    "derived_at_least": 10,
+    "decided_at_least": 1
+   }
+  },
+  {
+   "id": "I111-P10",
+   "claim": "(c) Measurement on I106's targets as I107 pinned them (spec/heldout2/target.json; contaminated: post-I107; aggregates only, Q56 and Q72; one bundle commitment per target): with the composed driver and the opt-in the types stage is ok on both targets, and the row records how many documents are typed and how many opaque. Laws derived and decided are recorded as aggregates that never split PROVED from REFUTED. If it is not run, the test skips and the report says so under Not done.",
+   "check": "tests_m6/test_i111_types_totality.py::TestSealedContaminated"
+  },
+  {
+   "id": "I111-P11",
+   "claim": "(2) The planted blow-up, built from the search's semantics (tools/i111_search_fixture.py writes tests_m6/fixtures/i111/search/blowup.json; no spent target's document is read): a component seeded Time through t, n gadgets (a_i, b_i, t) under + (each with two solutions, independent given t) sorted before a three-class odd cycle (x, y, t), (y, w, t), (x, w, r) that arc consistency leaves open but that admits r only as G. The old strategy's search nodes for family(r) at least double with every two more gadgets (n = 6, 8, 10, 12) and reach at least 16,000 at n = 12; the new strategy's are at most 10n + 20; both give family(r) = Dur and the same ok, family and difference sorts for every variable.",
+   "check": "tests_m6/test_i111_types_totality.py::TestSearch::test_p11_planted_blowup",
+   "expected": {
+    "old_nodes_at_least_n12": 16000,
+    "new_nodes_at_most": "10n + 20"
+   }
+  },
+  {
+   "id": "I111-P12",
+   "claim": "(2) Q74 (2): the sort outputs of the new strategy are byte-identical to the old's (holon.sorts.solve.DECOMPOSE False), in process, on every document of the holon.sorts.coverage set, Morph's M2 and M3 sort passes (each also equal to the committed gen/<M>/sorts) and the planted fixtures (I109's c02, c05 and c17 documents and the blow-up system). A committed test in CI job tests-m6-i111.",
+   "check": "tests_m6/test_i111_types_totality.py::TestSearchIdentity"
+  },
+  {
+   "id": "I111-P13",
+   "claim": "(2) Q75/Q76 units: on every document of P12's set, the new strategy's work units are at most the old's, so no document under the tier (5,000,000) with the old strategy moves over it; Morph names no sort_budget, so nothing of Morph is metered. A committed test in CI job tests-m6-i111, before any measured run.",
+   "check": "tests_m6/test_i111_types_totality.py::TestSearchIdentity::test_p13_units_never_grow"
+  },
+  {
+   "id": "I111-P14",
+   "claim": "(2) Measurement on the spent targets (contaminated: post-I107; aggregates only): with the new strategy, the sort pass on both targets has no document over the tier (I110: one each). The old strategy is run with no time limit on the documents it never finished, in the background for at most 3 hours each (feasibility); sort-output identity is claimed only for a document on which it finished. If not run, the test skips and the report says so.",
+   "check": "tests_m6/test_i111_types_totality.py::TestSealedContaminated::test_p14_search_on_the_spent_targets"
+  }
+ ],
+ "regressions": [
+  {
+   "id": "I111-R1",
+   "claim": "Every earlier tests_m6 CI job still passes on this branch with no test dropped; an earlier key's test that this key's protocol breaks is amended with its amendment line first (I110's test_r3 names the protocols it was written for).",
+   "check": "tests_m6/test_i111_types_totality.py::TestRegressions::test_r1_earlier_jobs_listed"
+  },
+  {
+   "id": "I111-R2",
+   "claim": "holon/ names no target (tests_m2.test_target_agnostic and its exhaustive form).",
+   "check": "tests_m2/test_target_agnostic.py"
+  },
+  {
+   "id": "I111-R3",
+   "claim": "Every earlier key's sort-budget tests (I110's TestSortBudget, TestByteIdentity, TestQ74SpeedupIdentity) pass unchanged under the new strategy.",
+   "check": "tests_m6/test_i110_scale_composed.py"
+  }
+ ]
+}

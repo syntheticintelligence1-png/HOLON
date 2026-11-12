@@ -802,7 +802,13 @@ def coverage_field(law: dict, root: Path | str = ROOT) -> dict | None:
     # no transitions: a SORT-width law at a layout site no action's narrowing store reaches) never has an entry, and
     # carries its debt in itself, so a law over it has no coverage entry, as a law over hand-written facts has none
     fp = Path(root) / facts
-    if fp.is_file() and (json.loads(fp.read_text(encoding="utf-8")).get("extraction") or {}).get("kind") != "transitions":
+    ext = (json.loads(fp.read_text(encoding="utf-8")).get("extraction") or {}) if fp.is_file() else {}
+    if fp.is_file() and ext.get("kind") != "transitions":
+        return None
+    # I111: holon.coverage accounts for the documents of Solidity transitions sidecars only; a Go document (holon
+    # extract go and go_machines, extraction.frontend "go") carries its debt in itself (its "debt" list), so, like a
+    # layout document, a law over it has no coverage entry
+    if fp.is_file() and ext.get("frontend") == "go":
         return None
     raise ValueError(f"{law.get('law_id')}: its facts document {facts} has no entry in "
                      f"gen/{law['milestone']}/coverage.json (python -m holon coverage --milestone {law['milestone']})")

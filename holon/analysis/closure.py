@@ -761,6 +761,20 @@ def _rel(p: Path, root: Path) -> str:
         raise Refused(f"{p} is not inside the root {root}") from None
 
 
+def _opaque(milestone: str, root: Path, model_sidecar: str | None) -> set[str]:
+    """I111: the documents the milestone's holon types made opaque, when the typing sidecar the DISCH sidecar names
+    opts in to the fallback (types_fallback "opaque"); none otherwise."""
+    if not model_sidecar:
+        return set()
+    from ..sorts import opaque as OP
+    from ..sorts.typed_sidecar import SidecarError, load
+    try:
+        ts = load(milestone, root, model_sidecar)
+    except (SidecarError, OSError, ValueError):
+        return set()
+    return OP.excluded(milestone, root) if ts.types_fallback else set()
+
+
 class Sidecar:
     """A DISCH sidecar (holon-disch/0.1) and the documents it names, read and checked (Refused on a problem)."""
 
@@ -802,6 +816,7 @@ class Sidecar:
         self.search = dict(self.doc.get("search") or {})
         self.binding = self.doc.get("binding")
         self.model_sidecar = self.doc.get("model_sidecar")
+        self.opaque = _opaque(milestone, root, self.model_sidecar)
 
     def read_json(self, rel: str) -> tuple[dict, str]:
         q = self.root / rel
@@ -822,6 +837,8 @@ class Sidecar:
             inputs[self.verdicts_rel] = h
         out = {}
         for d in self.documents:
+            if d in self.opaque:   # I111 O3: an opaque document has no model, so no DISCH law is derived over it
+                continue
             doc, h = self.read_json(d)
             inputs[d] = h
             if not isinstance(doc, dict) or not isinstance(doc.get("actions"), list):
