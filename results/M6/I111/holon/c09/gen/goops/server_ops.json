@@ -1,0 +1,414 @@
+{
+  "carrier": {
+    "id": "Server",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/p2p.Server"
+  },
+  "component": "server_ops",
+  "document": "results/M6/I111/holon/c09/facts/go_1.go.extracted.json",
+  "document_sha256": "84ce5d96e603bed439e5ec8d71d449065d043766f66b0c48d5a4417d48fe7095",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_Server_Start": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "srv",
+          "type": "*github.com/ethereum/go-ethereum/p2p.Server"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "path_limit",
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.Server).Start",
+      "span": "p2p/server.go:449"
+    },
+    "p2p_Server_setupDiscovery": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "srv",
+          "type": "*github.com/ethereum/go-ethereum/p2p.Server"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t90",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t90",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "srv"
+                    ],
+                    "Config"
+                  ],
+                  "Protocols"
+                ]
+              ]
+            ]
+          ],
+          "id": "p2p/server.go:586:28:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.Server).setupDiscovery",
+      "span": "p2p/server.go:532"
+    },
+    "p2p_Server_setupListening": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "srv",
+          "type": "*github.com/ethereum/go-ethereum/p2p.Server"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.Server).setupListening",
+      "span": "p2p/server.go:636"
+    },
+    "p2p_Server_setupLocalNode": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "srv",
+          "type": "*github.com/ethereum/go-ethereum/p2p.Server"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                1
+              ],
+              [
+                "len",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/crypto.FromECDSAPub",
+                  [
+                    [
+                      "field",
+                      [
+                        "field",
+                        [
+                          "field",
+                          [
+                            "param",
+                            "srv"
+                          ],
+                          "Config"
+                        ],
+                        "PrivateKey"
+                      ],
+                      "PublicKey"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "id": "p2p/server.go:509:93:slice",
+          "kind": "slice",
+          "status": "open",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t18",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t18",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "srv"
+                    ],
+                    "Config"
+                  ],
+                  "Protocols"
+                ]
+              ]
+            ]
+          ],
+          "id": "p2p/server.go:510:24:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t67",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t67",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "srv"
+                    ],
+                    "Config"
+                  ],
+                  "Protocols"
+                ]
+              ]
+            ]
+          ],
+          "id": "p2p/server.go:524:24:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        },
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t75",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t75",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "index",
+                    [
+                      "field",
+                      [
+                        "field",
+                        [
+                          "param",
+                          "srv"
+                        ],
+                        "Config"
+                      ],
+                      "Protocols"
+                    ],
+                    [
+                      "op",
+                      "+",
+                      [
+                        "var",
+                        "t67",
+                        "rangeindex"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ]
+                  ],
+                  "Attributes"
+                ]
+              ]
+            ]
+          ],
+          "id": "p2p/server.go:525:23:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.Server).setupLocalNode",
+      "span": "p2p/server.go:506"
+    },
+    "p2p_Server_setupUDPListening": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "srv",
+          "type": "*github.com/ethereum/go-ethereum/p2p.Server"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "*net.UDPConn",
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": null,
+          "id": "p2p/server.go:679:28:assert",
+          "kind": "assert",
+          "status": "open",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.Server).setupUDPListening",
+      "span": "p2p/server.go:663"
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ],
+    "R_PtrUDPConn_Error": [
+      "*net.UDPConn",
+      "error"
+    ]
+  }
+}
