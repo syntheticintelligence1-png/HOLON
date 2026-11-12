@@ -6,7 +6,8 @@ Two statements a project makes about how it builds, read at the pinned commit on
   L1  remappings: a unit's Foundry project is the nearest directory at or above the unit (inside the checkout) that
       holds foundry.toml. Its remappings are foundry.toml's [profile.default] remappings, in order, then the lines of
       the project's remappings.txt (blank lines and # comments skipped); the first remapping of each (context, prefix)
-      is kept. A target and a context are paths relative to the project, rewritten relative to the checkout root (the
+      is kept. As forge normalizes them, a remapping whose prefix ends with "/" gets a target ending with "/" (I108
+      run 2: run 1 passed such targets bare, and solc joined "interfaces/x" into "interfacesx"). A target and a context are paths relative to the project, rewritten relative to the checkout root (the
       solc base path of the Solidity frontend). No remapping is auto-detected from lib/ (forge's auto_detect_remappings
       is a heuristic, not the project's statement).
   L2  foundry's base path is the project root: a non-relative import resolves against the project, so for every
@@ -100,7 +101,10 @@ def remappings(ck: Path, proj: str | None) -> list[dict]:
         c = (_join(proj, ctx) if ctx else "")
         if ctx and ctx.endswith("/") and not c.endswith("/"):
             c += "/"
-        out.append({"remapping": f"{c + ':' if c else ''}{prefix}={_join(proj, target)}", "source": src})
+        tgt = _join(proj, target)
+        if prefix.endswith("/") and not tgt.endswith("/"):
+            tgt += "/"   # forge's normalization: a directory remapping's target ends with "/" (L1)
+        out.append({"remapping": f"{c + ':' if c else ''}{prefix}={tgt}", "source": src})
     if proj:
         prefixes = {p for (_c, p) in seen}
         for d in sorted(x.name for x in pd.iterdir() if x.is_dir() and not x.name.startswith(".")):
