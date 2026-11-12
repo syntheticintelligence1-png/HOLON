@@ -1,0 +1,738 @@
+{
+ "corpus_sha256": "3d478c91257c52e1b01dd09b9bc89419dc1c9efbbb4e845c9d11d5d21b0d9d8d",
+ "doc": "I107 corpus route A aggregates (Q56): per-law outputs are bundled outside the repo",
+ "holon_sha256": "82f5f481e643b38fd8351febd1350476ebf91d81563ac7798dce85a1871b2df7",
+ "protocol_sha256": "812569fceb3b120e9c2de4bb915141bd28828a0b50f5eb206eaf34b4e80a376c",
+ "rows": [
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "",
+   "derive_status": null,
+   "detected": false,
+   "detection": null,
+   "document_failures": [
+    "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/arbos||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod"
+   ],
+   "extracted": 0,
+   "id": "c01",
+   "label": "UNDO",
+   "laws_A": 0,
+   "miss": {
+    "reason": "no document extracted: github.com/offchainlabs/nitro/arbos: holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/arbos||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+    "stage": "extract",
+    "status": "not_run"
+   },
+   "reached_extraction": false,
+   "roles": null,
+   "stage_status": {
+    "checkout": "ok",
+    "extract": "failed"
+   },
+   "system": "arbitrum",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 10,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "holon derive: 0 laws, 0 obstructions -> laws/T510",
+   "derive_status": "ok",
+   "detected": false,
+   "detection": null,
+   "document_failures": [
+    "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.5.17 (selected by pragma ['^0.5.16'])]",
+    "holon extract solidity: extraction error: inline assembly at 20251:128:0 has no Yul AST (this compiler writes assembly as text): the walker cannot read it\n[compiled by solc 0.5.17 (selected by pragma ['^0.5.16'])]"
+   ],
+   "extracted": 7,
+   "id": "c02",
+   "label": "NAT",
+   "laws_A": 0,
+   "miss": {
+    "reason": "the run decided or left UNKNOWN the derived laws; no detection (verdicts bundled, Q56)",
+    "stage": "run",
+    "status": "not_applicable"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 1,
+    "kinds": {
+     "typed:static": 1
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "ok",
+    "disch": "ok",
+    "extract": "ok",
+    "model": "ok",
+    "roles": "ok",
+    "run": "not_applicable",
+    "sorts": "ok",
+    "types": "ok"
+   },
+   "system": "compound",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c03",
+   "label": "SORT",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 0,
+    "kinds": {},
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "cosmos",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c04",
+   "label": "none",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 0,
+    "kinds": {},
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "go-ethereum",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "",
+   "derive_status": null,
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c05",
+   "label": "PAR",
+   "laws_A": 0,
+   "miss": {
+    "reason": "holon types: ill-sorted: anchorStateRegistry: the length of a w value (at packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:122)",
+    "stage": "types",
+    "status": "failed"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 1,
+    "kinds": {
+     "typed:static": 1
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "extract": "ok",
+    "roles": "ok",
+    "sorts": "ok",
+    "types": "failed"
+   },
+   "system": "optimism",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c06",
+   "label": "SORT",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 2,
+    "kinds": {
+     "go_ops:static": 2
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "wormhole",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "",
+   "derive_status": null,
+   "detected": false,
+   "detection": null,
+   "document_failures": [
+    " github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompiles"
+   ],
+   "extracted": 0,
+   "id": "c07",
+   "label": "PAR",
+   "laws_A": 0,
+   "miss": {
+    "reason": "no document extracted: github.com/offchainlabs/nitro/precompiles:  github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompiles",
+    "stage": "extract",
+    "status": "not_run"
+   },
+   "reached_extraction": false,
+   "roles": null,
+   "stage_status": {
+    "checkout": "ok",
+    "extract": "failed"
+   },
+   "system": "arbitrum",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c08",
+   "label": "DISCH",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 1,
+    "kinds": {
+     "go_ops:static": 1
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "cosmos",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c09",
+   "label": "none",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 9,
+    "kinds": {
+     "go_ops:static": 9
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "go-ethereum",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 2,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "",
+   "derive_status": null,
+   "detected": false,
+   "detection": null,
+   "document_failures": [
+    "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]"
+   ],
+   "extracted": 0,
+   "id": "c10",
+   "label": "PAR",
+   "laws_A": 0,
+   "miss": {
+    "reason": "no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]; StandardValidatorUtils: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+    "stage": "extract",
+    "status": "not_run"
+   },
+   "reached_extraction": false,
+   "roles": null,
+   "stage_status": {
+    "checkout": "ok",
+    "extract": "failed"
+   },
+   "system": "optimism",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "",
+   "derive_status": null,
+   "detected": false,
+   "detection": null,
+   "document_failures": [
+    "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\n[go 1.24.7 (go directive 1.19 of go.work)]"
+   ],
+   "extracted": 0,
+   "id": "c11",
+   "label": "DISCH",
+   "laws_A": 0,
+   "miss": {
+    "reason": "no document extracted: github.com/certusone/wormhole/node/pkg/watchers/algorand: holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\n[go 1.24.7 (go directive 1.19 of go.work)]",
+    "stage": "extract",
+    "status": "not_run"
+   },
+   "reached_extraction": false,
+   "roles": null,
+   "stage_status": {
+    "checkout": "ok",
+    "extract": "failed"
+   },
+   "system": "wormhole",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 2,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [
+    "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/daprovider/anytrust/util||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import look"
+   ],
+   "extracted": 1,
+   "id": "c12",
+   "label": "PAR",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 0,
+    "kinds": {},
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "arbitrum",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c13",
+   "label": "PAR",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 0,
+    "kinds": {},
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "cosmos",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c14",
+   "label": "SORT",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 10,
+    "kinds": {
+     "go_ops:static": 10
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "go-ethereum",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 2,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "",
+   "derive_status": null,
+   "detected": false,
+   "detection": null,
+   "document_failures": [
+    "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]"
+   ],
+   "extracted": 0,
+   "id": "c15",
+   "label": "FACT",
+   "laws_A": 0,
+   "miss": {
+    "reason": "no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]; StandardValidatorUtils: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+    "stage": "extract",
+    "status": "not_run"
+   },
+   "reached_extraction": false,
+   "roles": null,
+   "stage_status": {
+    "checkout": "ok",
+    "extract": "failed"
+   },
+   "system": "optimism",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c16",
+   "label": "DISCH",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 0,
+    "kinds": {},
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "wormhole",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "holon derive: 0 laws, 0 obstructions -> laws/T510",
+   "derive_status": "ok",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 1,
+   "id": "c17",
+   "label": "PAR",
+   "laws_A": 0,
+   "miss": {
+    "reason": "the run decided or left UNKNOWN the derived laws; no detection (verdicts bundled, Q56)",
+    "stage": "run",
+    "status": "not_applicable"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 1,
+    "kinds": {
+     "typed:static": 1
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "ok",
+    "disch": "ok",
+    "extract": "ok",
+    "model": "ok",
+    "roles": "ok",
+    "run": "not_applicable",
+    "sorts": "ok",
+    "types": "ok"
+   },
+   "system": "arbitrum",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 3,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 3,
+   "id": "c18",
+   "label": "SORT",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 1,
+    "kinds": {
+     "go_ops:static": 1
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "cosmos",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 2,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+   "derive_status": "no_producer",
+   "detected": false,
+   "detection": null,
+   "document_failures": [],
+   "extracted": 2,
+   "id": "c19",
+   "label": "SORT",
+   "laws_A": 0,
+   "miss": {
+    "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "stage": "derive",
+    "status": "no_producer"
+   },
+   "reached_extraction": true,
+   "roles": {
+    "count": 1,
+    "kinds": {
+     "go_ops:static": 1
+    },
+    "mode": "static",
+    "proposed": null
+   },
+   "stage_status": {
+    "checkout": "ok",
+    "derive": "no_producer",
+    "extract": "ok",
+    "roles": "ok"
+   },
+   "system": "go-ethereum",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  },
+  {
+   "attempted": 1,
+   "by_family": {},
+   "decided": 0,
+   "derive_detail": "",
+   "derive_status": null,
+   "detected": false,
+   "detection": null,
+   "document_failures": [
+    "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]"
+   ],
+   "extracted": 0,
+   "id": "c20",
+   "label": "PAR",
+   "laws_A": 0,
+   "miss": {
+    "reason": "no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+    "stage": "extract",
+    "status": "not_run"
+   },
+   "reached_extraction": false,
+   "roles": null,
+   "stage_status": {
+    "checkout": "ok",
+    "extract": "failed"
+   },
+   "system": "optimism",
+   "toolchain_refused": false,
+   "true_defect": 0,
+   "unknown": 0
+  }
+ ],
+ "toolchain": {
+  "bend": "2.0.36",
+  "go": "go version go1.24.7 linux/amd64",
+  "go_pinned": "go version go1.24.7 linux/amd64",
+  "solc_sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f"
+ }
+}

@@ -1,0 +1,45 @@
+{
+  "dropped": [],
+  "inputs": [
+    {
+      "kind": "go",
+      "path": "results/eval/generality/corpus/holon/c19/facts/go_1.go.extracted.json",
+      "sha256": "cd5fb6ea269117f0c8af67cd6171bdd3562a8544f497efdbf0d1ae72b8ac9562"
+    }
+  ],
+  "milestone": "T510",
+  "mode": "static",
+  "proposed": null,
+  "rejected": [
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/eth/protocols/snap.Peer",
+      "document": "results/eval/generality/corpus/holon/c19/facts/go_1.go.extracted.json",
+      "reason": "Go function 'github.com/ethereum/go-ethereum/eth/protocols/snap.MakeProtocols$2$1' gives the model name 'snap_MakeProtocols$2$1', which is not an identifier"
+    }
+  ],
+  "roles": [
+    {
+      "carrier": "*github.com/ethereum/go-ethereum/eth/protocols/snap.AccountRangePacket",
+      "detail": {
+        "ops": [
+          "(*github.com/ethereum/go-ethereum/eth/protocols/snap.AccountRangePacket).Unpack"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/eval/generality/corpus/holon/c19/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/eth/protocols/snap.AccountRangePacket).Unpack"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "account_range_packet_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    }
+  ],
+  "roles_version": "holon-roles/0.1",
+  "sidecars": {
+    "derive_extracted.json": "6dde8e49284e82eeb6eace1c93fd27b36e552454f9481f3b21bc947822dd6543",
+    "go_ops.json": "dd4ee884e2618947e1aaffd96442a5a36ed4d479efcc80b3edcce00f3bdb825d"
+  }
+}
