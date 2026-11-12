@@ -1,0 +1,1574 @@
+{
+  "ablations": {
+    "A1": {
+      "component": "sorts compiled to Bend types (whitepaper §7.8)",
+      "name": "no_sort_types",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "extra": {
+            "completed": true,
+            "detected": false,
+            "entry": "c17",
+            "full_detected": false,
+            "full_laws": 0,
+            "laws": 0,
+            "milestone": "T530"
+          },
+          "status": "run"
+        },
+        "heldout": {
+          "reason": "the held-out derive is refused inside holon sorts (I50, I50b: a term with no sorts rule), before any typed SORT sub-form runs; this switch removes only the typed sub-forms, so it cannot change any held-out outcome",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 70,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8,
+              "precision_all": 0.27586206896551724,
+              "true_defect": 16,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": -1,
+            "obstructions_reproduced": {
+              "code": 0,
+              "hand": 0
+            },
+            "precision": {
+              "intended_asymmetry": 0,
+              "model_defect": 0,
+              "precision": -0.009523809524,
+              "precision_all": -0.012273524255,
+              "true_defect": -1,
+              "unadjudicated": 0
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": 0.0,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": 0,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    },
+    "A2": {
+      "component": "writer-provenance refinement (whitepaper §7.3; holon.sorts.unions.labels)",
+      "name": "no_writer_provenance",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "extra": {
+            "completed": true,
+            "detected": false,
+            "entry": "c17",
+            "full_detected": false,
+            "full_laws": 0,
+            "laws": 0,
+            "milestone": "T530"
+          },
+          "status": "run"
+        },
+        "heldout": {
+          "extra": {
+            "inputs_commit": "9f1462edea111fbda8451cd783e2ab8e20e257cc",
+            "message": "holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule",
+            "message_without_switch": "holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule",
+            "refused": true,
+            "sealed_message": "holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule",
+            "sealed_refusal": "results/targets/scroll/derive_refusal.json"
+          },
+          "status": "run"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": 0,
+            "obstructions_reproduced": {
+              "code": 0,
+              "hand": 0
+            },
+            "precision": {
+              "intended_asymmetry": 0,
+              "model_defect": 0,
+              "precision": 0.0,
+              "precision_all": 0.0,
+              "true_defect": 0,
+              "unadjudicated": 0
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": 0.0,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": 0,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    },
+    "A3": {
+      "component": "the evidence calculus E1-E6 and its frozen evidence set (whitepaper §5.1, Prop 6.11; gen/<M>/evidence.json)",
+      "name": "no_evidence_calculus",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "extra": {
+            "completed": true,
+            "detected": false,
+            "entry": "c17",
+            "full_detected": false,
+            "full_laws": 0,
+            "laws": 0,
+            "milestone": "T530"
+          },
+          "status": "run"
+        },
+        "heldout": {
+          "reason": "no held-out derivation exists (refused in holon sorts), and the evidence set is read only by derive",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 69,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 2,
+              "model_defect": 0,
+              "precision": 0.8947368421052632,
+              "precision_all": 0.2982456140350877,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 6,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": -2,
+            "obstructions_reproduced": {
+              "code": 0,
+              "hand": 0
+            },
+            "precision": {
+              "intended_asymmetry": -2,
+              "model_defect": 0,
+              "precision": 0.085213032581,
+              "precision_all": 0.010110020815,
+              "true_defect": 0,
+              "unadjudicated": 0
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": 0.0,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": -2,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    },
+    "A4": {
+      "component": "fundamental cycles and parallel paths (whitepaper §3.2, Thm 6.4) replaced by 2-cycles",
+      "name": "two_cycles",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "extra": {
+            "completed": true,
+            "detected": false,
+            "entry": "c17",
+            "full_detected": false,
+            "full_laws": 0,
+            "laws": 0,
+            "milestone": "T530"
+          },
+          "status": "run"
+        },
+        "heldout": {
+          "reason": "no held-out derivation exists (refused in holon sorts)",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 64,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 3,
+              "model_defect": 0,
+              "precision": 0.85,
+              "precision_all": 0.3269230769230769,
+              "true_defect": 17,
+              "unadjudicated": 32
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 6,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": -7,
+            "obstructions_reproduced": {
+              "code": 0,
+              "hand": 0
+            },
+            "precision": {
+              "intended_asymmetry": -1,
+              "model_defect": 0,
+              "precision": 0.040476190476,
+              "precision_all": 0.038787483703,
+              "true_defect": 0,
+              "unadjudicated": -6
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": 0.0,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": -2,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    },
+    "A5": {
+      "component": "NAT's native equivalence (whitepaper §5.3 (a))",
+      "name": "no_native_equivalence_nat",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "reason": "the one NAT-labelled entry (c02) is not_run at extraction (I51), and no corpus entry derives a NAT law",
+          "status": "not_applicable"
+        },
+        "heldout": {
+          "reason": "no held-out derivation exists (refused in holon sorts)",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 69,
+            "obstructions_reproduced": {
+              "code": 11,
+              "hand": 11
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8,
+              "precision_all": 0.27586206896551724,
+              "true_defect": 16,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": -2,
+            "obstructions_reproduced": {
+              "code": -1,
+              "hand": -1
+            },
+            "precision": {
+              "intended_asymmetry": 0,
+              "model_defect": 0,
+              "precision": -0.009523809524,
+              "precision_all": -0.012273524255,
+              "true_defect": -1,
+              "unadjudicated": 0
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": -0.166666666667,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": 0,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    },
+    "A6": {
+      "component": "the enableable closure of DISCH (whitepaper §5.7, L12; holon.analysis.closure D4, D5, D8)",
+      "name": "no_enablement_disch",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "extra": {
+            "completed": true,
+            "detected": false,
+            "entry": "c17",
+            "full_detected": false,
+            "full_laws": 0,
+            "laws": 0,
+            "milestone": "T530"
+          },
+          "status": "run"
+        },
+        "heldout": {
+          "reason": "no held-out derivation exists (refused in holon sorts before holon disch)",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 64,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.7894736842105263,
+              "precision_all": 0.28846153846153844,
+              "true_defect": 15,
+              "unadjudicated": 33
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": -7,
+            "obstructions_reproduced": {
+              "code": 0,
+              "hand": 0
+            },
+            "precision": {
+              "intended_asymmetry": 0,
+              "model_defect": 0,
+              "precision": -0.020050125313,
+              "precision_all": 0.000325945241,
+              "true_defect": -2,
+              "unadjudicated": -5
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": 0.0,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": 0,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    },
+    "A7": {
+      "component": "witness replay on the real code (gate G6, whitepaper §9.6, L1, L16)",
+      "name": "no_replay",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "reason": "I51 recorded no REFUTED law on the corpus, so no witness exists to replay",
+          "status": "not_applicable"
+        },
+        "heldout": {
+          "reason": "no held-out law exists (I50), so no witness exists to replay",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": 0,
+            "obstructions_reproduced": {
+              "code": 0,
+              "hand": 0
+            },
+            "precision": {
+              "intended_asymmetry": 0,
+              "model_defect": 0,
+              "precision": 0.0,
+              "precision_all": 0.0,
+              "true_defect": 0,
+              "unadjudicated": 0
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": 0.0,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": 0,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    },
+    "A8": {
+      "component": "the second kernels (BendTT through bend --verdict, Lean 4; whitepaper §12.2, L16)",
+      "name": "single_kernel",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "reason": "no corpus law was derived, so there is no certificate to check",
+          "status": "not_applicable"
+        },
+        "heldout": {
+          "reason": "no held-out law exists",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": 0,
+            "obstructions_reproduced": {
+              "code": 0,
+              "hand": 0
+            },
+            "precision": {
+              "intended_asymmetry": 0,
+              "model_defect": 0,
+              "precision": 0.0,
+              "precision_all": 0.0,
+              "true_defect": 0,
+              "unadjudicated": 0
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": 0.0,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": 0,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    },
+    "A9": {
+      "component": "generated, frozen statements (whitepaper §9.4, L14: provers cannot write LAWS/, the registry G2, statement_diff)",
+      "name": "no_frozen_statements",
+      "ran": true,
+      "systems": {
+        "corpus": {
+          "reason": "the corpus has no law to weaken (I51: no law derived)",
+          "status": "not_applicable"
+        },
+        "heldout": {
+          "reason": "the held-out has no law to weaken (I50: no law derived)",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "ablated": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "delta": {
+            "findings": 0,
+            "obstructions_reproduced": {
+              "code": 0,
+              "hand": 0
+            },
+            "precision": {
+              "intended_asymmetry": 0,
+              "model_defect": 0,
+              "precision": 0.0,
+              "precision_all": 0.0,
+              "true_defect": 0,
+              "unadjudicated": 0
+            },
+            "recall_per_rule": {
+              "DISCH": 0.0,
+              "FACT": 0.0,
+              "NAT": 0.0,
+              "OWN": 0.0,
+              "PAR": 0.0,
+              "SORT": 0.0,
+              "SYM": 0.0,
+              "UNDO": 0.0
+            },
+            "rows_held": {
+              "code": 0,
+              "hand": 0
+            }
+          },
+          "full": {
+            "findings": 71,
+            "obstructions_reproduced": {
+              "code": 12,
+              "hand": 12
+            },
+            "precision": {
+              "intended_asymmetry": 4,
+              "model_defect": 0,
+              "precision": 0.8095238095238095,
+              "precision_all": 0.288135593220339,
+              "true_defect": 17,
+              "unadjudicated": 38
+            },
+            "recall_per_rule": {
+              "DISCH": {
+                "recall": 0.4,
+                "reproduced": 2,
+                "total": 5
+              },
+              "FACT": {
+                "recall": 0.5,
+                "reproduced": 2,
+                "total": 4
+              },
+              "NAT": {
+                "recall": 0.16666666666666666,
+                "reproduced": 1,
+                "total": 6
+              },
+              "OWN": {
+                "recall": 0.0,
+                "reproduced": 0,
+                "total": 2
+              },
+              "PAR": {
+                "recall": 0.3,
+                "reproduced": 3,
+                "total": 10
+              },
+              "SORT": {
+                "recall": 0.3333333333333333,
+                "reproduced": 2,
+                "total": 6
+              },
+              "SYM": {
+                "recall": 0.3333333333333333,
+                "reproduced": 1,
+                "total": 3
+              },
+              "UNDO": {
+                "recall": 0.6666666666666666,
+                "reproduced": 2,
+                "total": 3
+              }
+            },
+            "rows_held": {
+              "code": 8,
+              "hand": 13
+            }
+          },
+          "status": "run"
+        }
+      }
+    }
+  },
+  "protocol_sha256": "f806599483b3a0607551f6b13eabf0acbd25fd641423000810b84d2eebd38904",
+  "schema": "holon-ablations/0.1"
+}

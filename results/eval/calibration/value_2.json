@@ -1,0 +1,127 @@
+{
+  "artifacts": {
+    "law_name": null,
+    "laws": null,
+    "model": ".ablate/cal/value_2_gen/model/value_2_facts.bend",
+    "proof": null
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : False{}\n- observed : True{}\nContext:\n- flag : Bool\n- log  : List<&2, M.HObs>\n- d    : Nat\n- h0   : {Bool.not(flag) == True{} : Bool}\nLocation: l_i48_value_2_ri_exec_fire\n21 |     case M.D_fire_Ok{}:\n22>|       {==}\n   |       ^^^^\n23 |",
+      "exit_code": 1,
+      "generator": "reach_invariant",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "mode": "plain",
+      "strengthening": [],
+      "tries": 2
+    },
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : False{}\n- observed : True{}\nContext:\n- log : List<&2, M.HObs>\n- d   : Nat\n- h0  : {True{} == True{} : Bool}\nLocation: l_i48_value_2_ri_exec_fire\n33 |     case M.D_fire_Ok{}:\n34>|       ({==},\n   |        ^^^^\n35 |       {==})",
+      "exit_code": 1,
+      "generator": "reach_invariant",
+      "houdini": {
+        "bound": "BFS depth 3 over policy actions from s0 (<= 3000 states)",
+        "states": 1
+      },
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "mode": "strengthened",
+      "strengthening": [
+        "flag == false"
+      ],
+      "tries": 2
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": false,
+      "kind": "refute",
+      "tried": 3
+    }
+  ],
+  "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+  "checker": {
+    "exit_code": null,
+    "marker": "not_run"
+  },
+  "compiled_sha256": "9c469269bb5a9eea393fc1951ec55e24b2de63638b622e8b05f5581093cc8a13",
+  "cone": [
+    "Dec_fire",
+    "HAct",
+    "HObs",
+    "HSt",
+    "Reach",
+    "dec_fire_0",
+    "decide_fire",
+    "exec_fire",
+    "flag_down",
+    "s0",
+    "step",
+    "step_fire"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": null,
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "c91a839928112376c906e01b8a2195b3deef216a5225fd30796418b6be337ad4",
+  "filter_bin": null,
+  "generator_sha256": "f35aa2fce433af0f1aaff61d6e969a70600ae6fb9a627991acee2f02a6cec59c",
+  "independence_class": "none",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "not_run",
+      "role": "primary",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_i48_value_2",
+  "ledger_assumptions": [
+    "abs-value-2-control"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "9f491d5e90e28c74e5f6138933e6dc7c397672bf363511d9d97cef050827d4e5",
+  "non_vacuity": {
+    "bound": "not attempted: the law is not PROVED",
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:58e51163adbc3d56a9c798ea8c1ec598d6debfd5b5e8aea1ef650a8047e1c9c5",
+    "reachable": null,
+    "status": "unknown",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "∀ s: Reach. flag_down(s) == true",
+  "statement_hash": "sha256:58e51163adbc3d56a9c798ea8c1ec598d6debfd5b5e8aea1ef650a8047e1c9c5",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "UNKNOWN",
+  "subform": null,
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

@@ -1,0 +1,244 @@
+{
+  "protocol_version": "holon-baselines/0.1",
+  "doc": "I52 (BUILD_PLAN §4 I52, whitepaper §13 'Baselines'): the frozen protocol of the baseline runs. Written in the prereg commit, before any baseline ran. It fixes the baselines and their stock modes, the targets and scopes, the equal budget, the common findings schema (I52_findings.schema.json), how a finding is matched to a label, the agent-only review's invocation, and the seeds. holon.eval.baselines implements it; tests_m4/_i52.py restates the matching rules independently. Applies unchanged to the held-out system once I50 lands (its labels and scope are I50's; this session never reads them).",
+  "systems": {
+    "morph": {
+      "repo": "https://github.com/morph-l2/morph",
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "checkout": "config/holon.json replay.morph (the pinned checkout the toolchain installs); never modified, every run works in a scratch copy",
+      "labels": "the obstructions O1-O37 of whitepaper §11.3, anchored to code by spec/M4/lib/I52_morph_anchors.json",
+      "targets": [
+        "morph"
+      ]
+    },
+    "corpus": {
+      "manifest": "spec/eval/corpus.json",
+      "commit": "each entry's prefix_commit (the pre-fix commit), checked out from a clone of the entry's repo URL exactly as the manifest names it",
+      "labels": "each entry is its own label (c01-c20), with the entry's final rule label",
+      "targets": "c01..c20 in corpus order"
+    },
+    "heldout": {
+      "status": "pending: waits for I49/I50; this session never reads spec/heldout/ or clones the sealed target",
+      "command": "python -m holon eval baselines run --system heldout --all (refuses until I50's labels and scope file exist)"
+    }
+  },
+  "clone_rule": "A corpus repository is cloned only from the URL the manifest names (holon.eval.common.repo_cache; never an excluded_repos pattern of spec/M4/lib/corpus_protocol.json) and checked out at the entry's prefix_commit. Git submodules are fetched only at the gitlinked commits recorded in that commit's tree, and only when a baseline's build needs them; a submodule URL under an excluded pattern is refused. Every submodule fetched is recorded in the target record's scope (url and commit). Package-manager dependencies (Go modules, npm packages) are fetched by the project's own lockfiles. A target whose build cannot be set up within the setup cap is status error, with the reason; it counts as a miss, never as excluded.",
+  "scope": {
+    "rule": "The code a baseline analyses on a target is the scope: every non-test .go and .sol file directly inside a directory that holds a labelled file. Corpus: the directories of the entry's files (corpus.json files). Morph: the directories of the files named by the anchors (I52_morph_anchors.json). Test files follow corpus_protocol.json test_dirs/test_file_globs. Every baseline gets the same scope; a baseline that needs a whole-project build (forge, go test) builds the project but reports findings only for scope files.",
+    "languages": "A Solidity baseline applies to a target whose scope holds a .sol file; a Go baseline to one whose scope holds a .go file. Otherwise the target's status is not_applicable."
+  },
+  "budget": {
+    "doc": "Equal budget: every baseline gets, per target, the same wall clock and the same CPU. Analysis time is bounded by wall_s and pinned to cpus core(s) (taskset, GOMAXPROCS=1, the tool's worker/thread count 1). Setup (cloning, dependency fetches, compilation, harness generation) is not analysis: it is bounded by setup_cap_s and recorded separately. A baseline with several units on a target (contracts, functions, fuzz targets, codec pairs) runs them sequentially in sorted order, each unit getting the remaining time divided by the units left. The agent-only review's wall clock is enforced by killing the process at wall_s; its CPU is the model provider's and is not measured (recorded null with that reason). Timings go to results/eval/<system>/<baseline>.timing.json, never into the findings file.",
+    "morph": {
+      "wall_s_rule": "equal to HOLON's measured Morph budget: wall_s = 60 * ceil(H / 60), H = holon_budget.morph's sum in seconds, written to results/eval/holon_budget.json before any baseline runs",
+      "cpus": 1,
+      "setup_cap_s": 3600
+    },
+    "corpus": {
+      "wall_s": 300,
+      "cpus": 1,
+      "setup_cap_s": 3600
+    },
+    "heldout": {
+      "wall_s_rule": "the same rule over I50's recorded wall clock (holon_budget.heldout)",
+      "cpus": 1,
+      "setup_cap_s": 3600
+    },
+    "agent_review": "Morph: the Morph wall_s, one reviewer. Corpus: one reviewer with 20 x the corpus wall_s for the 20 entries together. The budget measure is wall clock (seconds), the same measure as every other baseline's; tokens are recorded, not budgeted."
+  },
+  "baselines": {
+    "slither": {
+      "class": "single-component analyzer",
+      "language": "solidity",
+      "tool": "slither-analyzer 0.11.6 (with crytic-compile 0.4.2), pip-installed in the venv ~/.holon/tools/baselines-py",
+      "stock": "every default detector, no exclusion, no triage file: `slither <project> --json <out> --foundry-compile-all` or on the compiled unit; each result element is one finding (kind: the detector's check id, severity: its impact/confidence), its locations the element's source mappings that lie in scope files",
+      "units": "the target's compilation (one unit)"
+    },
+    "echidna": {
+      "class": "fuzzer with stock properties",
+      "language": "solidity",
+      "tool": "echidna 2.4.0 (the release binary echidna-2.4.0-x86_64-linux.tar.gz)",
+      "stock": "--test-mode assertion (assert failures and Panic(0x01) of any call), --seed 1, --workers 1, --timeout <unit budget>, no user property; target: the generated forwarding harness of each deployable scope contract (harness rule)",
+      "units": "the deployable scope contracts"
+    },
+    "medusa": {
+      "class": "fuzzer with stock properties",
+      "language": "solidity",
+      "tool": "medusa 1.5.1 (the release binary medusa-linux-x64.tar.gz)",
+      "stock": "assertion testing on with medusa's default panic codes, property and optimization testing off, workers 1, timeout <unit budget>, seed fixed where the configuration allows (recorded); target: the same generated forwarding harness",
+      "units": "the deployable scope contracts"
+    },
+    "hevm": {
+      "class": "symbolic executor",
+      "language": "solidity",
+      "tool": "hevm 0.55.1 with cvc5 1.2.0 (the existing pins config/holon.json hevm)",
+      "stock": "`hevm symbolic --code <runtime bytecode> --solver cvc5` with hevm's default assertion check, the unit budget as the process timeout; a counterexample's selector names the function",
+      "units": "the deployable scope contracts"
+    },
+    "halmos": {
+      "class": "symbolic executor",
+      "language": "solidity",
+      "tool": "halmos 0.3.3, pip-installed in the venv ~/.holon/tools/baselines-py",
+      "stock": "halmos's default failure (assertion failure, Panic(0x01)) over a generated harness: setUp deploys the contract with the harness rule's arguments, and one check_<fn>(<params>) per external non-view function forwards its symbolic arguments; default solver, the unit budget as the process timeout",
+      "units": "the deployable scope contracts"
+    },
+    "go_fuzz": {
+      "class": "fuzzer with stock properties",
+      "language": "go",
+      "tool": "Go native fuzzing (go test -fuzz) of the pinned go1.24.7 (config/holon.json replay.go_version)",
+      "stock": "no panic: the scope packages' own Fuzz* functions, plus one generated harness per exported top-level scope function whose parameters are all []byte, string, bool, int*, uint* or float* (the fuzz engine's types), calling it once per input; `go test -run '^$' -fuzz '^<Name>$' -fuzztime <unit budget>s -parallel 1` with GOMAXPROCS=1; a failure's first stack frame in a scope file is its location, else the target function",
+      "units": "the fuzz targets (existing then generated, sorted)"
+    },
+    "two_cycle": {
+      "class": "2-cycle differential (round-trip) testing",
+      "language": "go",
+      "tool": "holon's 2-cycle harness generator (holon/eval/baselines/twocycle) on Go native fuzzing of the pinned go1.24.7",
+      "stock": "codec pairs discovered by name in the scope packages, within one language: an encoder method of T named Bytes, Encode, Marshal, MarshalBinary, Serialize or ToBytes returning a byte slice (or a named byte-slice type U), with a decoder: a function of the same package named Decode*, Unmarshal*, Parse* or New*From* from that type to T or *T, a method UnmarshalBinary, Unmarshal, Decode or SetBytes on *T, or, for a named U, zero-argument getters on U named after T's exported fields. Properties: value cycle dec(enc(x)) equals x on T's exported non-cache fields, and bytes cycle enc(dec(b)) == b for every b that dec accepts, seeded with enc of random values; values are built from the fuzz input by a deterministic reflection filler. Cross-language pairs are out: they need a binding the baseline does not have",
+      "units": "the discovered pairs (sorted)"
+    },
+    "spec_mining": {
+      "class": "frequency-based specification mining",
+      "language": "both",
+      "tool": "holon's belief miner (holon/eval/baselines/mining; Go by go/ast through the pinned go1.24.7, Solidity through slither 0.11.6's API)",
+      "stock": "Engler-style beliefs with support >= 3 and confidence >= 0.75 over the scope, each deviant site one finding: B1 must-check results (Go: a callee's error result, or the ok result of a type assertion, checked at >= 75% of its sites is flagged where discarded); B2 pairing (Go: x.Lock()/x.RLock() released by a matching Unlock in >= 75% of functions that take it, flagged where not); B3 call order (Go: a call a followed later in the same function by b in >= 75% of the functions calling a, flagged where b is missing); B4 access-control belief (Solidity: a state variable whose external/public writers carry a common modifier or msg.sender check in >= 75% of them, flagged at writers without it); B5 must-check low-level call results (Solidity)",
+      "units": "the target (one unit)"
+    },
+    "agent_review": {
+      "class": "agent-only review at equal budget",
+      "language": "both",
+      "tool": "Claude Code CLI 2.1.322 (`claude -p`), model tag A (the model is named at run time only, never in the repository; same family as HOLON's builder and I48's labellers: same_family true)",
+      "stock": "Lead ruling (2026-11-11): the fewest fresh reviewers the prereg needs, one per system at that system's equal budget. Morph: one fresh process given the Morph scope files at the pinned commit (Morph is the development target, so no renaming applies; its contamination is stated as a threat). Corpus: one fresh process given only I48's isomorphic renamings, the labelled files of every entry renamed by I48's tool (holon eval rename, seed I52:<entry>), each entry under its own directory named by its id (c01/<path>), never the original repositories, the manifest, labels, fix write-ups, the whitepaper or HOLON's outputs; its budget is the corpus budget summed over the entries (20 x wall_s). The frozen prompt spec/M4/lib/I52_review_prompt.md, tools Read, Grep and Glob only, killed at the budget. Its answer's findings are this baseline's findings, assigned to the entry whose directory each location names; a renamed file's lines are mapped back to the pre-fix file through the renaming map (identifier renames keep lines; each removed comment shifts later lines by its newlines minus its replacement's).",
+      "invocation": [
+        "claude",
+        "-p",
+        "--tools",
+        "Read,Grep,Glob",
+        "--allowedTools",
+        "Read,Grep,Glob",
+        "--strict-mcp-config",
+        "--disable-slash-commands",
+        "--no-session-persistence",
+        "--setting-sources",
+        "",
+        "--system-prompt",
+        "<system_prompt>",
+        "--model",
+        "<model>",
+        "--output-format",
+        "json"
+      ],
+      "system_prompt": "You are a security reviewer. You may only read the files in your working directory. Answer only with what the prompt asks for.",
+      "cwd": "the review packet, a fresh directory under /tmp, removed afterwards",
+      "env_removed": [
+        "CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD",
+        "CLAUDE_ADDITIONAL_DIRECTORIES"
+      ],
+      "units": "the system (one reviewer per system)",
+      "disclosure": "The packet holds only the labelled files, so the corpus reviewer is told where the defects are at file granularity, which no other baseline is (they analyse the labelled files' directories); this favours the agent and is reported."
+    }
+  },
+  "harness_rule": "Solidity deployable scope contracts: every non-abstract contract (not interface or library) declared in a scope file whose creation bytecode is non-empty. The generated forwarding harness H_<C> deploys C in its constructor with default arguments (0 for integers, false, address(this) for addresses, zero bytes32, empty bytes/strings/arrays, zeroed structs) and exposes one function per external or public non-view, non-pure function of C with the same parameter types, forwarding its arguments; a function whose parameter type the generator cannot express is skipped and recorded. halmos's check_<fn> harness uses the same deployment.",
+  "matching": {
+    "doc": "How a finding is matched to a label. Two levels: located (mechanical, below) and detected (located and confirmed by the blinded match adjudicator). The predictions are stated over detected; located is reported beside it.",
+    "corpus_location": "A finding on entry e is located at e iff one of its locations names a file in e.files and its line span [a, b] intersects [l - 10, l + 10] for some l in L(e, file): the pre-fix lines that `git diff -U0 <prefix_commit> <fix_commit> -- file` deletes or changes (the old side of every hunk, a..a+n-1), and for a pure-insertion hunk (@@ -a,0 ...) the lines a and a + 1.",
+    "morph_location": "A finding on Morph is located at O<k> iff one of its locations names an anchor's file and its line span intersects the anchor's line span (spec/M4/lib/I52_morph_anchors.json).",
+    "window_lines": 10,
+    "spans": "A tool that names a function only (fuzzers, symbolic executors, generated harnesses) reports the function's whole declaration span; a tool that names a line reports [line, line]. A location whose span exceeds 150 lines (a contract- or file-level element) counts as its first line only, so a contract-wide report never matches every anchor in its file.",
+    "adjudicator": {
+      "doc": "For every (baseline, target, label) with at least one located finding (a group), a fresh tool-less process reads the frozen prompt spec/M4/lib/I52_match_prompt.md filled with the label's text (corpus: the entry's title and description; Morph: the obstruction's rule and title and the text of the prior finding it cites, whitepaper §11.3 and Appendix A) and the group's located findings (id, kind, message, locations), and answers which finding ids describe that defect. Lead ruling (fewest agents): the groups of a system are put in sorted order (baseline, target, label) and filled into as few processes as possible, at most 25 groups per process, each group in the prompt as its own numbered DEFECT/FINDINGS block, answered as {\"groups\": {\"<n>\": [ids]}}. It never sees the baseline's name, other systems or HOLON's outputs. Confirmed ids must be a subset of the group's located ids; an unparsable answer gets one more attempt, then its groups count as not confirmed (recorded).",
+      "invocation": [
+        "claude",
+        "-p",
+        "--tools",
+        "",
+        "--strict-mcp-config",
+        "--disable-slash-commands",
+        "--no-session-persistence",
+        "--setting-sources",
+        "",
+        "--system-prompt",
+        "<system_prompt>",
+        "--model",
+        "<model>",
+        "--output-format",
+        "json"
+      ],
+      "system_prompt": "You judge whether tool findings describe a known software defect. You have no tools. Answer only with what the prompt asks for.",
+      "model_tag": "A",
+      "same_family": true
+    }
+  },
+  "relational": {
+    "doc": "Morph obstructions whose statement relates two or more components, paths, versions or a component and its intent (PAR except PAR-totality, UNDO, NAT, SYM, FACT and their composites). The others (PAR-totality, SORT-sign/width/payer/conservation, DISCH, OWN) are observable on one component.",
+    "ids": [
+      "O1",
+      "O2",
+      "O3",
+      "O5",
+      "O6",
+      "O7",
+      "O8",
+      "O9",
+      "O10",
+      "O11",
+      "O12",
+      "O13",
+      "O14",
+      "O15",
+      "O16",
+      "O17",
+      "O18",
+      "O19",
+      "O20",
+      "O21",
+      "O22",
+      "O23",
+      "O24",
+      "O25",
+      "O26"
+    ],
+    "single_component_ids": [
+      "O4",
+      "O27",
+      "O28",
+      "O29",
+      "O30",
+      "O31",
+      "O32",
+      "O33",
+      "O34",
+      "O35",
+      "O36",
+      "O37"
+    ]
+  },
+  "single_component_analyzers": [
+    "slither",
+    "echidna",
+    "medusa",
+    "hevm",
+    "halmos",
+    "go_fuzz",
+    "spec_mining"
+  ],
+  "statuses": {
+    "run": "the baseline ran on the target within its budget (budget_exhausted says whether it used all of it)",
+    "not_applicable": "the target's scope holds no file of the baseline's language",
+    "missing": "the tool is not installed as pinned; never substituted",
+    "error": "setup failed (clone, build, compilation, harness) within the setup cap, or the tool crashed; the reason is recorded; a miss, never excluded"
+  },
+  "determinism": "Runs are deterministic where the tools allow: fixed seeds (echidna --seed 1, the reflection filler's seed from the fuzz input, the renaming seed), sorted units, sorted findings (by file, line, kind, message). Fuzzers, solvers and the agent are not deterministic under a wall-clock budget; their seeds and versions are recorded and a re-run may differ.",
+  "holon_budget": {
+    "doc": "Lead ruling (2026-11-11, §13 'equal budget'): HOLON's own budget on a system is measured by a rule fixed here, and each baseline's budget is compared with it in the report, any shortfall disclosed. Measure: wall-clock seconds of HOLON's machine work that produces its results on the system from its inputs.",
+    "morph": "the sum over M0..M3 of from_scratch_gate_s, the wall clock of a full `holon gate --milestone M` from a fresh build directory (every check, which regenerates every law, proof and record and re-checks it): M0-M2 as recorded in results/M<k>/metrics_timing.json at the base 4fd64a52, M3 measured on this machine on a scratch copy of the base (results/M3 records none), before any baseline ran. The development work of the agent sessions that built HOLON is not counted (HOLON's budget is its machine cost, like a baseline's).",
+    "corpus": "I51's recorded wall clock per entry, once I51 lands; until then the comparison is pending and reported as such.",
+    "heldout": "I50's recorded wall clock, once I50 lands.",
+    "record": "results/eval/holon_budget.json: {m0_s, m1_s, m2_s (the base's recorded from_scratch_gate_s), m3_s (measured), m3_cpu_s, sum_s (H), morph_wall_s (the rule's value), m3_measurement (argv, exit, wall_s, cpu_s)}, written before any baseline result. HOLON's gate runs with several worker threads and checker processes, so its CPU seconds can exceed its wall clock; a baseline gets one core for the same wall clock, and the CPU difference is reported."
+  },
+  "non_vacuity": "A prediction that a baseline detects nothing holds only if the baseline ran (status run) on at least half of the targets where it applies on that system; otherwise it is a miss (not tested), never a pass.",
+  "threats": [
+    "two_cycle's getter-decoder pair form and spec_mining's comma-ok part of B1 were written after the builder had read Morph's batch_header.go and the corpus titles (c06 names an unchecked type assertion); both are common Go idioms, but P2 and P5 are not blind to that knowledge.",
+    "Location matching over-credits large functions and under-credits fixes far from the defect's site; the blinded adjudicator decides detected, and is the same model family as the agent reviewer (same_family true).",
+    "Every corpus defect is public; the reviewer works on renamed files, but file paths and string literals are kept (I48 gap E-G3)."
+  ]
+}

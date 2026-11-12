@@ -1,0 +1,115 @@
+{
+  "artifacts": {
+    "law_name": null,
+    "laws": null,
+    "model": ".ablate/cal/relational_1_gen/model/relational_1_facts.bend",
+    "proof": null
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : Cmp.is_le(Nat.cmp(a, Nat.add(b, 1n)))\n- observed : True{}\nContext:\n- a   : Nat\n- b   : Nat\n- c_1 : Nat\n- log : List<&2, M.HObs>\n- h0  : {Cmp.is_le(Nat.cmp(a, b)) == True{} : Bool}\nLocation: l_i48_relational_1_ri_exec_bump\n21 |     case M.D_bump_Ok{}:\n22>|       {==}\n   |       ^^^^",
+      "exit_code": 1,
+      "generator": "reach_invariant",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "mode": "plain",
+      "strengthening": [],
+      "tries": 2
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": false,
+      "kind": "refute",
+      "tried": 15
+    }
+  ],
+  "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+  "checker": {
+    "exit_code": null,
+    "marker": "not_run"
+  },
+  "compiled_sha256": "b478c5e2514cb1d31050e1ae7e004633095257383e9427a9eb79fe264996046a",
+  "cone": [
+    "Dec_bump",
+    "Dec_copy_1",
+    "HAct",
+    "HObs",
+    "HSt",
+    "Reach",
+    "a_le_b",
+    "dec_bump_0",
+    "decide_bump",
+    "decide_copy_1",
+    "exec_bump",
+    "exec_copy_1",
+    "s0",
+    "step",
+    "step_bump",
+    "step_copy_1"
+  ],
+  "coverage": null,
+  "difference": null,
+  "evidence_levels": null,
+  "evidence_override": null,
+  "evidence_triage": "none",
+  "facts_sha256": "9980c21033210aa219c66a8aaf6ba4b247c9d9c2aa37ad27fbcf0ae9adea241b",
+  "filter_bin": null,
+  "generator_sha256": "f35aa2fce433af0f1aaff61d6e969a70600ae6fb9a627991acee2f02a6cec59c",
+  "independence_class": "none",
+  "kernel": {
+    "name": "bend",
+    "verdict": "not_run",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "not_run",
+      "role": "primary",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_i48_relational_1",
+  "ledger_assumptions": [
+    "abs-relational-1-control"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "c2c5cbd8933159a4871c4c6a9e203c8eddc32b1aeb3ccb657011f68bf4a0789c",
+  "non_vacuity": {
+    "bound": "not attempted: the law is not PROVED",
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:d7b4fc93a604a9ba16a6bfaf1eec732f7769d285ece3684ee8be565cd3f5244b",
+    "reachable": null,
+    "status": "unknown",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "certificates are not replayed; refinement replay corpus in replay/M1",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "∀ s: Reach. a_le_b(s) == true",
+  "statement_hash": "sha256:d7b4fc93a604a9ba16a6bfaf1eec732f7769d285ece3684ee8be565cd3f5244b",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "UNKNOWN",
+  "subform": null,
+  "triage": "none",
+  "witness": null,
+  "witness_provenance": null
+}

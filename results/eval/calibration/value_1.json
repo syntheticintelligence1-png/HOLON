@@ -1,0 +1,142 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_i48_value_1",
+    "laws": ".ablate/cal/value_1_gen/laws/L_i48_value_1/LAWS.bend",
+    "model": ".ablate/cal/value_1_gen/model/value_1_facts.bend",
+    "proof": ".ablate/cal/value_1_gen/proofs/L_i48_value_1/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : False{}\n- observed : True{}\nContext:\n- flag : Bool\n- log  : List<&2, M.HObs>\n- d    : Nat\n- h0   : {Bool.not(flag) == True{} : Bool}\nLocation: l_i48_value_1_ri_exec_fire\n21 |     case M.D_fire_Ok{}:\n22>|       {==}\n   |       ^^^^\n23 |",
+      "exit_code": 1,
+      "generator": "reach_invariant",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "mode": "plain",
+      "strengthening": [],
+      "tries": 2
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 6
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK"
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK"
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK"
+  },
+  "compiled_sha256": "3b5eefcaab557c7684052e8992dd207aa2dfc86db2c9676869164cf9d6dfaa8d",
+  "cone": [
+    "Dec_fire",
+    "HAct",
+    "HObs",
+    "HSt",
+    "Reach",
+    "dec_fire_0",
+    "decide_fire",
+    "exec_fire",
+    "flag_down",
+    "s0",
+    "step",
+    "step_fire"
+  ],
+  "coverage": null,
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "evidence_levels": null,
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "960188e7751523e13f019ef921f416e1d451fd3201946c0e9f24c88d0dc8b177",
+  "filter_bin": "pending",
+  "generator_sha256": "f35aa2fce433af0f1aaff61d6e969a70600ae6fb9a627991acee2f02a6cec59c",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_i48_value_1",
+  "ledger_assumptions": [
+    "abs-value-1-control"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "24a109e8dba820553b499f5bdfbc41d8b820fac7d64ea0b664b8333fee7af623",
+  "non_vacuity": {
+    "bound": "the accepted counter-law inhabits the premises",
+    "degenerate": null,
+    "law": ".ablate/cal/value_1_gen/laws/L_i48_value_1/LAWS.bend",
+    "parent_statement_hash": "sha256:0b29f2d2a735634b63c8efac6510d5776d04adfe5c49b42688bf73733f04b082",
+    "reachable": null,
+    "status": "counter_witness",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "∀ s: Reach. flag_down(s) == true",
+  "statement_hash": "sha256:0b29f2d2a735634b63c8efac6510d5776d04adfe5c49b42688bf73733f04b082",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "REFUTED",
+  "subform": null,
+  "triage": "finding",
+  "witness": {
+    "s": {
+      "run": [
+        {
+          "d": 1,
+          "op": "fire"
+        }
+      ]
+    }
+  },
+  "witness_provenance": {}
+}

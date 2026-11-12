@@ -1,0 +1,332 @@
+{
+  "component": "witness replay on the real code (gate G6, whitepaper §9.6, L1, L16)",
+  "id": "A7",
+  "name": "no_replay",
+  "switch": "every replay report is withheld: no REFUTED record has a replay side, and no refinement comparison or replay-corpus detection exists",
+  "systems": {
+    "corpus": {
+      "reason": "I51 recorded no REFUTED law on the corpus, so no witness exists to replay",
+      "status": "not_applicable"
+    },
+    "heldout": {
+      "reason": "no held-out law exists (I50), so no witness exists to replay",
+      "status": "not_applicable"
+    },
+    "morph": {
+      "ablated": {
+        "findings": 71,
+        "obstructions_reproduced": {
+          "code": 12,
+          "hand": 12
+        },
+        "precision": {
+          "intended_asymmetry": 4,
+          "model_defect": 0,
+          "precision": 0.8095238095238095,
+          "precision_all": 0.288135593220339,
+          "true_defect": 17,
+          "unadjudicated": 38
+        },
+        "recall_per_rule": {
+          "DISCH": {
+            "recall": 0.4,
+            "reproduced": 2,
+            "total": 5
+          },
+          "FACT": {
+            "recall": 0.5,
+            "reproduced": 2,
+            "total": 4
+          },
+          "NAT": {
+            "recall": 0.16666666666666666,
+            "reproduced": 1,
+            "total": 6
+          },
+          "OWN": {
+            "recall": 0.0,
+            "reproduced": 0,
+            "total": 2
+          },
+          "PAR": {
+            "recall": 0.3,
+            "reproduced": 3,
+            "total": 10
+          },
+          "SORT": {
+            "recall": 0.3333333333333333,
+            "reproduced": 2,
+            "total": 6
+          },
+          "SYM": {
+            "recall": 0.3333333333333333,
+            "reproduced": 1,
+            "total": 3
+          },
+          "UNDO": {
+            "recall": 0.6666666666666666,
+            "reproduced": 2,
+            "total": 3
+          }
+        },
+        "rows_held": {
+          "code": 8,
+          "hand": 13
+        }
+      },
+      "added": {},
+      "delta": {
+        "findings": 0,
+        "obstructions_reproduced": {
+          "code": 0,
+          "hand": 0
+        },
+        "precision": {
+          "intended_asymmetry": 0,
+          "model_defect": 0,
+          "precision": 0.0,
+          "precision_all": 0.0,
+          "true_defect": 0,
+          "unadjudicated": 0
+        },
+        "recall_per_rule": {
+          "DISCH": 0.0,
+          "FACT": 0.0,
+          "NAT": 0.0,
+          "OWN": 0.0,
+          "PAR": 0.0,
+          "SORT": 0.0,
+          "SYM": 0.0,
+          "UNDO": 0.0
+        },
+        "rows_held": {
+          "code": 0,
+          "hand": 0
+        }
+      },
+      "extra": {
+        "finding_bin": {
+          "ablated": 0,
+          "by_milestone": {
+            "M0": {
+              "finding_ablated": 0,
+              "finding_full": 2,
+              "refuted": 3
+            },
+            "M1": {
+              "finding_ablated": 0,
+              "finding_full": 5,
+              "refuted": 8
+            },
+            "M2": {
+              "finding_ablated": 0,
+              "finding_full": 2,
+              "refuted": 2
+            },
+            "M3": {
+              "finding_ablated": 0,
+              "finding_full": 19,
+              "refuted": 50
+            }
+          },
+          "full": 28
+        },
+        "mutation_detection": {
+          "ablated": 96,
+          "definition": "mutants killed by a law, or detected by the replay corpus (full); killed by a law only (ablated)",
+          "full": 149,
+          "mutants": 192,
+          "summary_detection": {
+            "den": 192,
+            "num": 100,
+            "value": 0.5208333333333334
+          }
+        },
+        "refinement_compared": {
+          "ablated": 0,
+          "full": 326548
+        },
+        "witness_replay_rate": {
+          "ablated": null,
+          "full": 1.0
+        }
+      },
+      "full": {
+        "findings": 71,
+        "obstructions_reproduced": {
+          "code": 12,
+          "hand": 12
+        },
+        "precision": {
+          "intended_asymmetry": 4,
+          "model_defect": 0,
+          "precision": 0.8095238095238095,
+          "precision_all": 0.288135593220339,
+          "true_defect": 17,
+          "unadjudicated": 38
+        },
+        "recall_per_rule": {
+          "DISCH": {
+            "recall": 0.4,
+            "reproduced": 2,
+            "total": 5
+          },
+          "FACT": {
+            "recall": 0.5,
+            "reproduced": 2,
+            "total": 4
+          },
+          "NAT": {
+            "recall": 0.16666666666666666,
+            "reproduced": 1,
+            "total": 6
+          },
+          "OWN": {
+            "recall": 0.0,
+            "reproduced": 0,
+            "total": 2
+          },
+          "PAR": {
+            "recall": 0.3,
+            "reproduced": 3,
+            "total": 10
+          },
+          "SORT": {
+            "recall": 0.3333333333333333,
+            "reproduced": 2,
+            "total": 6
+          },
+          "SYM": {
+            "recall": 0.3333333333333333,
+            "reproduced": 1,
+            "total": 3
+          },
+          "UNDO": {
+            "recall": 0.6666666666666666,
+            "reproduced": 2,
+            "total": 3
+          }
+        },
+        "rows_held": {
+          "code": 8,
+          "hand": 13
+        }
+      },
+      "items_changed": {},
+      "laws": {},
+      "overrides": {
+        "M0": {
+          "L_par_hdr_ssvh": {
+            "filter_bin": "pending"
+          },
+          "L_par_hdr_v2": {
+            "filter_bin": "pending"
+          }
+        },
+        "M1": {
+          "L_sort_remaining": {
+            "filter_bin": "pending"
+          },
+          "L_sym_omega": {
+            "filter_bin": "pending"
+          },
+          "L_tag_BVH": {
+            "filter_bin": "pending"
+          },
+          "L_undo_BVH": {
+            "filter_bin": "pending"
+          },
+          "L_undo_cancel": {
+            "filter_bin": "pending"
+          }
+        },
+        "M2": {
+          "L_sort_site_rollup_363_1fc7f88a": {
+            "filter_bin": "pending"
+          },
+          "L_sort_site_rollup_636_e68daf06": {
+            "filter_bin": "pending"
+          }
+        },
+        "M2/view": {
+          "L_sort_remaining": {
+            "filter_bin": "pending"
+          },
+          "L_sym_omega": {
+            "filter_bin": "pending"
+          },
+          "L_undo_BVH": {
+            "filter_bin": "pending"
+          }
+        },
+        "M3": {
+          "L_disch_blk_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+            "filter_bin": "pending"
+          },
+          "L_disch_noext_pausableupgradeable_77_ed0ce816_onlyOwner": {
+            "filter_bin": "pending"
+          },
+          "L_disch_noext_rollup_132_d953872f_onlyOwner": {
+            "filter_bin": "pending"
+          },
+          "L_disch_noext_rollup_213_f2e7faf8_onlyActiveSubmitter": {
+            "filter_bin": "pending"
+          },
+          "L_disch_noext_rollup_213_f2e7faf8_onlyOwner": {
+            "filter_bin": "pending"
+          },
+          "L_disch_noext_rollup_363_e11d8bb2_onlyActiveSubmitter": {
+            "filter_bin": "pending"
+          },
+          "L_disch_noext_rollup_363_e11d8bb2_onlyOwner": {
+            "filter_bin": "pending"
+          },
+          "L_nat_comp_Rollup_initialize2_initialize3": {
+            "filter_bin": "pending"
+          },
+          "L_nat_comp_Rollup_initialize2_initialize4": {
+            "filter_bin": "pending"
+          },
+          "L_nat_comp_Rollup_initialize3_initialize4": {
+            "filter_bin": "pending"
+          },
+          "L_nat_comp_Rollup_initialize_initialize2": {
+            "filter_bin": "pending"
+          },
+          "L_nat_comp_Rollup_initialize_initialize3": {
+            "filter_bin": "pending"
+          },
+          "L_nat_comp_Rollup_initialize_initialize4": {
+            "filter_bin": "pending"
+          },
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0": {
+            "filter_bin": "pending"
+          },
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1": {
+            "filter_bin": "pending"
+          },
+          "L_pinit_Rollup_importGenesisBatch_committedBatches_17_9": {
+            "filter_bin": "pending"
+          },
+          "L_sort_realize_rollup_363_4a64383b": {
+            "filter_bin": "pending"
+          },
+          "L_undo_pair_Rollup_commitBatch_revertBatch": {
+            "filter_bin": "pending"
+          },
+          "L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes": {
+            "filter_bin": "pending"
+          }
+        }
+      },
+      "removed": [],
+      "reran": [
+        {
+          "argv": "holon.filter.final_bin over every REFUTED record with no replay side",
+          "rc": 0
+        }
+      ],
+      "status": "run"
+    }
+  }
+}

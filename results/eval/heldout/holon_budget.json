@@ -1,0 +1,44 @@
+{
+  "cpu_s": 0.37,
+  "doc": "I52b: HOLON's own budget on the held-out system (spec/M4/lib/I52_baselines.json holon_budget.heldout, 'I50's recorded wall clock'; spec/M4/lib/I52b_heldout.json budget.primary). I50 recorded no wall clock, so its route was measured on this machine on a scratch copy of the repository, from the committed held-out document, before any baseline result of the system: holon target derive, then holon target run. heldout_wall_s = 60 * ceil(sum_s / 60) is every baseline's primary wall clock.",
+  "heldout_wall_s": 60,
+  "steps": [
+    {
+      "argv": [
+        "python",
+        "-m",
+        "holon",
+        "target",
+        "derive",
+        "--target",
+        "scroll",
+        "--root",
+        "<scratch copy>"
+      ],
+      "cpu_s": 0.3,
+      "exit": 1,
+      "stderr_tail": "",
+      "stdout_tail": "holon target derive: wrote 4 files under gen/targets/scroll/lib, gen/targets/scroll/sorts, gen/targets/scroll/disch, gen/targets/scroll/laws\nholon target derive: REFUSED at holon sorts: holon sorts: gen/targets/scroll/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (writes[1]): term 'update' has no sorts rule\n",
+      "wall_s": 0.325
+    },
+    {
+      "argv": [
+        "python",
+        "-m",
+        "holon",
+        "target",
+        "run",
+        "--target",
+        "scroll",
+        "--root",
+        "<scratch copy>"
+      ],
+      "cpu_s": 0.07,
+      "exit": 0,
+      "stderr_tail": "",
+      "stdout_tail": "holon target run: wrote 1 files under results/targets/scroll/records, gen/targets/scroll/run\nholon target run: scroll: no law to decide (the derivation was refused at holon sorts)\n",
+      "wall_s": 0.076
+    }
+  ],
+  "sum_s": 0.401
+}

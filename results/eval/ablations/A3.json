@@ -1,0 +1,697 @@
+{
+  "component": "the evidence calculus E1-E6 and its frozen evidence set (whitepaper §5.1, Prop 6.11; gen/<M>/evidence.json)",
+  "id": "A3",
+  "name": "no_evidence_calculus",
+  "switch": "the frozen evidence set of the scratch copy (gen/M3/evidence.json and gen/M2/evidence.json) replaced by the same document with every atom list empty (no pair is evidenced at any level), and every record's evidence triage read as no evidence (a REFUTED law is a finding, never an intent question)",
+  "systems": {
+    "corpus": {
+      "extra": {
+        "completed": true,
+        "detected": false,
+        "entry": "c17",
+        "full_detected": false,
+        "full_laws": 0,
+        "laws": 0,
+        "milestone": "T530"
+      },
+      "reran": [
+        {
+          "argv": "holon sorts --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts",
+          "rc": 0,
+          "tail": "holon sorts: 0 conflicts, 26 unresolved variables -> gen/T530/sorts\n"
+        },
+        {
+          "argv": "holon types --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts",
+          "rc": 0,
+          "tail": "holon types: onestepproverhostio.extracted: 0 types, 0 typed operations, 0 coercions, 0 companions, 0 external guards\n"
+        },
+        {
+          "argv": "holon model --milestone T530 --sidecar results/eval/holon/c17/sidecars/sort_types.json --out gen/T530/sorts/models",
+          "rc": 0,
+          "tail": "wrote <scratch>\n"
+        },
+        {
+          "argv": "holon disch --milestone T530 --sidecar results/eval/holon/c17/sidecars/disch.json --out gen/T530/disch",
+          "rc": 0,
+          "tail": "holon disch: closure.json, conjuncts.json -> <scratch>\n"
+        },
+        {
+          "argv": "holon derive --milestone T530 --catalog holon-rules/1.15 --sidecar results/eval/holon/c17/sidecars/sort_types.json --disch results/eval/holon/c17/sidecars/disch.json --undo-sidecar results/eval/holon/c17/sidecars/undo.json --fact-sidecar results/eval/holon/c17/sidecars/fact.json --out laws/T530 --obstructions gen/T530/sorts/obstructions.json",
+          "rc": 0,
+          "tail": "holon derive: 0 laws, 0 obstructions -> laws/T530\n"
+        }
+      ],
+      "status": "run"
+    },
+    "heldout": {
+      "reason": "no held-out derivation exists (refused in holon sorts), and the evidence set is read only by derive",
+      "status": "not_applicable"
+    },
+    "morph": {
+      "ablated": {
+        "findings": 69,
+        "obstructions_reproduced": {
+          "code": 12,
+          "hand": 12
+        },
+        "precision": {
+          "intended_asymmetry": 2,
+          "model_defect": 0,
+          "precision": 0.8947368421052632,
+          "precision_all": 0.2982456140350877,
+          "true_defect": 17,
+          "unadjudicated": 38
+        },
+        "recall_per_rule": {
+          "DISCH": {
+            "recall": 0.4,
+            "reproduced": 2,
+            "total": 5
+          },
+          "FACT": {
+            "recall": 0.5,
+            "reproduced": 2,
+            "total": 4
+          },
+          "NAT": {
+            "recall": 0.16666666666666666,
+            "reproduced": 1,
+            "total": 6
+          },
+          "OWN": {
+            "recall": 0.0,
+            "reproduced": 0,
+            "total": 2
+          },
+          "PAR": {
+            "recall": 0.3,
+            "reproduced": 3,
+            "total": 10
+          },
+          "SORT": {
+            "recall": 0.3333333333333333,
+            "reproduced": 2,
+            "total": 6
+          },
+          "SYM": {
+            "recall": 0.3333333333333333,
+            "reproduced": 1,
+            "total": 3
+          },
+          "UNDO": {
+            "recall": 0.6666666666666666,
+            "reproduced": 2,
+            "total": 3
+          }
+        },
+        "rows_held": {
+          "code": 6,
+          "hand": 13
+        }
+      },
+      "added": {
+        "M3": {
+          "L_par_cy_BatchHeaderBytes_BlobHashesHash_v2": "UNKNOWN",
+          "L_par_cy_BatchHeaderBytes_BlobVersionedHash_v0": "UNKNOWN",
+          "L_par_cy_BatchHeaderBytes_BlobVersionedHash_v1": "UNKNOWN",
+          "L_par_cy_blob_RetrieveBlobBytes": "REFUTED"
+        }
+      },
+      "delta": {
+        "findings": -2,
+        "obstructions_reproduced": {
+          "code": 0,
+          "hand": 0
+        },
+        "precision": {
+          "intended_asymmetry": -2,
+          "model_defect": 0,
+          "precision": 0.085213032581,
+          "precision_all": 0.010110020815,
+          "true_defect": 0,
+          "unadjudicated": 0
+        },
+        "recall_per_rule": {
+          "DISCH": 0.0,
+          "FACT": 0.0,
+          "NAT": 0.0,
+          "OWN": 0.0,
+          "PAR": 0.0,
+          "SORT": 0.0,
+          "SYM": 0.0,
+          "UNDO": 0.0
+        },
+        "rows_held": {
+          "code": -2,
+          "hand": 0
+        }
+      },
+      "extra": {},
+      "full": {
+        "findings": 71,
+        "obstructions_reproduced": {
+          "code": 12,
+          "hand": 12
+        },
+        "precision": {
+          "intended_asymmetry": 4,
+          "model_defect": 0,
+          "precision": 0.8095238095238095,
+          "precision_all": 0.288135593220339,
+          "true_defect": 17,
+          "unadjudicated": 38
+        },
+        "recall_per_rule": {
+          "DISCH": {
+            "recall": 0.4,
+            "reproduced": 2,
+            "total": 5
+          },
+          "FACT": {
+            "recall": 0.5,
+            "reproduced": 2,
+            "total": 4
+          },
+          "NAT": {
+            "recall": 0.16666666666666666,
+            "reproduced": 1,
+            "total": 6
+          },
+          "OWN": {
+            "recall": 0.0,
+            "reproduced": 0,
+            "total": 2
+          },
+          "PAR": {
+            "recall": 0.3,
+            "reproduced": 3,
+            "total": 10
+          },
+          "SORT": {
+            "recall": 0.3333333333333333,
+            "reproduced": 2,
+            "total": 6
+          },
+          "SYM": {
+            "recall": 0.3333333333333333,
+            "reproduced": 1,
+            "total": 3
+          },
+          "UNDO": {
+            "recall": 0.6666666666666666,
+            "reproduced": 2,
+            "total": 3
+          }
+        },
+        "rows_held": {
+          "code": 8,
+          "hand": 13
+        }
+      },
+      "items_changed": {
+        "O2": {
+          "ablated": {
+            "code": "not mechanized",
+            "hand": "reproduced"
+          },
+          "full": {
+            "code": "open",
+            "hand": "reproduced"
+          }
+        },
+        "R1": {
+          "ablated": {
+            "code": "not mechanized",
+            "hand": "held"
+          },
+          "full": {
+            "code": "held",
+            "hand": "held"
+          }
+        },
+        "R2": {
+          "ablated": {
+            "code": "not mechanized",
+            "hand": "held"
+          },
+          "full": {
+            "code": "held",
+            "hand": "held"
+          }
+        }
+      },
+      "laws": {
+        "M2": {
+          "changed": [],
+          "derived": 12,
+          "gained": [],
+          "lost": []
+        },
+        "M3": {
+          "changed": [],
+          "derived": 199,
+          "gained": [
+            "L_par_cy_BatchHeaderBytes_BlobHashesHash_v2",
+            "L_par_cy_BatchHeaderBytes_BlobVersionedHash_v0",
+            "L_par_cy_BatchHeaderBytes_BlobVersionedHash_v1",
+            "L_par_cy_blob_RetrieveBlobBytes"
+          ],
+          "lost": [
+            "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2",
+            "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned",
+            "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0",
+            "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned",
+            "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1",
+            "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2",
+            "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2",
+            "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0",
+            "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1",
+            "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2",
+            "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2",
+            "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0",
+            "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1",
+            "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
+          ]
+        }
+      },
+      "overrides": {
+        "M0": {
+          "L_par_hdr_v2": {
+            "evidence_triage": "finding"
+          }
+        },
+        "M3": {
+          "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes": {
+            "evidence_triage": "finding"
+          }
+        }
+      },
+      "removed": [
+        [
+          "M3",
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2"
+        ],
+        [
+          "M3",
+          "L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2_pinned"
+        ],
+        [
+          "M3",
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0"
+        ],
+        [
+          "M3",
+          "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+        ],
+        [
+          "M3",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1"
+        ],
+        [
+          "M3",
+          "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobCommitHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BlobHashesHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_DataHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_L1MessagePopped_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_LastBlockNumber_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_ParentBatchHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PostStateRoot_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_PrevStateRoot_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_SequencerSetVerifyHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_TotalL1MessagePopped_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_WithdrawalRoot_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BatchIndex_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobCommitHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_BlobVersionedHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_DataHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_L1MessagePopped_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_ParentBatchHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PostStateRoot_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_PrevStateRoot_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_WithdrawalRoot_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BatchIndex_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobCommitHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_BlobVersionedHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_DataHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_L1MessagePopped_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_LastBlockNumber_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_ParentBatchHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PostStateRoot_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_PrevStateRoot_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_SequencerSetVerifyHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_WithdrawalRoot_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobCommitHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobHashesHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_BlobVersionedHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_DataHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_L1MessagePopped_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_LastBlockNumber_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_ParentBatchHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PostStateRoot_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_PrevStateRoot_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_Version_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_Version_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_Version_v2"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v0"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v1"
+        ],
+        [
+          "M3",
+          "L_par_rt_enc_sol_BatchHeaderBytes_WithdrawalRoot_v2"
+        ],
+        [
+          "M3",
+          "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobHashesHash_v2"
+        ],
+        [
+          "M3",
+          "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v0"
+        ],
+        [
+          "M3",
+          "L_par_weak_BatchHeaderBytes_BlobCommitHash_BatchHeaderBytes_BlobVersionedHash_v1"
+        ],
+        [
+          "M3",
+          "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
+        ]
+      ],
+      "reran": [
+        {
+          "argv": "holon derive --milestone M3 --against <scratch> --diff <scratch>",
+          "rc": 0,
+          "tail": "             \n  L_sym_tau_Rollup_setPause                                  \n  L_undo_cancel_Rollup_challengeState_setPause               \n  L_undo_pair_Rollup_addChallenger_removeChallenger          \n  L_undo_pair_Rollup_commitBatchWithProof_revertBatch        \n  L_undo_pair_Rollup_commitBatch_revertBatch                 \n  L_undo_pair_Rollup_commitState_revertBatch                 \n  L_undo_pair_Rollup_removeChallenger_addChallenger          \n  L_undo_res_Rollup_revertBatch_batchBlobVersionedHashes     \n  L_undo_res_Rollup_revertBatch_batchDataStore               \n  L_undo_res_Rollup_revertBatch_committedStateRoots          \nholon derive: 1 contract law(s) of laws/CONTRACTS -> <scratch>\n  L_contract_C_o12_m3                                        spec/M2/facts/morph_rollup.extracted.json\n"
+        },
+        {
+          "argv": "holon run --milestone M3 --laws L_par_cy_BatchHeaderBytes_BlobHashesHash_v2,L_par_cy_BatchHeaderBytes_BlobVersionedHash_v0,L_par_cy_BatchHeaderBytes_BlobVersionedHash_v1,L_par_cy_blob_RetrieveBlobBytes",
+          "rc": 0,
+          "tail": "L_par_cy_BatchHeaderBytes_BlobHashesHash_v2 UNKNOWN  not_run  none\nL_par_cy_BatchHeaderBytes_BlobVersionedHash_v0 UNKNOWN  not_run  none\nL_par_cy_BatchHeaderBytes_BlobVersionedHash_v1 UNKNOWN  not_run  none\nL_par_cy_blob_RetrieveBlobBytes REFUTED  checked  finding\ncontracts on M3: C_o12_m3 proved (marks L_undo_cancel_Rollup_challengeState_setPause)\n"
+        },
+        {
+          "argv": "holon derive --milestone M2 --against <scratch> --diff <scratch>",
+          "rc": 0,
+          "tail": "89daf17  finalizeBatch\n  L_sort_site_rollup_363_1fc7f88a                            commitBatch, commitBatchWithProof, commitState\n  L_sort_site_rollup_441_b4cd5068                            revertBatch\n  L_sort_site_rollup_485_495_b4cd5068                        challengeState\n  L_sort_site_rollup_636_e68daf06                            finalizeBatch\n  L_sort_site_rollup_644_660_e68daf06                        finalizeBatch\n  L_sort_width_batchheadercodecv0_144_1abeb29c               commitBatch, commitBatchWithProof, commitState\n  L_sort_width_batchheadercodecv0_166_8ad80b42               commitBatch, commitBatchWithProof, commitState\nholon derive: 1 contract law(s) of laws/CONTRACTS -> <scratch>\n  L_contract_C_o12                                           gen/M2/extracted/m1_view.json\n"
+        }
+      ],
+      "status": "run"
+    }
+  }
+}

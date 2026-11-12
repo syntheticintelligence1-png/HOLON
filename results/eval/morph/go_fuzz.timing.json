@@ -1,0 +1,59 @@
+{
+  "baseline": "go_fuzz",
+  "note": "timings only (wall clock and CPU of each unit, setup outside the budget); never compared for determinism",
+  "system": "morph",
+  "targets": {
+    "morph": {
+      "cpu_s": 7874.739,
+      "cpus": 1,
+      "setup_s": 54.218,
+      "units": [
+        {
+          "cpu_s": 2.43,
+          "name": "FuzzHolon_CompressBatchBytes",
+          "wall_s": 1180.305
+        },
+        {
+          "cpu_s": 1173.283,
+          "name": "FuzzHolon_DecodeTxsFromBytes",
+          "wall_s": 1178.127
+        },
+        {
+          "cpu_s": 1174.299,
+          "name": "FuzzHolon_HeightFromBlockContextBytes",
+          "wall_s": 1179.055
+        },
+        {
+          "cpu_s": 1174.565,
+          "name": "FuzzHolon_MakeBlobCanonical",
+          "wall_s": 1179.105
+        },
+        {
+          "cpu_s": 1174.019,
+          "name": "FuzzHolon_MakeBlobTxSidecar",
+          "wall_s": 1180.327
+        },
+        {
+          "cpu_s": 3.778,
+          "name": "FuzzHolon_NewBatchData",
+          "wall_s": 4.004
+        },
+        {
+          "cpu_s": 1564.293,
+          "name": "FuzzHolon_Uint16ToBigEndianBytes",
+          "wall_s": 1571.95
+        },
+        {
+          "cpu_s": 1564.322,
+          "name": "FuzzHolon_Uint64ToBigEndianBytes",
+          "wall_s": 1572.098
+        },
+        {
+          "cpu_s": 43.75,
+          "name": "FuzzHolon_DefaultConfig",
+          "wall_s": 61.256
+        }
+      ]
+    }
+  }
+}

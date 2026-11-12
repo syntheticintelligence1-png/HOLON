@@ -1,0 +1,68 @@
+{
+  "baseline": "spec_mining",
+  "budget": {
+    "cpus": 1,
+    "setup_cap_s": 3600,
+    "wall_s": 60
+  },
+  "protocol_sha256": "2289c62bb90173f781320a9e65c3ac9452e2e192eea80dd2d451846fde117d27",
+  "schema": "holon-baseline-findings/0.1",
+  "system": "heldout",
+  "targets": {
+    "scroll": {
+      "adjudications": [],
+      "budget_exhausted": false,
+      "commands": [
+        "baselines-py/python solmine.py <unit project> <out>"
+      ],
+      "commit": "42de954bee237cfa478a5b443ac0aeb900aca5ad",
+      "detected": [],
+      "findings": [],
+      "located": [],
+      "matches": [],
+      "reason": null,
+      "scope": {
+        "dirs": [
+          "src/L1/rollup"
+        ],
+        "files": [
+          "src/L1/rollup/IL1MessageQueueV1.sol",
+          "src/L1/rollup/IL1MessageQueueV2.sol",
+          "src/L1/rollup/IL1MessageQueueWithGasPriceOracle.sol",
+          "src/L1/rollup/IL2GasPriceOracle.sol",
+          "src/L1/rollup/IScrollChain.sol",
+          "src/L1/rollup/L1MessageQueueV1.sol",
+          "src/L1/rollup/L1MessageQueueV1WithGasPriceOracle.sol",
+          "src/L1/rollup/L1MessageQueueV2.sol",
+          "src/L1/rollup/L2GasPriceOracle.sol",
+          "src/L1/rollup/MultipleVersionRollupVerifier.sol",
+          "src/L1/rollup/ScrollChain.sol",
+          "src/L1/rollup/ScrollChainCommitmentVerifier.sol"
+        ],
+        "labelled_files": [
+          "src/L1/rollup/ScrollChain.sol"
+        ]
+      },
+      "seeds": {},
+      "status": "run",
+      "units": [
+        {
+          "exit": 0,
+          "name": "solidity",
+          "timed_out": false
+        }
+      ]
+    }
+  },
+  "tool": {
+    "installed": true,
+    "missing_reason": null,
+    "model_tag": null,
+    "name": "holon belief miner (gotool + slither API)",
+    "pins": {
+      "requirements": "131fa966f30822418e9e0706c1fcbb9a5eb2518fefd298e4f8a6651bfb10474c"
+    },
+    "same_family": null,
+    "version": "holon gotool + slither 0.11.6"
+  }
+}
