@@ -206,6 +206,13 @@ jobs:
             # uncovered M3 change (B4). No target name (B5), this job (B6), no generator closure moves (B7).
             timeout: 60
             run: python -m unittest tests_m3.test_regress_parents_i102.TestBuild -v
+          - name: tests-m3-blind
+            # I82 (= I46a): the blind pack, the comparison generator and the agreement metric (P1-P3, P5-P9) and the
+            # regressions R0-R3. P4 is I82's documented miss (docs/iterations/I82.md: "missed in part") and is not run
+            # here, as no key's measured outcome is. Added after I107's landing (HUMAN_ANSWERS Q67), with R1 narrowed to
+            # I82's own commits (spec/M3/amendments/I82.jsonl).
+            timeout: 30
+            run: python -m unittest tests_m3.test_blind.TestPack.test_p1_the_bundle_holds_exactly_the_protocols_members tests_m3.test_blind.TestPack.test_p2_the_pack_is_byte_identical_across_runs_and_environments tests_m3.test_blind.TestPack.test_p3_the_whitepaper_is_redacted_as_the_protocol_says tests_m3.test_blind.TestMap tests_m3.test_blind.TestMetric tests_m3.test_blind.TestRegressions -v
           - name: tests-m6-i103
             # I103 (M6, frontend reach): the contracts F1-F6 (solc by pragma, the pinned sets in config/toolchains.json,
             # go by directive, the go.work main-module rule, the total sort pass) and the regressions R1-R5 (Morph moves
