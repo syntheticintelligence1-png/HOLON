@@ -70,8 +70,11 @@ class TestCatalogRederivation(unittest.TestCase):
         laws are those over the linked codec document (I67's laws over a Go-op document, I84's link_domain laws over
         the adopted Rollup document and I86's push law over a bundle member's document, derived after F30, have no F30
         line)."""
+        # I100 (amended, spec/M3/amendments/F39.jsonl): I100's laws of sub-forms constant_read and record_round_trip
+        # over the codec document were derived after F30 and have no F30 line
         par = sorted(p.stem for p in (ROOT / "laws" / "M3").glob("L_par_*.json")
-                     if str(json.loads(p.read_text()).get("facts") or "").startswith("gen/M3/codec/"))
+                     if str(json.loads(p.read_text()).get("facts") or "").startswith("gen/M3/codec/")
+                     and json.loads(p.read_text()).get("subform") not in ("constant_read", "record_round_trip"))
         self.assertEqual(len(par), 80)
         f30 = [e for e in self.lines if (e["old_catalog"], e["new_catalog"]) == (OLD_CATALOG, NEW_CATALOG)]
         self.assertEqual(sorted(e["law_id"] for e in f30), par)

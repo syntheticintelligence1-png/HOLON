@@ -232,6 +232,14 @@ value_transfer (a call with value, send, transfer), loop_storage_write (a loop w
 families), unsupported (a statement or Yul construct the walk does not represent, with its node type; the statements
 nested in an unsupported statement count as that debt). A statement neither extracted nor debt, including one the
 walk never reached (dead code), is unaccounted.
+
+Dead code (I50b, rule D1 of spec/M4/lib/heldout_rerun.json; a sidecar with sidecar_version 2 only, version 1's
+coverage is the above byte for byte). The walk evaluates an if statement's condition with an inlined call's
+parameters bound to its arguments, and walks only the branch a constant condition selects (Walk.if_stmt). When at
+every reach of an if statement (recording or not) its condition is a constant, each branch no reach selected is
+never executed: it is a debt entry {src: the branch's span, kind: dead_code, detail: the if statement's span, the
+constant and the number of reaches}, and the statements nested in it count as that debt. Any other statement the walk
+never reached stays unaccounted.
 """
 from __future__ import annotations
 
@@ -841,6 +849,7 @@ class Collector:
         self.debt: dict = {}                # (src, kind, detail) -> None, first record order
         self.reached: dict[int, dict] = {}  # function / modifier id -> node
         self.covered_by_debt: set = set()
+        self.if_reaches: dict = {}          # if statement id -> [node, {constant conditions}, any non-constant, n]
 
 
 def _sym(tag: str, span: str, r: int, *rest):
@@ -1359,6 +1368,12 @@ class Walk:
 
     def if_stmt(self, n: dict):
         c = self.val(self.ev(n["condition"]))
+        r = self.coll.if_reaches.setdefault(n["id"], [n, set(), False, 0])   # every reach, for rule D1
+        r[3] += 1
+        if isinstance(c, int):
+            r[1].add(1 if c else 0)
+        else:
+            r[2] = True
         if isinstance(c, int):
             if c:
                 return self.stmt(n["trueBody"])
@@ -3639,6 +3654,26 @@ def statements_of(body: dict) -> list[dict]:
     return out
 
 
+def dead_code(index: Index, coll: Collector) -> tuple[list[dict], set]:
+    """Rule D1 (sidecar_version 2): the dead_code debt entries, and the ids of the statements they cover (each dead
+    branch and the statements nested in it), of every if statement whose condition was a constant at every reach."""
+    debt, covered = [], set()
+    for _sid, (n, consts, nonconst, k) in sorted(coll.if_reaches.items()):
+        if nonconst or not consts:
+            continue
+        for body, taken in ((n.get("trueBody"), 1 in consts), (n.get("falseBody"), 0 in consts)):
+            if body is None or taken:
+                continue
+            c = 0 if 1 not in consts else 1
+            debt.append({"src": index.span(body["src"]), "kind": "dead_code",
+                         "detail": f"the condition of the if statement at {index.span(n['src'])} is the constant {c} "
+                                   f"at each of its {k} reach(es) by the walk, so this branch is never executed"})
+            if isinstance(body.get("id"), int):
+                covered.add(body["id"])
+            covered |= {x["id"] for x in statements_of(body)}
+    return debt, covered
+
+
 def coverage_document(compiled, side: dict) -> dict:
     """{statements, extracted, debt, unaccounted} of the sidecar's contract (module docstring)."""
     index, contract, acts, coll = walk_contract(compiled, side)
@@ -3650,6 +3685,7 @@ def coverage_document(compiled, side: dict) -> dict:
             stmts[s["id"]] = s
         for p in (fn.get("returnParameters") or {}).get("parameters", []):
             returns.add(p["id"])
+    dead_debt, dead = dead_code(index, coll) if side.get("sidecar_version") == 2 else ([], set())
     extracted, unaccounted = 0, []
     for sid in sorted(stmts):
         tags = coll.tags.get(sid, set())
@@ -3657,12 +3693,12 @@ def coverage_document(compiled, side: dict) -> dict:
                                                                 for d in coll.defs.get(sid, ())))
         if tags & EXTRACTED_TAGS or feeding:
             extracted += 1
-        elif "debt" in tags or sid in coll.covered_by_debt:
+        elif "debt" in tags or sid in coll.covered_by_debt or sid in dead:
             continue
         else:
             s = stmts[sid]
             unaccounted.append({"src": index.span(s["src"]), "node": s["nodeType"]})
-    debt = [{"src": src, "kind": kind, "detail": detail} for (src, kind, detail) in coll.debt]
+    debt = [{"src": src, "kind": kind, "detail": detail} for (src, kind, detail) in coll.debt] + dead_debt
     return {
         "statements": len(stmts),
         "extracted": extracted,

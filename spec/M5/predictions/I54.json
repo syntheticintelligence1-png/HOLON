@@ -1,0 +1,293 @@
+{
+  "title": "I54: L6, L9 and L10 defined and preregistered (Q11): bounded games scored against constructed and documented truth, environment coverage by validated time-indexed modules, intent-law coverage over a mechanical clause census",
+  "plan": "docs/BUILD_PLAN.md#i54-l6-l9-and-l10-definitions-preregistered-about-1-day",
+  "prompt": "prompts/I54_m5_definitions.md",
+  "tests": [
+    "tests_m5/test_m5_definitions.py"
+  ],
+  "outcome_paths": [
+    "spec/M5/preregistration.json",
+    "spec/M5/controls/",
+    "spec/M5/truth/",
+    "results/M5/",
+    "gen/M5/",
+    "laws/M5/",
+    "replay/M5/",
+    "docs/M5_REPORT.md"
+  ],
+  "predictions": [
+    {
+      "id": "I54-P1",
+      "claim": "The L10 census of M3's scope at the I54 base (the extracted facts documents' cited .sol and .go files at morph 3e44e79) holds between 100 and 1000 normative clauses.",
+      "check": "tests_m5/test_m5_definitions.py::TestPredictions::test_p1_census_size",
+      "expected": [
+        100,
+        1000
+      ]
+    },
+    {
+      "id": "I54-P2",
+      "claim": "contracts/contracts/l1/rollup/Rollup.sol contributes more census clauses than any other file in that scope.",
+      "check": "tests_m5/test_m5_definitions.py::TestPredictions::test_p2_census_largest_file",
+      "expected": "contracts/contracts/l1/rollup/Rollup.sol"
+    },
+    {
+      "id": "I54-P3",
+      "claim": "At least a quarter of that census's clauses come from .go files.",
+      "check": "tests_m5/test_m5_definitions.py::TestPredictions::test_p3_census_go_share",
+      "expected": 0.25
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I54-R1",
+      "claim": "F(M3) at the base holds 49 REFUTED findings outside model_defect, known_limitation and intended_bounded (19 finding, 30 pending), and they are base.l6_findings.",
+      "check": "tests_m5/test_m5_definitions.py::TestPreregistration::test_base_populations",
+      "expected": 49
+    },
+    {
+      "id": "I54-R2",
+      "claim": "Under the frozen classification, 222 of the M2 and M3 result records at the base are environment-dependent (A-env havoc in 222, the env: axiom in 4), none is covered, and no id is unclassified; they are base.l9_dependent.",
+      "check": "tests_m5/test_m5_definitions.py::TestPreregistration::test_base_populations",
+      "expected": 222
+    },
+    {
+      "id": "I54-R3",
+      "claim": "I54 changes no file under results/, gen/, laws/, replay/ or spec/ of M0-M4, no frozen file, and no module of a generator closure: the M2-M4 prereg audits stay PREREG OK and tools/freeze.py check stays FROZEN OK.",
+      "check": "git diff --stat 4fd64a52 HEAD -- results/M0 results/M1 results/M2 results/M3 gen/M0 gen/M1 gen/M2 gen/M3 laws replay spec/M1 spec/M2 spec/M3 spec/M4 is empty; python -m holon audit prereg --milestone M2|M3|M4; python tools/freeze.py check"
+    }
+  ],
+  "thresholds": {
+    "base_commit": "4fd64a52f030438cac06595f8673840d6c5c6525",
+    "definitions": {
+      "common": {
+        "doc": "Shared rules of L6, L9 and L10. A metric reads records and truth files and nothing else; it runs no checker and trusts no field it can recompute.",
+        "proportion": "every proportion is reported as {numerator, denominator, value, wilson95}; value is null when the denominator is 0 (never 0.0 or 1.0); wilson95 is the Wilson score interval at z = 1.96, rounded to 4 places, null when the denominator is 0",
+        "min_n": 5,
+        "labels": "a measure is 'measured' when its denominator is at least min_n, 'insufficient_n' when it is 1..min_n-1, 'not_measured' when it is 0 or an input is absent (with the reason). A threshold is judged 'meets' or 'misses' only for a measured measure; otherwise its verdict is the measure's label, never 'meets'",
+        "outcome_vocabulary": "statuses are exactly PROVED, REFUTED and UNKNOWN; a verdict counts as decided only when the record carries checker evidence: evidence.marker is 'ALL PROOFS CHECK' and evidence.law_present is true (AGENTS rule 6). A record that fails a validity rule is scored as UNKNOWN and listed with the rule it failed",
+        "one_record": "a finding, control, clause or law with more than one record is scored as UNKNOWN (no choice among runs); a population member with no record is UNKNOWN",
+        "truth_pinning": "a truth file (controls, corpus truth, observation sets) is read with its sha256, which the output reports; the key that measures L6, L9 or L10 pins those sha256 in its prereg, so truth cannot follow the outputs",
+        "independence": "no truth input is produced by the code it scores: controls by holon.m5.controls (fixed at I54, before any game or intent engine exists), corpus truth by spec/M5/lib/truth_protocol.json from the corpus's verbatim text, history by an observation set whose producer reads none of the module's parameters (L9 R3)",
+        "split_by_source": "accuracy against constructed truth (controls) and against documented truth (corpus, history) is reported separately and never pooled into one number",
+        "determinism": "outputs are json.dumps(obj, indent=2, sort_keys=True) + newline; sorted iteration; no timestamps",
+        "overall": "each metric's overall verdict is meets iff every one of its thresholds meets, misses iff some threshold misses, not_judged otherwise; a metric is reported as meeting its preregistered level only by its overall verdict",
+        "zero_counts": "a threshold of the form count == 0 is judged when its population is measured (at least min_n items); sensitivity_unreplayed is judged when at least one status changed",
+        "special_casing": "no module of holon/ other than holon/m5/controls.py may hold a control's id or name token; the engines that I55-I57 build are target-agnostic (BUILD_PLAN §2)"
+      },
+      "L6": {
+        "name": "can versus will: bounded games over the REFUTED findings (Q11)",
+        "population": "F(M): the result records results/<M>/L_*.json with status REFUTED and filter_bin not in {model_defect, known_limitation, intended_bounded}, for each measured milestone M (M3 at the I54 base; M5's when it has records); a record moved out of F after the I54 base is listed with its new bin (base_population)",
+        "base_population": "the law ids of F(M3) at the I54 base, frozen in spec/M5/preregistration.json (base.l6_findings)",
+        "record": "spec/M5/lib/inputs.schema.json#/$defs/game_record, one per finding, control or corpus item",
+        "actors": "the game's classes are the target's principal classes (holon.diagram principal_classes), each with its trusted flag; the trusted flags of a target are fixed by a sidecar preregistered before its first game record, and the controls' by their documents",
+        "ordinal_payoff": "a class's payoff under a strategy is the sign vector of its holdings' change per asset of the extracted value flows (transfers, rewards, deposits, slashing, protocol fees; transaction gas is outside the flows, premise P-gas): nonneg iff no component is negative; negative iff no component is positive and some is negative; incomparable otherwise. No exchange rate between assets is assumed",
+        "semantics": "a strategy of class X is a schedule of actions that X may call (others take no action, environment moves allowed), within the game's horizon H; it triggers the finding when the finding's state predicate holds after some step; its payoff is taken at the schedule's end",
+        "class_verdict": "rational: some triggering strategy has payoff nonneg; irrational: every triggering strategy has payoff negative (or none triggers), proved over every schedule (scope unbounded); irrational_bounded: the same proved only for schedules up to H; UNKNOWN otherwise (incomparable payoffs included)",
+        "finding_verdict": "rational iff some untrusted class is rational; irrational iff every untrusted class is irrational; irrational_bounded iff every untrusted class is irrational or irrational_bounded and some is bounded; UNKNOWN otherwise. Trusted classes are reported, never decide the verdict",
+        "validity": {
+          "V1": "checker evidence (common.outcome_vocabulary)",
+          "V2": "the record's classes are exactly the expected classes of its finding (the target's principal classes, or the control's actors), by id",
+          "V3": "each class's trusted flag equals the expected one",
+          "V4": "horizon >= witness_length, and witness_length equals the length of the finding's REFUTED witness (a control's witness)",
+          "V5": "witness_in_space is true: the finding's own witness is a strategy of the game (non-vacuity of the strategy space)",
+          "V6": "the record's verdict is the finding_verdict of its classes",
+          "V7": "a rational class has payoff nonneg and strategy_length between 1 and horizon",
+          "V8": "value_flows_sha256 equals the expected one: for a target, the sha256 of the value-flow facts document fixed in the sidecar of its trusted flags; for a control, the sha256 of the canonical JSON (sort_keys, separators ',' ':') of its actions"
+        },
+        "measures": {
+          "decided": "over F: records whose validated verdict is rational, irrational or irrational_bounded / |F| (headline, per milestone); also decided_unbounded, which does not count irrational_bounded",
+          "verdicts": "counts of rational, irrational, irrational_bounded and UNKNOWN over F, and the invalid records with their rules",
+          "accuracy": "per truth source (controls; corpus): over items with truth rational or irrational or UNKNOWN; an item is correct iff its validated verdict equals its truth, irrational_bounded counting as irrational. decided_accuracy = correct decided / decided; strict_accuracy = correct / items (an UNKNOWN verdict on a decided truth is wrong; on an UNKNOWN truth it is right)",
+          "majority_baseline": "per truth source: the number of items of the most frequent truth value; strict correct must exceed it",
+          "false_rational": "per truth source: items with truth irrational whose validated verdict is rational (the negative control of Q11)",
+          "false_irrational": "per truth source: items with truth rational whose validated verdict is irrational or irrational_bounded (the deep controls test bounded results read as global, L17)",
+          "decided_on_unknown": "per truth source: items with truth UNKNOWN whose validated verdict is decided"
+        },
+        "corpus_mapping": "a finding is a corpus item iff its record comes from a run on the entry's pre-fix commit (I51) and its law's source spans meet a line the entry's fix changes; each entry with a truth value contributes one item per mapped finding; an entry whose truth is undocumented contributes none; c13 never (spec/M5/lib/truth_protocol.json known_exclusions)",
+        "thresholds": {
+          "decided": {
+            "op": ">=",
+            "value": 0.5,
+            "of": "decided over F(M3)"
+          },
+          "controls_decided_accuracy": {
+            "op": ">=",
+            "value": 0.8
+          },
+          "controls_strict_accuracy": {
+            "op": ">=",
+            "value": 0.75
+          },
+          "controls_beats_majority": {
+            "op": ">",
+            "value": "majority_baseline",
+            "of": "strict correct, controls"
+          },
+          "false_rational": {
+            "op": "==",
+            "value": 0,
+            "of": "every truth source"
+          },
+          "false_irrational": {
+            "op": "==",
+            "value": 0,
+            "of": "controls"
+          },
+          "corpus_decided_accuracy": {
+            "op": ">=",
+            "value": 0.8,
+            "min_n": 5
+          }
+        }
+      },
+      "L9": {
+        "name": "environment: time-indexed environment modules (Q11)",
+        "classification": "spec/M5/lib/environment_classes.json (frozen at the I54 prereg)",
+        "environment_premises": "E(r) of a result record r: each ledger_assumptions or model_assumptions id, and each premise string with a listed prefix, that the classification marks environment (category, form); plus every premise of r's environment block (spec/M5/lib/inputs.schema.json#/$defs/environment_block). An id the classification does not list and no pattern matches is 'unclassified': it counts as an environment axiom of category unclassified",
+        "implicit": "a record of a law whose model reads an environment carrier (the diagram's carriers of class env, the blob-hash vector, or a fetcher call) without a premise for it gets, from the generator that writes its environment block, a premise of form axiom for that carrier's category. A record without an environment block has only its classified ids",
+        "population": "every result record results/<M>/L_*.json of each measured milestone (M2 and M3 at the I54 base, and M5's)",
+        "environment_dependent": "r is environment-dependent iff E(r) is not empty",
+        "covered": "an environment-dependent r is covered iff every element of E(r) has form module and names a module that is validated (R1-R5); axiom, havoc and unclassified are assumed, not modelled",
+        "module_families": {
+          "doc": "the parametric families a module may belong to; the metric recomputes every prediction from the module's parameters and the observation, so a module record carries no predictions of its own",
+          "window": "parameters {W}; an observation {t, q, observed}: predicted = (q - t <= W) (e.g. blob retrievable from the DA layer at query time q for a blob of time t)",
+          "finality_depth": "parameters {d}; an observation {t, head, observed}: scored only when head - t >= d, predicted true (the block at t stays canonical); observed is whether it did",
+          "availability": "parameters {}; an observation {t, committed, observed}: predicted = committed (a fetcher returns exactly the committed items)"
+        },
+        "validation": {
+          "R1": "every observation set the module cites is admissible: its reads share no name with the module's parameter names, and its producer is not one of the module's producers (non-circularity: e.g. a fetch that chose its source by the same retention window is not truth for that window)",
+          "R2": "the observations, ordered by t (then by set and position), are cut into K contiguous slices of equal size (the last takes the remainder); with provenance premise every slice is held out; with fit_slice_0 slice 0 is excluded and the others are held out",
+          "R3": "every held-out slice has at least slice_min_n scored observations",
+          "R4": "every held-out slice has accuracy (predicted == observed) at least slice_accuracy",
+          "R5": "the scored observations hold at least min_n observed true and min_n observed false (a module that is right only because history holds one class is not validated)",
+          "R6": "the module's parameters equal the values the measuring key pinned in its prereg, before its observations were scored (a parameter chosen from the evaluation data is a fit, whatever its declared provenance)"
+        },
+        "K": 8,
+        "slice_min_n": 30,
+        "slice_accuracy": 0.95,
+        "measures": {
+          "coverage": "covered / (environment-dependent plus the base laws that are no longer environment-dependent), over the population (headline, per milestone and in total): dropping a premise never raises it",
+          "base_coverage": "the same over the base population (the law ids environment-dependent at the I54 base, frozen in base.l9_dependent); a base law that is no longer environment-dependent is counted as uncovered and listed (dropping a premise never raises coverage)",
+          "by_category": "environment-dependent and covered counts per category (l1_chain, da, fetcher, unclassified) and per form",
+          "modules": "per module: admissible sets, per-slice n and accuracy, the worst held-out slice, R1-R5 and validated",
+          "sensitivity": "over the sensitivity pairs (spec/M5/lib/inputs.schema.json#/$defs/sensitivity_pair): a pair counts iff status_axiom != status_module, status_module is PROVED or REFUTED, its evidence passes common.outcome_vocabulary, and replay is passed. counted, unreplayed (a change without a passed replay), to_unknown (a decided status that became UNKNOWN; reported, never counted) and the list of counted laws",
+          "new_coverage": "covered / environment-dependent, over the environment-dependent laws outside the base population"
+        },
+        "thresholds": {
+          "coverage": {
+            "op": ">=",
+            "value": 0.25
+          },
+          "base_coverage": {
+            "op": ">=",
+            "value": 0.1
+          },
+          "validated_categories": {
+            "op": "==",
+            "value": [
+              "da",
+              "fetcher",
+              "l1_chain"
+            ],
+            "of": "the categories with at least one validated module"
+          },
+          "sensitivity_unreplayed": {
+            "op": "==",
+            "value": 0
+          }
+        },
+        "known_inadmissible": {
+          "results/M2/historical/index.json source field": "holon/historical/fetch.py chose the beacon or the archive by its own retention constant (RETENTION_SLOTS, RETENTION_MARGIN), so which source served a blob is not truth for a retention window (R1). The index's retrievability of every committed blob (62 192 of 62 192, KZG-checked) is truth for an availability module, but it holds no observed false (R5)"
+        },
+        "extension": "the classification is extended only by a file whose sha256 the measuring key pins in its prereg, which adds ids (each naming the base id it splits, e.g. a split of A-env into its L1 and its call terms) and never changes a base entry; the output lists the extension's ids"
+      },
+      "L10": {
+        "name": "consistently wrong code: intent-law coverage (whitepaper L10 metric) and intent extraction quality (its residual risk)",
+        "census": {
+          "doc": "the denominator: every normative documentation clause in scope, computed mechanically before any intent law exists, so the atomizer cannot set it",
+          "scope": "for each extracted facts document of the measured milestone (spec/M2/facts/*.extracted.json and spec/M3/facts/*.extracted.json at the I54 base for M3), the paths it cites as <path>:<line> with a .sol or .go suffix, read from its target.repo at its target.commit (the checkout config/holon.json extract.sources names, through git, never its working tree); a cited path absent at that commit is listed as unresolved and excluded",
+          "comments": "Solidity: a run of consecutive lines whose first non-blank characters are ///, and each /** ... */ block. Go: a run of consecutive // lines whose next line (after the run) begins, after indentation, with func, type, var or const. The comment markers (///, //, /**, */, a leading *) and indentation are removed from each line",
+          "segments": "within a comment, a NatSpec tag (@ followed by letters, colons and hyphens) at the start of a line starts a new segment, and so does a blank line; a segment's text is its lines joined with one space, whitespace collapsed",
+          "sentences": "a segment is split after each '.', ';', '!' or '?' that is followed by whitespace or ends the segment",
+          "normative": "a sentence is a clause iff, lower-cased, it contains one of the markers as a whole word or phrase (bounded by non-letters): must, must not, shall, should, only, cannot, can not, never, always, revert, reverts, reverted, require, requires, required, ensure, ensures, guarantee, guarantees, at most, at least, exactly, invariant, forbidden, not allowed",
+          "id": "sha256 of '<file>:<first line>:<text>' in UTF-8, first 16 hex digits; lines are the 1-based first and last line of the segment the sentence came from",
+          "base": "results/M5/l10_census_base.json: the census of M3's scope on the target's pinned commit, written in I54's build",
+          "tag": "each clause records its segment's NatSpec tag (the leading @word), or null"
+        },
+        "atomized": "spec/M5/lib/inputs.schema.json#/$defs/atom_clause: the intent lane's clause records (I55), each with its exact span",
+        "intent_law": "spec/M5/lib/inputs.schema.json#/$defs/intent_law",
+        "covers": "an intent law covers a census clause iff one of its clauses is an atomized clause in the same file whose line range meets the census clause's",
+        "validity": {
+          "W1": "checker evidence (common.outcome_vocabulary) for status PROVED or REFUTED",
+          "W2": "review.verdict is faithful and review.reviewer differs from review.compiler",
+          "W3": "every clause it names is an atomized clause"
+        },
+        "measures": {
+          "coverage": "census clauses covered by a law that passes W1-W3 / census clauses (headline: intent-law coverage)",
+          "compiled_coverage": "census clauses covered by a law that passes W3 / census clauses",
+          "precision": "atomized clauses whose span meets some census clause / atomized clauses",
+          "recall": "census clauses met by some atomized clause / census clauses",
+          "review": "laws with review.verdict faithful and an independent reviewer / laws",
+          "control_recall": "intent controls with truth obstruction true that have a law passing W1-W2 with control set to the control's id and status REFUTED / such controls",
+          "false_obstruction": "intent controls with truth obstruction false that have a law passing W1-W2 with that control id and status REFUTED",
+          "corpus_recall": "corpus entries with l10 truth yes and an intent obstruction on their pre-fix commit / such entries (min_n applies; reported when I55 runs on the corpus)"
+        },
+        "thresholds": {
+          "coverage": {
+            "op": ">=",
+            "value": 0.3
+          },
+          "precision": {
+            "op": ">=",
+            "value": 0.8
+          },
+          "review": {
+            "op": ">=",
+            "value": 0.9
+          },
+          "control_recall": {
+            "op": ">=",
+            "value": 0.75
+          },
+          "false_obstruction": {
+            "op": "==",
+            "value": 0
+          }
+        }
+      },
+      "controls": {
+        "doc": "constructed truth, written by holon.m5.controls into spec/M5/controls/ in I54's build, equal to tests_m5/_i54.py's documents; truth recomputed by the instrument's interpreter (K1-K3 of tests_m5/test_m5_definitions.py)",
+        "game_families": {
+          "free_trigger": "an untrusted actor triggers with no value flow: rational",
+          "profit": "anyone triggers and gains: rational",
+          "recoup": "an untrusted actor deposits, triggers and withdraws: payoff nonneg at the end, rational (a payoff read at the trigger says irrational)",
+          "deep": "an untrusted actor triggers only after horizon + 1 steps: rational beyond the horizon (irrational_bounded is wrong)",
+          "trusted_only": "only a trusted actor can trigger: irrational (negative control)",
+          "costly": "an untrusted actor triggers only by paying a deposit it cannot recover: irrational (negative control)",
+          "incomparable": "an untrusted actor triggers, gaining one asset and losing another: UNKNOWN"
+        },
+        "game_instances": 2,
+        "game_semantics": "single deviator: one class acts, the others take no action; each action at most once per schedule; holdings start at 0; payoff at the schedule's end",
+        "intent_families": {
+          "bound": "a documented upper bound on a returned fee; the code's rate exceeds it (obstruction) or does not",
+          "access": "a documented 'only the owner' restriction; the code checks the owner (no obstruction) or does not (obstruction)",
+          "monotone": "a documented 'never decreases' counter; the code adds (no obstruction) or subtracts (obstruction)"
+        },
+        "intent_instances": 2,
+        "seed": "the instance number and family name; names are the first 6 hex digits of sha256('<family>/<n>/<role>')"
+      }
+    },
+    "base": "4fd64a52 (the lead after #131), the parent of I54's prereg commit; base populations are read from this commit's tree through git",
+    "instruments": [
+      "tests_m5/_i54.py",
+      "tests_m5/_m5.py",
+      "tests_m5/__init__.py",
+      "spec/M5/lib/environment_classes.json",
+      "spec/M5/lib/inputs.schema.json",
+      "spec/M5/lib/truth_protocol.json",
+      "spec/M5/lib/truth_prompt.md",
+      "prompts/I54_m5_definitions.md"
+    ]
+  }
+}

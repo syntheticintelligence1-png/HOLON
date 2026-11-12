@@ -1,0 +1,17 @@
+# Round 8 (M3), A6: every evidence record of the round rebuilt by its own tool with --check, from the target commit (/tmp/audit-m3-r8/checks.sh).
+$ python -m holon audit hostile --milestone M3 --round 8 --check
+hostile --check: identical /home/user/audit-m3-r8/audit/rounds/M3/round8/packet.json (target dadfb2804093)
+exit 0 (5 s)
+$ python -m holon audit hostile-input --milestone M3 --round 8 --spec audit/rounds/M3/round8/a2_spec.json --check
+hostile-input --check: identical audit/rounds/M3/round8/a2.json
+exit 0 (37 s)
+$ python -m holon audit hostile-input --milestone M3 --round 8 --spec audit/rounds/M3/round8/a4_fact_pair_spec.json --out audit/rounds/M3/round8/a4_fact_pair.json --check
+hostile-input --check: identical audit/rounds/M3/round8/a4_fact_pair.json
+exit 0 (25 s)
+$ python -m holon audit mutation --milestone M3 --round 8 --spec audit/rounds/M3/round8/a1_spec.json --check
+mutation --check: identical audit/rounds/M3/round8/a1.json
+exit 0 (329 s)
+$ python -m holon audit vacuity --milestone M3 --round 8 --check
+vacuity --check: identical /home/user/audit-m3-r8/audit/rounds/M3/round8/a4.json (target dadfb2804093)
+exit 0 (377 s)
+CHECKS DONE

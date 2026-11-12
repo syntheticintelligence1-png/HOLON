@@ -1,0 +1,52 @@
+{
+  "doc": "I57 (frozen at the I57 prereg; pinned by sha256 in the key I57): the observation plan that spec/M5/lib/I57_observe.py (the tool) executes, the only producer of L9 observation sets that the key I57 admits (the lead's condition G3 on PR #134). The tool reads this file, the target instrument it names and the I59 index; it never reads spec/M5/lib/I57_modules.json or any module parameter, and it records its own producer, source sha256 and every read it makes. Hosts are the I23a sources of docs/HUMAN_ANSWERS.md (Q5), nothing else. Choices made before the prereg and disclosed in the key: the age range of obs-da-beacon (4 x the consensus minimum window) and its density were chosen after a probe of 36 beacon requests (the key I57, thresholds.counting.informed).",
+  "target": {
+    "instrument": "spec/M2/lib/historical.json",
+    "contract": "Rollup",
+    "commit_event": "CommitBatch(uint256,bytes32)"
+  },
+  "index": {
+    "used_by": ["obs-fetch-archive"],
+    "path": "results/M2/historical/index.json",
+    "fields": ["kind", "block", "tx", "position", "versioned_hash", "sha256"],
+    "why": "the I59 index of the target's committed blobs; only these fields are read (never source, I54 L9 known_inadmissible). sha256 is the sha256 of the blob bytes whose KZG commitment I59's replay computed and matched to the versioned hash (results/M2/historical/replay.json summary.blobs.kzg.computed = 62192, commitment_not_ok = 0)"
+  },
+  "sources": {
+    "execution": "https://ethereum-rpc.publicnode.com",
+    "beacon": "https://ethereum-beacon-api.publicnode.com",
+    "archive": "https://api.blobscan.com"
+  },
+  "http": {
+    "user_agent": "holon-observe/1",
+    "timeout_s": 90,
+    "attempts": 4,
+    "backoff_s": [5, 15, 45],
+    "get_logs_max_blocks": 1972,
+    "rpc_batch": 40
+  },
+  "sets": {
+    "obs-da-beacon": {
+      "what": "is the blob of a committed target transaction retrievable from the beacon API at query time? One observation per sampled commit block: t = the block's beacon slot ((timestamp - genesis_time) / 12, genesis from the beacon), q = the beacon head slot read just before the query, observed = /eth/v1/beacon/blob_sidecars/{t} answers 200 with a sidecar whose kzg_commitment hashes (version 0x01 + sha256[1:]) to one of the transaction's blob versioned hashes (read from the execution RPC). 404 or 403 after every attempt, or 200 without such a sidecar, is observed false. An answer other than 200, 403 or 404 after every attempt is unresolved: the item is retried once at the end and, if still unresolved, left out and listed in the set's meta file.",
+      "n": 400,
+      "max_age_slots": 524288,
+      "sampling": "target ages a_k = (k + 1/2) * max_age_slots / n for k = 0..n-1 below the head slot q0 read at the start (head block b0). With b_ref = b0 - max_age_slots and s_ref its slot, rate = (b0 - b_ref) / (q0 - s_ref) blocks per slot; for each k, est_k = round(b0 - a_k * rate), and the sampled block is the first block of the archive's listing of the target's transactions from est_k on (/transactions?to={address}&startBlock={est_k}&sort=asc&ps=5) that is not yet sampled and not above b0; the listing only places the sample: the transaction's blob versioned hashes, the block's timestamp and the observation come from the execution RPC and the beacon. The order of queries is the sample's order.",
+      "liveness": "after every 20 queries the newest sampled block is queried again; when it does not answer 200, the 20 before it are unresolved and retried at the end"
+    },
+    "obs-l1-depth": {
+      "what": "does a block seen at depth j below an observed head stay canonical? The tool polls eth_getBlockByNumber('latest') every poll_s seconds for duration_s; at every new head H it reads the hashes of the blocks H - j for j in depths (one batch). After polling it waits until the 'finalized' block is at least the highest observed head (polling every 30 s, at most 2400 s), then reads the canonical hash of every observed block number. One observation per (H, j): t = H - j, head = H, observed = (hash seen at H) == canonical hash; a block whose canonical hash the source does not answer is unresolved, left out and listed in the meta file. Blocks are execution block numbers.",
+      "duration_s": 3600,
+      "poll_s": 4,
+      "depths": [0, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64]
+    },
+    "obs-fetch-archive": {
+      "what": "does the blob archive return exactly the committed blob? From the I59 index's blob items with distinct versioned hashes, ordered by (block, tx, position), n_committed are taken at evenly spaced positions (i = floor((k + 1/2) * N / n_committed)). For each: committed = the versioned hash is in the transaction's blobVersionedHashes (read from the execution RPC); observed = /blobs/{vh}/data answers 200 with 131072 bytes whose sha256 equals the index's sha256. For every flip_every-th sampled item also its flipped hash vh' (the last hex digit XOR 1): committed = vh' is in that transaction's blobVersionedHashes, observed = /blobs/{vh'}/data answers 200 with 131072 bytes. t = the block number.",
+      "n_committed": 320,
+      "flip_every": 4
+    }
+  },
+  "output": {
+    "dir": "results/M5/env/observations",
+    "set": "<set>.json: exactly spec/M5/lib/inputs.schema.json#/$defs/observation_set {set, producer, reads, source_sha256, items}",
+    "meta": "<set>.meta.json: the heads (block and slot) read at the run's start and end, the unresolved items and per-status counts (not read by any metric)"
+  }
+}

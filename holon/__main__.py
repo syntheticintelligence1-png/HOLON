@@ -80,6 +80,12 @@
                          [--gen-dir DIR] [--laws ID,..]   (the refutation engines, concretization, filter; I40)
   python -m holon eval <command> ...                   (I48: the evaluation corpus, the renaming tool and the
                                                         controls; holon.eval.cli lists the commands)
+  python -m holon m5 prereg|controls|census|metrics ... (I54: the L6, L9 and L10 definitions and their computation;
+                                                        holon.m5.cli lists the commands)
+  python -m holon intent atomize|compile|requests|run|metrics ...   (I55: the intent lane; holon.intent.cli lists
+                                                        the commands)
+  python -m holon games flows|run [--check]             (I56: bounded games over F(M3), DISCH-econ laws and L6;
+                                                        holon.games.cli lists the commands)
   python -m holon mutate list|sheet|project|replay|gate|run|rate ...   (I61: A1 mutation adequacy on real code;
                                                         holon.mutate.cli lists the commands)
   python -m holon basis --milestone M3 [--root DIR] [--out DIR] [--kernels] [--check]
@@ -276,6 +282,15 @@ def _main(argv: list) -> int:
     if argv[:1] == ["eval"]:  # likewise for holon.eval.cli (I48)
         from .eval import cli as eval_cli
         return eval_cli.main(argv[1:])
+    if argv[:1] == ["intent"]:  # likewise for holon.intent.cli (I55: the intent lane)
+        from .intent import cli as intent_cli
+        return intent_cli.main(argv[1:])
+    if argv[:1] == ["m5"]:  # likewise for holon.m5.cli (I54)
+        from .m5 import cli as m5_cli
+        return m5_cli.main(argv[1:])
+    if argv[:1] == ["games"]:  # likewise for holon.games.cli (I56: bounded games, L6)
+        from .games import cli as games_cli
+        return games_cli.main(argv[1:])
     if argv[:1] == ["lean"]:  # likewise for holon.lean
         from . import lean
         return lean.main(argv[1:])
@@ -605,7 +620,7 @@ def _main(argv: list) -> int:
                                       "`audit hostile|vacuity --milestone M2 --round 2 [--check]` are auditors A2 "
                                       "and A4 of audit round M2/2 (I21)")
     au.add_argument("what", choices=["prereg", "status", "regress", "hostile", "vacuity", "round", "converge",
-                                     "oracles", "gaps", "mutation", "hostile-input"])
+                                     "oracles", "gaps", "mutation", "hostile-input", "evidence"])
     au.add_argument("rest", nargs=argparse.REMAINDER)
     co = sub.add_parser("coordinator", help="the coordinator (I87): `coordinator status` renders docs/STATUS.md, "
                                             "`coordinator prompt --key I<n>` a session prompt from BUILD_PLAN, "
@@ -689,10 +704,11 @@ def _main(argv: list) -> int:
         if a.what == "vacuity":
             from .audit import vacuity
             return vacuity.main(a.rest)
-        if a.what in ("round", "converge", "oracles", "gaps", "mutation", "hostile-input"):   # I87; A1 and A2 drivers
+        if a.what in ("round", "converge", "oracles", "gaps", "mutation", "hostile-input", "evidence"):
+            # I87; A1 and A2 drivers; I101: the counted rounds' a4.json and packet.json rebuilt from their targets
             import importlib
             mod = {"round": "rounds", "converge": "converge", "oracles": "oracles", "gaps": "gaps",
-                   "mutation": "mutation", "hostile-input": "hostile_input"}[a.what]
+                   "mutation": "mutation", "hostile-input": "hostile_input", "evidence": "evidence"}[a.what]
             return importlib.import_module(f".audit.{mod}", __package__).main(a.rest)
         from .audit import prereg
         return prereg.main(a.rest)
@@ -723,5 +739,17 @@ def _main(argv: list) -> int:
     return 1
 
 
+def cli(argv=None) -> int:
+    """The command line, `python -m holon ...`: main, with a run that names its laws (--laws) inside holon.subset's
+    keep(). F-M3-42 (audit M3/9; I101): such a run keeps the gen/<M>/model and core files it does not regenerate, and
+    merges summary.json and deps.json, from outside the pipeline, whose bytes the committed records hash."""
+    argv = sys.argv[1:] if argv is None else list(argv)
+    from . import subset
+    if subset.is_subset(argv):
+        with subset.keep(argv, Path(__file__).resolve().parents[1]):
+            return main(argv)
+    return main(argv)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli())

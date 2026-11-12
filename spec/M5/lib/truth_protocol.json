@@ -1,0 +1,57 @@
+{
+  "answer": "one JSON object {\"trigger\": {\"value\", \"quote\"}, \"actor_flow\": {\"value\", \"quote\"}, \"doc_contradiction\": {\"value\", \"quote\"}}; quote is null for undocumented and otherwise an exact substring of the entry's text",
+  "checks": [
+    "Q1 a value outside its list, or a non-null quote for undocumented, makes that answer undocumented",
+    "Q2 a quote that is not an exact substring of the entry's text (after collapsing runs of whitespace to one space on both sides) makes that answer undocumented",
+    "Q3 an answer stands only when labellers a and b give the same value and both pass Q1-Q2; otherwise it is undocumented. There is no adjudicator: disagreement means the text does not settle it"
+  ],
+  "derived": {
+    "l10": "yes iff doc_contradiction is yes; no iff it is no; otherwise undocumented (no L10 truth item)",
+    "l6": "rational iff trigger is untrusted and actor_flow is gain or none; irrational iff trigger is trusted_only or none, or trigger is untrusted and actor_flow is loss; otherwise undocumented (no L6 truth item)"
+  },
+  "doc": "I54 (frozen at the I54 prereg): the procedure that turns the I48 corpus (spec/eval/corpus.json) into the ground truth of L6 and L10 (spec/M5/preregistration.json definitions.truth). I54 fixes it and does not run it. It runs under its own preregistered key, before the first game record (I56) or intent law (I55) that it scores is committed; the key that measures L6 or L10 pins the sha256 of the truth file it reads (definitions.common.truth_pinning). The truth reads only the corpus's verbatim text, never a HOLON output.",
+  "inputs": {
+    "corpus": "spec/eval/corpus.json",
+    "fields": [
+      "id",
+      "title",
+      "description",
+      "sources"
+    ],
+    "text": "the entry's title, a newline, then its description, verbatim"
+  },
+  "invocation": "spec/M4/lib/corpus_protocol.json labelling_invocation, unchanged (a fresh tool-less process per prompt, the prompt on stdin, a fresh empty working directory); labeller a runs model A and labeller b model B, the tags of I48 rule C5; retry rule: I48's",
+  "known_exclusions": {
+    "c13": "I48 build review M1: invalid ground truth (the recorded fix is not the defect's fix); the corpus truth of c13 is never scored"
+  },
+  "output": "spec/M5/truth/corpus.json: {\"protocol_sha256\", \"corpus_sha256\", \"entries\": {id: {\"answers\": {\"a\", \"b\"}, \"final\": {question: value}, \"l6\", \"l10\"}}} with json.dumps(obj, indent=2, sort_keys=True) + newline",
+  "prompt": "spec/M5/lib/truth_prompt.md",
+  "questions": {
+    "actor_flow": {
+      "meaning": "what the text says the triggering actor's own value flows are (transfers, rewards, deposits, slashing, protocol fees; never transaction gas): gain (the actor ends with more), none (the trigger moves no value of the actor: a network message, a query, a view call), loss (the actor pays a deposit, bond, fee or slash it does not recover), undocumented",
+      "values": [
+        "gain",
+        "none",
+        "loss",
+        "undocumented"
+      ]
+    },
+    "doc_contradiction": {
+      "meaning": "whether the text says the code contradicts its own documentation, specification or a reference implementation (yes), says it conforms (no), or does not say",
+      "values": [
+        "yes",
+        "no",
+        "undocumented"
+      ]
+    },
+    "trigger": {
+      "meaning": "who the text says can bring the defect about: untrusted (any user, any peer, an attacker, any party outside the operators and governance), trusted_only (only an operator, owner, governance, deployer or configured component), none (the text says no one can in the shipped configuration), undocumented (the text does not say)",
+      "values": [
+        "untrusted",
+        "trusted_only",
+        "none",
+        "undocumented"
+      ]
+    }
+  }
+}

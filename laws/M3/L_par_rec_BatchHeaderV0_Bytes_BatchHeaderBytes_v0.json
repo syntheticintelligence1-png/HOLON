@@ -1,0 +1,326 @@
+{
+  "facts": "gen/M3/codec/header_length.json",
+  "facts_sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315",
+  "hash_scheme": 2,
+  "ir_version": "holon-ir/0.3",
+  "law_id": "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0",
+  "milestone": "M3",
+  "notes": "PAR record round trip (holon.rules.par_record): the getter family BatchHeaderBytes (12 getters at version 0: 11 field slots, 1 constant slots) inverts BatchHeaderV0_Bytes at version 0",
+  "rule": "PAR",
+  "rule_catalog_version": "holon-rules/1.16",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "h",
+        "q": "forall",
+        "type": "BatchHeaderV0"
+      }
+    ],
+    "claim": {
+      "all": [
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_Version"
+            },
+            {
+              "some": {
+                "bytes": "0x00"
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_BatchIndex"
+            },
+            {
+              "some": {
+                "field": "BatchIndex",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_L1MessagePopped"
+            },
+            {
+              "some": {
+                "field": "L1MessagePopped",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_TotalL1MessagePopped"
+            },
+            {
+              "some": {
+                "field": "TotalL1MessagePopped",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_DataHash"
+            },
+            {
+              "some": {
+                "field": "DataHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_BlobCommitHash"
+            },
+            {
+              "some": {
+                "field": "BlobVersionedHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_BlobVersionedHash"
+            },
+            {
+              "some": {
+                "field": "BlobVersionedHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_PrevStateRoot"
+            },
+            {
+              "some": {
+                "field": "PrevStateRoot",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_PostStateRoot"
+            },
+            {
+              "some": {
+                "field": "PostStateRoot",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_WithdrawalRoot"
+            },
+            {
+              "some": {
+                "field": "WithdrawalRoot",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_SequencerSetVerifyHash"
+            },
+            {
+              "some": {
+                "field": "SequencerSetVerifyHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "var": "h"
+                    }
+                  ],
+                  "call": "BatchHeaderV0_Bytes"
+                }
+              ],
+              "call": "BatchHeaderBytes_ParentBatchHash"
+            },
+            {
+              "some": {
+                "field": "ParentBatchHash",
+                "of": {
+                  "var": "h"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "kind": "unbounded"
+    }
+  },
+  "subform": "record_round_trip"
+}

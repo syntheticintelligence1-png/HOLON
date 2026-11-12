@@ -1,0 +1,24 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "budget": {
+  "law_timeout_s": 1800,
+  "max_law_runs": 2
+ },
+ "note": "round 9 supplement to a1.json: mutant s4 (incomplete in pass 1, max_law_runs 0) re-run on the laws it should move, baseline and mutant",
+ "mutations": [
+  {
+   "id": "s4",
+   "file": "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+   "edit": {
+    "line": 35,
+    "old": "length == BATCH_HEADER_LENGTH",
+    "new": "length >= BATCH_HEADER_LENGTH"
+   },
+   "expect": "V1 loader accepts over-long headers: loader domain/totality laws should move",
+   "laws": [
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+   ]
+  }
+ ]
+}

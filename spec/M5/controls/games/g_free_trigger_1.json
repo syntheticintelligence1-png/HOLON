@@ -1,0 +1,60 @@
+{
+  "actions": [
+    {
+      "by": [
+        "a748a26"
+      ],
+      "effect": [
+        [
+          "add",
+          "v388798",
+          1
+        ]
+      ],
+      "flows": {},
+      "guard": [],
+      "id": "f0de908"
+    }
+  ],
+  "actors": [
+    {
+      "id": "ab9842a",
+      "trusted": true
+    },
+    {
+      "id": "a748a26",
+      "trusted": false
+    }
+  ],
+  "assets": [
+    "s91ba44"
+  ],
+  "bad": [
+    [
+      "ge",
+      "v388798",
+      1
+    ]
+  ],
+  "family": "free_trigger",
+  "horizon": 2,
+  "id": "g_free_trigger_1",
+  "semantics": "single deviator: one class acts, the others take no action; each action at most once per schedule; holdings start at 0; payoff at the schedule's end",
+  "truth": {
+    "classes": {
+      "a748a26": "rational",
+      "ab9842a": "irrational"
+    },
+    "depth": 1,
+    "verdict": "rational"
+  },
+  "vars": {
+    "v388798": 0
+  },
+  "witness": [
+    {
+      "action": "f0de908",
+      "caller": "a748a26"
+    }
+  ]
+}

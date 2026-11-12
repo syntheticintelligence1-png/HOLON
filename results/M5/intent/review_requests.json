@@ -1,0 +1,89 @@
+{
+  "prompt_sha256": "7635edd86a9bf9222af93e7b110f15f02e6931f21d1dd749d3aacd3b26af1d04",
+  "requests": [
+    {
+      "clause": "@notice The count never decreases.",
+      "documents": "function step() external {",
+      "law_id": "L_intent_025e2587d56f6954",
+      "reading": "For every pre-transaction state of Ce8b53f and every call of each of its state-changing functions (step()) that does not revert, count after the call is at least count before it.",
+      "statement": "import Base\nimport ../model/Ce8b53f.bend as M\n\nlaw l_intent_025e2587d56f6954:\n  for s: M.St\n  for x: M.X_step\n  {Bool.or(Bool.not(U32.is_eq(M.chk_step(s, x), 0)), M.w_ge(M.st_count(M.post_step(s, x)), M.st_count(s))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice Only the owner can pause the contract.",
+      "documents": "function pause() external {",
+      "law_id": "L_intent_030faa7bb342d83f",
+      "reading": "For every pre-transaction state of Cf2d128 and every call of pause() that does not revert, the caller is the address stored in owner.",
+      "statement": "import Base\nimport ../model/Cf2d128.bend as M\n\nlaw l_intent_030faa7bb342d83f:\n  for s: M.St\n  for x: M.X_pause\n  {Bool.or(Bool.not(U32.is_eq(M.chk_pause(s, x), 0)), M.w_eq(M.x_pause_caller(x), M.st_owner(s))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice The fee charged is at most 1 percent of the amount.",
+      "documents": "function fee(uint256 amount) external pure returns (uint256) {",
+      "law_id": "L_intent_116d44eab1f4176c",
+      "reading": "For every pre-transaction state of Cacd06a and every call of fee(amount) that does not revert, the value it returns, times 100, is at most 1 times its argument amount (exact integers).",
+      "statement": "import Base\nimport ../model/Cacd06a.bend as M\n\nlaw l_intent_116d44eab1f4176c:\n  for s: M.St\n  for x: M.X_fee\n  {Bool.or(Bool.not(U32.is_eq(M.chk_fee(s, x), 0)), M.ip_le_pct(M.ret_fee(s, x), 1, M.x_fee_p_amount(x))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice The count never decreases.",
+      "documents": "function step() external {",
+      "law_id": "L_intent_6010a3810679998f",
+      "reading": "For every pre-transaction state of C71e7a3 and every call of each of its state-changing functions (step()) that does not revert, count after the call is at least count before it.",
+      "statement": "import Base\nimport ../model/C71e7a3.bend as M\n\nlaw l_intent_6010a3810679998f:\n  for s: M.St\n  for x: M.X_step\n  {Bool.or(Bool.not(U32.is_eq(M.chk_step(s, x), 0)), M.w_ge(M.st_count(M.post_step(s, x)), M.st_count(s))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice The fee charged is at most 1 percent of the amount.",
+      "documents": "function fee(uint256 amount) external pure returns (uint256) {",
+      "law_id": "L_intent_8173dd8517e21792",
+      "reading": "For every pre-transaction state of C46500c and every call of fee(amount) that does not revert, the value it returns, times 100, is at most 1 times its argument amount (exact integers).",
+      "statement": "import Base\nimport ../model/C46500c.bend as M\n\nlaw l_intent_8173dd8517e21792:\n  for s: M.St\n  for x: M.X_fee\n  {Bool.or(Bool.not(U32.is_eq(M.chk_fee(s, x), 0)), M.ip_le_pct(M.ret_fee(s, x), 1, M.x_fee_p_amount(x))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice The count never decreases.",
+      "documents": "function step() external {",
+      "law_id": "L_intent_8575ff954005099c",
+      "reading": "For every pre-transaction state of Cfb8bc7 and every call of each of its state-changing functions (step()) that does not revert, count after the call is at least count before it.",
+      "statement": "import Base\nimport ../model/Cfb8bc7.bend as M\n\nlaw l_intent_8575ff954005099c:\n  for s: M.St\n  for x: M.X_step\n  {Bool.or(Bool.not(U32.is_eq(M.chk_step(s, x), 0)), M.w_ge(M.st_count(M.post_step(s, x)), M.st_count(s))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice The fee charged is at most 2 percent of the amount.",
+      "documents": "function fee(uint256 amount) external pure returns (uint256) {",
+      "law_id": "L_intent_8fe1e536a876ba0c",
+      "reading": "For every pre-transaction state of C61a079 and every call of fee(amount) that does not revert, the value it returns, times 100, is at most 2 times its argument amount (exact integers).",
+      "statement": "import Base\nimport ../model/C61a079.bend as M\n\nlaw l_intent_8fe1e536a876ba0c:\n  for s: M.St\n  for x: M.X_fee\n  {Bool.or(Bool.not(U32.is_eq(M.chk_fee(s, x), 0)), M.ip_le_pct(M.ret_fee(s, x), 2, M.x_fee_p_amount(x))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice The fee charged is at most 2 percent of the amount.",
+      "documents": "function fee(uint256 amount) external pure returns (uint256) {",
+      "law_id": "L_intent_9df661f22096f75c",
+      "reading": "For every pre-transaction state of Cf10237 and every call of fee(amount) that does not revert, the value it returns, times 100, is at most 2 times its argument amount (exact integers).",
+      "statement": "import Base\nimport ../model/Cf10237.bend as M\n\nlaw l_intent_9df661f22096f75c:\n  for s: M.St\n  for x: M.X_fee\n  {Bool.or(Bool.not(U32.is_eq(M.chk_fee(s, x), 0)), M.ip_le_pct(M.ret_fee(s, x), 2, M.x_fee_p_amount(x))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice Only the owner can pause the contract.",
+      "documents": "function pause() external {",
+      "law_id": "L_intent_a485355f19d5905c",
+      "reading": "For every pre-transaction state of C8031a4 and every call of pause() that does not revert, the caller is the address stored in owner.",
+      "statement": "import Base\nimport ../model/C8031a4.bend as M\n\nlaw l_intent_a485355f19d5905c:\n  for s: M.St\n  for x: M.X_pause\n  {Bool.or(Bool.not(U32.is_eq(M.chk_pause(s, x), 0)), M.w_eq(M.x_pause_caller(x), M.st_owner(s))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice Only the owner can pause the contract.",
+      "documents": "function pause() external {",
+      "law_id": "L_intent_b91c19550edb31c4",
+      "reading": "For every pre-transaction state of Ce5e18e and every call of pause() that does not revert, the caller is the address stored in owner.",
+      "statement": "import Base\nimport ../model/Ce5e18e.bend as M\n\nlaw l_intent_b91c19550edb31c4:\n  for s: M.St\n  for x: M.X_pause\n  {Bool.or(Bool.not(U32.is_eq(M.chk_pause(s, x), 0)), M.w_eq(M.x_pause_caller(x), M.st_owner(s))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice Only the owner can pause the contract.",
+      "documents": "function pause() external {",
+      "law_id": "L_intent_ce4c4710f619fb00",
+      "reading": "For every pre-transaction state of C741f84 and every call of pause() that does not revert, the caller is the address stored in owner.",
+      "statement": "import Base\nimport ../model/C741f84.bend as M\n\nlaw l_intent_ce4c4710f619fb00:\n  for s: M.St\n  for x: M.X_pause\n  {Bool.or(Bool.not(U32.is_eq(M.chk_pause(s, x), 0)), M.w_eq(M.x_pause_caller(x), M.st_owner(s))) == True{} : Bool}\n"
+    },
+    {
+      "clause": "@notice The count never decreases.",
+      "documents": "function step() external {",
+      "law_id": "L_intent_da2c82011f3019d2",
+      "reading": "For every pre-transaction state of C61fc01 and every call of each of its state-changing functions (step()) that does not revert, count after the call is at least count before it.",
+      "statement": "import Base\nimport ../model/C61fc01.bend as M\n\nlaw l_intent_da2c82011f3019d2:\n  for s: M.St\n  for x: M.X_step\n  {Bool.or(Bool.not(U32.is_eq(M.chk_step(s, x), 0)), M.w_ge(M.st_count(M.post_step(s, x)), M.st_count(s))) == True{} : Bool}\n"
+    }
+  ]
+}

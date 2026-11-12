@@ -1,0 +1,147 @@
+{
+  "assets": [
+    "eth"
+  ],
+  "callers": [
+    "0x0000000000000000000000000000000000001002",
+    "0x0000000000000000000000000000000000001003",
+    "0x0000000000000000000000000000000000001004",
+    "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+  ],
+  "deltas": [
+    [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ]
+    ]
+  ],
+  "flows": [
+    [
+      1,
+      "VM3",
+      null,
+      "eth",
+      null,
+      "credit"
+    ],
+    [
+      1,
+      "VM3",
+      null,
+      "eth",
+      null,
+      "debit"
+    ],
+    [
+      3,
+      "VM1",
+      "0x0000000000000000000000000000000000001004",
+      "eth",
+      1,
+      "debit"
+    ],
+    [
+      4,
+      "VM3",
+      "0x0000000000000000000000000000000000001004",
+      "eth",
+      1,
+      "credit"
+    ],
+    [
+      4,
+      "VM4",
+      "0x0000000000000000000000000000000000001003",
+      "eth",
+      null,
+      "debit"
+    ],
+    [
+      4,
+      "VM4",
+      null,
+      "eth",
+      null,
+      "credit"
+    ]
+  ],
+  "form": "G-W2",
+  "game": "L_fact_attr_Rollup_commitState_batchBlobVersionedHashes_batchDataStore_submitter",
+  "groups": [
+    "Rollup.onlyActiveSubmitter",
+    "Rollup.onlyOwner",
+    "Rollup.onlyActiveSubmitter",
+    "Rollup.onlyChallenger",
+    "Rollup.onlyActiveSubmitter"
+  ],
+  "legal": [],
+  "payoff": "undetermined",
+  "scope": "witness",
+  "steps": [
+    {
+      "action": "commitBatch",
+      "caller": "0x0000000000000000000000000000000000001002"
+    },
+    {
+      "action": "revertBatch",
+      "caller": "0x7fa9385be102ac3eac297483dd6233d62b3e1496"
+    },
+    {
+      "action": "commitState",
+      "caller": "0x0000000000000000000000000000000000001003"
+    },
+    {
+      "action": "challengeState",
+      "caller": "0x0000000000000000000000000000000000001004"
+    },
+    {
+      "action": "proveState",
+      "caller": "0x0000000000000000000000000000000000001002"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "rerun_version": "holon-heldout-rerun/0.1",
+  "doc": "I50b prereg instrument, written after the sealed I49/I50 results were recorded (#144, #145) and before any change to holon/ or any rerun. It fixes (1) the two generic producer changes the lead allowed, as rules stated by the frontend's language semantics, versioned so that the sealed route reproduces its sealed outputs unchanged; (2) the rerun target beside the sealed one; (3) the rerun's route, sidecars and gate, which are I50's (spec/M4/lib/heldout_run.json) with exactly the two changes; (4) the contamination label; (5) the comparison report that puts every rerun number beside its sealed counterpart. The predictions are in the key (spec/M4/predictions/I50b.json). The contract is the docstring of tests_m4/test_i50b_rerun.py.",
+  "contamination": {
+    "label": "contaminated (post-seal change)",
+    "doc": "Every rerun record, report and metric carries this label, beside I49's 'sealed in the repository, not sealed from the agent's priors'. The two producer changes were made after the builder had read the sealed target's document, coverage and refusal, so the rerun is not a held-out result: it measures what the machinery does on this contract once two gaps found there are closed by generic rules. The sealed I49/I50 result stands as the result of record (the lead's ruling)."
+  },
+  "sealed": {
+    "target": "scroll",
+    "doc": "The sealed result: every file I49 and I50 committed under these paths stays byte for byte as it is at the I50b prereg commit (I50b-R1).",
+    "paths": [
+      "targets/scroll/",
+      "gen/targets/scroll/",
+      "gen/diagrams/scroll/",
+      "results/targets/scroll/",
+      "results/targets/sizes.json",
+      "spec/M4/predictions/I49.json",
+      "spec/M4/predictions/I50.json",
+      "spec/M4/amendments/I49.jsonl",
+      "spec/M4/lib/heldout_protocol.json",
+      "spec/M4/lib/heldout_run.json",
+      "spec/M4/lib/heldout_catalog_pin.json",
+      "docs/iterations/I49.md",
+      "docs/iterations/I50.md",
+      "prompts/I49_heldout_extraction.md",
+      "prompts/I50_heldout_rules.md",
+      "tests_m4/test_i49_heldout.py",
+      "tests_m4/test_i50_heldout.py",
+      "tests_m4/_i49.py"
+    ]
+  },
+  "producer_changes": {
+    "doc": "The only two producer changes (the lead's term (b)). Each is a new version of an existing contract: the old version's behaviour is unchanged byte for byte (the sealed route, every M0-M3 sidecar and the development target use the old versions), and the new version is the old one plus exactly the rule stated here. Neither names a target; neither is in holon/rules/ or the catalog.",
+    "sorts_update": {
+      "module": "holon/sorts/extracted.py",
+      "version": "holon-sort-types/0.2",
+      "old_version": "holon-sort-types/0.1",
+      "where": "the typed-sorts sidecar's sort_types_version (holon.sorts.typed_sidecar accepts both; holon sorts passes it to holon.sorts.extracted.walk(model, doc, seeds, sort_types_version=...)). Under 0.1 the term 'update' still has no sorts rule (the ExtractedError of the sealed refusal); under 0.2 it has rules U1-U3.",
+      "semantics": "The frontend's ['update', B, T, v] (holon/frontends/solidity/transitions.py, its term table and Walk.store) is Solidity's write into a member (or element) of a local memory value: the local held the value B (a memory copy of a storage struct, a struct literal, a parameter, a conditional of such values, an earlier update), the assignment writes v at the path T (T is ['member', B, m] or ['index', B, i]: the lhs evaluated in the state before the write), and the local's new value is B with that one member (or element) replaced and every other member unchanged. It is a value, not a storage write: storage changes only when the value is assigned back to a storage variable (a write record whose value is the update term). This is the meaning the typed model generator already gives it (holon.sorts.model3, I86's t_update and I70's index form).",
+      "U1": "As a term, ['update', B, T, v] is a struct (or array) value as a whole, as ['struct', ..] is: it names no variable. The walk reads B, v and the keys of T's path (its 'index' and 'map' keys; T's innermost base is B again and is not walked twice). Nothing flows from it.",
+      "U2": "A member read of a value term resolves by the value's meaning before it names a variable: ['member', ['update', B, ['member', _, m2], v], m] is v when m == m2 and ['member', B, m] otherwise; ['member', ['struct', n, members], m] is member m's value; ['member', ['?', c, X, Y], m] is ['?', c, ['member', X, m], ['member', Y, m]]. The resolution applies only where the value's chain (through '?' branches and update bases) reaches an update term, so a term without one is walked exactly as under 0.1. An update at a deeper path (T not a one-level member) or of an element (['index', ..]) leaves the member read unresolved: a fresh variable, as any member of an opaque value.",
+      "U3": "A write record whose value is an update term (or a '?' with an update in its chain) into a whole struct family (an empty path to a family with fields) writes every field f of the family, as the compiler's store of a memory struct into storage does: field f's value is U2's ['member', value, f], walked as the value of a write of f (it flows into '<family>.<f>', the action is a writer of it, the field's reads are recorded); a field whose resolved value is the field's own read (['member', ['storage', family], f]) flows nothing into itself, as any flow of a variable into itself. A write of an update into any other path (an element, a mapping value) is U1's opaque value."
+    },
+    "g8_dead_code": {
+      "modules": [
+        "holon/frontends/solidity/transitions.py",
+        "holon/frontends/__init__.py"
+      ],
+      "version": "extraction sidecar_version 2",
+      "old_version": "extraction sidecar_version 1",
+      "where": "the scope sidecar's sidecar_version (holon.frontends.load_sidecar accepts 1 and 2). Version 2 is version 1 plus rule D1 in the coverage walk (coverage_document); the transitions document of a version-2 sidecar is the version-1 document of the same sidecar, but for the sidecar's own path and sha256 in extraction.sidecar. Under version 1 coverage is unchanged byte for byte.",
+      "semantics": "The walk evaluates an if statement's condition symbolically, binding an inlined call's parameters to its arguments. When the condition is a constant at a reach, Solidity executes only the branch the constant selects, and the walk walks only that branch (Walk.if_stmt). A branch that no reach of its if statement selects is never executed by any action: it is statically dead in the contract as extracted.",
+      "D1": "Under sidecar_version 2, for every if statement the walk reached, if at every reach (recording or not) its condition was a constant, then each of its branches (trueBody, and falseBody when present) that no reach selected is dead code: one debt entry {src: the branch's span, kind: 'dead_code', detail: 'the condition of the if statement at <span> is the constant <0|1> at each of its <n> reach(es) by the walk, so this branch is never executed'}, and every statement nested in the branch counts as that debt (as an unsupported statement's nested statements count as its debt). A branch the walk entered at any reach is not dead. A statement the walk never reached for any other reason (an unread local, code after a return, an unreached function's body) is not dead code under D1 and stays unaccounted, as under version 1.",
+      "D2": "G8 is unchanged: it fails on any unaccounted statement and on any debt entry without a kind and a reason."
+    }
+  },
+  "target": {
+    "doc": "Rule T1b: the rerun target is the sealed target's description (targets/scroll/target.json) with these changes and no other (doc strings excepted).",
+    "name": "scroll_i50b",
+    "names": [
+      "scroll_i50b"
+    ],
+    "path_rewrite": [
+      "targets/scroll/",
+      "targets/scroll_i50b/"
+    ],
+    "path_rewrite_doc": "every string value holding targets/scroll/ (this covers gen/targets/scroll/ and results/targets/scroll/) has it replaced by targets/scroll_i50b/",
+    "checkout": "the sealed target's checkout without sealed and sealed_keys (so exactly one target names the seal, and I49's and I50's instruments keep finding it), plus rerun_of: 'scroll' and contaminated: the label above",
+    "run": "the sealed target's run with iteration 'I50b' and sidecar_rules 'spec/M4/lib/heldout_rerun.json'",
+    "scope_sidecar": "targets/scroll_i50b/extract_solidity.json: the sealed scope sidecar (targets/scroll/extract_solidity.json) with sidecar_version 2 and output gen/targets/scroll_i50b/facts/ScrollChain.extracted.json (doc excepted)"
+  },
+  "sidecar_rules": {
+    "doc": "Rules Q1b-Q4b: each is I50's rule (spec/M4/lib/heldout_run.json sidecar_rules) with <document> the rerun document gen/targets/scroll_i50b/facts/ScrollChain.extracted.json, <Q1's path> gen/targets/scroll_i50b/lib/sort_types.json, and the changes named here; nothing else is chosen.",
+    "Q1_sort_types": {
+      "sort_types_version": "holon-sort-types/0.2"
+    },
+    "Q2_undo": {},
+    "Q3_disch": {},
+    "Q4_fact": {
+      "iteration": "I50b"
+    }
+  },
+  "route": [
+    "R1b holon target extract|coverage|diagram --target scroll_i50b: the pinned frontend (with D1) over the checkout at the sealed commit, fetched as spec/heldout/target.json pins it; the document, its extraction report, coverage and diagram under gen/targets/scroll_i50b/ and gen/diagrams/scroll_i50b/.",
+    "R2b holon target derive --target scroll_i50b: I50's R1 with Q1b-Q4b (test milestone T50, holon-rules/1.15, in a scratch root). A refused step is recorded in results/targets/scroll_i50b/derive_refusal.json, as I50's was.",
+    "R3b holon target run --target scroll_i50b: I50's R2 unchanged (holon model, then holon run with the sidecars' budgets); a step that exits non-zero is recorded with its message, never retried with another budget.",
+    "R4b replay: I50's R3 (binding null: every REFUTED law not_run with that reason).",
+    "R5b holon target gate --target scroll_i50b: I49's six checks and I50's six law checks, unchanged.",
+    "R6b holon target compare --target scroll_i50b: the comparison report C1."
+  ],
+  "comparison": {
+    "path": "results/targets/scroll_i50b/comparison.json",
+    "version": "holon-rerun-comparison/0.1",
+    "doc": "Rule C1. One row per metric, in this order, each {metric, sealed, rerun, contaminated: true}; sealed is read from the sealed target's committed files, rerun from the rerun target's, by the same rule. A value that does not exist (no derivation, no record) is null, never 0.",
+    "metrics": [
+      "coverage.statements",
+      "coverage.extracted",
+      "coverage.unaccounted",
+      "coverage.debt_by_kind",
+      "diagram.V",
+      "diagram.E",
+      "gate.<check> for every check of either gate report, in the sealed report's order then the rerun's new ones",
+      "derive.status",
+      "derive.laws",
+      "derive.by_rule_subform",
+      "run.status",
+      "run.by_status",
+      "replay.entries"
+    ],
+    "rules": {
+      "coverage.*": "gen/targets/<t>/coverage.json: statements, extracted, len(unaccounted), and Counter of debt kinds (summed over its documents)",
+      "diagram.*": "the carriers and edges of gen/diagrams/<t>/<model>.json",
+      "gate.<c>": "results/targets/<t>/gate_report.json checks[c].passed; null when the report has no such check",
+      "derive.status": "'refused at <step>' when results/targets/<t>/derive_refusal.json exists, else 'derived' when gen/targets/<t>/laws/DERIVATION.json exists, else null",
+      "derive.laws": "the number of DERIVATION.json laws, else null",
+      "derive.by_rule_subform": "Counter of rule/subform over them, else null",
+      "run.status": "'refused at <step>' when results/targets/<t>/run_refusal.json exists, else 'decided' when results/targets/<t>/records/summary.json is non-empty, else 'no law' when it is {}, else null",
+      "run.by_status": "Counter of summary.json's statuses, else null",
+      "replay.entries": "the number of results/targets/<t>/replay.json laws, else null"
+    }
+  }
+}

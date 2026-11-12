@@ -19,8 +19,8 @@ from tests_m3 import _i24 as I
 from tests_m3 import _i24x as X
 from tests_m3._m3 import (ROOT, SCHEMAS, copy_repo, file_sha256, holon_module, laws, load_json, records, run_bend,
                           run_holon, validate)
-from tests_m3.test_derive_par import (CODEC_DOC, COMPONENT, FIXTURE_LAWS, FIXTURES, LINKED_FX, LINKED_LAWS,
-                                      fixture_assignment, write_codecs)
+from tests_m3.test_derive_par import (CODEC_DOC, COMPONENT, FIXTURE_LAWS, FIXTURES, LATER_PAR_SUBFORMS, LINKED_FX,
+                                      LINKED_LAWS, fixture_assignment, write_codecs)
 
 V1 = ROOT / "schemas" / "result_record.schema.json"
 V2 = SCHEMAS / "result_record_v2.schema.json"
@@ -61,6 +61,8 @@ PAIRS = {"L_dom_hdr": ("L_par_dom_BatchHeaderBytes_validate_ok_load_sol", "witne
          "L_par_hdr_v1": ("L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned", "bridges")}
 RULE_GAPS = ["L_par_hdr_v2", "L_rt_go_v0", "L_rt_go_v1", "L_rt_go_v2"]
 PATCH = "BatchCache_createBatchHeaderWithSequencerSetHash"
+# I98 (G6, the final filter): REFUTED -> UNKNOWN for want of a replay of its family on the real code (docs/iterations/I98.md)
+I98_UNBOUND = {f"L_par_cc_{PATCH}_enc_sol_v2"}
 
 
 def _bytes(x) -> bytes:
@@ -79,12 +81,15 @@ def par_records() -> dict:
     """The records of the PAR laws but those of sub-form init_chain (amended at the I28 prereg, spec/M3/amendments.jsonl:
     I28 adds a PAR law of the sub-form init_chain over the versioned document, which I24's outcome checks never
     covered), those over a Go-op document (amended at the I67 prereg: I67's laws over gen/M3/goops/), those of
-    sub-form link_domain (amended at I84's build: I84's laws over I80's bundle declaration) and those of the sub-form
-    push (amended at I86's build: I86's PAR law over a bundle member's document)."""
+    sub-form link_domain (amended at I84's build: I84's laws over I80's bundle declaration), those of the sub-form
+    push (amended at I86's build: I86's PAR law over a bundle member's document) and those of I93's Go sub-forms
+    go_branch, go_recompute and go_round_trip (amended at the lead), and those of the sub-forms constant_read and
+    record_round_trip (amended at I100's prereg: I100's twelve laws over the codec document); both in
+    test_derive_par.LATER_PAR_SUBFORMS."""
     ls = laws("M3")
     return {k: v for k, v in records("M3").items()
             if ls.get(k, {}).get("rule") == "PAR"
-            and ls.get(k, {}).get("subform") not in ("init_chain", "link_domain", "push")
+            and ls.get(k, {}).get("subform") not in LATER_PAR_SUBFORMS
             and not str(ls.get(k, {}).get("facts") or "").startswith("gen/M3/goops/")}
 
 
@@ -241,13 +246,24 @@ class TestMorphOutcomes(unittest.TestCase):
         SequencerSetVerifyHash is nonzero (enc_sol writes 32 zero bytes at 185..216) and a Solidity header of the law's
         version that enc_sol stores (prevStateHash and postStateHash nonzero, rule X9); the three pinned laws are PROVED,
         among them the version-2 law of the patch (the V1 layout with byte 0 patched to 2): the extraction's version-2
-        Go encoding agrees with enc_sol, where M0's L_par_hdr_v2 (hand enc_go_v1, writing 1) is REFUTED (O2)."""
+        Go encoding agrees with enc_sol, where M0's L_par_hdr_v2 (hand enc_go_v1, writing 1) is REFUTED (O2).
+        Amended at the lead for I98: I98's final filter (G6) takes the version-2 law REFUTED -> UNKNOWN, since no replay of
+        its family on the real code names it; its witness is kept in the record's replay_binding attempt, and every
+        witness assertion below is checked on that witness, unchanged."""
         recs = par_records()
         for enc, v in (("BatchHeaderV0_Bytes", 0), ("BatchHeaderV1_Bytes", 1), (PATCH, 2)):
             full, pinned = f"L_par_cc_{enc}_enc_sol_v{v}", f"L_par_cc_{enc}_enc_sol_v{v}_pinned"
             with self.subTest(law=full):
-                self.assertEqual((recs[full]["status"], recs[pinned]["status"]), ("REFUTED", "PROVED"))
-                w = recs[full]["witness"]
+                if full in I98_UNBOUND:
+                    self.assertEqual((recs[full]["status"], recs[pinned]["status"]), ("UNKNOWN", "PROVED"))
+                    rb = [a for a in recs[full]["attempts"] if a.get("kind") == "replay_binding"]
+                    self.assertEqual(len(rb), 1, recs[full]["attempts"])
+                    self.assertTrue(rb[0]["found"])
+                    self.assertEqual(rb[0]["reason"], "not bound by G6 to a passed replay on the real code")
+                    w = rb[0]["witness"]
+                else:
+                    self.assertEqual((recs[full]["status"], recs[pinned]["status"]), ("REFUTED", "PROVED"))
+                    w = recs[full]["witness"]
                 self.assertNotEqual(_field(w["h"], "SequencerSetVerifyHash"), bytes(32))
                 self.assertEqual(_field(w["k"], "version"), bytes([v]))
                 self.assertNotEqual(_field(w["k"], "prevStateHash"), bytes(32))
@@ -280,14 +296,19 @@ class TestMorphOutcomes(unittest.TestCase):
         as law_evidence computes them over gen/M3/evidence.json: round trips [E1, E2], cross-component [E1], PAR-weak
         [E6], domain coherence []): 73 PROVED, 4 REFUTED, 3 UNKNOWN; the REFUTED laws are 4 findings (the 3 unpinned
         cross-component laws and the domain law) and there is no intent question (the E6-only laws are UNKNOWN, I24-P5);
-        evidence_triage counts none 76, finding 4."""
+        evidence_triage counts none 76, finding 4.
+        Amended at the lead for I98: a law of I98_UNBOUND, REFUTED with triage finding in the sidecar, is UNKNOWN with
+        triage none by I98's final filter (G6), its levels unchanged; the sidecar's counts below are I24's, as before."""
         recs = par_records()
         sc = load_json(SIDECAR)["components"][COMPONENT]["laws"]
         self.assertEqual(sorted(recs), sorted(sc))
         for lid, r in recs.items():
             with self.subTest(law=lid):
-                self.assertEqual((r["status"], r["evidence_levels"], r["evidence_triage"]),
-                                 (sc[lid]["status"], sc[lid]["levels"], sc[lid]["triage"]))
+                want = (sc[lid]["status"], sc[lid]["levels"], sc[lid]["triage"])
+                if lid in I98_UNBOUND:
+                    self.assertEqual((sc[lid]["status"], sc[lid]["triage"]), ("REFUTED", "finding"))
+                    want = ("UNKNOWN", sc[lid]["levels"], "none")
+                self.assertEqual((r["status"], r["evidence_levels"], r["evidence_triage"]), want)
         tri, st = {}, {}
         for x in sc.values():
             tri[x["triage"]] = tri.get(x["triage"], 0) + 1
@@ -317,10 +338,21 @@ class TestBacktest(unittest.TestCase):
                 self.assertEqual((r["new"], r["acceptance"], r["implication"], r["gap"]), (new, acc, "accepted", None))
                 self.assertEqual(sorted((b["fn"], b["image"], b["status"]) for b in r["bridges"]),
                                  sorted(tuple(b) for b in exp[old]["bridges"]))
+        # I100 (amended, spec/M3/amendments/I24.jsonl): I100's record laws pair L_rt_go_v0, _v1 and _v2 and accept
+        # them by bridges (the record map, B1-B3 amended); I24's four pairings and the gap L_par_hdr_v2 are as before
+        i100 = json.loads((ROOT / "spec" / "M3" / "predictions" / "I100.json").read_text())["thresholds"]
+        for v in (0, 1, 2):
+            with self.subTest(m0=f"L_rt_go_v{v}"):
+                r = rows[f"L_rt_go_v{v}"]
+                self.assertEqual((r["new"], r["acceptance"], r["implication"], r["gap"]),
+                                 (f"L_par_rec_enc_sol_BatchHeaderBytes_v{v}", "bridges", "accepted", None))
+                self.assertEqual(sorted((b["fn"], b["status"]) for b in r["bridges"]),
+                                 [("dec_go", "PROVED"), ("enc_sol", "PROVED"), ("view", "PROVED")])
+        open_gaps = [law for law in RULE_GAPS if f"gap:M0:{law}" in i100["exit_blockers_after"]]
         gaps = {g["law"]: g for g in bt["gaps"]}
-        self.assertEqual(sorted(gaps), RULE_GAPS)
+        self.assertEqual(sorted(gaps), open_gaps)
         want = {g["law"]: g for g in X.backtest_expected(ROOT)["gaps"]}
-        for law in RULE_GAPS:
+        for law in open_gaps:
             with self.subTest(gap=law):
                 g = gaps[law]
                 self.assertEqual((g["id"], g["milestone"], g["kind"], g["status"]), (f"gap:M0:{law}", "M0", "rule", "open"))
@@ -330,7 +362,7 @@ class TestBacktest(unittest.TestCase):
         self.assertEqual(gaps["L_par_hdr_v2"]["candidates"],
                          ["L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1", "L_par_cc_BatchHeaderV1_Bytes_enc_sol_v1_pinned"])
         self.assertTrue(bt["complete"])
-        self.assertEqual(bt["exit_blockers"], [f"gap:M0:{law}" for law in RULE_GAPS],
+        self.assertEqual(bt["exit_blockers"], [f"gap:M0:{law}" for law in open_gaps],
                          "M3 exit cannot be claimed with a gap open")
 
     def test_matched_m0_outcomes_are_identical(self):
@@ -363,7 +395,8 @@ class TestBacktest(unittest.TestCase):
                         self.assertNotIn(hatch, text)
                     code, out = run_bend([str(base / "PROOF.bend")], cwd=base)
                     self.assertEqual((code, "ALL PROOFS CHECK" in out), (0, True), out[-2000:])
-        self.assertEqual(n, 7, "6 encoder bridges and 1 witness transfer")
+        # I100 (amended, spec/M3/amendments/I24.jsonl): I100's three rows add 3 encoder bridges and 6 record bridges
+        self.assertEqual(n, 16, "I24's 6 encoder bridges and 1 witness transfer; I100's 3 encoder and 6 record bridges")
 
     def test_backtest_cli_reproduces_the_table(self):
         """Construction: python -m holon backtest --milestone M3 rewrites results/M3/backtest.json byte for byte."""
@@ -381,10 +414,11 @@ class TestM3Construction(unittest.TestCase):
     def test_every_m3_law_has_a_valid_record(self):
         # the PAR laws but those of sub-form init_chain (amended at the I28 prereg, spec/M3/amendments.jsonl, as par_records)
         # and those over a Go-op document (amended at the I67 prereg, as par_records), those of sub-form link_domain
-        # (amended at I84's build, as par_records) and those of the sub-form push (amended at I86's build, as
-        # par_records)
+        # (amended at I84's build, as par_records), those of the sub-form push (amended at I86's build, as
+        # par_records), those of I93's Go sub-forms (amended at the lead) and those of I100's sub-forms constant_read and
+        # record_round_trip (amended at I100's prereg), as par_records
         ls = {k: v for k, v in laws("M3").items() if v.get("rule") == "PAR"
-              and v.get("subform") not in ("init_chain", "link_domain", "push")
+              and v.get("subform") not in LATER_PAR_SUBFORMS
               and not str(v.get("facts") or "").startswith("gen/M3/goops/")}
         recs = par_records()
         reg = load_json(LAWS3 / "REGISTRY.json")
@@ -431,15 +465,18 @@ class TestM3Construction(unittest.TestCase):
         self.assertTrue(all("BatchHeaderV1_Bytes" in lid for lid in changed), changed)
 
     def test_partial_gate_m3_passes(self):
-        """Construction: holon gate --milestone M3 --checks G2,G3,G5,G9,G11,GEVID passes on a copy of the tree."""
-        repo = copy_repo()
+        """Construction: holon gate --milestone M3 --checks G2,G3,G5,G9,G11,GEVID passes on a copy of the tree.
+        (Amended, spec/M3/amendments/I24.jsonl: G2 checks laws/STATEMENT_DIFF.jsonl's binding_change lines against
+        git history, which a copied tree does not have, so the gate runs on the checkout itself, which it never
+        writes to, with the report outside it.)"""
+        tmp = Path(tempfile.mkdtemp(prefix="holon-gate-"))
         try:
-            rep = repo.parent / "gate_report.json"
-            p = run_holon(["gate", "--milestone", "M3", "--root", str(repo), "--report", str(rep),
-                           "--checks", "G2,G3,G5,G9,G11,GEVID"], cwd=repo, timeout=3600)
+            rep = tmp / "gate_report.json"
+            p = run_holon(["gate", "--milestone", "M3", "--report", str(rep),
+                           "--checks", "G2,G3,G5,G9,G11,GEVID"], timeout=3600)
             report = load_json(rep) if rep.exists() else {}
             self.assertEqual(p.returncode, 0, p.stdout[-3000:] + p.stderr[-3000:])
             for c in ("G2", "G3", "G5", "G9", "G11", "GEVID"):
                 self.assertTrue(report["checks"][c]["passed"], f"{c}: {report['checks'][c]}")
         finally:
-            shutil.rmtree(repo.parent, ignore_errors=True)
+            shutil.rmtree(tmp, ignore_errors=True)

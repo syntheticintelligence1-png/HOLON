@@ -1,0 +1,144 @@
+{
+  "actions": [
+    {
+      "by": [
+        "a6d17ff"
+      ],
+      "effect": [
+        [
+          "set",
+          "v371864",
+          4
+        ]
+      ],
+      "flows": {},
+      "guard": [],
+      "id": "f1a6caf"
+    },
+    {
+      "by": [
+        "adacc44"
+      ],
+      "effect": [
+        [
+          "set",
+          "v371864",
+          1
+        ]
+      ],
+      "flows": {},
+      "guard": [
+        [
+          "eq",
+          "v371864",
+          0
+        ]
+      ],
+      "id": "f66e6f9"
+    },
+    {
+      "by": [
+        "adacc44"
+      ],
+      "effect": [
+        [
+          "set",
+          "v371864",
+          2
+        ]
+      ],
+      "flows": {},
+      "guard": [
+        [
+          "eq",
+          "v371864",
+          1
+        ]
+      ],
+      "id": "f44a108"
+    },
+    {
+      "by": [
+        "adacc44"
+      ],
+      "effect": [
+        [
+          "set",
+          "v371864",
+          3
+        ]
+      ],
+      "flows": {},
+      "guard": [
+        [
+          "eq",
+          "v371864",
+          2
+        ]
+      ],
+      "id": "f681ba8"
+    },
+    {
+      "by": [
+        "adacc44"
+      ],
+      "effect": [
+        [
+          "set",
+          "v371864",
+          4
+        ]
+      ],
+      "flows": {},
+      "guard": [
+        [
+          "eq",
+          "v371864",
+          3
+        ]
+      ],
+      "id": "f273395"
+    }
+  ],
+  "actors": [
+    {
+      "id": "a6d17ff",
+      "trusted": true
+    },
+    {
+      "id": "adacc44",
+      "trusted": false
+    }
+  ],
+  "assets": [
+    "s3620f0"
+  ],
+  "bad": [
+    [
+      "ge",
+      "v371864",
+      4
+    ]
+  ],
+  "family": "deep",
+  "horizon": 3,
+  "id": "g_deep_2",
+  "semantics": "single deviator: one class acts, the others take no action; each action at most once per schedule; holdings start at 0; payoff at the schedule's end",
+  "truth": {
+    "classes": {
+      "a6d17ff": "rational",
+      "adacc44": "rational"
+    },
+    "depth": 4,
+    "verdict": "rational"
+  },
+  "vars": {
+    "v371864": 0
+  },
+  "witness": [
+    {
+      "action": "f1a6caf",
+      "caller": "a6d17ff"
+    }
+  ]
+}
