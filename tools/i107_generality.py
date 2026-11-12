@@ -290,6 +290,32 @@ def route_b_provenance(out: Path, protocol: Path, command: str) -> None:
     d["command"] = command
     out.write_text(dumps(d))
 
+
+BASE_PATH_RX = re.compile(r"^(?P<p>[^:=]+)/:(?P<d>[^:=/]+)/=(?P=p)/(?P=d)/$")
+
+
+def remap_counts(dirs: list[tuple[str, Path]]) -> None:
+    """HUMAN_ANSWERS Q66's disclosure: per entry, the distinct remappings its sidecars carry, split into those the
+    project's foundry.toml or remappings.txt lists and those holon.eval.layout L2 adds for forge's default base path
+    (shape '<project>/:<dir>/=<project>/<dir>/', holon/eval/layout.py, source "base_path")."""
+    out = {}
+    for run, root in dirs:
+        for e in sorted(p for p in Path(root).iterdir() if p.is_dir()):
+            rs = set()
+            for s in sorted((e / "sidecars").glob("extract_*.json")):
+                rs |= set(((load(s).get("compiler") or {}).get("settings") or {}).get("remappings") or [])
+            bp = sorted(r for r in rs if BASE_PATH_RX.match(r))
+            out[f"{run}/{e.name}"] = {"listed_by_project": len(rs) - len(bp), "base_path_L2": len(bp),
+                                      "units_with_remappings": sum(
+                                          1 for s in (e / "sidecars").glob("extract_*.json")
+                                          if ((load(s).get("compiler") or {}).get("settings") or {}).get("remappings"))}
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "remappings.json").write_text(dumps({
+        "doc": "I107: remapping sources per entry (Q66). base_path_L2: added by holon.eval.layout L2, forge's default "
+               "base path restated as a context-scoped remapping; listed_by_project: from the project's foundry.toml "
+               "or remappings.txt. Counts of distinct remappings over the entry's Solidity sidecars.",
+        "entries": dict(sorted(out.items()))}))
+
 # ------------------------------------------------------------------------------------------- assemble
 def furthest(stages: dict) -> dict | None:
     for s in STAGES:
@@ -406,6 +432,7 @@ def main(argv=None) -> int:
     p.add_argument("--work", required=True)
     p = sp.add_parser("route-b-provenance"); p.add_argument("--out", required=True); p.add_argument("--protocol", required=True)
     p.add_argument("--command", required=True)
+    p = sp.add_parser("remap-counts"); p.add_argument("--dir", nargs=2, action="append", required=True)
     p = sp.add_parser("publish-morph"); p.add_argument("--work", required=True); p.add_argument("--vault", required=True)
     a = ap.parse_args(argv)
     sys.path.insert(0, str(ROOT))
@@ -426,6 +453,9 @@ def main(argv=None) -> int:
         return 0
     if a.cmd == "route-b-provenance":
         route_b_provenance(Path(a.out), Path(a.protocol), a.command)
+        return 0
+    if a.cmd == "remap-counts":
+        remap_counts([(r, Path(d)) for r, d in a.dir])
         return 0
     if a.cmd == "publish-morph":
         publish_morph(Path(a.work), Path(a.vault))
