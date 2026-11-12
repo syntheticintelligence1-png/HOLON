@@ -1,0 +1,365 @@
+{
+  "dropped": [],
+  "inputs": [
+    {
+      "kind": "go",
+      "path": "spec/M2/facts/morph_batch.go.extracted.json",
+      "sha256": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573"
+    },
+    {
+      "kind": "go",
+      "path": "spec/M2/facts/morph_blob.go.extracted.json",
+      "sha256": "8ecf9b58906d1485001d43b9afe9c3f0c8cd775f914da650b93c1a55d9519063"
+    },
+    {
+      "kind": "go",
+      "path": "spec/M2/facts/morph_derivation.go.extracted.json",
+      "sha256": "f0f1ee13857f10a38c73f0f2b0e002d5602d2fbea266fdf3c87ffa4cc5e8a89d"
+    },
+    {
+      "kind": "go",
+      "path": "spec/M2/facts/morph_genesis.go.extracted.json",
+      "sha256": "17b18d41c8d8fac21216824e7021fe7b1d3bf67af5f2d47e2a0cfabb40738feb"
+    },
+    {
+      "kind": "layout",
+      "path": "spec/M2/facts/morph_header.extracted.json",
+      "sha256": "0f3caeb4d06e85e337733d444ed48da55f8679c026f43bb4f26aefeb2bffe646"
+    },
+    {
+      "kind": "go",
+      "path": "spec/M2/facts/morph_nodetypes.go.extracted.json",
+      "sha256": "1a5060d31bd05a4c1d26a58891b78b8197fcbc0c0c7413aa0ea5d033c9ec7f27"
+    },
+    {
+      "kind": "transitions",
+      "path": "spec/M2/facts/morph_rollup.extracted.json",
+      "sha256": "a38d416cd2247b02acaea6ece27bf562b81e61a45f19d81160173cde894a79c5"
+    },
+    {
+      "kind": "go",
+      "path": "spec/M3/facts/morph_blob.go.extracted.json",
+      "sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e"
+    },
+    {
+      "kind": "go",
+      "path": "spec/M3/facts/morph_derivation.extracted.json",
+      "sha256": "bf549dc64bb425ab0cd8f8bcb67ad0d8aae1aedcc027b5d5368d37b8035eb392"
+    },
+    {
+      "kind": "go",
+      "path": "spec/M3/facts/morph_go03.go.extracted.json",
+      "sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826"
+    }
+  ],
+  "milestone": "M3",
+  "mode": "static",
+  "proposed": null,
+  "rejected": [
+    {
+      "carrier": "hash_BatchHeaderCodecV0_175:morph-l2/common/batch.aggregateBlobHashes",
+      "document": "spec/M3/facts/morph_go03.go.extracted.json",
+      "reason": "ModelDebt: a Go byte string [\"elem\", \"github.com/morph-l2/go-ethereum/common.Hash\", [\"index\", [\"param\", \"has"
+    }
+  ],
+  "roles": [
+    {
+      "detail": {
+        "basis_elements": 4,
+        "config": "spec/M3/lib/go_frontend_03.json"
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_go03.go.extracted.json"
+        ],
+        "rule": "gox_document"
+      },
+      "id": "document",
+      "roles_source": "static",
+      "sidecar": "go_laws"
+    },
+    {
+      "evidence": {
+        "facts": [
+          "spec/M2/facts/morph_rollup.extracted.json#actions.commitBatch.mstores.contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175",
+          "spec/M3/facts/morph_go03.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchData).DataHash"
+        ],
+        "rule": "hash_store"
+      },
+      "go": {
+        "document": "spec/M3/facts/morph_go03.go.extracted.json",
+        "functions": [
+          "(*morph-l2/common/batch.BatchData).DataHash"
+        ]
+      },
+      "id": "hash_BatchHeaderCodecV0_175",
+      "roles_source": "static",
+      "sidecar": "go_laws",
+      "solidity": {
+        "action": "commitBatch",
+        "document": "spec/M2/facts/morph_rollup.extracted.json",
+        "store": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:175"
+      }
+    },
+    {
+      "carrier": "*morph-l2/common/batch.BatchCache",
+      "detail": {
+        "ops": [
+          "(*morph-l2/common/batch.BatchCache).AssembleCurrentBatchHeader",
+          "(*morph-l2/common/batch.BatchCache).DeleteBatchStorageAndInitFromRollup",
+          "(*morph-l2/common/batch.BatchCache).Init",
+          "(*morph-l2/common/batch.BatchCache).InitAndSyncFromDatabase",
+          "(*morph-l2/common/batch.BatchCache).InitAndSyncFromRollup",
+          "(*morph-l2/common/batch.BatchCache).InitFromRollupByRange",
+          "(*morph-l2/common/batch.BatchCache).LatestBatchIndex",
+          "(*morph-l2/common/batch.BatchCache).assembleUnFinalizeBatchHeaderFromL2Blocks",
+          "(*morph-l2/common/batch.BatchCache).deleteBatchStorageAndInitFromRollupLocked",
+          "(*morph-l2/common/batch.BatchCache).getBatchStatusFromContract",
+          "(*morph-l2/common/batch.BatchCache).getUnFinalizeBlockRange",
+          "(*morph-l2/common/batch.BatchCache).initAndSyncFromRollupLocked"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).AssembleCurrentBatchHeader",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).DeleteBatchStorageAndInitFromRollup",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).Init",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).InitAndSyncFromDatabase",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).InitAndSyncFromRollup",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).InitFromRollupByRange",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).LatestBatchIndex",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).assembleUnFinalizeBatchHeaderFromL2Blocks",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).deleteBatchStorageAndInitFromRollupLocked",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).getBatchStatusFromContract",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).getUnFinalizeBlockRange",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchCache).initAndSyncFromRollupLocked"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "batch_cache_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*morph-l2/common/batch.BatchData",
+      "detail": {
+        "ops": [
+          "(*morph-l2/common/batch.BatchData).DataHashV2",
+          "(*morph-l2/common/batch.BatchData).Encode"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchData).DataHashV2",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchData).Encode"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "batch_data_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "morph-l2/common/batch.BatchHeaderBytes",
+      "detail": {
+        "ops": [
+          "(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+          "(morph-l2/common/batch.BatchHeaderBytes).BlobCommitHash",
+          "(morph-l2/common/batch.BatchHeaderBytes).BlobHashesHash",
+          "(morph-l2/common/batch.BatchHeaderBytes).BlobVersionedHash",
+          "(morph-l2/common/batch.BatchHeaderBytes).DataHash",
+          "(morph-l2/common/batch.BatchHeaderBytes).Hash",
+          "(morph-l2/common/batch.BatchHeaderBytes).L1MessagePopped",
+          "(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+          "(morph-l2/common/batch.BatchHeaderBytes).ParentBatchHash",
+          "(morph-l2/common/batch.BatchHeaderBytes).PostStateRoot",
+          "(morph-l2/common/batch.BatchHeaderBytes).PrevStateRoot",
+          "(morph-l2/common/batch.BatchHeaderBytes).SequencerSetVerifyHash",
+          "(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+          "(morph-l2/common/batch.BatchHeaderBytes).Version",
+          "(morph-l2/common/batch.BatchHeaderBytes).WithdrawalRoot",
+          "(morph-l2/common/batch.BatchHeaderBytes).validate"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).BatchIndex",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).BlobCommitHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).BlobHashesHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).BlobVersionedHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).DataHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).Hash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).L1MessagePopped",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).LastBlockNumber",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).ParentBatchHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).PostStateRoot",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).PrevStateRoot",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).SequencerSetVerifyHash",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).TotalL1MessagePopped",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).Version",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).WithdrawalRoot",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(morph-l2/common/batch.BatchHeaderBytes).validate"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "batch_header_bytes_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*morph-l2/common/batch.BatchStorage",
+      "detail": {
+        "ops": [
+          "(*morph-l2/common/batch.BatchStorage).DeleteAllSealedBatches",
+          "(*morph-l2/common/batch.BatchStorage).ForceDeleteAllSealedBatches",
+          "(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatchHeaders",
+          "(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatches",
+          "(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatchesAndHeader",
+          "(*morph-l2/common/batch.BatchStorage).loadBatchIndices"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).DeleteAllSealedBatches",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).ForceDeleteAllSealedBatches",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatchHeaders",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatches",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).LoadAllSealedBatchesAndHeader",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.(*morph-l2/common/batch.BatchStorage).loadBatchIndices"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "batch_storage_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob",
+      "detail": {
+        "ops": [
+          "morph-l2/common/batch.RetrieveBlobBytes",
+          "morph-l2/common/blob.RetrieveBlobBytes"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/batch.RetrieveBlobBytes",
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/blob.RetrieveBlobBytes"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "blob_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "[]github.com/morph-l2/go-ethereum/crypto/kzg4844.Blob",
+      "detail": {
+        "ops": [
+          "morph-l2/common/blob.MakeCellProof"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/blob.MakeCellProof"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "blob_ops_1",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "*github.com/morph-l2/go-ethereum/core/types.BlobTxSidecar",
+      "detail": {
+        "ops": [
+          "morph-l2/common/blob.BlobSidecarVersionToV1"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/blob.BlobSidecarVersionToV1"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "blob_tx_sidecar_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "carrier": "github.com/morph-l2/go-ethereum/accounts/abi/bind.ContractCaller",
+      "detail": {
+        "ops": [
+          "morph-l2/common/batch.NewL2Gov"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "spec/M3/facts/morph_blob.go.extracted.json#go.functions.morph-l2/common/batch.NewL2Gov"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "contract_caller_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "detail": {
+        "codec_facts": 24,
+        "equal_sets": false,
+        "shared_pairs": 2
+      },
+      "evidence": {
+        "facts": [
+          "spec/M2/facts/morph_batch.go.extracted.json#go.codecs.predicates.validate",
+          "spec/M2/facts/morph_header.extracted.json#functions.load_sol"
+        ],
+        "rule": "link_tag_length"
+      },
+      "go": {
+        "document": "spec/M2/facts/morph_batch.go.extracted.json",
+        "fact": "accepted (tag, length) pairs of the tagged predicate",
+        "function": "validate"
+      },
+      "id": "link_load_sol_validate",
+      "roles_source": "static",
+      "sidecar": "link",
+      "solidity": {
+        "document": "spec/M2/facts/morph_header.extracted.json",
+        "edge": "load_sol",
+        "fact": "accepted (first byte, length) pairs of the loader's ok paths"
+      }
+    },
+    {
+      "evidence": {
+        "facts": [
+          "spec/M2/facts/morph_rollup.extracted.json"
+        ],
+        "rule": "transitions_documents"
+      },
+      "id": "documents",
+      "roles_source": "static",
+      "sidecar": "typed"
+    }
+  ],
+  "roles_version": "holon-roles/0.1",
+  "sidecars": {
+    "derive_extracted.json": "edd34c7b560a8e91d32037533ae8c22177ed43feb72fd0348068446c8edffee2",
+    "disch.json": "93f0c988632aaac008c4537312537beffcd07abc5e32f87ee2370e256299d4f1",
+    "fact.json": "9196f26afad44bd64806da4a41b35eb1fabaee8198db4cc2e684095439599454",
+    "go_laws.json": "e0a1f1c2ce30aad4076ca4a546d3d47b7753768b8036eb63fa5c357688e29e66",
+    "go_ops.json": "b9d634ed810f520532c2c9584f9dfa50539e14453d6e02e476c5223d4181bddb",
+    "link.json": "0ca2873cd9c5596c9e3d884c137b8e404f4e71a67bcb09011f90360a381d812d",
+    "roles_compression.json": "6e5cba6ae12b3d9e3da79de37126878fb16e3c3ccfbc651e37e4f9847bd8784c",
+    "sort_types.json": "829fe3039466bc9f5f904f4c92c57eda8ee1c9a8edc4aa4535a1c3f5cede76c9",
+    "undo.json": "97540d3391bcea7547286e001c207a162b5d5f5b987750783aa66894651f0559"
+  }
+}

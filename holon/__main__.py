@@ -300,6 +300,9 @@ def _main(argv: list) -> int:
     if argv[:1] == ["sorts"]:  # likewise for holon.sorts
         from . import sorts
         return sorts.main(argv[1:])
+    if argv[:1] == ["roles"]:  # likewise for holon.roles (I104: role inference; outside every generator closure)
+        from .roles import cli as roles_cli
+        return roles_cli.main(argv[1:])
     if argv[:1] == ["derive"]:  # likewise for holon.rules (the rules registry, I15), then the milestone's contract laws
         from . import contracts, rules   # (I65 rule O4: holon.contracts, which no generator closure imports)
         rc = contracts.before_derive(argv)
