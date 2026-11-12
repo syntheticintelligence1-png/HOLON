@@ -8,17 +8,20 @@ Runs (the protocol's runs):
 Routes: A (holon eval holon --roles static), B (holon eval go-machines), C (I104's role-installing derive), each run
 unchanged; an entry's laws are their union, its decided laws are A's.
 
-Outcomes: results/eval/generality/, summarised in summary.json (tools/i107_generality.py assemble). Its shape:
-  corpus.rows[]          {id, reached_extraction, reached_derive, toolchain_refused, laws: {A, B, C}, decided,
-                          detected, detected_any, classes: {true_defect, ...}, miss: {stage, reason} | null}
+Outcomes: results/eval/generality/, summarised in summary.json (tools/i107_generality.py assemble), with
+bundles.json ({"<run>/<id>": sha256}) per HUMAN_ANSWERS Q56 (amendment A1): no per-law output is committed, and the
+summary never splits PROVED from REFUTED outside a corpus detection. Its shape:
+  corpus.rows[]          {id, reached_extraction, reached_derive, toolchain_refused, laws: {A, B, C}, decided, unknown,
+                          detected, detection (law id of a matched label-rule REFUTED law, or null), miss}
   corpus.totals          {extracted, toolchain_refused, entries_with_law, decided_laws, detected, true_defect}
   sealed.verify          the verify output's last line
-  sealed.targets[]       {id, system, attempted, extracted, derive_status, laws: {A, C}, decided, refuted,
-                          refuted_unreplayed, adjudicated: {class: n}, static_ai, slither: {status, ...}}
-  sealed.withheld        {class: n}
+  sealed.targets[]       {id, system, attempted, extracted, derive_status, laws: {A, C}, decided, unknown,
+                          by_family: {rule: {derived, decided, unknown}}, static_ai, slither: {status, counts}}
+  sealed.P8              {status: "withheld (embargo)", commitments: {id: sha256}}
   sealed.hand_written_target_files   a list of paths (empty)
   morph                  {precision, recall, role_dependent_decided, role_dependent_rederived, new_laws,
-                          new_by_status}
+                          new_decided, new_unknown}
+The measured runs use the M6 tools as landed after I108 (amendment A2; results/eval/generality/snapshot.json).
 
 TestProtocol is green at the prereg. TestPredictions is the measured outcome (red until the run, and a miss is a result).
 TestRegressions holds once the outcomes are committed.
@@ -87,7 +90,8 @@ def scope_module():
 class TestProtocol(unittest.TestCase):
     def test_run_protocols_are_i103s(self):
         t = th()["run_protocols"]
-        base = load(ROOT / t["from"])
+        snap = load(ROOT / th()["protocol"])["base"].get("snapshot", {})
+        base = load(ROOT / snap.get("run_protocol_base_path", t["from"]))
         for k in ("corpus", "sealed"):
             p = load(ROOT / t[k])
             diff = sorted(x for x in set(base) | set(p) if base.get(x) != p.get(x))
@@ -111,7 +115,8 @@ class TestProtocol(unittest.TestCase):
         p = load(ROOT / th()["protocol"])
         self.assertEqual(sorted(p["runs"]), ["a_corpus", "b_sealed", "c_morph_auto"])
         self.assertEqual(sorted(p["runs"]["b_sealed"]["scope"]), ["G1", "G2", "G3", "G4"])
-        self.assertIn("withheld: pending coordinated disclosure", p["disclosure"]["rule"])
+        self.assertIn("HUMAN_ANSWERS Q56", p["disclosure"]["source"])
+        self.assertIn("sha256", p["disclosure"]["bundle"])
         self.assertEqual(sorted(p["routes"]), ["A", "B", "C", "doc", "union"])
 
 
@@ -159,11 +164,14 @@ class TestPredictions(unittest.TestCase):
         self.assertEqual(len(s["hand_written_target_files"]), t["hand_written_target_files"])
 
     def test_p8_sealed_refuted_classified(self):
+        # Q56 (amendment A1): the outcome depends on refutations, so it is recorded as withheld (embargo) with each
+        # target's bundle commitment; it is never scored from committed files while the embargo holds.
         s = summary()["sealed"]
-        self.assertEqual(sum(s["withheld"].values()), th()["sealed"]["withheld"])
+        self.assertEqual(s["P8"]["status"], "withheld (embargo)")
+        b = load(OUT / "bundles.json")
         for x in s["targets"]:
-            self.assertEqual(sum(x["adjudicated"].values()), x["refuted"], x["id"])
-            self.assertEqual(x["refuted_unreplayed"], x["refuted"], x["id"])
+            self.assertRegex(s["P8"]["commitments"][x["id"]], r"^[0-9a-f]{64}$")
+            self.assertEqual(s["P8"]["commitments"][x["id"]], b[f"sealed/{x['id']}"])
 
     def test_p9_sealed_static_ai(self):
         for x in summary()["sealed"]["targets"]:
@@ -183,7 +191,7 @@ class TestPredictions(unittest.TestCase):
         self.assertEqual(s["role_dependent_decided"], t["role_dependent_decided"])
         self.assertGreaterEqual(s["role_dependent_rederived"], t["role_dependent_rederived"])
         self.assertEqual(s["new_laws"], t["new_laws"])
-        self.assertEqual(sum(v for k, v in s["new_by_status"].items() if k in ("PROVED", "REFUTED")), t["new_decided"])
+        self.assertEqual(s["new_decided"], t["new_decided"])   # Q56 rule 3: PROVED + REFUTED together
 
 
 MORPH_PATHS = re.compile(r"^(laws/M[0-3]/|gen/M[0-3]/|results/M[0-3]/|replay/|spec/M[0-3]/)")
@@ -198,20 +206,23 @@ class TestRegressions(unittest.TestCase):
         self.assertEqual(bad, [])
 
     def test_r2_disclosure(self):
-        wp = OUT / "sealed" / "withheld.jsonl"
-        ids = []
-        if wp.is_file():
-            for ln in wp.read_text().splitlines():
-                w = json.loads(ln)
-                self.assertRegex(w["commitment"], r"^[0-9a-f]{64}$")
-                self.assertEqual(w["status"], WITHHELD_STATUS)
-                self.assertIn(w["class"], ("potential_defect",))
-                ids.append(w["id"])
-        for p in sorted((OUT / "sealed").rglob("*")) if (OUT / "sealed").is_dir() else []:
-            if p.is_file() and p.name not in ("withheld.jsonl", "adjudication.json", "summary.json"):
-                txt = p.read_text(errors="replace")
-                for i in ids:
-                    self.assertNotIn(i, txt, f"{p.relative_to(ROOT)} names withheld {i}")
+        # Q56 (amendment A1): one bundle commitment per corpus entry, sealed target and Morph's new-law set, always;
+        # no per-law output is committed, and the summary never splits PROVED from REFUTED outside a detection.
+        b = load(OUT / "bundles.json")
+        s = summary()
+        want = [f"corpus/{r['id']}" for r in s["corpus"]["rows"]] + [f"sealed/{x['id']}" for x in s["sealed"]["targets"]]
+        want.append("morph/new_laws")
+        for k in want:
+            self.assertRegex(b.get(k, ""), r"^[0-9a-f]{64}$", k)
+        per_law = [str(p.relative_to(ROOT)) for p in OUT.rglob("*")
+                   if p.is_dir() and p.name in ("laws", "records", "gen", "witnesses", "traces")]
+        self.assertEqual(per_law, [])
+        text = json.dumps({"sealed": s["sealed"], "morph_new": {k: v for k, v in s["morph"].items()
+                                                                if k.startswith("new")},
+                           "corpus": [{k: v for k, v in r.items() if k != "detection"} for r in s["corpus"]["rows"]]})
+        self.assertNotIn("REFUTED", text)
+        self.assertNotIn("PROVED", text)
+        self.assertFalse((OUT / "sealed" / "withheld.jsonl").exists())
 
     def test_r3_no_hand_target_files(self):
         bad = [(s[:12], f) for s, fs in changed_after_prereg() for f in fs

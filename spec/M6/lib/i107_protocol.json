@@ -4,8 +4,20 @@
  "doc": "I107 prereg instrument: the generality run's protocol, written before the reveal of I106's sealed targets (spec/heldout2/target.json and salt.txt), blind to them: the only things known of the sealed targets at this commit are spec/heldout2/commitment.json and I106's public candidate list (spec/M6/lib/I106_candidates.json, 9 contract-system repositories). The key is spec/M6/predictions/I107.json; the contract is the docstring of tests_m6/test_i107_generality.py. Every outcome is generated under results/eval/generality/. No number here is a gate: a miss is a result (BUILD_PLAN M6 exit).",
  "base": {
   "lead": "claude/holon-v2-bend2-c6z3cd at c2cd112c",
-  "merged": ["claude/i53-ablations-metrics (with I52, I52b)", "claude/i103-frontend-reach", "claude/i104-role-inference", "claude/i105-go-machines", "claude/i106-sealed-targets (the commitment only, pre-reveal)"],
-  "rule": "the tools are the merged branches' tools, unchanged. No tool is tuned during the run: a tool bug that blocks a run is a miss with its stage and reason, and its fix belongs to a later key."
+  "merged": [
+   "claude/i53-ablations-metrics (with I52, I52b)",
+   "claude/i103-frontend-reach",
+   "claude/i104-role-inference",
+   "claude/i105-go-machines",
+   "claude/i106-sealed-targets (the commitment only, pre-reveal)"
+  ],
+  "rule": "the tools are the merged branches' tools, unchanged. No tool is tuned during the run: a tool bug that blocks a run is a miss with its stage and reason, and its fix belongs to a later key.",
+  "snapshot": {
+   "rule": "The measured runs use the M6 tools as landed on the lead after I108 (pipeline totality, pass 2: signed-operator sort rules, SP_b string/bytes-keyed mappings, foundry remappings and git submodules (Q59), SYM per model (Q58), Go machines' constructor state and nil maps (Q60)), merged into this branch. At run start, results/eval/generality/snapshot.json records the lead's sha, this branch's HEAD sha and the sha256 of every file under holon/ (sorted paths). From the reveal until the runs finish no M6 tool code changes; a blocking bug is a miss.",
+   "run_protocol_base": "spec/M6/lib/i103_run.json, or, if I108 lands a corpus protocol superseding it, that protocol. spec/M6/lib/i107_corpus_run.json and i107_sealed_run.json are regenerated from the base at the snapshot, differing from it only in corpus, doc, iteration and out, and committed before any measured run; Q59's remapping and submodule rules apply as the base states them (read at the pinned commit only, nothing invented, each submodule's URL and commit recorded), to the corpus and the sealed targets alike.",
+   "rehearsal": "route A on the corpus and Morph's --roles auto were started on the pre-I108 tree (480516bb's base) before A2 arrived; those runs are rehearsals, kept in the session's scratch directory, never committed or counted.",
+   "run_protocol_base_path": "spec/M6/lib/i103_run.json"
+  }
  },
  "routes": {
   "doc": "No single driver of the merged tree composes I103, I104 and I105 end to end, so the measured route is the three drivers the keys built, each run unchanged, composed per entry by union of their outputs. tools/i107_generality.py (written after this prereg, before any measured run, touching nothing under holon/) only invokes them and assembles the outcomes.",
@@ -27,7 +39,7 @@
   "b_sealed": {
    "label": "sealed in the repository (I106 commit-reveal), not sealed from the agent's priors",
    "label_doc": "The targets are well-known public systems; the builder's model family has likely seen their code. The seal is on choice and tuning, not on prior knowledge (I49's caveat).",
-   "order": "the prereg is pushed; the coordinator then tells the sealer 'reveal'; then (1) verify the commitment, (2) fetch each target only at its pin, (3) write the entries file, (4) run routes A and C, the AI channel and the baselines, (5) adjudicate, (6) apply the disclosure rule before any sealed outcome is committed.",
+   "order": "the prereg is pushed; I108 lands and is merged (the snapshot); the coordinator tells the sealer 'reveal'; then (1) verify the commitment, (2) fetch each target only at its pin, (3) write the entries file, (4) run routes A and C, the AI channel and the baselines into the scratch directory, (5) adjudicate in the session, (6) commit only Q56's aggregates and commitments.",
    "verify": "python3 spec/M6/lib/I106_draw.py verify --target spec/heldout2/target.json --salt spec/heldout2/salt.txt --commitment spec/heldout2/commitment.json must print VERIFY OK (sha256 of target.json's bytes, sha256(salt), the seed sha256(salt || blockhash) and the draw); the output is recorded in results/eval/generality/sealed/verify.json. A failed verify stops run (b): it is reported and nothing is run on the targets.",
    "fetch": "each target is fetched only as target.json pins it: route A's own clone (holon.eval.common.repo_cache, a bare blob-less clone of target.json's repo, unchanged) and a worktree at pin.commit only; before any run, git ls-remote of the repo must still show pin.ref at pin.commit (recorded in verify.json; a moved ref is reported, and the pinned commit is used regardless). No other commit is checked out or read; submodules and package dependencies are not fetched (route A's sol_deps rule: an import the target's own tree does not hold fails the compile, a miss).",
    "scope": {
@@ -45,10 +57,10 @@
    "baselines": {
     "which": "slither (I52's stock invocation, spec/M4/lib/I52_baselines.json baselines.slither) on each sealed target's checkout as route A sees it (the pin, no dependency tree). The agent reviewer and the other I52 baselines are not run on the sealed targets: the session's token budget allows subagents only for the AI proposals and the adjudication, and the dynamic and symbolic baselines need harnesses I52 wrote per system, which would be hand-written target files. This is disclosed, and no HOLON-versus-agent claim is made on the sealed targets.",
     "budget": "I52's rule: the primary wall clock is HOLON's measured wall clock on that target, 60 * ceil(route A's corpus_timing.json total for the entry / 60) seconds. If the primary tier is degenerate (slither ends in under 1% of the budget with a compile failure), a labelled secondary tier as in I52b runs slither with the same invocation and a 3600 s budget; its result is reported apart and never replaces the primary.",
-    "findings": "slither's results are counted by detector and impact only. No slither finding's description or location on a sealed target is committed. High-impact findings (at most 10 per target, the first by sorted (check, first location)) go to the adjudicator under the disclosure rule; the rest are counts, labelled unadjudicated.",
+    "findings": "slither's results are counted by detector and impact only (raw tool-output counts). No slither finding's description or location on a sealed target is committed. High-impact items (at most 10 per target, the first by sorted (check, first location)) go to the adjudicator; its classes stay in the session (Q56 rule 2).",
     "outputs": "results/eval/generality/sealed/slither.json"
    },
-   "scoring": "There are no labels on the sealed targets. The reported quantities: reached_extraction and the extracted/attempted document counts; reached_derive and derive's status; laws derived (A, C) and decided (A) by rule and status; every REFUTED law's replay status and adjudicated class; withheld counts by class; the baseline counts. Each is compared with I50's held-out run (Scroll: derive refused, 0 laws) and I52b (the held-out baselines)."
+   "scoring": "There are no labels on the sealed targets. Reported (Q56 rule 1): per target and rule family, documents attempted and extracted, laws derived (A, C), decided (PROVED + REFUTED together) and UNKNOWN; derive's status; the bundle commitment; slither's raw counts. Compared with I50's held-out run (Scroll: derive refused, 0 laws) and I52b."
   },
   "c_morph_auto": {
    "label": "contaminated: the development target",
@@ -64,12 +76,18 @@
    "potential_defect": "the behaviour is real and not evidently intended"
   },
   "corpus": "corpus findings are matched to I48's labels by I51's instrument (a REFUTED, localized law of the label rule). A corpus REFUTED law that is not localized is reported as detected_any and not adjudicated.",
-  "outputs": "results/eval/generality/sealed/adjudication.json (class per item; for a withheld item only its law id or baseline item id, class and commitment)"
+  "outputs": "none committed: the adjudicator's items and classes stay in the session transcript (Q56)."
  },
  "disclosure": {
-  "rule": "A sealed-target finding (a REFUTED law or a slither High-impact item) that the adjudicator does not classify model_defect or intended_asymmetry is a potential real vulnerability. Then: no witness, exploit trace, replay test, law statement or plaintext description of it is committed; its law file, record, counter-law and generated files are removed from the committed sealed outputs; results/eval/generality/sealed/withheld.jsonl gets one line {\"id\", \"target\": <target id>, \"commitment\": sha256 of the canonical JSON {\"description\", \"witness\"} kept in the session, \"class\": the adjudicated class, \"status\": \"withheld: pending coordinated disclosure\"}; the coordinator gets one line 'I107: potential vulnerability withheld, <target name>, <law id>, commitment <sha256>'. Withheld findings count in the metrics by class only.",
-  "order": "the rule is applied before any sealed outcome is committed: sealed outputs live in the session's scratch directory until the adjudication is done.",
-  "corpus": "corpus entries are already-public, fixed defects at their pre-fix commits and are exempt."
+  "source": "HUMAN_ANSWERS Q56 (the lead's ruling, delegated), adopted verbatim in spec/M6/amendments/I107.jsonl; it replaces the brief's per-finding rule.",
+  "rule1_aggregates": "While a sealed target's embargo holds, the committed outcomes for it are only: per target and per rule family (the law's rule), documents extracted, laws derived, decided (PROVED + REFUTED together) and UNKNOWN; and one bundle commitment per target, always committed, findings or not. No per-law verdict (not even PROVED or UNKNOWN alone), law id, record, trace, witness, class, finding count or withheld count is committed. The summary never splits PROVED from REFUTED.",
+  "bundle": "A target's bundle is every deterministic per-law output of its run: route A's laws/, gen/ and records/ for the entry, route C's laws, the static+AI run's if any, and (for Morph) the new laws' files of the --roles auto worktree. Canonical form: the files' paths relative to the bundle root, '/'-separated, sorted by their UTF-8 bytes; one line per file '<sha256 of the file's bytes, 64 lowercase hex>  <path>\\n' (two spaces, as sha256sum prints it); the bundle commitment is sha256 of the UTF-8 bytes of the concatenated lines. Only the commitment is committed, never the list (its paths name laws). Timing files are not in the bundle. The bundle's files stay in the session's scratch directory, outside the repo, and regenerate from the pinned tree; the adjudications stay in the session transcript, not in the bundle.",
+  "predictions": "Every prediction whose outcome depends on refutations (I107-P8, and any split of decided into PROVED and REFUTED on a sealed target or among Morph's new laws) is recorded as \"withheld (embargo)\" with the target's commitment.",
+  "baselines": "Raw tool-output counts (by detector and impact) may be reported; adjudicated detections on a sealed target follow rule 1.",
+  "morph": "Verdicts already on the lead are unchanged and public. The new laws of the --roles auto run follow rule 1: their decided and UNKNOWN counts and one bundle commitment, until adjudicated and the human decides.",
+  "corpus": "The corpus exemption covers only a finding matched to the entry's known, fixed defect (I51's instrument: a REFUTED, localized law of the label rule); such a detection is reported with its law id. Any other refutation on a pre-fix commit follows rule 1, so route A's per-law outputs on the corpus are bundled per entry and only aggregates, detections and the commitment are committed.",
+  "channels": "No sealed-target analysis runs in CI (tests_m6/test_i107_generality.py reads committed aggregates only). No plaintext in commits, commit messages, PR bodies, comments or CI output. On a finding the adjudicator does not class model_defect or intended_asymmetry, the coordinator gets only the target id and the bundle commitment. The human decides when each bundle opens. The adjudicator's class is advisory: nothing on a sealed target is published on its say-so.",
+  "order": "Sealed outputs are written to the session's scratch directory; only the aggregates and commitments are copied into results/eval/generality/."
  },
  "comparisons": {
   "I51": "results/eval/holon/corpus.json (route A of I51: 0 laws, 0 detected; 11 extracted; 9 not_run)",
@@ -83,6 +101,11 @@
  },
  "outputs": {
   "summary": "results/eval/generality/summary.json, assembled by python tools/i107_generality.py assemble (and --check reproduces it byte for byte): one section per run with the quantities the key's predictions name",
-  "report": "docs/iterations/I107.md"
- }
+  "report": "docs/iterations/I107.md",
+  "bundles": "results/eval/generality/bundles.json: {\"<run>/<id>\": <bundle sha256>} for every corpus entry, sealed target and Morph's new-law set; always present."
+ },
+ "amendments": [
+  "A1 (2026-11-12, before the reveal): HUMAN_ANSWERS Q56, the lead's disclosure ruling relayed by the coordinator, replaces the disclosure section (adopted verbatim in spec/M6/amendments/I107.jsonl) and fixes the aggregates and the bundle below; it only withholds more and weakens no claim.",
+  "A2 (2026-11-12, before the reveal): the coordinator's order (the lead's condition 4): the reveal waits for I108's landing, and the measured runs use the M6 tools as landed after I108 (snapshot below). Runs before the snapshot are rehearsals: not counted, never committed."
+ ]
 }
