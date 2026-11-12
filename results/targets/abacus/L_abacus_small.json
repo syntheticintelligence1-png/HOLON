@@ -1,0 +1,136 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_abacus_small",
+    "laws": "gen/targets/abacus/laws/L_abacus_small/LAWS.bend",
+    "model": "gen/targets/abacus/model/abacus_facts.bend",
+    "proof": "gen/targets/abacus/proofs/L_abacus_small/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "bound": "prefixes: BFS depth 4 over policy actions (<= 400 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 27
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.218
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK",
+      "seconds": 0.235
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK",
+    "seconds": 0.218
+  },
+  "compiled_sha256": "26279742643445ca438870a6d58b83f05f1e61d8ebf0a6e12d60b826f207a429",
+  "cone": [
+    "Dec_inc_a",
+    "Dec_inc_b",
+    "HAct",
+    "HObs",
+    "HSt",
+    "a_small",
+    "decide_inc_a",
+    "decide_inc_b",
+    "exec_inc_a",
+    "exec_inc_b",
+    "run",
+    "s0",
+    "step",
+    "step_inc_a",
+    "step_inc_b"
+  ],
+  "coverage": null,
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "evidence_levels": null,
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "fe3e01a7099be2bba7fdf233774bf39ef28b6bd61789b15db9df5bfcc30c8a1a",
+  "filter_bin": "pending",
+  "generator_sha256": "a432cb03d2af5b94870642c1f351bd3497b2d95e598e7e5304da0bfd3e72582e",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_abacus_small",
+  "ledger_assumptions": [],
+  "ledger_match": "none",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "4a7d37129606793c2acd25c7bb7d7946e97b136b618fcb96fee002c368b11e4a",
+  "non_vacuity": {
+    "bound": null,
+    "degenerate": null,
+    "law": null,
+    "parent_statement_hash": "sha256:c5956a3c7042556f16ef5ec80089275064589e58e6d8694687c743a217c7e653",
+    "reachable": null,
+    "status": "no_premises",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": "s0",
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "\u2200 p: Trace. a_small(run(p, s0)) == true",
+  "statement_hash": "sha256:c5956a3c7042556f16ef5ec80089275064589e58e6d8694687c743a217c7e653",
+  "status": "REFUTED",
+  "subform": "bound",
+  "triage": "finding",
+  "witness": {
+    "p": [
+      {
+        "op": "inc_a"
+      },
+      {
+        "op": "inc_a"
+      },
+      {
+        "op": "inc_a"
+      }
+    ]
+  },
+  "witness_provenance": {}
+}

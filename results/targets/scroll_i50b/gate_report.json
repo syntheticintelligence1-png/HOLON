@@ -1,0 +1,43 @@
+{
+  "target": "scroll_i50b",
+  "passed": false,
+  "checks": {
+    "GENV": {
+      "passed": true,
+      "detail": "no unsafe Bun or env files; bend 2.0.36 is the pinned version and the pinned checker fingerprint"
+    },
+    "X1": {
+      "passed": true,
+      "detail": "the checkout is at 42de954bee23; a fresh extraction reproduces gen/targets/scroll_i50b/extraction.json, gen/targets/scroll_i50b/facts/ScrollChain.extracted.json byte for byte"
+    },
+    "X2": {
+      "passed": true,
+      "detail": "1 document(s), each extracted by a HOLON frontend under the target's sidecar; no hand-written fact and no waiver"
+    },
+    "G8": {
+      "passed": true,
+      "detail": "gen/targets/scroll_i50b/coverage.json regenerates; 0 unaccounted; 9 debt entries, each with a kind and a reason"
+    },
+    "D1": {
+      "passed": true,
+      "detail": "1 diagram(s) regenerate byte for byte and validate"
+    },
+    "S1": {
+      "passed": true,
+      "detail": "results/targets/sizes.json regenerates byte for byte and validates"
+    },
+    "L2": {
+      "passed": false,
+      "detail": "no derivation: holon target derive was refused at holon sorts: holon sorts: gen/targets/scroll_i50b/facts/ScrollChain.extracted.json: commitAndFinalizeBatch (guards[7]): term 'calldataload' has no sorts rule (the refusal regenerates byte for byte; the sidecars follow Q1-Q4)"
+    }
+  },
+  "partial": false,
+  "doc": "holon target gate (I49 and I50; spec/M4/lib/heldout_protocol.json gate.checks, spec/M4/lib/heldout_run.json gate_law_checks)",
+  "not_applicable": {
+    "L9": "no law was derived on the target, so there is no record, proof or replay to check",
+    "L3": "no law was derived on the target, so there is no record, proof or replay to check",
+    "L5": "no law was derived on the target, so there is no record, proof or replay to check",
+    "L11": "no law was derived on the target, so there is no record, proof or replay to check",
+    "L6": "no law was derived on the target, so there is no record, proof or replay to check"
+  }
+}

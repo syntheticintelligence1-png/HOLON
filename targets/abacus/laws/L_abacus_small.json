@@ -1,0 +1,39 @@
+{
+  "evidence": "list",
+  "facts": "targets/abacus/facts/abacus.facts.json",
+  "facts_sha256": "",
+  "ir_version": "holon-ir/0.2",
+  "law_id": "L_abacus_small",
+  "milestone": "T11",
+  "notes": "Planted FALSE law: the first counter never exceeds 2 (three inc_a refute it).",
+  "rule": "SORT",
+  "statement": {
+    "assume": [],
+    "binders": [
+      {
+        "name": "p",
+        "q": "forall",
+        "type": "Trace"
+      }
+    ],
+    "claim": {
+      "eq": [
+        {
+          "obsv": "a_small",
+          "of": {
+            "from": {
+              "s0": {}
+            },
+            "run": {
+              "var": "p"
+            }
+          }
+        },
+        {
+          "bool": true
+        }
+      ]
+    }
+  },
+  "subform": "bound"
+}

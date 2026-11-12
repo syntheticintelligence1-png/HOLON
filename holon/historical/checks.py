@@ -25,6 +25,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .. import facts as F
+from .. import targets as _targets
 from .. import ir
 from ..keccak import keccak256
 
@@ -35,7 +36,7 @@ class HeaderModel:
     def __init__(self, root: Path = ROOT):
         from ..refinement import build_engine, model_engine
         reg = ir.load_registry("M0", root)
-        self.facts_rel = reg.get("facts", "facts/morph_header.json")
+        self.facts_rel = reg["facts"] if "facts" in reg else _targets.vocab("header_facts")
         self.facts_path = Path(root) / self.facts_rel
         self.facts = F.load(self.facts_path)
         self.engine = model_engine(root)

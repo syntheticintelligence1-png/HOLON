@@ -28,6 +28,9 @@ import sys
 from pathlib import Path
 
 FACTS_VERSION = "holon-facts/0.3"
+# a sidecar's sidecar_version: 1, or 2 (I50b: 1 plus rule D1 of the Solidity frontend's coverage walk, statically dead
+# branches as dead_code debt; spec/M4/lib/heldout_rerun.json). The document of a version-2 sidecar is version 1's.
+SIDECAR_VERSIONS = (1, 2)
 ROOT = Path(__file__).resolve().parents[2]
 _NAME = re.compile(r"[a-z][a-z0-9_]*")
 _COMMIT = re.compile(r"[0-9a-f]{40}")
@@ -77,8 +80,8 @@ def load_sidecar(path) -> dict:
     bad = []
     if not isinstance(side, dict):
         raise Refused(f"sidecar {p}: not a JSON object")
-    if side.get("sidecar_version") != 1:
-        bad.append("sidecar_version is not 1")
+    if side.get("sidecar_version") not in SIDECAR_VERSIONS:
+        bad.append("sidecar_version is not 1 or 2")
     if not isinstance(side.get("frontend"), str) or not _NAME.fullmatch(side.get("frontend") or ""):
         bad.append("frontend is not a frontend name")
     if not isinstance(side.get("doc"), str):

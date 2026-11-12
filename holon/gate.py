@@ -131,6 +131,7 @@ import time
 from pathlib import Path
 
 from . import bend, ir, refute
+from . import targets as T
 from .pipeline import law_names
 from . import facts as F
 from .gen import laws as LG
@@ -559,8 +560,11 @@ class Gate:
     timings: dict | None = None          # {"G5": {law_id: seconds}} once G5 has run
     genv_skip = "skipped: GENV failed"   # why the other checks were not run
 
-    def __init__(self, milestone: str, root: Path):
+    def __init__(self, milestone: str, root: Path, jobs: int = 1):
         self.m, self.root = milestone, Path(root).resolve()
+        self.jobs = max(1, int(jobs or 1))   # I47: worker processes for the checks (holon.gate_parallel)
+        self.g1_jobs = 1                     # I47: G1's regeneration with `holon run --jobs` (holon.parallel)
+        self._sd = None                      # I47: G2's statement-log scan, when holon.gate_parallel made it
         self.cfg = bend.config(self.root)
         self.checks: dict[str, dict] = {}
         self.canaries: list[dict] = []
@@ -569,7 +573,7 @@ class Gate:
         self.facts_path, self.irv = None, None
         try:
             reg = ir.load_registry(milestone, self.root)
-            self.facts_path = self.root / reg.get("facts", "facts/morph_header.json")
+            self.facts_path = self.root / (reg["facts"] if "facts" in reg else T.vocab("header_facts", self.root))
             self.irv = ir.ir_version_of(milestone, self.root)
         except (OSError, ValueError, KeyError) as e:
             self.setup_error = f"milestone {milestone} cannot be checked: {type(e).__name__}: {e}"
@@ -687,11 +691,12 @@ class Gate:
         elif not isinstance(report, dict):
             bad.append("replay report is not an object")
         else:
-            commit = report.get("morph_commit")
+            ckey = T.vocab("commit_key", self.root)   # the replay report's commit key (targets/, I47)
+            commit = report.get(ckey)
             hashes = report.get("witness_sha256")
             laws = report.get("laws")
             if not isinstance(commit, str) or re.fullmatch(r"[0-9a-f]{40}", commit) is None:
-                bad.append(f"replay report morph_commit {commit!r} is not a full 40-hex commit")
+                bad.append(f"replay report {ckey} {commit!r} is not a full 40-hex commit")
                 commit = ""
             if not isinstance(hashes, dict) or not isinstance(laws, dict):
                 bad.append("replay report lacks witness_sha256 / laws objects")
@@ -1221,7 +1226,7 @@ class Gate:
         from . import statement_diff as SD
         # I10: every entry of the statement-change log is accepted, each checked once against the tree it was
         # appended to (F-M2-22); and every statement-hash change is tied to an accepted entry (F-M2-08)
-        sd = SD.scan(self.root / SD.LOG, self.root, milestone=self.m)
+        sd = self._sd if self._sd is not None else SD.scan(self.root / SD.LOG, self.root, milestone=self.m)
         if sd["problems"]:
             self.checks["G2"] = _res(False, "laws/STATEMENT_DIFF.jsonl: " + "; ".join(sd["problems"]))
             return
@@ -1394,8 +1399,9 @@ class Gate:
             env = dict(os.environ)
             env["PYTHONPATH"] = str(self.root) + os.pathsep + env.get("PYTHONPATH", "")
             env["HOLON_BUILD_DIR"] = str(tmp / "build")
+            par = ["--jobs", str(self.g1_jobs)] if self.g1_jobs > 1 else []   # I47: merged as the sequential run's
             p = subprocess.run([sys.executable, "-m", "holon", "run", "--milestone", self.m, "--out",
-                                str(tmp / "results"), "--gen-dir", str(tmp / "gen")],
+                                str(tmp / "results"), "--gen-dir", str(tmp / "gen")] + par,
                                cwd=self.root, env=env, capture_output=True, text=True, timeout=3600)
             if p.returncode != 0:
                 self.checks["G1"] = _res(False, f"regeneration failed: {(p.stdout + p.stderr)[-800:]}")
@@ -2212,14 +2218,19 @@ class Gate:
                 for g in order[1:]:
                     self.checks[g] = _res(False, self.setup_error)
             elif self.checks["GENV"]["passed"]:
-                if "G3" in order and "G5" not in order:
-                    self.recheck_outputs()  # G3 reads the checker's own output; get it without recording G5
-                for g in ["G2", "G1", "G8", "G5", "G3", "G11", "G11V", "G6", "G9", "G10", "GREF", "GEVID", "G7", "G4"]:
-                    if g in order:
-                        try:
-                            steps[g]()
-                        except Exception as e:  # noqa: BLE001  (a crash is a failed check, and the report is written)
-                            self.checks[g] = _res(False, f"error: {type(e).__name__}: {e}")
+                if self.jobs > 1:   # I47: the same checks in worker processes, merged in this order
+                    from . import gate_parallel
+                    gate_parallel.run_checks(self, order)
+                else:
+                    if "G3" in order and "G5" not in order:
+                        self.recheck_outputs()  # G3 reads the checker's own output; get it without recording G5
+                    for g in ["G2", "G1", "G8", "G5", "G3", "G11", "G11V", "G6", "G9", "G10", "GREF", "GEVID", "G7",
+                              "G4"]:
+                        if g in order:
+                            try:
+                                steps[g]()
+                            except Exception as e:  # noqa: BLE001  (a crash is a failed check, and the report is written)
+                                self.checks[g] = _res(False, f"error: {type(e).__name__}: {e}")
             else:
                 for g in order[1:]:
                     self.checks[g] = _res(False, self.genv_skip)
@@ -2258,7 +2269,7 @@ def main_gate(args) -> int:
         print("--checks writes a partial report: give --report (the committed results/<m>/gate_report.json is "
               "only ever written by a full run)", file=sys.stderr)
         return 2
-    rep = Gate(args.milestone, root).run(only)
+    rep = Gate(args.milestone, root, jobs=getattr(args, "jobs", 1) or 1).run(only)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(rep, indent=2, sort_keys=True) + "\n")
     for g, c in rep["checks"].items():

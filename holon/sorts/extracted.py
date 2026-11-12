@@ -40,6 +40,21 @@ the first record, in walk order, that holds the term; "checked" whether such a r
 Coherence (E5): `obstructions` (I15's R11 over 0.3) and `external_guards` (the guards of that form whose kappa reads an
 external call's result, which the document cannot check).
 
+Versions (I50b; spec/M4/lib/heldout_rerun.json producer_changes.sorts_update). The typed-sorts sidecar's
+sort_types_version picks the rules: "holon-sort-types/0.1" (every milestone's) is the pass above, which has no rule for
+the frontend's ["update", B, T, v] term (an ExtractedError); "holon-sort-types/0.2" adds rules U1-U3 for it, and walks
+a document without an update term exactly as 0.1 does. ["update", B, T, v] is Solidity's write into a member (or an
+element) of a local memory value: the local held B, the assignment writes v at the path T (["member", B, m] or
+["index", B, i]), and the new value is B with that member replaced and every other member unchanged; storage changes
+only when the value is assigned back to a storage variable.
+  U1  an update term is a struct (or array) value as a whole, as a struct literal is: no variable; B, v and the keys
+      of T's path are walked; nothing flows.
+  U2  a member read of a value whose chain (through "?" branches and update bases) reaches an update resolves by the
+      value's meaning: member m of (B with m2 := v) is v when m == m2, else member m of B; of a struct literal, its
+      member's value; of ["?", c, X, Y], ["?", c, X.m, Y.m]. An update at a deeper path or of an element leaves the
+      read unresolved (a fresh variable).
+  U3  a write of such a value into a whole struct family (an empty path) writes every field f, with U2's value of f.
+
 Nothing here names a target: every name comes from the document, the seeds file and the sidecar.
 """
 from __future__ import annotations
@@ -53,6 +68,8 @@ from . import grammar as G
 from .flow import Program
 
 SEEDS_VERSION = "holon-sort-seeds/0.2"
+SORT_TYPES_0_1 = "holon-sort-types/0.1"   # the pinned pass (holon.sorts.typed_sidecar.VERSION)
+SORT_TYPES_0_2 = "holon-sort-types/0.2"   # 0.1 plus rules U1-U3 (I50b)
 KAPPA = "kappa"          # an obstruction's antecedent (I15's R11 format)
 TAG_HEAD = "tag"         # a companion read in a tag term (rule G2): ["tag", family, key]
 CMP = ("<", "<=", ">", ">=", "==", "!=")
@@ -188,9 +205,44 @@ def loop_spans(a: dict) -> dict:
     return out
 
 
+def has_update(t) -> bool:
+    """Does a value's chain (through "?" branches) reach an update term (rule U2's domain)?"""
+    if not (isinstance(t, list) and t and isinstance(t[0], str)):
+        return False
+    if t[0] == "update":
+        return True
+    if t[0] == "?" and len(t) == 4:
+        return has_update(t[2]) or has_update(t[3])
+    return False
+
+
+def resolve_member(x, m: str):
+    """Rule U2: the term for member m of the value term x, or None when the value's meaning does not give it (an
+    update at a deeper path or of an element, a struct literal without the member)."""
+    if not (isinstance(x, list) and x and isinstance(x[0], str)):
+        return ["member", x, m]
+    h = x[0]
+    if h == "update" and len(x) == 4:
+        base, tgt = x[1], x[2]
+        if not (isinstance(tgt, list) and len(tgt) == 3 and tgt[0] == "member" and isinstance(tgt[2], str)
+                and tgt[1] == base):
+            return None
+        return x[3] if tgt[2] == m else resolve_member(base, m)
+    if h == "?" and len(x) == 4:
+        p, q = resolve_member(x[2], m), resolve_member(x[3], m)
+        return None if p is None or q is None else ["?", x[1], p, q]
+    if h == "struct" and len(x) == 3 and isinstance(x[2], list):
+        hit = [v for k, v in x[2] if k == m]
+        return hit[0] if len(hit) == 1 else None
+    return ["member", x, m]
+
+
 # ------------------------------------------------------------------------------------------------ the walk
 class Walker:
-    def __init__(self, model: str, doc: dict, seeds: dict):
+    def __init__(self, model: str, doc: dict, seeds: dict, sort_types_version: str = SORT_TYPES_0_1):
+        if sort_types_version not in (SORT_TYPES_0_1, SORT_TYPES_0_2):
+            raise ExtractedError(f"sort_types_version {sort_types_version!r} has no sorts adapter")
+        self.update_rules = sort_types_version == SORT_TYPES_0_2   # rules U1-U3
         self.model = model
         self.doc = doc
         self.seeds = seeds
@@ -406,6 +458,10 @@ class Walker:
                 self.family_key(var)
                 return var, frozenset({var})
             return None, frozenset()     # a container: its values are named through map / index / member
+        if h == "member" and self.update_rules and len(a) == 2 and isinstance(a[1], str) and has_update(a[0]):
+            r = resolve_member(a[0], a[1])
+            if r is not None:
+                return self.ex(r, ctx)     # U2: the member's value
         if h in ("map", "index", "member"):
             fv = self.family_var(t)
             if fv is not None:
@@ -484,6 +540,15 @@ class Walker:
             for _m, v in t[2]:
                 _, r = self.ex(v, ctx)
                 reads |= r
+            return None, reads
+        if h == "update" and self.update_rules and len(a) == 3:
+            # U1: a struct (or array) value as a whole; its base, its value and the keys of its path are walked
+            base, tgt, v = a
+            reads = self.ex(base, ctx)[1] | self.ex(v, ctx)[1]
+            while isinstance(tgt, list) and tgt and tgt[0] in ("member", "index", "map") and tgt != base:
+                if tgt[0] in ("index", "map") and len(tgt) >= 3:
+                    reads |= self.ex(tgt[2], ctx)[1]
+                tgt = tgt[1] if len(tgt) >= 2 else None
             return None, reads
         if h == "blobhash":
             reads = self.walk_all(a, ctx)
@@ -569,6 +634,22 @@ class Walker:
                 self.family_key(reg)
                 self.p.writers.setdefault(reg, set()).add(a["name"])
                 self.p.reads.append((a["name"], reg, rv | reads))
+                self.flow(v, reg, ctx)
+                self.ev("write", a["name"], reg, v, ctx)
+            return
+        fdef = self.fams.get(fam) or {}
+        if self.update_rules and var is None and not path and fdef.get("fields") and has_update(val):
+            # U3: a memory struct value stored into a whole struct family writes every field, each its U2 value
+            for f in fdef["fields"]:
+                reg = f"{fam}.{f['name']}"
+                x = resolve_member(val, f["name"])
+                self.family_key(reg)
+                self.p.writers.setdefault(reg, set()).add(a["name"])
+                if x is None:
+                    self.ex(val, ctx)
+                    continue
+                v, rv = self.ex(x, ctx)
+                self.p.reads.append((a["name"], reg, rv | reads | rc))
                 self.flow(v, reg, ctx)
                 self.ev("write", a["name"], reg, v, ctx)
             return
@@ -937,5 +1018,5 @@ def obstructions(model: str, doc: dict, assignment: dict) -> list[dict]:
     return sorted(out, key=lambda o: o["id"])
 
 
-def walk(model: str, doc: dict, seeds: dict) -> Walk:
-    return Walker(model, doc, seeds).run()
+def walk(model: str, doc: dict, seeds: dict, sort_types_version: str = SORT_TYPES_0_1) -> Walk:
+    return Walker(model, doc, seeds, sort_types_version).run()

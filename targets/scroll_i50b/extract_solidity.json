@@ -1,0 +1,29 @@
+{
+ "compiler": {
+  "settings": {
+   "evmVersion": "cancun",
+   "optimizer": {
+    "enabled": false
+   }
+  },
+  "version": "0.8.24"
+ },
+ "doc": "The rerun target's scope sidecar (I50b, spec/M4/lib/heldout_rerun.json target.scope_sidecar): the sealed scope sidecar (targets/scroll/extract_solidity.json) at sidecar_version 2, which adds rule D1 to the frontend's coverage walk (a branch no reach of its if statement selects is dead_code debt), with its own output. It names what to extract, never what the extraction says. Labelled: contaminated (post-seal change).",
+ "frontend": "solidity",
+ "output": "gen/targets/scroll_i50b/facts/ScrollChain.extracted.json",
+ "sidecar_version": 2,
+ "sources": [
+  "src/L1/rollup/ScrollChain.sol"
+ ],
+ "target": {
+  "commit": "42de954bee237cfa478a5b443ac0aeb900aca5ad",
+  "repo": "scroll-tech/scroll-contracts",
+  "scope": "transitions of every external/public function, storage families, cost terms, principal predicates, hash/commit edges, coverage"
+ },
+ "transitions": {
+  "commit_interfaces": [
+   "IRollupVerifier"
+  ],
+  "contract": "ScrollChain"
+ }
+}

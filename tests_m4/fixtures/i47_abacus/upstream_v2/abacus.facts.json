@@ -1,0 +1,126 @@
+{
+  "abstractions": [
+    "Counters are Nat."
+  ],
+  "actions": [
+    {
+      "effects": {
+        "a": [
+          "+",
+          "a",
+          1
+        ]
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "inc_a",
+      "principal": "anyone",
+      "src": "abacus: inc_a()"
+    },
+    {
+      "effects": {
+        "b": [
+          "+",
+          "b",
+          2
+        ]
+      },
+      "guards": [],
+      "inputs": [],
+      "name": "inc_b",
+      "principal": "anyone",
+      "src": "abacus: inc_b()"
+    }
+  ],
+  "coverage": {
+    "debt": [],
+    "modelled": [
+      "inc_a",
+      "inc_b"
+    ]
+  },
+  "defs": {},
+  "extraction": {
+    "date": "2026-11-11",
+    "method": "the target's facts extractor: the upstream's document, copied"
+  },
+  "facts_version": "holon-facts/0.2",
+  "ghost_state": [],
+  "initial": {
+    "a": 0,
+    "b": 0,
+    "doc": "both counters zero",
+    "log": []
+  },
+  "observers": {
+    "a_of": {
+      "body": "a",
+      "doc": "the first counter",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Nat"
+    },
+    "a_small": {
+      "body": [
+        "<=",
+        "a",
+        5
+      ],
+      "doc": "the first counter never exceeds 5 (upstream v2 raised the bound)",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Bool"
+    },
+    "b_of": {
+      "body": "b",
+      "doc": "the second counter",
+      "params": [
+        [
+          "s",
+          "State"
+        ]
+      ],
+      "type": "Nat"
+    }
+  },
+  "params": {},
+  "policy": "generic",
+  "principals": {},
+  "reasons": {},
+  "search": {
+    "domains": {},
+    "maxPrefixes": 400,
+    "prefixDepth": 4
+  },
+  "state": [
+    [
+      "a",
+      "Nat",
+      "first counter"
+    ],
+    [
+      "b",
+      "Nat",
+      "second counter"
+    ],
+    [
+      "log",
+      "List<Obs>",
+      "observations"
+    ]
+  ],
+  "target": {
+    "commit": "0000000000000000000000000000000000000000",
+    "repo": "holon/abacus",
+    "scope": "two counters: the toy second target of I47 (a non-Morph machine whose upstream holds its facts document)"
+  },
+  "types": {}
+}

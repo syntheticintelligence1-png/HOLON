@@ -207,7 +207,9 @@ def run_kzg(paths: list[str], checkout: Path, work: Path | None) -> tuple[list[s
         for d in ("bindings", "common"):
             shutil.copytree(checkout / d, ws / d, symlinks=True)
         (ws / "go.work").write_text("go 1.24.0\n\nuse (\n\t./bindings\n\t./common\n)\n")
-        shutil.copy(KZG_HARNESS, ws / "common" / "batch" / KZG_HARNESS.name)
+        from .. import targets as _t   # the harness imports the target's go-ethereum module (targets/, I47)
+        (ws / "common" / "batch" / KZG_HARNESS.name).write_text(
+            KZG_HARNESS.read_text().replace("HOLON_GO_ETH_MODULE", _t.vocab("go_eth_module")))
         (ws / "in.txt").write_text("".join(f"{p}\n" for p in paths))
         p = subprocess.run(["go", "test", "./batch", "-run", "^TestHolonKzg$", "-count=1", "-v", "-timeout", "6h"],
                            cwd=ws / "common", capture_output=True, text=True, timeout=6 * 3600,
@@ -229,7 +231,9 @@ def run_kzg(paths: list[str], checkout: Path, work: Path | None) -> tuple[list[s
 # ---------------------------------------------------------------- replay
 def replay(index_path: Path, milestone: str = "M2", checkout: Path | None = None, work: Path | None = None) -> tuple[dict, dict]:
     import types
-    from ..replay import check_checkout, morph_path, replay_config
+    from ..replay import check_checkout, replay_config
+    from .. import targets as _targets   # the development target's checkout (I47)
+    checkout_path_of = _targets.adapter("checkout_path")
     side = sidecar(milestone)
     idx = json.loads(Path(index_path).read_text())
     d = Data(idx)
@@ -239,7 +243,7 @@ def replay(index_path: Path, milestone: str = "M2", checkout: Path | None = None
     address = TG.contract(side, tgt)["address"].lower()
 
     # ------------------------------------------------ the pinned ABI, the model
-    checkout = Path(checkout) if checkout else morph_path(types.SimpleNamespace(), ROOT)  # config replay checkout
+    checkout = Path(checkout) if checkout else checkout_path_of(types.SimpleNamespace(), ROOT)  # config replay checkout
     model = CH.model(ROOT)
     checkout_sha = check_checkout(checkout, model.facts["target"]["commit"])
     cfg = replay_config(ROOT)
