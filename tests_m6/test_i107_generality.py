@@ -95,7 +95,9 @@ class TestProtocol(unittest.TestCase):
         for k in ("corpus", "sealed"):
             p = load(ROOT / t[k])
             diff = sorted(x for x in set(base) | set(p) if base.get(x) != p.get(x))
-            self.assertTrue(set(diff) <= set(t["differ_only_in"]), (k, diff))
+            drop = set(snap.get("drop_keys", []))   # A4: stop_after only, and only as a removal
+            self.assertTrue(all(x not in p for x in drop), (k, drop))
+            self.assertTrue(set(diff) <= set(t["differ_only_in"]) | drop, (k, diff))
             self.assertEqual(p["iteration"], "I107")
             self.assertTrue(p["out"].startswith("results/eval/generality/"), p["out"])
 

@@ -16,7 +16,10 @@
    "rule": "The measured runs use the M6 tools as landed on the lead after I108 (pipeline totality, pass 2: signed-operator sort rules, SP_b string/bytes-keyed mappings, foundry remappings and git submodules (Q59), SYM per model (Q58), Go machines' constructor state and nil maps (Q60)), merged into this branch. At run start, results/eval/generality/snapshot.json records the lead's sha, this branch's HEAD sha and the sha256 of every file under holon/ (sorted paths). From the reveal until the runs finish no M6 tool code changes; a blocking bug is a miss.",
    "run_protocol_base": "spec/M6/lib/i108_run.json (A3, Q64), I108's landed corpus protocol; i107_corpus_run.json and i107_sealed_run.json are regenerated from it at the snapshot, differing only in corpus, doc, iteration and out, and so inherit its go_machines.nil_maps \"unknown\" and its Q59 remapping and submodule rules (read at the pinned commit only, nothing invented, each submodule's URL and commit recorded), for the corpus and the sealed targets alike.",
    "rehearsal": "route A on the corpus and Morph's --roles auto were started on the pre-I108 tree (480516bb's base) before A2 arrived; those runs are rehearsals, kept in the session's scratch directory, never committed or counted.",
-   "run_protocol_base_path": "spec/M6/lib/i108_run.json"
+   "run_protocol_base_path": "spec/M6/lib/i108_run.json",
+   "drop_keys": [
+    "stop_after"
+   ]
   }
  },
  "routes": {
@@ -107,6 +110,7 @@
  "amendments": [
   "A1 (2026-11-12, before the reveal): HUMAN_ANSWERS Q56, the lead's disclosure ruling relayed by the coordinator, replaces the disclosure section (adopted verbatim in spec/M6/amendments/I107.jsonl) and fixes the aggregates and the bundle below; it only withholds more and weakens no claim.",
   "A2 (2026-11-12, before the reveal): the coordinator's order (the lead's condition 4): the reveal waits for I108's landing, and the measured runs use the M6 tools as landed after I108 (snapshot below). Runs before the snapshot are rehearsals: not counted, never committed.",
-  "A3 (2026-11-12, before any measured run and before the reveal): HUMAN_ANSWERS Q64, relayed by the coordinator. I108's nil-map rule (Q60) is opt-in in the landed tools, and on the default path a Go machine law over a step that writes a possibly nil map can be PROVED, which Q60 marks unsound. So the run protocols' base is spec/M6/lib/i108_run.json, whose go_machines.nil_maps \"unknown\" they inherit; every Go machine document extracted by any route (route B included) carries the same key. If route B's driver cannot take that key, route B is not run and is recorded as a miss with that reason. Stricter, never weaker. tests_m6/test_i107_generality.py::TestProtocol::test_nil_maps_unknown checks it."
+  "A3 (2026-11-12, before any measured run and before the reveal): HUMAN_ANSWERS Q64, relayed by the coordinator. I108's nil-map rule (Q60) is opt-in in the landed tools, and on the default path a Go machine law over a step that writes a possibly nil map can be PROVED, which Q60 marks unsound. So the run protocols' base is spec/M6/lib/i108_run.json, whose go_machines.nil_maps \"unknown\" they inherit; every Go machine document extracted by any route (route B included) carries the same key. If route B's driver cannot take that key, route B is not run and is recorded as a miss with that reason. Stricter, never weaker. tests_m6/test_i107_generality.py::TestProtocol::test_nil_maps_unknown checks it.",
+  "A4 (2026-11-12, at the snapshot, before any measured run and before the reveal): spec/M6/lib/i108_run.json carries stop_after \"derive\" (I108's own smoke: 'no law is run (I107 scores)'). Route A as preregistered runs run, replay, filter and score, so the regenerated run protocols drop stop_after (and only that key, besides corpus, doc, iteration and out). This adds the decision stage the key's predictions need; it weakens no claim. Route B's go-machines --out overrides go_machines.out, which stays as inherited."
  ]
 }

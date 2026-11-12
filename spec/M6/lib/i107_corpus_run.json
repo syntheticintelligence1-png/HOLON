@@ -21,7 +21,7 @@
    "prefix_depth": 3
   }
  },
- "doc": "I107 prereg instrument, run (a) route A, the corpus rerun (contaminated: post-I51). It is I103's protocol (spec/M6/lib/i103_run.json) unchanged in every stage, toolchain and producer rule; only iteration, out and this doc differ. holon eval holon runs it with --roles static (I104's opt-in: holon roles over each entry's stored documents, recorded per row).",
+ "doc": "I107 prereg instrument, run (a) route A, the corpus rerun (contaminated: post-I51). It is I108's protocol (spec/M6/lib/i108_run.json, amendments A2-A4: the snapshot base, without stop_after) unchanged in every stage, toolchain and producer rule; only iteration, out and this doc differ. holon eval holon runs it with --roles static (I104's opt-in: holon roles over each entry's stored documents, recorded per row).",
  "fact": {
   "binding": null,
   "fact_version": "holon-fact/0.1",
@@ -60,8 +60,18 @@
   "toolchain": "go_directive",
   "work_replace": "main_module"
  },
+ "go_machines": {
+  "entries": "every corpus entry with a file ending in .go",
+  "nil_maps": "unknown",
+  "out": "results/M6/I108/go_machines.json"
+ },
  "go_rules_doc": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
  "iteration": "I107",
+ "layout": {
+  "layout_version": "holon-layout/0.1",
+  "remappings": "foundry: a unit's project is the nearest directory at or above it holding foundry.toml; its remappings are [profile.default] remappings of foundry.toml, then the lines of the project's remappings.txt (blank and # lines skipped), the first of each (context, prefix) kept; each target (and context) is rewritten relative to the checkout root; foundry's base path is the project root, so for every top-level directory D of the project that no explicit remapping has as its prefix, the context-scoped remapping <project>/:D/=<project>/D/ is added (rule L2); no remapping is auto-detected from lib/ or invented; a unit outside any Foundry project gets none",
+  "submodules": "gitlinked: for every gitlink (mode 160000) of the checkout's tree at the pinned commit whose path .gitmodules (read at that commit) names, the URL is .gitmodules' url (a relative url resolved against the superproject's repository URL; git@github.com:o/r and https://github.com/o/r forms only, anything else refused); a URL the clone rule excludes (corpus protocol excluded_repos, or a repository named in spec/M6/predictions/I106.json) is refused and never cloned; the gitlinked commit must be reachable from a branch or tag of the submodule's clone (nothing is fetched by sha); the submodule is then a detached worktree of that clone at exactly that commit; nested submodules recurse to depth 3; every submodule is recorded {path, url, commit, status initialized | refused, reason} in the entry's sidecars/layout.json"
+ },
  "milestone": "T510",
  "normalize": "every path inside a scratch directory, the checkout or the home directory in a recorded message is written <scratch>, <checkout> or <home>; a message keeps its last 1500 characters",
  "out": "results/eval/generality/corpus/holon",
@@ -118,7 +128,7 @@
    "prefix_depth": 3
   },
   "seeds": "spec/M3/lib/sort_seeds.json",
-  "sort_types_version": "holon-sort-types/0.3"
+  "sort_types_version": "holon-sort-types/0.4"
  },
  "typed_doc": "0.3 is 0.2 (update rules U1-U3) plus T1: a term whose head has no sorts rule is walked like the documented opaque heads (its non-string operands walked, a fresh variable returned, nothing flowing in or out) and counted in the walk's coverage debt (head, action, record, count); the sorts stage writes the debt to <out>/coverage_debt.json",
  "undo": {
