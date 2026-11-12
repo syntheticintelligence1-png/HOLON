@@ -172,7 +172,7 @@ class TestTypesGaps(_Fixture):
     def test_p1_a4_whole_map_write_stays_refused(self):
         from holon.sorts import model3
         import inspect
-        self.assertIn("a write of a whole", inspect.getsource(model3.Gen))
+        self.assertIn("a write of a whole", inspect.getsource(model3.Machine.write_body))
 
 
 class TestGoToolchain(unittest.TestCase):
@@ -210,10 +210,12 @@ class TestSignedSign(unittest.TestCase):
     def test_p3_nonnegative_operands_take_the_unsigned_sign(self):
         from holon.analysis.closure import sign
         p = ["storage", "x"]
+        narrow = frozenset({"x"})   # x declared uint64 (or bool, address): every read of it is below 2^255
         for op, uop in (("s<", "<"), ("s<=", "<="), ("s>", ">"), ("s>=", ">=")):
-            t = [op, ["trunc", 64, p], 10]
-            self.assertEqual(sign(t, "x"), sign([uop, ["trunc", 64, p], 10], "x"), t)
-            self.assertNotEqual(sign(t, "x"), "?", t)
+            t = [op, p, 10]
+            self.assertEqual(sign(t, "x", narrow), sign([uop, p, 10], "x", narrow), t)
+            self.assertNotEqual(sign(t, "x", narrow), "?", t)
+            self.assertEqual(sign(t, "x"), "?", t)   # without the declaration, x may be at or above 2^255
 
     def test_p3_other_signed_comparisons_stay_unknown(self):
         from holon.analysis.closure import sign
@@ -249,13 +251,13 @@ class TestStringKeys(_Fixture):
 class TestTermBudget(unittest.TestCase):
     """P5: (e) the recorded term budget."""
 
-    def _side(self, tmp: Path, budget):
+    def _side(self, tmp: Path, budget, commit: str = "0" * 40):
         tr = {"commit_interfaces": [], "contract": "Wide"}
         if budget is not None:
             tr["term_budget"] = budget
         side = {"sidecar_version": 1, "frontend": "solidity", "doc": "I109 (e) fixture",
-                "target": {"repo": "holon/i109", "commit": "0" * 40, "scope": "contract Wide"},
-                "output": str(tmp / "wide.extracted.json"), "sources": ["Wide.sol"],
+                "target": {"repo": "holon/i109", "commit": commit, "scope": "contract Wide"},
+                "output": "tests_m6/fixtures/i109/sol/wide.extracted.json", "sources": ["Wide.sol"],
                 "compiler": {"version": "0.8.24", "settings": {"optimizer": {"enabled": False}}},
                 "transitions": tr}
         p = tmp / f"wide_{budget}.json"
@@ -265,10 +267,18 @@ class TestTermBudget(unittest.TestCase):
     def _extract(self, budget):
         tmp = Path(tempfile.mkdtemp(prefix="holon-i109-budget-"))
         self.addCleanup(shutil.rmtree, tmp, True)
-        p = self._side(tmp, budget)
         out = tmp / "out.json"
+        src = tmp / "src"   # the frontend reads a clean git checkout of its own: the fixture, committed in scratch
+        shutil.copytree(FIX / "sol", src)
+        e = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t",
+             "GIT_COMMITTER_EMAIL": "t@t"}
+        for a in (["init", "-q"], ["add", "."], ["commit", "-qm", "fixture"]):
+            subprocess.run(["git", "-C", str(src), *a], check=True, capture_output=True, env=e)
+        head = subprocess.run(["git", "-C", str(src), "rev-parse", "HEAD"], check=True, capture_output=True,
+                              text=True).stdout.strip()
+        p = self._side(tmp, budget, head)   # the sidecar names the checkout's commit, as the frontend requires
         r = run_holon(["extract", "solidity", "--root", str(ROOT), "--sidecar", str(p), "--source",
-                       str(FIX / "sol"), "--out", str(out)])
+                       str(src), "--out", str(out)])
         return r, (json.loads(out.read_text(encoding="utf-8")) if out.is_file() else None)
 
     def test_p5_small_budget_refuses_and_names_it(self):

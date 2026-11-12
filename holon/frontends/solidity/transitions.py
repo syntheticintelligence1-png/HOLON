@@ -256,6 +256,7 @@ TRANSITIONS_VERSION = "holon-frontend-solidity/0.3"
 MAX_CALL_DEPTH = 24
 MAX_FIXPOINT = 64
 TERM_BUDGET = 400_000          # nodes of one rendered term
+_BUDGET = [TERM_BUDGET]        # I109 (e): the budget of the walk in progress (a sidecar's transitions.term_budget)
 SMALL_TERM = 160               # ite simplification by substitution only looks at branches this small
 
 STATEMENTS = frozenset({"Block", "UncheckedBlock", "PlaceholderStatement", "IfStatement", "TryStatement",
@@ -679,8 +680,9 @@ class Ref:
 class _Renderer:
     """Terms as JSON (lists, ints, strings), simplified under known conditions (module docstring), with a budget."""
 
-    def __init__(self, budget: int = TERM_BUDGET):
-        self.left = budget
+    def __init__(self, budget: int | None = None):
+        self.budget = _BUDGET[0] if budget is None else budget
+        self.left = self.budget
 
     @staticmethod
     def _lookup(known, c):
@@ -715,7 +717,7 @@ class _Renderer:
         fail renders as 1 or 0."""
         self.left -= 1
         if self.left < 0:
-            raise ExtractionError(f"a term exceeds the size budget of {TERM_BUDGET} nodes")
+            raise ExtractionError(f"a term exceeds the size budget of {self.budget} nodes")
         if isinstance(t, bool):
             return int(t)
         if isinstance(t, int) or t is None or isinstance(t, str):
@@ -3619,6 +3621,7 @@ def walk_contract(compiled, side: dict):
     acts = []
     limit = sys.getrecursionlimit()
     sys.setrecursionlimit(max(limit, 8000))
+    _BUDGET[0] = int(tr.get("term_budget") or TERM_BUDGET)
     try:
         for fn in actions_of(index, contract):
             acts.append(Walk(index, contract, fn, coll, tr.get("commit_interfaces") or []).run())
@@ -3626,6 +3629,7 @@ def walk_contract(compiled, side: dict):
         raise ExtractionError("the walk exceeds the recursion budget (a term or a call chain is too deep)") from e
     finally:
         sys.setrecursionlimit(limit)
+        _BUDGET[0] = TERM_BUDGET
     count = Counter(a["name"] for a in acts)            # E2 (bundle): an overloaded name is <name>_<selector>
     for a in acts:
         if count[a["name"]] > 1 and a.get("selector"):
@@ -3663,6 +3667,8 @@ def build(compiled, side: dict, sidecar_rel: str, sidecar_sha256: str) -> dict:
             "settings": compiled.settings,
             "inputs": [{"unit": u, "sha256": hashlib.sha256(compiled.units[u]).hexdigest()}
                        for u in sorted(compiled.units)],
+            **({"term_budget": int(side["transitions"]["term_budget"])}
+               if "term_budget" in side["transitions"] else {}),
         },
         "contract": contract["name"],
         "constants": STORAGE.constants(contract, lambda d: fold_constant(index, d)),

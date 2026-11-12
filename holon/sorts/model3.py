@@ -688,6 +688,18 @@ class Gen:
 
     def map_key(self, x, xk: str, kt: dict, sc: Scope) -> str:
         """The key word of a mapping step (I68): the key cleaned as solc hashes it (key_bytes's rule on the word)."""
+        if kt.get("encoding") == "bytes" and self.sk and _go_doc(self.m):
+            # I109 (d), Q61's opaque-key fallback (Go machine documents only): the key word of a string- or bytes-keyed
+            # step is a free environment member of the step. A key whose code is a pure function of the step's context
+            # (no state view read) is keyed by that code, so syntactically equal keys share one word; any other key gets
+            # a member of its own. Distinct members are free, so no two keys are ever equated or ordered to prove
+            # anything, and a read after a write to a syntactically different key is unconstrained
+            if "sload(" in x:
+                self._okeys = getattr(self, "_okeys", 0) + 1
+                name = f"go.key.{sc.action}.{self._okeys}"
+            else:
+                name = "go.key." + hashlib.sha256(x.encode("utf-8")).hexdigest()[:16]
+            return self.ge(name, sc)
         if kt.get("encoding") != "inplace":
             raise GenError(f"{sc.action}: a mapping keyed by {kt.get('label')} (a bytes or string key is a step SP_b, "
                            "not compiled in the structural mode)")
@@ -1371,6 +1383,12 @@ class Gen:
         raise GenError(f"{sc.action}: an unknown term {canonical(t)[:100]} (its value is no environment member)")
 
 
+def _go_doc(m) -> bool:
+    """A Go machine document (holon.frontends.go_machines): its rules I109 (a) A3, (d) apply to no Solidity document."""
+    ext = m.doc.get("extraction") or {}
+    return ext.get("frontend") == "go" and ext.get("kind") == "transitions"
+
+
 def _is_lit(t) -> bool:
     return isinstance(t, int) and not isinstance(t, bool)
 
@@ -1900,6 +1918,15 @@ class Machine(Gen):
         elif t.get("encoding") == "inplace" and "base" not in t:
             vc, vk = self.value(w.value, sc)
             lines.append(f"  +v = {{{self.to_w(vc, vk)} : W}}")
+            lines.append(f"  +o1 = {{{self.write_word('o0', kcode, off, tid, 'v')} : HSt}}")
+            cur = "o1"
+            slots = [kcode]
+        elif self.sk and _go_doc(self.m) and t.get("encoding") == "bytes" and int(t.get("numberOfBytes", 0)) == 32:
+            # I109 (a) A3: in a Go machine document (holon.frontends.go_machines: an abstract layout, one cell per
+            # field, whose string content no read of the model decodes), a write of a whole string field is a havoc of
+            # its cell: a free value, an environment member of the step keyed by the written term (A-env). The write
+            # still touches its slot; nothing is guessed about the content
+            lines.append(f"  +v = {{{self.ge('go.string.' + canonical(w.value), sc)} : W}}")
             lines.append(f"  +o1 = {{{self.write_word('o0', kcode, off, tid, 'v')} : HSt}}")
             cur = "o1"
             slots = [kcode]
