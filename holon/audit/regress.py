@@ -227,11 +227,11 @@ def hash_changes(hist: History, frm: str) -> list[dict]:
         parents = git.out("rev-parse", f"{c}^@").split()
         tc, tps = tree(c), [tree(p) for p in parents]
         for path in sorted(set(tc).union(*tps)):
-            bc, bps = tc.get(path), [tp.get(path) for tp in tps]
-            if bc in bps or all(b is None for b in bps):
+            blob_c, blobs_p = tc.get(path), [tp.get(path) for tp in tps]
+            if blob_c in blobs_p or all(b is None for b in blobs_p):
                 continue    # the version of some parent, or an addition (no parent holds the file)
             h = hash_of(c, path)
-            holding = [p for p, b in zip(parents, bps) if b is not None]
+            holding = [p for p, b in zip(parents, blobs_p) if b is not None]
             if any(hash_of(p, path) == h for p in holding):
                 continue    # a new blob, the same statement as a parent's
             m, lid = _ANY_LAW_FILE.match(path).groups()
