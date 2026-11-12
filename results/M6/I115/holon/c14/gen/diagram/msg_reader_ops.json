@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "MsgReader",
+      "cls": "rep",
+      "domains": [
+        "ok_p2p_readProtocolHandshake"
+      ],
+      "id": "MsgReader",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_PtrProtoHandshake_Error",
+      "cls": "rep",
+      "id": "R_PtrProtoHandshake_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I115/holon/c14/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_readProtocolHandshake",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_readProtocolHandshake",
+      "kind": "CODEC",
+      "model_fn": "p2p_readProtocolHandshake",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "github.com/ethereum/go-ethereum/p2p.readProtocolHandshake"
+        }
+      ],
+      "src": "MsgReader",
+      "tgt": "R_PtrProtoHandshake_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/msg_reader_ops.json",
+  "facts_sha256": "044accfc4ae8a25ad0758ef458a879444b3a5a1e874eae095bea9903cf13a9f9",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "msg_reader_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

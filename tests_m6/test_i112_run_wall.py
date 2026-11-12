@@ -309,9 +309,11 @@ class TestRouting(unittest.TestCase):
 
     def test_p1_earlier_protocols_unrouted(self):
         for n in sorted((ROOT / "spec").glob("M[4-6]/lib/i*_run.json")):
-            if n.name == "i112_run.json":
-                continue
             d = json.loads(n.read_text(encoding="utf-8"))
+            # amended (spec/M6/amendments/I112.jsonl): the protocols of I112 and later keys are not earlier ones
+            it = str(d.get("iteration") or "")
+            if n.name == "i112_run.json" or (it[1:].isdigit() and int(it[1:]) >= 112):
+                continue
             self.assertNotIn("run_routing", d, n.name)
             self.assertNotIn("section_errors", d.get("disch") or {}, n.name)
             self.assertNotIn("preflight", d, n.name)

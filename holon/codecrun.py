@@ -67,6 +67,31 @@ def codec_kind(law: dict, root: Path) -> str | None:
     return None
 
 
+# I115 (Q88 (2)): `holon run --unbound unknown` sets this. A law is bound by the kernel cone of its statement over the
+# model it is decided on (holon.bindings.kernel_cone); a statement naming a definition its model does not define cannot
+# be bound, so it cannot be decided: under "unknown" such a law is UNKNOWN, recorded with the error, nothing attempted
+# for it, and every other law is decided as before. None (the default): a BindingError stops the runner, as before.
+UNBOUND = None
+UNBOUND_BOUND = "not decided: the statement cannot be bound to its model: {}"
+
+
+def unbound_error(stmt_text: str, model_src: Path, cfg: dict) -> str | None:
+    """Under UNBOUND "unknown": the BindingError's text when the statement cannot be bound to the model, else None
+    (and None whenever the option is off: nothing is computed)."""
+    if UNBOUND != "unknown":
+        return None
+    from . import bindings
+    try:
+        bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))
+    except bindings.BindingError as e:
+        return str(e)
+    return None
+
+
+def unbound_res(err: str) -> dict:
+    return {"status": "UNKNOWN", "attempts": [{"kind": "binding", "error": err}], "bound": UNBOUND_BOUND.format(err)}
+
+
 class Models:
     """The models of the codec documents a run decides laws over, generated into gen/<M>/model/ and compiled once."""
 
@@ -239,23 +264,31 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     for x in {d, ld, pd}:
         shutil.rmtree(x, ignore_errors=True)
     stmt_text = records.ir_roots_text(law)
+    ub = unbound_error(stmt_text, model_src, cfg)   # I115: the binding first (None unless --unbound unknown)
     try:
-        ir.check_premises(law)
-        ir.check_binder_types(law, doc)
-        if kind == "linked":
-            res = _decide_linked(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
-        elif kind == "goops":
-            res = _decide_goops(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
-        elif kind == "gocount":
-            res = _decide_gocount(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
+        if ub is not None:
+            res = unbound_res(ub)
         else:
-            res = _decide_facts01(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
+            ir.check_premises(law)
+            ir.check_binder_types(law, doc)
+            if kind == "linked":
+                res = _decide_linked(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
+            elif kind == "goops":
+                res = _decide_goops(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
+            elif kind == "gocount":
+                res = _decide_gocount(law, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
+            else:
+                res = _decide_facts01(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted)
     except ir.IRError as e:
         res = {"status": "UNKNOWN", "attempts": [{"kind": "ir", "error": f"rejected by the IR rules (G3): {e}"}],
                "bound": "not searched: the IR rejects the statement"}
-    status = res["status"]
     if res.get("statement_text"):
         stmt_text = res["statement_text"]
+    if ub is None:   # I115: a law whose decided statement cannot be bound is UNKNOWN the same way (a decision dropped)
+        ub = unbound_error(stmt_text, model_src, cfg)
+        if ub is not None:
+            res = unbound_res(ub)
+    status = res["status"]
     attempts = res["attempts"]
     for a in attempts:   # one line of the checker's first error is enough in a record
         if isinstance(a.get("error"), str) and len(a["error"]) > 1500:
@@ -290,7 +323,8 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     rec.update(scope_fields(law, rec))
     rec["status"] = status
     rec["attempts"] = attempts
-    cone_entry = {"model": model_src.stem, "cone": bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))}
+    cone_entry = {"model": model_src.stem, "cone": [] if ub is not None else
+                  bindings.kernel_cone(stmt_text, bindings.kernel_entries(model_src, cfg))}
     # I43: the lean4 entry, from the committed Lean report under root (never one under gen), once status, witness and
     # attempts are final; none for a test milestone
     lean_entry = None if test else LN.kernel_entry_v2(LN.dir_key_for(milestone, root / rel, root), law, root / rel,
